@@ -3,7 +3,7 @@ package org.openl.spring.env;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.MapPropertySource;
@@ -13,7 +13,7 @@ import org.springframework.core.env.PropertySourcesPropertyResolver;
 class RefPropertySourceTest {
     @Test
     void noSources() {
-        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), new MutablePropertySources());
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), new MutablePropertySources());
         assertNull(ref.getProperty(""));
         assertNull(ref.getProperty("."));
         assertNull(ref.getProperty(".b"));
@@ -26,15 +26,12 @@ class RefPropertySourceTest {
 
     @Test
     void noRefs() {
-        MutablePropertySources propertySources = new MutablePropertySources();
-        propertySources.addLast(new MapPropertySource("A", new HashMap<String, Object>() {
-            {
-                put("abc", "1");
-                put("abc.def", "2");
-                put(".ghi", "3");
-            }
-        }));
-        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
+        var propertySources = new MutablePropertySources();
+        propertySources.addLast(new MapPropertySource("A", Map.of(
+                "abc", "1",
+                "abc.def", "2",
+                ".ghi", "3")));
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
         assertNull(ref.getProperty(""));
         assertNull(ref.getProperty("."));
@@ -51,26 +48,20 @@ class RefPropertySourceTest {
 
     @Test
     void refs() {
-        MutablePropertySources propertySources = new MutablePropertySources();
-        propertySources.addLast(new MapPropertySource("A", new HashMap<String, Object>() {
-            {
-                put("abc", "A");
-                put("abc.def", "B");
-                put("abc.gh.i", "C");
-                put("abc.yvw.y", "Y");
-                put("abc.yvw.z", "Z");
-                put("klq.$ref", "mno.www");
-            }
-        }));
-        propertySources.addLast(new MapPropertySource("B", new HashMap<String, Object>() {
-            {
-                put("xyz.$ref", "abc");
-                put("xyz.yvw.$ref", "mno.www");
-                put("mno.www.x", "1");
-                put("mno.www.y", "2");
-            }
-        }));
-        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
+        var propertySources = new MutablePropertySources();
+        propertySources.addLast(new MapPropertySource("A", Map.of(
+                "abc", "A",
+                "abc.def", "B",
+                "abc.gh.i", "C",
+                "abc.yvw.y", "Y",
+                "abc.yvw.z", "Z",
+                "klq.$ref", "mno.www")));
+        propertySources.addLast(new MapPropertySource("B", Map.of(
+                "xyz.$ref", "abc",
+                "xyz.yvw.$ref", "mno.www",
+                "mno.www.x", "1",
+                "mno.www.y", "2")));
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
         assertEquals("A", ref.getProperty("xyz"));
         assertEquals("B", ref.getProperty("xyz.def"));
@@ -93,29 +84,26 @@ class RefPropertySourceTest {
 
     @Test
     void multiLevelRefs() {
-        MutablePropertySources propertySources = new MutablePropertySources();
-        propertySources.addLast(new MapPropertySource("A", new HashMap<>() {
-            {
+        var propertySources = new MutablePropertySources();
+        propertySources.addLast(new MapPropertySource("A", Map.ofEntries(
                 // root
-                put("abc", "1");
-                put("abc.def", "2");
-                put("foo.bar", "11");
+                Map.entry("abc", "1"),
+                Map.entry("abc.def", "2"),
+                Map.entry("foo.bar", "11"),
                 // level 1
-                put("q.$ref", "abc");
-                put("q.bar", "111");
-                put("q.foo2.$ref", "foo");
+                Map.entry("q.$ref", "abc"),
+                Map.entry("q.bar", "111"),
+                Map.entry("q.foo2.$ref", "foo"),
                 // level 2
-                put("www.$ref", "q");
-                put("www.len", "21");
-                put("www.fff.$ref", "qqq");
+                Map.entry("www.$ref", "q"),
+                Map.entry("www.len", "21"),
+                Map.entry("www.fff.$ref", "qqq"),
                 // level 3
-                put("qqq.$ref", "www");
-                put("qqq.gg.$ref", "abc");
-                put("qqq.dd", "pam");
-            }
-        }));
+                Map.entry("qqq.$ref", "www"),
+                Map.entry("qqq.gg.$ref", "abc"),
+                Map.entry("qqq.dd", "pam"))));
 
-        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
+        var ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
 
         assertEquals("1", ref.getProperty("q"));

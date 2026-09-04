@@ -23,7 +23,7 @@ public class MultiCallOpenMethodMT extends MultiCallOpenMethod {
         if (resultLength <= 1) {
             super.invokeMethodAndSetResultToArray(target, env, callParameters, results, resultLength, index);
         } else {
-            final Object[] callParameters1 = callParameters.clone();
+            final var callParameters1 = callParameters.clone();
             ServiceMT.getInstance().execute(env, e -> {
                 super.invokeMethodAndSetResultToArray(target, e, callParameters1, results, resultLength, index);
             });
@@ -32,7 +32,7 @@ public class MultiCallOpenMethodMT extends MultiCallOpenMethod {
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        Object result = super.invoke(target, params, env);
+        var result = super.invoke(target, params, env);
         ServiceMT.getInstance().join(env);
         return result;
     }

@@ -34,11 +34,11 @@ class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
     @Test
     void testServiceManager() throws MethodInvocationException {
         assertNotNull(applicationContext);
-        ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
         assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
+        var frontend = applicationContext.getBean(RulesFrontend.class);
         assertNotNull(frontend);
-        Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
+        var object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
                 "vehicleEligibilityScore",
                 "Provisional");
         assertTrue(object instanceof Double);
@@ -49,9 +49,9 @@ class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
     void testExceptionFramework() throws Exception {
         assertThrows(MethodInvocationException.class, () -> {
             assertNotNull(applicationContext);
-            ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);
+            var serviceManager = applicationContext.getBean(ServiceManagerImpl.class);
             assertNotNull(serviceManager);
-            RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
+            var frontend = applicationContext.getBean(RulesFrontend.class);
             assertNotNull(frontend);
             frontend.execute("ErrorTest_ErrorTest",
                     "vehicleEligibilityScore",

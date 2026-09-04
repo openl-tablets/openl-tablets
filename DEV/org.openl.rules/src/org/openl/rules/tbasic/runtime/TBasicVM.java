@@ -76,9 +76,9 @@ public class TBasicVM {
                       Map<String, RuntimeOperation> methodLabels,
                       TBasicContextHolderEnv environment) {
 
-        TBasicVMDataContext methodContext = new TBasicVMDataContext(methodSteps, methodLabels, false);
+        var methodContext = new TBasicVMDataContext(methodSteps, methodLabels, false);
 
-        TBasicVMDataContext previousContext = swapContext(methodContext);
+        var previousContext = swapContext(methodContext);
 
         try {
             return run(environment);
@@ -105,7 +105,7 @@ public class TBasicVM {
         // Run fail safe, in case of error allow user code to handle it
         // processing of error will be done in Algorithm main method
 
-        boolean errorOccured = false;
+        var errorOccured = false;
         try {
             returnResult = runAll(environment);
 
@@ -143,7 +143,7 @@ public class TBasicVM {
      */
     private Object runAll(TBasicContextHolderEnv environment) {
 
-        RuntimeOperation operation = currentContext.getFirstOperation();
+        var operation = currentContext.getFirstOperation();
         Object previousStepResult = null;
         Object returnResult = null;
 
@@ -186,7 +186,7 @@ public class TBasicVM {
      * @return The context which was set as current before.
      */
     private TBasicVMDataContext swapContext(TBasicVMDataContext newContext) {
-        TBasicVMDataContext oldValue = currentContext;
+        var oldValue = currentContext;
         currentContext = newContext;
         return oldValue;
     }

@@ -1,9 +1,11 @@
 package org.openl.studio.settings.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 public class SettingValueWrapper {
 
+    @Getter
     @Parameter(description = "Setting value")
     private final Object value;
 
@@ -17,10 +19,6 @@ public class SettingValueWrapper {
         this.readOnly = builder.readOnly;
         this.secret = builder.secret;
         this.value = Boolean.TRUE.equals(secret) ? null : builder.value;
-    }
-
-    public Object getValue() {
-        return value;
     }
 
     public Boolean isReadOnly() {

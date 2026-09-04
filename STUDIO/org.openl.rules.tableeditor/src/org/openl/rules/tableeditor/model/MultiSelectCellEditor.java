@@ -1,5 +1,8 @@
 package org.openl.rules.tableeditor.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.tableeditor.event.TableEditorController;
 
 public class MultiSelectCellEditor extends ComboBoxCellEditor {
@@ -7,7 +10,11 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
     private static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
 
     public static class MultiChoiceParam extends ComboBoxParam {
+        @Getter
+        @Setter
         private String separator;
+        @Getter
+        @Setter
         private String separatorEscaper;
 
         public MultiChoiceParam(String[] choices, String[] displayValues, String separator, String separatorEscaper) {
@@ -16,28 +23,12 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
             this.separator = separator;
             this.setSeparatorEscaper(separatorEscaper);
         }
-
-        public String getSeparator() {
-            return separator;
-        }
-
-        public void setSeparator(String separator) {
-            this.separator = separator;
-        }
-
-        public void setSeparatorEscaper(String separatorEscaper) {
-            this.separatorEscaper = separatorEscaper;
-        }
-
-        public String getSeparatorEscaper() {
-            return separatorEscaper;
-        }
     }
 
     public MultiSelectCellEditor(String[] choices, String[] displayValues) {
         super(displayValues);
         String[] insertedEscChoices = new String[choices.length];
-        for (int i = 0; i < choices.length; i++) {
+        for (var i = 0; i < choices.length; i++) {
             insertedEscChoices[i] = choices[i].replaceAll(ARRAY_ELEMENTS_SEPARATOR,
                     ARRAY_ELEMENTS_SEPARATOR_ESCAPER + ARRAY_ELEMENTS_SEPARATOR);
         }
@@ -46,7 +37,7 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
 
     @Override
     public TableEditorController.EditorTypeResponse getEditorTypeAndMetadata() {
-        TableEditorController.EditorTypeResponse typeResponse = new TableEditorController.EditorTypeResponse(
+        var typeResponse = new TableEditorController.EditorTypeResponse(
                 CE_MULTISELECT);
         typeResponse.setParams(new MultiChoiceParam(getChoices(),
                 getDisplayValues(),

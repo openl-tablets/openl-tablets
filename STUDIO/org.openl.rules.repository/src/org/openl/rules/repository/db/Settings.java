@@ -1,13 +1,10 @@
 package org.openl.rules.repository.db;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +29,7 @@ final class Settings {
     String copyHistory;
 
     Settings(String databaseCode, int major, int minor) throws IOException {
-        SortedMap<String, String> queries = new TreeMap<>();
+        var queries = new TreeMap<String, String>();
         fillQueries(queries, "/openl-db-repository");
         fillQueries(queries, "/openl-db-repository-" + databaseCode);
         fillQueries(queries, "/openl-db-repository-" + databaseCode + "-v" + major);
@@ -57,15 +54,15 @@ final class Settings {
     }
 
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
-        URL resource = getClass().getResource(propertiesFileName + ".properties");
+        var resource = getClass().getResource(propertiesFileName + ".properties");
         if (resource == null) {
             log.info("Configuration file '{}.properties' is absent, so skipped.", propertiesFileName);
             return;
         }
         log.info("Load configuration from '{}'.", resource);
-        InputStream is = resource.openStream();
+        var is = resource.openStream();
         try {
-            Properties properties = new Properties();
+            var properties = new Properties();
             properties.load(is);
             for (String key : properties.stringPropertyNames()) {
                 queries.put(key, properties.getProperty(key));
@@ -78,7 +75,7 @@ final class Settings {
 
     private String getRequired(Map<String, String> queries, String prop) {
 
-        String value = queries.get(prop);
+        var value = queries.get(prop);
         if (value == null) {
             throw new IllegalArgumentException("Value for property '%s' is not found.".formatted(prop));
         }
@@ -88,7 +85,7 @@ final class Settings {
     private void resolve(Map<String, String> queries) {
         Set<String> keys = queries.keySet();
         for (String key : keys) {
-            String value = queries.get(key);
+            var value = queries.get(key);
             if (value != null) {
                 value = new StrSubstitutor(queries).replace(value);
                 queries.put(key, value);

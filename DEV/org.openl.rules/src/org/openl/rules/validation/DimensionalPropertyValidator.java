@@ -30,31 +30,31 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
 
     @Override
     public ValidationResult validate(IOpenClass openClass) {
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        var messages = new LinkedHashSet<OpenLMessage>();
         String[] vResult = new String[3]; // 0 - INCLUDE_TO_A, 1 - INCLUDE_TO_B, 2 - OVERLAP
         for (IOpenMethod method : openClass.getMethods()) {
             if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
-                IOpenMethod[] methods = openMethodDispatcher.getCandidates().toArray(IOpenMethod.EMPTY_ARRAY);
-                for (int i = 0; i < methods.length - 1; i++) {
+                var methods = openMethodDispatcher.getCandidates().toArray(IOpenMethod.EMPTY_ARRAY);
+                for (var i = 0; i < methods.length - 1; i++) {
                     ITableProperties propsA = PropertiesHelper.getTableProperties(methods[i]);
                     Map<String, Object> propertiesA = propsA.getAllDimensionalProperties();
-                    for (int j = i + 1; j < methods.length; j++) {
-                        OverlapState overlapState = OverlapState.UNKNOWN;
-                        for (int q = 0; q < 3; q++) {
+                    for (var j = i + 1; j < methods.length; j++) {
+                        var overlapState = OverlapState.UNKNOWN;
+                        for (var q = 0; q < 3; q++) {
                             vResult[q] = null;
                         }
                         ITableProperties propsB = PropertiesHelper.getTableProperties(methods[j]);
                         Map<String, Object> propertiesB = propsB.getAllDimensionalProperties();
 
-                        Set<String> usedKeys = new HashSet<>(); // Performance
+                        var usedKeys = new HashSet<String>(); // Performance
                         // improvement
                         for (String propKey : propertiesA.keySet()) {
                             if (OverlapState.NOT_OVERLAP == overlapState) {
                                 break;
                             }
                             usedKeys.add(propKey);
-                            Object prop = propertiesA.get(propKey);
-                            Object p = propertiesB.get(propKey);
+                            var prop = propertiesA.get(propKey);
+                            var p = propertiesB.get(propKey);
                             overlapState = loopInternal(overlapState, vResult, propKey, prop, p);
                         }
                         for (String propKey : propertiesB.keySet()) {
@@ -64,17 +64,17 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
                             if (usedKeys.contains(propKey)) {
                                 continue;
                             }
-                            Object prop = propertiesA.get(propKey);
-                            Object p = propertiesB.get(propKey);
+                            var prop = propertiesA.get(propKey);
+                            var p = propertiesB.get(propKey);
                             overlapState = loopInternal(overlapState, vResult, propKey, prop, p);
                         }
 
                         if (overlapState == OverlapState.OVERLAP) {
-                            StringBuilder sb = new StringBuilder();
+                            var sb = new StringBuilder();
                             if (vResult[2] != null) {
-                                String pKey = vResult[2];
-                                Object valueA = propertiesA.get(pKey);
-                                Object valueB = propertiesB.get(pKey);
+                                var pKey = vResult[2];
+                                var valueA = propertiesA.get(pKey);
+                                var valueB = propertiesB.get(pKey);
                                 sb.append("(");
                                 writeMessageForProperty(sb, pKey, valueA);
                                 sb.append(")");
@@ -83,12 +83,12 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
                                 writeMessageForProperty(sb, pKey, valueB);
                                 sb.append(")");
                             } else {
-                                String pKey1 = vResult[0];
-                                Object value1A = propertiesA.get(pKey1);
-                                Object value1B = propertiesB.get(pKey1);
-                                String pKey2 = vResult[1];
-                                Object value2A = propertiesA.get(pKey2);
-                                Object value2B = propertiesB.get(pKey2);
+                                var pKey1 = vResult[0];
+                                var value1A = propertiesA.get(pKey1);
+                                var value1B = propertiesB.get(pKey1);
+                                var pKey2 = vResult[1];
+                                var value2A = propertiesA.get(pKey2);
+                                var value2B = propertiesB.get(pKey2);
                                 sb.append("(");
                                 writeMessageForProperty(sb, pKey1, value1A);
                                 sb.append(", ");
@@ -140,16 +140,16 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
             }
         }
         if (prop.getClass().isArray()) {
-            int length1 = Array.getLength(prop);
-            int length2 = Array.getLength(p);
-            boolean f1 = false;
-            boolean f2 = false;
+            var length1 = Array.getLength(prop);
+            var length2 = Array.getLength(p);
+            var f1 = false;
+            var f2 = false;
 
-            Set<Object> propSet = arrayToSet(prop, length1);
-            Set<Object> pSet = arrayToSet(p, length2);
+            var propSet = arrayToSet(prop, length1);
+            var pSet = arrayToSet(p, length2);
 
             propSet.retainAll(pSet);
-            int d = propSet.size();
+            var d = propSet.size();
 
             if (OverlapState.OVERLAP != overlapState) {
                 if (length1 < length2) {
@@ -162,7 +162,7 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
                 }
             }
 
-            boolean f3 = d == 0;
+            var f3 = d == 0;
 
             if (f3) {
                 overlapState = OverlapState.NOT_OVERLAP;
@@ -205,8 +205,8 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
     }
 
     private Set<Object> arrayToSet(Object array, int length) {
-        Set<Object> set = new HashSet<>();
-        for (int k = 0; k < length; k++) {
+        var set = new HashSet<Object>();
+        for (var k = 0; k < length; k++) {
             set.add(Array.get(array, k));
         }
         return set;
@@ -217,8 +217,8 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
         sb.append("={");
         if (value != null) {
             if (value.getClass().isArray()) {
-                int length = Array.getLength(value);
-                for (int k = 0; k < length; k++) {
+                var length = Array.getLength(value);
+                for (var k = 0; k < length; k++) {
                     if (k != 0) {
                         sb.append(", ");
                     }
@@ -240,7 +240,7 @@ public class DimensionalPropertyValidator implements IOpenLValidator {
     }
 
     private void addValidationWarn(Collection<OpenLMessage> messages, String message, IOpenMethod method) {
-        IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) method;
+        var memberMetaInfo = (IMemberMetaInfo) method;
         if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
             messages
                     .add(OpenLMessagesUtils.newWarnMessage("Ambiguous definition of properties values. Details: " + message,

@@ -33,3 +33,7 @@ This guide is organized into the following sections:
 ## Additional Resources
 
 For more information on OpenL Tablets Rules, see the [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/).
+
+---
+
+OpenL Tablets Documentation is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).

@@ -6,12 +6,17 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Mapping entity for the OpenL_User2Group join table.
  */
 @Entity
 @Table(name = "OpenL_User2Group")
 public class UserGroup implements Serializable {
+    @Getter(onMethod_ = {@EmbeddedId})
+    @Setter
     private UserGroupId id;
 
     public UserGroup() {
@@ -19,15 +24,6 @@ public class UserGroup implements Serializable {
 
     public UserGroup(String loginName, Long groupId) {
         this.id = new UserGroupId(loginName, groupId);
-    }
-
-    @EmbeddedId
-    public UserGroupId getId() {
-        return id;
-    }
-
-    public void setId(UserGroupId id) {
-        this.id = id;
     }
 
     @Override

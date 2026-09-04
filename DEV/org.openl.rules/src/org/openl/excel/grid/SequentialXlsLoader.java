@@ -31,7 +31,6 @@ import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IOpenSourceCodeModule;
@@ -59,15 +58,15 @@ public class SequentialXlsLoader {
 
     private WorksheetSyntaxNode[] createWorksheetNodes(TablePartProcessor tablePartProcessor,
                                                        XlsWorkbookSourceCodeModule workbookSourceModule) {
-        IOpenSourceCodeModule source = workbookSourceModule.getSource();
+        var source = workbookSourceModule.getSource();
 
         if (VirtualSourceCodeModule.SOURCE_URI.equals(source.getUri())) {
-            int nSheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
+            var nSheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
             WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nSheets];
 
-            for (int i = 0; i < nSheets; i++) {
-                XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceModule);
-                IGridTable[] tables = new XlsSheetGridModel(sheetSource).getTables();
+            for (var i = 0; i < nSheets; i++) {
+                var sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceModule);
+                var tables = new XlsSheetGridModel(sheetSource).getTables();
                 sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
             }
             return sheetNodes;
@@ -89,17 +88,17 @@ public class SequentialXlsLoader {
         }
         try (ExcelReader excelReader = path == null ? factory.create(source.getByteStream()) : factory.create(path)) {
             List<? extends SheetDescriptor> sheets = excelReader.getSheets();
-            boolean use1904Windowing = excelReader.isUse1904Windowing();
+            var use1904Windowing = excelReader.isUse1904Windowing();
 
-            int nSheets = sheets.size();
+            var nSheets = sheets.size();
             WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nSheets];
 
-            for (int i = 0; i < nSheets; i++) {
-                final SheetDescriptor sheet = sheets.get(i);
-                XlsSheetSourceCodeModule sheetSource = new SequentialXlsSheetSourceCodeModule(workbookSourceModule,
+            for (var i = 0; i < nSheets; i++) {
+                final var sheet = sheets.get(i);
+                var sheetSource = new SequentialXlsSheetSourceCodeModule(workbookSourceModule,
                         sheet);
-                Object[][] cells = excelReader.getCells(sheet);
-                IGridTable[] tables = new ParsedGrid(path, sheetSource, sheet, cells, use1904Windowing).getTables();
+                var cells = excelReader.getCells(sheet);
+                var tables = new ParsedGrid(path, sheetSource, sheet, cells, use1904Windowing).getTables();
                 sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
             }
 
@@ -115,26 +114,26 @@ public class SequentialXlsLoader {
 
         preprocessWorkbook(source);
 
-        WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
-        XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
+        var workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
+        var syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
                 source,
                 Collections.unmodifiableCollection(imports));
 
-        SyntaxNodeException[] parsingErrors = errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
+        var parsingErrors = errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
 
         return new ParsedCode(syntaxNode, source, parsingErrors, messages, dependencies.toArray(new IDependency[0]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
 
-        ILogicalTable logicalTable = tableSyntaxNode.getTable();
+        var logicalTable = tableSyntaxNode.getTable();
 
-        int height = logicalTable.getHeight();
+        var height = logicalTable.getHeight();
 
-        for (int i = 1; i < height; i++) {
-            ILogicalTable row = logicalTable.getRow(i);
+        for (var i = 1; i < height; i++) {
+            var row = logicalTable.getRow(i);
 
-            String value = row.getColumn(0).getSource().getCell(0, 0).getStringValue();
+            var value = row.getColumn(0).getSource().getCell(0, 0).getStringValue();
             if (StringUtils.isNotBlank(value)) {
                 value = value.trim();
             }
@@ -146,14 +145,14 @@ public class SequentialXlsLoader {
                 //
                 preprocessDependency(tableSyntaxNode, row.getSource());
             } else if (IXlsTableNames.INCLUDE_TABLE.equals(value)) {
-                preprocessIncludeTable(tableSyntaxNode, row.getSource(), source);
+                preprocessIncludeTable(row.getSource(), source);
             } else if (IXlsTableNames.IMPORT_PROPERTY.equals(value)) {
                 preprocessImportTable(row.getSource());
             } else if (ParserUtils.isBlankOrCommented(value)) {
                 // ignore comment
                 log.debug("Comment: {}", value);
             } else {
-                String message = "Error in Environment table: unrecognized keyword '%s'".formatted(value);
+                var message = "Error in Environment table: unrecognized keyword '%s'".formatted(value);
                 messages.add(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }
         }
@@ -161,29 +160,29 @@ public class SequentialXlsLoader {
 
     private void preprocessDependency(TableSyntaxNode tableSyntaxNode, IGridTable gridTable) {
 
-        int height = gridTable.getHeight();
+        var height = gridTable.getHeight();
 
-        for (int i = 0; i < height; i++) {
-            String dependency = gridTable.getCell(1, i).getStringValue();
+        for (var i = 0; i < height; i++) {
+            var dependency = gridTable.getCell(1, i).getStringValue();
             if (StringUtils.isNotBlank(dependency)) {
                 dependency = dependency.trim();
 
-                IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY,
+                var node = new IdentifierNode(IXlsTableNames.DEPENDENCY,
                         LocationUtils.createTextInterval(dependency),
                         dependency,
                         new GridCellSourceCodeModule(gridTable, 1, i, null));
                 node.setParent(tableSyntaxNode);
-                Dependency moduleDependency = new Dependency(DependencyType.MODULE, node);
+                var moduleDependency = new Dependency(DependencyType.MODULE, node);
                 dependencies.add(moduleDependency);
             }
         }
     }
 
     private void preprocessImportTable(IGridTable table) {
-        int height = table.getHeight();
+        var height = table.getHeight();
 
-        for (int i = 0; i < height; i++) {
-            String singleImport = table.getCell(1, i).getStringValue();
+        for (var i = 0; i < height; i++) {
+            var singleImport = table.getCell(1, i).getStringValue();
             if (StringUtils.isNotBlank(singleImport)) {
                 addImport(singleImport.trim());
             }
@@ -198,13 +197,13 @@ public class SequentialXlsLoader {
         p1 = p1.replaceAll("\\\\", "/");
         p2 = p2.replaceAll("\\\\", "/");
 
-        String[] pp1 = p1.split("/");
-        String[] pp2 = p2.split("/");
-        List<String> result = new ArrayList<>();
+        var pp1 = p1.split("/");
+        var pp2 = p2.split("/");
+        var result = new ArrayList<String>();
 
         int len = p1.endsWith("/") ? pp1.length : pp1.length - 1;
 
-        for (int i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             if (pp1[i].equals(".")) {
                 continue;
             }
@@ -231,15 +230,13 @@ public class SequentialXlsLoader {
         return String.join("/", result);
     }
 
-    private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,
-                                        IGridTable table,
-                                        XlsSheetSourceCodeModule sheetSource) {
+    private void preprocessIncludeTable(IGridTable table, XlsSheetSourceCodeModule sheetSource) {
 
-        int height = table.getHeight();
+        var height = table.getHeight();
 
-        for (int i = 0; i < height; i++) {
+        for (var i = 0; i < height; i++) {
 
-            String include = table.getCell(1, i).getStringValue();
+            var include = table.getCell(1, i).getStringValue();
 
             if (StringUtils.isNotBlank(include)) {
                 try {
@@ -248,17 +245,13 @@ public class SequentialXlsLoader {
                     var src = new URLSourceCodeModule(new URI(newURL).toURL());
                     preprocessWorkbook(src);
                 } catch (Exception t) {
-                    registerIncludeError(tableSyntaxNode, table, i, include, t);
+                    registerIncludeError(table, i, include, t);
                 }
             }
         }
     }
 
-    private void registerIncludeError(TableSyntaxNode tableSyntaxNode,
-                                      IGridTable table,
-                                      int i,
-                                      String include,
-                                      Exception t) {
+    private void registerIncludeError(IGridTable table, int i, String include, Exception t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include '" + include + "' is not found.",
                 t,
                 LocationUtils.createTextInterval(include),
@@ -272,7 +265,7 @@ public class SequentialXlsLoader {
 
         TableSyntaxNode tsn = XlsHelper.createTableSyntaxNode(table, source);
 
-        String type = tsn.getType();
+        var type = tsn.getType();
         if (type.equals(XlsNodeTypes.XLS_ENVIRONMENT.toString())) {
             preprocessEnvironmentTable(tsn, source);
         } else if (type.equals(XlsNodeTypes.XLS_TABLEPART.toString())) {
@@ -291,7 +284,7 @@ public class SequentialXlsLoader {
 
     private void preprocessWorkbook(IOpenSourceCodeModule source) {
 
-        String uri = source.getUri();
+        var uri = source.getUri();
 
         if (preprocessedWorkBooks.contains(uri)) {
             return;
@@ -299,9 +292,9 @@ public class SequentialXlsLoader {
 
         preprocessedWorkBooks.add(uri);
 
-        TablePartProcessor tablePartProcessor = new TablePartProcessor();
-        XlsWorkbookSourceCodeModule workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
-        WorksheetSyntaxNode[] sheetNodes = createWorksheetNodes(tablePartProcessor, workbookSourceModule);
+        var tablePartProcessor = new TablePartProcessor();
+        var workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
+        var sheetNodes = createWorksheetNodes(tablePartProcessor, workbookSourceModule);
 
         workbookNodes.add(createWorkbookNode(tablePartProcessor, workbookSourceModule, sheetNodes));
         messages.addAll(tablePartProcessor.getMessages());
@@ -313,9 +306,9 @@ public class SequentialXlsLoader {
         TableSyntaxNode[] mergedNodes = {};
         try {
             List<TablePart> tableParts = tablePartProcessor.mergeAllNodes();
-            int n = tableParts.size();
+            var n = tableParts.size();
             mergedNodes = new TableSyntaxNode[n];
-            for (int i = 0; i < n; i++) {
+            for (var i = 0; i < n; i++) {
                 mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),
                         tableParts.get(i).getSource(),
                         tablePartProcessor);
@@ -330,7 +323,7 @@ public class SequentialXlsLoader {
     private WorksheetSyntaxNode createWorksheetSyntaxNode(TablePartProcessor tablePartProcessor,
                                                           XlsSheetSourceCodeModule sheetSource,
                                                           IGridTable[] tables) {
-        List<TableSyntaxNode> tableNodes = new ArrayList<>();
+        var tableNodes = new ArrayList<TableSyntaxNode>();
 
         for (IGridTable table : tables) {
 

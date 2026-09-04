@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -45,7 +44,7 @@ public class XlsModuleSyntaxNode extends NaryNode {
         if (tableSyntaxNodes == null) {
             buildXlsTableSyntaxNodes();
         } else {
-            int expectedSize = 0;
+            var expectedSize = 0;
             for (WorkbookSyntaxNode wbsn : getWorkbookSyntaxNodes()) {
                 expectedSize = expectedSize + wbsn.getTableSyntaxNodes().length;
             }
@@ -57,7 +56,7 @@ public class XlsModuleSyntaxNode extends NaryNode {
     }
 
     private void buildXlsTableSyntaxNodes() {
-        List<TableSyntaxNode> tsnodes = new ArrayList<>();
+        var tsnodes = new ArrayList<TableSyntaxNode>();
         for (WorkbookSyntaxNode wbsn : getWorkbookSyntaxNodes()) {
             Collections.addAll(tsnodes, wbsn.getTableSyntaxNodes());
         }

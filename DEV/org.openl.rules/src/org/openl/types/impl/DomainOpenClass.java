@@ -1,7 +1,10 @@
 package org.openl.types.impl;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -24,12 +27,19 @@ import org.openl.vm.IRuntimeEnv;
 public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     private volatile StaticOpenClass staticOpenClass;
 
+    @Getter
+    @Setter
     private IDomain<?> domain;
 
     private IAggregateInfo aggregateInfo;
+    @Getter
     private final IOpenClass baseClass;
+    @Getter
     private final String name;
+    @Getter
+    @Setter
     private IMetaInfo metaInfo;
+    @Getter
     private final ModuleOpenClass module;
 
     public DomainOpenClass(String name,
@@ -53,20 +63,6 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
         return "`" + module.getModuleName() + "`." + getName();
     }
 
-    @Override
-    public ModuleOpenClass getModule() {
-        return module;
-    }
-
-    @Override
-    public IDomain<?> getDomain() {
-        return domain;
-    }
-
-    public void setDomain(IDomain<?> domain) {
-        this.domain = domain;
-    }
-
     /**
      * Overriden to add the possibility to return special aggregate info for DomainOpenClass
      *
@@ -83,10 +79,6 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     @Override
     public String getDisplayName(int mode) {
         return getName();
-    }
-
-    public IOpenClass getBaseClass() {
-        return baseClass;
     }
 
     @Override
@@ -115,18 +107,8 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     }
 
     @Override
-    public IMetaInfo getMetaInfo() {
-        return metaInfo;
-    }
-
-    @Override
     public IOpenMethod getMethod(String mname, IOpenClass[] classes) {
         return baseClass.getMethod(mname, classes);
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -151,8 +133,8 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @SuppressWarnings("unchecked")
     public static boolean isFromValuesIncludedToValues(DomainOpenClass from, DomainOpenClass to, IOpenCast openCast) {
-        IDomain<Object> fromDomain = (IDomain<Object>) from.getDomain();
-        IDomain<Object> toDomain = (IDomain<Object>) to.getDomain();
+        var fromDomain = (IDomain<Object>) from.getDomain();
+        var toDomain = (IDomain<Object>) to.getDomain();
         try {
             for (Object value : fromDomain) {
                 if (!toDomain.selectObject(openCast != null ? openCast.convert(value) : value)) {
@@ -213,11 +195,6 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     }
 
     @Override
-    public void setMetaInfo(IMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
-    }
-
-    @Override
     public Collection<IOpenClass> superClasses() {
         return baseClass.superClasses();
     }
@@ -240,7 +217,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     @Override
     public Collection<IOpenClass> getTypes() {
         // Default implementation
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -277,7 +254,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
             return false;
         }
 
-        DomainOpenClass that = (DomainOpenClass) o;
+        var that = (DomainOpenClass) o;
 
         if (name.equals(that.name)) {
             return domain.equals(that.domain);
@@ -293,7 +270,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public Iterable<IOpenMethod> constructors() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

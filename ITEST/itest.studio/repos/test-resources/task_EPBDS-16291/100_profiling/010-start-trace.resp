@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "suspended",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "instance": 0,
+      "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A1:B4",
+      "tableId": "58f193216942cdb10cbdcf60f9a3e7ba",
+      "name": "Root",
+      "kind": "spreadsheet",
+      "active": true,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R0C0",
+          "label": "$Items",
+          "cell": "B3",
+          "status": "pending"
+        },
+        {
+          "ref": "R1C0",
+          "label": "$Calcs",
+          "cell": "B4",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "sessionId": "***"
+}

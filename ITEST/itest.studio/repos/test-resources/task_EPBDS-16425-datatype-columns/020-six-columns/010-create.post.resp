@@ -1,0 +1,12 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "63b0b9422a946f587555c4d309d353c3",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Claim",
+  "file": "EPBDS-16425-Columns/Main.xlsx",
+  "pos": "B2:G4"
+}
+

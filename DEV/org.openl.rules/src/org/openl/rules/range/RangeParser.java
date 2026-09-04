@@ -2,6 +2,8 @@ package org.openl.rules.range;
 
 import java.text.ParseException;
 
+import lombok.Getter;
+
 import org.openl.util.StringUtils;
 
 /**
@@ -21,7 +23,9 @@ import org.openl.util.StringUtils;
  */
 public class RangeParser {
 
+    @Getter
     Range.Type type;
+    @Getter
     String left, right;
 
     private RangeParser(Range.Type type, String left, String right) {
@@ -38,8 +42,8 @@ public class RangeParser {
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder(20);
-        Range.Type type = getType();
+        var s = new StringBuilder(20);
+        var type = getType();
         switch (type) {
             case OPEN:
             case CLOSED:
@@ -67,28 +71,16 @@ public class RangeParser {
         return s.toString();
     }
 
-    public Range.Type getType() {
-        return type;
-    }
-
-    public String getLeft() {
-        return left;
-    }
-
-    public String getRight() {
-        return right;
-    }
-
     public static RangeParser parse(String text) throws ParseException {
-        int first = 0;
-        int last = text.length() - 1;
+        var first = 0;
+        var last = text.length() - 1;
         //trim from the first
         first = nextNonSpace(text, first, last);
         //trim from the last
         last = prevNonSpace(text, first, last);
 
-        char ch = text.charAt(first);
-        char ch2 = text.charAt(last);
+        var ch = text.charAt(first);
+        var ch2 = text.charAt(last);
         int index;
 
         // bracket form: [x; y]
@@ -151,8 +143,8 @@ public class RangeParser {
             }
             first = nextNonSpace(text, first, last);
             int first2;
-            int last2 = last;
-            for (int i = first; i <= last; i++) {
+            var last2 = last;
+            for (var i = first; i <= last; i++) {
                 ch2 = text.charAt(i);
                 if (ch2 == '>' || ch2 == '<') {
                     if (ch == ch2) {
@@ -243,7 +235,7 @@ public class RangeParser {
     }
 
     private static RangeParser parseRangeBySeparator(String text, int first, int last) throws ParseException {
-        int index = findSep(text, first, last);
+        var index = findSep(text, first, last);
         if (index < 0) {
             return null;
         }
@@ -286,7 +278,7 @@ public class RangeParser {
     }
 
     private static int nextNonSpace(CharSequence text, int start, int end) throws ParseException {
-        int index = StringUtils.firstNonSpace(text, start, end + 1);
+        var index = StringUtils.firstNonSpace(text, start, end + 1);
         if (index < 0) {
             throw new ParseException("Unexpected whitespace", start);
         }
@@ -294,7 +286,7 @@ public class RangeParser {
     }
 
     private static int prevNonSpace(CharSequence text, int start, int end) throws ParseException {
-        int index = StringUtils.lastNonSpace(text, start, end + 1);
+        var index = StringUtils.lastNonSpace(text, start, end + 1);
         if (index < 0) {
             throw new ParseException("Unexpected whitespace", start);
         }
@@ -308,7 +300,7 @@ public class RangeParser {
         // shift boundaries for searching a separator.
         // the first and the last symbols are always values between which separator is defined.
         start = start + 1;
-        for (int i = start; i < end; i++) {
+        for (var i = start; i < end; i++) {
             switch (text.charAt(i)) {
                 case ';':
                 case '-':
@@ -329,14 +321,14 @@ public class RangeParser {
         if (start == -1) {
             return -1;
         }
-        int length = word.length();
+        var length = word.length();
         if (start + length > end) {
             // Not matched by length
             return -1;
         }
-        for (int i = 0; i < length; i++) {
-            char ch = word.charAt(i);
-            char at = text.charAt(start);
+        for (var i = 0; i < length; i++) {
+            var ch = word.charAt(i);
+            var at = text.charAt(start);
             start++;
             if (Character.isWhitespace(ch)) {
                 if (!Character.isWhitespace(at)) {
@@ -354,14 +346,14 @@ public class RangeParser {
     }
 
     private static int findPrevWord(CharSequence word, CharSequence text, int start, int end) {
-        int length = word.length();
+        var length = word.length();
         if (start + length > end) {
             // Not matched by length
             return -1;
         }
-        for (int i = length - 1; i >= 0; i--) {
-            char ch = word.charAt(i);
-            char at = text.charAt(end);
+        for (var i = length - 1; i >= 0; i--) {
+            var ch = word.charAt(i);
+            var at = text.charAt(end);
             end--;
             if (Character.isWhitespace(ch)) {
                 if (!Character.isWhitespace(at)) {

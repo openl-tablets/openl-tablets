@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.core;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -17,7 +16,7 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
 
     @Override
     protected CompiledDependency compileDependency() throws OpenLCompilationException {
-        AbstractDependencyManager dependencyManager = getDependencyManager();
+        var dependencyManager = getDependencyManager();
         if (dependencyManager instanceof RuleServiceDependencyManager ruleServiceDeploymentRelatedDependencyManager) {
             ruleServiceDeploymentRelatedDependencyManager.compilationBegin();
             CompiledDependency compiledDependency = null;

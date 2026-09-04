@@ -5,35 +5,48 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.env.Environment;
+import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
+import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
@@ -51,6 +64,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
     private static final String BRANCH = "user-a";
 
     private RepositoryAclService designRepositoryAclService;
+    private AclProjectsHelper aclProjectsHelper;
     private UserWorkspace userWorkspace;
     private LockEngine lockEngine;
     private RulesProject project;
@@ -60,6 +74,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
     @BeforeEach
     void init() throws IOException {
         designRepositoryAclService = mock(RepositoryAclService.class);
+        aclProjectsHelper = mock(AclProjectsHelper.class);
         userWorkspace = mock(UserWorkspace.class);
         lockEngine = mock(LockEngine.class);
         when(userWorkspace.getProjectsLockEngine()).thenReturn(lockEngine);
@@ -68,8 +83,12 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         repository = mock(BranchRepository.class);
         when(repository.getBaseBranch()).thenReturn("main");
-        when(repository.branchExists(BRANCH)).thenReturn(true);
+        when(repository.listBranches()).thenReturn(List.of("main", BRANCH));
         when(repository.getId()).thenReturn("design");
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.refreshRepository("design"))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
 
         project = mock(RulesProject.class);
         when(project.isSupportsBranches()).thenReturn(true);
@@ -88,6 +107,10 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(Function.class),
                 mock(BeanValidationProvider.class),
                 mock(TableCreatorService.class),
+                mock(TableCopyService.class),
+                mock(TablePropertiesService.class),
+                new TableVersionService(),
+                mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
                 mock(ApplicationEventPublisher.class),
@@ -96,12 +119,13 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
                 mock(MultiUserWorkspaceManager.class),
-                mock(AclProjectsHelper.class)) {
-            @Override
-            public UserWorkspace getUserWorkspace() {
-                return userWorkspace;
-            }
-        };
+                aclProjectsHelper,
+                mock(ProjectAccessService.class),
+                mock(ProjectStatusMapper.class),
+                mock(Environment.class),
+                mock(ProjectTagsCache.class),
+                new ProjectListingContext(),
+                () -> userWorkspace);
     }
 
     @Test
@@ -110,7 +134,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         assertThrows(ConflictException.class, () -> service.deleteBranch(project, BRANCH, false));
 
-        verify(repository, never()).deleteBranch(any(), anyString());
+        verify(repository, never()).deleteRepositoryBranch(anyString());
     }
 
     @Test
@@ -119,7 +143,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
 
-        verify(repository).deleteBranch(null, BRANCH);
+        verify(repository).deleteRepositoryBranch(BRANCH);
     }
 
     @Test
@@ -128,7 +152,74 @@ class WorkspaceProjectServiceDeleteBranchTest {
 
         assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
 
-        verify(repository).deleteBranch(null, BRANCH);
+        verify(repository).deleteRepositoryBranch(BRANCH);
+    }
+
+    @Test
+    void branchIsDeletedThroughTheDecoratedRepository() throws IOException {
+        var decorated = mock(BranchRepository.class, withSettings().extraInterfaces(RepositoryDelegate.class));
+        when(((RepositoryDelegate) decorated).getOriginal()).thenReturn(repository);
+        when(project.getDesignRepository()).thenReturn(decorated);
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+
+        assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
+
+        verify(decorated).deleteRepositoryBranch(BRANCH);
+        verify(repository, never()).deleteRepositoryBranch(BRANCH);
+    }
+
+    @Test
+    void deniedBranchDeletionIsReportedAsForbidden() throws IOException {
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+        doThrow(new AccessDeniedException(BRANCH)).when(repository).deleteRepositoryBranch(BRANCH);
+
+        assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
+    }
+
+    @Test
+    void theOnlyBranchHoldingTheProjectNeedsThePermissionToDeleteTheProject() throws IOException {
+        heldOnlyBy(BRANCH);
+
+        // Deleting it deletes the project, so managing branches alone is not enough.
+        assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
+
+        verify(repository, never()).deleteRepositoryBranch(anyString());
+    }
+
+    @Test
+    void theOnlyBranchHoldingTheProjectIsDeletedByWhoMayDeleteTheProject() throws IOException {
+        heldOnlyBy(BRANCH);
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+
+        assertDoesNotThrow(() -> service.deleteBranch(project, BRANCH, false));
+
+        verify(repository).deleteRepositoryBranch(BRANCH);
+    }
+
+    @Test
+    void unindexedProjectStillNeedsThePermissionToDeleteTheProject() throws IOException {
+        // The index lists no holders while it has no entry for the project. That silence must not read as
+        // "another branch holds it": the branch may keep the last copy, so the deletion stays permission-gated.
+        when(userWorkspace.getDesignTimeRepository().isLastProjectBranch("design", "P1", BRANCH)).thenReturn(true);
+        when(project.getDesignProjectName()).thenReturn("P1");
+
+        assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
+
+        verify(repository, never()).deleteRepositoryBranch(anyString());
+    }
+
+    /** The index reports a project that no branch other than this one holds. */
+    private void heldOnlyBy(String branch) {
+        when(userWorkspace.getDesignTimeRepository().getProjectsHeldOnlyBy("design", branch))
+                .thenReturn(List.of(project));
+    }
+
+    @Test
+    void baseBranchCannotBeDeletedWithDifferentCasing() throws IOException {
+        assertThrows(ConflictException.class, () -> service.deleteBranch(project, "MAIN", false));
+
+        verify(repository, never()).deleteRepositoryBranch(anyString());
     }
 
     private void lockedBy(String userName) {
@@ -137,4 +228,5 @@ class WorkspaceProjectServiceDeleteBranchTest {
         when(lockInfo.getLockedBy()).thenReturn(userName);
         when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(lockInfo);
     }
+
 }

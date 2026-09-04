@@ -13,7 +13,7 @@ class RepositoryConfigurationComparatorTest {
 
     @Test
     void testCompare() {
-        NameWithNumbersComparator comparator = new NameWithNumbersComparator();
+        var comparator = new NameWithNumbersComparator();
 
         assertTrue(comparator.compare(configMock("aaa"), configMock("bbb")) < 0);
         assertTrue(comparator.compare(configMock("bbb"), configMock("aaa")) > 0);

@@ -9,8 +9,8 @@ public abstract class IntersectionConstraint<P> {
     protected abstract P getPropertyValue(ITableProperties secondProperties);
 
     public IntersectionType match(ITableProperties firstProperties, ITableProperties secondProperties) {
-        P firstValue = getPropertyValue(firstProperties);
-        P secondValue = getPropertyValue(secondProperties);
+        var firstValue = getPropertyValue(firstProperties);
+        var secondValue = getPropertyValue(secondProperties);
 
         return matchValues(firstValue, secondValue);
     }
@@ -32,14 +32,14 @@ public abstract class IntersectionConstraint<P> {
 
     protected static <T> IntersectionType intersectionForLE(Comparable<T> firstValue, Comparable<T> secondValue) {
         @SuppressWarnings("unchecked")
-        int comparison = firstValue.compareTo((T) secondValue);
+        var comparison = firstValue.compareTo((T) secondValue);
         return comparison == 0 ? IntersectionType.EQUALS
                 : comparison < 0 ? IntersectionType.CONTAINS : IntersectionType.NESTED;
     }
 
     protected static <T> IntersectionType intersectionForGE(Comparable<T> firstValue, Comparable<T> secondValue) {
         @SuppressWarnings("unchecked")
-        int comparison = firstValue.compareTo((T) secondValue);
+        var comparison = firstValue.compareTo((T) secondValue);
         return comparison == 0 ? IntersectionType.EQUALS
                 : comparison > 0 ? IntersectionType.CONTAINS : IntersectionType.NESTED;
     }
@@ -55,7 +55,7 @@ public abstract class IntersectionConstraint<P> {
         if (firstValue.length > secondValue.length) {
             resultForNoAbsentElements = IntersectionType.CONTAINS;
 
-            Comparable<T>[] swap = firstValue;
+            var swap = firstValue;
             firstValue = secondValue;
             secondValue = swap;
         } else {
@@ -63,8 +63,8 @@ public abstract class IntersectionConstraint<P> {
                     : IntersectionType.EQUALS;
         }
 
-        boolean hasEqualElements = false;
-        boolean hasAbsentElements = false;
+        var hasEqualElements = false;
+        var hasAbsentElements = false;
         for (Comparable<T> value : firstValue) {
             if (containsElement(secondValue, value)) {
                 hasEqualElements = true;

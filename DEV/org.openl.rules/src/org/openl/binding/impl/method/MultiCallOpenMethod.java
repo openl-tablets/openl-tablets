@@ -2,6 +2,7 @@ package org.openl.binding.impl.method;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.openl.types.IMethodCaller;
@@ -14,6 +15,7 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
 
     protected IMethodCaller methodCaller;
     protected Integer[] multiCallParameterIndexes;
+    @Getter
     protected IOpenClass type;
     protected Class<?> componentType;
 
@@ -25,7 +27,7 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
         super(methodCaller.getMethod());
         this.methodCaller = methodCaller;
         this.multiCallParameterIndexes = initMultiCallParameterIndexes(multiCallParameters);
-        IOpenClass originalType = methodCaller.getMethod().getType();
+        var originalType = methodCaller.getMethod().getType();
         if (!OpenClassUtils.isVoid(originalType)) {
             this.type = methodCaller.getMethod().getType().getArrayType(1);
             this.componentType = methodCaller.getMethod().getType().getInstanceClass();
@@ -36,15 +38,15 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
     }
 
     private Integer[] initMultiCallParameterIndexes(boolean[] multiCallParameters) {
-        int c = 0;
+        var c = 0;
         for (boolean x : multiCallParameters) {
             if (x) {
                 c++;
             }
         }
         Integer[] res = new Integer[c];
-        int i = 0;
-        int j = 0;
+        var i = 0;
+        var j = 0;
         for (boolean x : multiCallParameters) {
             if (x) {
                 res[j++] = i;
@@ -56,9 +58,9 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        int resultLength = 1;
+        var resultLength = 1;
         for (Integer arrayArgArgument : multiCallParameterIndexes) {
-            Object v = params[arrayArgArgument];
+            var v = params[arrayArgArgument];
             if (v == null) {
                 resultLength = 0;
                 break;
@@ -66,7 +68,7 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
             resultLength *= Array.getLength(v);
         }
 
-        Object[] callParameters = (Object[]) Array.newInstance(Object.class, params.length);
+        var callParameters = (Object[]) Array.newInstance(Object.class, params.length);
         System.arraycopy(params, 0, callParameters, 0, params.length);
 
         Object result = null;
@@ -89,10 +91,10 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
                                               Object result,
                                               int resultLength,
                                               int callIndex) {
-        int iteratedParamNum = multiCallParameterIndexes[iteratedArg];
-        Object iteratedParameter = params[iteratedParamNum];
-        int length = Array.getLength(iteratedParameter);
-        for (int i = 0; i < length; i++) {
+        var iteratedParamNum = multiCallParameterIndexes[iteratedArg];
+        var iteratedParameter = params[iteratedParamNum];
+        var length = Array.getLength(iteratedParameter);
+        for (var i = 0; i < length; i++) {
             callParameters[iteratedParamNum] = Array.get(iteratedParameter, i);
             if (iteratedArg < multiCallParameterIndexes.length - 1) {
                 callIndex = callDelegateAndPopulateResult(target,
@@ -128,11 +130,6 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
         if (results != null) {
             Array.set(results, index, value);
         }
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     public IOpenMethod getSourceMethod() {

@@ -2,6 +2,9 @@ package org.openl.types;
 
 import java.util.Collection;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
@@ -9,12 +12,10 @@ import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class OpenClassDelegator implements IOpenClass {
+    @Getter
     private final IOpenClass delegate;
-
-    public OpenClassDelegator(IOpenClass delegate) {
-        this.delegate = delegate;
-    }
 
     @Override
     public String getDisplayName(int mode) {
@@ -219,9 +220,5 @@ public class OpenClassDelegator implements IOpenClass {
     @Override
     public boolean isStatic() {
         return delegate.isStatic();
-    }
-
-    public IOpenClass getDelegate() {
-        return delegate;
     }
 }

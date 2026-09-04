@@ -1,11 +1,12 @@
 package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.ToLongFunction;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -14,25 +15,22 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
+@RequiredArgsConstructor
 @Service
 @SessionScope
 public class BenchmarkBean {
 
     private final RunTestHelper runTestHelper;
 
+    @Getter
     private final List<BenchmarkInfoView> benchmarks = new ArrayList<>();
-    private List<BenchmarkInfoView> comparedBenchmarks = Collections.emptyList();
+    @Getter
+    private List<BenchmarkInfoView> comparedBenchmarks = List.of();
     private List<BenchmarkInfoView> benchmarkOrders;
-
-    public BenchmarkBean(RunTestHelper runTestHelper) {
-        this.runTestHelper = runTestHelper;
-    }
 
     private static boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
         return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
@@ -40,17 +38,17 @@ public class BenchmarkBean {
     }
 
     public void addLastBenchmark() {
-        TestSuite testSuite = runTestHelper.getTestSuite();
-        String testSuiteUri = testSuite.getUri();
+        var testSuite = runTestHelper.getTestSuite();
+        var testSuiteUri = testSuite.getUri();
         WebStudio studio = WebStudioUtils.getWebStudio();
-        ProjectModel model = studio.getModel();
+        var model = studio.getModel();
         IOpenMethod table = model.isProjectCompilationCompleted() ?
                 model.getMethod(testSuiteUri) : model.getOpenedModuleMethod(testSuiteUri);
         String tableId = TableUtils.makeTableId(testSuiteUri);
         String testName = TableSyntaxNodeUtils.getTestName(table);
         String testInfo = ProjectHelper.getTestInfo(testSuite);
         if (isTestForOverallTestSuiteMethod(testSuite)) {
-            IOpenClass openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
+            var openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
             ToLongFunction<Integer> bu = times -> testSuite.invokeSequentially(openClass, times).getExecutionTime();
             BenchmarkInfoView biv = runBenchmark(tableId,
                     testName,
@@ -59,22 +57,22 @@ public class BenchmarkBean {
                     testSuite.getNumberOfTests());
             benchmarks.addFirst(biv);
         } else {
-            for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
-                IOpenClass openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
-                int numTest = i;
+            for (var i = 0; i < testSuite.getNumberOfTests(); i++) {
+                var openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
+                var numTest = i;
                 ToLongFunction<Integer> bu = times -> testSuite.executeTest(openClass, numTest, times)
                         .getExecutionTime();
 
-                ParameterWithValueDeclaration[] params = testSuite.getTest(i).getExecutionParams();
+                var params = testSuite.getTest(i).getExecutionParams();
                 BenchmarkInfoView biv = runBenchmark(tableId, testName, testInfo, bu, params, 1);
                 benchmarks.addFirst(biv);
             }
         }
-        comparedBenchmarks = Collections.emptyList();
+        comparedBenchmarks = List.of();
     }
 
     public String compare() {
-        List<BenchmarkInfoView> bi = new ArrayList<>();
+        var bi = new ArrayList<BenchmarkInfoView>();
         for (BenchmarkInfoView biv : benchmarks) {
             if (biv.isSelected()) {
                 bi.add(biv);
@@ -88,12 +86,8 @@ public class BenchmarkBean {
 
     public String delete() {
         benchmarks.removeIf(BenchmarkInfoView::isSelected);
-        comparedBenchmarks = Collections.emptyList();
+        comparedBenchmarks = List.of();
         return null;
-    }
-
-    public List<BenchmarkInfoView> getBenchmarks() {
-        return benchmarks;
     }
 
     public boolean isAnyBencmarkSelected() {
@@ -123,17 +117,13 @@ public class BenchmarkBean {
         }
     }
 
-    public List<BenchmarkInfoView> getComparedBenchmarks() {
-        return comparedBenchmarks;
-    }
-
     public int getComparedOrder(BenchmarkInfoView bi) {
         return benchmarkOrders.indexOf(bi) + 1;
     }
 
     public String getComparedRatio(BenchmarkInfoView bi) {
-        double rated = bi.drunsunitsec();
-        double base = benchmarkOrders.getFirst().drunsunitsec();
+        var rated = bi.drunsunitsec();
+        var base = benchmarkOrders.getFirst().drunsunitsec();
         return BenchmarkInfoView.printDouble(base / rated, 2);
     }
 
@@ -151,16 +141,16 @@ public class BenchmarkBean {
                                                   ParameterWithValueDeclaration[] params,
                                                   int nUnitRuns) {
 
-        int runs = 1;
+        var runs = 1;
         while (true) {
-            long time = bu.applyAsLong(runs);// run test
+            var time = bu.applyAsLong(runs);// run test
             if (time > MIN_NANOS || runs >= Integer.MAX_VALUE) {
                 return new BenchmarkInfoView(runs, time, nUnitRuns, tableId, testName, testInfo, params);
             }
 
             // Calculate a growth rate for runs
             // division by zero is Double.POSITIVE_INFINITY
-            double mult = Math.min(200.0, 1.1 * MIN_NANOS / time);
+            var mult = Math.min(200.0, 1.1 * MIN_NANOS / time);
             // Calculate new quantity of runs
             runs = Math.max(runs + 1, (int) (runs * mult));
         }

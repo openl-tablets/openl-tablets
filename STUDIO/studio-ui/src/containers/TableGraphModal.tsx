@@ -19,13 +19,16 @@ import { apiCall, type ApiCallOptions } from '../services'
 import {
     bridgeHiddenNodes,
     buildGraphModel,
+    DATATYPE_KIND,
     DISPATCHER_KIND,
     findCycles,
-    GRAPH_LAYOUT,
     type GraphCycle,
     type GraphNode,
+    type GraphVocabulary,
     kindColor,
+    layoutBands,
     visibleNeighbours,
+    vocabularyValue,
 } from './tableGraph'
 
 cytoscape.use(dagre)
@@ -67,9 +70,17 @@ const canOpenTable = (node: GraphNode | undefined, projectName?: string): boolea
 const SELECT_ACCENT = '#fa8c16'
 const PROBLEM_ACCENT = '#f5222d'
 const DISPATCHER_ACCENT = '#ffc53d'
+// Data model edges (inheritance, fields) are teal, the colour the Datatype kind already carries.
+const DATA_MODEL_ACCENT = '#13c2c2'
 const HAIRLINE = '#e8e8e8'
 // IDs, cells and signatures are code, so they are set in a monospace utility face.
 const MONO = 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
+// Crow's foot cardinality, read from the line towards the entity: a ring for optional, then a bar for one value and a
+// crow's foot for many. Every datatype field is optional, so the ring is on both.
+const ERD_ZERO_OR_ONE = '○|'
+const ERD_ZERO_OR_MANY = '○≺'
+// the legend swatch is a narrow slot, and a two-glyph symbol must stay on one line in it
+const ERD_MARKER = { fontFamily: MONO, fontSize: 12, whiteSpace: 'nowrap' as const }
 // A faint blueprint dot-grid behind the graph, so nodes read as placed on a board rather than floating in a void.
 const CANVAS_BG = '#fbfcfe'
 const DOT_GRID = 'radial-gradient(circle, #e6ebf2 1.1px, transparent 1.2px)'
@@ -97,6 +108,51 @@ const buildStyle = (maxWeight: number) => [
             'border-color': '#000000',
             'border-opacity': 0.35,
             'border-width': `mapData(weight, 0, ${Math.max(maxWeight, 1)}, 0, 7)`,
+        },
+    },
+    {
+        // a datatype is an ER entity box: the type on top, a rule, and the members it declares under it — so the data
+        // model reads as a diagram of types rather than as named dots
+        selector: 'node.entity',
+        style: {
+            'background-color': '#ffffff',
+            'shape': 'round-rectangle',
+            'color': '#262626',
+            'font-family': MONO,
+            'font-size': 10,
+            'font-weight': 400,
+            'text-outline-width': 0,
+            'text-valign': 'center',
+            'text-halign': 'center',
+            'text-wrap': 'wrap',
+            'text-justification': 'left',
+            'text-max-width': '260px',
+            'padding': '9px',
+            'border-width': 1.5,
+            'border-color': DATA_MODEL_ACCENT,
+            'border-opacity': 1,
+        },
+    },
+    {
+        // the subject area a data model belongs to: a titled frame around the entities of one project
+        selector: 'node.area',
+        style: {
+            'background-color': '#f0fdfd',
+            'background-opacity': 0.6,
+            'shape': 'round-rectangle',
+            'label': 'data(label)',
+            'color': '#08979c',
+            'font-size': 13,
+            'font-weight': 600,
+            'text-outline-width': 0,
+            'text-valign': 'top',
+            'text-halign': 'center',
+            'text-margin-y': -4,
+            'padding': '22px',
+            'border-width': 1,
+            'border-style': 'dashed',
+            'border-color': DATA_MODEL_ACCENT,
+            'border-opacity': 0.7,
         },
     },
     {
@@ -135,6 +191,36 @@ const buildStyle = (maxWeight: number) => [
         },
     },
     {
+        // UML generalization: a hollow closed triangle pointing at the datatype being extended
+        selector: 'edge.extends',
+        style: {
+            'line-color': DATA_MODEL_ACCENT,
+            'target-arrow-color': DATA_MODEL_ACCENT,
+            'target-arrow-fill': 'hollow',
+            'arrow-scale': 1.1,
+            'width': 1.6,
+        },
+    },
+    {
+        // A relationship between two entities, in crow's foot (information engineering) notation. Cytoscape's arrow
+        // shapes all point their tip into the node, so the symbol is drawn as an autorotated end label instead: it
+        // turns with the line and reads the same whichever way the edge runs.
+        selector: 'edge.field',
+        style: {
+            'line-color': DATA_MODEL_ACCENT,
+            'target-arrow-shape': 'none',
+            'target-text-rotation': 'autorotate',
+            'target-text-offset': 14,
+            'font-size': 18,
+            'font-family': MONO,
+            'color': DATA_MODEL_ACCENT,
+        },
+    },
+    // The ring is the optional half of the symbol — a datatype field never has to be filled in — and the bar or the
+    // crow's foot next to the entity is how many of it the field holds.
+    { selector: 'edge.field.one', style: { 'target-label': ERD_ZERO_OR_ONE } },
+    { selector: 'edge.field.many', style: { 'target-label': ERD_ZERO_OR_MANY } },
+    {
         selector: 'edge.cycle',
         style: { 'line-color': PROBLEM_ACCENT, 'target-arrow-color': PROBLEM_ACCENT, 'line-style': 'dashed', 'width': 2 },
     },
@@ -152,6 +238,17 @@ const buildStyle = (maxWeight: number) => [
             'target-arrow-color': PROBLEM_ACCENT,
             'line-style': 'dashed',
             'width': 2,
+        },
+    },
+    {
+        // a datatype with a field of its own type is a plain self-association, not recursion: keep the loop geometry
+        // above but restore the data model's own notation on top of it
+        selector: 'edge:loop.field',
+        style: {
+            'line-color': DATA_MODEL_ACCENT,
+            'target-arrow-color': DATA_MODEL_ACCENT,
+            'line-style': 'solid',
+            'width': 1.3,
         },
     },
     // @types/cytoscape's StylesheetCSS types each property narrowly and omits several used here (mapData() expressions,
@@ -342,8 +439,7 @@ export const TableGraphModal: React.FC = () => {
         }
         const cy = cytoscape({ container: containerRef.current, elements: model.elements, style: buildStyle(maxWeight) })
         cyRef.current = cy
-        // cytoscape's LayoutOptions union has no "dagre" member, so the dagre options are cast in only at the call.
-        cy.layout(GRAPH_LAYOUT as unknown as cytoscape.LayoutOptions).run()
+        layoutBands(cy)
 
         // Preselect the table that was open in the editor (focuses and centres it via the selection effect).
         if (pendingSelectRef.current && model.byId.has(pendingSelectRef.current)) {
@@ -354,6 +450,10 @@ export const TableGraphModal: React.FC = () => {
         let lastTap = { id: '', time: 0 }
         cy.on('tap', 'node', event => {
             const id = event.target.id()
+            // a subject area is a frame, not a table: tapping it selects nothing
+            if (!model.byId.has(id)) {
+                return
+            }
             const now = Date.now()
             setSelectedId(id)
             setSearchName(undefined)
@@ -388,8 +488,12 @@ export const TableGraphModal: React.FC = () => {
             return
         }
         cy.batch(() => {
-            cy.nodes().forEach(node => {
+            cy.nodes().not('.area').forEach(node => {
                 node.toggleClass('hidden', !visibleIds.has(node.id()))
+            })
+            // a subject area stands as long as it frames something
+            cy.nodes('.area').forEach(area => {
+                area.toggleClass('hidden', area.children().not('.hidden').empty())
             })
             // reconnect tables across the ones just hidden, so filtering a kind rebuilds links instead of cutting them
             cy.remove('edge.bridge')
@@ -408,7 +512,7 @@ export const TableGraphModal: React.FC = () => {
             const ids = activeCycle.nodes
             const cycleEdges = ids.map((id, index) => `${id}->${ids[(index + 1) % ids.length] ?? ''}`)
             cy.batch(() => {
-                cy.elements().not('.hidden').addClass('faded')
+                cy.elements().not('.hidden').not('.area').addClass('faded')
                 ids.forEach(id => cy.getElementById(id).removeClass('faded').addClass('highlighted'))
                 cycleEdges.forEach(edgeId => cy.getElementById(edgeId).removeClass('faded'))
             })
@@ -423,7 +527,7 @@ export const TableGraphModal: React.FC = () => {
             return
         }
         const neighbourhood = node.closedNeighborhood()
-        cy.elements().not(neighbourhood).not('.hidden').addClass('faded')
+        cy.elements().not(neighbourhood).not('.hidden').not('.area').addClass('faded')
         node.addClass('highlighted')
         cy.animate({ center: { eles: node }, zoom: Math.max(cy.zoom(), 1) }, { duration: 300 })
         // visibleIds is a dependency because a kind filter / exploration change re-hides nodes, and the fade set must be
@@ -481,7 +585,7 @@ export const TableGraphModal: React.FC = () => {
                 <>
                     {' · '}
                     <Typography.Text
-                        onClick={() => { setCycles(findCycles(model.dependencies, 2, CYCLE_SEARCH_LIMIT)); setActiveCycle(undefined) }}
+                        onClick={() => { setCycles(findCycles(model.callDependencies, 2, CYCLE_SEARCH_LIMIT)); setActiveCycle(undefined) }}
                         style={{ fontSize: 13, cursor: 'pointer' }}
                         type="danger"
                     >
@@ -618,6 +722,88 @@ export const TableGraphModal: React.FC = () => {
         )
     }
 
+    // Walks to a table named by the data model. Unlike the "uses"/"used by" lists, which offer visible tables only,
+    // a field can point outside the current exploration — leaving it on would select a table that is not drawn, so the
+    // exploration is dropped and the target is shown on the full graph.
+    const selectFromDataModel = (id: string) => {
+        setSelectedId(id)
+        if (!visibleIds.has(id)) {
+            setExplore(undefined)
+        }
+    }
+
+    // The values a vocabulary lists. Only a few of them travel with the graph, so a longer one is shown as its first
+    // and last values with the gap marked, and the reader is pointed at the table for the rest.
+    const renderVocabulary = (vocabulary: GraphVocabulary) => {
+        const values = (vocabulary.valuesPreview ?? []).map(vocabularyValue)
+        const gap = vocabulary.truncated ? Math.ceil(values.length / 2) : -1
+        return (
+            <>
+                <Divider style={{ margin: '8px 0' }} />
+                <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography.Text strong>{t('graph:panel.values')}</Typography.Text>
+                    <Typography.Text style={{ fontSize: 11 }} type="secondary">
+                        {t('graph:panel.values_summary', { count: vocabulary.valueCount, type: vocabulary.valueType })}
+                    </Typography.Text>
+                </Space>
+                <Space wrap data-testid="graph-vocabulary-values" size={[4, 4]} style={{ width: '100%', marginTop: 4 }}>
+                    {values.map((value, index) => (
+                        <React.Fragment key={`${index}:${value}`}>
+                            {index === gap && (
+                                <Typography.Text style={{ fontFamily: MONO }} type="secondary">…</Typography.Text>
+                            )}
+                            <Tag style={{ margin: 0, fontFamily: MONO }}>{value}</Tag>
+                        </React.Fragment>
+                    ))}
+                </Space>
+                {vocabulary.truncated && (
+                    <Typography.Text style={{ display: 'block', fontSize: 11, marginTop: 4 }} type="secondary">
+                        {t('graph:panel.values_truncated', { count: vocabulary.valueCount })}
+                    </Typography.Text>
+                )}
+            </>
+        )
+    }
+
+    // A datatype's own structure: the datatype it extends and the fields it declares, or the values a vocabulary lists.
+    // A field whose type is another datatype links to it, so the data model can be walked field by field.
+    const renderDataModel = (node: GraphNode) => {
+        const fields = node.fields ?? []
+        return (
+            <>
+                {renderIdLinks(t('graph:panel.extends'), node.extends ? [node.extends] : [], selectFromDataModel)}
+                {node.vocabulary && renderVocabulary(node.vocabulary)}
+                {fields.length > 0 && (
+                    <>
+                        <Divider style={{ margin: '8px 0' }} />
+                        <Typography.Text strong>{t('graph:panel.fields')}</Typography.Text>
+                        <Space orientation="vertical" size={2} style={{ width: '100%' }}>
+                            {fields.map(field => {
+                                const ref = field.ref
+                                return (
+                                    <div key={field.name} style={{ display: 'flex', gap: 6, fontSize: 12, width: '100%' }}>
+                                        <Typography.Text ellipsis={{ tooltip: field.name }} style={{ maxWidth: 130 }}>
+                                            {field.name}
+                                        </Typography.Text>
+                                        {ref ? (
+                                            <Typography.Link onClick={() => selectFromDataModel(ref)} style={{ fontFamily: MONO, fontSize: 11 }}>
+                                                {field.type}
+                                            </Typography.Link>
+                                        ) : (
+                                            <Typography.Text style={{ fontFamily: MONO, fontSize: 11 }} type="secondary">
+                                                {field.type}
+                                            </Typography.Text>
+                                        )}
+                                    </div>
+                                )
+                            })}
+                        </Space>
+                    </>
+                )}
+            </>
+        )
+    }
+
     const renderNodeInfo = (node: GraphNode) => {
         const isDispatcher = node.kind === DISPATCHER_KIND
         const foreign = !isDispatcher && !canOpenTable(node, currentProjectName)
@@ -648,6 +834,7 @@ export const TableGraphModal: React.FC = () => {
                     </div>
                 )}
                 {renderMeta(node)}
+                {renderDataModel(node)}
                 <div style={{ marginTop: 10 }}>
                     {isDispatcher && (
                         <Typography.Paragraph style={{ marginBottom: 8 }} type="secondary">
@@ -748,6 +935,47 @@ export const TableGraphModal: React.FC = () => {
                     {model.stats.isolated > 0
                         && marker(<span style={{ width: 11, height: 11, border: `2px dashed ${PROBLEM_ACCENT}` }} />, t('graph:legend.isolated'))}
                     {marker(<span style={{ width: 14, height: 0, borderTop: `2px dashed ${PROBLEM_ACCENT}` }} />, t('graph:legend.cycle'))}
+                    {kindCounts.has(DATATYPE_KIND) && (
+                        <>
+                            {marker(
+                                <span
+                                    style={{
+                                        width: 13, height: 11, background: '#ffffff', position: 'relative',
+                                        border: `1px solid ${DATA_MODEL_ACCENT}`,
+                                    }}
+                                >
+                                    <span
+                                        style={{
+                                            position: 'absolute', top: 3, left: 0, right: 0,
+                                            borderTop: `1px solid ${DATA_MODEL_ACCENT}`,
+                                        }}
+                                    />
+                                </span>,
+                                t('graph:legend.entity')
+                            )}
+                            {marker(
+                                <span
+                                    style={{
+                                        width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
+                                        borderBottom: `8px solid ${DATA_MODEL_ACCENT}`,
+                                    }}
+                                />,
+                                t('graph:legend.extends')
+                            )}
+                            {marker(
+                                <Typography.Text style={{ ...ERD_MARKER, color: DATA_MODEL_ACCENT }}>{ERD_ZERO_OR_ONE}</Typography.Text>,
+                                t('graph:legend.one')
+                            )}
+                            {marker(
+                                <Typography.Text style={{ ...ERD_MARKER, color: DATA_MODEL_ACCENT }}>{ERD_ZERO_OR_MANY}</Typography.Text>,
+                                t('graph:legend.many')
+                            )}
+                            {marker(
+                                <span style={{ width: 13, height: 11, border: `1px dashed ${DATA_MODEL_ACCENT}`, background: '#f0fdfd' }} />,
+                                t('graph:legend.area')
+                            )}
+                        </>
+                    )}
                     {marker(
                         <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
                             <span style={{ width: 7, height: 11, border: '1px solid #999' }} />
@@ -827,7 +1055,7 @@ export const TableGraphModal: React.FC = () => {
                                 type={cycles === null ? 'default' : 'primary'}
                                 onClick={() => {
                                     if (cycles === null) {
-                                        setCycles(findCycles(model.dependencies, 2, CYCLE_SEARCH_LIMIT))
+                                        setCycles(findCycles(model.callDependencies, 2, CYCLE_SEARCH_LIMIT))
                                     } else {
                                         setCycles(null)
                                         setActiveCycle(undefined)

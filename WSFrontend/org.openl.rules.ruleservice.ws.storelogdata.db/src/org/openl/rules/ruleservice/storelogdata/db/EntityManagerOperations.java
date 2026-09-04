@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -18,14 +19,11 @@ import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.db.enabled")
+@RequiredArgsConstructor
 @Slf4j
 public class EntityManagerOperations implements RuleServicePublisherListener {
 
     private final HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder;
-
-    public EntityManagerOperations(HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder) {
-        this.hibernateSessionFactoryBuilder = hibernateSessionFactoryBuilder;
-    }
 
     private static class Key {
         final Set<Class<?>> entityClasses;
@@ -78,8 +76,8 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
         Map<Key, SessionFactory> next;
         do {
             current = entityManagers.get();
-            Key key = new Key(entityClasses);
-            SessionFactory currentEntityManager = current.get(key);
+            var key = new Key(entityClasses);
+            var currentEntityManager = current.get(key);
             if (currentEntityManager != null) {
                 return currentEntityManager;
             } else {
@@ -101,7 +99,7 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
     @Override
     public void onUndeploy(String deployPath) {
         var emToClose = entityManagers.get();
-        entityManagers.set(Collections.emptyMap());
+        entityManagers.set(Map.of());
         for (SessionFactory sf : emToClose.values()) {
             try {
                 sf.close();

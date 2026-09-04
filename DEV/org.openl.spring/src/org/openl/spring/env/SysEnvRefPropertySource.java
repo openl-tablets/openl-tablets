@@ -1,7 +1,6 @@
 package org.openl.spring.env;
 
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.core.env.StandardEnvironment;
@@ -32,11 +31,11 @@ public class SysEnvRefPropertySource extends SystemEnvironmentPropertySource {
 
     @Override
     public Object getProperty(String name) {
-        Object result = super.getProperty(name);
+        var result = super.getProperty(name);
         if (result != null) {
             return result;
         }
-        Matcher matcher = DOLLAR_LITERAL.matcher(name);
+        var matcher = DOLLAR_LITERAL.matcher(name);
         if (matcher.find()) {
             // replace $ref with _ref_
             name = matcher.replaceAll("_$1_");

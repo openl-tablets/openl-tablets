@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.binding;
 
+import lombok.Getter;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -7,7 +9,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.AliasWrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
@@ -27,9 +28,13 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode {
 
+    @Getter
     private final OpenL openl;
+    @Getter
     private final IOpenMethodHeader header;
+    @Getter
     private ExecutableRulesMethod method;
+    @Getter
     private final ModuleOpenClass module;
 
     public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
@@ -37,22 +42,6 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         this.header = header;
         this.openl = openl;
         this.module = module;
-    }
-
-    public OpenL getOpenl() {
-        return openl;
-    }
-
-    public IOpenMethodHeader getHeader() {
-        return header;
-    }
-
-    public ExecutableRulesMethod getMethod() {
-        return method;
-    }
-
-    public ModuleOpenClass getModule() {
-        return module;
     }
 
     @Override
@@ -87,7 +76,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     }
 
     protected IOpenMethod getAliasMethod(ExecutableRulesMethod originalMethod) {
-        final String aliasMethodName = getTableSyntaxNode().getTableProperties().getId();
+        final var aliasMethodName = getTableSyntaxNode().getTableProperties().getId();
         return AliasWrapperLogic.wrapOpenMethod(originalMethod, aliasMethodName);
     }
 
@@ -114,8 +103,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             }
 
             // Input parameters
-            ILocation[] paramTypeLocations = tableHeader.getParamTypeLocations();
-            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+            var paramTypeLocations = tableHeader.getParamTypeLocations();
+            for (var i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
                 IOpenClass parameterType = OpenClassUtils
                         .getRootComponentClass(header.getSignature().getParameterType(i));
 
@@ -131,9 +120,9 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     }
 
     private IOpenSourceCodeModule getHeaderSyntaxNode(IBindingContext bindingContext) {
-        IOpenSourceCodeModule src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(), bindingContext);
+        var src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(), bindingContext);
 
-        int startPosition = getSignatureStartIndex();
+        var startPosition = getSignatureStartIndex();
         return new SubTextSourceCodeModule(src, startPosition, src.getCode().length());
     }
 
@@ -147,8 +136,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     }
 
     public int getSignatureStartIndex() {
-        ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
-        TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
+        var cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
+        var tableHeaderText = new TextInfo(cell.getStringValue());
         return getTableSyntaxNode().getHeader()
                 .getHeaderToken()
                 .getLocation()

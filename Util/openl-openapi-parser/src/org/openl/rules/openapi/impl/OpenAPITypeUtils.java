@@ -98,7 +98,7 @@ public class OpenAPITypeUtils {
     public static TypeInfo extractType(OpenAPIRefResolver openAPIRefResolver,
                                        Schema<?> schema,
                                        boolean allowPrimitiveTypes) {
-        boolean isRefToComplexType = false;
+        var isRefToComplexType = false;
         Schema<?> foundSchema = null;
         if (schema.get$ref() != null) {
             foundSchema = OpenLOpenAPIUtils.resolve(openAPIRefResolver, schema, Schema::get$ref);
@@ -118,8 +118,8 @@ public class OpenAPITypeUtils {
         if (foundSchema != null) {
             schema = foundSchema;
         }
-        String schemaType = schema.getType();
-        String format = schema.getFormat();
+        var schemaType = schema.getType();
+        var format = schema.getFormat();
         TypeInfo result = null;
         if ("string".equals(schemaType)) {
             result = "date".equals(format) || "date-time".equals(format) ? WRAPPER_CLASSES.get(DATE)
@@ -144,8 +144,8 @@ public class OpenAPITypeUtils {
             result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);
         } else if (schema instanceof ArraySchema arraySchema) {
             TypeInfo type = extractType(openAPIRefResolver, arraySchema.getItems(), false);
-            String name = type.getSimpleName() + "[]";
-            int dim = type.getDimension() + 1;
+            var name = type.getSimpleName() + "[]";
+            var dim = type.getDimension() + 1;
             if (type.isReference()) {
                 result = new TypeInfo(name,
                         name,
@@ -170,7 +170,7 @@ public class OpenAPITypeUtils {
     }
 
     public static boolean isComplexSchema(OpenAPIRefResolver openAPIRefResolver, Schema<?> foundSchema) {
-        boolean result = false;
+        var result = false;
         if (foundSchema instanceof ComposedSchema) {
             result = true;
         } else if (foundSchema instanceof ArraySchema) {
@@ -248,9 +248,9 @@ public class OpenAPITypeUtils {
     }
 
     public static String getParentName(ComposedSchema composedSchema, OpenAPI openAPI) {
-        Map<String, Schema> allSchemas = OpenLOpenAPIUtils.getSchemas(openAPI);
-        List<Schema> interfaces = OpenLOpenAPIUtils.getInterfaces(composedSchema);
-        List<String> refedWithoutDiscriminator = new ArrayList<>();
+        var allSchemas = OpenLOpenAPIUtils.getSchemas(openAPI);
+        var interfaces = OpenLOpenAPIUtils.getInterfaces(composedSchema);
+        var refedWithoutDiscriminator = new ArrayList<String>();
 
         if (CollectionUtils.isNotEmpty(interfaces)) {
             for (Schema<?> schema : interfaces) {
@@ -292,7 +292,7 @@ public class OpenAPITypeUtils {
                 log.error("Failed to obtain schema from {}", parentName);
             }
         } else if (schema instanceof ComposedSchema composed) {
-            final List<Schema> interfaces = OpenLOpenAPIUtils.getInterfaces(composed);
+            final var interfaces = OpenLOpenAPIUtils.getInterfaces(composed);
             for (Schema<?> i : interfaces) {
                 if (hasOrInheritsDiscriminator(i, allSchemas)) {
                     return true;
@@ -305,8 +305,8 @@ public class OpenAPITypeUtils {
     }
 
     public static Map<String, List<String>> getChildrenMap(OpenAPI openAPI) {
-        Map<String, Schema> allSchemas = OpenLOpenAPIUtils.getSchemas(openAPI);
-        Map<String, List<Map.Entry<String, Schema>>> groupedByParent = allSchemas.entrySet()
+        var allSchemas = OpenLOpenAPIUtils.getSchemas(openAPI);
+        var groupedByParent = allSchemas.entrySet()
                 .stream()
                 .filter(entry -> isComposedSchema(entry.getValue()))
                 .filter(entry -> OpenAPITypeUtils.getParentName((ComposedSchema) entry.getValue(), openAPI) != null)
@@ -320,8 +320,8 @@ public class OpenAPITypeUtils {
     }
 
     public static Map<String, Schema> getFieldsOfChild(ComposedSchema cs) {
-        Map<String, Schema> propMap = new HashMap<>();
-        List<Schema> interfaces = OpenLOpenAPIUtils.getInterfaces(cs);
+        var propMap = new HashMap<String, Schema>();
+        var interfaces = OpenLOpenAPIUtils.getInterfaces(cs);
         if (CollectionUtils.isNotEmpty(interfaces)) {
             for (Schema<?> sc : interfaces) {
                 if (StringUtils.isEmpty(sc.get$ref()) && CollectionUtils.isNotEmpty(sc.getProperties())) {
@@ -333,7 +333,7 @@ public class OpenAPITypeUtils {
     }
 
     public static Map<String, Schema> getAllProperties(ComposedSchema cs, OpenAPI openAPI) {
-        Map<String, Schema> allProperties = new HashMap<>(getFieldsOfChild(cs));
+        var allProperties = new HashMap<String, Schema>(getFieldsOfChild(cs));
         String parentName = getParentName(cs, openAPI);
         Schema<?> parentSchema = OpenLOpenAPIUtils.getSchemas(openAPI).get(parentName);
         if (parentSchema != null) {

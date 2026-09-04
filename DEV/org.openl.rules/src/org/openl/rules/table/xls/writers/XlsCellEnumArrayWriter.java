@@ -1,7 +1,10 @@
 package org.openl.rules.table.xls.writers;
 
+import java.util.Arrays;
+
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.EnumUtils;
+import org.openl.util.StringUtils;
 
 public class XlsCellEnumArrayWriter extends AXlsCellWriter {
 
@@ -11,8 +14,10 @@ public class XlsCellEnumArrayWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        Object[] enums = (Object[]) getValueToWrite();
-        String[] names = EnumUtils.getNames(enums);
+        var enums = (Object[]) getValueToWrite();
+        var names = Arrays.stream(enums)
+                .map(value -> value == null ? StringUtils.EMPTY : EnumUtils.getName((Enum<?>) value))
+                .toArray(String[]::new);
         getCellToWrite().setCellValue(String.join(",", names));
     }
 

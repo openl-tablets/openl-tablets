@@ -4,12 +4,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.abstraction.IProject;
 
 public class LocalDeployment implements IDeployment {
 
+    @Getter
     private final String deploymentName;
     private final CommonVersion version;
     private final Map<String, IProject> projects;
@@ -18,11 +21,6 @@ public class LocalDeployment implements IDeployment {
         this.deploymentName = deploymentName;
         this.version = version;
         this.projects = Collections.unmodifiableMap(projects);
-    }
-
-    @Override
-    public String getDeploymentName() {
-        return deploymentName;
     }
 
     @Override

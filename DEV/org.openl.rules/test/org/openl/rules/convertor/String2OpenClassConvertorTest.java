@@ -8,7 +8,7 @@ class String2OpenClassConvertorTest {
 
     @Test
     void testParseNull() {
-        String2OpenClassConvertor converter = new String2OpenClassConvertor();
+        var converter = new String2OpenClassConvertor();
         assertNull(converter.parse(null, null, null));
     }
 

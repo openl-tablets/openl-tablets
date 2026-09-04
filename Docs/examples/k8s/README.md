@@ -39,6 +39,9 @@ Access Studio at `http://localhost:8080` (Rancher Desktop routes the LoadBalance
   `emptyDir` volume. The jar is mounted into `/opt/openl/lib/jdbc.jar`, where Jetty picks it up via `--lib`.
 - **Persistence** — `/opt/openl/local` (instance metadata) and `/opt/openl/shared` (shared rule projects) are backed by
   separate ReadWriteOnce PVCs so data survives pod restarts.
+- **Health checks** — the startup probe calls `/healthcheck/startup`; the readiness probe calls
+  `/healthcheck/readiness`. Both endpoints are available without authentication. The readiness probe returns success
+  only after the Spring context is initialized, while it is not being refreshed, and before shutdown begins.
 - **Credentials** — stored in a Kubernetes Secret (`openl-db-credentials`). Both the PostgreSQL pod and the Studio pod
   reference it. For production, replace it with an external secrets manager.
 - **Configuration** — OpenL Studio properties are set via environment variables using Spring Boot relaxed binding (

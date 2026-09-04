@@ -6,9 +6,9 @@ class ShortMappedStorage extends MappedStorage {
 
     ShortMappedStorage(int[] map, Object[] uniqueValues, IStorage storage, StorageInfo info) {
         super(uniqueValues, storage, info);
-        int size = map.length;
+        var size = map.length;
         bmap = new short[size];
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
             bmap[i] = (short) map[i];
         }
     }

@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "name": "EPBDS-13931"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 100,
+  "numberOfElements": 1,
+  "total": 1
+}

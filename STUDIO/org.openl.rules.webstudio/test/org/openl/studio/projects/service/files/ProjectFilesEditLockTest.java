@@ -34,6 +34,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
@@ -69,7 +70,7 @@ class ProjectFilesEditLockTest {
 
         descriptorCleaner = mock(ProjectDescriptorCleaner.class);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
-                new FileArchiveSupport(acl), descriptorCleaner);
+                new FileArchiveSupport(acl), descriptorCleaner, new BeanValidationProvider(List.of()));
     }
 
     @Test

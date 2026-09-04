@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.openl.binding.BindingDependencies;
@@ -24,7 +26,6 @@ import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -42,9 +43,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     private final static String PRECISION_PARAM = "precision";
     private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s[-]\\s");
+    @Getter
+    @Setter
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
     private Map<String, Integer> indexes;
+    @Getter
     private final boolean runMethod;
     private DynamicObject[] testObjects;
     private final IDataBase db;
@@ -76,7 +80,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     private TestDescription[] initTestsAndIndexes() {
-        DynamicObject[] testObjects = getTestObjects();
+        var testObjects = getTestObjects();
         TestDescription[] tests = new TestDescription[testObjects.length];
         indexes = new HashMap<>(tests.length);
         Map<String, Object> properties = getProperties();
@@ -84,12 +88,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         if (properties != null && properties.containsKey(PRECISION_PARAM)) {
             precision = Integer.parseInt(properties.get(PRECISION_PARAM).toString());
         }
-        IOpenMethod testedMethod = getTestedMethod();
-        List<IOpenField> fieldsToTest = new ArrayList<>();
-        List<IOpenField> errorFieldsToTest = new ArrayList<>();
+        var testedMethod = getTestedMethod();
+        var fieldsToTest = new ArrayList<IOpenField>();
+        var errorFieldsToTest = new ArrayList<IOpenField>();
         createFieldsToTest(fieldsToTest, errorFieldsToTest, testedMethod, getDataModel(), precision);
 
-        for (int i = 0; i < tests.length; i++) {
+        for (var i = 0; i < tests.length; i++) {
             tests[i] = new TestDescription(testedMethod,
                     testObjects[i],
                     fieldsToTest,
@@ -106,7 +110,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         if (tests == null) {
             initTestsAndIndexes();
         }
-        TreeSet<Integer> result = new TreeSet<>();
+        var result = new TreeSet<Integer>();
 
         String[] ranges = StringUtils.split(ids.trim(), ',');
         for (String range : ranges) {
@@ -114,7 +118,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 result.add(indexes.get(","));
                 continue;
             }
-            String v = range.trim();
+            var v = range.trim();
             if (indexes.containsKey(v)) {
                 result.add(indexes.get(v));
                 continue;
@@ -128,13 +132,13 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     result.add(indexes.get("-"));
                 }
             } else {
-                String startIdValue = edges[0].trim();
-                String endIdValue = edges[edges.length - 1].trim();
+                var startIdValue = edges[0].trim();
+                var endIdValue = edges[edges.length - 1].trim();
 
-                int startIndex = indexes.get(startIdValue);
-                int endIndex = indexes.get(endIdValue);
+                var startIndex = indexes.get(startIdValue);
+                var endIndex = indexes.get(endIdValue);
 
-                for (int i = startIndex; i <= endIndex; i++) {
+                for (var i = startIndex; i <= endIndex; i++) {
                     result.add(i);
                 }
             }
@@ -150,7 +154,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     @Override
     public BindingDependencies getDependencies() {
-        BindingDependencies bindingDependencies = new RulesBindingDependencies();
+        var bindingDependencies = new RulesBindingDependencies();
 
         updateDependency(bindingDependencies);
 
@@ -158,7 +162,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     private void updateDependency(BindingDependencies bindingDependencies) {
-        IOpenMethod testedMethod = getTestedMethod();
+        var testedMethod = getTestedMethod();
         if (testedMethod instanceof ExecutableRulesMethod || testedMethod instanceof OpenMethodDispatcher) {
             bindingDependencies.addMethodDependency(testedMethod, getBoundNode());
         }
@@ -189,17 +193,13 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return getTests()[numberOfTest];
     }
 
-    public void setTestedMethod(IOpenMethod testedMethod) {
-        this.testedMethod = testedMethod;
-    }
-
     public String getColumnDisplayName(String columnTechnicalName) {
-        int columnIndex = getColumnIndex(columnTechnicalName);
+        var columnIndex = getColumnIndex(columnTechnicalName);
         return getColumnDisplayName(columnIndex);
     }
 
     public int getColumnIndex(String columnName) {
-        ColumnDescriptor[] descriptors = getDataModel().getDescriptors();
+        var descriptors = getDataModel().getDescriptors();
         for (ColumnDescriptor descriptor : descriptors) {
             if (descriptor == null) {
                 continue;
@@ -214,7 +214,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     public String getColumnName(int index) {
         if (index >= 0) {
-            ColumnDescriptor descriptor = getDataModel().getDescriptor(index);
+            var descriptor = getDataModel().getDescriptor(index);
             return descriptor == null ? null : descriptor.getName();
         } else {
             return null;
@@ -223,7 +223,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     public String getColumnDisplayName(int index) {
         if (index >= 0) {
-            ColumnDescriptor descriptor = getDataModel().getDescriptor(index);
+            var descriptor = getDataModel().getDescriptor(index);
             return descriptor == null ? null : descriptor.getDisplayName();
         } else {
             return null;
@@ -234,17 +234,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return getDataModel().getColumnCount();
     }
 
-    public IOpenMethod getTestedMethod() {
-        return testedMethod;
-    }
-
     @Override
     protected TestUnitsResults innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         return new TestSuite(this).invoke(target, env);
-    }
-
-    public boolean isRunMethod() {
-        return runMethod;
     }
 
     /**
@@ -256,7 +248,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
      *         TODO: rename it. it is difficult to understand what is it doing
      */
     public boolean isRunmethodTestable() {
-        for (int i = 0; i < getNumberOfTestsCases(); i++) {
+        for (var i = 0; i < getNumberOfTestsCases(); i++) {
             if (getTest(i).isExpectedResultDefined() || getTest(i)
                     .isExpectedErrorDefined() || containsFieldsForSprCellTests(
                     getTest(i).getTestObject().getFieldValues().keySet()) || testedMethod instanceof Spreadsheet) {
@@ -293,12 +285,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                            IOpenMethod testedMethod,
                                            ITableModel dataModel,
                                            Integer testTablePrecision) {
-        for (int colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
-            ColumnDescriptor columnDescriptor = dataModel.getDescriptor(colNum);
+        for (var colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
+            var columnDescriptor = dataModel.getDescriptor(colNum);
             if (columnDescriptor != null) {
                 List<IOpenField> toAdd;
                 IOpenClass resultType;
-                IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
+                var nodes = columnDescriptor.getFieldChainTokens();
                 if (nodes.length == 0) {
                     // skip empty
                     continue;
@@ -313,7 +305,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     // skip non-'_res_' and non-'_error_' columns
                     continue;
                 }
-                Integer fieldPrecision = testTablePrecision;
+                var fieldPrecision = testTablePrecision;
                 if (nodes.length > 1 && StringUtils.matches(DataTableBindHelper.PRECISION_PATTERN,
                         nodes[nodes.length - 1].getIdentifier())) {
                     // set the precision of the field
@@ -322,14 +314,14 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 }
 
                 IOpenField[] fieldSequence;
-                boolean resIsCollection = isCollectionType(nodes[0].getIdentifier());
-                int startIndex = 0;
-                IOpenClass currentType = resultType;
+                var resIsCollection = isCollectionType(nodes[0].getIdentifier());
+                var startIndex = 0;
+                var currentType = resultType;
 
                 if (resIsCollection) {
                     startIndex = 1;
                     fieldSequence = new IOpenField[nodes.length];
-                    IOpenField arrayField = new ThisField(resultType);
+                    var arrayField = new ThisField(resultType);
                     CollectionType collectionType = getCollectionType(arrayField.getType());
                     IOpenField arrayAccessField;
                     if (collectionType == CollectionType.MAP) {
@@ -338,7 +330,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                 key,
                                 arrayField.getType().getComponentClass());
                     } else {
-                        int index = DataTableBindHelper.getCollectionIndex(nodes[0]);
+                        var index = DataTableBindHelper.getCollectionIndex(nodes[0]);
                         arrayAccessField = new CollectionElementField(arrayField,
                                 index,
                                 arrayField.getType().getComponentClass(),
@@ -355,10 +347,10 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 }
                 int i;
                 for (i = startIndex; i < fieldSequence.length; i++) {
-                    String identifier = nodes[i + 1 - startIndex].getIdentifier();
-                    boolean isCollection = isCollectionType(identifier);
+                    var identifier = nodes[i + 1 - startIndex].getIdentifier();
+                    var isCollection = isCollectionType(identifier);
                     if (isCollection) {
-                        IOpenField arrayField = currentType
+                        var arrayField = currentType
                                 .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
                         // Try process field as SpreadsheetResult
                         if (arrayField == null && currentType.equals(JavaOpenClass.OBJECT) && StringUtils
@@ -368,7 +360,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                     .getField(DataTableBindHelper.getCollectionName(nodes[i + 1 - startIndex]));
                         }
                         if (arrayField != null) {
-                            IOpenClass type = arrayField.getType();
+                            var type = arrayField.getType();
                             CollectionType collectionType = getCollectionType(type);
                             IOpenField arrayAccessField;
                             if (collectionType == CollectionType.MAP) {
@@ -377,7 +369,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                         key,
                                         type.getComponentClass());
                             } else {
-                                int arrayIndex = DataTableBindHelper.getCollectionIndex(nodes[i + 1 - startIndex]);
+                                var arrayIndex = DataTableBindHelper.getCollectionIndex(nodes[i + 1 - startIndex]);
                                 arrayAccessField = new CollectionElementField(arrayField,
                                         arrayIndex,
                                         type.getComponentClass(),
@@ -391,7 +383,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                 .matches(DataTableBindHelper.SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
                             // Try process field as SpreadsheetResult
                             IOpenClass spreadsheetResultOpenClass = JavaOpenClass.getOpenClass(SpreadsheetResult.class);
-                            IOpenField openField = spreadsheetResultOpenClass.getField(identifier);
+                            var openField = spreadsheetResultOpenClass.getField(identifier);
                             if (openField != null) {
                                 fieldSequence[i] = openField;
                             }
@@ -423,7 +415,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         toAdd.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
                     } else {
                         if (fieldSequence.length > 1) {
-                            boolean hasNull = false;
+                            var hasNull = false;
                             for (IOpenField field : fieldSequence) {
                                 if (field == null) {
                                     hasNull = true;
@@ -434,7 +426,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                 toAdd.add(new FieldChain(currentType, fieldSequence));
                             }
                         } else {
-                            IOpenField field = fieldSequence[0];
+                            var field = fieldSequence[0];
                             if (field != null) {
                                 toAdd.add(field);
                             }

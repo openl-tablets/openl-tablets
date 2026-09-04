@@ -10,6 +10,8 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.types.IOpenClass;
@@ -18,289 +20,103 @@ import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidatedCompiledOpenClass;
 
 class Context {
+    @Getter
+    @Setter
     private ValidatedCompiledOpenClass validatedCompiledOpenClass;
+    @Getter
+    @Setter
     private RulesDeploy rulesDeploy;
+    @Getter
+    @Setter
     private OpenAPI expectedOpenAPI;
+    @Getter
+    @Setter
     private OpenAPI actualOpenAPI;
+    @Getter
+    @Setter
     private IOpenClass openClass;
+    @Getter
+    @Setter
     private Class<?> serviceClass;
+    @Getter
+    @Setter
     private ClassLoader serviceClassLoader;
+    @Getter
+    @Setter
     private Map<Method, Method> methodMap;
+    @Getter
+    @Setter
     private boolean provideRuntimeContext;
 
+    @Getter
+    @Setter
     private String actualPath;
+    @Getter
+    @Setter
     private String expectedPath;
+    @Getter
+    @Setter
     private String operationType;
+    @Getter
+    @Setter
     private PathItem expectedPathItem;
+    @Getter
+    @Setter
     private PathItem actualPathItem;
+    @Getter
+    @Setter
     private Operation expectedOperation;
+    @Getter
+    @Setter
     private Operation actualOperation;
+    @Getter
+    @Setter
     private MediaType expectedMediaType;
+    @Getter
+    @Setter
     private MediaType actualMediaType;
+    @Getter
+    @Setter
     private String mediaType;
 
+    @Getter
+    @Setter
     private IOpenClass type;
+    @Getter
+    @Setter
     private Object targetService;
+    @Getter
+    @Setter
     private IOpenField field;
+    @Getter
+    @Setter
     private Method method;
+    @Getter
+    @Setter
     private IOpenMethod openMethod;
+    @Getter
+    @Setter
     private ObjectMapper objectMapper;
+    @Getter
+    @Setter
     private BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate;
 
+    @Getter
     private final OpenClassPropertiesResolver openClassPropertiesResolver = new OpenClassPropertiesResolver(this);
+    @Getter
+    @Setter
     private OpenAPIResolver actualOpenAPIResolver;
+    @Getter
+    @Setter
     private OpenAPIResolver expectedOpenAPIResolver;
+    @Getter
     private final SpreadsheetMethodResolver spreadsheetMethodResolver = new SpreadsheetMethodResolver(this);
 
+    @Getter
+    @Setter
     private boolean yaml = false;
 
+    @Getter
+    @Setter
     private boolean typeValidationInProgress;
-
-    public ValidatedCompiledOpenClass getValidatedCompiledOpenClass() {
-        return validatedCompiledOpenClass;
-    }
-
-    public void setValidatedCompiledOpenClass(ValidatedCompiledOpenClass validatedCompiledOpenClass) {
-        this.validatedCompiledOpenClass = validatedCompiledOpenClass;
-    }
-
-    public OpenAPI getExpectedOpenAPI() {
-        return expectedOpenAPI;
-    }
-
-    public void setExpectedOpenAPI(OpenAPI expectedOpenAPI) {
-        this.expectedOpenAPI = expectedOpenAPI;
-    }
-
-    public OpenAPI getActualOpenAPI() {
-        return actualOpenAPI;
-    }
-
-    public void setActualOpenAPI(OpenAPI actualOpenAPI) {
-        this.actualOpenAPI = actualOpenAPI;
-    }
-
-    public IOpenClass getOpenClass() {
-        return openClass;
-    }
-
-    public void setOpenClass(IOpenClass openClass) {
-        this.openClass = openClass;
-    }
-
-    public Class<?> getServiceClass() {
-        return serviceClass;
-    }
-
-    public void setServiceClass(Class<?> serviceClass) {
-        this.serviceClass = serviceClass;
-    }
-
-    public boolean isProvideRuntimeContext() {
-        return provideRuntimeContext;
-    }
-
-    public void setProvideRuntimeContext(boolean provideRuntimeContext) {
-        this.provideRuntimeContext = provideRuntimeContext;
-    }
-
-    public String getActualPath() {
-        return actualPath;
-    }
-
-    public void setActualPath(String actualPath) {
-        this.actualPath = actualPath;
-    }
-
-    public String getExpectedPath() {
-        return expectedPath;
-    }
-
-    public void setExpectedPath(String expectedPath) {
-        this.expectedPath = expectedPath;
-    }
-
-    public PathItem getExpectedPathItem() {
-        return expectedPathItem;
-    }
-
-    public void setExpectedPathItem(PathItem expectedPathItem) {
-        this.expectedPathItem = expectedPathItem;
-    }
-
-    public PathItem getActualPathItem() {
-        return actualPathItem;
-    }
-
-    public void setActualPathItem(PathItem actualPathItem) {
-        this.actualPathItem = actualPathItem;
-    }
-
-    public Operation getExpectedOperation() {
-        return expectedOperation;
-    }
-
-    public void setExpectedOperation(Operation expectedOperation) {
-        this.expectedOperation = expectedOperation;
-    }
-
-    public Operation getActualOperation() {
-        return actualOperation;
-    }
-
-    public void setActualOperation(Operation actualOperation) {
-        this.actualOperation = actualOperation;
-    }
-
-    public Method getMethod() {
-        return method;
-    }
-
-    public void setMethod(Method method) {
-        this.method = method;
-    }
-
-    public IOpenMethod getOpenMethod() {
-        return openMethod;
-    }
-
-    public void setOpenMethod(IOpenMethod openMethod) {
-        this.openMethod = openMethod;
-    }
-
-    public String getOperationType() {
-        return operationType;
-    }
-
-    public void setOperationType(String operationType) {
-        this.operationType = operationType;
-    }
-
-    public MediaType getExpectedMediaType() {
-        return expectedMediaType;
-    }
-
-    public void setExpectedMediaType(MediaType expectedMediaType) {
-        this.expectedMediaType = expectedMediaType;
-    }
-
-    public MediaType getActualMediaType() {
-        return actualMediaType;
-    }
-
-    public void setActualMediaType(MediaType actualMediaType) {
-        this.actualMediaType = actualMediaType;
-    }
-
-    public String getMediaType() {
-        return mediaType;
-    }
-
-    public void setMediaType(String mediaType) {
-        this.mediaType = mediaType;
-    }
-
-    public Map<Method, Method> getMethodMap() {
-        return methodMap;
-    }
-
-    public void setMethodMap(Map<Method, Method> methodMap) {
-        this.methodMap = methodMap;
-    }
-
-    public RulesDeploy getRulesDeploy() {
-        return rulesDeploy;
-    }
-
-    public void setRulesDeploy(RulesDeploy rulesDeploy) {
-        this.rulesDeploy = rulesDeploy;
-    }
-
-    public boolean isTypeValidationInProgress() {
-        return typeValidationInProgress;
-    }
-
-    public IOpenClass getType() {
-        return type;
-    }
-
-    public void setType(IOpenClass type) {
-        this.type = type;
-    }
-
-    public void setTypeValidationInProgress(boolean typeValidationInProgress) {
-        this.typeValidationInProgress = typeValidationInProgress;
-    }
-
-    public OpenClassPropertiesResolver getOpenClassPropertiesResolver() {
-        return openClassPropertiesResolver;
-    }
-
-    public OpenAPIResolver getActualOpenAPIResolver() {
-        return actualOpenAPIResolver;
-    }
-
-    public void setActualOpenAPIResolver(OpenAPIResolver actualOpenAPIResolver) {
-        this.actualOpenAPIResolver = actualOpenAPIResolver;
-    }
-
-    public OpenAPIResolver getExpectedOpenAPIResolver() {
-        return expectedOpenAPIResolver;
-    }
-
-    public void setExpectedOpenAPIResolver(OpenAPIResolver expectedOpenAPIResolver) {
-        this.expectedOpenAPIResolver = expectedOpenAPIResolver;
-    }
-
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
-    }
-
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
-    public SpreadsheetMethodResolver getSpreadsheetMethodResolver() {
-        return spreadsheetMethodResolver;
-    }
-
-    public ClassLoader getServiceClassLoader() {
-        return serviceClassLoader;
-    }
-
-    public void setServiceClassLoader(ClassLoader serviceClassLoader) {
-        this.serviceClassLoader = serviceClassLoader;
-    }
-
-    public IOpenField getField() {
-        return field;
-    }
-
-    public void setField(IOpenField field) {
-        this.field = field;
-    }
-
-    public BiPredicate<Schema, IOpenField> getIsIncompatibleTypesPredicate() {
-        return isIncompatibleTypesPredicate;
-    }
-
-    public void setIsIncompatibleTypesPredicate(BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate) {
-        this.isIncompatibleTypesPredicate = isIncompatibleTypesPredicate;
-    }
-
-    public boolean isYaml() {
-        return yaml;
-    }
-
-    public void setYaml(boolean yaml) {
-        this.yaml = yaml;
-    }
-
-    public Object getTargetService() {
-        return targetService;
-    }
-
-    public void setTargetService(Object targetService) {
-        this.targetService = targetService;
-    }
 }

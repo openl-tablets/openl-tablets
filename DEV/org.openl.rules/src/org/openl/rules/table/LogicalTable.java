@@ -1,5 +1,7 @@
 package org.openl.rules.table;
 
+import lombok.Getter;
+
 /**
  * Fully implementation for {@link ILogicalTable} interface.<br>
  * Logical Table consists of logical columns and rows (created as a result of merged cells). Each merged region is taken
@@ -11,8 +13,10 @@ package org.openl.rules.table;
  */
 public class LogicalTable extends ALogicalTable {
 
+    @Getter
     private final int[] rowOffset;
 
+    @Getter
     private final int[] columnOffset;
 
     public LogicalTable(IGridTable table, int width, int height) {
@@ -25,14 +29,14 @@ public class LogicalTable extends ALogicalTable {
         super(table);
 
         if (columnOffset == null) {
-            int width = LogicalTableHelper.calcLogicalColumns(table);
+            var width = LogicalTableHelper.calcLogicalColumns(table);
             this.columnOffset = LogicalTableHelper.calculateColumnOffsets(width, table);
         } else {
             this.columnOffset = columnOffset;
         }
 
         if (rowOffset == null) {
-            int height = LogicalTableHelper.calcLogicalRows(table);
+            var height = LogicalTableHelper.calcLogicalRows(table);
             this.rowOffset = LogicalTableHelper.calculateRowOffsets(height, table);
         } else {
             this.rowOffset = rowOffset;
@@ -51,7 +55,7 @@ public class LogicalTable extends ALogicalTable {
 
     @Override
     public int findColumnStart(int gridOffset) {
-        for (int i = 0; i < columnOffset.length - 1; i++) {
+        for (var i = 0; i < columnOffset.length - 1; i++) {
             if (columnOffset[i] == gridOffset) {
                 return i;
             }
@@ -64,7 +68,7 @@ public class LogicalTable extends ALogicalTable {
 
     @Override
     public int findRowStart(int gridOffset) {
-        for (int i = 0; i < rowOffset.length - 1; i++) {
+        for (var i = 0; i < rowOffset.length - 1; i++) {
             if (rowOffset[i] == gridOffset) {
                 return i;
             }
@@ -90,27 +94,19 @@ public class LogicalTable extends ALogicalTable {
         if (width == 0 || height == 0) {
             return null;
         }
-        int startRow = rowOffset[row];
-        int endRow = rowOffset[row + height];
-        int startColumn = columnOffset[column];
-        int endColumn = columnOffset[column + width];
+        var startRow = rowOffset[row];
+        var endRow = rowOffset[row + height];
+        var startColumn = columnOffset[column];
+        var endColumn = columnOffset[column + width];
 
         return LogicalTableHelper
                 .logicalTable(getSource().getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
     }
 
-    public int[] getRowOffset() {
-        return rowOffset;
-    }
-
-    public int[] getColumnOffset() {
-        return columnOffset;
-    }
-
     @Override
     public ICell getCell(int column, int row) {
-        int r = rowOffset[row];
-        int c = columnOffset[column];
+        var r = rowOffset[row];
+        var c = columnOffset[column];
         return getSource().getCell(c, r);
     }
 }

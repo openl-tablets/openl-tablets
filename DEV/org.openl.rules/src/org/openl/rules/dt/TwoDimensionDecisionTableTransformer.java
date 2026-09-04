@@ -35,10 +35,6 @@ public class TwoDimensionDecisionTableTransformer implements CoordinatesTransfor
         this.dtHeaderHeight = CONDITION_HEADERS_HEIGHT + hConditionsCount - 1;
     }
 
-    int getRetTableWidth() {
-        return retTableWidth;
-    }
-
     @Override
     public int getHeight() {
         return dtHeaderHeight + lookupValuesTableWidth / retTableWidth * lookupValuesTableHeight;
@@ -61,10 +57,10 @@ public class TwoDimensionDecisionTableTransformer implements CoordinatesTransfor
         } else if (col < conditionsWidth) {
             return col;
         } else if (col < conditionsWidth + hConditionsCount) {
-            int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
+            var hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
             return conditionsWidth + hConditionValueIndex;
         } else {
-            int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
+            var hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
             return conditionsWidth + hConditionValueIndex + col - conditionsWidth - hConditionsCount;
         }
     }
@@ -80,15 +76,15 @@ public class TwoDimensionDecisionTableTransformer implements CoordinatesTransfor
             return row;
         } else if (col < conditionsWidth) {
             // getCoordinatesFromConditionValues
-            int conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
+            var conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
             return dtHeaderHeight + conditionValueIndex;
         } else if (col < conditionsWidth + hConditionsCount) {
             // getCoordinatesFromHConditionValues
-            int hConditionIndex = col - conditionsWidth;
+            var hConditionIndex = col - conditionsWidth;
             return HCONDITION_HEADERS_HEIGHT + hConditionIndex;
         } else {
             // getCoordinatesFromLookupValues
-            int conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
+            var conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
             return HCONDITION_HEADERS_HEIGHT + hConditionsCount + conditionValueIndex;
         }
     }

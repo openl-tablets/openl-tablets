@@ -4,17 +4,24 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.studio.projects.model.trace.DebugStatus;
+import org.openl.studio.projects.model.trace.FrameKind;
+import org.openl.studio.projects.model.trace.TableProfile;
 import org.openl.types.IOpenMethod;
 import org.openl.types.Invokable;
+import org.openl.util.StringPool;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -25,6 +32,7 @@ import org.openl.vm.IRuntimeEnv;
  * controller thread to read; while suspended the worker mutates nothing, so the snapshot's frames and
  * their live arguments stay stable.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class DebugHookImpl implements DebugHook {
 
     private final SourceClassifier classifier;
@@ -35,14 +43,33 @@ final class DebugHookImpl implements DebugHook {
     /** Upper bound on watch captures, so a watched cell in a huge loop cannot grow the session unbounded. */
     private static final int MAX_WATCH_CAPTURES = 50_000;
 
-    /** Upper bound on retained call-tree nodes, so one huge profiled run cannot balloon the heap. */
-    private static final int MAX_TREE_NODES = 200_000;
+    /**
+     * Default upper bound on retained call-tree nodes, so one huge profiled run cannot balloon the heap. Since
+     * the tree is now serialized lazily (a level at a time), this is a memory bound only, not a response-size
+     * one.
+     */
+    private static final int MAX_TREE_NODES = 5_000_000;
+
+    /**
+     * Upper bound on the nodes any single branch may retain in its subtree. It keeps the earliest, deepest
+     * branch from consuming the whole {@link #MAX_TREE_NODES} budget and starving its later siblings, so every
+     * branch stays browsable even when the run as a whole is truncated.
+     */
+    private static final int MAX_BRANCH_NODES = 1_000_000;
 
     private final Deque<DebugFrame> stack = new ArrayDeque<>();
     private final AtomicReference<List<DebugFrame>> published = new AtomicReference<>(List.of());
     private @Nullable Throwable brokenException;
     /** Retain the structure of returned sub-calls so the executed call tree can be shown. Set before the worker runs. */
     private boolean profiling;
+    /** Build the classic detailed titles (signature, result, cell values) into the tree — the business view only. */
+    private boolean detailedTitles;
+    /**
+     * Suspend the worker at an uncaught rule error so it can be inspected. Default {@code true} — the interactive
+     * debugger pauses on the throwing frame. A run-through (business) session sets it {@code false} so the error
+     * terminates the run and the executed tree, with the failed branch, is delivered whole instead of parking on it.
+     */
+    private boolean breakOnErrors = true;
     /** Cell names or refs whose value is captured on every execution of their table. May be updated mid-run. */
     private volatile Set<String> watches = Set.of();
     /** Captured watched values, appended on the worker thread as cells compute. */
@@ -53,26 +80,37 @@ final class DebugHookImpl implements DebugHook {
     private volatile boolean watchTruncated;
     /** Total time the worker spent parked at suspend points, subtracted from frame durations so think time is excluded. */
     private long parkedNanos;
+    /**
+     * Running total of every step's wall-clock. A step reads it on entry and after its own execution: the growth
+     * is the time spent in nested steps (sibling cells the formula computed on the way), subtracted from its own
+     * time so a cell that triggers another does not count that other cell twice. A frame call saves and restores
+     * it, so a called table's own steps stay part of the calling step's time, not subtracted from it.
+     */
+    private long nestedStepNanos;
     /** The whole executed tree, kept when the root frame returns so it outlives the empty stack on completion. */
     private final AtomicReference<@Nullable CallNode> completedTree = new AtomicReference<>();
     /** Running count of retained tree nodes and the flag set once the node cap stops the tree from growing. */
     private int recordedNodes;
     private volatile boolean treeTruncated;
+    /** Effective node cap; defaults to {@link #MAX_TREE_NODES}, lowered by tests to exercise truncation. */
+    private int maxTreeNodes = MAX_TREE_NODES;
+    /** Per-table profiling stats, accumulated as frames complete — independent of the retained (capped) tree. */
+    private final Map<String, TableAccumulator> tableStats = new LinkedHashMap<>();
     /** A dispatcher currently choosing a version; the version it selects becomes the next frame, badged with it. */
     private @Nullable OpenMethodDispatcher pendingDispatch;
     /** The version the pending dispatcher selected (from its {@code rule} put), used to flag the chosen candidate. */
     private @Nullable IOpenMethod pendingChosen;
 
-    DebugHookImpl(SourceClassifier classifier, StepController stepController, DebugChannel channel,
-                  DebugListener listener) {
-        this.classifier = classifier;
-        this.stepController = stepController;
-        this.channel = channel;
-        this.listener = listener;
-    }
-
     void setProfiling(boolean profiling) {
         this.profiling = profiling;
+    }
+
+    void setDetailedTitles(boolean detailedTitles) {
+        this.detailedTitles = detailedTitles;
+    }
+
+    void setBreakOnErrors(boolean breakOnErrors) {
+        this.breakOnErrors = breakOnErrors;
     }
 
     /** Watch a set of cells by name ({@code $...} label) or ref, capturing their value on every execution. */
@@ -139,17 +177,29 @@ final class DebugHookImpl implements DebugHook {
         // sub-call is still tracked. Captured after the location suspend so the user's think time is not counted.
         long stepEnter = System.nanoTime();
         long parkedAtStepEnter = parkedNanos;
+        long nestedAtStepEnter = nestedStepNanos;
         // On failure the location intentionally stays on the failing step, so the exception break shows it.
         R result = executor.invoke(target, params, env);
-        top.recordExecutedStep(executor, ref, location.label(), result, elapsed(stepEnter, parkedAtStepEnter));
+        // A referenced cell computed on the way runs as a nested step of the same frame and is recorded on its
+        // own; subtract that nested time so this step's own time does not count the referenced cell twice.
+        long wall = elapsed(stepEnter, parkedAtStepEnter);
+        top.recordExecutedStep(executor, ref, location.label(), result,
+                Math.max(0, wall - (nestedStepNanos - nestedAtStepEnter)));
+        // A fired decision-table rule: remember which rule(s) fired, so the returned rule and its result stay
+        // highlightable after this step's current-line marker is restored below.
+        if (executor instanceof ActionInvoker invoker) {
+            top.recordFiredRules(invoker.getRules());
+        }
         if (!watches.isEmpty()) {
             captureWatch(top, location, ref, result);
         }
         if (profiling && enclosing != null) {
             // Executed inside another step's formula: leave a reference there, like the legacy nested leaf.
-            recordChild(top, stepRef(enclosing),
-                    CallNode.referenceTo(top.getUri(), ref, location.label()));
+            recordChild(top, stepRef(enclosing), CallNode.referenceTo(StringPool.intern(top.getUri()),
+                    StringPool.intern(ref), StringPool.intern(location.label())));
         }
+        // This whole step — its own time plus any nested steps — is nested time for the step it ran inside.
+        nestedStepNanos = nestedAtStepEnter + wall;
         top.setLocation(enclosing);
         top.setCurrentStep(enclosingStep);
         return result;
@@ -169,8 +219,8 @@ final class DebugHookImpl implements DebugHook {
         // ref-to-node, but only under another step — a top-level re-read adds nothing to the tree.
         CurrentLocation location = top.getLocation();
         if (profiling && location != null && !stepRef(location).equals(original.ref())) {
-            recordChild(top, stepRef(location),
-                    CallNode.referenceTo(top.getUri(), original.ref(), original.label()));
+            recordChild(top, stepRef(location), CallNode.referenceTo(StringPool.intern(top.getUri()),
+                    StringPool.intern(original.ref()), StringPool.intern(original.label())));
         }
         return true;
     }
@@ -183,18 +233,47 @@ final class DebugHookImpl implements DebugHook {
     }
 
     /**
-     * Attach a returned call or reference to its caller frame while the tree is under the node cap.
+     * Attach a leaf reference node to its caller frame while the tree is under the node cap.
      *
-     * <p>Bounds the retained tree for a huge run: once the cap is reached further nodes are dropped and the
-     * tree is flagged truncated, so the profile can report that it is incomplete instead of exhausting memory.
+     * <p>Returned call frames reserve their slot on entry and attach themselves; this handles the reference
+     * leaves a step leaves behind. Once the cap is reached the reference is dropped and the tree is flagged
+     * truncated, so the profile can report that it is incomplete instead of exhausting memory.
      */
     private void recordChild(DebugFrame frame, @Nullable String callerRef, CallNode node) {
-        if (recordedNodes >= MAX_TREE_NODES) {
-            treeTruncated = true;
-            return;
+        // A reference leaf (a re-read of an already-executed step) is not a sub-call, so a dropped one only
+        // flags the tree truncated (in admitNode) — it must not inflate the frame's not-retained sub-call count.
+        if (admitNode()) {
+            frame.recordExecutedChild(callerRef, node);
         }
-        frame.recordExecutedChild(callerRef, node);
+    }
+
+    /**
+     * Reserve one node in the bounded tree. A node is admitted only while the global cap and the subtree budget
+     * of every branch it hangs under still have room, so a huge run degrades to a truncated tree — fairly across
+     * branches — instead of exhausting memory or letting one branch starve the rest. Flags the tree truncated
+     * whenever a node is dropped.
+     */
+    private boolean admitNode() {
+        if (recordedNodes >= maxTreeNodes) {
+            treeTruncated = true;
+            return false;
+        }
+        for (DebugFrame ancestor : stack) {
+            if (ancestor.getBudget() <= 0) {
+                treeTruncated = true;
+                return false;
+            }
+        }
         recordedNodes++;
+        for (DebugFrame ancestor : stack) {
+            ancestor.decrementBudget();
+        }
+        return true;
+    }
+
+    /** Lower the retained-tree node cap. Test seam only: exercise truncation without a huge profiled run. */
+    void setMaxTreeNodes(int maxTreeNodes) {
+        this.maxTreeNodes = maxTreeNodes;
     }
 
     boolean isTreeTruncated() {
@@ -245,6 +324,7 @@ final class DebugHookImpl implements DebugHook {
         String callerRef = parent == null || parent.getLocation() == null ? null : stepRef(parent.getLocation());
         long enterNanos = System.nanoTime();
         long parkedAtEnter = parkedNanos;
+        long nestedAtEnter = nestedStepNanos;
         int depth = stack.size() + 1;
         DebugFrame frame = new DebugFrame(descriptor, source, target, params,
                 env == null ? null : env.getContext(), depth);
@@ -257,6 +337,19 @@ final class DebugHookImpl implements DebugHook {
             frame.setDispatch(DispatchInfoFactory.of(pendingDispatch, pendingChosen));
             pendingDispatch = null;
             pendingChosen = null;
+        }
+        // Reserve this frame's slot in the bounded tree on ENTRY (top-down). A frame admitted here can always be
+        // attached on exit — even after its own descendants have filled the cap. Reserving on attach instead
+        // (bottom-up) drops a node whose subtree reached the cap, orphaning (losing) that whole recorded subtree.
+        boolean recorded = profiling && admitNode();
+        // Bound this frame's subtree by its parent's remaining budget and the per-branch cap, so a deep branch
+        // entered early cannot use up the whole tree before its siblings run. A frame that was not admitted gets
+        // no budget, so nothing is retained under it either.
+        frame.setBudget(recorded ? (parent == null ? maxTreeNodes : Math.min(parent.getBudget(), MAX_BRANCH_NODES)) : 0);
+        // A profiled sub-call the tree could not admit is one the caller made but the tree no longer keeps; count
+        // it on the caller so its node can honestly report how many of its sub-calls were dropped.
+        if (profiling && !recorded && parent != null) {
+            parent.incrementNotRetained();
         }
         stack.push(frame);
         try {
@@ -279,15 +372,32 @@ final class DebugHookImpl implements DebugHook {
             throw ex;
         } finally {
             stack.pop();
-            // Profiling keeps the returned frame's structure (no values) so the executed call tree survives the pop.
-            // A returned root frame has no parent to hold it, so it is kept as the completed tree instead. A frame
-            // unwound by a terminate neither completed nor failed, so it is skipped — no misleading zero-time tree.
+            // A called table's own steps accrued into the nested-step counter; drop them so the calling step
+            // keeps this whole call in its time (a step's total includes the sub-calls it makes), instead of
+            // subtracting the callee's steps as if they were sibling cells computed on the way.
+            nestedStepNanos = nestedAtEnter;
+            // A frame unwound by a terminate neither completed nor failed, so it is skipped entirely — no
+            // misleading zero-time entry in either the hotspots or the tree.
             if (profiling && (frame.isCompleted() || frame.getError() != null)) {
-                CallNode node = frame.toCallNode();
+                // Aggregate this table's time on the fly for EVERY execution — independent of whether the node
+                // is kept in the (capped) tree — so the hotspots overview stays accurate on a truncated run.
+                long selfNanos = Math.max(0, frame.getDurationNanos() - frame.getChildNanos());
+                tableStats.computeIfAbsent(frame.getUri(),
+                                uri -> new TableAccumulator(uri, frame.getName(), frame.getKind()))
+                        .add(frame.getDurationNanos(), selfNanos);
                 if (parent != null) {
-                    recordChild(parent, callerRef, node);
-                } else {
-                    completedTree.set(node);
+                    parent.addChildNanos(frame.getDurationNanos());
+                }
+                // Profiling also keeps the returned frame's structure (no values) so the executed tree survives
+                // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree. The
+                // slot was reserved on entry (recorded), so a frame whose subtree filled the cap still attaches.
+                if (recorded) {
+                    CallNode node = frame.toCallNode(StringPool::intern, detailedTitles);
+                    if (parent != null) {
+                        parent.recordExecutedChild(callerRef, node);
+                    } else {
+                        completedTree.set(node);
+                    }
                 }
             }
         }
@@ -325,12 +435,21 @@ final class DebugHookImpl implements DebugHook {
      * Suspend at the frame where an exception surfaced so its state can be inspected before it
      * propagates. Each exception breaks once: as it unwinds through the outer frames, the same instance
      * is recognised and not re-broken.
+     *
+     * <p>Every live frame on the stack is stamped with the same throwable. The business view keeps a
+     * clicked ancestor selected when the run parks deeper on the throwing frame; without the stamp those
+     * callers would show {@code = ERROR} in the tree but have empty error details when inspected.
      */
     private void breakOnException(int depth, Throwable ex) {
-        if (ex == brokenException || channel.isTerminateRequested()) {
+        if (!breakOnErrors || ex == brokenException || channel.isTerminateRequested()) {
             return;
         }
         brokenException = ex;
+        for (DebugFrame frame : stack) {
+            if (frame.getError() == null) {
+                frame.markError(ex);
+            }
+        }
         suspendAndAwait(depth);
     }
 
@@ -364,10 +483,36 @@ final class DebugHookImpl implements DebugHook {
         return completedTree.get();
     }
 
+    /** Per-table profiling stats accumulated over the run, for the hotspots overview; complete even when truncated. */
+    List<TableProfile> profileStats() {
+        return tableStats.values().stream().map(TableAccumulator::toProfile).toList();
+    }
+
     /** The frame at the given stack index in the published snapshot, or {@code null} if out of range. */
     @Nullable
     DebugFrame frameAt(int index) {
         List<DebugFrame> current = published.get();
         return index >= 0 && index < current.size() ? current.get(index) : null;
+    }
+
+    /** Mutable accumulator for one table's aggregated time across every invocation in the run. */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class TableAccumulator {
+        private final String uri;
+        private final String name;
+        private final FrameKind kind;
+        private int count;
+        private long totalNanos;
+        private long selfNanos;
+
+        private void add(long totalNanos, long selfNanos) {
+            count++;
+            this.totalNanos += totalNanos;
+            this.selfNanos += selfNanos;
+        }
+
+        private TableProfile toProfile() {
+            return new TableProfile(uri, name, kind, count, selfNanos, totalNanos);
+        }
     }
 }

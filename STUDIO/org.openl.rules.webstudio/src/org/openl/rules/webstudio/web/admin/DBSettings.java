@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.studio.settings.converter.SettingPropertyName;
@@ -19,21 +21,29 @@ public class DBSettings implements SettingsHolder {
     private static final String DB_PASSWORD = "db.password";
     private static final String DB_MAX_POOL_SIZE = "db.maximumPoolSize";
 
+    @Getter
     @Parameter(description = "Database URL", example = "jdbc:postgresql://localhost:5432/studio")
+    @Setter
     @SettingPropertyName(DB_URL)
     @NotBlank(message = "Database URL cannot be blank.")
     private String url;
 
+    @Getter
     @Parameter(description = "Database user", example = "root")
+    @Setter
     @SettingPropertyName(DB_USER)
     @Size(max = 100, message = "Username length must be less than 100.")
     private String user;
 
+    @Getter
     @Parameter(description = "Database password", example = "password")
+    @Setter
     @SettingPropertyName(value = DB_PASSWORD, secret = true)
     private String password;
 
+    @Getter
     @Parameter(description = "Maximum pool size", example = "10")
+    @Setter
     @SettingPropertyName(DB_MAX_POOL_SIZE)
     @Min(value = 1, message = "Maximum pool size must be greater than 0.")
     private Integer maximumPoolSize;
@@ -60,38 +70,6 @@ public class DBSettings implements SettingsHolder {
     public void revert(PropertiesHolder properties) {
         properties.revertProperties(DB_URL, DB_USER, DB_PASSWORD, DB_MAX_POOL_SIZE);
         load(properties);
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Integer getMaximumPoolSize() {
-        return maximumPoolSize;
-    }
-
-    public void setMaximumPoolSize(Integer maximumPoolSize) {
-        this.maximumPoolSize = maximumPoolSize;
     }
 
 }

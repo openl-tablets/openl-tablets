@@ -1,6 +1,5 @@
 package org.openl.rules.rest;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,11 +82,11 @@ public class ManagementController {
     }
 
     private void buildnumberOfMembers(Group group, UIGroup uiGroup) {
-        long internal = groupManagementService.countUsersInGroup(group.getName());
-        long external = extGroupService.countUsersInGroup(group.getName());
+        var internal = groupManagementService.countUsersInGroup(group.getName());
+        var external = extGroupService.countUsersInGroup(group.getName());
         // A user can be a member both directly and through the matched external group,
         // so the total is counted separately instead of summing the two categories.
-        long total = userManagementService.countUsersInGroup(group.getName());
+        var total = userManagementService.countUsersInGroup(group.getName());
         uiGroup.numberOfMembers = new NumberOfMembers(internal, external, total);
     }
 
@@ -95,7 +94,7 @@ public class ManagementController {
     @GetMapping("/groups/{id}/users")
     public List<UIGroupUser> getGroupUsers(
             @Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
-        Group group = groupDao.getGroupById(id);
+        var group = groupDao.getGroupById(id);
         if (group == null) {
             throw new NotFoundException("group.message");
         }
@@ -109,7 +108,7 @@ public class ManagementController {
     @DeleteMapping(value = "/groups/{id}")
     @Transactional
     public void deleteGroup(@Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
-        Group group = groupDao.getGroupById(id);
+        var group = groupDao.getGroupById(id);
         groupManagementService.deleteGroup(id);
         if (group != null && aclService != null) {
             aclService.deleteSid(new GrantedAuthoritySid(group.getName()));
@@ -120,7 +119,7 @@ public class ManagementController {
     @Transactional
     @Hidden // for testing purposes
     public void deleteGroupByName(@RequestParam("name") final String name) {
-        Group group = groupDao.getGroupByName(name);
+        var group = groupDao.getGroupByName(name);
         if (group != null) {
             groupManagementService.deleteGroup(group.getId());
             if (aclService != null) {
@@ -148,9 +147,9 @@ public class ManagementController {
             groupManagementService.updateGroup(oldName, name, description);
         }
         if (Boolean.TRUE.equals(admin)) {
-            groupManagementService.updateGroup(name, Collections.singleton(Privileges.ADMIN.getAuthority()));
+            groupManagementService.updateGroup(name, Set.of(Privileges.ADMIN.getAuthority()));
         } else {
-            groupManagementService.updateGroup(name, Collections.emptySet());
+            groupManagementService.updateGroup(name, Set.of());
         }
 
         var sid = new GrantedAuthoritySid(name);

@@ -19,7 +19,7 @@ The following topics are included in this chapter:
 -   [Exporting a Project or a File](#exporting-a-project-or-a-file)
 -   [Unlocking a Project](#unlocking-a-project)
 -   [Browsing the Deployment Repository](#browsing-the-deployment-repository)
--   [Committing with Missing User Data](#committing-with-missing-user-data)
+-   [User Data for Git Commits](#user-data-for-git-commits)
 
 ### Browsing Design Repository
 
@@ -67,8 +67,18 @@ OpenL Studio allows users to create new rule projects in the Design repository i
 | Create a rule project from an OpenAPI file | [Creating a Project from OpenAPI file](#creating-a-project-from-openapi-file) |
 | Create a rule project from a zip archive   | [Creating a Project from ZIP Archive](#creating-a-project-from-zip-archive) |
 | Import a rule project from workspace       | [Importing a Project from Workspace](#importing-a-project-from-workspace)                   |
+| Copy an existing rule project              | [Copying a Project](#copying-a-project)                                   |
 
 Whatever the way used, new projects are created in the **No Changes** status that means they are open and can be modified.
+
+For a Git Design repository that supports branches, every creation method displays one **Branch** field after a
+repository is selected. Select an existing branch from the suggestions, or type a valid new branch name in the same
+field. When the name does not exist, OpenL Studio creates the branch from the repository default branch and then
+creates the project there. The project is immediately visible to other authorized users, and its **Branch** value is
+the branch where it was created. In an empty repository, the first project creates the selected valid branch,
+including a non-default branch.
+Names that violate Git naming rules or the repository branch-name pattern are shown as errors below the field and
+are not submitted.
 
 Projects with the same name can be created in different repositories. These projects cannot be in the same status. If the first project is in the **No Changes** status, the second one is assigned the **Closed** status. After closing the first project, the second can be opened.
 
@@ -109,7 +119,7 @@ To create a new project from template, proceed as follows:
 
     The name appears in the **Project Name** field. The following example demonstrates creating a project based on the example.
 
-    ![](images/create-project-from-template-dialog.jpeg)
+    ![Configuring a template project and its target branch](images/create-project-from-template-dialog.png "Creating a project from a template")
 
     *Creating a simple project from a template*
 
@@ -118,6 +128,7 @@ To create a new project from template, proceed as follows:
     If there is only one repository, it is selected by default. Otherwise, a list of repositories is displayed.
     If a Git repository with non-flat structure is selected, the **Path** field with the / default value is displayed and can be modified as required. The path is defined inside the repository and can start with or without /.
 
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create**.
 
     If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -161,7 +172,7 @@ Proceed as follows:
 
     All files are listed in the **File** area.
 
-    ![](images/create-project-from-excel-files.jpeg)
+    ![Configuring an Excel project and its target branch](images/create-project-from-excel-files.png "Creating a project from Excel files")
 
     *Creating a project from Excel files*
 
@@ -172,6 +183,7 @@ Proceed as follows:
 
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create** to complete.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -193,7 +205,7 @@ To create a project from the OpenAPI file, proceed as follows:
 3.  Click **Add**, select the required OpenAPI file in a file system, and double click it or click **Open**.
 4.  To remove an uploaded file, click **Clear**.
 
-    ![](images/create-project-from-openapi-dialog.png)
+    ![Configuring an OpenAPI project and its target branch](images/create-project-from-openapi-dialog.png "Creating a project from an OpenAPI file")
 
     *Creating a project from an OpenAPI file*
 
@@ -203,6 +215,7 @@ To create a project from the OpenAPI file, proceed as follows:
 
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create**.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
@@ -211,13 +224,15 @@ If tag types are defined as described in the [Managing Tags](administration/06-t
 
 OpenL Studio provides a control for loading rule projects archived in a ZIP file into Design repository. The procedure resembles creating a project from Excel files described above although there are a few differences.
 
-A project can only be created from a `zip` archive. The .`rar` or `.7zip` archives cannot be used.
+ZIP is the only supported archive format — `.rar` or `.7z` archives cannot be used. A project **folder** is accepted as well, because OpenL Studio packs it into a `zip` archive in the browser first and validates it exactly like an uploaded one — the folder must be a project, holding a `rules.xml` or an Excel file at its root.
+
+The archive must also arrive in full. OpenL Studio reads the directory the archive keeps at its end, so an upload that was cut short is rejected instead of becoming a project with part of its content, and checks the files the archive carries against the checksums recorded for them. An archive that unpacks to more than 2 GB keeps the first check and skips the checksums, so that verifying it cannot itself be turned into an attack.
 
 1.  Click **Create Project** in the top line menu.
-2.  In the **Create Project from** dialog, click the **Zip Archive** tab.
-3.  Click the **Add** button, locate the necessary zip archive and click **Open**.
+1.  In the **Create Project from** dialog, click the **Zip Archive** tab.
+1.  Choose **Archive** or **Folder**, click the **Add** button, locate the necessary zip archive or project folder, and click **Open**.
 
-    ![](images/create-project-from-zip-dialog.jpeg)
+    ![Configuring an archive project and its target branch](images/create-project-from-zip-dialog.png "Creating a project from a ZIP file")
 
     *Creating a project from ZIP file*
 
@@ -231,7 +246,10 @@ A project can only be created from a `zip` archive. The .`rar` or `.7zip` archiv
 
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create** to complete.
+
+    The new project opens in the workspace right away, the same as a project created from a template or Excel files.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
@@ -244,12 +262,14 @@ A new project can be created in Design repository by loading a project with the 
 
     The system displays rule projects available in the workspace:
 
-    ![](images/create-project-from-workspace.jpeg)
+    ![Selecting workspace projects to publish](images/create-project-from-workspace.png "Creating projects from the workspace")
 
     *Creating a project from Workspace*
 
 1.  Select check boxes for projects to be uploaded.
-2.  To complete creation, click **Create**.
+1.  Select a Design repository.
+1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
+1.  To complete creation, click **Create**.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
@@ -290,6 +310,22 @@ To open a project, in the project tree, select the project and, in the right pan
 | **Open**          | Opens the latest revision of project.                                         |
 | **Open Revision** | Displays window where user can specify which project revision must be opened. |
 
+When the project declares dependencies, **Open** first asks whether to open them together with it. Opening them
+is the default, because the project needs them to compile.
+
+The same window warns about every dependency the branch of the project does not hold. The project is compiled
+against them as they are, which can fail, and the two kinds are dealt with differently:
+
+-   A dependency of the same repository that the workspace keeps on another branch is switched over to the branch
+    of the project before opening it. Branches of one repository are not switched together: each project keeps the
+    branch it was switched to.
+-   A dependency marked **Not Found** stays unavailable until the branch of the project contains it, so switching
+    branches does not help. Bring the project into that branch, or open the depending project on a branch that
+    already has it.
+
+A dependency of another repository is never reported here: repositories keep no branches in step, so its branch
+means nothing to this project.
+
 Any project revision can be opened, with the project status set to **Viewing Revision**, as follows:
 
 -   [Opening a Project Revision Using the Open Revision Button](#opening-a-project-revision-using-the-open-revision-button)
@@ -300,7 +336,10 @@ Any project revision can be opened, with the project status set to **Viewing Rev
 To open a project revision using the **Open Revision** button, proceed as follows:
 
 1.  Click the **Open Revision** button.
-2.  In the **Project Revisions** field, select the required revision.
+2.  In the **Project Revision** field, select the required revision.
+
+    A revision is listed by its number, followed by the author and the time it was created,
+    so revisions made moments apart can be told apart.
 
     ![](images/open-project-revision-dialog.png)
 
@@ -343,6 +382,10 @@ To close a project, in the project tree, select the project and, in the right pa
 ### Saving a Project
 
 A modified project is saved and copied from the user's workspace to Design repository as a new revision.
+
+**Save** is available only for a project linked to a Design repository. A project with the **Local** status has no
+Design repository revision to update; import it as described in
+[Importing a Project from Workspace](#importing-a-project-from-workspace) instead.
 
 To save a project, proceed as follows:
 
@@ -391,6 +434,11 @@ This section describes modifying the physical structure of the project and inclu
 -   [Updating a File](#updating-a-file)
 -   [Deleting a Folder or a File](#deleting-a-folder-or-a-file)
 -   [Copying a File](#copying-a-file)
+
+An uploaded Excel workbook or ZIP archive is checked for completeness before it is stored. A file that did not
+arrive in full — an upload interrupted halfway, or content damaged on its way — is rejected with an error, so a
+module nobody can open never reaches the project. Files of any other type are stored as they arrive, and an
+upload larger than 1000 MB is refused rather than checked.
 
 #### Creating a Folder
 
@@ -475,33 +523,43 @@ The newly created file appears in the file tree.
 
 ### Copying a Project
 
-Copying a project creates a new project with identical contents and a different name in Design repository. This function can be used for copying local projects to Design repository with a different name.
+Copying a project creates a new project with identical contents and a different name in Design repository. A copy can
+be created from the **Create Project** wizard or from the selected project's **Copy** action.
 
-To copy a project, proceed as follows:
+To copy a project from the **Create Project** wizard, proceed as follows:
 
-1.  Perform one of the following steps as required:
-    -   In the **Projects** tree, select the required project and, in the right pane, click the **Copy** button.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to copy and click the corresponding **Copy** item **![](images/copy-project-item-icon.png)** on the right.
-1.  In the **Copy Project** window, enter the new project name.
-2.  Select whether a new project must be linked to the origin project.
+1.  Click **Create Project** and select **Copy project**.
+2.  Select the source project and enter the new project name.
+3.  Select the target repository.
+4.  For a branch-capable repository, select an existing branch or enter a new branch name in the single **Branch**
+    field.
+5.  If necessary, specify a path and modify the commit comment.
+6.  Click **Create**.
 
-    In case of linked projects, a new project branch is created. For more information on branches, see [Working with Project Branches](project-branches.md#working-with-project-branches). For unlinked projects, if there are mandatory tag types, tags must be defined for a new project.
+![Configuring a project copy and its target branch](images/copy-project-dialog.png "Copying a project")
 
-1.  Specify whether old revisions must be copied to the newly created project.
-2.  If necessary, select a repository and specify the path to the destination project.
+*Copying a project in the Create Project wizard*
 
-    A project can be copied to another repository with the same or a new name.
+To copy the selected project, proceed as follows:
 
-1.  Optionally, provide comments.
-2.  Click **Copy**.
+1.  In the **Projects** tree or list, select the project and click **Copy**.
+2.  Select **Create a New Project** if the dialog initially offers to create a project branch.
+3.  Enter the new project name and select the target repository.
+4.  For a branch-capable target repository, select an existing branch or enter a new branch name in **Branch**.
+5.  If necessary, specify the target path and modify the commit comment.
+6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
+7.  Click **Copy**.
 
-The new project appears in the list of projects.
+The new project appears immediately in the project list. The selected branch is its home branch when no other branch
+contains the project.
 
 ### Removing a Project
 
 Deleting a project removes it from the user's workspace and from the current state of Design repository. For Git
 repositories, OpenL Studio stores this change as a regular delete commit, so repository history keeps the deletion
-event. If the project is opened by any user, OpenL Studio closes it before removal.
+event. If the project is opened by any user on the deleted branch, OpenL Studio closes it before removal and
+discards unsaved changes. If the project also exists in another branch, it remains in the project list and copies
+opened from those other branches are not removed.
 
 **Note:** Projects in the **Local** status that were not uploaded to Design repository will be removed physically and cannot be restored.
 
@@ -554,14 +612,12 @@ Proceed as follows:
 3.  In the window that appears, enter the following information about the rules:
     -   Provide runtime context.
     -   Use the Rule Service runtime context.
-    -   Define variations.
-    -   Create services specifying the versions of web services to support, which is either the RESTful service, or RMI, or both of them.
+    -   Create services specifying the versions of web services to support.
     -   Enter the service name.
 
         The service name is displayed for a deployed project only in the embedded mode.
 
     -   Define the service class.
-    -   Define an RMI service class.
     -   Define the service version.
 
         For more information on service version definition, see [Defining Rule Service Version](#defining-rule-service-version).
@@ -687,18 +743,34 @@ OpenL Studio displays only the latest revisions of each deployment in the deploy
 
 When browsing deployments in the deployment repository, users can see their content, namely what rules projects are deployed.
 
+For every deployed project, the list displays the following information:
+
+-   **Revision in Design Repository** — the revision the project has in the design repository it was built from, named by who committed it and, underneath, when
+-   **Modified By** and **Modified At** — who deployed the project and when
+
+A deployed project keeps no reference back to where it came from, so its design revision is recognized by content: OpenL Studio indexes the revisions of the design repositories in the background and looks for the one whose files match the deployed project. Two consequences follow:
+
+-   the revision of a project that was just deployed appears once the indexing reaches it, not immediately;
+-   the revision stays unknown for a project deployed from a design repository this OpenL Studio does not have, and for content that no design revision matches.
+
+The indexing is controlled by the `repository.cache.monitor.enabled` property. Switching it off leaves the **Revision in Design Repository** column empty for every deployed project.
+
 ![](images/deployment-repository-deployed-projects.png)
 
 *Deployment repository with deployed projects*
 
-### Committing with Missing User Data
+### User Data for Git Commits
 
-Upon user logon, the user’s display name and email are used for Git commits if the repository type for the action is Git. This applies to the following actions:
+Upon user logon, OpenL Studio requires the user's email address and display name. If either value is missing, the
+**Complete Your Profile** window opens before the user can continue to OpenL Studio. First Name and Last Name are
+optional and can be used to generate the display name. The completed display name and email are used for Git commits
+for the following actions:
 
 -   create a project
+-   copy a project
 -   save a project
+-   merge a project
 -   delete a project
+-   delete a branch
 -   deploy a project
 -   synchronize a project
-
-If the display name and email data is missing, the **Configure commit info** popup window appears on commit attempt. Once all the required information is entered and saved, the action that triggered the commit is completed automatically.

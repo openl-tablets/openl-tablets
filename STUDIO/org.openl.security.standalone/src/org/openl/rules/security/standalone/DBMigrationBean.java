@@ -1,15 +1,13 @@
 package org.openl.rules.security.standalone;
 
 import java.io.IOException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.sql.DataSource;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 
@@ -18,23 +16,24 @@ import org.openl.util.PropertiesUtils;
 @Slf4j
 public class DBMigrationBean {
 
+    @Setter
     private DataSource dataSource;
 
     public void init() throws SQLException, IOException {
 
         String databaseCode;
-        try (Connection connection = dataSource.getConnection()) {
-            DatabaseMetaData metaData = connection.getMetaData();
+        try (var connection = dataSource.getConnection()) {
+            var metaData = connection.getMetaData();
             databaseCode = metaData.getDatabaseProductName().toLowerCase(Locale.ROOT).replace(" ", "_");
         }
 
         String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};
 
-        TreeMap<String, String> placeholders = new TreeMap<>();
+        var placeholders = new TreeMap<String, String>();
         for (String location : locations) {
             fillQueries(placeholders, location + "/placeholders.properties");
         }
-        Flyway flyway = new Flyway();
+        var flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setBaselineVersionAsString("0");
         flyway.setBaselineOnMigrate(true);
@@ -50,12 +49,8 @@ public class DBMigrationBean {
         flyway.migrate();
     }
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
-        URL resource = getClass().getResource(propertiesFileName);
+        var resource = getClass().getResource(propertiesFileName);
         if (resource == null) {
             log.info("File '{}' is not found.", propertiesFileName);
             return;

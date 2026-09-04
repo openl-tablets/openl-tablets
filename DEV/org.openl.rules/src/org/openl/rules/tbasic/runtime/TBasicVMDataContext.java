@@ -24,7 +24,6 @@ public class TBasicVMDataContext {
                                Map<String, RuntimeOperation> labels,
                                boolean isMainMethod) {
         assert operations != null;
-        // assert operations.size() > 0;
         assert labels != null;
 
         this.operations = operations;
@@ -69,10 +68,10 @@ public class TBasicVMDataContext {
     public RuntimeOperation getNextOperation(RuntimeOperation operation) {
         RuntimeOperation nextOperation = null;
 
-        int indexOfCurrent = operations.indexOf(operation);
+        var indexOfCurrent = operations.indexOf(operation);
 
         if (indexOfCurrent > -1) {
-            int indexOfNext = indexOfCurrent + 1;
+            var indexOfNext = indexOfCurrent + 1;
 
             if (indexOfNext < operations.size()) {
                 nextOperation = operations.get(indexOfNext);

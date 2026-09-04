@@ -9,12 +9,11 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 /**
- * Requires the first cell of a raw table to start with a keyword OpenL recognizes as a table type.
+ * Requires the first cell of a raw table to contain a table header.
  * <p>
- * OpenL identifies a table by the first token of its top-left cell. Without a known header (for example
- * {@code Rules}, {@code Datatype} or {@code Spreadsheet}) OpenL never compiles the table, so it would be written to
- * the project yet stay invisible. The constraint is class-level because the header lives at the top-left of the
- * source matrix.
+ * Compiled tables must start with a keyword OpenL recognizes, for example {@code Rules}, {@code Datatype} or
+ * {@code Spreadsheet}. A raw table whose kind is {@code Other} is a deliberate free-form table and only requires a
+ * non-blank header. The constraint is class-level because the header and kind belong to the complete raw table.
  *
  * @author Vladyslav Pikus
  */

@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
@@ -57,9 +58,9 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canSave_modifiedLocalOnly_returnsTrue() {
+    void canSave_modifiedLocalOnly_returnsFalse() {
         var project = projectWith().modified(true).localOnly(true).build();
-        assertTrue(validator.canSave(project));
+        assertFalse(validator.canSave(project));
     }
 
     @Test
@@ -69,9 +70,9 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canSave_modifiedNotLocked_returnsTrue() {
+    void canSave_modifiedButNotOpenedForEditing_returnsFalse() {
         var project = projectWith().modified(true).build();
-        assertTrue(validator.canSave(project));
+        assertFalse(validator.canSave(project));
     }
 
     @Test
@@ -245,9 +246,26 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canDelete_branchRepoNoVersion_returnsFalse() {
+    void canDelete_onMainBranch_returnsTrue() {
         var project = projectWith().branchRepo(true).build();
-        when(project.getVersion()).thenReturn(null);
+        assertTrue(validator.canDelete(project));
+    }
+
+    @Test
+    void canDelete_missingFromCurrentBranch_returnsFalse() {
+        var project = projectWith().branchRepo(true).existsInBranch(false).build();
+        assertFalse(validator.canDelete(project));
+    }
+
+    @Test
+    void canDelete_onNonMainBranch_returnsTrue() {
+        var project = projectWith().branch("feature").build();
+        assertTrue(validator.canDelete(project));
+    }
+
+    @Test
+    void canDelete_onProtectedBranch_returnsFalse() {
+        var project = projectWith().protectedBranch(true).build();
         assertFalse(validator.canDelete(project));
     }
 
@@ -320,43 +338,99 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
-    void canMerge_singleBranch_returnsFalse() throws IOException {
+    void canMerge_singleBranch_returnsFalse() {
         var project = mock(RulesProject.class);
         var repo = mock(BranchRepository.class);
         when(repo.supports()).thenReturn(BRANCH_FEATURES);
         when(project.getDesignRepository()).thenReturn(repo);
         when(project.isLocalOnly()).thenReturn(false);
         when(project.isModified()).thenReturn(false);
-        when(project.getDesignFolderName()).thenReturn("project");
-        when(repo.getBranches("project")).thenReturn(List.of("main"));
+        when(project.getBranch()).thenReturn("feature");
+        try {
+            when(repo.listBranches()).thenReturn(List.of("feature"));
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
         assertFalse(validator.canMerge(project));
     }
 
     @Test
-    void canMerge_twoBranches_returnsTrue() throws IOException {
+    void canMerge_whenAnotherRepositoryBranchDoesNotContainProject_returnsTrue() throws Exception {
         var project = mock(RulesProject.class);
         var repo = mock(BranchRepository.class);
         when(repo.supports()).thenReturn(BRANCH_FEATURES);
         when(project.getDesignRepository()).thenReturn(repo);
         when(project.isLocalOnly()).thenReturn(false);
         when(project.isModified()).thenReturn(false);
-        when(project.getDesignFolderName()).thenReturn("project");
-        when(repo.getBranches("project")).thenReturn(List.of("main", "feature"));
+        when(project.getBranch()).thenReturn("feature");
+        when(repo.listBranches()).thenReturn(List.of("main", "feature"));
+
         assertTrue(validator.canMerge(project));
     }
 
     @Test
-    void canMerge_ioException_returnsFalse() throws IOException {
+    void canMerge_whenBranchesCannotBeRead_returnsFalse() throws Exception {
         var project = mock(RulesProject.class);
         var repo = mock(BranchRepository.class);
         when(repo.supports()).thenReturn(BRANCH_FEATURES);
         when(project.getDesignRepository()).thenReturn(repo);
         when(project.isLocalOnly()).thenReturn(false);
         when(project.isModified()).thenReturn(false);
-        when(project.getDesignFolderName()).thenReturn("project");
-        when(repo.getBranches("project")).thenThrow(new IOException("connection failed"));
+        when(project.getBranch()).thenReturn("feature");
+        when(project.getName()).thenReturn("project");
+        when(repo.listBranches()).thenThrow(new IOException("unavailable"));
+
         assertFalse(validator.canMerge(project));
     }
+
+    // --- canDeleteBranch ---
+
+    @Test
+    void canDeleteBranch_null_returnsFalse() {
+        assertFalse(validator.canDeleteBranch(null));
+    }
+
+    @Test
+    void canDeleteBranch_localOnly_returnsFalse() {
+        var project = branchProject("feature");
+        when(project.isLocalOnly()).thenReturn(true);
+        assertFalse(validator.canDeleteBranch(project));
+    }
+
+    @Test
+    void canDeleteBranch_baseBranch_returnsFalse() {
+        var project = branchProject("main");
+        assertFalse(validator.canDeleteBranch(project));
+    }
+
+    @Test
+    void canDeleteBranch_protectedBranchWithoutBypass_returnsFalse() {
+        var project = branchProject("release");
+        when(((BranchRepository) project.getDesignRepository()).isBranchProtected("release")).thenReturn(true);
+        assertFalse(validator.canDeleteBranch(project));
+    }
+
+    @Test
+    void canDeleteBranch_nonBaseUnprotectedBranch_returnsTrue() {
+        // Whether the deletion also removes the project is answered by the design-time repository.
+        assertTrue(validator.canDeleteBranch(branchProject("feature")));
+    }
+
+
+    /** A committed project of a branch repository, sitting on the given branch. */
+    private static RulesProject branchProject(String branch) {
+        var project = mock(RulesProject.class);
+        var repo = mock(BranchRepository.class);
+        when(repo.supports()).thenReturn(BRANCH_FEATURES);
+        when(repo.getId()).thenReturn("design");
+        when(repo.getBaseBranch()).thenReturn("main");
+        when(project.getDesignRepository()).thenReturn(repo);
+        when(project.isSupportsBranches()).thenReturn(true);
+        when(project.getBranch()).thenReturn(branch);
+        when(project.getDesignProjectName()).thenReturn("Rates");
+        return project;
+    }
+
 
     // --- Test project builder ---
 
@@ -374,6 +448,8 @@ class ProjectStateValidatorImplTest {
         private boolean opened;
         private boolean protectedBranch;
         private boolean branchRepo;
+        private boolean existsInBranch = true;
+        private String branch = "main";
 
         ProjectMockBuilder modified(boolean v) {
             this.modified = v;
@@ -420,6 +496,17 @@ class ProjectStateValidatorImplTest {
             return this;
         }
 
+        ProjectMockBuilder existsInBranch(boolean v) {
+            this.existsInBranch = v;
+            return this;
+        }
+
+        ProjectMockBuilder branch(String v) {
+            this.branch = v;
+            this.branchRepo = true;
+            return this;
+        }
+
         UserWorkspaceProject build() {
             var project = mock(UserWorkspaceProject.class);
             when(project.isModified()).thenReturn(modified);
@@ -434,9 +521,14 @@ class ProjectStateValidatorImplTest {
                 var repo = mock(BranchRepository.class);
                 when(repo.supports()).thenReturn(BRANCH_FEATURES);
                 when(repo.isBranchProtected(any())).thenReturn(protectedBranch);
+                when(repo.getBaseBranch()).thenReturn("main");
                 when(project.getDesignRepository()).thenReturn(repo);
                 when(project.getRepository()).thenReturn(repo);
-                when(project.getBranch()).thenReturn("main");
+                when(project.getBranch()).thenReturn(branch);
+                if (existsInBranch) {
+                    var version = mock(ProjectVersion.class);
+                    when(project.getVersion()).thenReturn(version);
+                }
             } else if (!localOnly) {
                 var repo = mock(Repository.class);
                 when(repo.supports()).thenReturn(NON_BRANCH_FEATURES);

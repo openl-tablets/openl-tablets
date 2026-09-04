@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.interceptor.Fault;
@@ -28,11 +29,8 @@ import org.apache.cxf.phase.Phase;
 @Slf4j
 public class CollectResponseMessageOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    @Getter
     private final StoreLogDataManager storeLoggingManager;
-
-    public StoreLogDataManager getStoreLoggingManager() {
-        return storeLoggingManager;
-    }
 
     public CollectResponseMessageOutInterceptor(StoreLogDataManager storeLoggingManager) {
         super(Phase.PRE_STREAM);
@@ -51,18 +49,18 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
     }
 
     private void handleAnyMessage(Message message) {
-        final OutputStream os = message.getContent(OutputStream.class);
-        final Writer iowriter = message.getContent(Writer.class);
+        final var os = message.getContent(OutputStream.class);
+        final var iowriter = message.getContent(Writer.class);
         if (os == null && iowriter == null) {
             return;
         }
         if (os != null) {
             if (storeLoggingManager.isAtLeastOneSync(StoreLogDataHolder.get())) {
-                CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
+                var newOut = new CacheAndWriteOutputStream(os);
                 message.setContent(OutputStream.class, newOut);
                 newOut.registerCallback(new LoggingCallback(message, os));
             } else {
-                org.apache.cxf.io.CacheAndWriteOutputStream newOut = new org.apache.cxf.io.CacheAndWriteOutputStream(
+                var newOut = new org.apache.cxf.io.CacheAndWriteOutputStream(
                         os);
                 message.setContent(OutputStream.class, newOut);
                 newOut.registerCallback(new LoggingCallback(message, os));
@@ -73,12 +71,12 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
     }
 
     private static LoggingMessage setupBuffer(Message message) {
-        String id = (String) message.getExchange().get(CollectRequestMessageInInterceptor.ID_KEY);
+        var id = (String) message.getExchange().get(CollectRequestMessageInInterceptor.ID_KEY);
         if (id == null) {
             id = LoggingMessage.nextId();
             message.getExchange().put(CollectRequestMessageInInterceptor.ID_KEY, id);
         }
-        final LoggingMessage buffer = new LoggingMessage("Response", id);
+        final var buffer = new LoggingMessage("Response", id);
 
         append(message.get(Message.RESPONSE_CODE), buffer.getResponseCode());
         append(message.get(Message.ENCODING), buffer.getEncoding());
@@ -87,10 +85,10 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
         append(message.get(Message.PROTOCOL_HEADERS), buffer.getHeader());
 
 
-        String address = (String) message.get(Message.ENDPOINT_ADDRESS);
+        var address = (String) message.get(Message.ENDPOINT_ADDRESS);
         if (address != null) {
             buffer.getAddress().append(address);
-            String uri = (String) message.get(Message.REQUEST_URI);
+            var uri = (String) message.get(Message.REQUEST_URI);
             if (uri != null && !address.startsWith(uri)) {
                 if (!address.endsWith("/") && !uri.startsWith("/")) {
                     buffer.getAddress().append("/");
@@ -152,15 +150,15 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
         @Override
         public void close() throws IOException {
             LoggingMessage buffer = setupBuffer(message);
-            StringWriter w2 = out2;
+            var w2 = out2;
             if (w2 == null) {
                 w2 = (StringWriter) out;
             }
-            String ct = (String) message.get(Message.CONTENT_TYPE);
+            var ct = (String) message.get(Message.CONTENT_TYPE);
             try {
-                StringBuilder builder = buffer.getPayload();
+                var builder = buffer.getPayload();
                 // Just transform the XML message when the cos has content
-                StringBuffer buffer1 = w2.getBuffer();
+                var buffer1 = w2.getBuffer();
                 if (buffer1.length() > Integer.MAX_VALUE) {
                     builder.append(buffer1.subSequence(0, Integer.MAX_VALUE));
                 } else {
@@ -169,8 +167,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
             } catch (Exception e) {
                 log.debug("Ignored error: ", e);
             }
-            String id = (String) message.getExchange().get(CollectRequestMessageInInterceptor.ID_KEY);
-            LoggingMessage loggingMessage = new LoggingMessage(null, id);
+            var id = (String) message.getExchange().get(CollectRequestMessageInInterceptor.ID_KEY);
+            var loggingMessage = new LoggingMessage(null, id);
             loggingMessage.getContentType().append(ct);
             loggingMessage.getPayload().append(buffer);
             handleMessage(loggingMessage);
@@ -196,12 +194,10 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
 
         private final Message message;
         private final OutputStream origStream;
-        private final int lim;
 
         public LoggingCallback(final Message msg, final OutputStream os) {
             this.message = msg;
             this.origStream = os;
-            this.lim = Integer.MAX_VALUE;
         }
 
         @Override
@@ -213,7 +209,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
         public void onClose(CachedOutputStream cos) {
             LoggingMessage buffer = setupBuffer(message);
 
-            String ct = (String) message.get(Message.CONTENT_TYPE);
+            var ct = (String) message.get(Message.CONTENT_TYPE);
             if (CollectRequestMessageInInterceptor.isBinaryContent(ct)) {
                 buffer.getMessage().append("--- Binary Content ---").append('\n');
                 handleMessage(buffer);
@@ -221,7 +217,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
             }
 
             try {
-                String encoding = (String) message.get(Message.ENCODING);
+                var encoding = (String) message.get(Message.ENCODING);
                 // Just transform the XML message when the cos has content
 
                 cos.writeCacheTo(buffer.getPayload(), Objects.requireNonNullElseGet(encoding, StandardCharsets.UTF_8::name));

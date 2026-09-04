@@ -68,7 +68,7 @@ public final class XlsDataFormatterFactory {
                 }
                 // Boolean
             } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
-                BooleanFormatter booleanFormatter = new BooleanFormatter();
+                var booleanFormatter = new BooleanFormatter();
                 formatter = cellMetaInfo.isMultiValue() ? new ArrayFormatter(booleanFormatter, Boolean.class) : booleanFormatter;
 
                 // Enum
@@ -99,7 +99,7 @@ public final class XlsDataFormatterFactory {
         ICellStyle xlsStyle = cell == null ? null : cell.getStyle();
         if (xlsStyle != null) {
             short formatIndex = xlsStyle.getFormatIndex();
-            String format = xlsStyle.getFormatString();
+            var format = xlsStyle.getFormatString();
             if (format.contains("#\" \"")) {
                 format = format.replaceAll("#\" \"", "# ");
             }
@@ -117,7 +117,7 @@ public final class XlsDataFormatterFactory {
         ICellStyle xlsStyle = cell == null ? null : cell.getStyle();
 
         if (xlsStyle != null) {
-            String format = xlsStyle.getFormatString();
+            var format = xlsStyle.getFormatString();
             if (StringUtils.isBlank(format) || format.equals(FormatConstants.GENERAL_FORMAT)) {
                 format = FormatConstants.DEFAULT_XLS_DATE_FORMAT;
             }
@@ -140,7 +140,7 @@ public final class XlsDataFormatterFactory {
             return formattedCell.getFormattedValue();
         }
 
-        Object value = cell.getObjectValue();
+        var value = cell.getObjectValue();
 
         String formattedValue = null;
         if (value != null) {

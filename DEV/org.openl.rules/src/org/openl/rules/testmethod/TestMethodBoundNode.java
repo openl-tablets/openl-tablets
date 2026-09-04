@@ -2,17 +2,12 @@ package org.openl.rules.testmethod;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBoundNode;
-import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.impl.DynamicObject;
 
 /**
@@ -41,20 +36,20 @@ public class TestMethodBoundNode extends DataTableBoundNode {
     public void finalizeBind(IBindingContext cxt) throws Exception {
         super.finalizeBind(cxt);
 
-        DynamicObject[] testCases = (DynamicObject[]) getField().getData();
+        var testCases = (DynamicObject[]) getField().getData();
         for (DynamicObject testCase : testCases) {
             if (testCase.getFieldValue(TestMethodHelper.EXPECTED_ERROR) != null && testCase
                     .getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME) != null) {
-                ITable table = getTable();
-                for (int i = 0; i < table.getNumberOfColumns(); i++) {
-                    ColumnDescriptor descriptor = table.getColumnDescriptor(i);
-                    IdentifierNode[] identifiers = descriptor.getFieldChainTokens();
+                var table = getTable();
+                for (var i = 0; i < table.getNumberOfColumns(); i++) {
+                    var descriptor = table.getColumnDescriptor(i);
+                    var identifiers = descriptor.getFieldChainTokens();
                     if (identifiers.length > 0 && TestMethodHelper.EXPECTED_ERROR
                             .equals(identifiers[0].getIdentifier()) && descriptor.getColumnValue(testCase) != null) {
-                        int row = table.getRowIndex(testCase);
-                        int column = table.getColumnIndex(descriptor.getDisplayName());
-                        IGridTable cell = table.getRowTable(row).getColumn(column);
-                        IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell, cxt);
+                        var row = table.getRowIndex(testCase);
+                        var column = table.getColumnIndex(descriptor.getDisplayName());
+                        var cell = table.getRowTable(row).getColumn(column);
+                        var cellSourceCodeModule = new GridCellSourceCodeModule(cell, cxt);
 
                         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
                                 "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",

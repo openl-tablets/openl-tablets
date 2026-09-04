@@ -2,6 +2,8 @@ package org.openl.rules.calc;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.binding.RecursiveSpreadsheetMethodPreBindingException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -11,6 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 public class CustomSpreadsheetResultField extends ASpreadsheetField implements IOriginalDeclaredClassesOpenField {
 
     protected IOpenField field;
+    @Getter
     private final IOpenClass[] declaringClasses;
 
     public CustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass, IOpenField field) {
@@ -32,7 +35,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
         if (target == null) {
             return getType().nullObject();
         }
-        Object res = ((SpreadsheetResult) target).getFieldValue(getName());
+        var res = ((SpreadsheetResult) target).getFieldValue(getName());
         return processResult(res);
     }
 
@@ -66,11 +69,6 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
         if (target != null) {
             ((SpreadsheetResult) target).setFieldValue(getName(), value);
         }
-    }
-
-    @Override
-    public IOpenClass[] getDeclaringClasses() {
-        return declaringClasses;
     }
 
 }

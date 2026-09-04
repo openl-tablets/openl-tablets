@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
@@ -23,6 +26,7 @@ import org.openl.util.fast.FastStringReader;
 @Deprecated
 public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
 
+    @Getter
     private IGridTable table;
     private String code;
 
@@ -31,14 +35,12 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
 
     private String uri;
 
+    @Getter
+    @Setter
     private Map<String, Object> params;
 
     public GridCellSourceCodeModule(IGridTable table) {
         this(table, 0, 0, null);
-    }
-
-    public IGridTable getTable() {
-        return table;
     }
 
     public GridCellSourceCodeModule(IGridTable table, IBindingContext bindingContext) {
@@ -114,16 +116,6 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
 
     private void initUri() {
         uri = table.getUri(column, row);
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 
     @Override

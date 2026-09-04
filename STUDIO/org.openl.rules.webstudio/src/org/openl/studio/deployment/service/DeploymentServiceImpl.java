@@ -4,15 +4,18 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
@@ -22,6 +25,8 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
+import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
+import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -30,6 +35,8 @@ import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
+@Slf4j
 public class DeploymentServiceImpl implements DeploymentService {
 
     private static final String SEPARATOR = "#";
@@ -40,20 +47,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     private final ObjectProvider<UserWorkspace> userWorkspaceProvider;
     private final ProjectStateValidator projectStateValidator;
     private final AclProjectsHelper aclProjectsHelper;
-
-    public DeploymentServiceImpl(ProjectDependencyResolver projectDependencyResolver,
-                                 SecureDeploymentRepositoryService deploymentRepositoryService,
-                                 DeploymentManager deploymentManager,
-                                 ObjectProvider<UserWorkspace> userWorkspaceProvider,
-                                 ProjectStateValidator projectStateValidator,
-                                 AclProjectsHelper aclProjectsHelper) {
-        this.projectDependencyResolver = projectDependencyResolver;
-        this.deploymentRepositoryService = deploymentRepositoryService;
-        this.deploymentManager = deploymentManager;
-        this.userWorkspaceProvider = userWorkspaceProvider;
-        this.projectStateValidator = projectStateValidator;
-        this.aclProjectsHelper = aclProjectsHelper;
-    }
+    private final ProjectVersionCacheManager projectVersionCacheManager;
 
     @Override
     public List<Deployment> getDeployments(DeploymentCriteriaQuery query) {
@@ -63,23 +57,34 @@ public class DeploymentServiceImpl implements DeploymentService {
         } else {
             repoConfigsStream = deploymentRepositoryService.getRepositories().stream();
         }
-        return repoConfigsStream.flatMap(config -> {
-                    try {
-                        return listDeployments(config);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).filter(query.getFilter())
+        return repoConfigsStream.flatMap(this::deploymentsOf)
+                .filter(query.getFilter())
                 .sorted(RepositoryUtils.ARTEFACT_COMPARATOR)
                 .toList();
+    }
+
+    /**
+     * The deployments of one repository. A repository that cannot be instantiated or read — a
+     * misconfigured connection, an unreachable server — yields none: the error is logged and the
+     * listing goes on with the remaining repositories instead of failing as a whole.
+     */
+    private Stream<Deployment> deploymentsOf(RepositoryConfiguration config) {
+        try {
+            return listDeployments(config);
+        } catch (Exception e) {
+            log.error("Failed to read deployments from repository '{}'. The repository is skipped.",
+                    config.getId(),
+                    e);
+            return Stream.empty();
+        }
     }
 
     private Stream<Deployment> listDeployments(RepositoryConfiguration config) throws IOException {
         var repository = deploymentManager.getDeployRepository(config.getId());
         var basePath = deploymentManager.repositoryFactoryProxy.getBasePath(config.getId());
 
-        Map<String, Deployment> latestDeployments = new HashMap<>();
-        Map<String, Integer> versionsList = new HashMap<>();
+        var latestDeployments = new HashMap<String, Deployment>();
+        var versionsList = new HashMap<String, Integer>();
 
         Collection<FileData> fileDatas;
         if (repository.supports().folders()) {
@@ -90,11 +95,11 @@ public class DeploymentServiceImpl implements DeploymentService {
             fileDatas = repository.list(basePath);
         }
         for (FileData fileData : fileDatas) {
-            String deploymentFolderName = fileData.getName().substring(basePath.length()).split("/")[0];
-            int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
+            var deploymentFolderName = fileData.getName().substring(basePath.length()).split("/")[0];
+            var separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
 
-            String deploymentName = deploymentFolderName;
-            int version = 0;
+            var deploymentName = deploymentFolderName;
+            var version = 0;
             CommonVersionImpl commonVersion;
             if (separatorPosition >= 0) {
                 deploymentName = deploymentFolderName.substring(0, separatorPosition);
@@ -103,20 +108,20 @@ public class DeploymentServiceImpl implements DeploymentService {
             } else {
                 commonVersion = new CommonVersionImpl(fileData.getVersion());
             }
-            Integer previous = versionsList.put(deploymentName, version);
+            var previous = versionsList.put(deploymentName, version);
             if (previous != null && previous > version) {
                 // rollback
                 versionsList.put(deploymentName, previous);
             } else {
                 // put the latest deployment
-                String folderPath = basePath + deploymentFolderName;
+                var folderPath = basePath + deploymentFolderName;
                 boolean folderStructure;
                 if (repository.supports().folders()) {
                     folderStructure = !repository.listFolders(folderPath + "/").isEmpty();
                 } else {
                     folderStructure = false;
                 }
-                Deployment deployment = new Deployment(repository,
+                var deployment = new Deployment(repository,
                         folderPath,
                         deploymentName,
                         commonVersion,
@@ -175,6 +180,22 @@ public class DeploymentServiceImpl implements DeploymentService {
             throw new ForbiddenException("default.message");
         }
         deploymentManager.deploy(request);
+    }
+
+    /**
+     * A project whose revision cannot be worked out — unreadable metadata, an unreachable version cache — costs
+     * its own revision only: the error is logged and the rest of the deployment is still listed.
+     */
+    @Override
+    public Optional<CachedProjectVersion> findDesignRevision(AProject deployedProject) {
+        try {
+            return Optional.ofNullable(projectVersionCacheManager.getDesignVersionOfDeployedProject(deployedProject));
+        } catch (Exception e) {
+            // A deploy repository that keeps no version info fails this way for every project, every listing,
+            // so it is a property of the repository to note rather than an incident to raise.
+            log.warn("Failed to find the design revision of deployed project '{}'.", deployedProject.getName(), e);
+            return Optional.empty();
+        }
     }
 
     private UserWorkspace getUserWorkspace() {

@@ -1,0 +1,37 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
+  "name": "ProjectUser1",
+  "branch": "master",
+  "status": "OPENED",
+  "repository": "design-flat",
+  "modifiedBy": "User User1",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "ProjectUser1",
+  "comment": "Project ProjectUser1 is created.",
+  "branchDefault": true,
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  "capabilities": {
+    "canWrite": true,
+    "canClose": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canCopy": true,
+    "canManageBranches": true,
+    "canExport": true
+  }
+}

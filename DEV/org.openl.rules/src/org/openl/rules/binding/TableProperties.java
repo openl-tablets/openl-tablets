@@ -179,7 +179,7 @@ public class TableProperties {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("{\r\n");
         if (tableProperties.getName() != null) {
             sb.append("Name").append(" = ").append(toString(tableProperties.getName())).append("\r\n");

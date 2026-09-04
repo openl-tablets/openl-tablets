@@ -131,10 +131,7 @@
     text-decoration: underline;
     color: rgb(215,125,0);
 }
-
-.te_hidden {
-    display: none;
-}/* Tooltip skins */
+/* Tooltip skins */
 .tooltip_skin-default {
     background: #fff;
     border: 1px solid #ccc;

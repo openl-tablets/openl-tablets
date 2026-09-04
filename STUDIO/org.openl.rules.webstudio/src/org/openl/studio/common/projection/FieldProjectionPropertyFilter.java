@@ -69,7 +69,7 @@ public class FieldProjectionPropertyFilter extends SimpleBeanPropertyFilter {
             return null;
         }
         var node = root;
-        for (int i = anchor.length; i < path.size(); i++) {
+        for (var i = anchor.length; i < path.size(); i++) {
             if (node == null || !node.hasChildren()) {
                 return node;
             }
@@ -82,7 +82,7 @@ public class FieldProjectionPropertyFilter extends SimpleBeanPropertyFilter {
         if (path.size() < anchor.length) {
             return false;
         }
-        for (int i = 0; i < anchor.length; i++) {
+        for (var i = 0; i < anchor.length; i++) {
             if (!anchor[i].equals(path.get(i))) {
                 return false;
             }

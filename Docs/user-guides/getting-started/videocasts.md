@@ -8,6 +8,17 @@ videos are downloaded).
 
 ---
 
+## OpenL Studio 6.0.0 Simplified Access Control
+
+This videocast covers the completely redesigned access control system in OpenL Studio 6.0.0 — a simplified three-role
+model, five core actions, and a modernized interface for managing users and groups.
+
+<p><iframe width="420" height="315" src="https://www.youtube.com/embed/YVwvwU9FIzo" title="OpenL Studio 6.0.0 Simplified Access Control" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
+
+[Watch on YouTube](https://youtu.be/YVwvwU9FIzo)
+
+---
+
 ## OpenL: New Features and Improvements (2022–2024)
 
 This presentation covers the new features and improvements implemented by the OpenL team between 2022 and 2024 that are
@@ -67,8 +78,3 @@ tables are discussed as well.
 <p><iframe src="https://www.youtube.com/embed/yC5K7T9H8zE" frameborder="0" width="420" height="315" allowfullscreen></iframe></p>
 
 [Watch on YouTube](https://youtu.be/yC5K7T9H8zE)
-
----
-
-*If you want further edits (add thumbnails, durations, or reformat the layout), tell me how you'd like it presented and
-I will update the file.*

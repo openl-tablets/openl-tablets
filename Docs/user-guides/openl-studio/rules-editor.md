@@ -13,7 +13,7 @@ The following topics are included in this chapter:
 -   [Modifying Tables](#modifying-tables)
 -   [Referring to Tables](#referring-to-tables)
 -   [Managing Range Data Types](#managing-range-data-types)
--   [Creating Tables by Copying](#creating-tables-by-copying)
+-   [Copying a Table](#copying-a-table)
 -   [Performing a Search](#performing-a-search)
 -   [Creating Tables](#creating-tables)
 -   [Comparing Excel Files](#comparing-excel-files)
@@ -115,6 +115,8 @@ To update or export a project, proceed as follows:
 
 The default project version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing.**
 
+The most recent revisions are offered first; older ones are loaded on demand through **Load older revisions**.
+
 Exported project is downloaded as a `.zip` archive.
 
 #### Copying a Project
@@ -122,16 +124,14 @@ Exported project is downloaded as a `.zip` archive.
 To create a copy of a project, proceed as follows:
 
 1.  In the top line menu, click **Copy**.
-2.  In the window that appears, enter the new project name.
-3.  Modify **Comment** if needed.
-4.  When you need to copy a project with revisions, select the **Copy old revisions** check box and provide the necessary number of revisions in the **Revisions to copy** field.
-5.  Click **Copy.**
+2.  Select **Create a New Project** if the dialog initially offers to create a project branch.
+3.  Enter the new project name and select the target repository.
+4.  In **Branch**, select an existing target-repository branch or enter a valid new branch name.
+5.  Modify **Path** and **Comment** if needed.
+6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
+7.  Click **Copy**.
 
-The new project appears in the project list.
-
-![](images/copy-project-dialog.jpeg)
-
-*Copying a project*
+The new project appears in the project list with the selected branch as its home branch.
 
 #### Exporting, Updating, and Editing a Module
 
@@ -141,6 +141,9 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 2.  To export the module to the user’s local machine, for a module, in the top line menu, click **Export** and select a module revision.
 
     The default module version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing**.
+
+    The list offers the revisions of the module file itself, so a project revision that did not change the
+    module is not proposed. Older revisions are loaded on demand through **Load older revisions**.
 
 1.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](images/edit-icon.png).
 
@@ -165,9 +168,11 @@ To compare module versions, proceed as follows:
 
 1.  In the **Projects** tree, select the module.
 2.  In the top line menu, select **More** **\>** **Local** **Changes**.
-    The **Local** **Changes** page appears displaying all module versions, with the latest versions on the top.
+    The **Local** **Changes** page appears displaying the selected module's local versions, with the latest
+    versions on the top. In a multi-module project, switching modules shows the local history stored for that
+    module only.
 
-    ![](images/local-changes-window.jpeg)
+    ![Local changes for the selected module](images/local-changes-window.png "Local changes for the selected module")
 
     *Displaying the Changes window*
 
@@ -477,46 +482,44 @@ To create a range, proceed as follows:
 
 A range can also be modified using ‘\>’, ‘\<’ and ‘=’ controls as described in the beginning of this section.
 
-### Creating Tables by Copying
-
-A table can be created based on another table using one of the following methods:
-
--   [Copying the Existing Table](#copying-the-existing-table)
--   [Creating a New Version of the Table](#creating-a-new-version-of-the-table)
--   [Creating a Table as a New Business Dimension Version](#creating-a-table-as-a-new-business-dimension-version)
-
-#### Copying the Existing Table
+### Copying a Table
 
 To create a table as a copy of the existing table, proceed as follows:
 
 1.  In the module list, select a table to copy.
 2.  Click the **Copy Table** icon ![](images/copy-table-icon.png).
-    The system displays the **Copy Table** form with **New Table** selected by default.
+    OpenL Studio displays the **Copy table "TableName"** window.
 
-    ![](images/copy-table-dialog.png)
+    ![Copy table window with destination and properties](images/copy-table-dialog.png "Copy table window")
 
-    *Copying the existing table*
+    *Copying an existing table*
 
-1.  If necessary, modify the **Name** field value.
-2.  To change the workbook and worksheet where the copy must be saved, click the link in the **Save To** area and in the corresponding drop-down list, select the required module and category.
-3.  To save the copied table in a new category, use the **New** option.
-4.  Click **Copy** to save your changes.
+1.  Enter a valid OpenL identifier in **Table Name**. It may match an existing table name when the table is
+    distinguished by its signature or properties. A name of any other shape is refused, by the window and by the
+    server alike.
+2.  Select or enter the destination **Module**.
+3.  Select or enter the destination **Sheet**. The sheet is the table's category, so a new sheet name creates a new
+    category.
+4.  Review the property name and value rows. The names are the properties applicable to the copied table's type,
+    offered the way the **Table Details** editor lists them — by display name, under the **Info**, **Business
+    Dimension**, **Version** and **Dev** groups, so the dimensional properties are presented rather than guessed:
+    - complete the last row to add another property, or delete a row with its row control;
+    - select a property by its display name;
+    - enter text directly, select a date in the date picker, select or clear a Boolean check box, or select an enum
+      display value from the dropdown, according to the property type. A single-value enum is selected from a closed
+      dropdown and does not accept typed text.
+      The date picker opens on the date the copied table declares and follows the user's locale; OpenL Studio
+      carries a date value as ISO 8601 `yyyy-MM-dd`. A date naming a moment of the day keeps that moment when
+      another day is selected, because the picker chooses a day.
+    - **Version** is entered as its three numbers — major, minor and variant — with the version the copied table
+      stands for named beside them. It opens on the first version the table's versions leave free, and a version
+      one of them already carries is refused.
+5.  Click **Copy** to save your changes.
+
+The copy is stamped as created: OpenL Studio records **Created By** and **Created On** on it, as it does for a table
+created from scratch, provided **Update table properties** is selected in the system settings.
 
 The table appears in the module list.
-
-#### Creating a New Version of the Table
-
-To create a new version of the existing table, proceed as described in [Using Table Versioning](editing-testing.md#using-table-versioning). In that case, dimensional properties of a new version are exactly the same as for the original one. OpenL Tablets allows creating an overloaded table from an existing one.
-
-#### Creating a Table as a New Business Dimension Version
-
-To create a table as a new business dimension version, proceed as follows:
-
-1.  In the module list, select a table and click the **Copy Table** icon.
-2.  In the **Copy as** list, select **New Business Dimension Version**.
-3.  Specify business dimension properties as required.
-4.  If necessary, modify the workbook and worksheet values in the **Save as** area.
-5.  Click **Copy** to save the table.
 
 ### Performing a Search
 
@@ -584,209 +587,170 @@ As a result, the system displays the tables matching the search criteria along w
 
 ### Creating Tables
 
-OpenL Studio allows creating tables of the following types:
--   datatype table
--   vocabulary table
--   data table
--   test table
--   properties table
--   simple rules table
-
-Tables are created via the wizard initiated by clicking the **Create Table** button ![](images/toolbar-create-table-icon.png). The wizard creates a table for the current module. The table is available for all included modules and modules linked by dependencies. For more information on dependencies, see [OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
-
-The following topics are included in this section:
-
--   [Creating a Datatype Table](#creating-a-datatype-table)
--   [Creating a Data Table](#creating-a-data-table)
--   [Creating a Test Table and Defining the ID Column for Test Cases](#creating-a-test-table-and-defining-the-id-column-for-test-cases)
--   [Creating a Simple Rules Table](#creating-a-simple-rules-table)
-
-#### Creating a Datatype Table
-
-To create a datatype table, proceed as follows:
-
-1.  In OpenL Studio, click **Create Table**.
-2.  In the list of table types, select **Datatype Table** and click **Next**.
-
-    ![](images/create-datatype-table-wizard.png)
-
-    *Creating a datatype table*
-
-1.  Enter the data type name and if necessary, select the existing data type as a parent.
-    If a parent data type value is specified, the newly created data type will have access to all fields defined in the parent data type as described in [OpenL Tablets Reference Guide > Inheritance in Data Types](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#inheritance-in-data-types).
-
-    This option is unavailable if no custom data types are created in the module.
-
-    ![](images/create-datatype-name-and-parent.png)
-
-    *Specifying the data type name and parent type*
-
-1.  To define data type fields, click **Add parameter**, specify values as required, and then click **Next**.
-
-    ![](images/create-datatype-define-fields.png)
-
-    *Defining data type fields*
-
-1.  To indicate the new datatype table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
-
-    The **Module** value cannot be changed. All created tables go to the current module.
-
-    ![](images/create-table-select-destination.png)
-
-    *Specifying table location*
-
-1.  Click **Save** to complete table creation.
-The datatype table is created and becomes available in OpenL Studio.
-
-#### Creating a Data Table
-
-Creating a data table resembles creating a datatype table described in [Creating a Datatype Table](#creating-a-datatype-table). Proceed as follows:
-
-1.  In OpenL Studio, click **Create Table**.
-2.  Select the **Data Table** item and click **Next**.
-
-    ![](images/create-data-table-initiate.png)
-
-    *Initiating data table creation*
-
-1.  Select the table type, enter the table name, and click **Next**.
-
-    ![](images/create-data-table-type-and-name.png)
-
-    *Defining table type and name*
-
-1.  Define the table columns configuration.
-    For the **Loss1** type selected in the previous window, column configuration resembles the following:
-
-    ![](images/create-data-table-column-config.png)
-
-    *Defining column configuration*
-
-1.  To indicate new data table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
-    The **Module** value cannot be changed. All created tables go to the current module.
-
-    ![](images/create-data-table-destination.png)
-
-    *Specifying table location*
-
-1.  Click **Save** to complete table creation.
-The new data table is created and can be modified as needed.
-
-OpenL Tablets supports array value definition in data tables as described in [OpenL Tablets Reference Guide > Representing Arrays](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#representing-arrays).
-
-#### Creating a Test Table and Defining the ID Column for Test Cases
-
-This section describes how to create a test table and define the ID column for test cases and includes the following topics:
-
--   [Creating a Test Table](#creating-a-test-table)
--   [Defining the ID Column for Test Cases](#defining-the-id-column-for-test-cases)
-
-##### Creating a Test Table
-
-To create a test table, proceed as follows:
-
-1.  In OpenL Studio, click **Create Table**.
-2.  Select **Test Table** and click **Next**.
-
-    ![](images/create-test-table-wizard.png)
-
-    *Creating a test table*
-
-1.  In the **Select table** window, select the rule table and click **Next**.
-
-    ![](images/create-test-select-rule-table.png)
-
-    *Selecting a rule table to create a test table for*
-
-    **Note:** If there is no rule table available in this module, a test table cannot be created, and an error message is displayed.
-
-1.  In the **Input name** window, if necessary, modify the generated test table name and click **Next**.
-
-    ![](images/create-test-table-name.png)
-
-    *Reviewing the test table name*
-
-1.  To define the test table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
-    The **Module** value cannot be changed. All created tables go to the current module.
-
-    ![](images/create-test-table-destination.png)
-
-    *Specifying table location*
-
-1.  To complete table creation, click **Save**.
-The test table is created and becomes available in OpenL Studio.
-
-OpenL Tablets supports array value definition in test tables as described in [OpenL Tablets Reference Guide > Representing Arrays](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#representing-arrays).
-
-##### Defining the ID Column for Test Cases
-
-The ID column is not mandatory in a test table. A user can define the ID column and set the appropriate unique value for each test case.
-
-![](images/test-table-with-id-column.png)
-
-*A test table with the ID column defined*
-
-If the ID column is not defined for the test table, default numeric values are displayed beside each test case.
-When running a test table, to run the test cases, expand the additional settings for the **Run** button and select the required cases.
-
-![](images/run-specified-test-cases.png)
-
-*Running the specified test cases*
-
-To use ranges of IDs for executing the required cases, enable the **Use the Range** setting and in the **Range of IDs** field, specify the ID values separated by dash or comma.
-
-![](images/test-cases-id-range.png)
-
-*Specifying test cases ID range*
-
-#### Creating a Simple Rules Table
-
-This section describes how to create a new simple rules table in OpenL Studio.
-
-1.  In OpenL Studio, click **Create Table**.
-2.  Select **Simple Rules Table** and click **Next**.
-
-    ![](images/create-simple-rules-table-initiate.png)
-
-    *Initiating table creation*
-
-1.  Enter table name and select the required data type to return.
-2.  Click **Add Input Parameters** and specify values as required.
-
-    ![](images/create-simple-rules-table-parameters.png)
-
-    *Specifying table parameters*
-
-1.  When finished, click **Next**.
-
-    In the **Construct a table** window that appears, a blank simple rules table with the header constructed based on the previously entered values appears.
-
-    ![](images/create-simple-rules-table-add-data.png)
-
-    *Adding data to a table*
-
-    Now the table can be filled with data.
-
-    ![](images/create-simple-rules-table-context-menu.png)
-
-    *Selecting an action from the context menu*
-
-1.  Right click any cell and select one of the following actions:
-
-    | Action                                                   | Description                                                                                                                                                                                                                      |
-    |----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-    | **Add Property**                                         | Appears after selecting a property in the drop-down list and indicating its value.                                                                                                                                               |
-    | **Add Rule**                                             | Allows entering data. An example is as follows: <br/>![](images/create-simple-rules-table-enter-data.png) <br/>*Entering table data* <br/>This action can be repeated as many times as required.                                    |
-    | **Insert Condition Before** <br/>/ **Insert Condition After** | Adds a condition column to the specified position. An example of the added **DriverOccupation** condition column is as follows: <br/>![](images/create-simple-rules-table-add-condition.png) <br/>*Adding a condition column* |
-    | **Delete Condition** / **Delete Rule**                   | Removes a condition or rule.                                                                                                                                                                                                 |
-
-1.  When finished, click **Next**.
-2.  To indicate new table location, in the **Select destination** window, select an existing sheet, or in the **New** field, enter the new sheet name.
-
-    The **Module** value cannot be changed. All created tables go to the current module.
-
-1.  Click **Save** to save the changes.
-The new simple rules table is created and appears in the project.
+The **Create Table** action opens one window that holds the whole table: a settings strip for the type, the name and
+the destination, and below it the sheet itself. The skeleton is rebuilt the moment the table type changes, and the
+header cell at the top of the sheet shows the exact OpenL header the table will be written with.
+
+![Create Table Window](images/create-table-window.png)
+
+*The Create Table window*
+
+To create a table:
+
+1. In OpenL Studio, click **Create Table**.
+2. In **Table Type**, select one of the supported types:
+
+   ![Table Type List](images/create-table-type-list.png)
+
+   *Selecting the table type*
+
+   - **Datatype** — Type, Name, Default Value, Mandatory, Description, and Examples. Type accepts a value directly or
+     a value selected from simple types, vocabularies, and datatypes visible to the module. **Extends** suggests only
+     the project's complex datatypes and writes the selected parent into the header; it does not offer
+     `SpreadsheetResult`. Select the **Mandatory** check box to write `true`; clear it to leave the cell empty.
+   - **Vocabulary** — one value column and a simple **Base Type**, written in angle brackets in the Datatype header.
+     The value cells use that type's editor.
+   - **Constants** — Type, Name, and Default Value. Type is selected from simple types, and Default Value uses the
+     selected type's editor. A Constants table carries no name of its own, so the **Table Name** field is not shown.
+   - **Spreadsheet** — Steps and Formula, returning `SpreadsheetResult` unless another type is chosen. A
+     Spreadsheet names its own columns in the first row of the table, so those names are cells to edit and more
+     columns can be added beside them.
+   - **Smart Rules** and **Simple Rules** — one column for each input argument. A simple result adds an Output column;
+     a Datatype result adds one output column for each Datatype field.
+   - **Smart Lookup** and **Simple Lookup** — a two-dimensional table, read where a row and a column cross. The
+     leading arguments run down the left, one column each, and the trailing ones across the top, one row each. The
+     corner where the two meet is kept as square as it can be and gains a row before a column: two arguments give
+     one of each, three give two rows and one column, five give three and two. That corner is written as a merged
+     cell, because its height is what tells OpenL how many arguments run across the top.
+
+     A lookup of one argument has no second axis to spread over, so it is laid out exactly like a Simple Rules
+     table — the argument down the left, the result beside it, and no corner at all. Every row is a rule from
+     the first one, so no title row is written above them.
+
+     ![Smart Lookup Skeleton](images/create-table-lookup.png)
+
+     *A lookup with one argument down the left and one across the top*
+
+   - **Rules** — Condition and Output.
+   - **Test** and **Run** — columns generated from the signature of the selected executable table: one for every
+     value a call has to supply, plus `_res_` for the expected result, which Run omits. An argument of a datatype
+     contributes one column per field, named by the path OpenL reads it back with — `policy.mainDriver.age` — as
+     deep as the datatypes nest. An argument of any other type, a collection included, stays one column. The target
+     can be any executable table in the project, whichever module holds it. Test excludes a table that returns
+     nothing because there would be no result to assert; Run includes it because Run only calls the table. The new
+     table opens named after the table it exercises — `PremiumTest`, `PremiumRun` — and can be renamed. A Test or Run
+     table is placed with the project's tests: selecting the type moves the destination to a module under `tests/`,
+     and a module created for it goes under `tests/` too.
+     Select **Transposed** to put the generated fields down rows and test or run cases across columns.
+   - **Data** — columns generated from the selected Datatype. Select **Transposed** to put fields down rows and data
+     records across columns. Test, Run and Data display every word in generated titles in Title Case, such as
+     **Main Driver Age**.
+   - **Environment** — Key and Value. Key is suggested from the three keywords OpenL acts on — `dependency`,
+     `import` and `include`. An Environment table carries no name of its own.
+   - **Properties** — Property and Value. Property is suggested from the properties that may appear in a Properties
+     table. Its value uses the editor declared for that property: text, date picker, Boolean check box, or enum
+     dropdown. Single-value enum dropdowns do not accept typed text. Enum lists show display values and write their
+     codes. Multiple selected values wrap onto additional lines within the value column. Dates follow the user's
+     locale in the date picker and are written as ISO 8601 `yyyy-MM-dd`. The skeleton starts with the mandatory
+     `scope` property set to `Module`; change it to `Global` or to `Category` — adding a `category` row to name the
+     category — as required. A Properties table carries no name of its own.
+   - **Free Form Table** — a plain grid, with the sheet's own column letters over it and nothing else. It has no
+     header cell and no name: OpenL does not recognize such a table, and names it after whatever its first cell
+     says. It is written exactly as it stands. Only that first cell is required — OpenL reads a table from it.
+
+3. Enter the table name, where the table type has one. The field opens empty and is required wherever it is shown.
+
+   The name must be a valid identifier — letters, digits, `_` and `$`, not starting with a digit — because it
+   becomes the name OpenL compiles. It may match an existing table name: signatures and properties supplied by the
+   file name, a Properties table, or the table's own properties section distinguish table overloads and versions.
+   Constants, Environment, Properties and Free Form tables carry no name and do not show the field.
+
+4. In **Module**, choose the module that receives the table, then choose the sheet. Both fields suggest what the
+   project already has and accept anything else typed into them. The sheets offered are the ones the chosen
+   module's own workbook holds, and choosing a module selects its first sheet, since a sheet belongs to a module.
+   The module decides only where the table is written — it does not change what a Test or Run table may target.
+
+   A module name the project does not declare creates a module. OpenL Studio derives its project-relative `.xlsx`
+   path — `rules/` for a rules table, `tests/` for a Test or Run table — creates the workbook, and registers it in
+   `rules.xml` when the path is not already covered by a module wildcard. For a simple project without `rules.xml`,
+   OpenL Studio creates the descriptor and keeps all existing root modules registered.
+
+   A sheet name that the chosen module does not have creates a sheet.
+
+   The sheet name cannot contain `/ \ * ? [ ] :`, which Excel does not allow in a worksheet name.
+
+   ![Module and Sheet Suggestions](images/create-table-destination.png)
+
+   *Choosing the module that receives the table*
+
+5. For Spreadsheet, Rules, Smart Rules, Simple Rules, Smart Lookup, and Simple Lookup, set **Result Type** and
+   **Arguments**. A type can be a simple type, a vocabulary, or a datatype visible to the selected module;
+   `SpreadsheetResult` is offered here as well, because only a signature can name it. The header cell at the top of
+   the sheet updates as the signature is filled in.
+
+   ![Result Type and Arguments](images/create-table-signature.png)
+
+   *A signature builds the header cell and the columns*
+
+6. Edit the skeleton cells.
+
+   - Every body cell can be edited. The header cell at the top is a read-only preview generated from the settings.
+     A Datatype parent is set with **Extends**, which builds a header such as `Datatype Policy extends Base`.
+   - The first row opens filled in as an example. It is a placeholder to write over: every cell holds a value of
+     the type its column declares — `1` for an Integer, `TRUE` for a Boolean, `2026-06-15` for a Date, `1-10` for
+     an IntRange, and for a vocabulary the first value that vocabulary offers — so a table created untouched is a
+     table that works. A cell whose value no single cell can spell out, such as another datatype or a collection,
+     opens on `<field>_id_1`, the way a Data table row holding that value is referenced.
+   - A value cell uses the editor for the type its table definition gives it. Boolean cells offer `TRUE`, `FALSE`
+     and an empty value. Vocabulary cells use a closed dropdown that offers their declared values and empty, without
+     accepting typed text. Numeric cells use a number input, Date cells a date picker that displays the user's locale
+     and stores ISO 8601 `yyyy-MM-dd`, and Character cells accept one character. Byte, Short, Integer and Long
+     values must stay within the range of the selected type. This applies to Datatype defaults and examples,
+     Constants and Vocabulary values, and generated Rules, lookup, Test, Run and Data cells, except for the
+     condition cells described below.
+   - A condition cell of a Smart Rules, Simple Rules, Smart Lookup or Simple Lookup table is matched by range as
+     readily as by equality, so a condition of a numeric, Character, String or Date type is typed rather than
+     picked: it takes `18-30`, `>=18`, `[18 .. 30)` or `18 and more` as well as a single value, it is not held to
+     the range of its type, and a Character condition is not capped at one character. What OpenL cannot read is
+     reported when the table compiles. A Boolean or Vocabulary condition has no range of its own and keeps the
+     dropdown its type gives it.
+   - Filling the last row automatically adds an empty row below it.
+   - Point at a row to reveal its actions: insert a row above or below it, or delete it. A Free Form Table reveals
+     the same actions for its columns, above the grid.
+
+     ![Row Actions](images/create-table-row-actions.png)
+
+     *Actions revealed for the row under the pointer*
+
+   - Columns controlled by a table signature, Datatype, or tested table change when that definition changes.
+   - Where a table type has no fixed set of columns — a Free Form Table, a Spreadsheet, a lookup — filling the last
+     column adds an empty column to the right. A table wider than the dialog scrolls sideways rather than widening
+     it.
+   - Blank rows are not written. OpenL reads a blank row as the end of a table, so an empty row left in the middle of
+     the skeleton is dropped together with the trailing one kept for input.
+   - While **Create** is unavailable, the dialog names what is missing, one thing at a time and in the order the
+     fields are laid out, so the first thing shown is the first thing to fix.
+   - A Spreadsheet needs at least one filled row, because OpenL rejects a table with no body. **Create** stays
+     disabled until one is entered.
+   - A lookup of two or more arguments needs a value in every row of its top band — one for each argument running
+     across the top — and at least one row below to look up by. A blank row is never written, so a top row left
+     empty would shorten the merged corner and change how many arguments OpenL reads as horizontal. **Create**
+     stays disabled until both are filled. A lookup of one argument has no band, so it needs only a filled row.
+   - A lookup's top band and the argument titles beside it belong to the table type and carry no row controls.
+
+7. Click **Create**.
+
+The table is created in the selected module and opens in the Rules Editor. Its availability to other modules depends
+on project and module dependencies. For more information, see
+[OpenL Tablets Reference Guide > Project and Module Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#project-and-module-dependencies).
+
+For an executable table, **Create Test** opens the same window with a Test table skeleton generated from the selected
+table signature. The generated columns contain every input parameter and the expected result. The tested table can
+also be changed in the window.
+
+![Generated Test Table Skeleton](images/create-table-test.png)
+
+*A Test table generated from the tested table*
 
 ### Comparing Excel Files
 

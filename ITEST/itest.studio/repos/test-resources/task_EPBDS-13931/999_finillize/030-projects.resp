@@ -1,0 +1,46 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
+      "name": "EPBDS-13931",
+      "branch": "EPBDS-13931_1",
+      "status": "OPENED",
+      "repository": "design-flat",
+      "modifiedBy": "Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "EPBDS-13931",
+      "comment": "Save changes",
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
+      "capabilities": {
+        "canWrite": true,
+        "canDelete": true,
+        "canClose": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canManageBranches": true,
+        "canDeleteBranch": true,
+        "canExport": true
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

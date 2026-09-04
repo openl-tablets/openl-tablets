@@ -1,13 +1,12 @@
 package org.openl.rules.cmatch.matcher;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.convertor.String2DataConvertorFactory;
 
+@RequiredArgsConstructor
 public class ClassMatchMatcher implements IMatcher {
     private final Class<?> clazz;
-
-    public ClassMatchMatcher(Class<?> clazz) {
-        this.clazz = clazz;
-    }
 
     @Override
     public Object fromString(String checkValue) {

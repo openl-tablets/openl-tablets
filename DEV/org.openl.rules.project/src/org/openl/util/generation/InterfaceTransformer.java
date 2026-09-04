@@ -12,14 +12,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Queue;
-import java.util.Set;
 import java.util.function.Function;
 
 import lombok.extern.slf4j.Slf4j;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -53,10 +51,10 @@ public class InterfaceTransformer {
             .thenComparing(Method::getParameterTypes, InterfaceTransformer::compareNames);
 
     private static int compareNames(Class<?>[] p1, Class<?>[] p2) {
-        for (int i = 0; i < p1.length; i++) {
-            String name1 = p1[i].getName();
-            String name2 = p2[i].getName();
-            int cmp = name1.compareTo(name2);
+        for (var i = 0; i < p1.length; i++) {
+            var name1 = p1[i].getName();
+            var name2 = p2[i].getName();
+            var cmp = name1.compareTo(name2);
             if (cmp != 0) {
                 return cmp;
             }
@@ -100,15 +98,15 @@ public class InterfaceTransformer {
                         .toArray(String[]::new));
 
         for (Annotation annotation : classToTransform.getAnnotations()) {
-            AnnotationVisitor av = classVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
+            var av = classVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
             processAnnotation(annotation, av);
         }
 
-        Set<String> usedFields = new HashSet<>();
-        Set<Class<?>> usedClasses = new HashSet<>();
-        Set<MethodKey> usedMethods = new HashSet<>();
+        var usedFields = new HashSet<String>();
+        var usedClasses = new HashSet<Class<?>>();
+        var usedMethods = new HashSet<MethodKey>();
         Queue<Class<?>> queue = new ArrayDeque<>();
-        Queue<Class<?>> interfacesQueue = new ArrayDeque<>();
+        var interfacesQueue = new ArrayDeque<Class<?>>();
         queue.add(classToTransform);
         while (!queue.isEmpty()) {
             Class<?> x = queue.poll();
@@ -116,20 +114,20 @@ public class InterfaceTransformer {
                 continue;
             }
             usedClasses.add(x);
-            Field[] declaredFields = x.getDeclaredFields();
+            var declaredFields = x.getDeclaredFields();
             Arrays.sort(declaredFields, Comparator.comparing(Field::getName));
             for (Field field : declaredFields) {
                 if (!field.isSynthetic() && !usedFields.contains(field.getName())) {
                     usedFields.add(field.getName());
                     try {
-                        FieldVisitor fieldVisitor = classVisitor.visitField(field.getModifiers(),
+                        var fieldVisitor = classVisitor.visitField(field.getModifiers(),
                                 field.getName(),
                                 Type.getDescriptor(field.getType()),
                                 null,
                                 isConstantField(field) ? field.get(null) : null);
                         if (fieldVisitor != null) {
                             for (Annotation annotation : field.getAnnotations()) {
-                                AnnotationVisitor av = fieldVisitor
+                                var av = fieldVisitor
                                         .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                                 processAnnotation(annotation, av);
                             }
@@ -139,18 +137,18 @@ public class InterfaceTransformer {
                     }
                 }
             }
-            Method[] declaredMethods = x.getDeclaredMethods();
+            var declaredMethods = x.getDeclaredMethods();
             Arrays.sort(declaredMethods, METHOD_COMPARATOR);
             for (Method method : declaredMethods) {
                 if (!method.isSynthetic()) {
-                    MethodKey methodKey = new MethodKey(method.getName(),
+                    var methodKey = new MethodKey(method.getName(),
                             Arrays.stream(method.getParameterTypes())
                                     .map(JavaOpenClass::getOpenClass)
                                     .toArray(JavaOpenClass[]::new));
                     if (!usedMethods.contains(methodKey)) {
                         usedMethods.add(methodKey);
-                        String ruleName = method.getName();
-                        MethodVisitor methodVisitor = classVisitor.visitMethod(
+                        var ruleName = method.getName();
+                        var methodVisitor = classVisitor.visitMethod(
                                 x.isInterface() ? method.getModifiers() : method.getModifiers() | Modifier.ABSTRACT,
                                 ruleName,
                                 Type.getMethodDescriptor(method),
@@ -177,7 +175,7 @@ public class InterfaceTransformer {
         if (!classToTransform.isInterface()) {
             for (Constructor<?> constructor : classToTransform.getDeclaredConstructors()) {
                 if (!constructor.isSynthetic()) {
-                    GeneratorAdapter mg = new GeneratorAdapter(constructor.getModifiers(),
+                    var mg = new GeneratorAdapter(constructor.getModifiers(),
                             org.objectweb.asm.commons.Method.getMethod(constructor),
                             null,
                             null,
@@ -188,7 +186,7 @@ public class InterfaceTransformer {
                     mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()),
                             org.objectweb.asm.commons.Method.getMethod("void <init> ()"));
                     mg.visitInsn(Opcodes.RETURN);
-                    int i = 1;
+                    var i = 1;
                     for (Class<?> paramType : constructor.getParameterTypes()) {
                         if (long.class == paramType || double.class == paramType) {
                             i += 2;
@@ -206,17 +204,17 @@ public class InterfaceTransformer {
     private void processAnnotationsOnExecutable(MethodVisitor methodVisitor, Executable executable) {
         if (methodVisitor != null) {
             for (Annotation annotation : executable.getAnnotations()) {
-                AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
+                var av = methodVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
                         true);
                 processAnnotation(annotation, av);
             }
-            int index = 0;
+            var index = 0;
             for (Annotation[] annotations : executable.getParameterAnnotations()) {
-                int i = methodParameterAdaptor.apply(index);
+                var i = methodParameterAdaptor.apply(index);
                 if (i >= 0 && i < executable.getParameterCount()) {
                     for (Annotation annotation : annotations) {
                         String descriptor = Type.getDescriptor(annotation.annotationType());
-                        AnnotationVisitor av = methodVisitor.visitParameterAnnotation(i, descriptor, true);
+                        var av = methodVisitor.visitParameterAnnotation(i, descriptor, true);
                         processAnnotation(annotation, av);
                     }
                 }
@@ -226,7 +224,7 @@ public class InterfaceTransformer {
     }
 
     private static boolean isConstantField(Field field) {
-        int modifiers = field.getModifiers();
+        var modifiers = field.getModifiers();
         return Modifier.isFinal(modifiers) && Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers);
     }
 
@@ -234,11 +232,11 @@ public class InterfaceTransformer {
         if (av != null) {
             for (Method m : annotation.annotationType().getDeclaredMethods()) {
                 try {
-                    Object attributeValue = m.invoke(annotation);
+                    var attributeValue = m.invoke(annotation);
                     Class<? extends Object> attributeType = attributeValue.getClass();
                     if (attributeType.isArray()) {
-                        AnnotationVisitor arrayVisitor = av.visitArray(m.getName());
-                        Object[] array = (Object[]) attributeValue;
+                        var arrayVisitor = av.visitArray(m.getName());
+                        var array = (Object[]) attributeValue;
                         for (Object o : array) {
                             visitNonArrayAnnotationAttribute(arrayVisitor, null, o);
                         }
@@ -263,7 +261,7 @@ public class InterfaceTransformer {
         } else if (attributeType.isEnum()) {
             av.visitEnum(attributeName, Type.getDescriptor(attributeType), attributeValue.toString());
         } else if (attributeValue instanceof Annotation annotation) {
-            AnnotationVisitor av1 = av.visitAnnotation(attributeName, Type.getDescriptor(annotation.annotationType()));
+            var av1 = av.visitAnnotation(attributeName, Type.getDescriptor(annotation.annotationType()));
             processAnnotation(annotation, av1);
         } else {
             av.visit(attributeName, attributeValue);

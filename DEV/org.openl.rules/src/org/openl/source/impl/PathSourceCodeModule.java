@@ -42,7 +42,7 @@ public class PathSourceCodeModule extends ASourceCodeModule {
         if (!(o instanceof PathSourceCodeModule)) {
             return false;
         }
-        PathSourceCodeModule that = (PathSourceCodeModule) o;
+        var that = (PathSourceCodeModule) o;
         return Objects.equals(path, that.path);
     }
 

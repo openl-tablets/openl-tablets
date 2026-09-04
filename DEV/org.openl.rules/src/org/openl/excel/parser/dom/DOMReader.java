@@ -11,9 +11,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -62,9 +59,9 @@ public class DOMReader implements ExcelReader {
     public List<? extends SheetDescriptor> getSheets() {
         try {
             initializeWorkbook();
-            int numberOfSheets = workbook.getNumberOfSheets();
-            List<DOMSheetDescriptor> sheets = new ArrayList<>(numberOfSheets);
-            for (int i = 0; i < numberOfSheets; i++) {
+            var numberOfSheets = workbook.getNumberOfSheets();
+            var sheets = new ArrayList<DOMSheetDescriptor>(numberOfSheets);
+            for (var i = 0; i < numberOfSheets; i++) {
                 sheets.add(new DOMSheetDescriptor(workbook.getSheetName(i), i));
             }
 
@@ -76,31 +73,31 @@ public class DOMReader implements ExcelReader {
 
     @Override
     public Object[][] getCells(SheetDescriptor sheet) {
-        DOMSheetDescriptor domSheet = (DOMSheetDescriptor) sheet;
+        var domSheet = (DOMSheetDescriptor) sheet;
         try {
             initializeWorkbook();
-            Sheet sh = workbook.getSheet(sheet.getName());
-            int firstRow = sh.getFirstRowNum();
-            int lastRow = sh.getLastRowNum();
+            var sh = workbook.getSheet(sheet.getName());
+            var firstRow = sh.getFirstRowNum();
+            var lastRow = sh.getLastRowNum();
 
-            boolean hasRows = false;
+            var hasRows = false;
             // Find column dimensions
-            int firstColumn = Integer.MAX_VALUE;
-            int lastColumn = 0;
-            for (int i = firstRow; i <= lastRow; i++) {
-                Row row = sh.getRow(i);
+            var firstColumn = Integer.MAX_VALUE;
+            var lastColumn = 0;
+            for (var i = firstRow; i <= lastRow; i++) {
+                var row = sh.getRow(i);
                 if (row == null) {
                     continue;
                 } else {
                     hasRows = true;
                 }
 
-                int firstCellNum = row.getFirstCellNum();
+                var firstCellNum = row.getFirstCellNum();
                 if (firstCellNum >= 0 && firstCellNum < firstColumn) {
                     firstColumn = firstCellNum;
                 }
 
-                int lastCellNum = row.getLastCellNum() - 1;
+                var lastCellNum = row.getLastCellNum() - 1;
                 if (lastCellNum > lastColumn) {
                     lastColumn = lastCellNum;
                 }
@@ -118,21 +115,21 @@ public class DOMReader implements ExcelReader {
             domSheet.setFirstColNum(firstColumn);
 
             // Fill values
-            int rows = lastRow - firstRow + 1;
-            int cols = lastColumn - firstColumn + 1;
+            var rows = lastRow - firstRow + 1;
+            var cols = lastColumn - firstColumn + 1;
             log.debug("Array size: {}:{}", rows, cols);
             Object[][] cells = new Object[rows][cols];
 
-            for (int i = firstRow; i <= lastRow; i++) {
-                Row row = sh.getRow(i);
+            for (var i = firstRow; i <= lastRow; i++) {
+                var row = sh.getRow(i);
                 if (row == null) {
                     continue;
                 }
-                int firstCellNum = row.getFirstCellNum();
+                var firstCellNum = row.getFirstCellNum();
                 short lastCellNum = row.getLastCellNum();
 
-                for (int j = firstCellNum; j < lastCellNum; j++) {
-                    Cell cell = row.getCell(j);
+                for (var j = firstCellNum; j < lastCellNum; j++) {
+                    var cell = row.getCell(j);
                     Object value = extractCellValue(cell);
                     if (cell != null) {
                         short indention = cell.getCellStyle().getIndention();
@@ -146,20 +143,20 @@ public class DOMReader implements ExcelReader {
 
             // Fill merged regions
             for (CellRangeAddress rangeAddress : sh.getMergedRegions()) {
-                int firstMergeRow = rangeAddress.getFirstRow();
-                int firstMergeCol = rangeAddress.getFirstColumn();
-                int lastMergeRow = rangeAddress.getLastRow();
-                int lastMergeCol = rangeAddress.getLastColumn();
+                var firstMergeRow = rangeAddress.getFirstRow();
+                var firstMergeCol = rangeAddress.getFirstColumn();
+                var lastMergeRow = rangeAddress.getLastRow();
+                var lastMergeCol = rangeAddress.getLastColumn();
 
                 // Mark cells merged with Left. Don't include first column.
-                for (int row = firstMergeRow; row <= lastMergeRow; row++) {
-                    for (int col = firstMergeCol + 1; col <= lastMergeCol; col++) {
+                for (var row = firstMergeRow; row <= lastMergeRow; row++) {
+                    for (var col = firstMergeCol + 1; col <= lastMergeCol; col++) {
                         cells[row - firstRow][col - firstColumn] = MergedCell.MERGE_WITH_LEFT;
                     }
                 }
 
                 // Mark cells merged with Up. Only first column starting from second row.
-                for (int row = firstMergeRow + 1; row <= lastMergeRow; row++) {
+                for (var row = firstMergeRow + 1; row <= lastMergeRow; row++) {
                     cells[row - firstRow][firstMergeCol - firstColumn] = MergedCell.MERGE_WITH_UP;
                 }
             }
@@ -206,7 +203,7 @@ public class DOMReader implements ExcelReader {
 
                 @Override
                 public ICellFont getFont(int row, int column) {
-                    Font font = workbook.getFontAt(getCell(row, column).getCellStyle().getFontIndex());
+                    var font = workbook.getFontAt(getCell(row, column).getCellStyle().getFontIndex());
                     return new XlsCellFont(font, workbook);
                 }
 
@@ -217,7 +214,7 @@ public class DOMReader implements ExcelReader {
 
                 @Override
                 public String getFormula(int row, int column) {
-                    Cell cell = getCell(row, column);
+                    var cell = getCell(row, column);
                     return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
                 }
 
@@ -255,7 +252,7 @@ public class DOMReader implements ExcelReader {
     // See OpenL Tablets implementation
     private static Object extractCellValue(Cell cell) {
         if (cell != null) {
-            CellType type = cell.getCellType();
+            var type = cell.getCellType();
             if (type == CellType.FORMULA) {
                 // Replace IGrid.CELL_TYPE_FORMULA with the type from the formula result
                 type = cell.getCachedFormulaResultType();
@@ -270,7 +267,7 @@ public class DOMReader implements ExcelReader {
                     if (DateUtil.isCellDateFormatted(cell)) {
                         return cell.getDateCellValue();
                     }
-                    double value = cell.getNumericCellValue();
+                    var value = cell.getNumericCellValue();
                     return NumberUtils.intOrDouble(value);
                 case STRING:
                     return StringUtils.trimToNull(cell.getStringCellValue());

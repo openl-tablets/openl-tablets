@@ -1,8 +1,13 @@
 package org.openl.rules.project.abstraction;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Created by AAstrouski on 05.12.13.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum ProjectStatus {
 
     LOCAL("Local"),
@@ -12,14 +17,7 @@ public enum ProjectStatus {
     EDITING("In Editing"),
     CLOSED("Closed");
 
+    @Getter
     private final String displayValue;
-
-    ProjectStatus(String displayValue) {
-        this.displayValue = displayValue;
-    }
-
-    public String getDisplayValue() {
-        return displayValue;
-    }
 
 }

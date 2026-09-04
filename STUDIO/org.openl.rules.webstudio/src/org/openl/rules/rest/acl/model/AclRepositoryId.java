@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.security.acl.repository.AclRepositoryType;
 
@@ -14,9 +15,11 @@ public class AclRepositoryId {
 
     private static final String ID_SEPARATOR = ":";
 
+    @Getter
     @NotNull
     private final AclRepositoryType type;
 
+    @Getter
     private final String id;
 
     private AclRepositoryId(Builder builder) {
@@ -24,17 +27,9 @@ public class AclRepositoryId {
         this.id = builder.id;
     }
 
-    public AclRepositoryType getType() {
-        return type;
-    }
-
-    public String getId() {
-        return id;
-    }
-
     @JsonValue
     public String encode() {
-        String src = type.name();
+        var src = type.name();
         if (id != null) {
             src += ID_SEPARATOR + id;
         }
@@ -43,8 +38,8 @@ public class AclRepositoryId {
 
     @JsonCreator
     public static AclRepositoryId decode(String encoded) {
-        String decoded = new String(Base64.getDecoder().decode(encoded));
-        String[] parts = decoded.split(":");
+        var decoded = new String(Base64.getDecoder().decode(encoded));
+        var parts = decoded.split(":");
         if (parts.length > 2) {
             throw new IllegalArgumentException("Invalid id value: " + encoded);
         }

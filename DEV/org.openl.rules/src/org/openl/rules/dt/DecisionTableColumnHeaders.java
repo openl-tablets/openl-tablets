@@ -1,5 +1,9 @@
 package org.openl.rules.dt;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum DecisionTableColumnHeaders {
     CONDITION("C"),
     HORIZONTAL_CONDITION("HC"),
@@ -12,10 +16,6 @@ public enum DecisionTableColumnHeaders {
     ;
 
     private final String key;
-
-    DecisionTableColumnHeaders(String key) {
-        this.key = key;
-    }
 
     public String getHeaderKey() {
         return key;

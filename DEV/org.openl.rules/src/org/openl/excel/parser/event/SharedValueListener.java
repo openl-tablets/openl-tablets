@@ -3,6 +3,7 @@ package org.openl.excel.parser.event;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.record.ArrayRecord;
 import org.apache.poi.hssf.record.BOFRecord;
@@ -13,6 +14,7 @@ import org.apache.poi.hssf.record.TableRecord;
 import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.ss.util.CellReference;
 
+@RequiredArgsConstructor
 public class SharedValueListener implements HSSFListener {
     private final EventSheetDescriptor sheet;
     private int sheetIndex = -1;
@@ -22,15 +24,11 @@ public class SharedValueListener implements HSSFListener {
     private final List<TableRecord> tableRecords = new ArrayList<>();
     private FormulaRecord currentFormula;
 
-    public SharedValueListener(EventSheetDescriptor sheet) {
-        this.sheet = sheet;
-    }
-
     @Override
     public void processRecord(Record record) {
         switch (record.getSid()) {
             case BOFRecord.sid:
-                BOFRecord bof = (BOFRecord) record;
+                var bof = (BOFRecord) record;
                 if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
                     sheetIndex++;
                 }

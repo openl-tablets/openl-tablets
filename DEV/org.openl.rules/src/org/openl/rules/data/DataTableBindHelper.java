@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +16,10 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultField;
-import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
@@ -93,14 +89,14 @@ public class DataTableBindHelper {
      */
     public static boolean hasForeignKeysRow(ILogicalTable dataTable) {
 
-        ILogicalTable potentialForeignKeysRow = dataTable.getRows(1, 1);
+        var potentialForeignKeysRow = dataTable.getRows(1, 1);
 
-        int columnsCount = potentialForeignKeysRow.getWidth();
+        var columnsCount = potentialForeignKeysRow.getWidth();
 
-        for (int i = 0; i < columnsCount; i++) {
+        for (var i = 0; i < columnsCount; i++) {
 
-            ILogicalTable cell = potentialForeignKeysRow.getColumn(i);
-            String value = cell.getSource().getCell(0, 0).getStringValue();
+            var cell = potentialForeignKeysRow.getColumn(i);
+            var value = cell.getSource().getCell(0, 0).getStringValue();
 
             if (value == null || value.trim().length() == 0) {
                 continue;
@@ -162,25 +158,25 @@ public class DataTableBindHelper {
                 // Properties are always vertical
                 return false;
             }
-            int fieldsCount1 = countChangeableFields(dataTableBody, tableType);
-            ILogicalTable dataTableBodyT = dataTableBody.transpose();
-            int fieldsCount2 = countChangeableFields(dataTableBodyT, tableType);
+            var fieldsCount1 = countChangeableFields(dataTableBody, tableType);
+            var dataTableBodyT = dataTableBody.transpose();
+            var fieldsCount2 = countChangeableFields(dataTableBodyT, tableType);
 
             if (fieldsCount1 > fieldsCount2) {
                 return true;
             } else if (fieldsCount1 < fieldsCount2) {
                 return false;
             } else {
-                int refCount1 = countRefs(dataTableBody);
-                int refCount2 = countRefs(dataTableBodyT);
+                var refCount1 = countRefs(dataTableBody);
+                var refCount2 = countRefs(dataTableBodyT);
                 if (refCount1 < refCount2) {
                     return true;
                 } else if (refCount1 > refCount2) {
                     return false;
                 } else {
                     if (tableType instanceof TestMethodOpenClass) {
-                        int resCount1 = countResFields(dataTableBody);
-                        int resCount2 = countResFields(dataTableBodyT);
+                        var resCount1 = countResFields(dataTableBody);
+                        var resCount2 = countResFields(dataTableBodyT);
                         return resCount1 >= resCount2;
                     }
                     return true;
@@ -200,13 +196,13 @@ public class DataTableBindHelper {
      */
     private static int countChangeableFields(ILogicalTable dataTable, IOpenClass tableType) {
 
-        int count = 0;
-        int width = dataTable.getWidth();
-        Set<String> uniqueFieldNames = new HashSet<>();
+        var count = 0;
+        var width = dataTable.getWidth();
+        var uniqueFieldNames = new HashSet<String>();
 
-        for (int i = 0; i < width; ++i) {
+        for (var i = 0; i < width; ++i) {
 
-            String fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
+            var fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
 
             if (fieldName == null) {
                 continue;
@@ -219,12 +215,12 @@ public class DataTableBindHelper {
                 continue; // don't count duplicates
             }
             // if it's field chain started with array index
-            IOpenClass openClass = tableType;
-            while (openClass.isArray() && fieldName.length() > 0 && fieldName.charAt(0) == '[') {
-                boolean arrayIndex = false;
-                int endIndex = fieldName.indexOf(']');
-                for (int j = 1; j < endIndex; j++) {
-                    char ch = fieldName.charAt(j);
+            var openClass = tableType;
+            while (openClass.isArray() && !fieldName.isEmpty() && fieldName.charAt(0) == '[') {
+                var arrayIndex = false;
+                var endIndex = fieldName.indexOf(']');
+                for (var j = 1; j < endIndex; j++) {
+                    var ch = fieldName.charAt(j);
                     arrayIndex = Character.isDigit(ch);
                     if (!arrayIndex) {
                         break; // stop parsing if index is not numeric
@@ -244,12 +240,12 @@ public class DataTableBindHelper {
             }
 
             // if it is field chain get first token
-            int dotIndex = fieldName.indexOf('.');
+            var dotIndex = fieldName.indexOf('.');
             if (dotIndex > 0) {
                 fieldName = fieldName.substring(0, dotIndex);
             }
             // if it is array field correct field name
-            int brIndex = fieldName.indexOf('[');
+            var brIndex = fieldName.indexOf('[');
             if (brIndex > 0) {
                 fieldName = fieldName.substring(0, brIndex);
             }
@@ -265,12 +261,12 @@ public class DataTableBindHelper {
     }
 
     private static int countRefs(ILogicalTable dataTable) {
-        int count = 0;
-        int width = dataTable.getWidth();
+        var count = 0;
+        var width = dataTable.getWidth();
 
-        for (int i = 0; i < width; ++i) {
+        for (var i = 0; i < width; ++i) {
 
-            String fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
+            var fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
 
             if (fieldName == null) {
                 continue;
@@ -287,12 +283,12 @@ public class DataTableBindHelper {
 
     private static int countResFields(ILogicalTable dataTable) {
 
-        int count = 0;
-        int width = dataTable.getWidth();
+        var count = 0;
+        var width = dataTable.getWidth();
 
-        for (int i = 0; i < width; ++i) {
+        for (var i = 0; i < width; ++i) {
 
-            String fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
+            var fieldName = dataTable.getColumn(i).getSource().getCell(0, 0).getStringValue();
 
             if (fieldName == null) {
                 continue;
@@ -303,12 +299,12 @@ public class DataTableBindHelper {
             fieldName = StringUtils.trim(fieldName);
 
             // if it is field chain get first token
-            int dotIndex = fieldName.indexOf('.');
+            var dotIndex = fieldName.indexOf('.');
             if (dotIndex > 0) {
                 fieldName = fieldName.substring(0, dotIndex);
             }
             // if it is array field correct field name
-            int brIndex = fieldName.indexOf('[');
+            var brIndex = fieldName.indexOf('[');
             if (brIndex > 0) {
                 fieldName = fieldName.substring(0, brIndex);
             }
@@ -361,7 +357,7 @@ public class DataTableBindHelper {
      * @return Data_With_Titles rows for current data table body.
      */
     public static ILogicalTable getHorizontalDataWithTitle(ILogicalTable horizDataTableBody) {
-        int startIndex = getStartIndexForDataWithTitlesSection(horizDataTableBody);
+        var startIndex = getStartIndexForDataWithTitlesSection(horizDataTableBody);
 
         return horizDataTableBody.getRows(startIndex);
     }
@@ -389,8 +385,8 @@ public class DataTableBindHelper {
      * @return Data_With_Titles columns for current data table body.
      */
     private static ILogicalTable getVerticalDataWithTitle(ILogicalTable verticalTableBody) {
-        ILogicalTable horizDataTableBody = verticalTableBody.transpose();
-        int startIndex = getStartIndexForDataWithTitlesSection(horizDataTableBody);
+        var horizDataTableBody = verticalTableBody.transpose();
+        var startIndex = getStartIndexForDataWithTitlesSection(horizDataTableBody);
         return verticalTableBody.getColumns(startIndex);
     }
 
@@ -405,7 +401,7 @@ public class DataTableBindHelper {
      */
     private static int getStartIndexForDataWithTitlesSection(ILogicalTable horizDataTableBody) {
 
-        boolean hasForeignKeysRow = hasForeignKeysRow(horizDataTableBody);
+        var hasForeignKeysRow = hasForeignKeysRow(horizDataTableBody);
 
         if (hasForeignKeysRow) {
             // Data_With_Titles will starts from this row.
@@ -427,7 +423,7 @@ public class DataTableBindHelper {
      */
     public static ILogicalTable getDescriptorRows(ILogicalTable horizDataTableBody) {
 
-        int endRow = getEndRowForDescriptorSection(horizDataTableBody);
+        var endRow = getEndRowForDescriptorSection(horizDataTableBody);
 
         return horizDataTableBody.getRows(0, endRow);
     }
@@ -441,7 +437,7 @@ public class DataTableBindHelper {
      */
     private static int getEndRowForDescriptorSection(ILogicalTable horizDataTableBody) {
 
-        boolean hasForeignKeysRow = hasForeignKeysRow(horizDataTableBody);
+        var hasForeignKeysRow = hasForeignKeysRow(horizDataTableBody);
 
         if (hasForeignKeysRow) {
 
@@ -473,11 +469,11 @@ public class DataTableBindHelper {
                                               int column,
                                               boolean hasColumnTitleRow) {
 
-        String value = StringUtils.EMPTY;
+        var value = StringUtils.EMPTY;
 
         if (hasColumnTitleRow) {
 
-            ILogicalTable titleCell = dataWithTitleRows.getSubtable(column, 0, 1, 1);
+            var titleCell = dataWithTitleRows.getSubtable(column, 0, 1, 1);
             value = titleCell.getSource().getCell(0, 0).getStringValue();
 
             // remove extra spaces
@@ -506,21 +502,21 @@ public class DataTableBindHelper {
                                                      boolean hasColumnTitleRow,
                                                      boolean supportConstructorFields) throws Exception {
 
-        int width = descriptorRows.getWidth();
+        var width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
-        LinkedHashSet<IdentifierNodesBucket> columnIdentifiers = getColumnIdentifiers(bindingContext,
+        var columnIdentifiers = getColumnIdentifiers(bindingContext,
                 table,
                 descriptorRows);
-        int columnNum = 0;
+        var columnNum = 0;
         for (IdentifierNodesBucket node : columnIdentifiers) {
-            IdentifierNode[] fieldAccessorChainTokens = node.getNode();
+            var fieldAccessorChainTokens = node.getNode();
             if (fieldAccessorChainTokens != null) {
 
                 IOpenField descriptorField = null;
 
                 // indicates if field is a constructor.
-                boolean constructorField = false;
+                var constructorField = false;
 
                 IdentifierNode foreignKeyTable = null;
                 IdentifierNode foreignKey = null;
@@ -528,7 +524,7 @@ public class DataTableBindHelper {
                 ICell foreignKeyCell = null;
 
                 if (fieldAccessorChainTokens.length == 1 && !hasForeignKeysRow) {
-                    IdentifierNode fieldNameNode = fieldAccessorChainTokens[0];
+                    var fieldNameNode = fieldAccessorChainTokens[0];
                     if (supportConstructorFields && CONSTRUCTOR_FIELD.equals(fieldNameNode.getIdentifier())) {
                         constructorField = true;
                     }
@@ -573,7 +569,7 @@ public class DataTableBindHelper {
             columnNum++;
         }
 
-        boolean hasSupportMultirowsAfter = false;
+        var hasSupportMultirowsAfter = false;
 
         for (columnNum = columnIdentifiers.size() - 1; columnNum >= 0; columnNum--) {
             if (columnDescriptors[columnNum] != null) {
@@ -596,15 +592,15 @@ public class DataTableBindHelper {
     public static LinkedHashSet<IdentifierNodesBucket> getColumnIdentifiers(IBindingContext bindingContext,
                                                                             ITable table,
                                                                             ILogicalTable descriptorRows) {
-        int width = descriptorRows.getWidth();
-        LinkedHashSet<IdentifierNodesBucket> identifiers = new LinkedHashSet<>();
-        for (int columnNum = 0; columnNum < width; columnNum++) {
+        var width = descriptorRows.getWidth();
+        var identifiers = new LinkedHashSet<IdentifierNodesBucket>();
+        for (var columnNum = 0; columnNum < width; columnNum++) {
             GridCellSourceCodeModule cellSourceModule = getCellSourceModule(descriptorRows, columnNum);
             cellSourceModule.update(bindingContext);
 
-            String code = cellSourceModule.getCode();
+            var code = cellSourceModule.getCode();
 
-            if (code.length() != 0) {
+            if (!code.isEmpty()) {
 
                 IdentifierNode[] fieldAccessorChainTokens = null;
                 try {
@@ -613,18 +609,18 @@ public class DataTableBindHelper {
                             Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
                     log.debug("Error occurred: ", e);
-                    String message = "Cannot parse field source '%s'".formatted(code);
+                    var message = "Cannot parse field source '%s'".formatted(code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     bindingContext.addError(error);
                 }
                 if (identifiers.contains(new IdentifierNodesBucket(fieldAccessorChainTokens))) {
-                    String message = "Found duplicate of field '%s'".formatted(code);
+                    var message = "Found duplicate of field '%s'".formatted(code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     bindingContext.addError(error);
                 } else {
-                    boolean added = identifiers.add(new IdentifierNodesBucket(fieldAccessorChainTokens));
+                    var added = identifiers.add(new IdentifierNodesBucket(fieldAccessorChainTokens));
                     if (!added) {
-                        String message = "Found duplicate of field '%s'".formatted(code);
+                        var message = "Found duplicate of field '%s'".formatted(code);
                         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                         bindingContext.addError(error);
                     }
@@ -642,12 +638,12 @@ public class DataTableBindHelper {
         }
 
         // Trim all identifiers and set correct location for them.
-        for (int i = 0; i < chainTokens.length; i++) {
-            IdentifierNode token = chainTokens[i];
-            String identifier = token.getIdentifier();
-            String trimmed = identifier.trim();
+        for (var i = 0; i < chainTokens.length; i++) {
+            var token = chainTokens[i];
+            var identifier = token.getIdentifier();
+            var trimmed = identifier.trim();
             if (trimmed.length() != identifier.length()) {
-                int tokenStart = token.getLocation().getStart().getAbsolutePosition(null) + identifier.indexOf(trimmed);
+                var tokenStart = token.getLocation().getStart().getAbsolutePosition(null) + identifier.indexOf(trimmed);
 
                 TextInterval fieldInterval = LocationUtils.createTextInterval(tokenStart,
                         tokenStart + trimmed.length());
@@ -656,18 +652,18 @@ public class DataTableBindHelper {
         }
 
         // Extract precision node if exists in last identifier chain
-        IdentifierNode token = chainTokens[chainTokens.length - 1];
-        String identifier = token.getIdentifier();
+        var token = chainTokens[chainTokens.length - 1];
+        var identifier = token.getIdentifier();
 
-        Matcher matcher = FIELD_WITH_PRECISION_PATTERN.matcher(identifier);
+        var matcher = FIELD_WITH_PRECISION_PATTERN.matcher(identifier);
         if (matcher.matches()) {
             // Separate the token to: 1) field 2) precision
-            String field = matcher.group(1);
-            String precision = matcher.group(2);
+            var field = matcher.group(1);
+            var precision = matcher.group(2);
 
-            int tokenStart = token.getLocation().getStart().getAbsolutePosition(null);
-            int fieldStart = identifier.indexOf(field);
-            int precisionStart = identifier.lastIndexOf(precision);
+            var tokenStart = token.getLocation().getStart().getAbsolutePosition(null);
+            var fieldStart = identifier.indexOf(field);
+            var precisionStart = identifier.lastIndexOf(precision);
             TextInterval fieldInterval = LocationUtils.createTextInterval(tokenStart + fieldStart,
                     tokenStart + fieldStart + field.length());
             TextInterval precisionInterval = LocationUtils.createTextInterval(tokenStart + precisionStart,
@@ -686,7 +682,7 @@ public class DataTableBindHelper {
     }
 
     private static GridCellSourceCodeModule getCellSourceModule(ILogicalTable descriptorRows, int columnNum) {
-        IGridTable gridTable = descriptorRows.getColumn(columnNum).getSource();
+        var gridTable = descriptorRows.getColumn(columnNum).getSource();
         return new GridCellSourceCodeModule(gridTable);
     }
 
@@ -714,7 +710,7 @@ public class DataTableBindHelper {
                     fieldChainTokens,
                     columnNum);
         } else {
-            boolean primaryKey = fieldChainTokens.length > 0 && FPK
+            var primaryKey = fieldChainTokens.length > 0 && FPK
                     .equals(fieldChainTokens[fieldChainTokens.length - 1].getIdentifier());
             currentColumnDescriptor = new ColumnDescriptor(descriptorField,
                     header,
@@ -730,14 +726,14 @@ public class DataTableBindHelper {
     private static IOpenClass getTypeForCollection(IdentifierNode identifierNode,
                                                    TestMethodOpenClass testMethodOpenClass,
                                                    IBindingContext bindingContext) {
-        int typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
+        var typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
         if (typeSeparatorIndex < 0) {
             if (testMethodOpenClass != null && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod) {
-                ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) testMethodOpenClass
+                var executableRulesMethod = (ExecutableRulesMethod) testMethodOpenClass
                         .getTestedMethod();
-                TableSyntaxNode tableSyntaxNode = executableRulesMethod.getSyntaxNode();
+                var tableSyntaxNode = executableRulesMethod.getSyntaxNode();
                 if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-                    IOpenClass cType = bindingContext
+                    var cType = bindingContext
                             .findType(
                                     tableSyntaxNode.getHeader()
                                             .getCollectParameters()[ClassUtils
@@ -752,12 +748,12 @@ public class DataTableBindHelper {
             return JavaOpenClass.OBJECT;
         }
 
-        String typeName = identifierNode.getIdentifier().substring(typeSeparatorIndex + 1);
+        var typeName = identifierNode.getIdentifier().substring(typeSeparatorIndex + 1);
         typeName = typeName.trim();
 
-        IOpenClass type = bindingContext.findType(typeName);
+        var type = bindingContext.findType(typeName);
         if (type == null) {
-            String message = "Cannot bind node: '%s'. Cannot find type: '%s'.".formatted(identifierNode, typeName);
+            var message = "Cannot bind node: '%s'. Cannot find type: '%s'.".formatted(identifierNode, typeName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, identifierNode);
             bindingContext.addError(error);
         }
@@ -774,25 +770,25 @@ public class DataTableBindHelper {
                                                 IOpenClass type,
                                                 IdentifierNode[] fieldAccessorChainTokens) {
         IOpenField chainField = null;
-        IOpenClass loadedFieldType = type;
+        var loadedFieldType = type;
 
         // the chain of fields to access the target field, e.g. for
         // driver.name it will be array consisting of two fields:
         // 1st for driver, 2nd for name
         IOpenField[] fieldAccessorChain = new IOpenField[fieldAccessorChainTokens.length];
-        boolean hasAccessByArrayId = false;
-        StringBuilder partPathFromRoot = new StringBuilder();
+        var hasAccessByArrayId = false;
+        var partPathFromRoot = new StringBuilder();
 
-        boolean isResult = fieldAccessorChainTokens[0].getIdentifier()
+        var isResult = fieldAccessorChainTokens[0].getIdentifier()
                 .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) || fieldAccessorChainTokens[0].getIdentifier()
                 .startsWith(TestMethodHelper.EXPECTED_ERROR);
 
-        boolean multiRowsArentSupported = type instanceof TestMethodOpenClass && isResult;
+        var multiRowsArentSupported = type instanceof TestMethodOpenClass && isResult;
 
         // HERE
-        for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
-            IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
-            String identifier = fieldNameNode.getIdentifier();
+        for (var fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
+            var fieldNameNode = fieldAccessorChainTokens[fieldIndex];
+            var identifier = fieldNameNode.getIdentifier();
 
             IOpenField fieldInChain;
             if (fieldIndex > 0 && fieldIndex == fieldAccessorChain.length - 1 && identifier.equals(FPK)) {
@@ -803,8 +799,8 @@ public class DataTableBindHelper {
                     continue;
                 }
                 // Multi-rows support. PK for arrays.
-                CollectionElementWithMultiRowField datatypeCollectionMultiRowElementField = (CollectionElementWithMultiRowField) fieldAccessorChain[fieldIndex - 1];
-                CollectionElementWithMultiRowField newDatatypeArrayMultiRowElementField = new CollectionElementWithMultiRowField(
+                var datatypeCollectionMultiRowElementField = (CollectionElementWithMultiRowField) fieldAccessorChain[fieldIndex - 1];
+                var newDatatypeArrayMultiRowElementField = new CollectionElementWithMultiRowField(
                         datatypeCollectionMultiRowElementField.getField(),
                         datatypeCollectionMultiRowElementField.getFieldPathFromRoot(),
                         JavaOpenClass.STRING,
@@ -857,7 +853,7 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            boolean collectionAccessPattern = StringUtils.matches(COLLECTION_ACCESS_BY_INDEX_PATTERN,
+            var collectionAccessPattern = StringUtils.matches(COLLECTION_ACCESS_BY_INDEX_PATTERN,
                     identifier) || StringUtils.matches(COLLECTION_ACCESS_BY_KEY_PATTERN, identifier);
 
             if (collectionAccessPattern) {
@@ -886,7 +882,7 @@ public class DataTableBindHelper {
             if (fieldIndex > 0 && ((fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField)) && fieldAccessorChain[fieldIndex - 1]
                     .getType()
                     .equals(JavaOpenClass.OBJECT) && StringUtils.matches(SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
-                AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
+                var aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
                 aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
             }
 
@@ -919,8 +915,8 @@ public class DataTableBindHelper {
 
     public static Integer getPrecisionValue(IdentifierNode fieldNameNode) {
         try {
-            String fieldName = fieldNameNode.getIdentifier();
-            String txtIndex = fieldName.substring(fieldName.indexOf('(') + 1, fieldName.indexOf(')'));
+            var fieldName = fieldNameNode.getIdentifier();
+            var txtIndex = fieldName.substring(fieldName.indexOf('(') + 1, fieldName.indexOf(')'));
 
             return Integer.parseInt(txtIndex);
         } catch (Exception e) {
@@ -930,14 +926,14 @@ public class DataTableBindHelper {
     }
 
     public static int getCollectionIndex(IdentifierNode fieldNameNode) {
-        String fieldName = fieldNameNode.getIdentifier();
-        String txtIndex = fieldName.substring(fieldName.indexOf('[') + 1, fieldName.indexOf(']')).trim();
+        var fieldName = fieldNameNode.getIdentifier();
+        var txtIndex = fieldName.substring(fieldName.indexOf('[') + 1, fieldName.indexOf(']')).trim();
         return Integer.parseInt(txtIndex);
     }
 
     public static String getCollectionName(IdentifierNode fieldNameNode) {
-        String fieldName = fieldNameNode.getIdentifier();
-        int ind = fieldName.indexOf('[');
+        var fieldName = fieldNameNode.getIdentifier();
+        var ind = fieldName.indexOf('[');
         if (ind > 0) {
             return fieldName.substring(0, ind).trim();
         }
@@ -956,8 +952,8 @@ public class DataTableBindHelper {
                                                         ILogicalTable descriptorRows,
                                                         int columnNum) throws OpenLCompilationException {
 
-        ILogicalTable logicalRegion = descriptorRows.getSubtable(columnNum, 1, 1, 1);
-        GridCellSourceCodeModule indexRowSourceModule = new GridCellSourceCodeModule(logicalRegion.getSource(),
+        var logicalRegion = descriptorRows.getSubtable(columnNum, 1, 1, 1);
+        var indexRowSourceModule = new GridCellSourceCodeModule(logicalRegion.getSource(),
                 bindingContext);
 
         // Should be in format
@@ -984,7 +980,7 @@ public class DataTableBindHelper {
         if (field == null) {
             String errorMessage;
             if (loadedFieldType instanceof TestMethodOpenClass class1) {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 MethodUtil.printMethod(class1.getTestedMethod(), sb);
                 errorMessage = "Expected one of the parameters from the method '%s', but found '%s'."
                         .formatted(sb, fieldName);
@@ -1000,7 +996,7 @@ public class DataTableBindHelper {
         }
 
         if (!field.isWritable()) {
-            String message = "Field '%s' is not writable in type '%s'."
+            var message = "Field '%s' is not writable in type '%s'."
                     .formatted(fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             bindingContext.addError(error);
@@ -1011,8 +1007,8 @@ public class DataTableBindHelper {
     }
 
     private static String getFieldName(String identifier) {
-        String fieldName = identifier.trim();
-        int endIndex = fieldName.indexOf(':');
+        var fieldName = identifier.trim();
+        var endIndex = fieldName.indexOf(':');
         if (endIndex > 0) {
             fieldName = fieldName.substring(0, endIndex).trim();
         }
@@ -1042,7 +1038,7 @@ public class DataTableBindHelper {
         }
 
         if (field == null) {
-            String message = "%s '%s' is not found."
+            var message = "%s '%s' is not found."
                     .formatted(loadedFieldType.isStatic() ? "Static field" : "Field", name);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             bindingContext.addError(error);
@@ -1052,7 +1048,7 @@ public class DataTableBindHelper {
         if (!ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class) && !ClassUtils.isAssignable(
                 field.getType().getInstanceClass(),
                 List.class) && !field.getType().isArray() && Object.class != field.getType().getInstanceClass()) {
-            String message = "Expected a collection type for field '%s', but found type '%s'.".formatted(
+            var message = "Expected a collection type for field '%s', but found type '%s'.".formatted(
                     name,
                     field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
@@ -1062,7 +1058,7 @@ public class DataTableBindHelper {
 
         IOpenField collectionAccessField;
         if (multiRowElement) {
-            IOpenClass fieldType = field.getType();
+            var fieldType = field.getType();
             if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
                         loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
@@ -1121,7 +1117,7 @@ public class DataTableBindHelper {
                     bindingContext.addError(error);
                     return null;
                 }
-                IOpenClass fieldType = field.getType();
+                var fieldType = field.getType();
                 if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
                     IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
                             loadedFieldType instanceof TestMethodOpenClass tmoc ? tmoc : null,
@@ -1148,7 +1144,7 @@ public class DataTableBindHelper {
             }
         }
         if (!collectionAccessField.isWritable()) {
-            String message = "Field '%s' is not writable in %s.".formatted(name, loadedFieldType.getName());
+            var message = "Field '%s' is not writable in %s.".formatted(name, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
             bindingContext.addError(error);
             return null;
@@ -1160,20 +1156,20 @@ public class DataTableBindHelper {
     private static Object getCollectionKey(IdentifierNode currentFieldNameNode,
                                            TestMethodOpenClass testMethodOpenClass,
                                            IBindingContext bindingContext) throws SyntaxNodeException {
-        String s = currentFieldNameNode.getIdentifier();
+        var s = currentFieldNameNode.getIdentifier();
         s = s.substring(s.indexOf('[') + 1, s.lastIndexOf(']')).trim();
         if (testMethodOpenClass != null && testMethodOpenClass.getTestedMethod() instanceof ExecutableRulesMethod) {
-            ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) testMethodOpenClass.getTestedMethod();
-            TableSyntaxNode tableSyntaxNode = executableRulesMethod.getSyntaxNode();
+            var executableRulesMethod = (ExecutableRulesMethod) testMethodOpenClass.getTestedMethod();
+            var tableSyntaxNode = executableRulesMethod.getSyntaxNode();
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
-                IOpenClass keyOpenClass = bindingContext.findType(
+                var keyOpenClass = bindingContext.findType(
                         tableSyntaxNode.getHeader().getCollectParameters()[0]);
                 if (keyOpenClass != null) {
                     if (keyOpenClass.getInstanceClass() == String.class && StringUtils.matches(QUOTED, s)) {
                         s = s.substring(1, s.length() - 1);
                     }
                     try {
-                        IString2DataConvertor<?> converter = String2DataConvertorFactory
+                        var converter = String2DataConvertorFactory
                                 .getConvertor(keyOpenClass.getInstanceClass());
                         return converter.parse(s, null);
                     } catch (Exception e) {
@@ -1189,7 +1185,7 @@ public class DataTableBindHelper {
     }
 
     public static Object getCollectionKey(IdentifierNode currentFieldNameNode) {
-        String s = currentFieldNameNode.getIdentifier();
+        var s = currentFieldNameNode.getIdentifier();
         s = s.substring(s.indexOf('[') + 1, s.lastIndexOf(']')).trim();
         if (StringUtils.matches(QUOTED, s)) {
             return s.substring(1, s.length() - 1);

@@ -34,9 +34,9 @@ public class PaginationValueArgumentResolver implements HandlerMethodArgumentRes
 
     public PaginationValueArgumentResolver(OffsetValueArgumentResolver offsetValueArgResolver,
                                            PageValueArgumentResolver pageValueArgResolver) {
-        Map<Class<? extends Pageable>, AbstractPaginationValueArgumentResolver> paginationResolvers = new HashMap<>();
-        paginationResolvers.put(Offset.class, offsetValueArgResolver);
-        paginationResolvers.put(Page.class, pageValueArgResolver);
+        Map<Class<? extends Pageable>, AbstractPaginationValueArgumentResolver> paginationResolvers = new HashMap<>(Map.of(
+                Offset.class, offsetValueArgResolver,
+                Page.class, pageValueArgResolver));
         this.paginationResolvers = Collections.unmodifiableMap(paginationResolvers);
     }
 
@@ -50,12 +50,11 @@ public class PaginationValueArgumentResolver implements HandlerMethodArgumentRes
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
-        var resolver = selectResolver(parameter, webRequest);
+        var resolver = selectResolver(webRequest);
         return resolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
     }
 
-    private AbstractPaginationValueArgumentResolver selectResolver(MethodParameter parameter,
-                                                                   NativeWebRequest webRequest) {
+    private AbstractPaginationValueArgumentResolver selectResolver(NativeWebRequest webRequest) {
         if (hasQueryParam(webRequest, OFFSET_QUERY_PARAM)) {
             return paginationResolvers.get(Offset.class);
         } else {

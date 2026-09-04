@@ -6,16 +6,18 @@
 
 package org.openl.rules.lang.xls.types;
 
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
@@ -48,16 +50,26 @@ import org.openl.vm.IRuntimeEnv;
 public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleOpenClass, WrapModuleSpecificTypes {
 
 
+    @Getter
+    @Setter
     private IOpenClass superClass;
 
+    @Getter
     private final String javaName;
 
+    @Getter
     private final String packageName;
 
+    @Getter
+    @Setter
     private TableSyntaxNode tableSyntaxNode;
 
+    @Getter
+    @Setter
     private byte[] bytecode;
 
+    @Getter
+    @Setter
     private XlsModuleOpenClass module;
 
     /**
@@ -91,45 +103,18 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         return "`" + module.getModuleName() + "`." + getName();
     }
 
-    public void setModule(XlsModuleOpenClass module) {
-        this.module = module;
-    }
-
-    @Override
-    public XlsModuleOpenClass getModule() {
-        return module;
-    }
-
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
-    public IOpenClass getSuperClass() {
-        return superClass;
-    }
-
-    public void setSuperClass(IOpenClass superClass) {
-        this.superClass = superClass;
-    }
-
     @Override
     public Collection<IOpenClass> superClasses() {
         if (superClass != null) {
-            return Collections.singletonList(superClass);
+            return List.of(superClass);
         } else {
-            return Collections.emptyList();
+            return List.of();
         }
-    }
-
-    @Override
-    public String getJavaName() {
-        return javaName;
-    }
-
-    @Override
-    public String getPackageName() {
-        return packageName;
     }
 
     @Override
@@ -168,8 +153,8 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     }
 
     private void initializeFields() {
-        Map<String, IOpenField> fields = new LinkedHashMap<>();
-        Map<String, IOpenField> staticFields = new LinkedHashMap<>();
+        var fields = new LinkedHashMap<String, IOpenField>();
+        var staticFields = new LinkedHashMap<String, IOpenField>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClassValue : superClasses) {
             for (IOpenField field : superClassValue.getFields()) {
@@ -218,7 +203,7 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
 
     private IOpenMethod wrapDatatypeOpenMethod(IOpenMethod method) {
         if (method instanceof JavaOpenMethod javaOpenMethod) {
-            Method javaMethod = javaOpenMethod.getJavaMethod();
+            var javaMethod = javaOpenMethod.getJavaMethod();
             for (IOpenField field : fieldMap().values()) {
                 if (field instanceof DatatypeOpenField datatypeOpenField) {
                     if (Objects.equals(datatypeOpenField.getGetter(), javaMethod)) {
@@ -240,10 +225,10 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     @Override
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
         Map<MethodKey, IOpenMethod> methods = super.initMethodMap();
-        Map<MethodKey, IOpenMethod> methodMap = new HashMap<>(OBJECT_CLASS_METHODS);
+        var methodMap = new HashMap<MethodKey, IOpenMethod>(OBJECT_CLASS_METHODS);
 
         for (Entry<MethodKey, IOpenMethod> m : methods.entrySet()) {
-            IOpenMethod m1 = wrapDatatypeOpenMethod(m.getValue());
+            var m1 = wrapDatatypeOpenMethod(m.getValue());
             if (m1 != m.getValue()) {
                 methodMap.put(new MethodKey(m1), m1);
             } else {
@@ -256,9 +241,9 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     @Override
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
         Map<MethodKey, IOpenMethod> constructors = super.initConstructorMap();
-        Map<MethodKey, IOpenMethod> constructorMap = new HashMap<>(1);
+        var constructorMap = new HashMap<MethodKey, IOpenMethod>(1);
         for (Entry<MethodKey, IOpenMethod> constructor : constructors.entrySet()) {
-            IOpenMethod wrapped = wrapDatatypeOpenConstructor(constructor.getKey(), constructor.getValue());
+            var wrapped = wrapDatatypeOpenConstructor(constructor.getKey(), constructor.getValue());
             if (wrapped == constructor.getValue()) {
                 constructorMap.put(constructor.getKey(), constructor.getValue());
             } else {
@@ -273,10 +258,10 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
             if (javaOpenConstructor.getNumberOfParameters() == 0) {
                 return new DatatypeOpenConstructor(javaOpenConstructor, this);
             } else {
-                MethodKey candidate = new MethodKey(
+                var candidate = new MethodKey(
                         getFields().stream().map(IOpenMember::getType).toArray(IOpenClass[]::new));
                 if (mk.equals(candidate)) {
-                    ParameterDeclaration[] parameters = getFields().stream()
+                    var parameters = getFields().stream()
                             .map(f -> new ParameterDeclaration(f.getType(), f.getName()))
                             .toArray(ParameterDeclaration[]::new);
                     return new DatatypeOpenConstructor(javaOpenConstructor, this, parameters);
@@ -294,30 +279,14 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         return getName();
     }
 
-    public byte[] getBytecode() {
-        return bytecode;
-    }
-
-    public void setBytecode(byte[] bytecode) {
-        this.bytecode = bytecode;
-    }
-
     private static final Map<MethodKey, IOpenMethod> OBJECT_CLASS_METHODS;
 
     static {
-        Map<MethodKey, IOpenMethod> objectClassMethods = new HashMap<>();
+        var objectClassMethods = new HashMap<MethodKey, IOpenMethod>();
         for (IOpenMethod m : JavaOpenClass.OBJECT.getMethods()) {
             objectClassMethods.put(new MethodKey(m), m);
         }
         OBJECT_CLASS_METHODS = Collections.unmodifiableMap(objectClassMethods);
-    }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tableSyntaxNode;
-    }
-
-    public void setTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
-        this.tableSyntaxNode = tableSyntaxNode;
     }
 
     @Override
@@ -357,14 +326,14 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         if (!super.equals(o))
             return false;
 
-        DatatypeOpenClass that = (DatatypeOpenClass) o;
+        var that = (DatatypeOpenClass) o;
 
         return Objects.equals(module, that.module);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        var result = super.hashCode();
         result = 31 * result + (module != null ? module.hashCode() : 0);
         return result;
     }

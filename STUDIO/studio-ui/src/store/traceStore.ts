@@ -9,6 +9,7 @@ import type {
     DebugStatus,
     ProfileSummaryView,
     RawTableView,
+    StepType,
     TraceParameterValue,
     WatchView,
 } from 'types/trace'
@@ -36,6 +37,48 @@ const launchOptions = (
     ...overrides,
 })
 
+/** Execution-order range of a call or step in the simple-mode tree: where it starts and where its subtree ends. */
+export interface SimpleOrderRange {
+    pre: number
+    end: number
+}
+
+/**
+ * A clicked step, remembered so the Details panel can present the suspension as that step — like the
+ * classic trace did: the owning table's inputs as Parameters, the step's own value as `return`.
+ */
+export interface SimpleStepFocus {
+    /** Step reference within its owning table (`R2C3`-style). */
+    ref: string
+    /** Display name of the step (its `$...` cell name). */
+    label: string
+    /** The owning table, to locate its frame on the suspended stack. */
+    ownerUri: string
+    ownerInstance: number
+}
+
+/** A tree row the simple mode inspects: its breakpoint key plus the frame the suspension lands in. */
+export interface SimpleInspectTarget {
+    /** Breakpoint key: `uri@instance` for a call, `uri#ref@instance` for a step. */
+    key: string
+    /** URI of the frame the suspension stops in (the call itself, or the step's owning table). */
+    frameUri: string
+    /** Execution index of that frame. */
+    frameInstance: number
+    /** The step that completes the target after the stop: `out` runs a call to its exit, `over` runs a step. */
+    stepType: Extract<StepType, 'out' | 'over'>
+    /** Display label for the one-shot breakpoint. */
+    label?: string
+    /** Set when the clicked row is a step, so Details shows the step rather than the paused frame. */
+    focus?: SimpleStepFocus
+    /**
+     * Unique identity of the clicked tree row, for the selection highlight. Distinct from {@link key}:
+     * several rows can share one run key — every static cell of a table runs the same table through — so
+     * the highlight must key off the row itself, not the run target, or all of them would light up.
+     */
+    selectionKey?: string
+}
+
 interface DebugState {
     // Route params
     projectId: string | null
@@ -46,9 +89,15 @@ interface DebugState {
 
     // Session state
     status: DebugStatus | null
+    /** Identity of the watched debug session; socket events of any other session are dropped. */
+    sessionId: string | null
     frames: DebugFrameView[]
     /** The whole executed call tree once the trace finishes (profiling mode); shown instead of the empty stack. */
     tree: CallNodeView | null
+    /** Lazily-fetched children of expanded tree steps, keyed by `treeChildKey(uri, instance, step)`; paged. */
+    treeChildren: Record<string, CallNodeView[]>
+    /** Tree steps currently fetching their next page of children, so the row can show a spinner. */
+    treeLoading: Record<string, boolean>
     /** Bounded hot-spots overview of a finished profiling run (slowest tables by own time); null otherwise. */
     profile: ProfileSummaryView | null
     debugError: DebugError | null
@@ -57,6 +106,8 @@ interface DebugState {
     variablesLoading: boolean
     /** Increments on every suspension so views that depend on the current line (table highlight) refresh. */
     stackVersion: number
+    /** Increments each time a new run starts, so views can drop per-run UI state (tree expansions). */
+    runId: number
     breakpoints: string[]
     breakpointLabels: Record<string, string>
     /** A one-shot breakpoint set by runTo; dropped on the next suspension so "run to here" leaves none behind. */
@@ -70,6 +121,35 @@ interface DebugState {
     /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
     rawTableCache: Record<string, RawTableView>
 
+    // Simple (business) mode: a full profiled run downloaded whole, browsed offline, inspected by re-running.
+    /** Whether the advanced debugger UI is shown; the simple business view is the default. */
+    advanced: boolean
+    /** The executed call tree of the last simple-mode run. Immutable once captured — re-runs never touch it. */
+    simpleTree: CallNodeView | null
+    /** Every step's sub-calls of that tree, downloaded up front so expanding never calls the backend. */
+    simpleChildren: Record<string, CallNodeView[]>
+    /** Execution-order ranges by breakpoint key, deciding whether a click can resume or must restart. */
+    simpleOrder: Record<string, SimpleOrderRange>
+    /** True once the tree has arrived and is browsable. */
+    simpleReady: boolean
+    /** True while the simple run executes and its tree arrives. */
+    simpleLoading: boolean
+    /** Breakpoint key of the row whose values are being shown, for the selection highlight. */
+    simpleSelectedKey: string | null
+    /** End position of the last inspected row's subtree; a row starting after it can be resumed to, else restart. */
+    simpleLastInspected: number | null
+    /** The clicked step when the last inspection was a step, so Details presents the step, not the frame. */
+    simpleFocus: SimpleStepFocus | null
+    /**
+     * The table a business-view click is inspecting. When running to it stops on a deeper frame — an error
+     * parked the run inside a table it called — the clicked table is still on the stack as an ancestor, so it
+     * stays selected instead of the unrelated frame the suspend landed on. Null for a step inspection.
+     */
+    simpleInspectFrame: { uri: string; instance: number } | null
+
+    /** Show the decision-table per-condition breakdown in both trees; off shows only the returned rule. */
+    showDetailed: boolean
+
     // UI
     loading: boolean
     error: string | null
@@ -81,6 +161,7 @@ interface DebugState {
         fromModule?: string | null
         testRanges?: string | null
         inputJson?: string | null
+        advanced?: boolean
     }) => void
     start: () => Promise<void>
     refreshStack: () => Promise<void>
@@ -109,10 +190,54 @@ interface DebugState {
     terminate: () => Promise<void>
     loadBreakpoints: () => Promise<void>
     toggleBreakpoint: (uri: string, label?: string) => Promise<void>
-    onSocketStatus: (status: DebugStatus, message?: string) => void
+    onSocketStatus: (status: DebugStatus, message?: string, sessionId?: string | null) => void
     fetchTerminalError: () => Promise<void>
     fetchLazyParameter: (parameterId: number) => Promise<TraceParameterValue>
+    /** Fetch the next page of a tree step's executed sub-calls (lazy executed-tree loading). */
+    fetchTreeChildren: (uri: string, instance: number, step: string) => Promise<void>
+    /** Toggle the decision-table condition breakdown shown in both trees (business and advanced). */
+    setShowDetailed: (value: boolean) => void
+    /** Simple mode Run: execute the whole trace recording its tree, then download the tree for offline browsing. */
+    simpleRun: () => Promise<void>
+    /** Simple mode click: re-run execution through the clicked row so its inputs and result become readable. */
+    simpleInspect: (target: SimpleInspectTarget) => Promise<void>
     reset: () => void
+}
+
+/** Cache key for a tree step's lazily-fetched children: the frame's (uri, instance) plus the step ref. */
+export const treeChildKey = (uri: string, instance: number, step: string): string =>
+    JSON.stringify([uri, instance, step])
+
+/**
+ * Number every call and step of a fully downloaded tree in execution order. `pre` is the position where
+ * the row starts executing and `end` the last position inside it, so a click can only be reached by
+ * resuming when its `pre` lies after the whole subtree of the previously inspected row — anything at or
+ * before that point (including the row's own sub-calls) has already executed and needs a restart.
+ */
+export const buildSimpleOrder = (
+    root: CallNodeView,
+    children: Record<string, CallNodeView[]>
+): Record<string, SimpleOrderRange> => {
+    const order: Record<string, SimpleOrderRange> = {}
+    let counter = 0
+    const visit = (node: CallNodeView): void => {
+        // A step reference is not an execution of its own — the original step already holds its range.
+        if (node.kind === 'stepRef') {
+            return
+        }
+        const pre = counter
+        counter += 1
+        for (const step of node.steps) {
+            const stepPre = counter
+            counter += 1
+            const kids = step.children ?? children[treeChildKey(node.uri, node.instance, step.ref)] ?? []
+            kids.forEach(visit)
+            order[`${node.uri}#${step.ref}@${node.instance}`] = { pre: stepPre, end: counter - 1 }
+        }
+        order[`${node.uri}@${node.instance}`] = { pre, end: counter - 1 }
+    }
+    visit(root)
+    return order
 }
 
 const initialState = {
@@ -122,14 +247,18 @@ const initialState = {
     testRanges: null,
     inputJson: null,
     status: null,
+    sessionId: null,
     frames: [],
     tree: null,
+    treeChildren: {},
+    treeLoading: {},
     profile: null,
     debugError: null,
     selectedFrameIndex: null,
     variables: null,
     variablesLoading: false,
     stackVersion: 0,
+    runId: 0,
     breakpoints: [],
     breakpointLabels: {},
     transientBreakpoint: null,
@@ -137,24 +266,85 @@ const initialState = {
     watches: [],
     watch: null,
     rawTableCache: {},
+    advanced: false,
+    simpleTree: null,
+    simpleChildren: {},
+    simpleOrder: {},
+    simpleReady: false,
+    simpleLoading: false,
+    simpleSelectedKey: null,
+    simpleLastInspected: null,
+    simpleFocus: null,
+    simpleInspectFrame: null,
+    showDetailed: false,
     loading: false,
     error: null,
 }
 
-const isSuspended = (status: DebugStatus | null): boolean => status === 'suspended'
+/** The business-mode snapshot fields at rest, so a fresh run or a view switch returns the view to its Run prompt. */
+const SIMPLE_SNAPSHOT_RESET = {
+    simpleTree: null,
+    simpleChildren: {},
+    simpleOrder: {},
+    simpleReady: false,
+    simpleLoading: false,
+    simpleSelectedKey: null,
+    simpleLastInspected: null,
+    simpleFocus: null,
+    simpleInspectFrame: null,
+}
+
+// A settled run whose frames can still be inspected: paused at a step, or finished (completed/failed) with
+// the root frame still published — so the final result is readable after a run to completion, not only at a stop.
+const isInspectable = (status: DebugStatus | null): boolean =>
+    status === 'suspended' || status === 'completed' || status === 'error'
+
+/** Sub-calls requested per lazy /tree/children page; the server caps a page at this size too. */
+const TREE_PAGE_SIZE = 100
 
 export const useTraceStore = create<DebugState>((set, get) => {
+    // True only while a quiet inspect restart cancels the old session and starts a fresh one, so the old
+    // session's 'terminated' socket echo can be ignored instead of blanking the panel mid-restart.
+    let restarting = false
+
+    // True while a business-view inspect is mid-flight. Its run-to branch raises no `loading` flag and only
+    // flips status to 'running' after an awaited breakpoint round-trip, so without this guard a second row
+    // click in that window would start an overlapping inspect that cancels the first one's session.
+    let inspecting = false
+
     /** Apply a freshly fetched stack, auto-selecting the current (top) frame when suspended. */
     const applyStack = (stack: DebugStackView): void => {
         const topIndex = stack.frames.length > 0 ? stack.frames.length - 1 : null
+        // While suspended (or stopped at an error) the frame of interest is the current/failing one at the top;
+        // once the run completes, the result to surface is the root call at index 0 — not whichever deep frame
+        // the last suspend happened to leave published.
+        let focusIndex = !isInspectable(stack.status) || topIndex === null ? null
+            : stack.status === 'completed' ? 0
+                : topIndex
+        // In the business view a click inspects one table. If running to it stopped on a deeper frame — an
+        // error parked the run inside a table it called — keep the clicked table selected (still on the stack
+        // as an ancestor) so its own table and inputs show, not the unrelated frame the suspend landed on.
+        const inspectFrame = get().simpleInspectFrame
+        if (inspectFrame && !get().advanced && focusIndex !== null) {
+            const index = stack.frames.findLastIndex(
+                frame => frame.uri === inspectFrame.uri && frame.instance === inspectFrame.instance)
+            if (index >= 0) {
+                focusIndex = index
+            }
+        }
         const transient = get().transientBreakpoint
         set({
             status: stack.status,
+            // Every stack response names its session; remembering it lets socket events be attributed.
+            ...(stack.sessionId ? { sessionId: stack.sessionId } : {}),
             frames: stack.frames,
             tree: stack.tree ?? null,
+            // A run without a tree yet (starting/running/rerun) invalidates any browsed sub-calls from the
+            // previous run; keep them only while browsing the completed tree.
+            ...(stack.tree ? {} : { treeChildren: {}, treeLoading: {} }),
             profile: stack.profile ?? null,
             debugError: stack.error ?? null,
-            selectedFrameIndex: isSuspended(stack.status) ? topIndex : null,
+            selectedFrameIndex: focusIndex,
             variables: null,
             variablesLoading: false,
             stackVersion: get().stackVersion + 1,
@@ -167,8 +357,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
         if (transient && get().breakpoints.includes(transient)) {
             void get().toggleBreakpoint(transient)
         }
-        if (isSuspended(stack.status) && topIndex !== null) {
-            void get().selectFrame(topIndex)
+        if (focusIndex !== null) {
+            void get().selectFrame(focusIndex)
         }
         // Watches accumulate as cells execute, so refresh the series on every stop (step/resume/completion),
         // not only on Collect — the panel then tracks the value as the user steps through.
@@ -190,6 +380,13 @@ export const useTraceStore = create<DebugState>((set, get) => {
         }
     }
 
+    /**
+     * Mark the beginning of a new run: clear transient flags and bump runId so views drop their
+     * per-run UI state (tree expansions). Every path that launches a run must go through this.
+     */
+    const beginRun = (extra: Partial<DebugState> = {}): void =>
+        set({ loading: true, error: null, runId: get().runId + 1, ...extra })
+
     /** Restart the session from the top with the current settings, re-applying the user's breakpoints. */
     const restart = async (): Promise<void> => {
         const { projectId, breakpoints } = get()
@@ -206,23 +403,102 @@ export const useTraceStore = create<DebugState>((set, get) => {
         }
     }
 
+    /**
+     * Restart the session for a business-mode inspect WITHOUT blanking the panel — and without ever painting
+     * the root. The backend session is cancelled and a fresh one started at the root entry, but that root
+     * stack is NOT applied to the panel: the previously inspected table stays on screen until the target
+     * inspection settles. The fresh stack is returned so the caller can decide how to reach the target from
+     * the root, instead of reading it from the (still previous) displayed frames.
+     *
+     * <p>This is what keeps navigating flicker-free on a deep call tree: the panel goes straight from the
+     * previous table to the target's, never flashing the root and its parameters in between. Unlike
+     * {@link restart} it never routes through {@code terminate}, which clears the stack.
+     */
+    const restartQuietly = async (): Promise<DebugStackView | null> => {
+        const { projectId, tableId, fromModule, testRanges, inputJson } = get()
+        if (!projectId || !tableId) return null
+        restarting = true
+        // Bump the run id and raise loading so any late echo — the cancelled session's, or the fresh
+        // session's own entry suspension — is dropped instead of painting the root mid-restart.
+        beginRun({ status: 'pending' })
+        try {
+            try {
+                await traceService.cancelTrace(projectId)
+            } catch {
+                // The fresh session started next supersedes it.
+            }
+            let stack: DebugStackView
+            try {
+                stack = await traceService.getStack(projectId)
+            } catch {
+                stack = await traceService.startTrace(projectId, launchOptions(
+                    { tableId, fromModule, testRanges, inputJson },
+                    { stopAtEntry: true, ...(get().profiling ? { profiling: true } : {}) }
+                ))
+            }
+            // Apply the fresh session's identity and status ONLY — never its root stack, so the panel keeps
+            // the previous table until the target inspection settles.
+            set({ status: stack.status, ...(stack.sessionId ? { sessionId: stack.sessionId } : {}) })
+            return stack
+        } catch (error: any) {
+            set({ status: 'error', error: error?.message || 'Failed to restart trace' })
+            return null
+        } finally {
+            set({ loading: false })
+            restarting = false
+        }
+    }
+
+    // Apply a terminal socket status (completed/error/terminated): clear the live frames, focus and selection,
+    // show an immediate summary from the socket, and fetch the settled stack or the full error. A quiet-restart
+    // 'terminated' echo is ignored so the panel keeps the last table between the cancel and the fresh stack.
+    const applyTerminalSocketStatus = (status: DebugStatus, message?: string): void => {
+        if (restarting) return
+        set({
+            status,
+            frames: [],
+            selectedFrameIndex: null,
+            variables: null,
+            variablesLoading: false,
+            debugError: status === 'error' && message ? { summary: message } : null,
+            // Nothing is paused any more, so the next click cannot resume from here. Drop the focus and
+            // selection too: otherwise the settled root renders as a focused step (blank Details), and the
+            // still-selected row cannot be re-inspected (a re-click is a no-op on the selected key).
+            simpleLastInspected: null,
+            simpleFocus: null,
+            simpleSelectedKey: null,
+        })
+        if (status === 'error') {
+            void get().fetchTerminalError()
+        } else if (status === 'completed') {
+            // A finished run still has a readable stack: the root call with its steps and result — plus, when
+            // profiling, the executed tree and the hot-spots profile. A terminated session is gone (for
+            // example when toggling profiling restarts it), so it is never fetched.
+            void get().refreshStack()
+        }
+    }
+
     return {
         ...initialState,
 
-        setRouteParams: ({ projectId, tableId, fromModule, testRanges, inputJson }) => {
+        setRouteParams: ({ projectId, tableId, fromModule, testRanges, inputJson, advanced }) => {
             set({
                 projectId,
                 tableId,
                 fromModule: fromModule ?? null,
                 testRanges: testRanges ?? null,
                 inputJson: inputJson ?? null,
+                // The launch fixes the mode (Advanced tracer checkbox on the JSF page); the view no longer
+                // toggles it. Default off — the business view.
+                ...(advanced !== undefined && { advanced }),
             })
         },
 
         start: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
-            set({ loading: true, error: null, status: 'pending' })
+            beginRun({ status: 'pending' })
+            const token = get().runId
             try {
                 // Attach to a session already created by the launcher; otherwise start a new one.
                 let stack: DebugStackView
@@ -234,6 +510,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                         { stopAtEntry: true, ...(get().profiling ? { profiling: true } : {}) }
                     ))
                 }
+                // A Run (simpleRun) or another start may have superseded this attach while it was in flight;
+                // applying this now-stale entry stack would overwrite the fresh run's frames and session id.
+                if (get().runId !== token) return
                 applyStack(stack)
             } catch (error: any) {
                 set({ status: 'error', error: error?.message || 'Failed to start trace' })
@@ -243,12 +522,26 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         refreshStack: async () => {
-            const { projectId } = get()
+            const { projectId, runId } = get()
             if (!projectId) return
             try {
-                applyStack(await traceService.getStack(projectId))
+                const stack = await traceService.getStack(projectId)
+                // A newer run (rerun/restart bumps runId) or a project switch may have started while this
+                // fetch was in flight; its result is stale, so dropping it keeps the newer run's frames and
+                // tree instead of overwriting them with a finished run's settled stack.
+                if (get().projectId !== projectId || get().runId !== runId) return
+                applyStack(stack)
             } catch (error: any) {
-                set({ error: error?.message || 'Failed to load stack' })
+                // applyStack never ran, so a business inspect's loading window would otherwise stick. The
+                // 'suspended' socket event that triggers this refresh leaves status at 'running' (from the
+                // resume) for applyStack to settle; with no applyStack, restore 'suspended' here so the stale
+                // 'running' does not block a business inspect from retrying the highlighted row. The
+                // completed/error refreshes set their terminal status before calling in, so they are untouched.
+                set({
+                    error: error?.message || 'Failed to load stack',
+                    variablesLoading: false,
+                    ...(get().status === 'running' ? { status: 'suspended' as const } : {}),
+                })
             }
         },
 
@@ -263,10 +556,17 @@ export const useTraceStore = create<DebugState>((set, get) => {
         },
 
         selectFrame: async (index) => {
-            const { projectId, status, stackVersion } = get()
+            const { projectId, status, stackVersion, advanced, simpleFocus } = get()
             if (!projectId) return
             set({ selectedFrameIndex: index })
-            if (!isSuspended(status)) {
+            // A focused step in the business view shows only its own inputs, result and cell — all from the
+            // step-inputs endpoint. The heavy frame-variables payload (every cell value, the grid, the
+            // decision breakdown) is never rendered for a focused step, so don't fetch it.
+            if (!advanced && simpleFocus) {
+                set({ variables: null, variablesLoading: false })
+                return
+            }
+            if (!isInspectable(status)) {
                 set({ variables: null, variablesLoading: false })
                 return
             }
@@ -292,11 +592,15 @@ export const useTraceStore = create<DebugState>((set, get) => {
         resume: async () => {
             const { projectId } = get()
             if (!projectId) return
-            set({ status: 'running', variables: null, variablesLoading: false })
+            // Drop stale variables, but leave variablesLoading alone on the happy path: a business inspect
+            // may already be spinning with no frame selected until the next stack settles — clearing the
+            // flag would flash the empty "no selection" panel mid-run. On failure there is no settle, so
+            // clear the spinner here.
+            set({ status: 'running', variables: null })
             try {
                 await traceService.resume(projectId)
             } catch (error: any) {
-                set({ status: 'suspended', error: error?.message || 'Resume failed' })
+                set({ status: 'suspended', error: error?.message || 'Resume failed', variablesLoading: false })
             }
         },
 
@@ -359,7 +663,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         collectWatch: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId) return
-            set({ loading: true, error: null })
+            beginRun()
             try {
                 // Run the whole trace to completion (not the full tree) so every execution is captured.
                 await get().terminate()
@@ -432,8 +736,18 @@ export const useTraceStore = create<DebugState>((set, get) => {
             }
         },
 
-        onSocketStatus: (status, message) => {
+        onSocketStatus: (status, message, sessionId) => {
+            // Sessions of the same user and table share one socket topic, so a stale session reaped in
+            // the background reports its termination here too — such foreign events must not touch the
+            // session this window is watching.
+            const own = get().sessionId
+            if (sessionId != null && own != null && sessionId !== own) {
+                return
+            }
             if (status === 'suspended') {
+                // A quiet inspect restart parks the fresh session at its entry; that suspension echo must
+                // not paint the root — the previous table stays until the target inspection settles.
+                if (restarting) return
                 // A synchronous step applies the authoritative stack from its own response; the WS
                 // notification for that same suspension would only trigger a duplicate stack+variables fetch.
                 if (get().loading) return
@@ -444,23 +758,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 if (get().loading) return
                 set({ status: 'running' })
             } else if (isTraceExecutionTerminal(status)) {
-                // Show an immediate summary from the socket (if any); the full error is fetched below.
-                set({
-                    status,
-                    frames: [],
-                    selectedFrameIndex: null,
-                    variables: null,
-                    variablesLoading: false,
-                    debugError: status === 'error' && message ? { summary: message } : null,
-                })
-                if (status === 'error') {
-                    void get().fetchTerminalError()
-                } else if (status === 'completed' && get().profiling) {
-                    // A finished profiling run carries the executed tree and the hot-spots profile; the socket
-                    // only reports the status, so fetch the settled stack to load them. A terminated session is
-                    // gone (for example when toggling profiling restarts it), so it is never fetched.
-                    void get().refreshStack()
-                }
+                applyTerminalSocketStatus(status, message)
             }
         },
 
@@ -496,6 +794,148 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 })
             }
             return result
+        },
+
+        setShowDetailed: (value) => set({ showDetailed: value }),
+
+        simpleRun: async () => {
+            const { projectId, tableId, fromModule, testRanges, inputJson } = get()
+            if (!projectId || !tableId || get().simpleLoading) return
+            beginRun({ ...SIMPLE_SNAPSHOT_RESET, simpleLoading: true })
+            const token = get().runId
+            try {
+                // The simple run debugs with no breakpoints, so it always reaches the end in one go. Clear them
+                // on the server unconditionally — a launch-based business run never loads breakpoints into client
+                // state, so a stale one a previous advanced session left server-side would otherwise park the run
+                // mid-way with no controls to resume.
+                set({ breakpoints: [], breakpointLabels: {}, transientBreakpoint: null })
+                try {
+                    await traceService.setBreakpoints(projectId, [])
+                } catch {
+                    // Best effort: the fresh session started below has no breakpoints anyway.
+                }
+                await get().terminate()
+                set({ status: 'running' })
+                // One full profiled run: the response arrives once the whole calculation has finished,
+                // carrying the entire executed tree deep (fullTree) — so the business view browses it
+                // offline without paging thousands of branches. Detailed titles (signature, result, cell
+                // values) are the business view's default; the advanced debugger never asks for either,
+                // keeping its tree shallow and lazily paged.
+                const stack = await traceService.startTrace(projectId, launchOptions(
+                    { tableId, fromModule, testRanges, inputJson },
+                    // Run through a rule error instead of parking on it, so a failed run still returns the whole
+                    // executed tree (with the failed branch marked `= ERROR`) rather than showing nothing.
+                    { stopAtEntry: false, profiling: true, detailedTitles: true, fullTree: true, breakOnErrors: false }
+                ))
+                if (get().runId !== token) return
+                applyStack(stack)
+                const tree = stack.tree ?? null
+                if (tree) {
+                    // The tree arrived whole, with every step's sub-calls inline, so the order is built
+                    // straight from it — no further fetches, no per-page counters.
+                    set({ simpleTree: tree, simpleOrder: buildSimpleOrder(tree, {}), simpleReady: true })
+                }
+            } catch (error: any) {
+                if (get().runId === token) {
+                    set({ status: 'error', error: error?.message || 'Failed to run the trace' })
+                }
+            } finally {
+                if (get().runId === token) {
+                    set({ loading: false, simpleLoading: false })
+                }
+            }
+        },
+
+        simpleInspect: async ({ key, frameUri, frameInstance, stepType, label, focus, selectionKey }) => {
+            const { projectId, simpleReady, simpleLoading, loading, status } = get()
+            if (!projectId || !simpleReady || simpleLoading || loading || status === 'running' || inspecting) return
+            // Clicking the row already settled on screen is a no-op. A failed or abandoned inspect leaves
+            // the highlight without a selected frame — allow the same row to retry.
+            const clickedKey = selectionKey ?? key
+            if (get().simpleSelectedKey === clickedKey && get().selectedFrameIndex !== null) return
+            // Single-flight: hold the guard across the whole inspect (its run-to branch neither raises
+            // `loading` nor flips status to 'running' until after an awaited round-trip).
+            inspecting = true
+            const clearInspectLoading = (): void => set({
+                variablesLoading: false, simpleSelectedKey: null, simpleInspectFrame: null, simpleFocus: null,
+            })
+            try {
+                const order = get().simpleOrder[key] ?? null
+                const last = get().simpleLastInspected
+                // The highlight follows the clicked row (selectionKey); the run follows the target (key). A
+                // table row also records its frame, so an error deep in the table it called keeps the clicked
+                // table selected rather than the throwing frame; a focused step tracks its owner instead.
+                // Drop the previous frame from the panel immediately: restartQuietly keeps the last table on
+                // purpose to avoid flashing the root, but when that last table is the throwing child, holding
+                // it until settle looks like a flicker of the error table before the clicked ancestor appears.
+                set({ simpleSelectedKey: clickedKey, simpleLastInspected: order?.end ?? null, simpleFocus: focus ?? null,
+                    simpleInspectFrame: focus ? null : { uri: frameUri, instance: frameInstance },
+                    selectedFrameIndex: null, variables: null, variablesLoading: true })
+                // Execution can only move forward: a row is still reachable by resuming when it starts after
+                // everything the previous inspection already ran — its own subtree included. Anything else
+                // (an earlier row, or a sub-call of the inspected one) has executed and needs a fresh run.
+                const canResume = status === 'suspended' && last !== null && order !== null && order.pre > last
+                let freshStack: DebugStackView | null = null
+                if (!canResume) {
+                    freshStack = await restartQuietly()
+                    if (freshStack?.status !== 'suspended') {
+                        clearInspectLoading()
+                        return
+                    }
+                }
+                // Execute in place only when paused exactly at the target: a call at its fresh entry (the
+                // root right after a restart), or the owning frame already ON the clicked step's line (the
+                // very next step after the previously inspected one). There the target's own entry point is
+                // already behind us, so an inclusive breakpoint would never fire — one step finishes it.
+                // A quiet restart leaves the previous table on the panel, so read the fresh root from the
+                // returned stack rather than the (still previous) displayed frames.
+                const top = (freshStack?.frames ?? get().frames).at(-1)
+                const atTarget = top?.uri === frameUri && top?.instance === frameInstance && !top?.completed
+                    && (stepType === 'over' ? top?.location?.ref === focus?.ref : !top?.location)
+                if (atTarget) {
+                    await (stepType === 'over' ? get().stepOver() : get().stepOut())
+                } else {
+                    // An inclusive one-shot breakpoint: the engine runs the target and suspends right after
+                    // it executed, its inputs and result on the stack — a single stop, no follow-up steps.
+                    await get().runTo(`after:${key}`, label)
+                }
+                // Success either selected a frame (step) or handed off to a running resume that settles via
+                // the socket. Anything else left the loading window with nowhere to land.
+                if (get().selectedFrameIndex === null && get().status !== 'running') {
+                    clearInspectLoading()
+                }
+            } catch {
+                clearInspectLoading()
+            } finally {
+                inspecting = false
+            }
+        },
+
+        fetchTreeChildren: async (uri, instance, step) => {
+            const key = treeChildKey(uri, instance, step)
+            const { projectId, treeChildren, treeLoading, stackVersion } = get()
+            // Ignore while a page for this step is already in flight, so a double-click can't page twice.
+            if (!projectId || treeLoading[key]) {
+                return
+            }
+            const offset = treeChildren[key]?.length ?? 0
+            set(s => ({ treeLoading: { ...s.treeLoading, [key]: true } }))
+            try {
+                const page = await traceService.getTreeChildren(projectId, uri, instance, step, offset, TREE_PAGE_SIZE)
+                // Drop a page that arrives after a re-run: instance indices restart at 0, so the same (uri,
+                // instance) key would otherwise be reused by the new run's node at that position, pinning the
+                // previous run's sub-calls with no refetch.
+                if (get().stackVersion !== stackVersion) {
+                    return
+                }
+                set(s => ({
+                    treeChildren: { ...s.treeChildren, [key]: [...(s.treeChildren[key] ?? []), ...(page.children ?? [])]},
+                    treeLoading: { ...s.treeLoading, [key]: false },
+                }))
+            } catch (error: any) {
+                set(s => ({ treeLoading: { ...s.treeLoading, [key]: false } }))
+                notification.error({ title: error?.message || 'Failed to load sub-calls' })
+            }
         },
 
         reset: () => set(initialState),

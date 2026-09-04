@@ -2,26 +2,18 @@ package org.openl.excel.parser;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Sometimes it's needed to know alignment of a value. For example TBasic tables use this info during parsing the table.
  */
+@RequiredArgsConstructor
 public final class AlignedValue implements ExtendedValue {
+    @Getter
     private final Object value;
+    @Getter
     private final short indent;
-
-    public AlignedValue(Object value, short indent) {
-        this.value = value;
-        this.indent = indent;
-    }
-
-    @Override
-    public Object getValue() {
-        return value;
-    }
-
-    public short getIndent() {
-        return indent;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -31,7 +23,7 @@ public final class AlignedValue implements ExtendedValue {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AlignedValue that = (AlignedValue) o;
+        var that = (AlignedValue) o;
         return indent == that.indent && Objects.equals(value, that.value);
     }
 

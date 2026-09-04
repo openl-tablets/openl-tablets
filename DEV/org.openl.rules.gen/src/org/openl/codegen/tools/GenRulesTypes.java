@@ -1,17 +1,13 @@
 package org.openl.codegen.tools;
 
 import java.io.FileWriter;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.openl.util.StringUtils;
 
@@ -22,7 +18,7 @@ public final class GenRulesTypes {
     public static void main(String[] args) throws Exception {
 
         System.out.println("Generating Rules enumerations...");
-        try (Stream<Path> stream = Files.walk(Path.of("enums"))) {
+        try (var stream = Files.walk(Path.of("enums"))) {
             stream.filter(Files::isRegularFile).forEach(GenRulesTypes::generateEnumeration);
         }
     }
@@ -30,28 +26,28 @@ public final class GenRulesTypes {
     private static void generateEnumeration(Path csvFile) {
 
         System.out.println("Processing of " + csvFile);
-        String enumClass = csvFile.getFileName().toString().replace(".csv", "");
-        int x = enumClass.lastIndexOf('.');
+        var enumClass = csvFile.getFileName().toString().replace(".csv", "");
+        var x = enumClass.lastIndexOf('.');
 
-        String enumName = enumClass.substring(x + 1);
-        String enumPackage = enumClass.substring(0, x);
-        String enumFile = enumClass.replace('.', '/') + ".java";
+        var enumName = enumClass.substring(x + 1);
+        var enumPackage = enumClass.substring(0, x);
+        var enumFile = enumClass.replace('.', '/') + ".java";
 
         try {
-            List<List<String>> table = Files.readAllLines(csvFile)
+            var table = Files.readAllLines(csvFile)
                     .stream()
                     .filter(StringUtils::isNotBlank)
                     .map(GenRulesTypes::parseCSVLine)
                     .collect(Collectors.toList());
 
-            Map<String, Object> vars = new HashMap<>();
+            var vars = new HashMap<String, Object>();
             vars.put("enumPackage", enumPackage);
             vars.put("enumName", enumName);
             vars.put("values", table);
 
-            String sourceFilePath = GenRulesCode.RULES_SOURCE_LOCATION + enumFile;
+            var sourceFilePath = GenRulesCode.RULES_SOURCE_LOCATION + enumFile;
 
-            try (Writer writer = new FileWriter(sourceFilePath)) {
+            try (var writer = new FileWriter(sourceFilePath)) {
                 SourceGenerator.generate("rules-enum.vm", vars, writer);
             }
             System.out.println("     > Enumeration " + sourceFilePath + " was generated successfully.");
@@ -61,11 +57,11 @@ public final class GenRulesTypes {
     }
 
     private static List<String> parseCSVLine(String input) {
-        Matcher matcher = CSV_PARSER.matcher(input);
-        ArrayList<String> result = new ArrayList<>();
+        var matcher = CSV_PARSER.matcher(input);
+        var result = new ArrayList<String>();
         while (matcher.find()) {
-            String escaped = matcher.group(1);
-            String text = matcher.group(2);
+            var escaped = matcher.group(1);
+            var text = matcher.group(2);
             String element = escaped != null ? escaped.replace("\"\"", "\"") : text.trim();
             result.add(element);
         }

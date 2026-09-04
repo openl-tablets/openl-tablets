@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
@@ -27,6 +30,8 @@ import org.openl.types.IOpenField;
  */
 public class BindingContextDelegator implements IBindingContextDelegator {
 
+    @Getter
+    @Setter
     protected IBindingContext delegate;
 
     public BindingContextDelegator(IBindingContext delegate) {
@@ -84,22 +89,18 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-        IOpenClass openClass = delegate.findClosestClass(openClass1, openClass2);
+        var openClass = delegate.findClosestClass(openClass1, openClass2);
         return findOpenClass(openClass);
     }
 
     @Override
     public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
-        IOpenClass openClass = delegate.findParentClass(openClass1, openClass2);
+        var openClass = delegate.findParentClass(openClass1, openClass2);
         return findOpenClass(openClass);
     }
 
     protected IOpenClass findOpenClass(IOpenClass openClass) {
         return openClass;
-    }
-
-    public IBindingContext getDelegate() {
-        return delegate;
     }
 
     @Override
@@ -150,11 +151,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     @Override
     public void pushLocalVarContext() {
         delegate.pushLocalVarContext();
-    }
-
-    @Override
-    public void setDelegate(IBindingContext delegate) {
-        this.delegate = delegate;
     }
 
     @Override

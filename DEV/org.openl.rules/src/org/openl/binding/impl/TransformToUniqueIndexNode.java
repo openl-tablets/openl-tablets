@@ -1,7 +1,5 @@
 package org.openl.binding.impl;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 
 import org.openl.binding.IBoundNode;
@@ -32,15 +30,15 @@ class TransformToUniqueIndexNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Iterator<Object> elementsIterator = targetNode.getType()
+        var elementsIterator = targetNode.getType()
                 .getAggregateInfo()
                 .getIterator(targetNode.evaluate(env));
-        Collection<Object> result = new LinkedHashSet<>();
+        var result = new LinkedHashSet<Object>();
         while (elementsIterator.hasNext()) {
-            Object element = elementsIterator.next();
+            var element = elementsIterator.next();
             element = openCast != null ? openCast.convert(element) : element;
             tempVar.set(null, element, env);
-            Object transformed = transformer.evaluate(env);
+            var transformed = transformer.evaluate(env);
             if (transformed != null) {
                 result.add(transformed);
             }
@@ -50,7 +48,7 @@ class TransformToUniqueIndexNode extends ABoundNode {
 
     @Override
     public IOpenClass getType() {
-        IOpenClass componentType = transformer.getType();
+        var componentType = transformer.getType();
         return componentType.getAggregateInfo().getIndexedAggregateType(componentType);
     }
 }

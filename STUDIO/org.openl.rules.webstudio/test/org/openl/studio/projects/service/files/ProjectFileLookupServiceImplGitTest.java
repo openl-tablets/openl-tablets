@@ -13,9 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
@@ -98,13 +96,13 @@ class ProjectFileLookupServiceImplGitTest {
 
     @Test
     void collectsAncestorsUpToRoot_nearestFirst() throws IOException {
-        List<FsNode> files = service.lookup(repository, "services/rating/AGENTS.md", true);
+        var files = service.lookup(repository, "services/rating/AGENTS.md", true);
 
         // Walk up from services/rating: the file itself (d0), the intermediate ancestor (d1), the
         // repository root (d2). The nested config/ file is a descendant and is not visited.
         assertEquals(3, files.size());
-        assertEquals("services/rating/AGENTS.md", files.get(0).getPath());
-        assertEquals("# project agents", content(files.get(0)));
+        assertEquals("services/rating/AGENTS.md", files.getFirst().getPath());
+        assertEquals("# project agents", content(files.getFirst()));
         assertEquals("services/AGENTS.md", files.get(1).getPath());
         assertEquals("# services agents", content(files.get(1)));
         assertEquals("AGENTS.md", files.get(2).getPath());
@@ -113,7 +111,7 @@ class ProjectFileLookupServiceImplGitTest {
 
     @Test
     void includeContentFalse_returnsMetadataOnly() throws IOException {
-        List<FsNode> files = service.lookup(repository, "services/rating/AGENTS.md", false);
+        var files = service.lookup(repository, "services/rating/AGENTS.md", false);
 
         assertEquals(3, files.size());
         assertNull(content(files.getFirst()), "content should be omitted when includeContent=false");
@@ -121,20 +119,20 @@ class ProjectFileLookupServiceImplGitTest {
 
     @Test
     void anchorAtRepositoryRoot_returnsRootOnly() throws IOException {
-        List<FsNode> files = service.lookup(repository, "AGENTS.md", false);
+        var files = service.lookup(repository, "AGENTS.md", false);
 
         // There is nothing above the repository root, and descendants are not visited.
         assertEquals(1, files.size());
-        assertEquals("AGENTS.md", files.get(0).getPath());
+        assertEquals("AGENTS.md", files.getFirst().getPath());
     }
 
     @Test
     void anchorAtNestedFolder_ordersFromThatFolder() throws IOException {
-        List<FsNode> files = service.lookup(repository, "services/rating/config/AGENTS.md", false);
+        var files = service.lookup(repository, "services/rating/config/AGENTS.md", false);
 
         // The deepest anchor reaches every level above it, up to the repository root.
         assertEquals(4, files.size());
-        assertEquals("services/rating/config/AGENTS.md", files.get(0).getPath());
+        assertEquals("services/rating/config/AGENTS.md", files.getFirst().getPath());
         assertEquals("services/rating/AGENTS.md", files.get(1).getPath());
         assertEquals("services/AGENTS.md", files.get(2).getPath());
         assertEquals("AGENTS.md", files.get(3).getPath());
@@ -157,11 +155,11 @@ class ProjectFileLookupServiceImplGitTest {
         // config/ file is a descendant and is not visited.
         var project = new AProject(repository, repository.check("services/rating"));
 
-        List<FsNode> files = service.lookup(project, repository, "services/rating/AGENTS.md", true);
+        var files = service.lookup(project, repository, "services/rating/AGENTS.md", true);
 
         assertEquals(3, files.size());
-        assertEquals("services/rating/AGENTS.md", files.get(0).getPath());
-        assertEquals("# project agents", content(files.get(0)));
+        assertEquals("services/rating/AGENTS.md", files.getFirst().getPath());
+        assertEquals("# project agents", content(files.getFirst()));
         assertEquals("services/AGENTS.md", files.get(1).getPath());
         assertEquals("AGENTS.md", files.get(2).getPath());
     }
@@ -172,10 +170,10 @@ class ProjectFileLookupServiceImplGitTest {
         // (config -> project root) and never reaches files above it (services, repository root).
         var project = new AProject(repository, repository.check("services/rating"));
 
-        List<FsNode> files = service.lookup(project, null, "services/rating/config/AGENTS.md", true);
+        var files = service.lookup(project, null, "services/rating/config/AGENTS.md", true);
 
         assertEquals(2, files.size());
-        assertEquals("services/rating/config/AGENTS.md", files.get(0).getPath());
+        assertEquals("services/rating/config/AGENTS.md", files.getFirst().getPath());
         assertEquals("services/rating/AGENTS.md", files.get(1).getPath());
     }
 
@@ -185,7 +183,7 @@ class ProjectFileLookupServiceImplGitTest {
         when(aclService.isGranted(anyString(), eq("AGENTS.md"), anyBoolean(), any(Permission.class)))
                 .thenReturn(false);
 
-        List<FsNode> files = service.lookup(repository, "services/rating/AGENTS.md", false);
+        var files = service.lookup(repository, "services/rating/AGENTS.md", false);
 
         assertEquals(List.of("services/rating/AGENTS.md", "services/AGENTS.md"),
                 files.stream().map(FsNode::getPath).toList());
@@ -198,8 +196,8 @@ class ProjectFileLookupServiceImplGitTest {
     // --- helpers ---
 
     private void seedRemoteRepository() throws GitAPIException, IOException {
-        try (Git git = Git.init().setDirectory(remoteRoot).call()) {
-            File root = git.getRepository().getDirectory().getParentFile();
+        try (var git = Git.init().setDirectory(remoteRoot).call()) {
+            var root = git.getRepository().getDirectory().getParentFile();
             writeFile(new File(root, "AGENTS.md"), "# root agents");
             writeFile(new File(root, "services/AGENTS.md"), "# services agents");
             writeFile(new File(root, "services/rating/AGENTS.md"), "# project agents");
@@ -218,18 +216,17 @@ class ProjectFileLookupServiceImplGitTest {
             case "id" -> "design";
             case "uri" -> remoteRoot.toURI().toString();
             case "local-repositories-folder" -> localRepositoriesFolder.getAbsolutePath();
-            case "comment-template" -> "OpenL Studio: {commit-type}. {user-message}";
             default -> null;
         });
     }
 
     private static void writeFile(File file, String content) throws IOException {
-        Path path = file.toPath();
-        Path parent = path.getParent();
+        var path = file.toPath();
+        var parent = path.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }
-        Files.writeString(path, content, StandardCharsets.UTF_8,
+        Files.writeString(path, content,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

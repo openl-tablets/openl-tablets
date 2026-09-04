@@ -1,11 +1,12 @@
 # syntax=docker/dockerfile:1
 
-# LOG4J_VER must match log4j.version in the root pom.xml.
+# LOG4J_VER must match log4j.version in the root pom.xml. Enforced by `mvn validate -N`.
 ARG LOG4J_VER=2.26.1
 
 FROM alpine AS otel
 
-ENV OTEL_VER 2.29.0
+# OTEL_VER must match opentelemetry.version in the root pom.xml. Enforced by `mvn validate -N`.
+ENV OTEL_VER 2.31.1
 
 RUN <<EOT
 set -euxv
@@ -178,7 +179,7 @@ EOT
 RUN <<'EOT' cat > $OPENL_DIR/setenv.sh && chmod +x $OPENL_DIR/setenv.sh
 export JAVA_OPTS="$JAVA_OPTS \
 -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
--Dorg.eclipse.jetty.server.Request.maxFormKeys=-1 \
+-Dorg.eclipse.jetty.server.Request.maxFormKeys=10000 \
 -Djetty.httpConfig.requestHeaderSize=32768 \
 -Djetty.httpConfig.responseHeaderSize=32768 \
 "

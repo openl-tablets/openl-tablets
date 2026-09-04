@@ -9,11 +9,11 @@ public class BasicTest {
     private static final String SRC = "test/rules/BasicAlgorithm.xls";
 
     public static void main(String[] args) {
-        RulesEngineFactory<IBasicTest> engineFactory = new RulesEngineFactory<>(SRC, IBasicTest.class);
+        var engineFactory = new RulesEngineFactory<IBasicTest>(SRC, IBasicTest.class);
 
-        IBasicTest rule = engineFactory.newEngineInstance();
+        var rule = engineFactory.newEngineInstance();
 
-        int result = rule.modification(4);
+        var result = rule.modification(4);
 
         System.out.println(result);
     }

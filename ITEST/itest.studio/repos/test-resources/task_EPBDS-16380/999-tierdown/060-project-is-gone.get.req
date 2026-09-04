@@ -1,0 +1,3 @@
+GET /rest/projects?page=0&size=10&name=EPBDS_16380_HISTORICAL&fields=name,branch HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

@@ -44,7 +44,7 @@ public final class FastStack implements Cloneable, Serializable {
     @Override
     public Object clone() {
         try {
-            FastStack v = (FastStack) super.clone();
+            var v = (FastStack) super.clone();
             v.m_data = m_data.clone();
             return v;
         } catch (CloneNotSupportedException e) {
@@ -58,7 +58,7 @@ public final class FastStack implements Cloneable, Serializable {
     }
 
     void grow() {
-        Object[] old = m_data;
+        var old = m_data;
 
         m_data = new Object[m_data.length * 2];
         System.arraycopy(old, 0, m_data, 0, m_size);
@@ -69,7 +69,7 @@ public final class FastStack implements Cloneable, Serializable {
     }
 
     public Object pop() {
-        Object o = m_data[--m_size];
+        var o = m_data[--m_size];
         m_data[m_size] = null;
         return o;
     }

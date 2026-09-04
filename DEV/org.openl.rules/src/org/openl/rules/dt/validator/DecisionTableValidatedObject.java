@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.domain.EnumDomain;
@@ -33,16 +35,14 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 @Slf4j
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
 
 
+    @Getter
     private final IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
-
-    public DecisionTableValidatedObject(IDecisionTable decisionTable) {
-        this.decisionTable = decisionTable;
-    }
 
     public DecisionTableValidatedObject(IDecisionTable decisionTable, Map<String, IDomainAdaptor> domainMap) {
         this.decisionTable = decisionTable;
@@ -51,14 +51,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     public synchronized Map<String, IDomainAdaptor> getDomains() {
         if (domainMap == null) {
-            domainMap = makeDomains(decisionTable);
+            domainMap = makeDomains();
         }
         return domainMap;
-    }
-
-    @Override
-    public IDecisionTable getDecisionTable() {
-        return decisionTable;
     }
 
     @Override
@@ -77,13 +72,13 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         return result;
     }
 
-    private Map<String, IDomainAdaptor> makeDomains(IDecisionTable dt2) {
+    private Map<String, IDomainAdaptor> makeDomains() {
         return new HashMap<>();
     }
 
     @Override
     public IntVar makeSignatureVar(String parameterName, IOpenClass paramType, Constrainer constrainer) {
-        IDomainAdaptor domain = getDomains().get(parameterName);
+        var domain = getDomains().get(parameterName);
         if (domain == null) {
             if (paramType.getDomain() != null) {
                 domain = makeDomainAdaptor(paramType.getDomain());
@@ -137,7 +132,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
         if (value != null && value.getClass().isArray()) {
             int[] res = new int[Array.getLength(value)];
-            for (int i = 0; i < res.length; i++) {
+            for (var i = 0; i < res.length; i++) {
                 res[i] = (Integer) transformSingleLocalParameterValue(name, condition, Array.get(value, i), dtan);
             }
 
@@ -152,14 +147,14 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
                                                      Object value,
                                                      DecisionTableAnalyzer dtan) {
 
-        Object result = value;
+        var result = value;
         if (value instanceof IntRange intr) {
             return new CtrIntRange(intr.getMin(), intr.getMax());
         }
 
         // at first search domains in those that were defined by user.
         String uniquePname = DecisionTableValidator.getUniqueConditionParamName(condition, name);
-        IDomainAdaptor domainAdaptor = getDomains().get(uniquePname);
+        var domainAdaptor = getDomains().get(uniquePname);
         if (domainAdaptor == null) {
             domainAdaptor = getDomains().get(name);
         }
@@ -169,7 +164,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         } else { // then search domains from its type.
             IDomain<?> domain = dtan.getParameterDomain(name, condition);
             if (domain != null) {
-                IDomainAdaptor domainAdapt = makeDomainAdaptor(domain);
+                var domainAdapt = makeDomainAdaptor(domain);
                 result = domainAdapt.getIndex(value);
             } else {
                 if (!(value instanceof Integer)) { // integer don`t need to be converted. so the original value
@@ -208,7 +203,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     public Object transformSignatureValueBack(String name, int intValue, DecisionTableAnalyzer dtAnalyzer) {
         Object result;
 
-        DecisionTableParamDescription pd = dtAnalyzer.getUsedParams().get(name);
+        var pd = dtAnalyzer.getUsedParams().get(name);
 
         Class<?> instanceClass = pd.getParameterDeclaration().getType().getInstanceClass();
 
@@ -217,13 +212,13 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
         }
 
         // at first search domains in those that were defined by user.
-        IDomainAdaptor domainAdapt = getDomains().get(name);
+        var domainAdapt = getDomains().get(name);
         if (domainAdapt != null) {
             result = domainAdapt.getValue(intValue);
         } else { // then search domains from its type.
-            IDomain<?> domain = dtAnalyzer.getSignatureParameterDomain(name);
+            var domain = dtAnalyzer.getSignatureParameterDomain(name);
             if (domain != null) {
-                IDomainAdaptor domainAdaptor = makeDomainAdaptor(domain);
+                var domainAdaptor = makeDomainAdaptor(domain);
                 result = domainAdaptor.getValue(intValue);
             } else {
                 result = intValue;

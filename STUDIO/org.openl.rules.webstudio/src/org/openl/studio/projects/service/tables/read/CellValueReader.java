@@ -5,17 +5,16 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.function.Function;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 
+@RequiredArgsConstructor
 public class CellValueReader implements Function<ICell, Object> {
 
     private final MetaInfoReader metaInfoReader;
-
-    public CellValueReader(MetaInfoReader metaInfoReader) {
-        this.metaInfoReader = metaInfoReader;
-    }
 
     @Override
     public Object apply(ICell cell) {

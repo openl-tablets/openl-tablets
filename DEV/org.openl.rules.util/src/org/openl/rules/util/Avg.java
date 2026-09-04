@@ -24,7 +24,7 @@ public final class Avg {
         return process(values, new Result<T, Double>() {
             @Override
             public void processNonNull(T value) {
-                double doubleValue = value.doubleValue();
+                var doubleValue = value.doubleValue();
                 result = result == null ? doubleValue : (result + doubleValue);
             }
 
@@ -76,7 +76,7 @@ public final class Avg {
         return process(values, new Result<BigInteger, BigDecimal>() {
             @Override
             public void processNonNull(BigInteger value) {
-                BigDecimal bigDecimal = new BigDecimal(value);
+                var bigDecimal = new BigDecimal(value);
                 result = result == null ? bigDecimal : result.add(bigDecimal);
             }
 

@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.types.IMemberMetaInfo;
@@ -21,18 +24,12 @@ import org.openl.vm.IRuntimeEnv;
  * @author snshor
  */
 public class LocalFrameBuilder {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class LocalVar implements ILocalVar {
         private final String namespace;
         private final String name;
         private final int indexInLocalFrame;
         private final IOpenClass type;
-
-        private LocalVar(String namespace, String name, int indexInLocalFrame, IOpenClass type) {
-            this.namespace = namespace;
-            this.name = name;
-            this.indexInLocalFrame = indexInLocalFrame;
-            this.type = type;
-        }
 
         /*
          * (non-Javadoc)
@@ -41,7 +38,7 @@ public class LocalFrameBuilder {
          */
         @Override
         public Object get(Object target, IRuntimeEnv env) {
-            Object res = env.getLocalFrame()[indexInLocalFrame];
+            var res = env.getLocalFrame()[indexInLocalFrame];
 
             return res != null ? res : getType().nullObject();
 
@@ -175,7 +172,7 @@ public class LocalFrameBuilder {
      * @see org.openl.binding.IBindingContext#addVar(java.lang.String, java.lang.String)
      */
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
-        ILocalVar var = findLocalVar(namespace, name, true);
+        var var = findLocalVar(namespace, name, true);
         if (var != null) {
             throw new DuplicatedVarException(null, name);
         }
@@ -186,7 +183,7 @@ public class LocalFrameBuilder {
     }
 
     public int currentFrameSize() {
-        int sum = 0;
+        var sum = 0;
         for (LocalVarFrameElement element : localFrames) {
             sum += element.size();
         }
@@ -196,7 +193,7 @@ public class LocalFrameBuilder {
     public ILocalVar findLocalVar(String namespace, String varname, boolean strictMatch) {
         for (LocalVarFrameElement frame : localFrames) {
             for (ILocalVar var : frame) {
-                String s1 = var.getNamespace();
+                var s1 = var.getNamespace();
                 if ((strictMatch && var.getName().equals(varname) || !strictMatch && var.getName()
                         .equalsIgnoreCase(varname)) && (Objects.equals(s1, namespace))) {
                     return var;

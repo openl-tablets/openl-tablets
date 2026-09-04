@@ -1,0 +1,4 @@
+GET /rest/deployments/cHJvZHVjdGlvbjrQotCw0YDQuNGE0L3Ri9C5INC_0LvQsNC9 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+X-OpenL-Test-Retry: yes
+

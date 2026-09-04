@@ -17,8 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
-import org.openl.rules.model.scaffolding.PathInfo;
-import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
@@ -40,7 +38,7 @@ class OpenAPIConverterTest {
 
     @Test
     void testAutoPolicyJson() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/Example3-AutoPolicyCalculationOpenAPI.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -52,7 +50,7 @@ class OpenAPIConverterTest {
 
     @Test
     void testBankRating() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/BankRating.json");
+        var projectModel = converter.extractProjectModel("test.converter/BankRating.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<DataModel> dataModels = projectModel.getDataModels();
@@ -64,7 +62,7 @@ class OpenAPIConverterTest {
 
     @Test
     void testFolderWithJsonFiles() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/external_links/Driver.json");
+        var projectModel = converter.extractProjectModel("test.converter/external_links/Driver.json");
         assertNotNull(projectModel.getName());
         assertEquals("Example, Multiple Files", projectModel.getName());
 
@@ -74,29 +72,29 @@ class OpenAPIConverterTest {
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, spreadsheetModels.size());
 
-        SpreadsheetModel dsModel = findSpreadsheetByName(spreadsheetModels, "drivers");
+        var dsModel = findSpreadsheetByName(spreadsheetModels, "drivers");
         List<InputParameter> dsParameters = dsModel.getParameters();
         assertEquals(1, dsParameters.size());
-        InputParameter dsParam = dsParameters.getFirst();
+        var dsParam = dsParameters.getFirst();
         assertEquals("someValue", dsParam.getFormattedName());
-        TypeInfo dsType = dsParam.getType();
+        var dsType = dsParam.getType();
         validateTypeInfo("SomeValue", dsType.getSimpleName(), "SomeValue", dsType.getJavaName());
         assertEquals(TypeInfo.Type.DATATYPE, dsType.getType());
     }
 
     @Test
     void testReusableBodyJsonWhichWillBeExpanded() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/project/reusable/request/reusable_request_body_once.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
-        SpreadsheetModel sprResult = spreadsheetModels.getFirst();
+        var sprResult = spreadsheetModels.getFirst();
         List<InputParameter> parameters = sprResult.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter param = parameters.getFirst();
-        TypeInfo type = param.getType();
+        var param = parameters.getFirst();
+        var type = param.getType();
         validateTypeInfo("RequestModel", type.getSimpleName(), "RequestModel", type.getJavaName());
         assertEquals(TypeInfo.Type.DATATYPE, type.getType());
         assertNull(param.getIn());
@@ -104,18 +102,18 @@ class OpenAPIConverterTest {
 
     @Test
     void testReusableBodyWhichWillBeDataType() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/project/reusable/request/reusable_request_body_twice.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, datatypeModels.size());
         assertEquals(2, spreadsheetModels.size());
-        SpreadsheetModel oneMoreTestSpreadsheet = spreadsheetModels.getFirst();
+        var oneMoreTestSpreadsheet = spreadsheetModels.getFirst();
         List<InputParameter> parameters = oneMoreTestSpreadsheet.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter param = parameters.getFirst();
+        var param = parameters.getFirst();
         assertEquals("requestModel", param.getFormattedName());
-        TypeInfo type = param.getType();
+        var type = param.getType();
         assertEquals("RequestModel", type.getSimpleName());
         assertNull(param.getIn());
         assertEquals(TypeInfo.Type.DATATYPE, type.getType());
@@ -123,7 +121,7 @@ class OpenAPIConverterTest {
 
     @Test
     void testReusableResponse() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/project/reusable/response/reusable_response.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(2, datatypeModels.size());
@@ -131,7 +129,7 @@ class OpenAPIConverterTest {
                 .filter(x -> x.getName().equals("MyModel"))
                 .findAny();
         assertTrue(optionalDatatypeModel.isPresent());
-        DatatypeModel datatypeModel = optionalDatatypeModel.get();
+        var datatypeModel = optionalDatatypeModel.get();
         assertEquals("MyModel", datatypeModel.getName());
         assertEquals(3, datatypeModel.getFields().size());
 
@@ -139,95 +137,95 @@ class OpenAPIConverterTest {
                 .filter(x -> x.getName().equals("RequestModel"))
                 .findAny();
         assertTrue(optionalRequestModel.isPresent());
-        DatatypeModel requestModel = optionalRequestModel.get();
+        var requestModel = optionalRequestModel.get();
         assertEquals(1, requestModel.getFields().size());
     }
 
     @Test
     void testOneAndAnyOfRequest() throws IOException {
-        ProjectModel oneOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/oneOfInRequest.json");
+        var oneOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/oneOfInRequest.json");
         List<SpreadsheetModel> spreadsheetModels = oneOf.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetModels.size());
-        SpreadsheetModel testSpreadsheet = spreadsheetModels.getFirst();
+        var testSpreadsheet = spreadsheetModels.getFirst();
         List<InputParameter> parameters = testSpreadsheet.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter inputParam = parameters.getFirst();
+        var inputParam = parameters.getFirst();
         assertEquals("object", inputParam.getFormattedName());
-        TypeInfo inputParamType = inputParam.getType();
+        var inputParamType = inputParam.getType();
         validateTypeInfo("java.lang.Object", inputParamType.getJavaName(), "Object", inputParamType.getSimpleName());
         assertEquals(TypeInfo.Type.OBJECT, inputParamType.getType());
         assertNull(inputParam.getIn());
-        PathInfo testSpreadsheetPathInfo = testSpreadsheet.getPathInfo();
-        TypeInfo returnType = testSpreadsheetPathInfo.getReturnType();
+        var testSpreadsheetPathInfo = testSpreadsheet.getPathInfo();
+        var returnType = testSpreadsheetPathInfo.getReturnType();
         validateTypeInfo("java.lang.Double", returnType.getJavaName(), "Double", returnType.getSimpleName());
         assertEquals(TypeInfo.Type.OBJECT, returnType.getType());
 
-        ProjectModel anyOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/anyOfInRequest.json");
+        var anyOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/anyOfInRequest.json");
         List<SpreadsheetModel> anyOfModels = anyOf.getSpreadsheetResultModels();
         assertEquals(1, anyOfModels.size());
-        SpreadsheetModel anyOfSpr = anyOfModels.getFirst();
+        var anyOfSpr = anyOfModels.getFirst();
         List<InputParameter> anyOfParams = anyOfSpr.getParameters();
         assertEquals(1, anyOfParams.size());
     }
 
     @Test
     void testAllOfRequest() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/project/allOf/allOfInRequest.json");
+        var projectModel = converter.extractProjectModel("test.converter/project/allOf/allOfInRequest.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(4, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
 
         Optional<DatatypeModel> body = datatypeModels.stream().filter(x -> x.getName().equals("Body")).findFirst();
-        boolean isBodyPresented = body.isPresent();
+        var isBodyPresented = body.isPresent();
         assertFalse(isBodyPresented);
-        SpreadsheetModel sprModel = spreadsheetModels.getFirst();
+        var sprModel = spreadsheetModels.getFirst();
         List<InputParameter> parameters = sprModel.getParameters();
         assertEquals(1, parameters.size());
     }
 
     @Test
     void testOneOfWithAllOf() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/project/oneOfWithAllOfInRequest.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(6, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
-        SpreadsheetModel testSpreadsheet = spreadsheetModels.getFirst();
+        var testSpreadsheet = spreadsheetModels.getFirst();
         List<InputParameter> parameters = testSpreadsheet.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter inputParameter = parameters.getFirst();
+        var inputParameter = parameters.getFirst();
         assertEquals("object", inputParameter.getFormattedName());
         assertNull(inputParameter.getIn());
-        TypeInfo type = inputParameter.getType();
+        var type = inputParameter.getType();
         validateTypeInfo("java.lang.Object", type.getJavaName(), "Object", type.getSimpleName());
     }
 
     @Test
     void testAllOfInResponse() throws IOException {
         // cat is used in expanding
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/project/allOf/allOfInResponse.json");
+        var projectModel = converter.extractProjectModel("test.converter/project/allOf/allOfInResponse.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(1, spreadsheetModels.size());
         assertEquals(3, datatypeModels.size());
-        SpreadsheetModel spreadsheetModel = spreadsheetModels.getFirst();
+        var spreadsheetModel = spreadsheetModels.getFirst();
 
-        PathInfo pathInfo = spreadsheetModel.getPathInfo();
-        TypeInfo returnType = pathInfo.getReturnType();
+        var pathInfo = spreadsheetModel.getPathInfo();
+        var returnType = pathInfo.getReturnType();
         validateTypeInfo("org.openl.rules.calc.SpreadsheetResult",
                 returnType.getJavaName(),
                 "inline_response_200",
                 returnType.getSimpleName());
         assertEquals(TypeInfo.Type.SPREADSHEET, returnType.getType());
 
-        String spreadsheetType = spreadsheetModel.getType();
+        var spreadsheetType = spreadsheetModel.getType();
         assertEquals(SPREADSHEET_RESULT, spreadsheetType);
 
         List<InputParameter> parameters = spreadsheetModel.getParameters();
-        InputParameter catParam = findInputParameter(parameters, "cat");
-        TypeInfo catType = catParam.getType();
+        var catParam = findInputParameter(parameters, "cat");
+        var catType = catParam.getType();
         assertEquals(TypeInfo.Type.DATATYPE, catType.getType());
         assertTrue(datatypeModels.stream().anyMatch(dm -> dm.getName().equals(catType.getSimpleName())));
 
@@ -236,7 +234,7 @@ class OpenAPIConverterTest {
 
     @Test
     void testOneOfInResponse() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/project/oneOfAndAnyOf/oneOfInResponse.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -246,30 +244,30 @@ class OpenAPIConverterTest {
 
     @Test
     void testExpandablePropertyInsideNonExpandableScheme() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/project/expand/expand_test.json");
+        var projectModel = converter.extractProjectModel("test.converter/project/expand/expand_test.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(4, datatypeModels.size());
         assertEquals(2, spreadsheetModels.size());
 
-        SpreadsheetModel testSpreadsheet = findSpreadsheetByName(spreadsheetModels, "test");
+        var testSpreadsheet = findSpreadsheetByName(spreadsheetModels, "test");
         List<InputParameter> testParameters = testSpreadsheet.getParameters();
         assertEquals(3, testParameters.size());
 
-        InputParameter countParam = findInputParameter(testParameters, "count");
+        var countParam = findInputParameter(testParameters, "count");
         assertEquals("java.lang.Integer", countParam.getType().getJavaName());
 
-        InputParameter requestParam = findInputParameter(testParameters, "requestTest");
+        var requestParam = findInputParameter(testParameters, "requestTest");
         assertEquals("java.lang.String", requestParam.getType().getJavaName());
 
-        InputParameter catParamInTest = findInputParameter(testParameters, "cat");
+        var catParamInTest = findInputParameter(testParameters, "cat");
         assertEquals("Cat", catParamInTest.getType().getJavaName());
 
-        SpreadsheetModel oneMorePath = findSpreadsheetByName(spreadsheetModels, "oneMorePath");
+        var oneMorePath = findSpreadsheetByName(spreadsheetModels, "oneMorePath");
         List<InputParameter> parameters = oneMorePath.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter catParam = parameters.getFirst();
-        TypeInfo catType = catParam.getType();
+        var catParam = parameters.getFirst();
+        var catType = catParam.getType();
         assertEquals("Cat", catType.getSimpleName());
         assertEquals(TypeInfo.Type.DATATYPE, catType.getType());
         assertTrue(datatypeModels.stream().anyMatch(dt -> dt.getName().equals(catType.getSimpleName())));
@@ -277,7 +275,7 @@ class OpenAPIConverterTest {
 
     @Test
     void testExpandableExceedingLimit() throws IOException {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/project/expand/expand_exceeds_limit.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -287,62 +285,62 @@ class OpenAPIConverterTest {
 
     @Test
     void testSimpleTypes() throws IOException {
-        ProjectModel pm = converter.extractProjectModel("test.converter/problems/simpleTypes.json");
+        var pm = converter.extractProjectModel("test.converter/problems/simpleTypes.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
-        SpreadsheetModel simpleModel = findSpreadsheetByName(spreadsheetResultModels, "myTestWithIntegerRBAJ");
+        var simpleModel = findSpreadsheetByName(spreadsheetResultModels, "myTestWithIntegerRBAJ");
         assertEquals("SpreadsheetResult", simpleModel.getType());
         List<InputParameter> parameters = simpleModel.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter integerParam = parameters.getFirst();
+        var integerParam = parameters.getFirst();
         validateTypeInfo("integer", integerParam.getFormattedName(), "Integer", integerParam.getType().getSimpleName());
         assertEquals("java.lang.Integer", integerParam.getType().getJavaName());
 
-        SpreadsheetModel textPlainWithPrimitiveDoubleParam = findSpreadsheetByName(spreadsheetResultModels,
+        var textPlainWithPrimitiveDoubleParam = findSpreadsheetByName(spreadsheetResultModels,
                 "myTestWithDoubleRBTP");
         assertEquals("SpreadsheetResult", textPlainWithPrimitiveDoubleParam.getType());
         List<InputParameter> paramsPrimitive = textPlainWithPrimitiveDoubleParam.getParameters();
         assertEquals(1, paramsPrimitive.size());
-        InputParameter doubleParam = paramsPrimitive.getFirst();
+        var doubleParam = paramsPrimitive.getFirst();
         validateTypeInfo("double", doubleParam.getFormattedName(), "Double", doubleParam.getType().getSimpleName());
         assertEquals("java.lang.Double", doubleParam.getType().getJavaName());
 
-        SpreadsheetModel myTstModel = findSpreadsheetByName(spreadsheetResultModels, "myTst");
+        var myTstModel = findSpreadsheetByName(spreadsheetResultModels, "myTst");
         assertEquals("Boolean", myTstModel.getType());
         List<InputParameter> myTstParams = myTstModel.getParameters();
         assertEquals(2, myTstParams.size());
 
-        SpreadsheetModel doubleArrayParamModel = findSpreadsheetByName(spreadsheetResultModels,
+        var doubleArrayParamModel = findSpreadsheetByName(spreadsheetResultModels,
                 "myTestWithArrayDoubleRBTP");
         validateTypeInfo("Boolean[]",
                 doubleArrayParamModel.getType(),
                 "[Ljava.lang.Boolean;",
                 doubleArrayParamModel.getPathInfo().getReturnType().getJavaName());
         List<InputParameter> doubleArrayParam = doubleArrayParamModel.getParameters();
-        InputParameter param = doubleArrayParam.getFirst();
+        var param = doubleArrayParam.getFirst();
         validateTypeInfo("Double[]",
                 param.getType().getSimpleName(),
                 "[Ljava.lang.Double;",
                 param.getType().getJavaName());
         assertEquals("double", param.getFormattedName());
 
-        SpreadsheetModel longModel = findSpreadsheetByName(spreadsheetResultModels, "myTestWithLongRBTP");
+        var longModel = findSpreadsheetByName(spreadsheetResultModels, "myTestWithLongRBTP");
         assertEquals("Long", longModel.getType());
         List<InputParameter> longParams = longModel.getParameters();
-        InputParameter longParam = longParams.getFirst();
+        var longParam = longParams.getFirst();
         validateTypeInfo("Long",
                 longParam.getType().getSimpleName(),
                 "java.lang.Long",
                 longParam.getType().getJavaName());
         assertEquals("long", longParam.getFormattedName());
 
-        SpreadsheetModel testWithParams = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams");
+        var testWithParams = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams");
         List<InputParameter> parametersList = testWithParams.getParameters();
         assertEquals(1, parametersList.size());
-        InputParameter oneParam = parametersList.getFirst();
+        var oneParam = parametersList.getFirst();
         validateTypeInfo("Long", oneParam.getType().getSimpleName(), "simpleId", oneParam.getFormattedName());
 
-        SpreadsheetModel model = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams2");
+        var model = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams2");
         List<InputParameter> withPathParams = model.getParameters();
         assertEquals(2, withPathParams.size());
         Optional<InputParameter> pidId = withPathParams.stream()
@@ -351,7 +349,7 @@ class OpenAPIConverterTest {
         assertTrue(pidId.isPresent());
         assertEquals("Double", pidId.get().getType().getSimpleName());
 
-        InputParameter sumParam = findInputParameter(withPathParams, "sum");
+        var sumParam = findInputParameter(withPathParams, "sum");
         validateTypeInfo("Float",
                 sumParam.getType().getSimpleName(),
                 "java.lang.Float",
@@ -360,20 +358,20 @@ class OpenAPIConverterTest {
 
     @Test
     void testSettingReturnType() throws IOException {
-        ProjectModel pm = converter.extractProjectModel("test.converter/problems/EPBDS-10841-npe.json");
+        var pm = converter.extractProjectModel("test.converter/problems/EPBDS-10841-npe.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
-        SpreadsheetModel midStepSome1Model = findSpreadsheetByName(spreadsheetResultModels, "MidStepSome1");
+        var midStepSome1Model = findSpreadsheetByName(spreadsheetResultModels, "MidStepSome1");
         List<InputParameter> midStepSome1Params = midStepSome1Model.getParameters();
         assertEquals(2, midStepSome1Params.size());
         List<StepModel> midStepSome1ModelSteps = midStepSome1Model.getSteps();
         assertEquals(6, midStepSome1ModelSteps.size());
 
-        SpreadsheetModel middleStepSomeModel = findSpreadsheetByName(spreadsheetResultModels, "MiddleStepSome");
+        var middleStepSomeModel = findSpreadsheetByName(spreadsheetResultModels, "MiddleStepSome");
         assertEquals(3, middleStepSomeModel.getParameters().size());
         assertEquals(2, middleStepSomeModel.getSteps().size());
 
-        SpreadsheetModel setStepsSomeModel = findSpreadsheetByName(spreadsheetResultModels, "SetStepSome");
+        var setStepsSomeModel = findSpreadsheetByName(spreadsheetResultModels, "SetStepSome");
         assertEquals(3, setStepsSomeModel.getParameters().size());
         assertEquals(4, setStepsSomeModel.getSteps().size());
 
@@ -381,17 +379,17 @@ class OpenAPIConverterTest {
                 .filter(model -> model.getName().equals("MidStepSome") && model.getParameters().size() == 2)
                 .findFirst();
         assertTrue(midStepSomeWithTwoParams.isPresent());
-        SpreadsheetModel withoutParams = midStepSomeWithTwoParams.get();
+        var withoutParams = midStepSomeWithTwoParams.get();
         assertEquals(6, withoutParams.getSteps().size());
 
     }
 
     @Test
     void testFiltering() throws IOException {
-        ProjectModel pm = converter
+        var pm = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10838_spreadsheets_filtering.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
-        SpreadsheetModel mySecondSprModel = findSpreadsheetByName(spreadsheetResultModels, "MySecondSpr");
+        var mySecondSprModel = findSpreadsheetByName(spreadsheetResultModels, "MySecondSpr");
         assertEquals("SpreadsheetResultMyFirsSpr[]", mySecondSprModel.getType());
 
         assertFalse(pm.getDatatypeModels().stream().anyMatch(x -> x.getName().equals("MyFirsSpr")));
@@ -399,21 +397,21 @@ class OpenAPIConverterTest {
 
     @Test
     void testFilteringIfArrayReturns() throws IOException {
-        ProjectModel pm = converter
+        var pm = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10838_spreadsheets_filtering_second_case.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
-        SpreadsheetModel firsSprModel = findSpreadsheetByName(spreadsheetResultModels, "myFirsSpr");
+        var firsSprModel = findSpreadsheetByName(spreadsheetResultModels, "myFirsSpr");
         assertEquals("SpreadsheetResult", firsSprModel.getType());
         List<StepModel> steps = firsSprModel.getSteps();
         assertEquals(2, steps.size());
         assertTrue(steps.stream().anyMatch(step -> step.getName().equals("Step1")));
         assertTrue(steps.stream().anyMatch(step -> step.getName().equals("Step2")));
 
-        SpreadsheetModel secondModel = findSpreadsheetByName(spreadsheetResultModels, "MySecondSpr");
+        var secondModel = findSpreadsheetByName(spreadsheetResultModels, "MySecondSpr");
         assertEquals("SpreadsheetResultmyFirsSpr[]", secondModel.getType());
         List<StepModel> secondModelSteps = secondModel.getSteps();
         assertEquals(1, secondModelSteps.size());
-        StepModel secondModelResultStep = secondModelSteps.getFirst();
+        var secondModelResultStep = secondModelSteps.getFirst();
         validateTypeInfo("Result", secondModelResultStep.getName(), "MyFirsSpr[]", secondModelResultStep.getType());
         assertEquals("= new SpreadsheetResultmyFirsSpr[]{myFirsSpr(null)}", secondModelResultStep.getValue());
         assertFalse(pm.getDatatypeModels().stream().anyMatch(x -> x.getName().equals("MyFirsSpr")));
@@ -422,13 +420,13 @@ class OpenAPIConverterTest {
 
     @Test
     void testGeneratedInputTypes() throws IOException {
-        ProjectModel pm = converter.extractProjectModel("test.converter/spreadsheets/EPBDS-10939-parameters.json");
+        var pm = converter.extractProjectModel("test.converter/spreadsheets/EPBDS-10939-parameters.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
-        SpreadsheetModel caseWithPrimitiveParams = findSpreadsheetByName(spreadsheetResultModels, "Case13");
+        var caseWithPrimitiveParams = findSpreadsheetByName(spreadsheetResultModels, "Case13");
         assertEquals("Integer", caseWithPrimitiveParams.getType());
-        PathInfo caseWithPrimitiveParamsPathInfo = caseWithPrimitiveParams.getPathInfo();
-        TypeInfo caseWithPrimitiveParamsReturnType = caseWithPrimitiveParamsPathInfo.getReturnType();
+        var caseWithPrimitiveParamsPathInfo = caseWithPrimitiveParams.getPathInfo();
+        var caseWithPrimitiveParamsReturnType = caseWithPrimitiveParamsPathInfo.getReturnType();
         validateTypeInfo("java.lang.Integer",
                 caseWithPrimitiveParamsReturnType.getJavaName(),
                 "Integer",
@@ -438,11 +436,11 @@ class OpenAPIConverterTest {
         validateParameter(primitiveParams, "b", "double", "double");
         validateParameter(primitiveParams, "c", "boolean", "boolean");
 
-        SpreadsheetModel caseWithPrimitiveParamsAndWrappedResult = findSpreadsheetByName(spreadsheetResultModels,
+        var caseWithPrimitiveParamsAndWrappedResult = findSpreadsheetByName(spreadsheetResultModels,
                 "Case14");
         assertEquals("Double", caseWithPrimitiveParamsAndWrappedResult.getType());
-        PathInfo wrappedReturnPathInfo = caseWithPrimitiveParamsAndWrappedResult.getPathInfo();
-        TypeInfo wrappedReturnType = wrappedReturnPathInfo.getReturnType();
+        var wrappedReturnPathInfo = caseWithPrimitiveParamsAndWrappedResult.getPathInfo();
+        var wrappedReturnType = wrappedReturnPathInfo.getReturnType();
         validateTypeInfo("java.lang.Double",
                 wrappedReturnType.getJavaName(),
                 "Double",
@@ -452,10 +450,10 @@ class OpenAPIConverterTest {
         validateParameter(primitiveParamsForWrappedReturn, "b", "double", "double");
         validateParameter(primitiveParamsForWrappedReturn, "c", "boolean", "boolean");
 
-        SpreadsheetModel spreadsheetWithExpandedRequest = findSpreadsheetByName(spreadsheetResultModels, "Case23");
+        var spreadsheetWithExpandedRequest = findSpreadsheetByName(spreadsheetResultModels, "Case23");
         assertEquals("Integer", spreadsheetWithExpandedRequest.getType());
-        PathInfo sprWithExpandedRequestPathInfo = spreadsheetWithExpandedRequest.getPathInfo();
-        TypeInfo spreadsheetWithExpandedRequestReturnType = sprWithExpandedRequestPathInfo.getReturnType();
+        var sprWithExpandedRequestPathInfo = spreadsheetWithExpandedRequest.getPathInfo();
+        var spreadsheetWithExpandedRequestReturnType = sprWithExpandedRequestPathInfo.getReturnType();
         assertEquals("java.lang.Integer", spreadsheetWithExpandedRequestReturnType.getJavaName());
         assertEquals("Integer", spreadsheetWithExpandedRequestReturnType.getSimpleName());
         List<InputParameter> sprWithExpandedRequestParams = spreadsheetWithExpandedRequest.getParameters();
@@ -464,12 +462,12 @@ class OpenAPIConverterTest {
         validateParameter(sprWithExpandedRequestParams, "c", "java.lang.Boolean", "Boolean");
         validateParameter(sprWithExpandedRequestParams, "d", "java.lang.Float", "Float");
 
-        SpreadsheetModel spreadsheetWithExpandedRequestAndWrappedReturnType = findSpreadsheetByName(
+        var spreadsheetWithExpandedRequestAndWrappedReturnType = findSpreadsheetByName(
                 spreadsheetResultModels,
                 "Case24");
         assertEquals("Double", spreadsheetWithExpandedRequestAndWrappedReturnType.getType());
-        PathInfo pathInfo = spreadsheetWithExpandedRequestAndWrappedReturnType.getPathInfo();
-        TypeInfo returnType = pathInfo.getReturnType();
+        var pathInfo = spreadsheetWithExpandedRequestAndWrappedReturnType.getPathInfo();
+        var returnType = pathInfo.getReturnType();
         assertEquals("java.lang.Double", returnType.getJavaName());
         assertEquals("Double", returnType.getSimpleName());
         List<InputParameter> parameters = spreadsheetWithExpandedRequestAndWrappedReturnType.getParameters();
@@ -478,35 +476,35 @@ class OpenAPIConverterTest {
         validateParameter(parameters, "c", "java.lang.Boolean", "Boolean");
         validateParameter(parameters, "d", "java.lang.Float", "Float");
 
-        SpreadsheetModel sprWithDataTypeAndPrimitiveRequest = findSpreadsheetByName(spreadsheetResultModels, "Case51");
+        var sprWithDataTypeAndPrimitiveRequest = findSpreadsheetByName(spreadsheetResultModels, "Case51");
         assertEquals("String", sprWithDataTypeAndPrimitiveRequest.getType());
-        PathInfo sprWithDataTypeAndPrimitiveRequestPathInfo = sprWithDataTypeAndPrimitiveRequest.getPathInfo();
-        TypeInfo infoReturnType = sprWithDataTypeAndPrimitiveRequestPathInfo.getReturnType();
+        var sprWithDataTypeAndPrimitiveRequestPathInfo = sprWithDataTypeAndPrimitiveRequest.getPathInfo();
+        var infoReturnType = sprWithDataTypeAndPrimitiveRequestPathInfo.getReturnType();
         assertEquals("java.lang.String", infoReturnType.getJavaName());
         assertEquals("String", infoReturnType.getSimpleName());
         List<InputParameter> dataTypeWithPrimitiveParams = sprWithDataTypeAndPrimitiveRequest.getParameters();
         validateParameter(dataTypeWithPrimitiveParams, "a", "java.lang.Integer", "Integer");
         validateParameter(dataTypeWithPrimitiveParams, "param", "MyTestDatatype", "MyTestDatatype");
 
-        SpreadsheetModel sprWithDataTypeAndPrimitiveRequestOrder = findSpreadsheetByName(spreadsheetResultModels,
+        var sprWithDataTypeAndPrimitiveRequestOrder = findSpreadsheetByName(spreadsheetResultModels,
                 "Case52");
         assertEquals("String", sprWithDataTypeAndPrimitiveRequestOrder.getType());
-        PathInfo primitiveRequestOrderPathInfo = sprWithDataTypeAndPrimitiveRequestOrder.getPathInfo();
-        TypeInfo pathInfoReturnType = primitiveRequestOrderPathInfo.getReturnType();
+        var primitiveRequestOrderPathInfo = sprWithDataTypeAndPrimitiveRequestOrder.getPathInfo();
+        var pathInfoReturnType = primitiveRequestOrderPathInfo.getReturnType();
         assertEquals("java.lang.String", pathInfoReturnType.getJavaName());
         assertEquals("String", pathInfoReturnType.getSimpleName());
         List<InputParameter> requestOrderParameters = sprWithDataTypeAndPrimitiveRequestOrder.getParameters();
         validateParameter(requestOrderParameters, "param", "MyTestDatatype", "MyTestDatatype");
         validateParameter(requestOrderParameters, "a", "java.lang.Integer", "Integer");
 
-        ProjectModel pmWithRuntimeContext = converter
+        var pmWithRuntimeContext = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10939-with-runtime-context.json");
         List<SpreadsheetModel> spreadsheetsWithRuntimeContext = pmWithRuntimeContext.getSpreadsheetResultModels();
 
-        SpreadsheetModel caseWithPrimitivesAndRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case13");
+        var caseWithPrimitivesAndRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case13");
         assertEquals("Integer", caseWithPrimitivesAndRC.getType());
-        PathInfo caseWithPrimitivesAndRCPathInfo = caseWithPrimitivesAndRC.getPathInfo();
-        TypeInfo rcPrimitivesReturnType = caseWithPrimitivesAndRCPathInfo.getReturnType();
+        var caseWithPrimitivesAndRCPathInfo = caseWithPrimitivesAndRC.getPathInfo();
+        var rcPrimitivesReturnType = caseWithPrimitivesAndRCPathInfo.getReturnType();
         validateTypeInfo("java.lang.Integer",
                 rcPrimitivesReturnType.getJavaName(),
                 "Integer",
@@ -516,10 +514,10 @@ class OpenAPIConverterTest {
         validateParameter(primitiveParametersWithRC, "b", "java.lang.Double", "Double");
         validateParameter(primitiveParametersWithRC, "c", "java.lang.Boolean", "Boolean");
 
-        SpreadsheetModel wrappedWithRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case14");
+        var wrappedWithRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case14");
         assertEquals("Double", wrappedWithRC.getType());
-        PathInfo wrappedWithRCPathInfo = wrappedWithRC.getPathInfo();
-        TypeInfo wrappedRCReturnType = wrappedWithRCPathInfo.getReturnType();
+        var wrappedWithRCPathInfo = wrappedWithRC.getPathInfo();
+        var wrappedRCReturnType = wrappedWithRCPathInfo.getReturnType();
         validateTypeInfo("java.lang.Double",
                 wrappedRCReturnType.getJavaName(),
                 "Double",
@@ -529,49 +527,49 @@ class OpenAPIConverterTest {
         validateParameter(wrappedWithRCParameters, "b", "java.lang.Double", "Double");
         validateParameter(wrappedWithRCParameters, "c", "java.lang.Boolean", "Boolean");
 
-        SpreadsheetModel caseWithExpandedRequestAndRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case23");
+        var caseWithExpandedRequestAndRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case23");
         List<InputParameter> paramsOfExpandedRequestWithRC = caseWithExpandedRequestAndRC.getParameters();
         validateParameter(paramsOfExpandedRequestWithRC, "a", "java.lang.Integer", "Integer");
         validateParameter(paramsOfExpandedRequestWithRC, "b", "java.lang.Double", "Double");
         validateParameter(paramsOfExpandedRequestWithRC, "c", "java.lang.Boolean", "Boolean");
         validateParameter(paramsOfExpandedRequestWithRC, "d", "java.lang.Float", "Float");
 
-        SpreadsheetModel caseWithDTAndPrimitiveWithRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case51");
+        var caseWithDTAndPrimitiveWithRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case51");
         List<InputParameter> rcDatatypeAndPrimitiveParam = caseWithDTAndPrimitiveWithRC.getParameters();
         validateParameter(rcDatatypeAndPrimitiveParam, "a", "java.lang.Integer", "Integer");
         validateParameter(rcDatatypeAndPrimitiveParam, "param", "MyTestDatatype", "MyTestDatatype");
-        SpreadsheetModel caseWithDTAndPrimitiveWithRCOrder = findSpreadsheetByName(spreadsheetsWithRuntimeContext,
+        var caseWithDTAndPrimitiveWithRCOrder = findSpreadsheetByName(spreadsheetsWithRuntimeContext,
                 "Case52");
         List<InputParameter> rcDatatypeAndPrimitiveParamOrder = caseWithDTAndPrimitiveWithRCOrder.getParameters();
         validateParameter(rcDatatypeAndPrimitiveParamOrder, "a", "java.lang.Integer", "Integer");
         validateParameter(rcDatatypeAndPrimitiveParamOrder, "param", "MyTestDatatype", "MyTestDatatype");
 
-        ProjectModel pmWithDoubleResult = converter
+        var pmWithDoubleResult = converter
                 .extractProjectModel("test.converter/spreadsheets/EPBDS-10939_doubleResult.json");
         List<SpreadsheetModel> spreadsheetModels = pmWithDoubleResult.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetModels.size());
-        SpreadsheetModel doubleResultSprModel = spreadsheetModels.getFirst();
+        var doubleResultSprModel = spreadsheetModels.getFirst();
         assertEquals("Double", doubleResultSprModel.getType());
     }
 
     @Test
     void test_EPBDS_10988() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
+        var projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
         assertNotNull(projectModel);
 
         assertTrue(projectModel.isRuntimeContextProvided());
 
         assertEquals(1, projectModel.getSpreadsheetResultModels().size());
-        SpreadsheetModel sprModel = projectModel.getSpreadsheetResultModels().getFirst();
+        var sprModel = projectModel.getSpreadsheetResultModels().getFirst();
 
         assertEquals(1, sprModel.getParameters().size());
-        InputParameter param1 = sprModel.getParameters().getFirst();
+        var param1 = sprModel.getParameters().getFirst();
         assertEquals("param1", param1.getFormattedName());
         assertEquals("java.lang.String", param1.getType().getJavaName());
         assertEquals("String", param1.getType().getSimpleName());
         assertEquals(TypeInfo.Type.OBJECT, param1.getType().getType());
 
-        InputParameter param0 = sprModel.getPathInfo().getRuntimeContextParameter();
+        var param0 = sprModel.getPathInfo().getRuntimeContextParameter();
         assertNotNull(param0);
         assertEquals("param0", param0.getFormattedName());
         assertEquals("org.openl.rules.context.IRulesRuntimeContext", param0.getType().getJavaName());
@@ -581,23 +579,23 @@ class OpenAPIConverterTest {
 
     @Test
     void test_EPBDS_10993() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
+        var projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
         assertNotNull(projectModel);
         assertEquals(2, projectModel.getDatatypeModels().size());
-        DatatypeModel datatypeModel = projectModel.getDatatypeModels()
+        var datatypeModel = projectModel.getDatatypeModels()
                 .stream()
                 .filter(x -> "MyDatatype".equals(x.getName()))
                 .findFirst()
                 .orElse(null);
         assertNotNull(datatypeModel);
         assertEquals(1, projectModel.getDataModels().size());
-        DataModel dataModel = projectModel.getDataModels().getFirst();
+        var dataModel = projectModel.getDataModels().getFirst();
         assertEquals(datatypeModel, dataModel.getDatatypeModel());
     }
 
     @Test
     void test_EPBDS_10999() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10999.json");
+        var projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10999.json");
         assertEquals(4, projectModel.getDatatypeModels().size());
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "DogDatatype".equals(dt.getName())));
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "CatDatatype".equals(dt.getName())));
@@ -610,8 +608,8 @@ class OpenAPIConverterTest {
                                    final String paramName,
                                    final String expectedJavaName,
                                    final String expectedSimpleName) {
-        InputParameter inputParameter = findInputParameter(parameters, paramName);
-        TypeInfo aType = inputParameter.getType();
+        var inputParameter = findInputParameter(parameters, paramName);
+        var aType = inputParameter.getType();
         validateTypeInfo(expectedJavaName, aType.getJavaName(), expectedSimpleName, aType.getSimpleName());
     }
 

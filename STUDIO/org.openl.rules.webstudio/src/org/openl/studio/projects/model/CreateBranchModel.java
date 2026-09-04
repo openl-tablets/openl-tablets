@@ -3,6 +3,8 @@ package org.openl.studio.projects.model;
 import jakarta.validation.constraints.NotNull;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Create branch model.
@@ -11,25 +13,13 @@ import io.swagger.v3.oas.annotations.Parameter;
  */
 public class CreateBranchModel {
 
+    @Getter
     @NotNull
+    @Setter
     private String branch;
 
+    @Getter
     @Parameter(description = "Revision to branch from. Allows to branch from specific revision, tag or another branch. If not specified, HEAD revision will be used.")
+    @Setter
     private String revision;
-
-    public String getBranch() {
-        return branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
-
-    public String getRevision() {
-        return revision;
-    }
-
-    public void setRevision(String revision) {
-        this.revision = revision;
-    }
 }

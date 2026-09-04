@@ -1,7 +1,10 @@
 package org.openl.rules.workspace;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
@@ -21,31 +24,28 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     /**
      * Design Time Repository
      */
+    @Setter
     private DesignTimeRepository designTimeRepository;
     /**
      * Manager of Local Workspaces
      */
+    @Setter
     private LocalWorkspaceManager localWorkspaceManager;
     /**
-     * Cache for User Workspaces
+     * Cache for User Workspaces. Concurrent: request threads and the workspace files watcher's
+     * background thread reach it at the same time.
      */
-    private final Map<String, UserWorkspace> userWorkspaces = new HashMap<>();
+    private final Map<String, UserWorkspace> userWorkspaces = new ConcurrentHashMap<>();
 
+    @Getter
+    @Setter
     private UserWorkspaceFactory userWorkspaceFactory = new DefaultUserWorkspaceFactory();
 
     private UserWorkspace createUserWorkspace(WorkspaceUser user) {
-        UserWorkspace userWorkspace = getUserWorkspaceFactory()
+        var userWorkspace = getUserWorkspaceFactory()
                 .create(localWorkspaceManager, designTimeRepository, user);
         userWorkspace.addWorkspaceListener(this);
         return userWorkspace;
-    }
-
-    public UserWorkspaceFactory getUserWorkspaceFactory() {
-        return userWorkspaceFactory;
-    }
-
-    public void setUserWorkspaceFactory(UserWorkspaceFactory userWorkspaceFactory) {
-        this.userWorkspaceFactory = userWorkspaceFactory;
     }
 
     /**
@@ -57,21 +57,26 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      * @return new or cached instance of user workspace
      */
     public UserWorkspace getUserWorkspace(WorkspaceUser user) {
-        UserWorkspace uw = userWorkspaces.get(user.getUserId());
-        if (uw == null) {
-            uw = createUserWorkspace(user);
-            userWorkspaces.put(user.getUserId(), uw);
+        var existing = userWorkspaces.get(user.getUserId());
+        if (existing != null) {
+            return existing;
         }
-
-        return uw;
+        // The creation (filesystem reads, a listener registration) runs under the map's lock on
+        // purpose: two concurrent first requests of one user must not build two workspaces. It
+        // happens once per user; the fast path above never takes the lock.
+        return userWorkspaces.computeIfAbsent(user.getUserId(), id -> createUserWorkspace(user));
     }
 
-    public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
-
-    public void setLocalWorkspaceManager(LocalWorkspaceManager localWorkspaceManager) {
-        this.localWorkspaceManager = localWorkspaceManager;
+    /**
+     * Returns the cached workspace of the user, or {@code null} when none exists yet.
+     *
+     * <p>Never creates one: a background caller does not know the user's full identity, and a
+     * workspace created from a bare user would be cached and then sign the real session's commits.
+     *
+     * @param userId the user id, as {@link WorkspaceUser#getUserId()} returns it
+     */
+    public UserWorkspace getUserWorkspaceIfCreated(String userId) {
+        return userWorkspaces.get(userId);
     }
 
     /**

@@ -8,7 +8,6 @@ import static org.springframework.security.web.context.HttpSessionSecurityContex
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ class SecurityContextHandshakeInterceptorTest {
     void storesHeaderAuthenticatedContextNotPresentInSession() {
         var auth = new UsernamePasswordAuthenticationToken("third-party", "n/a", List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
-        Map<String, Object> attributes = new HashMap<>();
+        var attributes = new HashMap<String, Object>();
 
         assertTrue(interceptor.beforeHandshake(null, null, null, attributes));
 
@@ -43,7 +42,7 @@ class SecurityContextHandshakeInterceptorTest {
         var anonymous = new AnonymousAuthenticationToken("key", "anonymousUser",
                 List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
         SecurityContextHolder.getContext().setAuthentication(anonymous);
-        Map<String, Object> attributes = new HashMap<>();
+        var attributes = new HashMap<String, Object>();
 
         interceptor.beforeHandshake(null, null, null, attributes);
 
@@ -54,7 +53,7 @@ class SecurityContextHandshakeInterceptorTest {
     void doesNotOverrideContextProvidedBySession() {
         var sessionContext = SecurityContextHolder.createEmptyContext();
         sessionContext.setAuthentication(new UsernamePasswordAuthenticationToken("session-user", "n/a", List.of()));
-        Map<String, Object> attributes = new HashMap<>();
+        var attributes = new HashMap<String, Object>();
         attributes.put(SPRING_SECURITY_CONTEXT_KEY, sessionContext);
 
         // A different context is in the holder; the session-provided one must win.
@@ -68,7 +67,7 @@ class SecurityContextHandshakeInterceptorTest {
 
     @Test
     void skipsWhenNoAuthentication() {
-        Map<String, Object> attributes = new HashMap<>();
+        var attributes = new HashMap<String, Object>();
 
         interceptor.beforeHandshake(null, null, null, attributes);
 
@@ -80,7 +79,7 @@ class SecurityContextHandshakeInterceptorTest {
         // Two-argument constructor produces a not-yet-authenticated token.
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken("user", "pw"));
-        Map<String, Object> attributes = new HashMap<>();
+        var attributes = new HashMap<String, Object>();
 
         interceptor.beforeHandshake(null, null, null, attributes);
 
@@ -91,7 +90,7 @@ class SecurityContextHandshakeInterceptorTest {
     void storedContextCarriesAuthentication() {
         var auth = new UsernamePasswordAuthenticationToken("third-party", "n/a", List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
-        Map<String, Object> attributes = new HashMap<>();
+        var attributes = new HashMap<String, Object>();
 
         interceptor.beforeHandshake(null, null, null, attributes);
 

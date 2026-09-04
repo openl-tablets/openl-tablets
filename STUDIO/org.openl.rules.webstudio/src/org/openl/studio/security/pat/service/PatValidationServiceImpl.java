@@ -128,7 +128,7 @@ public class PatValidationServiceImpl implements PatValidationService {
      * @return true if the token has an expiration date and it's in the past, false otherwise
      */
     private boolean isExpired(PersonalAccessToken token) {
-        Instant expiresAt = token.getExpiresAt();
+        var expiresAt = token.getExpiresAt();
         return expiresAt != null && expiresAt.isBefore(Instant.now(clock));
     }
 }

@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +28,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.model.scaffolding.PathInfo;
-import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
@@ -52,27 +49,27 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void testOpenAPIEmpty() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiNothingToGenerate.yaml");
+        var projectModel = converter.extractProjectModel("test.converter/paths/openapiNothingToGenerate.yaml");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         assertNull(generated.getAnnotationTemplateGroovyFile());
         assertTrue(generated.getGroovyCommonClasses().isEmpty());
     }
 
     @Test
     void testOpenAPIPathInfo() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/slashProblem.json");
+        var projectModel = converter.extractProjectModel("test.converter/paths/slashProblem.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
 
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
 
         assertEquals(2, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("apiTodo", Integer.class);
+        var method1 = interfaceClass.getDeclaredMethod("apiTodo", Integer.class);
         assertEquals(Integer.class, method1.getReturnType());
 
         assertEquals(4, method1.getDeclaredAnnotations().length);
@@ -82,7 +79,7 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertArrayEquals(new String[]{"text/html"}, method1.getAnnotation(Produces.class).value());
         assertEquals(0, method1.getParameters()[0].getDeclaredAnnotations().length);
 
-        Method method2 = interfaceClass.getDeclaredMethod("apiBla", Integer.class);
+        var method2 = interfaceClass.getDeclaredMethod("apiBla", Integer.class);
         assertEquals(SpreadsheetResult.class, method2.getReturnType());
 
         assertEquals(4, method2.getDeclaredAnnotations().length);
@@ -95,17 +92,17 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void testOpenAPIJavaInterfaceGenerator() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi.json");
+        var projectModel = converter.extractProjectModel("test.converter/paths/openapi.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
 
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
 
         assertEquals(4, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("apipolicyProxy2", Object[].class);
+        var method1 = interfaceClass.getDeclaredMethod("apipolicyProxy2", Object[].class);
         assertEquals(Object[].class, method1.getReturnType());
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
@@ -117,7 +114,7 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
         assertEquals("Policy", method1.getParameters()[0].getAnnotation(RulesType.class).value());
 
-        Method method2 = interfaceClass.getDeclaredMethod("apipolicyProxy3", Object.class, Object.class);
+        var method2 = interfaceClass.getDeclaredMethod("apipolicyProxy3", Object.class, Object.class);
         assertEquals(Object[].class, method2.getReturnType());
         assertEquals(5, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
@@ -131,7 +128,7 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(1, method2.getParameters()[1].getAnnotations().length);
         assertEquals("Policy", method2.getParameters()[1].getAnnotation(RulesType.class).value());
 
-        Method method3 = interfaceClass.getDeclaredMethod("apipolicyProxy", Object.class);
+        var method3 = interfaceClass.getDeclaredMethod("apipolicyProxy", Object.class);
         assertEquals(Object.class, method3.getReturnType());
         assertEquals(5, method3.getDeclaredAnnotations().length);
         assertNotNull(method3.getAnnotation(POST.class));
@@ -143,7 +140,7 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(1, method3.getParameters()[0].getAnnotations().length);
         assertEquals("Policy", method3.getParameters()[0].getAnnotation(RulesType.class).value());
 
-        Method method4 = interfaceClass.getDeclaredMethod("apidoSomething", Object.class);
+        var method4 = interfaceClass.getDeclaredMethod("apidoSomething", Object.class);
         assertEquals(SpreadsheetResult.class, method4.getReturnType());
         assertEquals(4, method4.getDeclaredAnnotations().length);
         assertNotNull(method4.getAnnotation(POST.class));
@@ -157,22 +154,22 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void testOpenAPIJavaInterfaceGeneratorPathParam() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiPathParam.yaml");
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var projectModel = converter.extractProjectModel("test.converter/paths/openapiPathParam.yaml");
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
-        Set<Class<?>> commonClasses = new HashSet<>();
+        var commonClasses = new HashSet<Class<?>>();
         for (GroovyScriptFile groovyScriptFile : generated.getGroovyCommonClasses()) {
-            Class<?> clazz = defineClass(groovyScriptFile.getScriptText());
+            var clazz = defineClass(groovyScriptFile.getScriptText());
             assertJavaClass(groovyScriptFile.getNameWithPackage(), clazz);
             if (!commonClasses.add(clazz)) {
                 fail("Duplicated class!");
             }
         }
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
 
-        Method method1 = interfaceClass.getDeclaredMethod("pet", long.class);
+        var method1 = interfaceClass.getDeclaredMethod("pet", long.class);
         assertEquals(Object.class, method1.getReturnType());
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(GET.class));
@@ -186,24 +183,24 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void testOpenAPIJavaInterfaceGeneratorExtraMeth() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiOnlyExtraMethod.json");
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var projectModel = converter.extractProjectModel("test.converter/paths/openapiOnlyExtraMethod.json");
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
-        Set<Class<?>> commonClasses = new HashSet<>();
+        var commonClasses = new HashSet<Class<?>>();
         for (GroovyScriptFile groovyScriptFile : generated.getGroovyCommonClasses()) {
-            Class<?> clazz = defineClass(groovyScriptFile.getScriptText());
+            var clazz = defineClass(groovyScriptFile.getScriptText());
             assertJavaClass(groovyScriptFile.getNameWithPackage(), clazz);
             if (!commonClasses.add(clazz)) {
                 fail("Duplicated class!");
             }
         }
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
 
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("policyProxy", Object.class, Object.class);
+        var method1 = interfaceClass.getDeclaredMethod("policyProxy", Object.class, Object.class);
         assertEquals(Object.class, method1.getReturnType());
         assertEquals(6, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
@@ -224,26 +221,26 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void testOpenAPIJavaInterfaceGeneratorRuntimeContext() throws Exception {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
-        Set<Class<?>> commonClasses = new HashSet<>();
+        var commonClasses = new HashSet<Class<?>>();
         for (GroovyScriptFile groovyScriptFile : generated.getGroovyCommonClasses()) {
-            Class<?> clazz = defineClass(groovyScriptFile.getScriptText());
+            var clazz = defineClass(groovyScriptFile.getScriptText());
             assertJavaClass(groovyScriptFile.getNameWithPackage(), clazz);
             if (!commonClasses.add(clazz)) {
                 fail("Duplicated class!");
             }
         }
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
 
         assertEquals(2, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass
+        var method1 = interfaceClass
                 .getDeclaredMethod("apiBla", Integer.class, String.class, Boolean.class, Boolean.class);
         assertEquals(Integer.class, method1.getReturnType());
         assertEquals(4, method1.getDeclaredAnnotations().length);
@@ -261,7 +258,7 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(1, method1.getParameters()[3].getAnnotations().length);
         assertEquals("someStep", method1.getParameters()[3].getAnnotation(Name.class).value());
 
-        Method method2 = interfaceClass.getDeclaredMethod("apiTodo1", IRulesRuntimeContext.class);
+        var method2 = interfaceClass.getDeclaredMethod("apiTodo1", IRulesRuntimeContext.class);
         assertEquals(Integer.class, method2.getReturnType());
         assertEquals(4, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
@@ -273,25 +270,25 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void EPBDS_10493() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi_EPBDS-10493.json");
+        var projectModel = converter.extractProjectModel("test.converter/paths/openapi_EPBDS-10493.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
-        Set<Class<?>> commonClasses = new HashSet<>();
+        var commonClasses = new HashSet<Class<?>>();
         for (GroovyScriptFile groovyScriptFile : generated.getGroovyCommonClasses()) {
-            Class<?> clazz = defineClass(groovyScriptFile.getScriptText());
+            var clazz = defineClass(groovyScriptFile.getScriptText());
             assertJavaClass(groovyScriptFile.getNameWithPackage(), clazz);
             if (!commonClasses.add(clazz)) {
                 fail("Duplicated class!");
             }
         }
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
 
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("DiscountPercentage", Object.class, Integer.class);
+        var method1 = interfaceClass.getDeclaredMethod("DiscountPercentage", Object.class, Integer.class);
         assertEquals(Double.class, method1.getReturnType());
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
@@ -303,16 +300,16 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void EPBDS_10962() throws Exception {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/paths/openapi_EPBDS-10962_generate.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("mySpr3", double.class, double.class, double.class);
+        var method1 = interfaceClass.getDeclaredMethod("mySpr3", double.class, double.class, double.class);
         assertEquals(Double.class, method1.getReturnType());
 
         assertEquals(3, method1.getDeclaredAnnotations().length);
@@ -322,17 +319,17 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
         assertEquals(1, method1.getParameters()[0].getDeclaredAnnotations().length);
 
-        ProjectModel projectModel2 = converter
+        var projectModel2 = converter
                 .extractProjectModel("test.converter/paths/openapi_EPBDS-10962_nothingToGenerate.json");
 
-        OpenAPIGeneratedClasses generated2 = new OpenAPIJavaClassGenerator(projectModel2).generate();
+        var generated2 = new OpenAPIJavaClassGenerator(projectModel2).generate();
         assertNull(generated2.getAnnotationTemplateGroovyFile());
         assertTrue(generated2.getGroovyCommonClasses().isEmpty());
     }
 
     @Test
     void resolveTypeTest() {
-        TypeInfo typeInfo = new TypeInfo("Policy", "Policy", TypeInfo.Type.DATATYPE);
+        var typeInfo = new TypeInfo("Policy", "Policy", TypeInfo.Type.DATATYPE);
         assertEquals(Object.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
         typeInfo.setDimension(1);
@@ -347,15 +344,15 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void test_EPBDS_10988() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
+        var projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("getTestData1", IRulesRuntimeContext.class, String.class);
+        var method1 = interfaceClass.getDeclaredMethod("getTestData1", IRulesRuntimeContext.class, String.class);
         assertEquals(Double.class, method1.getReturnType());
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
@@ -369,33 +366,33 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void test_mustNotGenerateInterface() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi_defaultContext.json");
+        var projectModel = converter.extractProjectModel("test.converter/paths/openapi_defaultContext.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         assertNull(generated.getAnnotationTemplateGroovyFile());
         assertTrue(generated.getGroovyCommonClasses().isEmpty());
     }
 
     @Test
     void test_DataTables() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
+        var projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         assertNull(generated.getAnnotationTemplateGroovyFile());
         assertTrue(generated.getGroovyCommonClasses().isEmpty());
     }
 
     @Test
     void test_DataTables2() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/data_tables/openapi_dataTables.json");
+        var projectModel = converter.extractProjectModel("test.converter/data_tables/openapi_dataTables.json");
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        GroovyScriptFile groovyFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyFile.getScriptText());
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var groovyFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyFile.getScriptText());
         assertInterfaceDescription(groovyFile.getNameWithPackage(), interfaceClass);
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("getPolicyData", IRulesRuntimeContext.class);
+        var method1 = interfaceClass.getDeclaredMethod("getPolicyData", IRulesRuntimeContext.class);
         assertEquals(Object[].class, method1.getReturnType());
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
@@ -408,25 +405,25 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void test_dataTablesAndRuntimeContextAndExtraMethod() throws Exception {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/data_tables/openapi_dataTablesAndRuntimeContextAndExtraMethod.json");
         assertSetEquals(toSet("getPolicyData"), projectModel.getIncludeMethodFilter());
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        Set<Class<?>> commonClasses = new HashSet<>();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var commonClasses = new HashSet<Class<?>>();
         for (GroovyScriptFile groovyScriptFile : generated.getGroovyCommonClasses()) {
-            Class<?> clazz = defineClass(groovyScriptFile.getScriptText());
+            var clazz = defineClass(groovyScriptFile.getScriptText());
             assertJavaClass(groovyScriptFile.getNameWithPackage(), clazz);
             if (!commonClasses.add(clazz)) {
                 fail("Duplicated class!");
             }
         }
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
         assertEquals(2, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("getPolicyData", IRulesRuntimeContext.class);
+        var method1 = interfaceClass.getDeclaredMethod("getPolicyData", IRulesRuntimeContext.class);
         assertEquals(Object[].class, method1.getReturnType());
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
@@ -436,7 +433,7 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertArrayEquals(new String[]{"multipart/form-data"}, method1.getAnnotation(Consumes.class).value());
         assertEquals(0, method1.getParameters()[0].getAnnotations().length);
 
-        Method method2 = interfaceClass.getDeclaredMethod("spr", Object.class);
+        var method2 = interfaceClass.getDeclaredMethod("spr", Object.class);
         assertEquals(Object.class, method2.getReturnType());
         assertEquals(6, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
@@ -452,7 +449,7 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void test_nameConflictTest() throws Exception {
-        ProjectModel projectModel = converter
+        var projectModel = converter
                 .extractProjectModel("test.converter/problems/EPBDS-10995_name_conflict.json");
         assertSetEquals(toSet("MyLovelySpreadsheet", "Party"), projectModel.getIncludeMethodFilter());
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -460,28 +457,28 @@ class OpenAPIGroovyScriptGeneratorTest {
                 .filter(model -> model.getName().equals("MyLovelySpreadsheet"))
                 .findFirst();
         assertTrue(optionalVM.isPresent());
-        SpreadsheetModel validationMessage = optionalVM.get();
+        var validationMessage = optionalVM.get();
         assertEquals(4, validationMessage.getSteps().size());
         assertEquals("SpreadsheetResult", validationMessage.getType());
         Optional<SpreadsheetModel> optionalParty = spreadsheetResultModels.stream()
                 .filter(spreadsheetModel -> spreadsheetModel.getName().equals("Party"))
                 .findFirst();
         assertTrue(optionalParty.isPresent());
-        SpreadsheetModel party = optionalParty.get();
+        var party = optionalParty.get();
         assertEquals("SpreadsheetResultMyLovelySpreadsheet[]", party.getType());
-        PathInfo pathInfo = party.getPathInfo();
+        var pathInfo = party.getPathInfo();
         assertEquals("[Lorg.openl.rules.calc.SpreadsheetResult;", pathInfo.getReturnType().getJavaName());
         List<StepModel> steps = party.getSteps();
         assertEquals(1, steps.size());
-        StepModel resultStep = steps.getFirst();
+        var resultStep = steps.getFirst();
         assertEquals("= new SpreadsheetResultMyLovelySpreadsheet[]{MyLovelySpreadsheet(null)}", resultStep.getValue());
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
-        Class<?> interfaceClass = defineClass(groovyScriptFile.getScriptText());
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
+        var interfaceClass = defineClass(groovyScriptFile.getScriptText());
         assertInterfaceDescription(groovyScriptFile.getNameWithPackage(), interfaceClass);
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
 
-        Method validationMessageMethod = interfaceClass.getDeclaredMethod("MyLovelySpreadsheet", Object.class);
+        var validationMessageMethod = interfaceClass.getDeclaredMethod("MyLovelySpreadsheet", Object.class);
         assertEquals(SpreadsheetResult.class, validationMessageMethod.getReturnType());
         assertEquals(4, validationMessageMethod.getDeclaredAnnotations().length);
         assertNotNull(validationMessageMethod.getAnnotation(POST.class));
@@ -496,10 +493,10 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     @Test
     void test_EPBDS_10979() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10979_extraSpr.json");
+        var projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10979_extraSpr.json");
         assertSetEquals(toSet("PlanDetails"), projectModel.getIncludeMethodFilter());
 
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         assertNull(generated.getAnnotationTemplateGroovyFile());
         assertTrue(generated.getGroovyCommonClasses().isEmpty());
     }
@@ -513,7 +510,7 @@ class OpenAPIGroovyScriptGeneratorTest {
 
     private Class<?> defineClass(String text) {
 
-        final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        final var oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(groovyClassLoader);
             return groovyClassLoader.parseClass(text);

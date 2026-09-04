@@ -2,6 +2,9 @@ package org.openl.excel.grid;
 
 import java.util.Date;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.DateUtil;
 
 import org.openl.excel.parser.TableStyles;
@@ -15,31 +18,18 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsUtil;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class ParsedCell implements ICell {
     private static final Object NOT_DEFINED = new Object();
+    @Getter
     private final int row;
+    @Getter
     private final int column;
     private final ParsedGrid grid;
     private Object value = NOT_DEFINED;
     private IGridRegion region;
 
     private transient TableStyles tableStyles;
-
-    ParsedCell(int row, int column, ParsedGrid grid) {
-        this.row = row;
-        this.column = column;
-        this.grid = grid;
-    }
-
-    @Override
-    public int getRow() {
-        return row;
-    }
-
-    @Override
-    public int getColumn() {
-        return column;
-    }
 
     @Override
     public int getAbsoluteRow() {
@@ -53,7 +43,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public IGridRegion getAbsoluteRegion() {
-        IGridRegion absoluteRegion = getRegion();
+        var absoluteRegion = getRegion();
         if (absoluteRegion == null) {
             absoluteRegion = new GridRegion(row, column, row, column);
         }
@@ -62,13 +52,13 @@ public class ParsedCell implements ICell {
 
     @Override
     public int getWidth() {
-        IGridRegion region = getRegion();
+        var region = getRegion();
         return region == null ? 1 : region.getRight() - region.getLeft() + 1;
     }
 
     @Override
     public int getHeight() {
-        IGridRegion region = getRegion();
+        var region = getRegion();
         return region == null ? 1 : region.getBottom() - region.getTop() + 1;
     }
 
@@ -87,7 +77,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public String getStringValue() {
-        Object value = getObjectValue();
+        var value = getObjectValue();
         if (value == null) {
             return null;
         } else  if (value instanceof Date date) {
@@ -119,7 +109,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public int getType() {
-        Object value = getObjectValue();
+        var value = getObjectValue();
         if (value == null) {
             return IGrid.CELL_TYPE_BLANK;
         } else if (value instanceof Boolean) {
@@ -149,7 +139,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public double getNativeNumber() {
-        Object value = getObjectValue();
+        var value = getObjectValue();
 
         if (value == null) {
             return 0.0;
@@ -163,13 +153,13 @@ public class ParsedCell implements ICell {
 
     @Override
     public boolean getNativeBoolean() {
-        Object value = getObjectValue();
+        var value = getObjectValue();
         return value != null && (Boolean) value;
     }
 
     @Override
     public Date getNativeDate() {
-        Object cellValue = getObjectValue();
+        var cellValue = getObjectValue();
 
         if (cellValue == null) {
             return null;
@@ -194,7 +184,7 @@ public class ParsedCell implements ICell {
 
     @Override
     public ICell getTopLeftCellFromRegion() {
-        IGridRegion region = getRegion();
+        var region = getRegion();
         return region == null ? this : grid.getCell(region.getLeft(), region.getTop());
     }
 

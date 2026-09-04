@@ -26,6 +26,11 @@ To sign in to OpenL Studio, proceed as follows:
 
 1.  Enter the user name and password provided by the system administrator and click **Sign in**.
 
+If the user profile does not contain an email address or display name, the **Complete Your Profile** window opens after
+authentication. Enter the required details and click **Save** to continue to OpenL Studio. First Name and Last Name are
+optional. The display name can be entered directly or generated from them. The same check runs when OpenL Studio
+automatically signs in the DEFAULT account in single-user mode.
+
 For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing Repository Editor](#introducing-repository-editor). For more information on the single and multi-user modes, see [Security Overview](introduction.md#security-overview).
 
 ### Modifying User Profile
@@ -63,11 +68,14 @@ To manage profile details, proceed as follows:
 3.  In the **Account** section, update the **Email** field as needed. The **Username** field is read-only.
 4.  In the **Name** section, update **First Name**, **Last Name**, and **Display Name** as needed.
 
-    If user data is synchronized from an external system such as Active Directory, the first name, last name, and display name fields are locked from editing, which is indicated by a tooltip icon next to the field label.
+    **Email** and **Display Name** are required and cannot be empty. **First Name** and **Last Name** are optional.
+
+    If user data is synchronized from an external system such as Active Directory, the email, first name, last name, and display name fields are locked from editing, which is indicated by a tooltip icon next to the field label.
 
     In single-user mode, all fields are editable. A field is locked only when its `security.single.*` property is defined by a more prioritized configuration source, such as a Java system property or an environment variable.
 
-    The **Display Name** field includes a format selector to choose how the name is displayed, with a preview shown alongside.
+    The **Display Name** field includes a format selector to generate the value from **First Name** and **Last Name** or
+    enter a custom value, with a preview shown alongside.
 
 5.  To change the password, in the **Change Password** section, enter the **Current Password**, **New Password**, and **Confirm Password** values.
 
@@ -220,10 +228,10 @@ The following table describes the Rules Editor toolbar controls:
 
 | Control                                                                                                                           | Description                                                                                                                                                                                                                                                                                                            |
 |-----------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](images/toolbar-more-options-icon.png)                                                                  | The following table describes the available options: <br/>- Revisions: displays project revisions. <br/>- Local Changes: opens a page for reverting module changes. <br/>- Table Dependencies: opens a graph displaying dependencies among tables of the module. <br/>- Compare Excel files: initiates a dialog for comparing Excel files. |
+| ![More options button](images/toolbar-more-options-icon.png)                                                                  | The following table describes the available options: <br/>- Revisions: displays project revisions. <br/>- Local Changes: opens a page for reverting module changes. <br/>- Table Dependencies: opens a graph displaying dependencies among tables of the module, including the data model, that is which data type extends which and which data type a field refers to. Every data type is drawn as an entity box listing the fields it declares, a vocabulary as a box listing its values, and the data model of each project is framed as an area of its own, apart from the tables that call each other. <br/>- Compare Excel files: initiates a dialog for comparing Excel files. |
 | ![](images/toolbar-search-icon.png)                                                                  | Runs a simple search. For more information on performing searches, see [Performing a Search](rules-editor.md#performing-a-search).                                                                                                                                                                                                    |
 | ![](images/toolbar-refresh-icon.png)                                                                  | Refreshes OpenL Studio with the latest changes in Excel files.                                                                                                                                                                                                                                              |
-| ![](images/toolbar-create-table-icon.png)                                                                  | Initiates the table creation wizard.                                                                                                                                                                                                                                                                                   |
+| ![](images/toolbar-create-table-icon.png)                                                                  | Opens the table creation window with an immediately editable table skeleton.                                                                                                                                                                                                                                            |
 | ![](images/toolbar-recently-viewed-icon.png)                                                                  | Displays recently viewed tables instead of the module tree.                                                                                                                                                                                                                                                            |
 | ![](images/toolbar-module-tree-icon.png)                                                                  | Returns to the module tree view.                                                                                                                                                                                                                                                                                       |
 | ![](images/toolbar-hide-comment-tables-icon.png)                                                                  | Hides comment tables and dispatcher tables generated automatically when a rule table is overloaded by business dimension property.                                                                                                                                                                                     |

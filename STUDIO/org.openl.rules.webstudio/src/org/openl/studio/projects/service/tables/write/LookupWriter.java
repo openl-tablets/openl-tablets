@@ -36,7 +36,7 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
     @Override
     protected void mergeHeaderCells(LookupView tableView) {
         if (!isUpdateMode()) {
-            int latestCol = tableView.headers.stream()
+            var latestCol = tableView.headers.stream()
                     .mapToInt(h -> Math.max(h.getWidth(), 1))
                     .sum();
             if (CollectionUtils.isNotEmpty(tableView.properties)) {
@@ -82,9 +82,9 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
                            List<LookupHeaderView> headers,
                            List<LinkedHashMap<String, Object>> rows,
                            int startRow) {
-        int rowNum = startRow;
+        var rowNum = startRow;
         for (var row : rows) {
-            int col = 0;
+            var col = 0;
             for (var header : headers) {
                 var values = extractValues(header, row);
                 for (var cellValue : values) {
@@ -102,10 +102,10 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
         if (header.children.isEmpty()) {
             values[0] = row.get(header.title);
         } else {
-            int index = 0;
-            Map<String, Object> subRow = (Map<String, Object>) row.get(header.title);
+            var index = 0;
+            var subRow = (Map<String, Object>) row.get(header.title);
             for (var child : header.children) {
-                Object[] childValues = extractValues(child, subRow);
+                var childValues = extractValues(child, subRow);
                 System.arraycopy(childValues, 0, values, index, childValues.length);
                 index += childValues.length;
             }
@@ -114,14 +114,14 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
     }
 
     private int writeSubHeader(IGridTable tableBody, List<LookupHeaderView>  headers, int fromCol, int fromRow) {
-        int col = fromCol;
-        int maxHeight = LookupHeaderView.getHeaderDepth(headers);
-        List<IGridRegion> mergeRegions = new ArrayList<>();
+        var col = fromCol;
+        var maxHeight = LookupHeaderView.getHeaderDepth(headers);
+        var mergeRegions = new ArrayList<IGridRegion>();
         for (var header : headers) {
             var width = header.getWidth();
-            int left = col;
-            int right = left + width - 1;
-            for (int c = left; c <= right; c++) {
+            var left = col;
+            var right = left + width - 1;
+            for (var c = left; c <= right; c++) {
                 createOrUpdateCell(tableBody, buildCellKey(c, fromRow), header.title);
             }
             if (!header.children.isEmpty()) {
@@ -148,10 +148,10 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var headerTable = LogicalTableHelper.logicalTable(tableBody.getRow(0));
-            List<LookupHeaderView> headers = LookupTableReader.buildHeaders(headerTable);
+            var headers = LookupTableReader.buildHeaders(headerTable);
 
             // Find the starting row for appending (after header rows and existing data)
-            int rowNum = IGridRegion.Tool.height(tableBody.getRegion());
+            var rowNum = IGridRegion.Tool.height(tableBody.getRegion());
 
             // Append new rows using shared logic
             writeRows(tableBody, headers, tableAppend.getRows(), rowNum);

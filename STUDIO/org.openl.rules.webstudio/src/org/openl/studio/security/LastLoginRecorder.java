@@ -26,7 +26,7 @@ public class LastLoginRecorder implements ApplicationListener<InteractiveAuthent
 
     @Override
     public void onApplicationEvent(InteractiveAuthenticationSuccessEvent event) {
-        String username = event.getAuthentication().getName();
+        var username = event.getAuthentication().getName();
         try {
             userManagementService.recordLastLoginTime(username);
         } catch (Exception e) {

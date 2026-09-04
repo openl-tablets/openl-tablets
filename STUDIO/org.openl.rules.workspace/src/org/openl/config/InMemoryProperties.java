@@ -35,7 +35,7 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
             return;
         }
 
-        String oldValue = propertyResolver.getProperty(key);
+        var oldValue = propertyResolver.getProperty(key);
         if (!value.equals(oldValue)) {
             reverts.remove(key);
             changes.put(key, value);
@@ -57,7 +57,7 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
 
     @Override
     public Map<String, String> getConfig() {
-        HashMap<String, String> config = new HashMap<>(changes);
+        var config = new HashMap<String, String>(changes);
         for (String revert : reverts) {
             config.put(revert, null);
         }
@@ -65,13 +65,13 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
     }
 
     private PropertyResolver createInMemoryPropertyResolver(PropertyResolver delegate) {
-        MutablePropertySources sources = new MutablePropertySources();
+        var sources = new MutablePropertySources();
         sources.addLast(new MapPropertySource("inMemoryMap", Collections.unmodifiableMap(changes)));
 
         if (!(delegate instanceof ConfigurableEnvironment configurableEnvironment)) {
             throw new IllegalArgumentException();
         }
-        MutablePropertySources delegateSources = configurableEnvironment.getPropertySources();
+        var delegateSources = configurableEnvironment.getPropertySources();
         delegateSources.forEach(propertySource -> {
             if (propertySource instanceof RefPropertySource) {
                 sources.addLast(new RefPropertySource(delegate, sources));

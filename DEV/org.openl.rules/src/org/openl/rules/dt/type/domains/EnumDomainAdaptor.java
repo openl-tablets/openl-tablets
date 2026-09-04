@@ -6,6 +6,9 @@ package org.openl.rules.dt.type.domains;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.domain.EnumDomain;
 import org.openl.ie.constrainer.IntVar;
 
@@ -14,6 +17,8 @@ import org.openl.ie.constrainer.IntVar;
  */
 public class EnumDomainAdaptor implements IDomainAdaptor {
 
+    @Getter
+    @Setter
     private Object[] values;
 
     public EnumDomainAdaptor(EnumDomain<?> domain) {
@@ -23,7 +28,7 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
     @Override
     public int getIndex(Object value) {
 
-        for (int i = 0; i < values.length; i++) {
+        for (var i = 0; i < values.length; i++) {
             if (values[i].equals(value)) {
                 return i;
             }
@@ -52,32 +57,24 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
         return values[index];
     }
 
-    public Object[] getValues() {
-        return values;
-    }
-
-    public void setValues(Object[] values) {
-        this.values = values;
-    }
-
     public int size() {
         return values.length;
     }
 
     @Override
     public IDomainAdaptor merge(IDomainAdaptor adaptor) {
-        EnumDomainAdaptor a = (EnumDomainAdaptor) adaptor;
+        var a = (EnumDomainAdaptor) adaptor;
 
-        Object[] v1 = getValues();
-        Object[] v2 = a.getValues();
+        var v1 = getValues();
+        var v2 = a.getValues();
 
-        HashSet<Object> set = new HashSet<>(v1.length + v2.length);
+        var set = new HashSet<Object>(v1.length + v2.length);
 
         set.addAll(Arrays.asList(v1));
 
         set.addAll(Arrays.asList(v2));
 
-        Object[] newValues = set.toArray();
+        var newValues = set.toArray();
 
         return new EnumDomainAdaptor(new EnumDomain<>(newValues));
 

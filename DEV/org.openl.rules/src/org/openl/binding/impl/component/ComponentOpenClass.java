@@ -3,6 +3,9 @@ package org.openl.binding.impl.component;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.OpenL;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -28,6 +31,7 @@ public class ComponentOpenClass extends ADynamicClass {
 
     private final DefaultInitializer init;
 
+    @Getter
     private final OpenL openl;
 
     public ComponentOpenClass(String name, OpenL openl) {
@@ -59,13 +63,9 @@ public class ComponentOpenClass extends ADynamicClass {
         return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
-    public OpenL getOpenl() {
-        return openl;
-    }
-
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        DynamicObject res = new DynamicObject(this);
+        var res = new DynamicObject(this);
         init.invoke(res, new Object[]{}, env);
         return res;
     }
@@ -136,13 +136,10 @@ public class ComponentOpenClass extends ADynamicClass {
         }
     }
 
+    @RequiredArgsConstructor
     public class GetOpenClass implements IOpenMethod {
 
         private final IOpenClass openClass;
-
-        public GetOpenClass(IOpenClass openClass) {
-            this.openClass = openClass;
-        }
 
         @Override
         public IOpenClass getDeclaringClass() {

@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 
 import org.openl.studio.projects.model.trace.DebugStatus;
@@ -32,13 +35,10 @@ class TraceDebuggerIntegrationTest {
     private static final long TIMEOUT = 5_000;
 
     /** A synthetic table: entering it is a frame, its body runs nested steps. */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class FakeTable implements Invokable<Object, IRuntimeEnv> {
         private final String uri;
         private final List<Consumer<IRuntimeEnv>> body = new ArrayList<>();
-
-        FakeTable(String uri) {
-            this.uri = uri;
-        }
 
         FakeTable cell(int row, int col) {
             body.add(env -> env.getTracer().invoke(new FakeCell(row, col, null), null, NO_PARAMS, env,
@@ -132,7 +132,7 @@ class TraceDebuggerIntegrationTest {
 
     private static String topRef(TraceDebugger debugger) {
         List<DebugFrame> stack = debugger.stack();
-        CurrentLocation location = stack.get(stack.size() - 1).getLocation();
+        CurrentLocation location = stack.getLast().getLocation();
         assertNotNull(location, "expected a current location");
         return location.ref();
     }
@@ -182,10 +182,10 @@ class TraceDebuggerIntegrationTest {
         assertEquals(2, captures.size(), "the watched cell computed once per T1 execution");
         assertEquals(List.of(0, 1), captures.stream().map(WatchCapture::instance).toList(),
                 "the two executions are numbered 0 and 1");
-        assertEquals("T1", captures.get(0).table());
-        assertEquals("T1#R0C0", captures.get(0).ref());
-        assertEquals("R0C0", captures.get(0).value(), "the fake cell returns its own ref as the value");
-        assertEquals(List.of("T0", "T1"), captures.get(0).path(), "the path runs from the root to the owning frame");
+        assertEquals("T1", captures.getFirst().table());
+        assertEquals("T1#R0C0", captures.getFirst().ref());
+        assertEquals("R0C0", captures.getFirst().value(), "the fake cell returns its own ref as the value");
+        assertEquals(List.of("T0", "T1"), captures.getFirst().path(), "the path runs from the root to the owning frame");
         assertFalse(debugger.isWatchTruncated());
     }
 
@@ -249,13 +249,13 @@ class TraceDebuggerIntegrationTest {
     @Test
     void profilingRetainsAReturnedSubCallUnderTheCallingCell() {
         TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
-        debugger.start("profiling-worker", null, true, true, program(debugger));
+        debugger.start("profiling-worker", null, true, true, false, program(debugger));
         try {
             runUntilSubCallReturned(debugger);
-            DebugFrame t0 = debugger.stack().get(0);
+            DebugFrame t0 = debugger.stack().getFirst();
             assertTrue(t0.getExecutedChildren().containsKey("R0C0"),
                     "the returned sub-call is retained under the cell that called it");
-            CallNode t1 = t0.getExecutedChildren().get("R0C0").get(0);
+            CallNode t1 = t0.getExecutedChildren().get("R0C0").getFirst();
             assertEquals("T1", t1.name());
             assertEquals(FrameKind.METHOD, t1.kind());
             assertEquals(List.of("R1C0"), t1.steps().stream().map(CallNode.Step::ref).toList());
@@ -270,7 +270,7 @@ class TraceDebuggerIntegrationTest {
         debugger.start("plain-worker", null, true, program(debugger));
         try {
             runUntilSubCallReturned(debugger);
-            assertTrue(debugger.stack().get(0).getExecutedChildren().isEmpty(),
+            assertTrue(debugger.stack().getFirst().getExecutedChildren().isEmpty(),
                     "off by default: a returned sub-call leaves no structure behind");
         } finally {
             debugger.terminate(TIMEOUT);
@@ -281,7 +281,7 @@ class TraceDebuggerIntegrationTest {
     void profilingKeepsTheWholeTreeWithTimingsAfterCompletion() {
         TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
         // No stop-at-entry, profiling on: it runs straight to completion, keeping the executed tree.
-        debugger.start("completed-tree-worker", null, false, true, program(debugger));
+        debugger.start("completed-tree-worker", null, false, true, false, program(debugger));
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
 
         CallNode tree = debugger.completedTree();
@@ -315,9 +315,35 @@ class TraceDebuggerIntegrationTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
         assertEquals(List.of("T0", "T1"), uris(debugger));
         assertNotNull(debugger.stack().get(1).getError(), "the throwing frame carries its error");
+        assertNotNull(debugger.stack().get(0).getError(),
+                "the live caller is stamped too, so inspecting it still reads the failure");
+        assertSame(debugger.stack().get(1).getError(), debugger.stack().get(0).getError(),
+                "every live frame shares the same throwable instance");
 
         // Resuming lets the exception propagate; the session ends in error (it does not re-break per frame).
         assertEquals(DebugStatus.ERROR, debugger.command(DebugCommand.RESUME, TIMEOUT));
+    }
+
+    @Test
+    void runningThroughErrorsKeepsTheExecutedTreeWithTheFailedBranch() {
+        FakeTable t1 = new FakeTable("T1").boom();
+        FakeTable t0 = new FakeTable("T0").call(t1);
+        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        DebugBody program = () -> run(debugger, t0);
+
+        // The business full run opts out of break-on-exception: instead of parking on the throwing frame, the
+        // error terminates the run, so the executed tree — with the failed branch — is kept for offline browsing.
+        debugger.setBreakOnErrors(false);
+        debugger.start("run-through-worker", null, false, true, false, program);
+
+        assertEquals(DebugStatus.ERROR, debugger.awaitInitialHalt(TIMEOUT),
+                "the error ends the run instead of suspending on it");
+        CallNode tree = debugger.completedTree();
+        assertNotNull(tree, "the executed tree outlives the failed run");
+        assertEquals("T0", tree.name());
+        List<String> children = tree.steps().stream()
+                .flatMap(step -> step.children().stream()).map(CallNode::name).toList();
+        assertEquals(List.of("T1"), children, "the branch that failed is retained in the tree");
     }
 
     @Test
@@ -332,7 +358,7 @@ class TraceDebuggerIntegrationTest {
 
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
         assertEquals(List.of("DT"), uris(debugger));
-        CurrentLocation location = debugger.stack().get(0).getLocation();
+        CurrentLocation location = debugger.stack().getFirst().getLocation();
         assertNotNull(location, "expected a current location");
         assertEquals("R3", location.label(), "suspended at the fired rule");
 
@@ -362,7 +388,7 @@ class TraceDebuggerIntegrationTest {
 
         // R1 fires first but is not the named rule, so execution runs on to R2.
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
-        CurrentLocation location = debugger.stack().get(0).getLocation();
+        CurrentLocation location = debugger.stack().getFirst().getLocation();
         assertNotNull(location, "expected a current location");
         assertEquals("R2", location.label(), "stopped at R2, not R1");
 
@@ -412,19 +438,19 @@ class TraceDebuggerIntegrationTest {
 
         // At the first cell, suspended before it computes: nothing recorded yet.
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
-        assertTrue(debugger.stack().get(0).getExecutedSteps().isEmpty());
+        assertTrue(debugger.stack().getFirst().getExecutedSteps().isEmpty());
 
         // The first cell's formula calls a table: at that call's entry the cell is still executing.
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
-        assertTrue(debugger.stack().get(0).getExecutedSteps().isEmpty(),
+        assertTrue(debugger.stack().getFirst().getExecutedSteps().isEmpty(),
                 "a cell still running its formula is not executed yet");
 
         // Once the call returns and the cell completes, its value is recorded — visible at the next cell.
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, TIMEOUT));
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
-        DebugFrame root = debugger.stack().get(0);
+        DebugFrame root = debugger.stack().getFirst();
         assertFalse(root.getExecutedSteps().isEmpty(), "the executed cell must be recorded");
-        DebugFrame.ExecutedStep first = root.getExecutedSteps().get(0);
+        DebugFrame.ExecutedStep first = root.getExecutedSteps().getFirst();
         assertEquals("R0C0", first.ref());
         assertEquals("R0C0", first.value());
 

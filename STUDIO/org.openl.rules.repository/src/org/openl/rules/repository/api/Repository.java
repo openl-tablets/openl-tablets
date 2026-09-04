@@ -199,6 +199,10 @@ public interface Repository extends AutoCloseable {
     /**
      * Save the folder.
      *
+     * <p>The files come as a single pass, and one of them can be read only while it is the file at hand:
+     * they may all be read from one open archive. Each file must therefore be written as it is taken. A
+     * file kept aside until the whole set is known is read empty by then.
+     *
      * @param folderData    folder descriptor
      * @param files         all files inside the folder recursively or only changed (modified, added, deleted) files depending
      *                      on changesetType

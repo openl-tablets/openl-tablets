@@ -19,7 +19,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
-import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -63,7 +62,7 @@ class RulesProjectLifecycleTest {
         designRepository.setRoot(designRoot);
         designRepository.setId("design");
         designRepository.initialize();
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(PROJECT + "/rules/Main.xlsx");
         designRepository.save(fileData, stream("design content"));
 
@@ -75,13 +74,13 @@ class RulesProjectLifecycleTest {
 
     @Test
     void openCapturesSnapshotAndCloseRemovesIt() throws Exception {
-        RulesProject project = createProject();
+        var project = createProject();
 
         project.open();
 
         assertTrue(project.isOpened());
         assertFalse(project.isModified(), "A freshly opened project has no local changes.");
-        ProjectMetainfo metainfo = registry.get(PROJECT);
+        var metainfo = registry.get(PROJECT);
         assertNotNull(metainfo);
         assertEquals("design", metainfo.repositoryId());
         var baseline = metainfo.files().get("/rules/Main.xlsx");
@@ -98,12 +97,12 @@ class RulesProjectLifecycleTest {
 
     @Test
     void editingIsTrackedWithoutTouchingTheRecord() throws Exception {
-        RulesProject project = createProject();
+        var project = createProject();
         project.open();
-        Path record = userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
+        var record = userDir.resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
         var recordBytes = Files.readAllBytes(record);
 
-        FileData change = new FileData();
+        var change = new FileData();
         change.setName(PROJECT + "/rules/Main.xlsx");
         localRepository.save(change, stream("edited content!"));
 
@@ -117,9 +116,9 @@ class RulesProjectLifecycleTest {
 
     @Test
     void closeRemovesRelocatedEditHistory() throws Exception {
-        RulesProject project = createProject();
+        var project = createProject();
         project.open();
-        Path history = userDir.resolve(".history").resolve(PROJECT).resolve("Main.xlsx");
+        var history = userDir.resolve(".history").resolve(PROJECT).resolve("Main.xlsx");
         Files.createDirectories(history);
         Files.writeString(history.resolve("123_current"), "history entry");
 
@@ -129,8 +128,26 @@ class RulesProjectLifecycleTest {
                 "The project edit history must leave the workspace together with the project.");
     }
 
+    @Test
+    void designProjectNameDoesNotUseTheOpenedLocalFolderName() {
+        var localData = new FileData();
+        localData.setName("Pricing");
+        var designData = new FileData();
+        designData.setName("DESIGN/Pricing:0123456789");
+        var project = new RulesProject(
+                new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
+                localRepository,
+                localData,
+                designRepository,
+                designData,
+                new DummyLockEngine());
+
+        assertEquals("Pricing", project.getName());
+        assertEquals("Pricing:0123456789", project.getDesignProjectName());
+    }
+
     private RulesProject createProject() throws IOException {
-        FileData designData = designRepository.check(PROJECT);
+        var designData = designRepository.check(PROJECT);
         return new RulesProject(new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
                 localRepository,
                 null,

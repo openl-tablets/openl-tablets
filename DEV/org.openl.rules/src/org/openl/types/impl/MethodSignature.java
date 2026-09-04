@@ -40,7 +40,7 @@ public class MethodSignature implements IMethodSignature {
     @Override
     public IOpenClass[] getParameterTypes() {
         IOpenClass[] parameterTypes = new IOpenClass[parameters.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
+        for (var i = 0; i < parameterTypes.length; i++) {
             parameterTypes[i] = parameters[i].getType();
         }
         return parameterTypes;
@@ -66,7 +66,7 @@ public class MethodSignature implements IMethodSignature {
         if (array2 == null || array2.length == 0) {
             return array1;
         }
-        int newSize = array1.length + array2.length;
+        var newSize = array1.length + array2.length;
 
         IParameterDeclaration[] newArray = new IParameterDeclaration[newSize];
         System.arraycopy(array1, 0, newArray, 0, array1.length);

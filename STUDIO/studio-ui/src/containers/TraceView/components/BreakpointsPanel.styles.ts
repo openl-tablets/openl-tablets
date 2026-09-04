@@ -7,14 +7,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
-    header: css`
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-size: ${token.fontSizeSM}px;
-        font-weight: 600;
-        color: ${token.colorTextTertiary};
-        padding: ${token.paddingXS}px ${token.paddingSM}px ${token.paddingXXS}px;
-    `,
     addBreakpoint: css`
         width: calc(100% - ${token.paddingSM * 2}px);
         margin: 0 ${token.paddingSM}px ${token.marginXS}px;

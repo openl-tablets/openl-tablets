@@ -3,7 +3,6 @@ package org.openl.studio.projects.service.tables.read;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -96,7 +95,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         super.initialize(builder, openLTable);
         builder.pos(openLTable.getUriParser().getRange());
         var metaInfoReader = openLTable.getSyntaxNode().getMetaInfoReader();
-        int fullHeight = openLTable.getGridTable().getHeight();
+        var fullHeight = openLTable.getGridTable().getHeight();
         // Crop from startRow first; TableModel then caps maxRows rows from the slice top. Both act on the grid
         // region, so rows outside the window are never materialised and cell addresses stay absolute.
         var gridTable = sliceFrom(openLTable.getGridTable(), startRow);
@@ -150,19 +149,19 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      */
     private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel,
             Function<ICell, Object> cellValueReader, boolean withStyles) {
-        List<List<RawTableCell>> matrix = new ArrayList<>();
+        var matrix = new ArrayList<List<RawTableCell>>();
 
         var cells = tableModel.getCells();
-        int height = tableModel.getHeight();
+        var height = tableModel.getHeight();
         int width = height > 0 ? cells[0].length : 0;
 
         // Track which cells have already been covered as merged cells
-        Set<CellRef> coveredCells = new HashSet<>();
+        var coveredCells = new HashSet<CellRef>();
 
-        for (int row = 0; row < height; row++) {
-            List<RawTableCell> rowCells = new ArrayList<>();
+        for (var row = 0; row < height; row++) {
+            var rowCells = new ArrayList<RawTableCell>();
 
-            for (int col = 0; col < width; col++) {
+            for (var col = 0; col < width; col++) {
                 if (coveredCells.contains(new CellRef(row, col))) {
                     // This cell was already covered as part of a merged region (covered by another cell's span)
                     rowCells.add(RawTableCell.COVERED_CELL);
@@ -172,13 +171,13 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 var cm = (CellModel) cells[row][col];
                 // Extract cell value
                 var cell = tableModel.getGridTable().getCell(cm.getColumn(), cm.getRow());
-                Object value = cellValueReader.apply(cell);
+                var value = cellValueReader.apply(cell);
                 // Cell address in A1 notation, matching the address reported by compilation messages
                 var cellAddress = cell.getUri();
 
                 // Check for merging
-                int rowspan = cm.getRowspan();
-                int colspan = cm.getColspan();
+                var rowspan = cm.getRowspan();
+                var colspan = cm.getColspan();
 
                 var rawCell = RawTableCell.builder()
                         .cell(cellAddress)
@@ -190,8 +189,8 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
                 if (colspan > 1 || rowspan > 1) {
                     // Mark spanned cells as covered
-                    for (int r = row; r < row + rowspan && r < height; r++) {
-                        for (int c = col; c < col + colspan && c < width; c++) {
+                    for (var r = row; r < row + rowspan && r < height; r++) {
+                        for (var c = col; c < col + colspan && c < width; c++) {
                             if (r > row || c > col) {
                                 coveredCells.add(new CellRef(r, c));
                             }
@@ -209,9 +208,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     /** The cell's Excel style, or {@code null} when every attribute is at its default. */
     private static @Nullable RawTableCellStyle styleOf(CellModel cm) {
-        ICellFont font = cm.getFont();
+        var font = cm.getFont();
 
-        RawTableCellStyle style = RawTableCellStyle.builder()
+        var style = RawTableCellStyle.builder()
                 .background(nonDefault(cm.getRgbBackground(), "#ffffff"))
                 .color(font == null ? null : nonDefault(font.getFontColor(), "#000000"))
                 .align(horizontalAlign(cm.getHalign()))
@@ -263,11 +262,11 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     /** The cell's borders per side, or {@code null} when the cell has no border on any side. */
     private static @Nullable RawTableCellBorder borderOf(CellModel cm) {
-        BorderStyle[] sides = cm.getBorderStyle();
+        var sides = cm.getBorderStyle();
         if (sides == null) {
             return null;
         }
-        RawTableCellBorder border = RawTableCellBorder.builder()
+        var border = RawTableCellBorder.builder()
                 .top(borderSide(sides, ICellStyle.TOP))
                 .right(borderSide(sides, ICellStyle.RIGHT))
                 .bottom(borderSide(sides, ICellStyle.BOTTOM))
@@ -281,11 +280,11 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         if (side >= sides.length) {
             return null;
         }
-        BorderStyle bs = sides[side];
+        var bs = sides[side];
         if (bs == null || bs == BorderStyle.NONE || bs.getWidth() == 0) {
             return null;
         }
-        RawTableBorderLineStyle style = switch (bs.getStyle() == null ? "solid" : bs.getStyle()) {
+        var style = switch (bs.getStyle() == null ? "solid" : bs.getStyle()) {
             case "dashed" -> RawTableBorderLineStyle.DASHED;
             case "dotted" -> RawTableBorderLineStyle.DOTTED;
             case "double" -> RawTableBorderLineStyle.DOUBLE;
@@ -300,7 +299,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
             return null;
         }
         // Mask each component to an unsigned byte so a negative short never sign-extends to 8 hex digits.
-        String hex = String.format("#%02x%02x%02x", rgb[0] & 0xff, rgb[1] & 0xff, rgb[2] & 0xff);
+        String hex = "#%02x%02x%02x".formatted(rgb[0] & 0xff, rgb[1] & 0xff, rgb[2] & 0xff);
         return hex.equals(defaultHex) ? null : hex;
     }
 

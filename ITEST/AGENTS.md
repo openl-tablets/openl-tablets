@@ -8,7 +8,7 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 - **itest.smoke** — Base minimal Rule Services tests
 - **itest.WebService** — Main Rule Services test suite (largest)
 - **itest.security** — Authentication/authorization tests
-- **itest.webstudio** — OpenL Studio E2E tests
+- **itest.studio/** — OpenL Studio E2E tests split into independent per-suite modules (parallelizable with `-T 1C`)
 - **itest.kafka.smoke** — Kafka integration
 - **itest.s3** — S3 storage
 - **itest.tracing** — OpenTelemetry
@@ -17,6 +17,7 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 - **itest.spring-boot** — Spring Boot integration
 - **itest.deployment-filter** — Deployment filtering
 - **itest.BigServiceDeploy** — Large service deployment
+- **itest.ruleServices-memory** — Rule Services compilation under a fixed heap limit
 - **itest.ruleServices-large-response** — Large response handling
 - **itest.local-zip-repository** — ZIP repository tests
 - **itest.unpackClasspathJar** / **itest.unpackClasspathZip** — Classpath unpacking
@@ -24,18 +25,47 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 
 ## Rebuilding the App Under Test
 
-ITEST serves the **exploded** webapp directory, not the `.war`: `itest.webstudio` →
-`STUDIO/org.openl.rules.webstudio/target/webapp`, `itest.WebService` →
-`WSFrontend/org.openl.rules.ruleservice.ws/target/webapp`, both via embedded Jetty. ITEST does **not**
-rebuild STUDIO/WSFrontend — rebuild the module yourself before running a suite.
+Each suite declares the application it boots as a test-scoped `<type>war</type>` dependency
+(`org.openl.rules.ruleservice.ws`, `org.openl.rules.ruleservice.ws.all`, or `org.openl.rules.webstudio`).
+The `unpack-webapp` execution in `ITEST/pom.xml` unpacks it into the suite's own `target/webapp` before
+tests — so no suite reads another module's `target/`, and a parallel or interrupted application build
+cannot corrupt a running suite.
 
-- Use `mvn clean install -pl <module> -DskipTests -DnoPerf`. **`clean` is mandatory whenever you delete or
-  rename a class.** A plain `mvn install` is incremental: it overwrites changed `.class` files in
-  `target/webapp` but never deletes ones whose source is gone. A leftover non-permitted subclass of a
-  `sealed` interface (e.g. an old record variant) then breaks class loading and the app never starts.
-- Never `-Dquick` for the webapp — it omits runtime jars (e.g. `log4j-core`) and the app won't start.
-- **Symptom of a stale or broken webapp:** the run hangs far past its usual ~2 min with **zero** files
-  under `target/responses/`. The server isn't answering — kill it, rebuild with `clean`, re-run.
+- **One-command run:** `mvn verify -pl ITEST/<suite> -am` — rebuilds the war from source in the same
+  reactor; always fresh, but heavy because it pulls the whole application chain.
+- **Iterating on application code:** `mvn install -pl <app-module> -DskipTests -DnoPerf` once, then re-run
+  the suite alone with `mvn test -pl ITEST/<suite>` — it resolves the freshly installed SNAPSHOT war.
+  **`clean` the application module whenever you delete or rename a class**: the war plugin only overlays
+  `target/webapp`, so a leftover `.class` file (e.g. an old non-permitted subclass of a `sealed`
+  interface) gets zipped into the war and breaks class loading.
+- **Freshness:** a rebuilt war is re-unpacked automatically (the unpack markers compare timestamps); a
+  missing war fails the suite loudly at dependency resolution. `mvn clean` on the suite forces a fresh
+  webapp copy.
+- **`-Dunpack-webapp.skip=true`** skips the webapp unpacking — for builds that compile the suites without
+  running them (e.g. the CI coverage-aggregation job).
+- **`-DskipTests`** removes the whole ITEST subtree (and the archetypes) from the reactor via the root
+  `itest` profile; `-Pitest` forces it back in — the CI coverage-aggregation job does this.
+
+## Container Images
+
+Most TestContainers images float on rolling tags **on purpose** — a new upstream release that breaks
+OpenL should surface in CI as early as possible, not months later at a manual version bump:
+
+- `apache/kafka-native:latest` — Kafka broker (`itest.kafka.smoke`)
+- `quay.io/keycloak/keycloak:latest` — Keycloak SSO identity provider (`itest.studio/sso`)
+- `mcr.microsoft.com/azure-sql-edge:latest`, `mysql:lts`, `postgres:alpine`,
+  `gvenzl/oracle-free:slim-faststart` — RDBMS backends (`itest.studio/acl`, the `*RdbmsTest` classes)
+- `S3MockContainer("latest")` — Adobe S3Mock (`itest.s3`, `itest.studio/sso`)
+
+> [!Note]
+> A suite that starts failing right after an upstream image release is a real incompatibility signal, not flake. Investigate and adapt OpenL (or report upstream) — do not silence it by pinning the tag.
+
+The one **deliberately pinned** image is `openltablets/webstudio:6.0.0` in `AbstractRdbmsTest`: it is the
+fixed previous-release baseline the database-migration tests upgrade *from*, so it must not move.
+
+The `*RdbmsTest` classes run **only on CI** — they are gated on the `CI` environment variable (set by
+GitHub Actions, GitLab CI, and others) and therefore skip on a local build. To run one locally, set
+`CI=true` (and do not pass `-DnoDocker`).
 
 ## Declarative HTTP Testing (*.req / *.resp)
 
@@ -101,19 +131,65 @@ Header-Name: value
 &filename.ext
 ```
 
+The path is relative to the folder of the `.req`/`.resp` file, so `&../shared.zip` reaches a fixture kept at the
+suite root. A reference works as one part of a `multipart/form-data` body, and as a whole body whose length the
+framework itself determines — whatever the content type, a workbook sent as `application/octet-stream` included.
+A body that declares its own framing (`Content-Length` or `Transfer-Encoding: chunked`) is taken literally,
+because a declared length cannot be honored by a file whose size is unknown until it is read. A `.resp` is the
+exception: whatever its framing, an expected body that is nothing but a reference is resolved before the content
+type decides how to compare it.
+
+> [!Note]
+> A body of a **blob** content type (`application/zip`) must end with the reference line itself: anything after it,
+> including the customary trailing blank line, is reported as `Unexpected content`.
+
 ### Special Headers
 
 - `X-OpenL-Test-Retry: yes` — retry for up to 2 minutes on mismatch (100ms delays)
 - `X-OpenL-Test-Timeout: 30000` — custom timeout in ms
 
+Retry is what makes a step wait for the cross-branch project index (see
+[`Docs/architecture/cross-branch-projects.md`](../Docs/architecture/cross-branch-projects.md)). Project creation,
+deletion and branch operations all wait for the index themselves and answer only once it published, so a step that
+follows one of them needs no retry. Two writes do not wait, and the step reading their outcome must retry:
+
+- a file written through the repository files API (`POST /repos/{repo}/files/...`) — it plants or removes a project
+  without going through project creation, so the index learns of it through repository change monitoring;
+- a settings commit (`PATCH /admin/settings/...`) — it republishes the configuration, and the index starts over.
+  Its first published snapshot maps the base branch, so a project living only outside the base branch stays
+  invisible until the whole scan completes.
+
+Without a retry such a step reads the state of the moment it happened to arrive in: too early, and a project is
+missing, or its identity resolves to nothing at all.
+
 ### Environment Variables
 
-Values come from `itest.env` files (loaded hierarchically per folder) and `HttpClient.localEnv` (set programmatically, highest priority). Two substitution syntaxes apply:
+Values come from `itest.env` files (loaded hierarchically per folder) and `HttpClient.localEnv` (set programmatically,
+highest priority). Two substitution syntaxes apply:
 
-- `${VAR}` — in **header values** (e.g. `Authorization: ${TOKEN}`); an undefined variable fails the request.
-- `{VAR}` — in the **request URL path** (e.g. `PUT /rest/repos/design/projects/{PROJECT}`); an undefined variable is left as-is.
+- `${VAR}` — in **header values** and unencoded textual request bodies (JSON, XML, URL-encoded forms and `text/*`);
+  an undefined variable fails the request. Text bodies use the charset declared by `Content-Type`, or UTF-8 when it
+  is absent. Bodies without placeholders and bodies with `Content-Encoding` are preserved byte-for-byte.
+- `{VAR}` — in the **request URL path** (e.g. `PUT /rest/repos/design/projects/{PROJECT}`); an undefined variable
+  is left as-is.
 
 This lets one shared `.req`/`.resp` folder drive several projects/users by changing only `localEnv` between runs.
+
+### Capturing Response Values
+
+An optional `.env` file with the same basename as a `.req`/`.resp` pair captures scalar values from a successful JSON
+response. Each entry maps an environment variable to a JSONPath expression:
+
+```properties
+# 040-get-history.env accompanies 040-get-history.req and 040-get-history.resp
+INITIAL_REVISION=$.content[0].revisionNo
+```
+
+The captured value is available to later requests in the same first-level test folder. Captured values override
+hierarchical `itest.env` values, while programmatic `HttpClient.localEnv` values keep the highest priority. A missing
+value or an expression selecting an object or array fails the test instead of leaving a stale variable in use.
+Response content encoding is decoded before evaluating JSONPath, including layered, case-insensitive `gzip` and
+`x-gzip` JSON responses whose comma-separated encoding names contain surrounding whitespace.
 
 ### Cookie/Session Handling
 
@@ -150,6 +226,7 @@ Each test suite (typically one `task_EPBDS-NNNNN/` folder per ticket) **MUST** f
 
 ```
 task_EPBDS-NNNNN/
+├── README.md                    # Brief test-case description (optional)
 ├── itest.env                    # Per-suite environment variables
 ├── 010-setup/                   # Bring the system to the state under test
 │   ├── 010-initialize-project.req/.resp
@@ -162,6 +239,8 @@ task_EPBDS-NNNNN/
     └── 020-delete-project.req/.resp
 ```
 
+- `README.md` — optional; briefly describes the covered test case and its expected outcome. It can be placed in
+  the suite folder or an individual scenario folder.
 - `010-setup/` — first folder; pushes projects, opens them, seeds users/branches, etc.
 - `0X0-<scenario>/` — one folder per scenario, numbered `020`, `030`, … in execution order. Steps inside a scenario start at `010` and increment by `010`.
 - `999-tierdown/` — last folder (spelled `tierdown` to match the existing tree); closes/deletes projects and restores shared state so later suites start clean.
@@ -174,12 +253,29 @@ When a test fails, the framework saves the actual response body to `target/respo
 
 Compare `target/responses/<path>/<name>.req.body` (actual body) with the corresponding `test-resources/<path>/<name>.resp` (expected response with headers).
 
+### Application State Left in `target`
+
+The application under test keeps its state — repositories, workspaces, the database — in `openl.home`, configured
+by the root `pom.xml` as `target/openl-test-${openl.start.milli}`. The placeholder is resolved by the application
+at its own start, so a suite that starts the application several times leaves a home per start, and the homes of
+earlier runs stay until `mvn clean`. Look into them when a suite fails on repository or workspace state.
+
+- Git marks the objects it writes read-only, and on Windows that attribute alone forbids deletion, so
+  `mvn clean` used to fail on the first object it met. `DeletableHomeListener` in `server-core` clears the
+  attribute when a run ends — the files stay, only their attribute changes.
+- The listener is registered through `META-INF/services`, so a new suite needs no wiring of its own; it only
+  needs `server-core` on its test classpath, which every suite already has.
+- A suite that has to put a file into the home **before** the application starts resolves the placeholder
+  itself, creates the directory and re-sets the `openl.home` system property to the resolved path — see
+  `itest.studio/demo`, which seeds the settings file a first start of the DEMO package meets. Keep the
+  resolved name under `target`, so the listener above still meets it.
+
 ### Updating Expected OpenAPI Responses
 
 When REST controllers or OpenAPI annotations change, the large OpenAPI `.resp` files need updating. Key files:
 
-- `itest.webstudio/test-resources-simple/openapi.json.resp`
-- `itest.webstudio/test-resources-multi/000-openapi.json.resp`
+- `itest.studio/simple/test-resources-simple/openapi.json.resp`
+- `itest.studio/multi/test-resources/000-openapi.json.resp`
 
 **Procedure:**
 
@@ -191,13 +287,21 @@ When REST controllers or OpenAPI annotations change, the large OpenAPI `.resp` f
 
 **Pitfalls:**
 
-- Files use CRLF — read/write as binary with `\r\n` splits
+- Read and write as binary, splitting on `\r\n` (the files are CRLF — see Line Endings)
 - JSON keys like `/projects/{projectId}` contain literal `{}` — when counting braces to find block boundaries, skip characters inside quoted strings
 - Verify the resulting JSON is valid before running tests
 
 ## Java-Driven Tests
 
 Some flows need logic the declarative framework can't express (WebSocket streams, async waits, computed assertions). Write a JUnit class in `test/` and drive the server through `HttpClient`: `getForObject` / `postForObject` for ad-hoc calls, or `client.test(folder)` to replay a `.req`/`.resp` folder for setup.
+
+### Deploying under a context path
+
+`JettyServer.get().withContextPath("/openl-studio")` deploys the webapp under a context path instead of the server
+root, and every `.req` URL then carries that prefix. Use it for what only a non-root deployment reaches — a page
+that builds absolute links, or the context root requested **without** the trailing slash, which reaches a `/*`
+servlet with no path info at all. The container does not answer that request itself, exactly as a container that
+maps the context root to a servlet does.
 
 ### One server per class (performance)
 
@@ -208,7 +312,7 @@ Starting the embedded Jetty + Spring context costs several seconds. Start it **o
 private static final HttpClient client = JettyServer.get().withProfile("multi").start();
 ```
 
-Share one server and isolate state instead of restarting — e.g. give each parameterized case its own project via a `{PROJECT}` URL placeholder set through `client.localEnv`. Keep handshake-auth negative tests (which must run with no session) in a **separate class** from tests that log in, because the `HttpClient` session cookie persists across calls within a class.
+Share one server and isolate state instead of restarting — e.g. give each parameterized case its own project via a `{PROJECT}` URL placeholder set through `client.localEnv`. Keep no-session handshake-auth negative tests in a **separate class** from login tests, because the `HttpClient` session cookie persists across calls within a class.
 
 ### WebSocket / STOMP
 

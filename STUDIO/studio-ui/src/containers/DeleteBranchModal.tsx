@@ -2,36 +2,46 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Modal, Space, Spin, Typography } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useGlobalEvents } from '../hooks'
+import { useCommitInfoGuard, useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import { deleteBranch } from '../services/branches'
+import { encodeProjectId, toUrlSafeId } from '../services/projectId'
 import { ProjectStatus } from '../constants/project'
 
-const CHECK_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
+// Only reads here — a project fetch and a merge check — so the merge-check POST must not drop the snapshot.
+const CHECK_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
 
 /**
- * Encode a project identifier for use in a URL path segment. Uses the URL-safe Base64
- * alphabet ('-'/'_' instead of '+'/'/') so the id never contains a slash, which servlet
- * containers reject when percent-encoded. The backend {@code ProjectIdModel.decode}
- * accepts this form.
- */
-const encodeProjectId = (repositoryId: string, projectName: string): string =>
-    btoa(`${repositoryId}:${projectName}`).replaceAll('+', '-').replaceAll('/', '_')
-
-/**
- * Detail passed from the legacy JSF page via the {@code openDeleteBranchModal} event.
+ * Detail passed with the {@code openDeleteBranchModal} event by whoever opens the dialog.
  *
- * {@code modified} and {@code mergedIntoMain} are resolved by the modal itself through the
- * projects and merge REST APIs; only the cheap identifiers and the main branch name (from
- * the RichFaces controller) are supplied here.
+ * {@code modified} and {@code mergedIntoMain} are resolved by the modal itself through the projects and merge
+ * REST APIs. Everything the opener already read — the identifiers, the main branch, the branch marks — is
+ * supplied here rather than fetched a second time.
  */
 export interface DeleteBranchModalDetail {
+    /** The project's own id, as the server issued it. */
+    projectId?: string
     repositoryId: string
     projectName: string
     branch: string
     mainBranch?: string
+    /** Whether the branch is protected; deleting one asks the server for the protection bypass. */
+    branchProtected?: boolean
+    /** Whether this is the only branch holding the project, so deleting it deletes the project. */
+    lastBranch?: boolean
     onSuccess?: () => void
 }
+
+/**
+ * The project id every request of this dialog puts in its URL path, in the URL-safe Base64 alphabet.
+ *
+ * An id saved before the server switched to that alphabet is normalized here, as it is everywhere else. An
+ * opener that knows only the repository and the project name gets the id rebuilt from them.
+ */
+const resolveProjectId = (detail: DeleteBranchModalDetail): string =>
+    detail.projectId
+        ? toUrlSafeId(detail.projectId)
+        : encodeProjectId(detail.repositoryId, detail.projectName)
 
 /**
  * DeleteBranchModal component.
@@ -42,6 +52,7 @@ export interface DeleteBranchModalDetail {
 export const DeleteBranchModal: React.FC = () => {
     const { t } = useTranslation()
     const { detail } = useGlobalEvents<DeleteBranchModalDetail>('openDeleteBranchModal')
+    const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
 
     const [visible, setVisible] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -49,12 +60,14 @@ export const DeleteBranchModal: React.FC = () => {
     const [modified, setModified] = useState(false)
     const [mergedIntoMain, setMergedIntoMain] = useState(true)
 
-    const projectId = detail ? encodeProjectId(detail.repositoryId, detail.projectName) : ''
+    const projectId = detail ? resolveProjectId(detail) : ''
 
-    // Resolve the deletion warnings when the modal opens: `modified` from the project
-    // status, `mergedIntoMain` from a merge check (send current branch into main). A
-    // modified project is already destructive, so the merge check is skipped; any preflight
-    // failure falls back to the cautious "not merged" state so the user must confirm.
+    // Resolve the deletion warnings when the modal opens: `modified` from the project status,
+    // `mergedIntoMain` from a merge check (send current branch into main). The check answers whether the
+    // branches differ even when the main branch is protected and the user may not merge into it — the
+    // warning is about losing changes, not about permission. A modified project is already destructive, so
+    // the merge check is skipped; any preflight failure falls back to the cautious "not merged" state so
+    // the user must confirm.
     useEffect(() => {
         const hasDetails = !!(detail && Object.keys(detail).length > 0)
         setVisible(hasDetails)
@@ -65,7 +78,7 @@ export const DeleteBranchModal: React.FC = () => {
         setModified(false)
         setMergedIntoMain(true)
         setLoading(true)
-        const id = encodeProjectId(detail.repositoryId, detail.projectName)
+        const id = resolveProjectId(detail)
         const resolve = async () => {
             const project = (await apiCall(`/projects/${id}`, { method: 'GET' }, CHECK_API_OPTIONS)) as { status?: ProjectStatus }
             if (cancelled) {
@@ -77,7 +90,7 @@ export const DeleteBranchModal: React.FC = () => {
                 return
             }
             try {
-                const result = (await apiCall(`/projects/${id}/merge/check?force=true`, {
+                const result = (await apiCall(`/projects/${id}/merge/check`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ mode: 'send', otherBranch: detail.mainBranch }),
@@ -117,68 +130,90 @@ export const DeleteBranchModal: React.FC = () => {
         if (!detail) {
             return
         }
-        setDeleting(true)
-        try {
-            // Protected branches reach this modal only for bypass-eligible users (see canDeleteBranch);
-            // the modal is the explicit confirmation, so request the protected-branch bypass. The flag is
-            // a no-op for non-protected branches and still yields 403 for non-eligible users.
-            const deleted = await deleteBranch(projectId, detail.branch, true)
-            if (deleted) {
-                handleClose()
-                detail.onSuccess?.()
+        await runWithCommitInfo(async () => {
+            setDeleting(true)
+            try {
+                // Deleting a protected branch needs the repository bypass, and this dialog is the explicit
+                // confirmation for it. The server still decides: a user without the bypass gets a 403.
+                const deleted = await deleteBranch(projectId, detail.branch, detail.branchProtected ?? false)
+                if (deleted) {
+                    handleClose()
+                    detail.onSuccess?.()
+                }
+            } finally {
+                setDeleting(false)
             }
-        } finally {
-            setDeleting(false)
-        }
-    }, [detail, projectId, handleClose])
+        })
+    }, [detail, projectId, handleClose, runWithCommitInfo])
 
-    const unsafe = modified || !mergedIntoMain
+    const unsafe = modified || !mergedIntoMain || !!detail?.lastBranch
 
     return (
-        <Modal
-            destroyOnHidden
-            onCancel={handleClose}
-            open={visible}
-            footer={[
-                <Button key="cancel" disabled={deleting} onClick={handleClose}>
-                    {t('common:btn.cancel')}
-                </Button>,
-                <Button key="delete" danger disabled={loading} loading={deleting} onClick={handleDelete} type="primary">
-                    {unsafe
-                        ? t('repository:delete_branch.confirm_button_unsafe')
-                        : t('repository:delete_branch.confirm_button')}
-                </Button>,
-            ]}
-            title={
-                <Space>
-                    <BranchesOutlined />
-                    {t('repository:delete_branch.title')}
-                </Space>
-            }
-        >
-            <Spin spinning={loading}>
-                <Typography.Paragraph>
-                    {t('repository:delete_branch.confirm', { branch: detail?.branch })}
-                </Typography.Paragraph>
-                {modified && (
-                    <Alert
-                        showIcon
-                        style={{ marginBottom: 8 }}
-                        title={t('repository:delete_branch.modified_warning')}
-                        type="warning"
-                    />
-                )}
-                {!mergedIntoMain && (
-                    <Alert
-                        showIcon
-                        type="warning"
-                        title={t('repository:delete_branch.not_merged_warning', {
-                            branch: detail?.branch,
-                            mainBranch: detail?.mainBranch,
-                        })}
-                    />
-                )}
-            </Spin>
-        </Modal>
+        <>
+            <Modal
+                destroyOnHidden
+                onCancel={handleClose}
+                open={visible}
+                footer={[
+                    <Button key="cancel" disabled={deleting} onClick={handleClose}>
+                        {t('common:btn.cancel')}
+                    </Button>,
+                    <Button key="delete" danger disabled={loading} loading={deleting} onClick={handleDelete} type="primary">
+                        {unsafe
+                            ? t('repository:delete_branch.confirm_button_unsafe')
+                            : t('repository:delete_branch.confirm_button')}
+                    </Button>,
+                ]}
+                title={
+                    <Space>
+                        <BranchesOutlined />
+                        {t('repository:delete_branch.title')}
+                    </Space>
+                }
+            >
+                <Spin spinning={loading}>
+                    <Typography.Paragraph>
+                        {t('repository:delete_branch.confirm', { branch: detail?.branch })}
+                    </Typography.Paragraph>
+                    {detail?.branchProtected && (
+                        <Alert
+                            showIcon
+                            data-testid="delete-branch-protected-warning"
+                            style={{ marginBottom: 8 }}
+                            title={t('repository:delete_branch.protected_warning')}
+                            type="warning"
+                        />
+                    )}
+                    {detail?.lastBranch && (
+                        <Alert
+                            showIcon
+                            data-testid="delete-branch-last-branch-warning"
+                            style={{ marginBottom: 8 }}
+                            title={t('repository:delete_branch.last_branch_warning')}
+                            type="warning"
+                        />
+                    )}
+                    {modified && (
+                        <Alert
+                            showIcon
+                            style={{ marginBottom: 8 }}
+                            title={t('repository:delete_branch.modified_warning')}
+                            type="warning"
+                        />
+                    )}
+                    {!mergedIntoMain && (
+                        <Alert
+                            showIcon
+                            type="warning"
+                            title={t('repository:delete_branch.not_merged_warning', {
+                                branch: detail?.branch,
+                                mainBranch: detail?.mainBranch,
+                            })}
+                        />
+                    )}
+                </Spin>
+            </Modal>
+            {commitInfoModal}
+        </>
     )
 }

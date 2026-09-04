@@ -1,0 +1,3 @@
+GET /rest/projects/DbSource/files/?download=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

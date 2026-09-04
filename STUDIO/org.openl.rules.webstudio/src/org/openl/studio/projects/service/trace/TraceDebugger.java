@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.studio.projects.model.trace.DebugStatus;
+import org.openl.studio.projects.model.trace.TableProfile;
 import org.openl.vm.Tracer;
 
 /**
@@ -64,6 +65,15 @@ public final class TraceDebugger {
         hook.setWatches(watches);
     }
 
+    /**
+     * Choose how an uncaught rule error is handled. When {@code true} (default) the worker suspends on the
+     * throwing frame so it can be inspected. When {@code false} the error terminates the run instead, so a
+     * run-through (business) session gets the executed tree with the failed branch rather than parking on it.
+     */
+    public void setBreakOnErrors(boolean breakOnErrors) {
+        hook.setBreakOnErrors(breakOnErrors);
+    }
+
     public Set<String> getWatches() {
         return hook.getWatches();
     }
@@ -82,6 +92,11 @@ public final class TraceDebugger {
         return hook.isTreeTruncated();
     }
 
+    /** Lower the retained-tree node cap. Test seam only: exercise truncation without a huge profiled run. */
+    void setMaxTreeNodes(int maxTreeNodes) {
+        hook.setMaxTreeNodes(maxTreeNodes);
+    }
+
     /**
      * Start execution on a fresh virtual thread.
      *
@@ -91,32 +106,34 @@ public final class TraceDebugger {
      * @param body        the rule execution to run
      */
     public void start(String threadName, @Nullable ClassLoader classLoader, boolean stopAtEntry, DebugBody body) {
-        start(threadName, classLoader, stopAtEntry, false, body);
+        start(threadName, classLoader, stopAtEntry, false, false, body);
     }
 
     /**
      * Start a debug session, optionally retaining the executed call tree.
      *
-     * @param threadName  worker thread name
-     * @param classLoader context classloader for the worker, or {@code null} to keep the current one
-     * @param stopAtEntry suspend at the first frame instead of running to the first breakpoint
-     * @param profiling   retain the structure of returned sub-calls so the executed call tree can be shown
-     * @param body        the rule execution to run
+     * @param threadName     worker thread name
+     * @param classLoader    context classloader for the worker, or {@code null} to keep the current one
+     * @param stopAtEntry    suspend at the first frame instead of running to the first breakpoint
+     * @param profiling      retain the structure of returned sub-calls so the executed call tree can be shown
+     * @param detailedTitles build the classic detailed titles (signature, result, cell values) into the tree
+     * @param body           the rule execution to run
      */
     public void start(String threadName, @Nullable ClassLoader classLoader, boolean stopAtEntry, boolean profiling,
-                      DebugBody body) {
+                      boolean detailedTitles, DebugBody body) {
         hook.setProfiling(profiling);
+        hook.setDetailedTitles(detailedTitles);
         stepController.armInitial(stopAtEntry);
         startHaltCount = channel.haltCount();
         channel.markRunning();
-        Thread thread = Thread.ofVirtual().name(threadName).unstarted(() -> run(classLoader, body));
+        var thread = Thread.ofVirtual().name(threadName).unstarted(() -> run(classLoader, body));
         this.worker.set(thread);
         thread.start();
     }
 
     private void run(@Nullable ClassLoader classLoader, DebugBody body) {
         Thread current = Thread.currentThread();
-        ClassLoader previous = current.getContextClassLoader();
+        var previous = current.getContextClassLoader();
         if (classLoader != null) {
             current.setContextClassLoader(classLoader);
         }
@@ -163,6 +180,11 @@ public final class TraceDebugger {
         return hook.completedTree();
     }
 
+    /** Per-table profiling stats accumulated over the run, for the hotspots overview; complete even when truncated. */
+    public List<TableProfile> profileStats() {
+        return hook.profileStats();
+    }
+
     /** Wait for the worker to reach its first suspend or a terminal state. */
     public DebugStatus awaitInitialHalt(long timeoutMillis) {
         return channel.awaitHalt(startHaltCount, timeoutMillis);
@@ -170,7 +192,7 @@ public final class TraceDebugger {
 
     /** Resume with a command and wait, bounded by the timeout, for the next suspend or terminal state. */
     public DebugStatus command(DebugCommand command, long timeoutMillis) {
-        long before = channel.haltCount();
+        var before = channel.haltCount();
         channel.postCommand(command);
         return channel.awaitHalt(before, timeoutMillis);
     }
@@ -188,7 +210,7 @@ public final class TraceDebugger {
     /** Cancel the session, interrupting and briefly joining the worker. */
     public void terminate(long joinMillis) {
         channel.requestTerminate();
-        Thread thread = worker.get();
+        var thread = worker.get();
         if (thread == null) {
             return;
         }

@@ -45,7 +45,7 @@ class SAXFormulaParsingWorkbook implements FormulaParsingWorkbook {
         }
 
         // Use the sheetname and process
-        String sheetName = sheet.getSheetIdentifier().getName();
+        var sheetName = sheet.getSheetIdentifier().getName();
 
         if (sheet.getBookName() != null) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);

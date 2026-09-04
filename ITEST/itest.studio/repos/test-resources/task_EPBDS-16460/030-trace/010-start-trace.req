@@ -1,0 +1,15 @@
+POST /rest/projects/{PROJECT_ID}/trace?tableId={OVERRIDE_TABLE_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "Plan": "P1",
+  "Total": 7.0,
+  "Coverages": [
+    {
+      "code": "C1",
+      "premium": 3.0
+    }
+  ]
+}
+

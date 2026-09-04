@@ -1,8 +1,10 @@
 package org.openl.rules.table.actions;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.ICell;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -11,14 +13,30 @@ import org.openl.rules.table.ui.ICellStyle;
  */
 public abstract class AUndoableCellAction implements IUndoableGridTableAction {
 
+    @Getter
+    @Setter
     private int col;
+    @Getter
+    @Setter
     private int row;
 
+    @Getter
+    @Setter
     private Object prevValue;
+    @Getter
+    @Setter
     private String prevFormula;
+    @Getter
+    @Setter
     private ICellStyle prevStyle;
+    @Getter
+    @Setter
     private String prevComment;
+    @Getter
+    @Setter
     private String prevCommentAuthor;
+    @Getter
+    @Setter
     private CellMetaInfo prevMetaInfo;
     protected final MetaInfoWriter metaInfoWriter;
 
@@ -29,7 +47,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     }
 
     protected void savePrevCell(IWritableGrid grid) {
-        ICell cell = grid.getCell(col, row);
+        var cell = grid.getCell(col, row);
 
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
@@ -48,69 +66,5 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
             grid.clearCell(col, row);
         }
         metaInfoWriter.setMetaInfo(row, col, prevMetaInfo);
-    }
-
-    public int getCol() {
-        return col;
-    }
-
-    public void setCol(int col) {
-        this.col = col;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    public Object getPrevValue() {
-        return prevValue;
-    }
-
-    public void setPrevValue(Object prevValue) {
-        this.prevValue = prevValue;
-    }
-
-    public String getPrevFormula() {
-        return prevFormula;
-    }
-
-    public void setPrevFormula(String prevFormula) {
-        this.prevFormula = prevFormula;
-    }
-
-    public ICellStyle getPrevStyle() {
-        return prevStyle;
-    }
-
-    public void setPrevStyle(ICellStyle prevStyle) {
-        this.prevStyle = prevStyle;
-    }
-
-    public String getPrevComment() {
-        return prevComment;
-    }
-
-    public void setPrevComment(String prevComment) {
-        this.prevComment = prevComment;
-    }
-
-    public String getPrevCommentAuthor() {
-        return prevCommentAuthor;
-    }
-
-    public void setPrevCommentAuthor(String prevCommentAuthor) {
-        this.prevCommentAuthor = prevCommentAuthor;
-    }
-
-    public CellMetaInfo getPrevMetaInfo() {
-        return prevMetaInfo;
-    }
-
-    public void setPrevMetaInfo(CellMetaInfo prevMetaInfo) {
-        this.prevMetaInfo = prevMetaInfo;
     }
 }

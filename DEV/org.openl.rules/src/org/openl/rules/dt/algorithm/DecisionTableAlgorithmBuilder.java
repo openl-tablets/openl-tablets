@@ -1,21 +1,16 @@
 package org.openl.rules.dt.algorithm;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.openl.OpenL;
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.TypeBoundNode;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -35,9 +30,7 @@ import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.rules.dt.element.RuleRow;
-import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -81,10 +74,10 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private static String cutExpressionRoot(String expression) {
-        StringTokenizer stringTokenizer = new StringTokenizer(expression, ".");
+        var stringTokenizer = new StringTokenizer(expression, ".");
         if (stringTokenizer.hasMoreTokens()) {
-            String v = stringTokenizer.nextToken();
-            boolean arrayAccess = StringUtils.matches(ARRAY_ACCESS_PATTERN, v);
+            var v = stringTokenizer.nextToken();
+            var arrayAccess = StringUtils.matches(ARRAY_ACCESS_PATTERN, v);
             if (arrayAccess) {
                 v = v.substring(0, v.indexOf("["));
             }
@@ -94,11 +87,11 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     static IOpenClass findExpressionType(IOpenClass type, String expression) {
-        StringTokenizer stringTokenizer = new StringTokenizer(expression, ".");
-        boolean isFirst = true;
+        var stringTokenizer = new StringTokenizer(expression, ".");
+        var isFirst = true;
         while (stringTokenizer.hasMoreTokens()) {
-            String v = stringTokenizer.nextToken();
-            boolean arrayAccess = StringUtils.matches(ARRAY_ACCESS_PATTERN, v);
+            var v = stringTokenizer.nextToken();
+            var arrayAccess = StringUtils.matches(ARRAY_ACCESS_PATTERN, v);
             if (isFirst) {
                 if (arrayAccess) {
                     type = type.getComponentClass();
@@ -125,11 +118,11 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     private IDecisionTableAlgorithm buildAlgorithm() {
         if (table.getDtInfo().getNumberHConditions() > 0) {
 
-            IndexInfo vInfo = baseInfo.makeVerticalInfo();
-            IndexInfo hInfo = baseInfo.makeHorizontalalInfo();
+            var vInfo = baseInfo.makeVerticalInfo();
+            var hInfo = baseInfo.makeHorizontalalInfo();
 
-            IDecisionTableAlgorithm va = new DecisionTableOptimizedAlgorithm(evaluators, table, vInfo);
-            IDecisionTableAlgorithm ha = new DecisionTableOptimizedAlgorithm(evaluators, table, hInfo);
+            var va = new DecisionTableOptimizedAlgorithm(evaluators, table, vInfo);
+            var ha = new DecisionTableOptimizedAlgorithm(evaluators, table, hInfo);
             return new TwoDimensionalAlgorithm(va, ha);
         }
 
@@ -140,16 +133,16 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     private void prepareParams(IDecisionRow decisionRow,
                                IBindingContext bindingContext,
                                Map<String, Boolean> usedHeaderNames) {
-        Boolean v = usedHeaderNames.get(decisionRow.getName());
+        var v = usedHeaderNames.get(decisionRow.getName());
         if (v == null) {
             usedHeaderNames.put(decisionRow.getName(), Boolean.FALSE);
         } else if (Boolean.FALSE.equals(v)) {
             usedHeaderNames.put(decisionRow.getName(), Boolean.TRUE);
-            String columnType = "Condition";
+            var columnType = "Condition";
             if (decisionRow instanceof IBaseAction baseAction) {
                 columnType = baseAction.isReturnAction() ? "Return" : "Action";
             }
-            GridCellSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(
+            var cellSourceCodeModule = new GridCellSourceCodeModule(
                     decisionRow.getInfoTable().getSource(),
                     bindingContext);
             BindHelper.processError("%s '%s' is already defined.".formatted(columnType, decisionRow.getName()),
@@ -160,7 +153,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private void prepareCondAndActionParams(IBindingContext bindingContext) {
-        Map<String, Boolean> usedHeaderNames = new HashMap<>();
+        var usedHeaderNames = new HashMap<String, Boolean>();
         for (IBaseCondition condition : table.getConditionRows()) {
             prepareParams((IDecisionRow) condition, bindingContext, usedHeaderNames);
         }
@@ -172,7 +165,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     @Override
     public IDecisionTableAlgorithm prepareAndBuildAlgorithm(IBindingContext bindingContext) throws Exception {
         prepareCondAndActionParams(bindingContext);
-        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table,
+        var ruleExecutionType = new DecisionTableDataType(table,
                 table.getName() + "Type",
                 openl,
                 false);
@@ -180,15 +173,15 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         prepareActions(ruleExecutionType, bindingContext);
 
         baseInfo = new IndexInfo().withTable(table);
-        IDecisionTableAlgorithm algorithm = buildAlgorithm();
+        var algorithm = buildAlgorithm();
         clearMemoryAfterDTCompilationCompleted(ruleExecutionType);
         return algorithm;
     }
 
     private void clearMemoryAfterDTCompilationCompleted(DecisionTableDataType ruleExecutionType) {
-        IOpenField exprOpenField = ruleExecutionType.getField(DecisionTableDataType.EXPR_FIELD_NAME);
+        var exprOpenField = ruleExecutionType.getField(DecisionTableDataType.EXPR_FIELD_NAME);
         if (exprOpenField != null && exprOpenField.getType() instanceof DecisionExprFieldDataType) {
-            DecisionExprFieldDataType decisionExprFieldDataType = (DecisionExprFieldDataType) exprOpenField.getType();
+            var decisionExprFieldDataType = (DecisionExprFieldDataType) exprOpenField.getType();
             if (!decisionExprFieldDataType.isExprParameterFieldIsUsed()) {
                 // $Expr.* field is not used in expressions, so we can clear all related data to save memory
                 for (IBaseCondition condition : table.getConditionRows()) {
@@ -203,10 +196,10 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
     private void prepareActions(DecisionTableDataType ruleExecutionType,
                                 IBindingContext bindingContext) throws Exception {
-        IBindingContext actionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
-        int nActions = table.getNumberOfActions();
-        for (int i = 0; i < nActions; i++) {
-            IAction action = table.getAction(i);
+        var actionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
+        var nActions = table.getNumberOfActions();
+        for (var i = 0; i < nActions; i++) {
+            var action = table.getAction(i);
             prepareAction(action, actionBindingContext, ruleExecutionType);
         }
     }
@@ -226,10 +219,10 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
     private IConditionEvaluator[] prepareConditions(DecisionTableDataType ruleExecutionType,
                                                     IBindingContext bindingContext) {
-        IBindingContext conditionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
-        int nConditions = table.getNumberOfConditions();
+        var conditionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
+        var nConditions = table.getNumberOfConditions();
         final IConditionEvaluator[] evaluators = new IConditionEvaluator[nConditions];
-        for (int i = 0; i < nConditions; i++) {
+        for (var i = 0; i < nConditions; i++) {
             evaluators[i] = prepareCondition(ruleExecutionType, conditionBindingContext, i);
         }
         return evaluators;
@@ -260,7 +253,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     private IConditionEvaluator prepareCondition(DecisionTableDataType ruleExecutionType,
                                                  IBindingContext bindingContext,
                                                  int index) {
-        ICondition condition = table.getCondition(index);
+        var condition = table.getCondition(index);
 
         try {
             condition.prepare(table,
@@ -275,7 +268,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             BindHelper.processError(e, table.getSyntaxNode(), bindingContext);
             return DefaultConditionEvaluator.INSTANCE;
         }
-        IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
+        var methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
         if (methodNode == null) {
             // method defined with error
             return DefaultConditionEvaluator.INSTANCE;
@@ -284,7 +277,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         condition.setRuleIdOrRuleNameUsed(checkRuleIdOrRuleNameInExpression(condition));
         condition.setDependentOnOtherColumnsParams(checkOtherColumnParametersInExpression((Condition) condition));
 
-        IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
+        var source = methodNode.getSyntaxNode().getModule();
         if (StringUtils.isEmpty(source.getCode())) {
             BindHelper.processError("Cannot execute empty expression.", source, bindingContext);
             return DefaultConditionEvaluator.INSTANCE;
@@ -292,15 +285,15 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
         // tested in TypeInExpressionTest
         //
-        IBoundNode[] children = methodNode.getChildren();
+        var children = methodNode.getChildren();
         if (children != null && children.length == 1 && children[0].getChildren() != null && children[0]
                 .getChildren().length > 0 && children[0].getChildren()[0] instanceof TypeBoundNode) {
-            String message = "Cannot execute expression with only type definition '%s'.".formatted(
+            var message = "Cannot execute expression with only type definition '%s'.".formatted(
                     source.getCode());
             BindHelper.processError(message, source, bindingContext);
             return DefaultConditionEvaluator.INSTANCE;
         }
-        IOpenClass methodType = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode().getType();
+        var methodType = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode().getType();
         if (condition.isDependentOnOtherColumnsParams()) {
             condition.setConditionEvaluator(DefaultConditionEvaluator.INSTANCE);
             if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
@@ -312,7 +305,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                             bindingContext);
                     return DefaultConditionEvaluator.INSTANCE;
                 } else {
-                    IOpenCast openCast = bindingContext.getCast(methodType, condition.getParams()[0].getType());
+                    var openCast = bindingContext.getCast(methodType, condition.getParams()[0].getType());
                     if (openCast.isImplicit()) {
                         condition.setComparisonCast(openCast);
                     }
@@ -336,8 +329,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
             if (conditionEvaluator != null) {
                 condition.setConditionEvaluator(conditionEvaluator);
-                var evaluator = makeOptimizedConditionMethodEvaluator(condition,
-                        signature,
+                var evaluator = makeOptimizedConditionMethodEvaluator(signature,
                         conditionEvaluator.getOptimizedSourceCode());
                 condition.setEvaluator(evaluator);
                 if (evaluator == null) {
@@ -350,8 +342,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(condition, signature, bindingContext);
                 if (conditionEvaluator != null) {
                     condition.setConditionEvaluator(conditionEvaluator);
-                    var evaluator = makeOptimizedConditionMethodEvaluator(condition,
-                            signature,
+                    var evaluator = makeOptimizedConditionMethodEvaluator(signature,
                             conditionEvaluator.getOptimizedSourceCode());
                     if (evaluator == null) {
                         evaluator = makeDependentParamsIndexedConditionMethodEvaluator(condition,
@@ -379,7 +370,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private boolean checkOtherColumnParametersInExpression(Condition condition) {
-        BindingDependencies dependencies = new RulesBindingDependencies();
+        var dependencies = new RulesBindingDependencies();
         condition.getMethod().updateDependency(dependencies);
         for (IOpenField field : dependencies.getFieldsMap().values()) {
             field = Condition.getLocalField(field);
@@ -391,7 +382,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private static boolean checkConditionParameterUsedInExpression(ICondition condition) {
-        List<ExpressionIdentifier> identifiers = DecisionTableUtils.extractIdentifiers(condition);
+        var identifiers = DecisionTableUtils.extractIdentifiers(condition);
         for (IParameterDeclaration condParam : condition.getParams()) {
             if (identifiers.stream()
                     .anyMatch(identifierNode -> condParam.getName() != null && condParam.getName()
@@ -405,22 +396,19 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private static boolean checkRuleIdOrRuleNameInExpression(ICondition condition) {
-        List<ExpressionIdentifier> identifiers = DecisionTableUtils.extractIdentifiers(condition);
+        var identifiers = DecisionTableUtils.extractIdentifiers(condition);
         return identifiers.stream()
                 .anyMatch(e -> "$Rule".equals(e.getIdentifier()) || "$RuleId".equals(e.getIdentifier()));
     }
 
     private Invokable makeOptimizedConditionMethodEvaluator(ICondition condition, IMethodSignature signature) {
-        return makeOptimizedConditionMethodEvaluator(condition,
-                signature,
+        return makeOptimizedConditionMethodEvaluator(signature,
                 DecisionTableUtils.getConditionSourceCode(condition));
     }
 
-    private static Invokable makeOptimizedConditionMethodEvaluator(ICondition condition,
-                                                                       IMethodSignature signature,
-                                                                       String code) {
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            String pname = signature.getParameterName(i);
+    private static Invokable makeOptimizedConditionMethodEvaluator(IMethodSignature signature, String code) {
+        for (var i = 0; i < signature.getNumberOfParameters(); i++) {
+            var pname = signature.getParameterName(i);
             if (pname.equals(code)) {
                 return new ParameterMethodCaller(i);
             }
@@ -431,14 +419,14 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     private Invokable makeDependentParamsIndexedConditionMethodEvaluator(ICondition condition,
                                                                                 IMethodSignature signature,
                                                                                 String optimizedCode) {
-        String v = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode()
+        var v = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode()
                 .getSyntaxNode()
                 .getModule()
                 .getCode();
         if (optimizedCode != null && !optimizedCode.equals(v)) {
             String p = cutExpressionRoot(optimizedCode);
-            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-                String pname = signature.getParameterName(i);
+            for (var i = 0; i < signature.getNumberOfParameters(); i++) {
+                var pname = signature.getParameterName(i);
                 if (pname.equals(p)) {
                     IOpenClass type = findExpressionType(signature.getParameterType(i), optimizedCode);
                     return invoker(signature, type == null ? JavaOpenClass.VOID : type, optimizedCode);

@@ -10,7 +10,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 
@@ -26,13 +25,13 @@ class RuleServicePublisherListenerTest {
     @Test
     void test() throws Exception {
         assertNotNull(applicationContext);
-        ServiceInfoProvider serviceManager = applicationContext.getBean("serviceManager", ServiceInfoProvider.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceInfoProvider.class);
         assertNotNull(serviceManager);
-        ServiceManager publisher = applicationContext.getBean("serviceManager", ServiceManager.class);
+        var publisher = applicationContext.getBean("serviceManager", ServiceManager.class);
 
         assertFalse(serviceManager.getServicesInfo().isEmpty());
 
-        OpenLService service = publisher.getServiceByDeploy("RulesPublisherTest/org.openl.tablets.tutorial4");
+        var service = publisher.getServiceByDeploy("RulesPublisherTest/org.openl.tablets.tutorial4");
 
         assertEquals(2, RuleServicePublisherListenerTestListener.onDeployCount);
         assertEquals(0, RuleServicePublisherListenerTestListener.onUndeployCount);

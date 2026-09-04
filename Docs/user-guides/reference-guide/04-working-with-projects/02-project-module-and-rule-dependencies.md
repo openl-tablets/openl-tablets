@@ -22,19 +22,19 @@ The **module dependency** feature allows making a hierarchy of modules when rule
 
 The following diagram illustrates a project in which the content of **Module_1** and **Module_2** depends on the content of **Module_3**, where thin black arrows are module dependencies:
 
-![](../ref-guide-images/exampleProjectModulesHierarchy.png)
+![Example of a project with modules hierarchy](../ref-guide-images/exampleProjectModulesHierarchy.png)
 
 *Example of a project with modules hierarchy*
 
 In addition, **project dependency** enables accessing modules of other projects from the current one:
 
-![](../ref-guide-images/exampleProjectDependencyAllModules.png)
+![Example of a project dependency with all modules](../ref-guide-images/exampleProjectDependencyAllModules.png)
 
 *Example of a project dependency with all modules*
 
 The previous diagram displays that any module of **Project1** can execute any table of any module of **Project2**: thick gray arrow with the **All Modules** label is a project dependency with all dependency project modules included. This is equivalent to the following schema when each module of **Project1** has implicit dependency declaration to each module of **Project2**:
 
-![](../ref-guide-images/interpretationProjectDependencyAllModules.png)
+![Interpretation of a project dependency (with all modules)](../ref-guide-images/interpretationProjectDependencyAllModules.png)
 
 *Interpretation of a project dependency (with all modules)*
 
@@ -42,7 +42,7 @@ The project dependency with the **All Modules** setting switched on provides acc
 
 Users may combine module and project dependencies if only a particular module of another project must be used. An example is as follows:
 
-![](../ref-guide-images/exampleProjectModuleDependenciesCombined.png)
+![Example of a project and module dependencies combined](../ref-guide-images/exampleProjectModuleDependenciesCombined.png)
 
 *Example of a project and module dependencies combined*
 
@@ -50,7 +50,7 @@ In the example, for defined external **Project2**, only the content of **Module2
 
 If the project dependency does not have the **All Modules** setting enabled, dependencies are determined on the module level, and such project dependencies serve the isolation purpose thus enabling getting a dependency module from particular external projects.
 
-![](../ref-guide-images/definingDependenciesProjectsOpenlStudio.jpeg)
+![Defining dependencies for projects in OpenL Studio](../ref-guide-images/definingDependenciesProjectsOpenlStudio.jpeg)
 
 *Defining dependencies for projects in OpenL Studio*
 
@@ -66,7 +66,7 @@ Dependencies can also be used to call a specific rule from another project that 
 `Project`.tableName() must be used if the table name is unique within the whole project.
 `Project/module`.tableName() must be used if the table name is not unique among the modules.
 
-![](../ref-guide-images/exampleCallingRuleFromAnotherProject.jpeg)
+![Example of calling a rule from another project](../ref-guide-images/exampleCallingRuleFromAnotherProject.jpeg)
 
 *Example of calling a rule from another project*
 
@@ -76,23 +76,23 @@ This syntax is applicable when there is a dependency on a project and the **All 
 
 This section describes dependencies configuration.
 
-1.  To add a dependency to a module, add the instruction to a configuration table as described in [Configuration Table](../../02-working-with-openl-tables/03-table-types/09-configuration-table/01-configuration-table-description.md#configuration-table) using the **dependency** command and the name of the module to be added.
+1.  To add a dependency to a module, add the instruction to a configuration table as described in [Configuration Table](../02-working-with-openl-tables/03-table-types/09-configuration-table/01-configuration-table-description.md#configuration-table) using the **dependency** command and the name of the module to be added.
 
     A module can contain any number of dependencies. Dependency modules can also have dependencies. Avoid using cyclic dependencies.
 
-    ![](../ref-guide-images/dependenciesConfiguration.jpeg)
+    ![Example of configuring module dependencies](../ref-guide-images/dependenciesConfiguration.jpeg)
 
     *Example of configuring module dependencies*
 
 1.  To configure a project dependency, in a rules project descriptor, in the `rules.xml` file created in the project root folder, in the **Dependency** section, for the **name** tag used for defining the dependency project name, set the **autoIncluded** tag to **true** or **false**.
 
-    ![](../ref-guide-images/dependenciesConfiguration_1.png)
+    ![Example of configuring project dependencies – fragment of rules.xml](../ref-guide-images/dependenciesConfiguration_1.png)
 
     *Example of configuring project dependencies – fragment of rules.xml*
 
-For more information on configuring rules.xml, see [OpenL Tablets Developers Guide > Rules Project Descriptor](https://openldocs.readthedocs.io/en/latest/documentation/guides/developer_guide#rules-project-descriptor).
+For more information on configuring rules.xml, see [OpenL Tablets Developers Guide > Rules Project Descriptor](../../../developer-guides/rules-projects.md#rules-project-descriptor).
 
-By a business user, project dependencies are easily set and updated in OpenL Studio as described in [OpenL Studio Guide > Defining Project Dependencies](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide#defining-project-dependencies).
+By a business user, project dependencies are easily set and updated in OpenL Studio as described in [OpenL Studio Guide > Defining Project Dependencies](../../openl-studio/rules-editor.md#defining-project-dependencies).
 
 A project can contain any number of dependencies. Dependency projects may also have dependencies. Avoid cyclic dependencies.
 
@@ -102,11 +102,11 @@ When OpenL Tablets is processing a module, if there is any dependency declaratio
 
 Using import instructions allows adding external rules and data types from developer created artifacts, such as jars, Java classes, and Groovy scripts, located outside the Excel based rule tables. In the import instruction, list all Java packages, Java classes, and libraries that must become accessible in the module.
 
-Import configuration is defined using the **Environment** table as described in [Configuration Table](../../02-working-with-openl-tables/03-table-types/09-configuration-table/01-configuration-table-description.md#configuration-table). Configuration can be made for any user mode, single-user mode or multi-user mode. For proper import configuration, classpath must be registered in project sources as described in [Project Sources](project-structure.md#project-sources).
+Import configuration is defined using the **Environment** table as described in [Configuration Table](../02-working-with-openl-tables/03-table-types/09-configuration-table/01-configuration-table-description.md#configuration-table). Configuration can be made for any user mode, single-user mode or multi-user mode. For proper import configuration, classpath must be registered in project sources as described in [Project Sources](01-project-structure.md#project-sources).
 
 In the following example, the **Environment** table contains an import section with reference to the corresponding Java package:
 
-![](../ref-guide-images/exampleConfiguringModuleImport.png)
+![Example of configuring module import](../ref-guide-images/exampleConfiguringModuleImport.png)
 
 *Example of configuring module import*
 
@@ -126,9 +126,9 @@ Common Java imports can be placed only into the main, or dependency, project or 
 
 All OpenL Tablets components can be divided into three types:
 
--   Rules in rule tables as described in [Decision Table](../../02-working-with-openl-tables/03-table-types/02-decision-tab../02-decision-table-overview-and-structure.md#decision-table), [Spreadsheet Table](../../02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md#spreadsheet-table), [Method Table](../../02-working-with-openl-tables/03-table-types/11-less-common-table-types/02-method-table.md#method-table), [TBasic Table](../../02-working-with-openl-tables/03-table-types/11-less-common-table-types/05-tbasic-table.md#tbasic-table).
--   Data in data tables as described in [Data table](../../02-working-with-openl-tables/03-table-types/07-data-table/01-using-simple-data-tables.md#data-table).
--   Data types in data type tables as described in [Datatype Table](../../02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table).
+-   Rules in rule tables as described in [Decision Table](../02-working-with-openl-tables/03-table-types/02-decision-table/01-decision-table-overview-and-structure.md#decision-table), [Spreadsheet Table](../02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md#spreadsheet-table), [Method Table](../02-working-with-openl-tables/03-table-types/11-less-common-table-types/02-method-table.md#method-table), [TBasic Table](../02-working-with-openl-tables/03-table-types/11-less-common-table-types/05-tbasic-table.md#tbasic-table).
+-   Data in data tables as described in [Data table](../02-working-with-openl-tables/03-table-types/07-data-table/01-using-simple-data-tables.md#data-table).
+-   Data types in data type tables as described in [Datatype Table](../02-working-with-openl-tables/03-table-types/01-datatype-table/01-introducing-datatype-tables.md#datatype-table).
 
 The following table describes behavior of different OpenL Tablets components in dependency infrastructure:
 

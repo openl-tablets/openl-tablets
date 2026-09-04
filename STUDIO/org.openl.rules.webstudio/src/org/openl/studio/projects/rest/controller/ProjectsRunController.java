@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,9 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.export.RulesResultExport;
 import org.openl.studio.common.exception.BadRequestException;
@@ -47,6 +43,7 @@ import org.openl.studio.projects.model.run.RunExecutionResultMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.run.ExecutionRunResultRegistry;
 import org.openl.studio.projects.service.run.RunExecutorService;
@@ -72,7 +69,7 @@ public class ProjectsRunController {
     private final ExecutionRunResultRegistry runResultRegistry;
     private final SocketRunExecutionProgressListenerFactory listenerFactory;
     private final TableInputParserService inputParserService;
-    private final Environment environment;
+    private final ProjectObjectMapperService objectMapperService;
     private final ProjectIdentifierMapper projectIdentifierMapper;
 
     @Lookup
@@ -102,7 +99,7 @@ public class ProjectsRunController {
             throw new NotFoundException("table.message");
         }
 
-        String uri = table.getUri();
+        var uri = table.getUri();
         var method = currentOpenedModule
                 ? projectModel.getOpenedModuleMethod(uri)
                 : projectModel.getMethod(uri);
@@ -114,7 +111,7 @@ public class ProjectsRunController {
             throw new BadRequestException("run.test-table.not.supported.message");
         }
 
-        var parseResult = inputParserService.parseInput(inputJson, method, configureObjectMapper());
+        var parseResult = inputParserService.parseInput(inputJson, method, objectMapperService.createObjectMapper());
 
         runResultRegistry.cancelIfAny();
 
@@ -163,10 +160,10 @@ public class ProjectsRunController {
         }
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            var objectMapper = configureObjectMapper();
+            var objectMapper = objectMapperService.createObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
-            var sprNamingStrategy = extractSpreadsheetNamingStrategy();
-            var mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator, sprNamingStrategy);
+            var mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator,
+                    projectService.getSpreadsheetResultNamingStrategy());
             return ResponseEntity.ok(mapper.mapResult(results));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             var output = new ByteArrayOutputStream();
@@ -187,23 +184,4 @@ public class ProjectsRunController {
         runResultRegistry.clear();
     }
 
-    private SpreadsheetResultBeanPropertyNamingStrategy extractSpreadsheetNamingStrategy() {
-        var studio = projectService.getWebStudio();
-        var model = studio.getModel();
-        PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
-                .extractPropertyNamingStrategy(studio.getCurrentProjectRulesDeploy(),
-                        model.getCompiledOpenClass().getClassLoader());
-        return propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy spr ? spr : null;
-    }
-
-    private ObjectMapper configureObjectMapper() {
-        try {
-            var objectMapperFactory = projectService.getWebStudio()
-                    .getCurrentProjectJacksonObjectMapperFactoryBean();
-            objectMapperFactory.setEnvironment(environment);
-            return objectMapperFactory.createJacksonObjectMapper();
-        } catch (ClassNotFoundException e) {
-            throw new ConflictException("object.mapper.configuration.failed.message");
-        }
-    }
 }

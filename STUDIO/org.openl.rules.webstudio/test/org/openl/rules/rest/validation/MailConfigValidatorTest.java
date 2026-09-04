@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Transport;
 
-import com.icegreen.greenmail.smtp.SmtpServer;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import org.junit.jupiter.api.AfterAll;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.validation.BindingResult;
 
 import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
@@ -45,7 +43,7 @@ class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
         smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
-        SmtpServer smtp = smtpServer.getSmtp();
+        var smtp = smtpServer.getSmtp();
         mailUrl = smtp.getProtocol() + "://" + smtp.getBindTo() + ":" + smtp.getPort();
 
     }
@@ -65,9 +63,9 @@ class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testMailConfig_emptyFields_notValid() {
-        MailConfigModel mailConfigModel = getValidMailConfigModel();
+        var mailConfigModel = getValidMailConfigModel();
         mailConfigModel.setUrl(null);
-        BindingResult bindingResult = validateAndGetResult(mailConfigModel);
+        var bindingResult = validateAndGetResult(mailConfigModel);
         assertEquals("Email server configuration fields cannot be empty.", bindingResult.getGlobalError().getDefaultMessage());
     }
 
@@ -77,9 +75,9 @@ class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
         when(transport.isConnected()).thenThrow(new IllegalArgumentException("Ho-ho-ho"));
         when(mailSender.getTransport(any(), any(), any())).thenReturn(transport);
 
-        MailConfigModel mailConfigModel = getValidMailConfigModel();
+        var mailConfigModel = getValidMailConfigModel();
         mailConfigModel.setUrl("127.0.0.2");
-        BindingResult bindingResult = validateAndGetResult(mailConfigModel);
+        var bindingResult = validateAndGetResult(mailConfigModel);
         assertEquals("Wrong email server configuration. Ho-ho-ho", bindingResult.getGlobalError().getDefaultMessage());
     }
 

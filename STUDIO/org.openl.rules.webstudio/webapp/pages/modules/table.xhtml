@@ -224,6 +224,13 @@
                            value="true" style="vertical-align:-2px;margin:-4px"/>
                 </div>
             </h:panelGroup>
+            <h:panelGroup id="advancedTracerSetting" layout="block" styleClass="hidden b-trace">
+                <div style="margin: 10px 15px 0; white-space:nowrap;" title="Trace in the advanced step debugger instead of the business view">
+                    <label for="advancedTracerTest" style="margin-right: 10px">Advanced tracer</label>
+                    <input id="advancedTracerTest" type="checkbox"
+                           value="true" style="vertical-align:-2px;margin:-4px"/>
+                </div>
+            </h:panelGroup>
             <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
                           styleClass="hidden b-run b-test">
                 <div title="Show only failed test cases">
@@ -376,13 +383,19 @@
                                     </h:outputLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink rendered="#{tableBean.copyable}"
-                                        onclick="return onBeforeEdit();"
-                                        oncomplete="ws.nav.go('#{studio.url('copyTable')}?id=#{tableBean.id}')" title="Create a new table based on the existing one"
-                                        styleClass="toolbarButton">
-                                        <img src="#{contextPath}/webresource/images/copyTable.gif" />
-                                        <div>Copy</div>
-                                    </a4j:commandLink>
+                                    <c:if test="#{tableBean.copyable}">
+                                        <a href="javascript:void(0)"
+                                            class="toolbarButton"
+                                            title="Create a new table based on the existing one"
+                                            data-project-id="#{studio.currentProjectId}"
+                                            data-module-name="#{studio.currentModule.name}"
+                                            data-source-table-id="#{tableBean.id}"
+                                            data-project-url="#{utils.toUrl(studio.currentProject.repository.id, studio.currentProject.name)}"
+                                            onclick="return ws.ui.openTableModal(this, 'openCopyTableModal', onBeforeEdit);">
+                                            <img src="#{contextPath}/webresource/images/copyTable.gif" />
+                                            <div>Copy</div>
+                                        </a>
+                                    </c:if>
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableBean.removeTable}" title="Delete the table"
@@ -527,6 +540,11 @@
                                             <input id="resultInJSONFormat" name="resultInJSONFormat" type="checkbox"
                                                    value="true" style="vertical-align:-2px;margin:-4px"/>
                                         </div>
+                                        <div style="margin: 10px; display: none" class="manual-trace" title="Trace in the advanced step debugger instead of the business view">
+                                            <label for="advancedTracerExec" style="margin-right: 10px">Advanced tracer</label>
+                                            <input id="advancedTracerExec" type="checkbox"
+                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
+                                        </div>
                                     </h:panelGroup>
                                     <h:panelGroup id="inputTestCasePanelWrapper">
                                         <h:selectOneRadio id="inputTestCaseType"
@@ -625,16 +643,17 @@
 
                 <c:if test="#{tableBean.canCreateTest}">
                 <td>
-                    <h:form>
-                        <a4j:commandLink action="#{tableCreatorWizardManager.startWizard}"
-                            styleClass="toolbarButton" title="Create a new Test table"
-                            onclick="return onBeforeEdit();"
-                            oncomplete="ws.nav.go('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
-                            <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
-                            <img src="#{contextPath}/webresource/images/test_new.gif" />
-                            <div>Create Test</div>
-                        </a4j:commandLink>
-                    </h:form>
+                    <a href="javascript:void(0)"
+                       class="toolbarButton"
+                       title="Create a new Test table"
+                       data-project-id="#{studio.currentProjectId}"
+                       data-module-name="#{studio.currentModule.name}"
+                       data-source-table-id="#{tableBean.id}"
+                       data-project-url="#{utils.toUrl(studio.currentProject.repository.id, studio.currentProject.name)}"
+                       onclick="return ws.ui.openTableModal(this, 'openCreateTableModal', onBeforeEdit);">
+                        <img src="#{contextPath}/webresource/images/test_new.gif" />
+                        <div>Create Test</div>
+                    </a>
                 </td>
                 </c:if>
 
@@ -860,19 +879,22 @@
             }
         }();
 
-        function open_win(url, name) {
-            window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1240, height=700, top=20, left=100")
-        }
-
         /**
          * Initiate trace via React modal.
          * Used for test tables only.
          * Fetches real project ID from backend, then dispatches CustomEvent to React TraceExecutionModal.
          */
+        // The Advanced tracer checkbox on the Trace menu: checked opens the full step debugger, unchecked the
+        // business view. React reads this flag and does the rest.
+        function isAdvancedTracer(checkboxId) {
+            var cb = document.getElementById(checkboxId);
+            return !!(cb && cb.checked);
+        }
+
         function startTestTableTrace(repositoryId, projectName, tableId, moduleName, downloadMode) {
             var testRanges = getTestRangesParam();
             var moduleOnlyCheckbox = document.getElementById('runTestModuleOnly');
-            var tempProjectId = btoa(repositoryId + ':' + projectName);
+            var tempProjectId = globalThis.openl.encodeProjectId(repositoryId, projectName);
 
             // Fetch real project ID from backend
             $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
@@ -885,7 +907,8 @@
                             showRealNumbers: #{studio.showRealNumbers},
                             testRanges: testRanges || undefined,
                             fromModule: (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) ? moduleName : undefined,
-                            downloadMode: downloadMode || false
+                            downloadMode: downloadMode || false,
+                            advanced: isAdvancedTracer('advancedTracerTest')
                         }
                     }));
                 })
@@ -899,7 +922,7 @@
          * Fetches real project ID from backend, then dispatches CustomEvent to React TraceExecutionModal.
          */
         function traceNoParamsMethod(repositoryId, projectName, tableId, moduleName) {
-            var tempProjectId = btoa(repositoryId + ':' + projectName);
+            var tempProjectId = globalThis.openl.encodeProjectId(repositoryId, projectName);
 
             // Fetch real project ID from backend
             $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
@@ -911,7 +934,8 @@
                             moduleName: moduleName,
                             showRealNumbers: #{studio.showRealNumbers},
                             inputJson: '{}',
-                            downloadMode: false
+                            downloadMode: false,
+                            advanced: isAdvancedTracer('advancedTracerExec')
                         }
                     }));
                 })
@@ -1014,7 +1038,7 @@
             _executableTraceContext = null;
 
             var moduleOnlyCheckbox = document.getElementById('runTestModuleOnlyInputArgs');
-            var tempProjectId = btoa(ctx.repositoryId + ':' + ctx.projectName);
+            var tempProjectId = globalThis.openl.encodeProjectId(ctx.repositoryId, ctx.projectName);
 
             // Fetch real project ID from backend
             $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
@@ -1027,7 +1051,8 @@
                             showRealNumbers: ctx.showRealNumbers,
                             fromModule: (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) ? ctx.moduleName : undefined,
                             inputJson: inputJson,
-                            downloadMode: ctx.downloadMode || false
+                            downloadMode: ctx.downloadMode || false,
+                            advanced: isAdvancedTracer('advancedTracerExec')
                         }
                     }));
                 })

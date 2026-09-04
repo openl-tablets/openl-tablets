@@ -4,10 +4,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.EnvironmentTableStyleImpl;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
@@ -22,23 +20,23 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
     @Override
     protected void exportTables(Collection<EnvironmentModel> models, Sheet sheet) {
         Cursor endPosition = null;
-        TableStyle style = getTableStyle();
+        var style = getTableStyle();
         for (EnvironmentModel model : models) {
-            Cursor startPosition = nextFreePosition(endPosition);
+            var startPosition = nextFreePosition(endPosition);
             endPosition = exportTable(model, startPosition, style, sheet);
         }
     }
 
     @Override
     protected Cursor exportTable(EnvironmentModel model, Cursor startPosition, TableStyle tableStyle, Sheet sheet) {
-        EnvironmentTableStyleImpl style = (EnvironmentTableStyleImpl) tableStyle;
-        RichTextString headerText = style.getHeaderTemplate();
-        CellRangeSettings headerSizeSettings = style.getHeaderSizeSettings();
+        var style = (EnvironmentTableStyleImpl) tableStyle;
+        var headerText = style.getHeaderTemplate();
+        var headerSizeSettings = style.getHeaderSizeSettings();
         addMergedHeader(sheet, startPosition, style.getHeaderStyle(), headerSizeSettings);
         Cell topLeftCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
         topLeftCell.setCellValue(headerText);
         startPosition = startPosition.moveDown(headerSizeSettings.getHeight());
-        Cursor endPosition = startPosition;
+        var endPosition = startPosition;
         Iterator<String> dpdIterator = model.getDependencies().iterator();
         Iterator<String> importIterator = model.getImports().iterator();
         endPosition = writeData(sheet, style, endPosition, dpdIterator, DEPENDENCY);
@@ -53,12 +51,12 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
                              Iterator<String> importIterator,
                              String anImport) {
         while (importIterator.hasNext()) {
-            boolean lastRow = false;
-            String dpd = importIterator.next();
+            var lastRow = false;
+            var dpd = importIterator.next();
             if (!importIterator.hasNext()) {
                 lastRow = true;
             }
-            Cursor next = endPosition.moveDown(1);
+            var next = endPosition.moveDown(1);
             Cell nameCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             nameCell.setCellValue(anImport);
             nameCell

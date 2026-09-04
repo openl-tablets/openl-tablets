@@ -25,18 +25,18 @@ public class ListNodeBinder extends ANodeBinder {
 
             String[] res = new String[children.length];
 
-            for (int i = 0; i < res.length; i++) {
+            for (var i = 0; i < res.length; i++) {
                 res[i] = (String) ((LiteralBoundNode) children[i]).getValue();
             }
 
             return new LiteralBoundNode(node, res, JavaOpenClass.getOpenClass(String[].class));
         }
 
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
-        for (int i = 0; i < node.getNumberOfChildren(); i++) {
+        for (var i = 0; i < node.getNumberOfChildren(); i++) {
 
-            ISyntaxNode child = node.getChild(i);
+            var child = node.getChild(i);
 
             if (i > 0) {
                 sb.append(' ');

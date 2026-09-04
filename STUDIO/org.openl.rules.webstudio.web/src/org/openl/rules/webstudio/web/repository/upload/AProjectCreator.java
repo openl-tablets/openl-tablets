@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
@@ -19,9 +21,13 @@ import org.openl.util.IOUtils;
 public abstract class AProjectCreator {
 
 
+    @Getter(AccessLevel.PROTECTED)
     private final String projectName;
+    @Getter
     private final String projectFolder;
+    @Getter(AccessLevel.PROTECTED)
     private final UserWorkspace userWorkspace;
+    @Getter
     private String createdProjectName;
     private Map<String, String> tags;
 
@@ -30,18 +36,6 @@ public abstract class AProjectCreator {
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
         this.tags = tags;
-    }
-
-    protected String getProjectName() {
-        return projectName;
-    }
-
-    public String getProjectFolder() {
-        return projectFolder;
-    }
-
-    protected UserWorkspace getUserWorkspace() {
-        return userWorkspace;
     }
 
     /**
@@ -57,7 +51,7 @@ public abstract class AProjectCreator {
             createdProjectName = projectBuilder.getCreateProjectName();
             return projectBuilder.getProject();
         } catch (Exception e) {
-            Throwable cause = e.getCause();
+            var cause = e.getCause();
             if (projectBuilder != null && cause instanceof MergeConflictException) {
                 log.debug("Failed to save the project because of merge conflict.", cause);
                 // Try to save second time. It should resolve the issue if conflict in openl-projects.properties file.
@@ -78,21 +72,17 @@ public abstract class AProjectCreator {
         }
     }
 
-    public String getCreatedProjectName() {
-        return createdProjectName;
-    }
-
     protected InputStream changeFileIfNeeded(String fileName, InputStream inputStream) throws ProjectException {
         if (ProjectDescriptor.FILE_NAME.equals(fileName)) {
             // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return
             // original rules.xml.
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            var outputStream = new ByteArrayOutputStream();
             try {
                 IOUtils.copyAndClose(inputStream, outputStream);
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);
             }
-            ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
+            var copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
                 ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);

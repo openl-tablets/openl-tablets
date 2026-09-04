@@ -26,7 +26,7 @@ public class ZipRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        ZippedLocalRepository repository = new ZippedLocalRepository();
+        var repository = new ZippedLocalRepository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;

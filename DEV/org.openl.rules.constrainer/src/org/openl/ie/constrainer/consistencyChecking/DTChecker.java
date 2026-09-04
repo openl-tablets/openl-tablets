@@ -9,7 +9,7 @@ public interface DTChecker {
 
         public static String[] IntExpArray2Names(IntExpArray solution) {
             String[] names = new String[solution.size()];
-            for (int i = 0; i < names.length; i++) {
+            for (var i = 0; i < names.length; i++) {
                 names[i] = solution.get(i).name();
             }
             return names;
@@ -17,7 +17,7 @@ public interface DTChecker {
 
         public static int[] IntExpArray2Values(IntExpArray solution) {
             int[] values = new int[solution.size()];
-            for (int i = 0; i < values.length; i++) {
+            for (var i = 0; i < values.length; i++) {
                 values[i] = solution.get(i).max();
             }
             return values;

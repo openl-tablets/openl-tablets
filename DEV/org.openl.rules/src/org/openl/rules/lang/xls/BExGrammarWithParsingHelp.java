@@ -5,7 +5,6 @@ import org.openl.grammar.bexgrammar.ParseException;
 import org.openl.grammar.bexgrammar.Token;
 import org.openl.grammar.bexgrammar.TokenMgrError;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.util.text.TextInterval;
 
 class BExGrammarWithParsingHelp extends BExGrammar {
 
@@ -14,9 +13,9 @@ class BExGrammarWithParsingHelp extends BExGrammar {
     private static final String WAS_EXPECTING_ONE_OF = "Was expecting one of:";
 
     private static String addEscapes(String str) {
-        StringBuilder retval = new StringBuilder();
+        var retval = new StringBuilder();
         char ch;
-        for (int i = 0; i < str.length(); i++) {
+        for (var i = 0; i < str.length(); i++) {
             switch (str.charAt(i)) {
                 case 0:
                     break;
@@ -37,7 +36,7 @@ class BExGrammarWithParsingHelp extends BExGrammar {
                     break;
                 default:
                     if ((ch = str.charAt(i)) < 0x20 || ch > 0x7e) {
-                        String s = "0000" + Integer.toString(ch, 16);
+                        var s = "0000" + Integer.toString(ch, 16);
                         retval.append("\\u").append(s.substring(s.length() - 4));
                     } else {
                         retval.append(ch);
@@ -68,10 +67,10 @@ class BExGrammarWithParsingHelp extends BExGrammar {
                     break;
             }
         } catch (ParseException pe) {
-            SyntaxNodeException sne = reparseTokens();
+            var sne = reparseTokens();
             if (sne == null) {
-                String msg = pe.getMessage();
-                TextInterval pos = pos(pe.currentToken);
+                var msg = pe.getMessage();
+                var pos = pos(pe.currentToken);
                 if (msg.startsWith(ENCOUNTERED_PREFIX_EMPTY) && pe.currentToken.next != null) {
                     msg = "Encountered \"" + pe.currentToken.next + "\"" + msg
                             .substring(ENCOUNTERED_PREFIX_EMPTY.length());
@@ -83,7 +82,7 @@ class BExGrammarWithParsingHelp extends BExGrammar {
             }
             syntaxError = sne;
         } catch (TokenMgrError err) {
-            TextInterval loc = pos(err.getMessage(), token);
+            var loc = pos(err.getMessage(), token);
 
             syntaxError = new SyntaxNodeException(err.getMessage(), null, loc, module);
         } catch (Exception e) {
@@ -93,12 +92,12 @@ class BExGrammarWithParsingHelp extends BExGrammar {
 
     private SyntaxNodeException reparseTokens() {
 
-        BExGrammar be = new BExGrammar();
+        var be = new BExGrammar();
 
         be.setModule(module);
         be.ReInit(module.getCharacterStream());
 
-        BracketMatcher bm = new BracketMatcher();
+        var bm = new BracketMatcher();
 
         while (true) {
 
@@ -106,7 +105,7 @@ class BExGrammarWithParsingHelp extends BExGrammar {
             try {
                 t = be.getNextToken();
             } catch (TokenMgrError err) {
-                TextInterval loc = pos(err.getMessage(), token);
+                var loc = pos(err.getMessage(), token);
 
                 return new SyntaxNodeException(err.getMessage(), null, loc, module);
             }
@@ -114,7 +113,7 @@ class BExGrammarWithParsingHelp extends BExGrammar {
                 break;
             }
 
-            BracketMatcher.BracketsStackObject bso = bm.addToken(t.image, t);
+            var bso = bm.addToken(t.image, t);
             if (bso != null) {
                 String message;
                 switch (bso.getErrorCode()) {
@@ -123,7 +122,7 @@ class BExGrammarWithParsingHelp extends BExGrammar {
 
                         return new SyntaxNodeException(message, null, pos(t), module);
                     case MISMATCHED:
-                        Token t2 = (Token) bso.getId();
+                        var t2 = (Token) bso.getId();
 
                         message = "Mismatched: opened with '%s' and closed with '%s'".formatted(
                                 addEscapes(t2.image.substring(0, 1)),
@@ -139,11 +138,11 @@ class BExGrammarWithParsingHelp extends BExGrammar {
 
         }
 
-        BracketMatcher.BracketsStackObject bso = bm.checkAtTheEnd();
+        var bso = bm.checkAtTheEnd();
         if (bso != null) {
-            Token t = (Token) bso.getId();
+            var t = (Token) bso.getId();
 
-            String message = "Need to close '%s'".formatted(addEscapes(t.image));
+            var message = "Need to close '%s'".formatted(addEscapes(t.image));
 
             return new SyntaxNodeException(message, null, pos(t), module);
 

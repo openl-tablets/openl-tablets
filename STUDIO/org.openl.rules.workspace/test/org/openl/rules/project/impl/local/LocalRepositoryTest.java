@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -51,7 +50,7 @@ class LocalRepositoryTest {
         projectState.saveFileData("design", createFileData(new UserInfo("jdoe", "jdoe@email.to", "John Doe")));
 
         assertEquals("John Doe", readRecord().get("author"));
-        FileData link = projectState.getFileData();
+        var link = projectState.getFileData();
         assertNotNull(link);
         assertEquals("design", projectState.getRepositoryId());
         assertEquals("rev-1", link.getVersion());
@@ -65,7 +64,7 @@ class LocalRepositoryTest {
         projectState.saveFileData("design", createFileData(new UserInfo(null, "some@email.to", "")));
 
         assertNull(readRecord().get("author"));
-        FileData link = projectState.getFileData();
+        var link = projectState.getFileData();
         assertNotNull(link);
         assertEquals("design", projectState.getRepositoryId());
         assertEquals("rev-1", link.getVersion());
@@ -76,7 +75,7 @@ class LocalRepositoryTest {
     void linkSurvivesAbsentAuthor() {
         projectState.saveFileData("design", createFileData(null));
 
-        FileData link = projectState.getFileData();
+        var link = projectState.getFileData();
         assertNotNull(link);
         assertEquals("rev-1", link.getVersion());
         assertNull(link.getAuthor());
@@ -97,8 +96,8 @@ class LocalRepositoryTest {
     void sameSizeSameTimeEditIsStillDetected() throws IOException {
         // An edit that accidentally matches the recorded baseline by size and modification time would
         // look unchanged after a restart. The repository must move the modification time forward.
-        long baselineTime = System.currentTimeMillis() - 60_000;
-        FileData data = new FileData();
+        var baselineTime = System.currentTimeMillis() - 60_000;
+        var data = new FileData();
         data.setName(PROJECT + "/rules/Main.xlsx");
         data.setModifiedAt(new Date(baselineTime));
         repository.save(data, new ByteArrayInputStream("12345".getBytes(StandardCharsets.UTF_8)));
@@ -106,7 +105,7 @@ class LocalRepositoryTest {
                 createFileData(null),
                 Map.of("/rules/Main.xlsx", new ProjectMetainfo.FileBaseline(null, 5, baselineTime)));
 
-        FileData saved = repository.save(data, new ByteArrayInputStream("54321".getBytes(StandardCharsets.UTF_8)));
+        var saved = repository.save(data, new ByteArrayInputStream("54321".getBytes(StandardCharsets.UTF_8)));
 
         assertTrue(saved.getModifiedAt().getTime() > baselineTime,
                 "The modification time must differ from the baseline after the edit.");
@@ -124,7 +123,7 @@ class LocalRepositoryTest {
     }
 
     private static FileData createFileData(UserInfo author) {
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(PROJECT);
         fileData.setVersion("rev-1");
         fileData.setAuthor(author);
@@ -134,7 +133,7 @@ class LocalRepositoryTest {
     }
 
     private LinkedHashMap<String, String> readRecord() throws IOException {
-        Path record = root.toPath().resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
+        var record = root.toPath().resolve(MetainfoRegistry.METAINFO_FOLDER).resolve(PROJECT + ".properties");
         assertTrue(Files.exists(record));
         var properties = new LinkedHashMap<String, String>();
         PropertiesUtils.load(record, properties::put);

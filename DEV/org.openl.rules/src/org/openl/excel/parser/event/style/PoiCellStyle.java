@@ -3,6 +3,9 @@ package org.openl.excel.parser.event.style;
 import java.util.EnumMap;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
 import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
@@ -17,21 +20,12 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellUtil;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class PoiCellStyle implements CellStyle {
+    @Getter
     private final short index;
     private final ExtendedFormatRecord format;
     private final Map<Integer, FormatRecord> formats;
-
-    PoiCellStyle(short index, ExtendedFormatRecord format, Map<Integer, FormatRecord> formats) {
-        this.index = index;
-        this.format = format;
-        this.formats = formats;
-    }
-
-    @Override
-    public short getIndex() {
-        return index;
-    }
 
     @Override
     public void setDataFormat(short fmt) {
@@ -45,7 +39,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public String getDataFormatString() {
-        int formatIndex = getDataFormat();
+        var formatIndex = getDataFormat();
         if (formatIndex < 0) {
             return null;
         }

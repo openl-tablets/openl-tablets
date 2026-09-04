@@ -2,17 +2,21 @@ package org.openl.studio.repositories.validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.junit.jupiter.api.AfterEach;
@@ -25,9 +29,12 @@ import org.springframework.validation.BindingResult;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.studio.common.exception.ConflictException;
@@ -37,6 +44,8 @@ import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
 @TestPropertySource(properties = {"repository.design-rating.comment-template.use-custom-comments = false",
+        "repository.design-pattern.new-branch.regex = release/.+",
+        "repository.design-pattern.new-branch.regex-error = Use release/<name>",
         "repository.design-rating2.comment-template.use-custom-comments = true",
         "repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
         "repository.design-rating2.comment-template.invalid-comment-message = Invalid comment"})
@@ -99,6 +108,237 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
         when(designTimeRepository.getProjects(model.getRepoName())).thenReturn(res);
 
         assertNull(validateAndGetResult(model, validator));
+    }
+
+    @Test
+    void configuredBranchIsValidBeforeTheRepositoryHasItsFirstCommit() throws IOException {
+        var repository = mockDesignRepository(BranchRepository.class,
+                "design-rating",
+                builder -> builder.setBranches(true));
+        when(repository.getBaseBranch()).thenReturn("master");
+        var model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Example 1 - Bank Rating",
+                null,
+                null,
+                false,
+                "master");
+
+        assertNull(validateAndGetResult(model, validator));
+
+        verify(repository, never()).branchExists("master");
+        verify(repository, never()).forBranch("master");
+    }
+
+    @Test
+    void invalidBranchNameIsReportedAsAFieldError() throws IOException {
+        var repository = mockDesignRepository(BranchRepository.class,
+                "design-rating",
+                builder -> builder.setBranches(true));
+        when(repository.getBaseBranch()).thenReturn("master");
+        var model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Example 1 - Bank Rating",
+                null,
+                null,
+                false,
+                "feature bad");
+
+        var result = validateAndGetResult(model, validator);
+
+        assertEquals(1, result.getFieldErrorCount());
+        assertEquals(0, result.getGlobalErrorCount());
+        assertFieldError("branch",
+                "Branch name contains reserved words or symbols.",
+                model.getBranch(),
+                result.getFieldError("branch"));
+        verify(repository, never()).branchExists("feature bad");
+        verify(repository, never()).forBranch("feature bad");
+    }
+
+    @Test
+    void repositoryBranchPatternIsReportedAsAFieldError() throws IOException {
+        var repository = mockDesignRepository(BranchRepository.class,
+                "design-pattern",
+                builder -> builder.setBranches(true));
+        when(repository.getId()).thenReturn("design-pattern");
+        when(repository.getBaseBranch()).thenReturn("master");
+        when(repository.isValidBranchName("feature/rates")).thenReturn(true);
+        when(repository.branchExists("feature/rates")).thenReturn(false);
+        var model = new CreateUpdateProjectModel("design-pattern",
+                "John Doe",
+                "Example 1 - Bank Rating",
+                null,
+                null,
+                false,
+                "feature/rates");
+
+        var result = validateAndGetResult(model, validator);
+
+        assertEquals(1, result.getFieldErrorCount());
+        assertEquals(0, result.getGlobalErrorCount());
+        assertFieldError("branch", "Use release/<name>", model.getBranch(), result.getFieldError("branch"));
+        verify(repository, never()).forBranch("feature/rates");
+    }
+
+    @Test
+    void existingBranchUsesItsRepositoryView() throws IOException {
+        var repository = mockDesignRepository(BranchRepository.class,
+                "design-rating",
+                builder -> builder.setBranches(true));
+        var target = mock(BranchRepository.class);
+        when(target.supports()).thenReturn(new FeaturesBuilder(target).setBranches(true).build());
+        when(repository.getBaseBranch()).thenReturn("master");
+        when(repository.isValidBranchName("feature/rates")).thenReturn(true);
+        when(repository.branchExists("feature/rates")).thenReturn(true);
+        when(repository.forBranch("feature/rates")).thenReturn(target);
+        var model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Example 1 - Bank Rating",
+                null,
+                null,
+                false,
+                "feature/rates");
+
+        assertNull(validateAndGetResult(model, validator));
+
+        verify(repository).forBranch("feature/rates");
+    }
+
+    @Test
+    void existingBranchUsesItsCanonicalName() throws IOException {
+        var repository = mockDesignRepository(BranchRepository.class,
+                "design-rating",
+                builder -> builder.setBranches(true));
+        var target = mock(BranchRepository.class);
+        when(target.supports()).thenReturn(new FeaturesBuilder(target).setBranches(true).build());
+        when(repository.getBaseBranch()).thenReturn("master");
+        when(repository.isValidBranchName("FEATURE/RATES")).thenReturn(true);
+        when(repository.branchExists("FEATURE/RATES")).thenReturn(true);
+        when(repository.listBranches()).thenReturn(List.of("feature/rates"));
+        when(repository.forBranch("feature/rates")).thenReturn(target);
+        var model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Example 1 - Bank Rating",
+                null,
+                null,
+                false,
+                "FEATURE/RATES");
+
+        assertNull(validateAndGetResult(model, validator));
+
+        verify(repository).forBranch("feature/rates");
+        verify(repository, never()).forBranch("FEATURE/RATES");
+    }
+
+    @Test
+    void validAbsentBranchUsesBaseViewForValidation() throws IOException {
+        var repository = mockDesignRepository(BranchRepository.class,
+                "design-rating",
+                builder -> builder.setBranches(true));
+        when(repository.getId()).thenReturn("design-rating");
+        when(repository.getBaseBranch()).thenReturn("master");
+        when(repository.isValidBranchName("feature/rates")).thenReturn(true);
+        when(repository.branchExists("feature/rates")).thenReturn(false);
+        when(repository.listBranches()).thenReturn(List.of());
+        var model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Example 1 - Bank Rating",
+                null,
+                null,
+                false,
+                "feature/rates");
+
+        assertNull(validateAndGetResult(model, validator));
+
+        verify(repository, never()).forBranch("feature/rates");
+    }
+
+    @Test
+    void overwriteRejectsAProjectThatIsAbsentFromTheTargetBranch() throws Exception {
+        var repository = mockDesignRepository(BranchRepository.class,
+                "design-rating",
+                builder -> builder.setBranches(true));
+        var target = mock(BranchRepository.class);
+        when(target.supports()).thenReturn(new FeaturesBuilder(target).setBranches(true).build());
+        when(repository.getBaseBranch()).thenReturn("master");
+        when(repository.isValidBranchName("feature/rates")).thenReturn(true);
+        when(repository.branchExists("feature/rates")).thenReturn(true);
+        when(repository.forBranch("feature/rates")).thenReturn(target);
+        when(target.getBranch()).thenReturn("feature/rates");
+        when(designTimeRepository.hasProject("design-rating", "Rates")).thenReturn(true);
+        when(designTimeRepository.hasProjectInAnyBranch("design-rating", "Rates")).thenReturn(true);
+        var model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Rates",
+                null,
+                null,
+                true,
+                "feature/rates");
+
+        var exception = assertThrows(ConflictException.class, () -> validateAndGetResult(model, validator));
+
+        assertEquals("Cannot create a project because the project with such name already exists.",
+                getLocalMessage(exception));
+        verify(designTimeRepository, never()).getProject("design-rating", "Rates");
+    }
+
+    @Test
+    void overwriteWithoutAnExplicitBranchStillChecksTheConfiguredBranch() throws Exception {
+        var repository = mockDesignRepository(BranchRepository.class,
+                "design-rating",
+                builder -> builder.setBranches(true));
+        when(repository.getBranch()).thenReturn("master");
+        when(designTimeRepository.hasProject("design-rating", "Rates")).thenReturn(true);
+        when(designTimeRepository.hasProjectInAnyBranch("design-rating", "Rates")).thenReturn(true);
+        var model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Rates",
+                null,
+                null,
+                true);
+
+        var exception = assertThrows(ConflictException.class, () -> validateAndGetResult(model, validator));
+
+        assertEquals("Cannot create a project because the project with such name already exists.",
+                getLocalMessage(exception));
+        verify(designTimeRepository, never()).getProject("design-rating", "Rates");
+    }
+
+    @Test
+    void overwriteValidatesTheMappedPathFromTheTargetBranch() throws Exception {
+        var repository = mockDesignRepository(MappedRepository.class,
+                "design-rating",
+                builder -> builder.setBranches(true));
+        var target = mock(MappedRepository.class);
+        when(target.getDelegate()).thenReturn(target);
+        when(target.supports()).thenReturn(new FeaturesBuilder(target)
+                .setBranches(true)
+                .setMappedFolders(true)
+                .build());
+        when(repository.getBaseBranch()).thenReturn("master");
+        when(repository.isValidBranchName("feature/rates")).thenReturn(true);
+        when(repository.branchExists("feature/rates")).thenReturn(true);
+        when(repository.forBranch("feature/rates")).thenReturn(target);
+        when(target.getBranch()).thenReturn("feature/rates");
+        var model = new CreateUpdateProjectModel("design-rating",
+                "John Doe",
+                "Rates",
+                "feature/Rates",
+                null,
+                true,
+                "feature/rates");
+        var branchProject = mock(AProject.class);
+        when(branchProject.getRealPath()).thenReturn(model.getFullPath());
+        var branchedProject = mock(BranchedProject.class);
+        when(branchedProject.entry("feature/rates"))
+                .thenReturn(Optional.of(new BranchedProject.BranchEntry(branchProject, mock(BranchStatus.class))));
+        when(designTimeRepository.getBranchedProject("design-rating", "Rates"))
+                .thenReturn(Optional.of(branchedProject));
+
+        assertNull(validateAndGetResult(model, validator));
+
+        verify(designTimeRepository, never()).getProject("design-rating", "Rates");
     }
 
     @Test
@@ -188,7 +428,8 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
                 "foo/bar/Example 1 - Bank Rating",
                 null,
                 false);
-        when(designTimeRepository.hasProject("design-rating", model.getProjectName())).thenReturn(Boolean.TRUE);
+        when(designTimeRepository.hasProjectInAnyBranch("design-rating", model.getProjectName()))
+                .thenReturn(Boolean.TRUE);
 
         try {
             validateAndGetResult(model, validator);
@@ -208,7 +449,8 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
                 null,
                 false);
 
-        when(mockedRepo.check(eq(model.getFullPath()))).thenReturn(mock(FileData.class));
+        var fileData = mock(FileData.class);
+        when(mockedRepo.check(model.getFullPath())).thenReturn(fileData);
 
         try {
             validateAndGetResult(model, validator);
@@ -345,7 +587,7 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
 
     @Test
     void testUpdateProject() throws IOException, ProjectException {
-        mockDesignRepository(MappedRepository.class, "design-rating2", NO_EXTRA_FEATURES);
+        var repository = mockDesignRepository(MappedRepository.class, "design-rating2", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
                 "John Doe",
                 "Example 1 - Bank Rating",
@@ -354,9 +596,15 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
                 true);
         RulesProject mockProject = mock(RulesProject.class);
         when(mockProject.getRealPath()).thenReturn("foo/bar/Example 1 - Bank Rating");
+        var branchedProject = mock(BranchedProject.class);
+        when(branchedProject.entry("main"))
+                .thenReturn(Optional.of(new BranchedProject.BranchEntry(mockProject, mock(BranchStatus.class))));
 
+        when(repository.getBranch()).thenReturn("main");
         when(designTimeRepository.hasProject("design-rating2", model.getProjectName())).thenReturn(Boolean.TRUE);
         when(designTimeRepository.getProject("design-rating2", model.getProjectName())).thenReturn(mockProject);
+        when(designTimeRepository.getBranchedProject("design-rating2", model.getProjectName()))
+                .thenReturn(Optional.of(branchedProject));
 
         assertNull(validateAndGetResult(model, validator));
 

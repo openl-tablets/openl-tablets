@@ -1,5 +1,7 @@
 package org.openl.rules.dt.data;
 
+import lombok.Getter;
+
 import org.openl.OpenL;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.component.ComponentOpenClass;
@@ -10,6 +12,7 @@ import org.openl.types.IOpenField;
 public class DecisionExprFieldDataType extends ComponentOpenClass {
     private final DecisionTableDataType decisionTableDataType;
 
+    @Getter
     private boolean exprParameterFieldIsUsed = false;
 
     DecisionExprFieldDataType(DecisionTableDataType decisionTableDataType, OpenL openl) {
@@ -17,13 +20,9 @@ public class DecisionExprFieldDataType extends ComponentOpenClass {
         this.decisionTableDataType = decisionTableDataType;
     }
 
-    public boolean isExprParameterFieldIsUsed() {
-        return exprParameterFieldIsUsed;
-    }
-
     @Override
     public IOpenField getField(String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField openField = decisionTableDataType.getField(name, strictMatch);
+        var openField = decisionTableDataType.getField(name, strictMatch);
         if (openField instanceof DecisionRowField decisionRowField) {
             exprParameterFieldIsUsed = true;
             return new ExprDecisionRowField(decisionRowField, getOpenl());

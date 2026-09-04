@@ -26,7 +26,10 @@ import org.openl.types.IOpenMethod;
  * @param watches             cells to watch by name or ref, captured on every execution
  * @param stopAtEntry         suspend at the first frame instead of running to the first breakpoint
  * @param profiling           retain the executed call tree's structure so it can be browsed after it returns
+ * @param detailedTitles      build the classic detailed titles (signature, result, cell values) into the tree
+ * @param breakOnErrors       suspend on a throwing frame ({@code true}) or let the error terminate the run ({@code false})
  * @param listener            status sink for WebSocket notifications
+ * @param sessionId           identity of the session, carried by stack views and status events
  */
 public record TraceDebugStartRequest(
         ProjectModel projectModel,
@@ -42,6 +45,9 @@ public record TraceDebugStartRequest(
         Set<String> watches,
         boolean stopAtEntry,
         boolean profiling,
-        DebugListener listener
+        boolean detailedTitles,
+        boolean breakOnErrors,
+        DebugListener listener,
+        String sessionId
 ) {
 }

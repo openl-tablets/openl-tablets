@@ -35,7 +35,7 @@ final class BoundNodeAnalyzingUtils {
     }
 
     private static boolean loopNodeMayCompleteNormally(LoopNode loopNode) {
-        IBoundNode conditionNode = loopNode.getConditionNode();
+        var conditionNode = loopNode.getConditionNode();
         if (conditionNode == null) {
             return false;
         }
@@ -44,7 +44,7 @@ final class BoundNodeAnalyzingUtils {
     }
 
     private static boolean ifNodeMayCompleteNormally(IfNode ifNode) {
-        final IBoundNode conditionNode = ifNode.getConditionNode();
+        final var conditionNode = ifNode.getConditionNode();
         if (conditionNode instanceof LiteralBoundNode) {
             final Object value = computeConstantExpression(conditionNode);
             if (Boolean.TRUE == value) {
@@ -61,7 +61,7 @@ final class BoundNodeAnalyzingUtils {
         if (blockNode == null) {
             return true;
         }
-        IBoundNode[] children = blockNode.getChildren();
+        var children = blockNode.getChildren();
         for (IBoundNode child : children) {
             if (!nodeMayCompleteNormally(child)) {
                 return false;
@@ -74,7 +74,7 @@ final class BoundNodeAnalyzingUtils {
         if (!(conditionNode instanceof LiteralBoundNode)) {
             return null;
         }
-        LiteralBoundNode literalNode = (LiteralBoundNode) conditionNode;
+        var literalNode = (LiteralBoundNode) conditionNode;
         return literalNode.getValue();
     }
 

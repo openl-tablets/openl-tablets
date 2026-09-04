@@ -1,23 +1,20 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 class FieldContextPropertyInjection extends AbstractContextPropertyInjector {
     private final int paramIndex;
     private final IOpenField field;
     private final IOpenCast openCast;
 
-    public FieldContextPropertyInjection(int paramIndex, IOpenField field, IOpenCast openCast) {
-        this.paramIndex = paramIndex;
-        this.field = field;
-        this.openCast = openCast;
-    }
-
     @Override
     protected Object getValue(Object[] params, IRuntimeEnv env) {
-        Object value = field.get(params[paramIndex], env);
+        var value = field.get(params[paramIndex], env);
         return openCast.convert(value);
     }
 

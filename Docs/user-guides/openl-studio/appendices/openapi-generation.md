@@ -125,16 +125,6 @@ An OpenL Tablets project can be generated from any OpenAPI file. It is also poss
 
     Based on this schema, the examplePathWithRC path with the **POST** operation is included in the exposed methods, but pathWithoutRC/{a} path is not included.
 
--   project with allowed variations
-
-    If the OpenAPI schema contains all schemas named Variation, NoVariation, VariationsPack, ArgumentReplacementVariation, ComplexVariation, DeepCloningVariation, JXPathVariation, and VariationResult, it is considered that the OpenAPI file is generated from the project with variations support enabled.
-
-    ![](../images/openapi-gen-variations-option.png)
-
-    *The enabled option for providing variations*
-
-    All paths which contain variations will be ignored and a generated project will also have enabled variations.
-
 #### Data Table
 
 The path is recognized as a data table model if the following conditions are met:

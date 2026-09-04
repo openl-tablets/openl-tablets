@@ -1,12 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -15,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
@@ -28,7 +24,6 @@ import org.openl.studio.settings.model.constraint.TimePatternConstraint;
  * @author NSamatov
  */
 public final class AdministrationSettings implements SettingsHolder {
-    private static final Collection<String> allSettings;
 
     public static final String USER_WORKSPACE_HOME = "user.workspace.home";
     public static final String PROJECT_HISTORY_COUNT = "project.history.count";
@@ -42,142 +37,63 @@ public final class AdministrationSettings implements SettingsHolder {
     public static final String TEST_RUN_THREAD_COUNT_PROPERTY = "test.run.thread.count";
     public static final String AUTO_COMPILE = "compile.auto";
 
+    @Getter
     @Parameter(description = "The maximum count of saved changes for each project per user.")
+    @Setter
     @Min(0)
     @SettingPropertyName(PROJECT_HISTORY_COUNT)
     private Integer projectHistoryCount;
 
+    @Getter
     @Parameter(description = "Update table properties ('createdOn', 'modifiedBy' etc.) on editing.")
+    @Setter
     @SettingPropertyName(UPDATE_SYSTEM_PROPERTIES)
     private Boolean updateSystemProperties;
 
     @Parameter(description = "Date Format.")
+    @Setter
     @NotBlank
     @DatePatternConstraint
+    @Getter
     @SettingPropertyName(DATE_PATTERN)
     private String datePattern;
 
+    @Getter
     @Parameter(description = "Time Format.")
+    @Setter
     @NotBlank
     @TimePatternConstraint
     @SettingPropertyName(TIME_PATTERN)
     private String timeFormat;
 
+    @Getter
     @Parameter(description = "Thread number for tests.")
+    @Setter
     @Min(1)
     @SettingPropertyName(TEST_RUN_THREAD_COUNT_PROPERTY)
     private Integer testRunThreadCount;
 
+    @Getter
     @Parameter(description = "Turn on/off the Dispatching Validation feature.")
+    @Setter
     @SettingPropertyName(OpenLSystemProperties.DISPATCHING_VALIDATION)
     private Boolean dispatchingValidationEnabled;
 
+    @Getter
     @Parameter(description = "Turn on/off verification on edit.")
+    @Setter
     @SettingPropertyName(AUTO_COMPILE)
     private Boolean autoCompile;
 
+    @Getter
     @Valid
     @NotNull
+    @Setter
     @JsonMerge
     private DBSettings db;
 
-    static {
-        List<String> settingNames = new ArrayList<>();
-
-        for (Field field : AdministrationSettings.class.getFields()) {
-            int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
-                try {
-                    Object value = field.get(null);
-                    if (value instanceof String string) {
-                        settingNames.add(string);
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        }
-
-        settingNames.add(OpenLSystemProperties.DISPATCHING_VALIDATION);
-
-        allSettings = Collections.unmodifiableCollection(settingNames);
-    }
-
-    /**
-     * Get all settings edited in "Administration" page
-     *
-     * @return setting property names edited in "Administration" page
-     */
-    public static Collection<String> getAllSettings() {
-        return allSettings;
-    }
-
     public AdministrationSettings() {
         db = new DBSettings();
-    }
-
-    public Integer getProjectHistoryCount() {
-        return projectHistoryCount;
-    }
-
-    public void setProjectHistoryCount(Integer projectHistoryCount) {
-        this.projectHistoryCount = projectHistoryCount;
-    }
-
-    public Boolean getUpdateSystemProperties() {
-        return updateSystemProperties;
-    }
-
-    public void setUpdateSystemProperties(Boolean updateSystemProperties) {
-        this.updateSystemProperties = updateSystemProperties;
-    }
-
-    public String getDatePattern() {
-        return datePattern;
-    }
-
-    public void setDatePattern(String datePattern) {
-        this.datePattern = datePattern;
-    }
-
-    public String getTimeFormat() {
-        return timeFormat;
-    }
-
-    public void setTimeFormat(String timeFormat) {
-        this.timeFormat = timeFormat;
-    }
-
-    public Integer getTestRunThreadCount() {
-        return testRunThreadCount;
-    }
-
-    public void setTestRunThreadCount(Integer testRunThreadCount) {
-        this.testRunThreadCount = testRunThreadCount;
-    }
-
-    public Boolean getDispatchingValidationEnabled() {
-        return dispatchingValidationEnabled;
-    }
-
-    public void setDispatchingValidationEnabled(Boolean dispatchingValidationEnabled) {
-        this.dispatchingValidationEnabled = dispatchingValidationEnabled;
-    }
-
-    public Boolean getAutoCompile() {
-        return autoCompile;
-    }
-
-    public void setAutoCompile(Boolean autoCompile) {
-        this.autoCompile = autoCompile;
-    }
-
-    public DBSettings getDb() {
-        return db;
-    }
-
-    public void setDb(DBSettings db) {
-        this.db = db;
     }
 
     @Override

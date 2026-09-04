@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.admin.security;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.admin.SettingsHolder;
@@ -15,27 +17,39 @@ public class OAuth2AttributesSettings implements SettingsHolder {
     private static final String ATTR_EMAIL = "security.oauth2.attribute.email";
     private static final String ATTR_GROUPS = "security.oauth2.attribute.groups";
 
+    @Getter
     @Parameter(description = "OAuth2 attribute for username.")
+    @Setter
     @SettingPropertyName(ATTR_USERNAME)
     private String username;
 
+    @Getter
     @Parameter(description = "OAuth2 attribute for first name.")
+    @Setter
     @SettingPropertyName(ATTR_FIRST_NAME)
     private String firstName;
 
+    @Getter
     @Parameter(description = "OAuth2 attribute for last name.")
+    @Setter
     @SettingPropertyName(ATTR_LAST_NAME)
     private String lastName;
 
+    @Getter
     @Parameter(description = "OAuth2 attribute for display name.")
+    @Setter
     @SettingPropertyName(ATTR_DISPLAY_NAME)
     private String displayName;
 
+    @Getter
     @Parameter(description = "OAuth2 attribute for email.")
+    @Setter
     @SettingPropertyName(ATTR_EMAIL)
     private String email;
 
+    @Getter
     @Parameter(description = "OAuth2 attribute for groups.")
+    @Setter
     @SettingPropertyName(ATTR_GROUPS)
     private String groups;
 
@@ -69,53 +83,5 @@ public class OAuth2AttributesSettings implements SettingsHolder {
                 ATTR_EMAIL,
                 ATTR_GROUPS
         );
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getGroups() {
-        return groups;
-    }
-
-    public void setGroups(String groups) {
-        this.groups = groups;
     }
 }

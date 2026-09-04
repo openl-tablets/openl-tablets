@@ -11,23 +11,27 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.fast.FastStringReader;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class StringSourceCodeModule implements IOpenSourceCodeModule {
 
+    @Getter
     private final String code;
+    @Getter
     private final String uri;
 
+    @Getter
+    @Setter
     private Map<String, Object> params;
-
-    public StringSourceCodeModule(String code, String uri) {
-        this.code = code;
-        this.uri = uri;
-    }
 
     @Override
     public InputStream getByteStream() {
@@ -40,27 +44,7 @@ public class StringSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     @Override
-    public String getCode() {
-        return code;
-    }
-
-    @Override
     public int getStartPosition() {
         return 0;
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 }

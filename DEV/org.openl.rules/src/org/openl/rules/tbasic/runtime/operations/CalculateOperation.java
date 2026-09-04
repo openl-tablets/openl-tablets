@@ -32,7 +32,7 @@ public class CalculateOperation extends OpenLEvaluationOperation {
      */
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        Object resultValue = evaluateStatement(environment);
+        var resultValue = evaluateStatement(environment);
         return new Result(ReturnType.NEXT, resultValue);
     }
 

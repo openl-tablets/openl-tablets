@@ -3,6 +3,7 @@ package org.openl.rules.dt;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.openl.binding.IBoundNode;
@@ -13,6 +14,7 @@ import org.openl.util.text.TextInfo;
 import org.openl.util.text.TextInterval;
 
 public class AST {
+    @Getter
     private final IBoundNode boundNode;
     private final Map<IBoundNode, ILocation> extensiveLocationMap;
     private final Map<IBoundNode, ILocation> locationMap;
@@ -36,7 +38,7 @@ public class AST {
                                          Map<IBoundNode, ILocation> locationMap,
                                          IPosition start,
                                          IPosition end) {
-        Pair<IPosition, IPosition> p = buildLocationMaps(boundNode, map, locationMap);
+        var p = buildLocationMaps(boundNode, map, locationMap);
         if (start == null || p.getLeft() != null && start.getAbsolutePosition(textInfo) > p.getLeft()
                 .getAbsolutePosition(textInfo)) {
             start = p.getLeft();
@@ -50,11 +52,11 @@ public class AST {
 
     // This method fixes missed bracers in code, because bracers don't have special nodes and build in to tree.
     private TextInterval fixTextInterval(IPosition start, IPosition end) {
-        int s = start.getAbsolutePosition(textInfo);
-        int e = end.getAbsolutePosition(textInfo);
-        String text = textInfo.getText().substring(s, e + 1);
-        int m = 0;
-        int k = 0;
+        var s = start.getAbsolutePosition(textInfo);
+        var e = end.getAbsolutePosition(textInfo);
+        var text = textInfo.getText().substring(s, e + 1);
+        var m = 0;
+        var k = 0;
         for (char c : text.toCharArray()) {
             if (c == '(') {
                 m++;
@@ -74,7 +76,7 @@ public class AST {
         }
         m = 0;
         k = 0;
-        int i = text.length() - 1;
+        var i = text.length() - 1;
         while (i > 0) {
             if (text.charAt(i) == ')') {
                 m++;
@@ -99,18 +101,18 @@ public class AST {
     private Pair<IPosition, IPosition> buildLocationMaps(IBoundNode boundNode,
                                                          Map<IBoundNode, ILocation> extensiveLocationMap,
                                                          Map<IBoundNode, ILocation> locationMap) {
-        ILocation location = boundNode.getSyntaxNode().getSourceLocation();
+        var location = boundNode.getSyntaxNode().getSourceLocation();
         IPosition start = location != null ? location.getStart() : null;
         IPosition end = location != null ? location.getEnd() : null;
-        IBoundNode x = boundNode;
+        var x = boundNode;
         while (x.getTargetNode() != null) {
             x = x.getTargetNode();
-            Pair<IPosition, IPosition> p1 = f(x, extensiveLocationMap, locationMap, start, end);
+            var p1 = f(x, extensiveLocationMap, locationMap, start, end);
             start = p1.getLeft();
             end = p1.getRight();
         }
         for (IBoundNode childNode : boundNode.getChildren()) {
-            Pair<IPosition, IPosition> p = f(childNode, extensiveLocationMap, locationMap, start, end);
+            var p = f(childNode, extensiveLocationMap, locationMap, start, end);
             start = p.getLeft();
             end = p.getRight();
         }
@@ -123,10 +125,6 @@ public class AST {
         return Pair.of(start, end);
     }
 
-    public IBoundNode getBoundNode() {
-        return boundNode;
-    }
-
     public ILocation getLocation(IBoundNode boundNode) {
         return locationMap.get(boundNode);
     }
@@ -137,9 +135,9 @@ public class AST {
 
     public String getCode(IBoundNode boundNode) {
         if (this.boundNode != null) {
-            ILocation location = extensiveLocationMap.get(boundNode);
-            int begin = location.getStart().getAbsolutePosition(textInfo);
-            int end = location.getEnd().getAbsolutePosition(textInfo);
+            var location = extensiveLocationMap.get(boundNode);
+            var begin = location.getStart().getAbsolutePosition(textInfo);
+            var end = location.getEnd().getAbsolutePosition(textInfo);
             return textInfo.getText().substring(begin, end + 1);
         }
         return null;

@@ -80,7 +80,7 @@ are ignored — and re-renders only when the set of mounted islands changes.
 4. For anything beyond a couple of scalars, fetch from REST inside the component (see *Backend data*) rather
    than stuffing state into `data-*`.
 
-Worked examples: `home.xhtml` → `Help`, `pages/modules/project.xhtml` → `ProjectPage`.
+Worked examples: `home.xhtml` → `Help`, `pages/modules/changes.xhtml` → `LocalChangesView`.
 
 ## Pattern B — Event-triggered overlay (dialogs, popups, modals)
 
@@ -113,6 +113,28 @@ globalThis.dispatchEvent(new CustomEvent('openDeleteFileModal', { detail: { proj
 Worked examples: `DeleteFileModal` (`openDeleteFileModal`), `MergeModal` (`openMergeModal`), `DeployModal`
 (`openDeployModal`), `TraceExecutionModal`, `TableGraphModal`.
 
+### Reusing a Projects tab dialog
+
+A dialog the Projects tab already has takes a loaded project rather than an event. Wrap it in a small **host**
+that turns the event into that project, and send only the project id — the JSF page then makes no REST call of
+its own, and both tabs open the same dialog with the same data.
+
+```tsx
+export const SaveProjectModalHost: React.FC = () => {
+    const { detail, project, close } = useEventProject<SaveProjectModalDetail>(
+        'openSaveProjectModal', 'repository:browser.save_dialog.load_failed')
+    return <SaveProjectModal onClose={close} onSaved={() => detail?.onSuccess?.()}
+        open={project !== null} project={project} />
+}
+```
+
+`useEventProject` listens for the event, reads the project, holds the loading overlay for the read, and keeps
+the dialog shut when the project cannot be read — reporting why instead of opening it empty.
+
+Worked examples: `SaveProjectModalHost` (`openSaveProjectModal`), `ExportProjectModalHost`
+(`openExportProjectModal`, with an optional `filePath` to export a single file), `CopyProjectModalHost`
+(`openCopyProjectModal`).
+
 ## Pattern C — Service bridge (React ↔ JSF interop)
 
 When a legacy page needs a React-owned capability (or vice versa), publish it on `globalThis.openl` once and
@@ -142,6 +164,12 @@ full-screen `LoadingOverlay` that replaced the jQuery `#loadingPanel` spinner).
 The React component talks to the server through REST (`services/apiCall.ts`), **never** by reading JSF beans.
 
 - For read-only views, call an existing `GET`.
+- Identify project and module state in every read and action instead of reading the JSF session. For example, the
+  Local Changes island calls `GET /projects/{projectId}/local-history?module={moduleName}` to read history and
+  `POST /projects/{projectId}/local-history/restore?module={moduleName}` to restore it. Project-wide deletion uses
+  `DELETE /projects/{projectId}/local-history`. Its legacy comparison page
+  receives the same project ID and module name. This keeps every action scoped to the island after remounts, in a
+  fresh HTTP session, and when another browser tab changes the session's current module.
 - For editable state, put a REST **façade** in front of the domain service and make it the **source of
   truth** (e.g. `GET`/`PUT /projects/{id}/descriptor`). Guard concurrent edits with an optimistic
   **content hash**: `GET` returns it, `PUT` echoes it, a mismatch returns `409` → the UI confirms and retries

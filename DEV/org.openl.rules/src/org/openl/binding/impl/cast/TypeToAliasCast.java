@@ -2,6 +2,8 @@ package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
+
 import org.openl.domain.IDomain;
 import org.openl.types.IOpenClass;
 import org.openl.util.DomainUtils;
@@ -23,8 +25,10 @@ final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
      * Result type of object after conversion.
      */
     private final IOpenClass toClass;
+    @Getter
     private int distance = CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
     private IOpenCast typeCast;
+    @Getter
     private boolean implicit = true;
 
     TypeToAliasCast(IOpenClass to) {
@@ -84,16 +88,6 @@ final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
 
         // Return object as a converted value.
         return from;
-    }
-
-    @Override
-    public int getDistance() {
-        return distance;
-    }
-
-    @Override
-    public boolean isImplicit() {
-        return implicit;
     }
 
 }

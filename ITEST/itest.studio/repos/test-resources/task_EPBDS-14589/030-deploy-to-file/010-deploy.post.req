@@ -1,0 +1,11 @@
+POST /rest/deployments HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "productionRepositoryId": "production-file",
+  "deploymentName": "EPBDS-14589-file",
+  "projectId": "ZGVzaWduOkVQQkRTXzE0NTg5",
+  "comment": "EPBDS-14589 Deploy a project of a database repository"
+}
+

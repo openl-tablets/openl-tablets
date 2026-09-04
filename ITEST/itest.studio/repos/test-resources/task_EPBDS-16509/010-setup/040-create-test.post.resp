@@ -1,0 +1,11 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Test",
+  "kind": "Test",
+  "name": "attributesTest",
+  "file": "***",
+  "pos": "B2:C5"
+}

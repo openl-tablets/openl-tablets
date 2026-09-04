@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
-import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.Observer;
 import org.openl.ie.constrainer.Subject;
@@ -38,7 +37,7 @@ class TestIntExpAddExp {
     void testAttachDetachObserver() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
-        IntExp sum = new IntExpAddExp(intvar1, intvar2);
+        var sum = new IntExpAddExp(intvar1, intvar2);
         class TestObserver extends Observer {
             private int counter = 0;
 
@@ -93,7 +92,7 @@ class TestIntExpAddExp {
     void testCalc_MaxAndCalc_Min() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
-        IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
+        var sum = new IntExpAddExp(intvar1, intvar2);
 
         assertEquals(20, sum.calc_max());
         assertEquals(-20, sum.calc_min());
@@ -113,7 +112,7 @@ class TestIntExpAddExp {
     void testMaxMin() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
-        IntExp sum = new IntExpAddExp(intvar1, intvar2);
+        var sum = new IntExpAddExp(intvar1, intvar2);
         assertEquals(10 * 2, sum.max());
         assertEquals(-10 * 2, sum.min());
         try {
@@ -133,7 +132,7 @@ class TestIntExpAddExp {
     void testSetMax() {
         IntVar intvar1 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
-        IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
+        var sum = new IntExpAddExp(intvar1, intvar2);
         // setting sum[i=1..10](array[i].min()) as maxValue has to result in
         // assigning values to
         // all entries of the array
@@ -192,7 +191,7 @@ class TestIntExpAddExp {
     void testSetMin() {
         IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);
-        IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
+        var sum = new IntExpAddExp(intvar1, intvar2);
         // setting sum[i=1..10](array[i].min()) as maxValue has to result in
         // assigning values to
         // all entries of the array
@@ -251,7 +250,7 @@ class TestIntExpAddExp {
     void testSetValue() {
         IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);
-        IntExpAddExp sum = new IntExpAddExp(intvar1, intvar2);
+        var sum = new IntExpAddExp(intvar1, intvar2);
         try {
             sum.setValue(-1);
             fail("allow to assign a value that greater then sum[i=1..10](array[i].max())");

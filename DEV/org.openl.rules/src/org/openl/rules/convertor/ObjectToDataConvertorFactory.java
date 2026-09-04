@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
@@ -26,22 +28,12 @@ import org.openl.util.RuntimeExceptionWrapper;
  * @author PUdalau
  */
 public class ObjectToDataConvertorFactory {
+    @RequiredArgsConstructor
     public static class ClassCastPair {
+        @Getter
         private final Class<?> from;
+        @Getter
         private final Class<?> to;
-
-        public ClassCastPair(Class<?> from, Class<?> to) {
-            this.from = from;
-            this.to = to;
-        }
-
-        public Class<?> getFrom() {
-            return from;
-        }
-
-        public Class<?> getTo() {
-            return to;
-        }
 
         @Override
         public int hashCode() {
@@ -53,17 +45,14 @@ public class ObjectToDataConvertorFactory {
             if (!(obj instanceof ClassCastPair)) {
                 return false;
             }
-            ClassCastPair pair = (ClassCastPair) obj;
+            var pair = (ClassCastPair) obj;
             return from == pair.from && to == pair.to;
         }
     }
 
+    @RequiredArgsConstructor
     public static class MatchedConstructorConvertor implements IObjectToDataConvertor {
         private final Constructor<?> ctr;
-
-        public MatchedConstructorConvertor(Constructor<?> ctr) {
-            this.ctr = ctr;
-        }
 
         @Override
         public Object convert(Object data) {
@@ -162,9 +151,9 @@ public class ObjectToDataConvertorFactory {
         if (toClass == fromClass) {
             return CopyConvertor.the;
         }
-        ClassCastPair pair = new ClassCastPair(fromClass, toClass);
+        var pair = new ClassCastPair(fromClass, toClass);
 
-        IObjectToDataConvertor convertor = converters.get(pair);
+        var convertor = converters.get(pair);
         if (convertor != null) {
             return convertor;
         }
@@ -175,7 +164,7 @@ public class ObjectToDataConvertorFactory {
         } else {
             // try to find appropriate constructor.
             //
-            Constructor<?> ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, fromClass);
+            var ctr = ConstructorUtils.getMatchingAccessibleConstructor(toClass, fromClass);
 
             if (ctr != null) {
                 convertor = new MatchedConstructorConvertor(ctr);
@@ -198,7 +187,7 @@ public class ObjectToDataConvertorFactory {
     public static IObjectToDataConvertor registerConvertor(Class<?> toClass,
                                                            Class<?> fromClass,
                                                            IObjectToDataConvertor convertor) {
-        ClassCastPair pair = new ClassCastPair(fromClass, toClass);
+        var pair = new ClassCastPair(fromClass, toClass);
         return converters.put(pair, convertor);
     }
 

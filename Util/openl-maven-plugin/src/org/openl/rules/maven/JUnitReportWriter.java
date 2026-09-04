@@ -4,7 +4,6 @@ import static org.openl.rules.testmethod.TestStatus.TR_OK;
 
 import java.io.File;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -15,11 +14,11 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.openl.rules.testmethod.ITestUnit;
-import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.impl.ThisField;
@@ -31,15 +30,12 @@ import org.openl.types.impl.ThisField;
  * <p>
  * Not thread-safe.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class JUnitReportWriter {
     // NumberFormat is not thread-safe
     private final NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
     private final File dir;
     private XMLStreamWriter xml;
-
-    JUnitReportWriter(File dir) {
-        this.dir = dir;
-    }
 
     private static final String CDATA_START = "<![CDATA[";
     private static final String CDATA_END = "]]>";
@@ -84,23 +80,23 @@ class JUnitReportWriter {
     }
 
     void write(TestUnitsResults result) throws Exception {
-        TestSuite testSuite = result.getTestSuite();
-        String testName = testSuite.getTestSuiteMethod().getName();
-        String moduleName = testSuite.getTestSuiteMethod().getModuleName();
+        var testSuite = result.getTestSuite();
+        var testName = testSuite.getTestSuiteMethod().getName();
+        var moduleName = testSuite.getTestSuiteMethod().getModuleName();
 
-        String suitName = "OpenL." + moduleName + "." + testName;
-        String filename = "TEST-" + suitName + ".xml";
+        var suitName = "OpenL." + moduleName + "." + testName;
+        var filename = "TEST-" + suitName + ".xml";
 
-        int tests = result.getNumberOfTestUnits();
-        int failures = result.getNumberOfAssertionFailures();
-        int errors = result.getNumberOfErrors();
-        long executionTime = result.getExecutionTime();
+        var tests = result.getNumberOfTestUnits();
+        var failures = result.getNumberOfAssertionFailures();
+        var errors = result.getNumberOfErrors();
+        var executionTime = result.getExecutionTime();
         List<ITestUnit> testUnits = result.getTestUnits();
 
         dir.mkdirs();
-        File file = new File(dir, filename);
+        var file = new File(dir, filename);
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        try (Writer writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
+        try (Writer writer = Files.newBufferedWriter(file.toPath())) {
             xml = factory.createXMLStreamWriter(writer);
             try {
                 writeTestsuite(suitName, tests, failures, errors, executionTime, testUnits);
@@ -160,7 +156,7 @@ class JUnitReportWriter {
 
     private void writeErrorOrFailureElement(ITestUnit test) throws XMLStreamException {
 
-        TestStatus testStatus = test.getResultStatus();
+        var testStatus = test.getResultStatus();
         switch (testStatus) {
             case TR_OK -> {
             }
@@ -171,7 +167,7 @@ class JUnitReportWriter {
                 end();
             }
             case TR_EXCEPTION -> {
-                Throwable throwable = (Throwable) test.getActualResult();
+                var throwable = (Throwable) test.getActualResult();
                 start("error");
                 attr("type", throwable.getClass().getName());
                 attr("message", throwable.getMessage());
@@ -183,7 +179,7 @@ class JUnitReportWriter {
     }
 
     private String failureMessage(ITestUnit testUnit) {
-        StringBuilder summaryBuilder = new StringBuilder();
+        var summaryBuilder = new StringBuilder();
         List<ComparedResult> comparisonResults = testUnit.getComparisonResults();
         for (ComparedResult comparisonResult : comparisonResults) {
             if (comparisonResult.getStatus() != TR_OK) {

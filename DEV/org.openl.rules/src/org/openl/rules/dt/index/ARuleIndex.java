@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.Set;
+
+import lombok.Getter;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ConditionCasts;
@@ -14,17 +15,13 @@ import org.openl.rules.dt.element.ConditionCasts;
  */
 public abstract class ARuleIndex implements IRuleIndex {
 
+    @Getter
     private final DecisionTableRuleNode emptyOrFormulaNodes;
     private final ConditionCasts conditionCasts;
 
     ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes, ConditionCasts conditionCasts) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
-    }
-
-    @Override
-    public DecisionTableRuleNode getEmptyOrFormulaNodes() {
-        return emptyOrFormulaNodes;
     }
 
     @Override
@@ -37,7 +34,7 @@ public abstract class ARuleIndex implements IRuleIndex {
         }
 
         value = conditionCasts.castToConditionType(value);
-        DecisionTableRuleNode node = findNodeInIndex(value);
+        var node = findNodeInIndex(value);
 
         return node == null ? emptyOrFormulaNodes : node;
     }
@@ -49,17 +46,17 @@ public abstract class ARuleIndex implements IRuleIndex {
 
     @Override
     public int[] collectRules() {
-        Set<Integer> set = new HashSet<>();
+        var set = new HashSet<Integer>();
 
         for (DecisionTableRuleNode node : nodes()) {
-            int[] rules = node.getRules();
+            var rules = node.getRules();
             for (int rule : rules) {
                 set.add(rule);
             }
         }
 
         if (emptyOrFormulaNodes != null) {
-            int[] rules = emptyOrFormulaNodes.getRules();
+            var rules = emptyOrFormulaNodes.getRules();
             for (int rule : rules) {
                 set.add(rule);
             }
@@ -70,7 +67,7 @@ public abstract class ARuleIndex implements IRuleIndex {
 
         Iterator<Integer> it = set.iterator();
 
-        for (int i = 0; i < res.length && it.hasNext(); i++) {
+        for (var i = 0; i < res.length && it.hasNext(); i++) {
             res[i] = it.next();
         }
 

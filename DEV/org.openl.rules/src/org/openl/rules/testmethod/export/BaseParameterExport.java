@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.poi.ss.usermodel.Cell;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -14,10 +16,7 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
@@ -33,25 +32,25 @@ abstract class BaseParameterExport extends BaseExport {
             return;
         }
 
-        int rowNum = FIRST_ROW;
-        int colNum = FIRST_COLUMN;
+        var rowNum = FIRST_ROW;
+        var colNum = FIRST_COLUMN;
 
         for (TestUnitsResults test : tests) {
             if (test.getTestSuite().getNumberOfTests() == 0) {
                 continue;
             }
-            Row row = sheet.createRow(rowNum);
-            String testName = getTestName(test);
+            var row = sheet.createRow(rowNum);
+            var testName = getTestName(test);
             createCell(row, colNum, "Parameters of " + testName, styles.parametersInfo);
 
             rowNum += 2; // Skip one row
 
             // Finding non empty fields from the test results is very expensive. Find them only once and then reuse
             // everywhere where needed.
-            List<List<FieldDescriptor>> nonEmptyFields = getAllNonEmptyFields(test.getTestSuite().getTests(),
+            var nonEmptyFields = getAllNonEmptyFields(test.getTestSuite().getTests(),
                     skipEmptyParameters);
 
-            final Cursor start = new Cursor(rowNum, colNum);
+            final var start = new Cursor(rowNum, colNum);
             rowNum = doWrite(sheet, start, test, nonEmptyFields, skipEmptyParameters);
             rowNum += SPACE_BETWEEN_RESULTS;
         }
@@ -64,8 +63,8 @@ abstract class BaseParameterExport extends BaseExport {
                          Boolean skipEmptyParameters);
 
     private String getTestName(TestUnitsResults test) {
-        TestSuite testSuite = test.getTestSuite();
-        TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
+        var testSuite = test.getTestSuite();
+        var testSuiteMethod = testSuite.getTestSuiteMethod();
         if (testSuiteMethod != null) {
             return TableSyntaxNodeUtils.getTestName(testSuiteMethod);
         } else {
@@ -79,13 +78,13 @@ abstract class BaseParameterExport extends BaseExport {
 
     private List<List<FieldDescriptor>> getAllNonEmptyFields(TestDescription[] descriptions,
                                                              Boolean skipEmptyParameters) {
-        TestDescription description = descriptions[0];
-        ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
+        var description = descriptions[0];
+        var executionParams = description.getExecutionParams();
 
-        List<List<FieldDescriptor>> result = new ArrayList<>(executionParams.length);
-        for (int i = 0; i < executionParams.length; i++) {
-            ParameterWithValueDeclaration param = executionParams[i];
-            List<Object> values = valuesForAllCases(descriptions, i);
+        var result = new ArrayList<List<FieldDescriptor>>(executionParams.length);
+        for (var i = 0; i < executionParams.length; i++) {
+            var param = executionParams[i];
+            var values = valuesForAllCases(descriptions, i);
             if (ClassUtils.isAssignable(param.getType().getInstanceClass(), Collection.class)) {
                 IOpenClass paramType = CastToWiderType.defineCollectionWiderType((Collection<?>) param.getValue());
                 result.add(FieldDescriptor.nonEmptyFields(paramType, values, skipEmptyParameters));
@@ -98,9 +97,9 @@ abstract class BaseParameterExport extends BaseExport {
     }
 
     private List<Object> valuesForAllCases(TestDescription[] testDescriptions, int paramNum) {
-        List<Object> values = new ArrayList<>();
+        var values = new ArrayList<Object>();
         for (TestDescription description : testDescriptions) {
-            ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
+            var executionParams = description.getExecutionParams();
             if (executionParams.length > 0) {
                 values.add(executionParams[paramNum].getValue());
             } else {
@@ -115,14 +114,14 @@ abstract class BaseParameterExport extends BaseExport {
      * rowAccessWindowSize
      */
     protected Cursor performWrite(Sheet sheet, Cursor start, TreeSet<WriteTask> tasks, int lastCellNum) {
-        int lowestRowNum = start.getRowNum();
-        int rightColNum = start.getColNum();
-        Row row = sheet.createRow(lowestRowNum);
+        var lowestRowNum = start.getRowNum();
+        var rightColNum = start.getColNum();
+        var row = sheet.createRow(lowestRowNum);
 
         for (WriteTask task : tasks) {
-            Cursor cursor = task.getCursor();
-            int rowNum = cursor.getRowNum();
-            int colNum = cursor.getColNum();
+            var cursor = task.getCursor();
+            var rowNum = cursor.getRowNum();
+            var colNum = cursor.getColNum();
 
             if (rowNum > lowestRowNum) {
                 styleEmptyCells(row, start.getColNum(), lastCellNum);
@@ -135,10 +134,10 @@ abstract class BaseParameterExport extends BaseExport {
 
             createCell(row, colNum, task.getValue(), task.getStyle());
 
-            int height = task.getHeight();
+            var height = task.getHeight();
             if (height > 1) {
-                int lastRow = rowNum + height - 1;
-                CellRangeAddress region = new CellRangeAddress(rowNum, lastRow, colNum, colNum);
+                var lastRow = rowNum + height - 1;
+                var region = new CellRangeAddress(rowNum, lastRow, colNum, colNum);
                 // addMergedRegion() is too slow. will invoke validation later.
                 row.getSheet().addMergedRegionUnsafe(region);
             }
@@ -151,53 +150,35 @@ abstract class BaseParameterExport extends BaseExport {
     }
 
     private void styleEmptyCells(Row row, int firstCellNum, int lastCellNum) {
-        for (int i = firstCellNum; i <= lastCellNum; i++) {
-            Cell cell = row.getCell(i);
+        for (var i = firstCellNum; i <= lastCellNum; i++) {
+            var cell = row.getCell(i);
             if (cell == null) {
                 createCell(row, i, null, styles.parameterAbsent);
             }
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     static final class WriteTask implements Comparable<WriteTask> {
+        @Getter
         private final Cursor cursor;
+        @Getter
         private final Object value;
+        @Getter
         private final CellStyle style;
+        @Getter
         private final int height;
 
         WriteTask(Cursor cursor, Object value, CellStyle style) {
             this(cursor, value, style, 1);
         }
 
-        WriteTask(Cursor cursor, Object value, CellStyle style, int height) {
-            this.cursor = cursor;
-            this.value = value;
-            this.style = style;
-            this.height = height;
-        }
-
-        public Cursor getCursor() {
-            return cursor;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public CellStyle getStyle() {
-            return style;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
         @Override
         public int compareTo(WriteTask o) {
-            Cursor cursor1 = getCursor();
-            Cursor cursor2 = o.getCursor();
+            var cursor1 = getCursor();
+            var cursor2 = o.getCursor();
 
-            int rowComparison = cursor1.getRowNum() - cursor2.getRowNum();
+            var rowComparison = cursor1.getRowNum() - cursor2.getRowNum();
             return rowComparison != 0 ? rowComparison : cursor1.getColNum() - cursor2.getColNum();
         }
     }

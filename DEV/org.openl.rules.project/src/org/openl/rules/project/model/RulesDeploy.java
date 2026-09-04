@@ -166,13 +166,13 @@ public class RulesDeploy {
             if (arg0 == null || arg0.isEmpty()) {
                 return null;
             }
-            List<MapStringEntryType> mapStringEntryTypes = new ArrayList<>();
-            MapType mapType = new MapType();
+            var mapStringEntryTypes = new ArrayList<MapStringEntryType>();
+            var mapType = new MapType();
             for (Map.Entry<String, Object> entry : arg0.entrySet()) {
                 if (!(entry.getValue() instanceof String)) {
                     throw new IllegalArgumentException("Expected string value in the Rules Deploy configuration");
                 }
-                MapStringEntryType mapStringEntryType = new MapStringEntryType();
+                var mapStringEntryType = new MapStringEntryType();
                 mapStringEntryType.setString(new String[]{entry.getKey(), (String) entry.getValue()});
                 mapStringEntryTypes.add(mapStringEntryType);
             }
@@ -182,7 +182,7 @@ public class RulesDeploy {
 
         @Override
         public Map<String, Object> unmarshal(MapType arg0) {
-            HashMap<String, Object> hashMap = new HashMap<>();
+            var hashMap = new HashMap<String, Object>();
             if (arg0 == null || arg0.entry == null) {
                 return hashMap;
             }
@@ -199,30 +199,18 @@ public class RulesDeploy {
         @XmlAccessorType(XmlAccessType.FIELD)
         static class MapType {
 
+            @Getter(AccessLevel.PACKAGE)
+            @Setter(AccessLevel.PACKAGE)
             @XmlElement(name = "entry")
             private List<MapStringEntryType> entry = new ArrayList<>();
-
-            List<MapStringEntryType> getEntry() {
-                return entry;
-            }
-
-            void setEntry(List<MapStringEntryType> entry) {
-                this.entry = entry;
-            }
         }
 
         @XmlAccessorType(XmlAccessType.FIELD)
         static class MapStringEntryType {
 
+            @Getter(AccessLevel.PACKAGE)
+            @Setter(AccessLevel.PACKAGE)
             private String[] string;
-
-            String[] getString() {
-                return string;
-            }
-
-            void setString(String[] string) {
-                this.string = string;
-            }
         }
     }
 

@@ -1,11 +1,10 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
@@ -28,7 +27,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
                               Map<String, FieldDescription> parentFields,
                               Map<String, FieldDescription> originalMethodTypes,
                               String methodName) {
-        super(beanName, beanFields, parentType, parentFields, Collections.emptySet(), false, false, true);
+        super(beanName, beanFields, parentType, parentFields, Set.of(), false, false, true);
         this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
         this.originalMethodTypes = originalMethodTypes;
     }
@@ -38,11 +37,11 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
         Type beanType = Type.getType(getBeanNameDescriptor());
 
         Method args = Method.getMethod("java.lang.Object[] _args()");
-        GeneratorAdapter ag = new GeneratorAdapter(Opcodes.ACC_PUBLIC, args, null, null, classWriter);
+        var ag = new GeneratorAdapter(Opcodes.ACC_PUBLIC, args, null, null, classWriter);
         ag.push(beanFields.size()); // array length
         ag.newArray(objectType); // ar = new Object[size]
 
-        int i = 0;
+        var i = 0;
         for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
             Type fieldType = Type.getType(field.getValue().getTypeDescriptor());
 
@@ -63,7 +62,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
         Type classType = Type.getType(Class.class);
 
         Method types = Method.getMethod("java.lang.Class[] _types()");
-        GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+        var tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
                 types,
                 null,
                 null,
@@ -71,7 +70,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
         tg.push(originalMethodTypes.size()); // array length
         tg.newArray(classType); // ar = new Object[size]
 
-        int i = 0;
+        var i = 0;
         for (Map.Entry<String, FieldDescription> field : originalMethodTypes.entrySet()) {
             Type fieldType = Type.getType(field.getValue().getTypeDescriptor());
 
@@ -89,7 +88,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
 
     private void addMethod(ClassWriter classWriter, String methodName) {
         Method method = Method.getMethod("java.lang.String _method()");
-        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
                 method,
                 null,
                 null,
@@ -118,7 +117,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
                                      FieldDescription field,
                                      String javaType,
                                      int index) {
-        AnnotationVisitor annotationVisitor = fieldVisitor.visitAnnotation(Type.getDescriptor(ParameterIndex.class),
+        var annotationVisitor = fieldVisitor.visitAnnotation(Type.getDescriptor(ParameterIndex.class),
                 true);
         annotationVisitor.visit("value", index);
         annotationVisitor.visitEnd();

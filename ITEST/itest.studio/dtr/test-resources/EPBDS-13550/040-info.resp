@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS-13550 Main Project",
+  "status": "CLOSED",
+  "dependencies": [
+    {
+      "name": "EPBDS-13550 Dependency Project1",
+      "status": "CLOSED"
+    },
+    {
+      "name": "EPBDS-13550 Dependency Project2",
+      "status": "CLOSED"
+    }
+  ]
+}

@@ -1,4 +1,12 @@
-import { deleteProject, deleteProjectFile, updateModuleFile, updateProjectFromFiles, updateProjectFromZip } from 'services/projects'
+import {
+    deleteProject,
+    deleteProjectFile,
+    getModuleSheets,
+    getProjectModules,
+    getProjectProperties,
+    updateProjectFromFiles,
+    updateProjectFromZip,
+} from 'services/projects'
 import apiCall from 'services/apiCall'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
@@ -138,27 +146,27 @@ describe('projects service', () => {
         expect(successSpy).toHaveBeenCalledTimes(1)
     })
 
-    it('PUTs the module file to its project-relative path with encoded segments', async () => {
-        mockApiCall.mockResolvedValueOnce(true)
-        const file = new Blob(['xlsx-bytes'])
+    describe('what a project holds', () => {
+        it('asks each resource for itself, and a module for its own sheets', async () => {
+            mockApiCall.mockResolvedValue([])
 
-        await expect(updateModuleFile('proj-id', 'rules/UK 100%/Main.xlsx', file)).resolves.toBe(true)
+            await getProjectModules('project/id')
+            await getProjectProperties('project-id')
+            await getProjectProperties('project-id', 'Column Match')
+            await getModuleSheets('project-id', 'Main Rules')
 
-        const [url, params] = mockApiCall.mock.calls[0] as [string, RequestInit]
-        expect(url).toBe('/projects/proj-id/files/rules/UK%20100%25/Main.xlsx')
-        expect(params.method).toBe('PUT')
-        expect((params.body as FormData).getAll('file')).toHaveLength(1)
-        expect(successSpy).toHaveBeenCalledTimes(1)
-    })
+            expect(mockApiCall.mock.calls.map(call => call[0])).toEqual([
+                '/projects/project_id/modules',
+                '/projects/project-id/properties',
+                '/projects/project-id/properties?tableType=Column%20Match',
+                '/projects/project-id/modules/Main%20Rules/sheets',
+            ])
+        })
 
-    it('surfaces the backend error message when the module update fails', async () => {
-        mockApiCall.mockRejectedValueOnce(new Error('File is locked.'))
+        it('reads an answer that is not a list as an empty one', async () => {
+            mockApiCall.mockResolvedValueOnce(null)
 
-        await expect(updateModuleFile('proj-id', 'Main.xlsx', new Blob(['x']))).resolves.toBe(false)
-
-        expect(errorSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ description: 'File is locked.' })
-        )
-        expect(successSpy).not.toHaveBeenCalled()
+            await expect(getProjectProperties('project-id')).resolves.toEqual([])
+        })
     })
 })

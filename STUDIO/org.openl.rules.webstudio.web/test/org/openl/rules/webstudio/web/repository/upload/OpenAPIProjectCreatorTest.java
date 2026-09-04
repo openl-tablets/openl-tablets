@@ -14,12 +14,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -30,7 +28,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.richfaces.model.UploadedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +113,7 @@ class OpenAPIProjectCreatorTest {
                                          ProjectDescriptor projectDescriptor,
                                          RulesInstantiationStrategy rulesInstantiationStrategy) {
         try {
-            OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
+            var openApiProjectValidator = new OpenApiProjectValidator();
             return openApiProjectValidator.validate(projectDescriptor, rulesInstantiationStrategy);
         } catch (RulesInstantiationException e) {
             return compiledOpenClass;
@@ -126,14 +123,14 @@ class OpenAPIProjectCreatorTest {
     private boolean run(String path) {
         log.info(">>> Compiling rules and running tests from the directory '{}'...", path);
 
-        boolean testsFailed = false;
-        final File testsDir = new File(path);
+        var testsFailed = false;
+        final var testsDir = new File(path);
 
         if (!testsDir.exists()) {
             log.warn("Test folder is not found.");
             return false;
         }
-        File[] files = testsDir.listFiles();
+        var files = testsDir.listFiles();
         // files = new File[] {new File(testsDir, "EPBDS-10072_ALL_multiple")};
         if (files == null) {
             log.warn("Test folder is not found.");
@@ -141,23 +138,21 @@ class OpenAPIProjectCreatorTest {
         }
 
         for (File file : files) {
-            int messagesCount = 0;
-            final long startTime = System.nanoTime();
-            String sourceFile = file.getName();
+            var messagesCount = 0;
+            final var startTime = System.nanoTime();
+            var sourceFile = file.getName();
             CompiledOpenClass compiledOpenClass;
             if (file.isFile() && OPENAPI_EXTS.stream().anyMatch(sourceFile::endsWith)) {
                 try {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    var out = new ByteArrayOutputStream();
                     Files.copy(file.toPath(), out);
 
-                    UploadedFile uploadedFile = mock(UploadedFile.class);
-                    when(uploadedFile.getName()).thenReturn(sourceFile);
-                    when(uploadedFile.getSize()).thenReturn((long) out.size());
-                    when(uploadedFile.getInputStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
+                    // The stream-based file mirrors the REST upload path, which has no temporary file upfront.
+                    var projectFile = new ProjectFile(sourceFile, new ByteArrayInputStream(out.toByteArray()));
 
                     OpenAPIProjectCreator projectCreator = null;
                     try {
-                        projectCreator = new OpenAPIProjectCreator(new ProjectFile(uploadedFile),
+                        projectCreator = new OpenAPIProjectCreator(projectFile,
                                 REPO_ID,
                                 sourceFile,
                                 sourceFile,
@@ -167,13 +162,13 @@ class OpenAPIProjectCreatorTest {
                                 MOCK_ALGORITHM_PATH,
                                 MOCK_MODEL_NAME,
                                 MOCK_ALGORITHM_NAME,
-                                Collections.emptyMap());
+                                Map.of());
                         projectCreator.createRulesProject();
                     } finally {
                         Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);
                     }
                     Path projectFolderPath = Path.of(OPENAPI_OUT, sourceFile);
-                    SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+                    var engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
                     engineFactoryBuilder.setExecutionMode(false);
                     engineFactoryBuilder.setProject(projectFolderPath.toAbsolutePath().toFile().getPath());
                     SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
@@ -182,7 +177,7 @@ class OpenAPIProjectCreatorTest {
                             engineFactory.getProjectDescriptor(),
                             engineFactory.getRulesInstantiationStrategy());
                 } catch (Exception e) {
-                    error(messagesCount++, startTime, sourceFile, "Compilation fails.", e);
+                    error(messagesCount, startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
                     continue;
                 }
@@ -192,14 +187,14 @@ class OpenAPIProjectCreatorTest {
                 continue;
             }
 
-            boolean success = true;
+            var success = true;
 
             // Check messages
-            File msgFile = new File(testsDir, sourceFile + ".msg.txt");
-            List<String> expectedMessages = new ArrayList<>();
+            var msgFile = new File(testsDir, sourceFile + ".msg.txt");
+            var expectedMessages = new ArrayList<String>();
             if (msgFile.exists()) {
                 try (var input = new FileInputStream(msgFile)) {
-                    String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+                    var content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
                     for (String message : content
                             .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
                         if (!StringUtils.isBlank(message)) {
@@ -215,15 +210,15 @@ class OpenAPIProjectCreatorTest {
                             exc);
                 }
 
-                Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
-                List<String> restMessages = new ArrayList<>(expectedMessages);
+                var unexpectedMessages = new LinkedHashSet<OpenLMessage>();
+                var restMessages = new ArrayList<String>(expectedMessages);
                 for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
-                    String actual = msg.getSeverity() + ": " + msg.getSummary();
+                    var actual = msg.getSeverity() + ": " + msg.getSummary();
                     if (msg.getSeverity().equals(Severity.ERROR)) {
                         success = false;
                     }
                     Iterator<String> itr = restMessages.iterator();
-                    boolean found = false;
+                    var found = false;
                     while (itr.hasNext()) {
                         if (actual.contains(itr.next())) {
                             itr.remove();
@@ -281,13 +276,13 @@ class OpenAPIProjectCreatorTest {
     }
 
     private void ok(long startTime, String sourceFile) {
-        final long ms = (System.nanoTime() - startTime) / 1000000;
+        final var ms = (System.nanoTime() - startTime) / 1000000;
         log.info("\u001B[1;32mSUCCESS\u001B[0m - in [\u001B[2;36m{}\u001B[0m] ({} ms)", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
-            final long ms = (System.nanoTime() - startTime) / 1000000;
+            final var ms = (System.nanoTime() - startTime) / 1000000;
             log.error("\u001B[1;31mFAILURE\u001B[0m - in [\u001B[2;36m{}\u001B[0m] ({} ms)", sourceFile, ms);
         }
         log.error(msg, args);

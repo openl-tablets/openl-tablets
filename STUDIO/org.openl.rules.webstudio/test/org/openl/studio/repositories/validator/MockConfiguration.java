@@ -18,6 +18,7 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.studio.config.ValidationConfiguration;
+import org.openl.studio.projects.validator.NewBranchValidatorFactory;
 
 @Configuration
 @ComponentScan(basePackages = {"org.openl.studio.repositories.validator", "org.openl.rules.rest.validation"})
@@ -30,6 +31,11 @@ public class MockConfiguration {
     @Bean
     public DesignTimeRepository designTimeRepository() {
         return mock(DesignTimeRepository.class);
+    }
+
+    @Bean
+    public NewBranchValidatorFactory newBranchValidatorFactory() {
+        return new NewBranchValidatorFactory(environment);
     }
 
     @Bean

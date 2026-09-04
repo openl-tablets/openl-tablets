@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "doRuntimeError",
+  "tableId": "*",
+  "executionTimeMs": "*",
+  "errors": [
+    {
+      "id": "*",
+      "summary": "sdsd",
+      "severity": "ERROR"
+    }
+  ]
+}

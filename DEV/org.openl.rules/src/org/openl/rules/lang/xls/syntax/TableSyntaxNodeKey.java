@@ -37,7 +37,7 @@ public class TableSyntaxNodeKey {
         if (!(obj instanceof TableSyntaxNodeKey)) {
             return false;
         }
-        TableSyntaxNodeKey key = (TableSyntaxNodeKey) obj;
+        var key = (TableSyntaxNodeKey) obj;
 
         return methodKey.equals(key.getMethodKey());
     }

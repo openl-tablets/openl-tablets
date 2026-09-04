@@ -1,5 +1,7 @@
 package org.openl.rules.range;
 
+import lombok.Getter;
+
 /**
  * List of separators for parsing ranges.
  *
@@ -13,6 +15,7 @@ enum Separator {
     TRIPLE_DOT(Range.Type.OPEN, "..."),
     DOUBLE_DOT(Range.Type.CLOSED, "..");
 
+    @Getter
     private final Range.Type type;
     private final char[] chars;
 
@@ -23,10 +26,6 @@ enum Separator {
 
     int length() {
         return chars.length;
-    }
-
-    public Range.Type getType() {
-        return type;
     }
 
     static Separator recognize(CharSequence text, int index) {
@@ -42,7 +41,7 @@ enum Separator {
         if (index + chars.length > text.length()) {
             return false;
         }
-        for (int i = 0; i < chars.length; i++) {
+        for (var i = 0; i < chars.length; i++) {
             if (text.charAt(index + i) != chars[i]) {
                 return false;
             }

@@ -1,7 +1,6 @@
 package org.openl.util;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public final class EnumUtils {
 
@@ -18,7 +17,7 @@ public final class EnumUtils {
     }
 
     public static String[] getNames(Object[] constants) {
-        List<String> names = new ArrayList<>();
+        var names = new ArrayList<String>();
         for (Object constant : constants) {
             if (constant != null) {
                 names.add(getName((Enum<?>) constant));
@@ -28,7 +27,7 @@ public final class EnumUtils {
     }
 
     public static String[] getValues(Object[] constants) {
-        List<String> values = new ArrayList<>();
+        var values = new ArrayList<String>();
         for (Object constant : constants) {
             values.add(constant.toString());
         }
@@ -42,7 +41,7 @@ public final class EnumUtils {
 
     public static String[] getValues(Class<?> enumClass) {
         Object[] constants = getEnumConstants(enumClass);
-        List<String> values = new ArrayList<>();
+        var values = new ArrayList<String>();
         for (Object constant : constants) {
             values.add(constant.toString());
         }

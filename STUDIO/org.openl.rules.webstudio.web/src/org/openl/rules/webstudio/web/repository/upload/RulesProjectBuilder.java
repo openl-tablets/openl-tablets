@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
@@ -24,10 +26,12 @@ import org.openl.util.FileUtils;
 
 @Slf4j
 public class RulesProjectBuilder {
+    @Getter(AccessLevel.PROTECTED)
     private final RulesProject project;
     private final UserWorkspace workspace;
     private final String comment;
     private final Path tempLocalRepositoryPath;
+    @Getter
     private String createProjectName;
 
     public RulesProjectBuilder(UserWorkspace workspace,
@@ -35,9 +39,22 @@ public class RulesProjectBuilder {
                                String projectName,
                                String projectFolder,
                                String comment) {
+        this(workspace,
+                workspace.getDesignTimeRepository().getRepository(repositoryId),
+                projectName,
+                projectFolder,
+                comment);
+    }
+
+    public RulesProjectBuilder(UserWorkspace workspace,
+                               Repository designRepository,
+                               String projectName,
+                               String projectFolder,
+                               String comment) {
         this.workspace = workspace;
         this.comment = comment;
-        String internalPath = projectFolder + projectName;
+        var repositoryId = designRepository.getId();
+        String internalPath = FileMappingData.internalPath(projectFolder, projectName);
         synchronized (this.workspace) {
             FileData localData = new FileData();
             localData.setName(projectName);
@@ -45,7 +62,6 @@ public class RulesProjectBuilder {
             FileData designData = new FileData();
             designData.setName(workspace.getDesignTimeRepository().getRulesLocation() + projectName);
 
-            Repository designRepository = workspace.getDesignTimeRepository().getRepository(repositoryId);
             if (designRepository.supports().mappedFolders()) {
                 FileMappingData mappingData = new FileMappingData(designData.getName(), internalPath);
                 designData.addAdditionalData(mappingData);
@@ -69,10 +85,6 @@ public class RulesProjectBuilder {
                     designData,
                     workspace.getProjectsLockEngine());
         }
-    }
-
-    protected RulesProject getProject() {
-        return project;
     }
 
     public boolean addFile(String fileName, InputStream inputStream) throws ProjectException {
@@ -132,10 +144,6 @@ public class RulesProjectBuilder {
         createProjectName = designFolderPath.substring(designFolderPath.lastIndexOf('/') + 1);
         workspace.refresh();
         FileUtils.deleteQuietly(tempLocalRepositoryPath.toFile());
-    }
-
-    public String getCreateProjectName() {
-        return createProjectName;
     }
 
     private void checkName(String artefactName) throws ProjectException {

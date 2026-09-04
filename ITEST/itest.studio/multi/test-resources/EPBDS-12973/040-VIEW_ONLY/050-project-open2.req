@@ -1,0 +1,8 @@
+PATCH /web/projects/EPBDS-12973 HTTP/1.1
+Authorization: Basic RVBCRFNfMTI5NzM6cGFzcw==
+Content-Type: application/json
+
+{
+  "status": "OPENED",
+  "openDependencies": false
+}

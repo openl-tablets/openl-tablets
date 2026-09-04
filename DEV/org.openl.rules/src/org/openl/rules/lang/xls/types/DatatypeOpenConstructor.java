@@ -3,6 +3,8 @@ package org.openl.rules.lang.xls.types;
 import java.lang.reflect.Constructor;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -16,6 +18,7 @@ public class DatatypeOpenConstructor extends JavaOpenConstructor {
     private static final IParameterDeclaration[] EMPTY = IParameterDeclaration.EMPTY;
 
     private final JavaOpenConstructor delegator;
+    @Getter
     private final IOpenClass declaringClass;
     private final IParameterDeclaration[] parameters;
 
@@ -30,11 +33,6 @@ public class DatatypeOpenConstructor extends JavaOpenConstructor {
         this.delegator = delegator;
         this.declaringClass = declaringClass;
         this.parameters = Objects.requireNonNull(parameters);
-    }
-
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
     }
 
     @Override
@@ -78,7 +76,7 @@ public class DatatypeOpenConstructor extends JavaOpenConstructor {
             return IOpenClass.EMPTY;
         }
         IOpenClass[] parameterTypes = new IOpenClass[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
+        for (var i = 0; i < parameters.length; i++) {
             parameterTypes[i] = parameters[i].getType();
         }
         return parameterTypes;

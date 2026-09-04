@@ -10,7 +10,7 @@ class Test1 {
     @Test
     void test1() {
         ITestCalc test = TestUtils.create("test/rules/calc1/calc.xls", ITestCalc.class);
-        SpreadsheetResult result = test.calc1(10, 20);
+        var result = test.calc1(10, 20);
 
         assertEquals(10, result.getValue(0, 0));
         assertEquals(20, result.getValue(0, 1));
@@ -20,7 +20,7 @@ class Test1 {
     @Test
     void test2() {
         ITestCalc test = TestUtils.create("test/rules/calc1/calc.xls", ITestCalc.class);
-        SpreadsheetResult result = test.calc2(10, 20);
+        var result = test.calc2(10, 20);
 
         assertEquals(10, result.getValue(0, 0));
         assertEquals(20, result.getValue(0, 1));
@@ -30,7 +30,7 @@ class Test1 {
     @Test
     void test3() {
         ITestCalc test = TestUtils.create("test/rules/calc1/calc.xls", ITestCalc.class);
-        SpreadsheetResult result = test.calc3(10, 20);
+        var result = test.calc3(10, 20);
 
         assertEquals(10, result.getValue(0, 0));
         assertEquals(20L, result.getValue(0, 1));

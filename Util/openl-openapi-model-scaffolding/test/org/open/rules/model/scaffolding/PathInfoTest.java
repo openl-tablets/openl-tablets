@@ -16,49 +16,49 @@ class PathInfoTest {
 
     @Test
     void testPathInfoCreation() {
-        PathInfo xyzPath = new PathInfo("/x/y/z",
+        var xyzPath = new PathInfo("/x/y/z",
                 "xyz",
                 PathInfo.Operation.POST,
                 new TypeInfo(Double.class),
                 APPLICATION_JSON,
                 TEXT_PLAIN);
-        PathInfo xyzPathText = new PathInfo("/x/y/z",
+        var xyzPathText = new PathInfo("/x/y/z",
                 "xyz",
                 PathInfo.Operation.POST,
                 new TypeInfo(Double.class),
                 TEXT_PLAIN,
                 TEXT_PLAIN);
-        PathInfo xyzPathJSON = new PathInfo("/x/y/z",
+        var xyzPathJSON = new PathInfo("/x/y/z",
                 "xyz",
                 PathInfo.Operation.POST,
                 new TypeInfo(Double.class),
                 APPLICATION_JSON,
                 APPLICATION_JSON);
-        PathInfo oneMoreXyzPath = new PathInfo("/x/y/z",
+        var oneMoreXyzPath = new PathInfo("/x/y/z",
                 "xyz",
                 PathInfo.Operation.POST,
                 new TypeInfo(Double.class),
                 APPLICATION_JSON,
                 TEXT_PLAIN);
-        PathInfo xyzStringPath = new PathInfo("/x/y/z",
+        var xyzStringPath = new PathInfo("/x/y/z",
                 "xyz",
                 PathInfo.Operation.POST,
                 new TypeInfo(String.class),
                 APPLICATION_JSON,
                 TEXT_PLAIN);
-        PathInfo xyFormattedPath = new PathInfo("/x/y/z",
+        var xyFormattedPath = new PathInfo("/x/y/z",
                 "xy",
                 PathInfo.Operation.POST,
                 new TypeInfo(Double.class),
                 TEXT_JAVASCRIPT,
                 TEXT_PLAIN);
-        PathInfo xyOriginalPath = new PathInfo("/x/y",
+        var xyOriginalPath = new PathInfo("/x/y",
                 "xyz",
                 PathInfo.Operation.POST,
                 new TypeInfo(Double.class),
                 TEXT_JAVASCRIPT,
                 TEXT_JAVASCRIPT);
-        PathInfo xyzPUT = new PathInfo("/x/y/z",
+        var xyzPUT = new PathInfo("/x/y/z",
                 "xyz",
                 PathInfo.Operation.PUT,
                 new TypeInfo(Double.class),
@@ -85,7 +85,7 @@ class PathInfoTest {
         assertNotEquals(xyzPath, xyzPUT);
         assertNotEquals(xyzPath.hashCode(), xyzPUT.hashCode());
 
-        PathInfo bankRatingPath = new PathInfo();
+        var bankRatingPath = new PathInfo();
         bankRatingPath.setOriginalPath("/bankRating");
         bankRatingPath.setFormattedPath("bankRating");
         bankRatingPath.setOperation(PathInfo.Operation.POST);

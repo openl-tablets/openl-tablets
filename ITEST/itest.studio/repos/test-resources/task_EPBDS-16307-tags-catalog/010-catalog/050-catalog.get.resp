@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Region",
+    "extensible": false,
+    "nullable": true,
+    "values": [
+      "EU"
+    ]
+  },
+  {
+    "name": "Team",
+    "extensible": true,
+    "nullable": true,
+    "values": [
+      "Payroll"
+    ]
+  }
+]

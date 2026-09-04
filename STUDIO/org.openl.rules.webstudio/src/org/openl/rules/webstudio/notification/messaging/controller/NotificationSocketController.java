@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.notification.messaging.controller;
 
 import java.io.IOException;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,16 +15,11 @@ import org.openl.rules.webstudio.notification.service.NotificationService;
 import org.openl.studio.security.AdminPrivilege;
 
 @Controller
+@RequiredArgsConstructor
 public class NotificationSocketController {
 
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
-
-    public NotificationSocketController(NotificationService notificationService,
-                                        SimpMessagingTemplate messagingTemplate) {
-        this.notificationService = notificationService;
-        this.messagingTemplate = messagingTemplate;
-    }
 
     @SubscribeMapping("/public/notification.txt")
     public String getNotification() throws IOException {

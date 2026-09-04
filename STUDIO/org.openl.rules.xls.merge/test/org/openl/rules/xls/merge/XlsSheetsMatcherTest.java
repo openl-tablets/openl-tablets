@@ -33,14 +33,14 @@ class XlsSheetsMatcherTest {
     }
 
     static boolean matchWorkbooksTest(Path pathToWorkbook1, Path pathToWorkbook2) throws IOException {
-        boolean failed = false;
+        var failed = false;
         try (Workbook workbook1 = WorkbookFactory.create(pathToWorkbook1.toFile(), null, true);
              Workbook workbook2 = WorkbookFactory.create(pathToWorkbook2.toFile(), null, true)) {
             LOG.info("Testing \u001B[2;36m{}\u001B[0m and \u001B[2;36m{}\u001B[0m", pathToWorkbook1, pathToWorkbook2);
             Iterator<Sheet> sheetIt1 = workbook1.sheetIterator();
             while (sheetIt1.hasNext()) {
-                Sheet sheet1 = sheetIt1.next();
-                Sheet sheet2 = workbook2.getSheet(sheet1.getSheetName());
+                var sheet1 = sheetIt1.next();
+                var sheet2 = workbook2.getSheet(sheet1.getSheetName());
                 if (sheet2 == null) {
                     failed = true;
                     error(sheet1.getSheetName(), "Cannot find {} in {}", sheet1.getSheetName(), pathToWorkbook2);
@@ -62,14 +62,14 @@ class XlsSheetsMatcherTest {
     }
 
     private boolean notMatchWorkbooksTest(Path pathToWorkbook1, Path pathToWorkbook2) throws IOException {
-        boolean failed = false;
+        var failed = false;
         try (Workbook workbook1 = WorkbookFactory.create(pathToWorkbook1.toFile(), null, true);
              Workbook workbook2 = WorkbookFactory.create(pathToWorkbook2.toFile(), null, true)) {
             LOG.info("Testing \u001B[2;36m{}\u001B[0m and \u001B[2;36m{}\u001B[0m", pathToWorkbook1, pathToWorkbook2);
             Iterator<Sheet> sheetIt1 = workbook1.sheetIterator();
             while (sheetIt1.hasNext()) {
-                Sheet sheet1 = sheetIt1.next();
-                Sheet sheet2 = workbook2.getSheet(sheet1.getSheetName());
+                var sheet1 = sheetIt1.next();
+                var sheet2 = workbook2.getSheet(sheet1.getSheetName());
                 if (sheet2 == null) {
                     failed = true;
                     error(sheet1.getSheetName(), "Cannot find {} in {}", sheet1.getSheetName(), pathToWorkbook2);

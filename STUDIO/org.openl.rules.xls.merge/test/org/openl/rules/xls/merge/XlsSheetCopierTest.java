@@ -16,7 +16,6 @@ import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -33,10 +32,10 @@ class XlsSheetCopierTest {
 
     @Test
     void testFunctional() throws IOException {
-        File[] files = FUNC_TEST.toFile().listFiles();
+        var files = FUNC_TEST.toFile().listFiles();
         assertNotNull(files);
-        int counter = 0;
-        boolean success = true;
+        var counter = 0;
+        var success = true;
         for (File file : files) {
             if (file.isDirectory()) {
                 continue;
@@ -44,7 +43,7 @@ class XlsSheetCopierTest {
             if (!file.getPath().endsWith(".xlsx") && file.getPath().equals(".xls")) {
                 continue;
             }
-            Path destCopyFile = TARGET.resolve(FUNC_TEST.relativize(Path.of(file.getPath())));
+            var destCopyFile = TARGET.resolve(FUNC_TEST.relativize(Path.of(file.getPath())));
             if (Files.exists(destCopyFile)) {
                 Files.delete(destCopyFile);
             } else {
@@ -53,17 +52,17 @@ class XlsSheetCopierTest {
             try (Workbook srcWorkbook = WorkbookFactory.create(file, null, true);
                  Workbook destWorkbook = WorkbookFactory.create(srcWorkbook instanceof XSSFWorkbook)) {
                 if (srcWorkbook instanceof XSSFWorkbook workbook) {
-                    StylesTable srcStylesTable = workbook.getStylesSource();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    var srcStylesTable = workbook.getStylesSource();
+                    var baos = new ByteArrayOutputStream();
                     srcStylesTable.writeTo(baos);
-                    StylesTable destStylesTable = ((XSSFWorkbook) destWorkbook).getStylesSource();
+                    var destStylesTable = ((XSSFWorkbook) destWorkbook).getStylesSource();
                     destStylesTable.readFrom(new ByteArrayInputStream(baos.toByteArray()));
                     destStylesTable.setTheme(srcStylesTable.getTheme());
                 }
                 Iterator<Sheet> sheetIt = srcWorkbook.sheetIterator();
                 while (sheetIt.hasNext()) {
-                    Sheet srcSheet = sheetIt.next();
-                    Sheet destSheet = destWorkbook.createSheet(srcSheet.getSheetName());
+                    var srcSheet = sheetIt.next();
+                    var destSheet = destWorkbook.createSheet(srcSheet.getSheetName());
                     destWorkbook.setSheetOrder(destSheet.getSheetName(), srcWorkbook.getSheetIndex(srcSheet));
                     XlsSheetCopier.copy(srcWorkbook, srcSheet, destWorkbook, destSheet, null);
                 }

@@ -1,9 +1,7 @@
 package org.openl.rules.dt;
 
 import org.openl.binding.MethodUtil;
-import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.algorithm.FailOnMissException;
-import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IOpenClass;
@@ -44,15 +42,15 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
     }
 
     private Object doInvoke(Object target, Object[] params, IRuntimeEnv env) {
-        IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
-        IIntIterator rulesIntIterator = algorithm.checkedRules(target, params, env);
+        var algorithm = getInvokableMethod().getAlgorithm();
+        var rulesIntIterator = algorithm.checkedRules(target, params, env);
 
         // Do not move this line, hasNext should be extracted before action is invoked
-        final boolean atLeastOneRuleFired = rulesIntIterator.hasNext();
+        final var atLeastOneRuleFired = rulesIntIterator.hasNext();
 
-        IBaseAction[] actions = getInvokableMethod().getActionRows();
+        var actions = getInvokableMethod().getActionRows();
 
-        Object returnValue = env.getTracer()
+        var returnValue = env.getTracer()
                 .invoke(new ActionInvoker(rulesIntIterator, actions, returnEmptyResult), target, params, env, this);
         if (!OpenClassUtils.isVoid(retType) && returnValue != null) {
             return returnValue;
@@ -60,7 +58,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
         if (!atLeastOneRuleFired && getInvokableMethod().shouldFailOnMiss()) {
             String method = MethodUtil.printMethodWithParameterValues(getInvokableMethod().getMethod(), params);
-            String message = "Table '%s' failed to match any rule condition.".formatted(method);
+            var message = "Table '%s' failed to match any rule condition.".formatted(method);
 
             throw new FailOnMissException(message, getInvokableMethod());
         }

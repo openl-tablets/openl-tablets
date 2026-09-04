@@ -77,7 +77,6 @@ This document provides a complete map of legacy, modern, and transitional compon
 | **Maven Plugin** | ✅ Modern | Production-ready | Continue using |
 | **Archetypes** | ✅ Modern | Quick start | Continue using |
 | **OpenAPI Tools** | ✅ Modern | Code generation | Continue using |
-| **Profiler** | ✅ Modern | Performance analysis | Continue using |
 | **OpenTelemetry** | ✅ Modern | Observability | Continue using |
 
 ---

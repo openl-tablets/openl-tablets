@@ -1,7 +1,6 @@
 package org.openl.rules.dt.index;
 
-import java.util.BitSet;
-import java.util.Collections;
+import java.util.List;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -36,9 +35,9 @@ public class CombinedRangeIndex implements IRuleIndex {
         if (castToConditionType != null && castToConditionType.isImplicit()) {
             value = castToConditionType.convert(value);
         }
-        BitSet minIndexRules = minIndex.findRules(value, prevResult);
-        DecisionTableRuleNode minIndexResult = new RangeIndexDecisionTableRuleNode(minIndexRules, null);
-        BitSet maxIndexRules = maxIndex.findRules(value, minIndexResult);
+        var minIndexRules = minIndex.findRules(value, prevResult);
+        var minIndexResult = new RangeIndexDecisionTableRuleNode(minIndexRules, null);
+        var maxIndexRules = maxIndex.findRules(value, minIndexResult);
         return new RangeIndexDecisionTableRuleNode(maxIndexRules, nextNode.getNextIndex());
     }
 
@@ -49,7 +48,7 @@ public class CombinedRangeIndex implements IRuleIndex {
 
     @Override
     public Iterable<? extends DecisionTableRuleNode> nodes() {
-        return Collections.singletonList(nextNode);
+        return List.of(nextNode);
     }
 
     @Override

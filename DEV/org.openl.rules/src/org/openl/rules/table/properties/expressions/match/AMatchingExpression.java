@@ -2,19 +2,19 @@ package org.openl.rules.table.properties.expressions.match;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.util.StringUtils;
 
 public abstract class AMatchingExpression implements IMatchingExpression {
 
     private String contextAttribute;
+    @Getter
     private String operation;
+    @Getter
     private String operationName;
+    @Getter
     private IMatchingExpression contextAttributeExpression;
-
-    @Override
-    public IMatchingExpression getContextAttributeExpression() {
-        return contextAttributeExpression;
-    }
 
     public AMatchingExpression(String operationName, IMatchingExpression matchingExpression) {
         this.contextAttributeExpression = Objects.requireNonNull(matchingExpression,
@@ -47,15 +47,6 @@ public abstract class AMatchingExpression implements IMatchingExpression {
         } else {
             return getContextAttributeExpression().getContextAttribute();
         }
-    }
-
-    public String getOperation() {
-        return operation;
-    }
-
-    @Override
-    public String getOperationName() {
-        return operationName;
     }
 
 }

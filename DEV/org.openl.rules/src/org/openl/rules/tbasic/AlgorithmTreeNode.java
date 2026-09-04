@@ -4,13 +4,22 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.meta.StringValue;
 
 public class AlgorithmTreeNode {
 
+    @Getter
+    @Setter
     private AlgorithmRow algorithmRow;
+    @Getter
+    @Setter
     private TableParserSpecificationBean specification;
+    @Getter
     private final List<StringValue> labels;
+    @Getter
     private final List<AlgorithmTreeNode> children;
 
     public AlgorithmTreeNode() {
@@ -28,22 +37,6 @@ public class AlgorithmTreeNode {
         }
     }
 
-    public AlgorithmRow getAlgorithmRow() {
-        return algorithmRow;
-    }
-
-    public List<AlgorithmTreeNode> getChildren() {
-        return children;
-    }
-
-    public List<StringValue> getLabels() {
-        return labels;
-    }
-
-    public TableParserSpecificationBean getSpecification() {
-        return specification;
-    }
-
     public String getSpecificationKeyword() {
         if (specification != null) {
             return specification.getKeyword();
@@ -51,18 +44,10 @@ public class AlgorithmTreeNode {
         return null;
     }
 
-    public void setAlgorithmRow(AlgorithmRow algorithmRow) {
-        this.algorithmRow = algorithmRow;
-    }
-
-    public void setSpecification(TableParserSpecificationBean specification) {
-        this.specification = specification;
-    }
-
     @Override
     public String toString() {
         if (specification != null) {
-            StringBuilder buf = new StringBuilder();
+            var buf = new StringBuilder();
             buf.append("Specification Keyword : ");
             buf.append(specification.getKeyword());
             if (algorithmRow != null) {

@@ -3,6 +3,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.studio.projects.model.trace.DecisionRow;
 import org.openl.studio.projects.model.trace.DispatchInfo;
 import org.openl.studio.projects.model.trace.FrameKind;
 
@@ -21,19 +22,38 @@ import org.openl.studio.projects.model.trace.FrameKind;
  * @param steps         the sub-steps that executed, each with the sub-calls it made
  * @param dispatch      set when this table was selected by a dispatcher (overloaded by dimensions), else {@code null}
  * @param refStep       for a {@link FrameKind#STEP_REF} node, the reference of the step it points at, else {@code null}
+ * @param notRetained   direct sub-calls this node made that ran but were dropped once the tree hit its size limit
+ * @param childNanos    total time of all direct sub-calls this node made, including any dropped once the tree was
+ *                      capped, so its own time stays {@code durationNanos - childNanos} even on a truncated tree
  */
 public record CallNode(String uri, String name, int instance, FrameKind kind, long durationNanos, List<Step> steps,
-                       @Nullable DispatchInfo dispatch, @Nullable String refStep) {
+                       @Nullable DispatchInfo dispatch, @Nullable String refStep, long notRetained, long childNanos) {
+
+    /** A node with no dropped sub-calls — the common case, while the tree is still under its size limit. */
+    public CallNode(String uri, String name, int instance, FrameKind kind, long durationNanos, List<Step> steps,
+                    @Nullable DispatchInfo dispatch, @Nullable String refStep) {
+        this(uri, name, instance, kind, durationNanos, steps, dispatch, refStep, 0, 0);
+    }
 
     /**
-     * One executed sub-step (a spreadsheet cell or a decision-table rule) and the sub-calls it made.
+     * One sub-step (a spreadsheet cell or a decision-table rule) and the sub-calls it made.
      *
      * @param ref           short reference of the step (for example {@code R2C3})
      * @param label         human-readable name, or {@code null}
      * @param durationNanos real execution time of the step (its own work plus the tables it called)
      * @param children      the table invocations this step made, in execution order
+     * @param constant      true for a plain value or constant cell: static content that never executes,
+     *                      listed so the tree shows the whole table like the grid does
+     * @param decision      decision-table breakdown row kind (matched/unmatched condition, or the returned
+     *                      rule), so the tree shows the legacy condition-by-rule breakdown; {@code null} otherwise
      */
-    public record Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children) {
+    public record Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children,
+                       boolean constant, @Nullable DecisionRow decision) {
+
+        /** An executed sub-step — the common case. */
+        public Step(String ref, @Nullable String label, long durationNanos, List<CallNode> children) {
+            this(ref, label, durationNanos, children, false, null);
+        }
     }
 
     /**

@@ -32,8 +32,6 @@ public class GoalSetValue extends GoalImpl {
         this(exp, exp.min() - 1); // value has to be set later
     }
 
-    // private UndoableInt _valueI;
-
     /**
      * Creates the goal that is ready to make an IntExp type variable bound by setting it up.
      *
@@ -44,7 +42,6 @@ public class GoalSetValue extends GoalImpl {
         super(exp.constrainer(), "set");
         _exp = exp;
         _value = value;
-        // _valueI = _constrainer.addUndoableInt(value,"set");
     }
 
     /**
@@ -56,16 +53,13 @@ public class GoalSetValue extends GoalImpl {
      */
     @Override
     public Goal execute() throws Failure {
-        // Debug.print("\nExecute "+this);
         _exp.setValue(_value);
-        // _exp.setValue(_valueI.value());
         return null;
     }
 
     @Override
     public String toString() {
         return _exp + "=" + _value;
-        // return _exp+"="+_valueI.value();
     }
 
     /**
@@ -75,7 +69,6 @@ public class GoalSetValue extends GoalImpl {
      */
     public void value(int v) {
         _value = v;
-        // _valueI.setValue(v);
     }
 
 } // ~GoalSetValue

@@ -1,16 +1,26 @@
 package org.openl.studio.projects.service.trace;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.element.SpreadsheetCellType;
+import org.openl.rules.dt.IDecisionTable;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.studio.projects.model.trace.DecisionRow;
 import org.openl.studio.projects.model.trace.DispatchInfo;
 import org.openl.studio.projects.model.trace.FrameKind;
 
@@ -56,9 +66,10 @@ public final class DebugFrame {
     @Getter(lombok.AccessLevel.NONE)
     private final Map<Object, ExecutedStep> executedByExecutor = new IdentityHashMap<>();
     private final List<ConditionCheck> conditionChecks = new ArrayList<>();
+    /** Rules whose action fired (the returned rule(s)), recorded as they fire — for the returned-rule highlight. */
+    private final Set<Integer> firedRules = new LinkedHashSet<>();
     /** Returned sub-calls grouped by the step that made them; populated only in profiling mode. */
     private final Map<String, List<CallNode>> executedChildren = new LinkedHashMap<>();
-    private int executedChildCount;
 
     private @Nullable CurrentLocation location;
     private @Nullable Object currentStep;
@@ -69,6 +80,12 @@ public final class DebugFrame {
     private int invocationIndex;
     /** Real execution time of this frame, excluding time parked at suspend points; set when the frame returns. */
     private long durationNanos;
+    /** Sum of the durations of this frame's direct sub-call frames, so its own time is {@code duration - childNanos}. */
+    private long childNanos;
+    /** Remaining nodes this frame's subtree may still retain, so one big branch cannot starve its siblings. */
+    private long budget;
+    /** Direct sub-calls this frame made that ran but were dropped once the tree hit its size limit. */
+    private long notRetained;
     /** Set when this frame's table was selected by a dispatcher (a group of versions overloaded by dimensions). */
     private @Nullable DispatchInfo dispatch;
 
@@ -103,7 +120,7 @@ public final class DebugFrame {
     void recordExecutedStep(Object executor, String ref, @Nullable String label, @Nullable Object value,
                             long durationNanos) {
         if (executedSteps.size() < MAX_RECORDED_PER_FRAME) {
-            ExecutedStep step = new ExecutedStep(ref, label, value, durationNanos);
+            var step = new ExecutedStep(ref, label, value, durationNanos);
             executedSteps.add(step);
             executedByExecutor.putIfAbsent(executor, step);
         }
@@ -121,31 +138,280 @@ public final class DebugFrame {
         }
     }
 
-    /** Record a returned sub-call's structure under the step that made it (profiling mode only). */
-    void recordExecutedChild(@Nullable String callerRef, CallNode child) {
-        if (executedChildCount >= MAX_RECORDED_PER_FRAME) {
-            return;
+    /** Remember a fired decision-table rule, so the returned rule and its result can be highlighted later. */
+    void recordFiredRules(int[] rules) {
+        for (int rule : rules) {
+            firedRules.add(rule);
         }
-        executedChildren.computeIfAbsent(callerRef == null ? "" : callerRef, key -> new ArrayList<>()).add(child);
-        executedChildCount++;
     }
 
-    /** Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls, no values. */
-    CallNode toCallNode() {
-        List<CallNode.Step> steps = new ArrayList<>();
-        Set<String> covered = new HashSet<>();
+    /**
+     * Record a returned sub-call's structure under the step that made it (profiling mode only). Retention is
+     * bounded solely by the node cap in {@code admitNode}, which the caller checks before recording; there is
+     * no separate per-frame breadth cap here, so an admitted sub-call is never silently dropped afterwards.
+     */
+    void recordExecutedChild(@Nullable String callerRef, CallNode child) {
+        executedChildren.computeIfAbsent(callerRef == null ? "" : callerRef, key -> new ArrayList<>()).add(child);
+    }
+
+    /**
+     * Snapshot this frame as an executed call-tree node: its sub-steps and their sub-calls.
+     *
+     * <p>The table URI, name, and each step reference pass through {@code intern}, so the same table
+     * repeated across thousands of nodes shares one instance of each string instead of duplicating it.
+     *
+     * <p>With {@code detailedTitles} on (the business view), the node and its cells read like the classic
+     * trace — the method signature and result, and each cell's value — instead of a bare name. Those strings
+     * hold per-run values, so they are built only on request and left un-interned; the advanced debugger
+     * passes {@code false} to keep the tree lean.
+     */
+    CallNode toCallNode(UnaryOperator<String> intern, boolean detailedTitles) {
+        String displayName = detailedTitles && source instanceof ExecutableRulesMethod method
+                ? TraceTitleFormatter.tableTitle(kind, method, result, error != null)
+                : intern.apply(name);
+        // A decision table breaks down into its evaluated conditions (matched/unmatched, like the legacy
+        // detailed trace) plus the rule it returned, instead of a bare fired-rule step.
+        var steps = source instanceof IDecisionTable decisionTable
+                ? decisionSteps(decisionTable, intern)
+                : cellSteps(intern, detailedTitles);
+        return new CallNode(intern.apply(uri), displayName, invocationIndex, kind, durationNanos,
+                steps, dispatch, null, notRetained, childNanos);
+    }
+
+    /**
+     * The tree steps of a non-decision table: its executed steps, any interrupted step present only through
+     * its sub-call, the step the frame failed on when that step never finished, and a spreadsheet's static
+     * value/constant cells — all in grid order.
+     */
+    private List<CallNode.Step> cellSteps(UnaryOperator<String> intern, boolean detailedTitles) {
+        var steps = new ArrayList<CallNode.Step>();
+        var covered = new HashSet<String>();
         for (ExecutedStep step : executedSteps) {
             if (covered.add(step.ref())) {
-                steps.add(new CallNode.Step(step.ref(), step.label(), step.durationNanos(),
-                        List.copyOf(childrenOf(step.ref()))));
+                steps.add(new CallNode.Step(intern.apply(step.ref()),
+                        stepLabel(step, intern, detailedTitles),
+                        step.durationNanos(), List.copyOf(childrenOf(step.ref()))));
             }
         }
         executedChildren.forEach((ref, children) -> {
-            if (!covered.contains(ref)) {
-                steps.add(new CallNode.Step(ref, null, 0, List.copyOf(children)));
+            // Mark covered: the failing-location synthesis below must not add the same interrupted caller twice.
+            if (covered.add(ref)) {
+                steps.add(new CallNode.Step(intern.apply(ref), interruptedStepLabel(ref, intern, detailedTitles), 0,
+                        List.copyOf(children)));
             }
         });
-        return new CallNode(uri, name, invocationIndex, kind, durationNanos, steps, dispatch, null);
+        // A formula that throws in its own body (no sub-call, no nested re-read) never enters executedSteps
+        // or executedChildren — only location stays on that cell. Without synthesizing it here, the business
+        // tree would show the table as "= ERROR" with no step underneath, while the advanced live stack still
+        // highlights the failing cell.
+        appendFailingStep(covered, steps, intern, detailedTitles);
+        if (source instanceof Spreadsheet spreadsheet) {
+            appendStaticCells(spreadsheet, covered, steps, intern, detailedTitles);
+            steps.sort(Comparator.comparingLong(DebugFrame::gridOrder));
+        }
+        return steps;
+    }
+
+    /** Include the cell the frame failed on when it is not already listed through a finished or interrupted step. */
+    private void appendFailingStep(Set<String> covered, List<CallNode.Step> steps, UnaryOperator<String> intern,
+                                   boolean detailedTitles) {
+        var loc = location;
+        if (error == null || loc == null) {
+            return;
+        }
+        String ref = failingRef(loc);
+        if (!covered.add(ref)) {
+            return;
+        }
+        String label = interruptedStepLabel(ref, intern, detailedTitles);
+        if (label == null) {
+            // A non-spreadsheet frame (a TBasic operation, say) has no resolvable cell name; fall back to the
+            // location's own label, marked "= ERROR" in the detailed view so the failed step still reads as
+            // part of the error trail rather than a plain, unmarked line.
+            String base = loc.label() != null ? loc.label() : ref;
+            label = detailedTitles ? base + " = ERROR" : intern.apply(base);
+        }
+        steps.add(new CallNode.Step(intern.apply(ref), label, 0, List.copyOf(childrenOf(ref))));
+    }
+
+    /** The cell of the failing location: its cell ref, else its step label, else the location kind's code. */
+    private static String failingRef(CurrentLocation location) {
+        if (location.ref() != null) {
+            return location.ref();
+        }
+        return location.label() != null ? location.label() : location.kind().getCode();
+    }
+
+    /**
+     * A spreadsheet's plain value and constant cells never execute (cells evaluate lazily and these are read,
+     * not run), yet they are table content — list any not already covered so the tree shows the whole table.
+     */
+    private void appendStaticCells(Spreadsheet spreadsheet, Set<String> covered, List<CallNode.Step> steps,
+                                   UnaryOperator<String> intern, boolean detailedTitles) {
+        for (SpreadsheetCell[] row : spreadsheet.getCells()) {
+            for (SpreadsheetCell cell : row) {
+                appendStaticCell(cell, spreadsheet, covered, steps, intern, detailedTitles);
+            }
+        }
+    }
+
+    private void appendStaticCell(@Nullable SpreadsheetCell cell, Spreadsheet spreadsheet, Set<String> covered,
+                                  List<CallNode.Step> steps, UnaryOperator<String> intern, boolean detailedTitles) {
+        if (cell == null) {
+            return;
+        }
+        SpreadsheetCellType type = cell.getSpreadsheetCellType();
+        if (type != SpreadsheetCellType.VALUE && type != SpreadsheetCellType.CONSTANT) {
+            return;
+        }
+        String ref = CurrentLocation.cellRef(cell.getRowIndex(), cell.getColumnIndex());
+        if (covered.add(ref)) {
+            steps.add(new CallNode.Step(intern.apply(ref),
+                    staticCellLabel(spreadsheet, cell, intern, detailedTitles), 0, List.of(), true, null));
+        }
+    }
+
+    /**
+     * A step's tree label. With detailed titles on, a spreadsheet cell appends its computed value
+     * ({@code $Cell = 42}); the value is unique per run, so it is left un-interned.
+     */
+    private @Nullable String stepLabel(ExecutedStep step, UnaryOperator<String> intern, boolean detailedTitles) {
+        String label = step.label();
+        if (label == null) {
+            return null;
+        }
+        if (detailedTitles && source instanceof Spreadsheet spreadsheet) {
+            SpreadsheetCell cell = cellAt(spreadsheet, step.ref());
+            String value = cell == null ? null : TraceTitleFormatter.cellValue(cell.getType(), step.value());
+            return value == null ? intern.apply(label) : label + " = " + value;
+        }
+        return intern.apply(label);
+    }
+
+    /**
+     * Label for a step present only through its sub-call: it began a call but never returned — interrupted by
+     * an error in the table it invoked — so it has no completed value. Falls back to the cell's own name, so a
+     * failed branch reads with real step names ({@code $ManualRates}) instead of raw {@code RnCm} references.
+     */
+    private @Nullable String interruptedStepLabel(String ref, UnaryOperator<String> intern, boolean detailedTitles) {
+        if (source instanceof Spreadsheet spreadsheet) {
+            SpreadsheetCell cell = cellAt(spreadsheet, ref);
+            if (cell != null) {
+                String cellName = SpreadsheetCellNames.of(spreadsheet, cell);
+                // An interrupted step carries no value; in the detailed (business) view mark it "= ERROR" like
+                // its table node, so the failed path reads as an error trail the user can follow in the tree.
+                return detailedTitles && error != null ? cellName + " = ERROR" : intern.apply(cellName);
+            }
+        }
+        return null;
+    }
+
+    /** A static (value/constant) cell's tree label, with its value appended when detailed titles are on. */
+    private static String staticCellLabel(Spreadsheet spreadsheet, SpreadsheetCell cell,
+                                          UnaryOperator<String> intern, boolean detailedTitles) {
+        String name = SpreadsheetCellNames.of(spreadsheet, cell);
+        if (!detailedTitles) {
+            return intern.apply(name);
+        }
+        String value = TraceTitleFormatter.cellValue(cell.getType(), cell.getValue());
+        return value == null ? intern.apply(name) : name + " = " + value;
+    }
+
+    /** The spreadsheet cell for a step's {@code RnCm} reference, or {@code null} when it is not a grid cell. */
+    private static @Nullable SpreadsheetCell cellAt(Spreadsheet spreadsheet, String ref) {
+        int[] rowCol = CurrentLocation.parseCellRef(ref);
+        if (rowCol == null) {
+            return null;
+        }
+        SpreadsheetCell[][] cells = spreadsheet.getCells();
+        int row = rowCol[0];
+        int col = rowCol[1];
+        if (row >= 0 && row < cells.length && col >= 0 && col < cells[row].length) {
+            return cells[row][col];
+        }
+        return null;
+    }
+
+    /**
+     * The sub-steps of a decision-table node: one row per evaluated condition (in evaluation order, marked
+     * matched or not), then the rule the table returned. Reproduces the legacy detailed-trace breakdown.
+     */
+    private List<CallNode.Step> decisionSteps(IDecisionTable decisionTable, UnaryOperator<String> intern) {
+        List<CallNode.Step> steps = new ArrayList<>(conditionSteps(decisionTable, intern));
+        appendReturnedRules(steps, conditionSubCalls(), intern);
+        return steps;
+    }
+
+    /** One row per evaluated condition, in evaluation order, marked matched or not. */
+    private List<CallNode.Step> conditionSteps(IDecisionTable decisionTable, UnaryOperator<String> intern) {
+        List<CallNode.Step> steps = new ArrayList<>();
+        int index = 0;
+        for (ConditionCheck check : new LinkedHashSet<>(conditionChecks)) {
+            String label = TraceTextFormatter.conditionLine(check.conditionName(), ruleNames(decisionTable, check.rules()));
+            steps.add(new CallNode.Step(intern.apply("c" + index++), intern.apply(label), 0, List.of(), false,
+                    check.successful() ? DecisionRow.MATCHED : DecisionRow.UNMATCHED));
+        }
+        return steps;
+    }
+
+    /**
+     * Sub-calls a table made from a CONDITION. A decision table records a location only for the fired action,
+     * so a table called from a condition is recorded under a key no fired rule owns; collect those so it is
+     * not silently dropped from the tree.
+     */
+    private List<CallNode> conditionSubCalls() {
+        Set<String> firedRefs = new HashSet<>();
+        for (ExecutedStep step : executedSteps) {
+            firedRefs.add(step.ref());
+        }
+        List<CallNode> conditionCalls = new ArrayList<>();
+        executedChildren.forEach((ref, children) -> {
+            if (!firedRefs.contains(ref)) {
+                conditionCalls.addAll(children);
+            }
+        });
+        return conditionCalls;
+    }
+
+    /**
+     * The rule the table returned, as the fired-rule step relabelled and keeping the sub-calls its action
+     * made plus the condition sub-calls (which have no rule of their own to hang under). If no rule fired yet
+     * a condition still called out, a bare node keeps those calls so nothing is lost.
+     */
+    private void appendReturnedRules(List<CallNode.Step> steps, List<CallNode> conditionCalls,
+                                     UnaryOperator<String> intern) {
+        Set<String> covered = new HashSet<>();
+        boolean attachedConditionCalls = false;
+        for (ExecutedStep step : executedSteps) {
+            if (covered.add(step.ref())) {
+                List<CallNode> children = new ArrayList<>(childrenOf(step.ref()));
+                if (!attachedConditionCalls) {
+                    children.addAll(conditionCalls);
+                    attachedConditionCalls = true;
+                }
+                String rules = step.label() == null ? step.ref() : step.label();
+                steps.add(new CallNode.Step(intern.apply(step.ref()),
+                        intern.apply(TraceTextFormatter.returnedRuleLine(List.of(rules))),
+                        step.durationNanos(), List.copyOf(children), false, DecisionRow.RETURNED));
+            }
+        }
+        if (!attachedConditionCalls && !conditionCalls.isEmpty()) {
+            steps.add(new CallNode.Step(intern.apply("calls"), null, 0, List.copyOf(conditionCalls)));
+        }
+    }
+
+    /**
+     * Rule names of the given indices, matching the legacy condition-node labels. An index node can list the
+     * same rule several times; the names are distinct so the label stays readable.
+     */
+    private static List<String> ruleNames(IDecisionTable decisionTable, int[] rules) {
+        return Arrays.stream(rules).distinct().mapToObj(decisionTable::getRuleName).toList();
+    }
+
+    /** Grid position of a spreadsheet step by its {@code RnCm} reference, for a table-shaped ordering. */
+    private static long gridOrder(CallNode.Step step) {
+        int[] rowCol = CurrentLocation.parseCellRef(step.ref());
+        return rowCol == null ? Long.MAX_VALUE : (long) rowCol[0] * 10_000 + rowCol[1];
     }
 
     private List<CallNode> childrenOf(String ref) {
@@ -162,8 +428,39 @@ public final class DebugFrame {
         this.completed = true;
     }
 
+    /**
+     * Attach an error without completing the frame. Used when an exception parks the run: every live
+     * caller on the stack is already interrupted by that failure, so each can expose the same messages
+     * while the throwing frame is still the one suspended.
+     */
+    void markError(Throwable error) {
+        if (this.error == null) {
+            this.error = error;
+        }
+    }
+
     void setDurationNanos(long durationNanos) {
         this.durationNanos = durationNanos;
+    }
+
+    /** Add a completed direct sub-call's time, so this frame's own time excludes the tables it called. */
+    void addChildNanos(long nanos) {
+        this.childNanos += nanos;
+    }
+
+    /** Set the number of nodes this frame's subtree may still retain (bounded by its parent and the branch cap). */
+    void setBudget(long budget) {
+        this.budget = budget;
+    }
+
+    /** Consume one node from this frame's subtree budget as a descendant is retained under it. */
+    void decrementBudget() {
+        this.budget--;
+    }
+
+    /** Record that one direct sub-call of this frame ran but was dropped from the tree once it hit its limit. */
+    void incrementNotRetained() {
+        this.notRetained++;
     }
 
     void setDispatch(DispatchInfo dispatch) {

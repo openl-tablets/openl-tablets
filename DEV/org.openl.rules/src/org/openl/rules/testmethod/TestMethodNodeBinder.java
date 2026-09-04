@@ -7,7 +7,6 @@ import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -156,11 +155,11 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             } finally {
                 current.errors = bindingContext.popErrors();
                 if (current.errors == null) {
-                    current.errors = Collections.emptyList();
+                    current.errors = List.of();
                 }
                 current.messages = bindingContext.popMessages();
                 if (current.messages == null) {
-                    current.messages = Collections.emptyList();
+                    current.messages = List.of();
                 }
             }
             current.testMethodBoundNode.setTable(current.dataTable);

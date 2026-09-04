@@ -9,8 +9,9 @@ package org.openl.rules.table.xls;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
+
+import lombok.Getter;
 
 import org.openl.rules.table.IGridRegion;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -18,33 +19,38 @@ import org.openl.util.StringTool;
 
 public class XlsUrlParser {
 
+    @Getter
     private final String wbPath;
+    @Getter
     private final String wbName;
+    @Getter
     private final String wsName;
 
+    @Getter
     private final String range;
+    @Getter
     private final String cell;
 
     public XlsUrlParser(String url) {
         String file;
-        Map<String, String> map = new HashMap<>();
-        int indexQuestionMark = url.indexOf('?');
+        var map = new HashMap<String, String>();
+        var indexQuestionMark = url.indexOf('?');
         if (indexQuestionMark >= 0) {
             file = url.substring(0, indexQuestionMark);
-            String query = url.substring(indexQuestionMark + 1);
+            var query = url.substring(indexQuestionMark + 1);
 
-            StringTokenizer st = new StringTokenizer(query, "&");
+            var st = new StringTokenizer(query, "&");
 
             while (st.hasMoreTokens()) {
-                String pair = st.nextToken();
+                var pair = st.nextToken();
 
-                int idx = pair.indexOf('=');
+                var idx = pair.indexOf('=');
 
                 if (idx < 0) {
                     map.put(pair, "");
                 } else {
-                    String key = pair.substring(0, idx);
-                    String value = pair.substring(idx + 1);
+                    var key = pair.substring(0, idx);
+                    var value = pair.substring(idx + 1);
                     if ("sheet".equals(key)) {
                         value = StringTool.decodeURL(value);
                     }
@@ -56,8 +62,8 @@ public class XlsUrlParser {
         }
         file = StringTool.decodeURL(file);
         wsName = map.get("sheet");
-        String range = map.get("range");
-        String cell = map.get("cell");
+        var range = map.get("range");
+        var cell = map.get("cell");
 
         if (range == null) {
             // TODO line, col
@@ -84,7 +90,7 @@ public class XlsUrlParser {
                 file = file.substring(prefixSize);
             }
             try {
-                File f = new File(file).getCanonicalFile();
+                var f = new File(file).getCanonicalFile();
                 wbPath = f.getParent();
                 wbName = f.getName();
             } catch (IOException e) {
@@ -104,26 +110,6 @@ public class XlsUrlParser {
 
         IGridRegion i1 = IGridRegion.Tool.makeRegion(range);
         return IGridRegion.Tool.intersects(i1, IGridRegion.Tool.makeRegion(p2.range));
-    }
-
-    public String getWbPath() {
-        return wbPath;
-    }
-
-    public String getWbName() {
-        return wbName;
-    }
-
-    public String getWsName() {
-        return wsName;
-    }
-
-    public String getRange() {
-        return range;
-    }
-
-    public String getCell() {
-        return cell;
     }
 
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
@@ -25,11 +26,15 @@ import org.openl.validation.ValidationManager;
 public class SimpleDependencyLoader implements IDependencyLoader {
 
 
+    @Getter
     private final AbstractDependencyManager dependencyManager;
+    @Getter
     private final ResolvedDependency dependency;
     private volatile CompiledDependency compiledDependency;
     private final boolean executionMode;
+    @Getter
     private final ProjectDescriptor project;
+    @Getter
     private final Module module;
 
     @Override
@@ -40,16 +45,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     @Override
     public boolean isProjectLoader() {
         return module == null;
-    }
-
-    @Override
-    public ProjectDescriptor getProject() {
-        return project;
-    }
-
-    @Override
-    public Module getModule() {
-        return module;
     }
 
     public SimpleDependencyLoader(ProjectDescriptor project,
@@ -70,13 +65,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         return AbstractDependencyManager.buildResolvedDependency(project);
     }
 
-    public AbstractDependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
-
     @Override
     public final CompiledDependency getCompiledDependency() throws OpenLCompilationException {
-        CompiledDependency cachedDependency = compiledDependency;
+        var cachedDependency = compiledDependency;
         if (cachedDependency != null) {
             log.debug("Compiled dependency '{}' is used from cache.", dependency);
             return cachedDependency;
@@ -124,11 +115,11 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         }
         source.setParams(parameters);
 
-        boolean oldValidationState = ValidationManager.isValidationEnabled();
+        var oldValidationState = ValidationManager.isValidationEnabled();
         try {
             ValidationManager.turnOffValidation();
-            CompiledOpenClass compiledOpenClass = compile(source, classLoader);
-            CompiledDependency compiledDependency = new CompiledDependency(dependency,
+            var compiledOpenClass = compile(source, classLoader);
+            var compiledDependency = new CompiledDependency(dependency,
                     compiledOpenClass,
                     isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
             if (isActualDependency()) {
@@ -151,7 +142,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         var engineFactory = new RulesEngineFactory<>(source);
         engineFactory.setExecutionMode(executionMode);
         engineFactory.setDependencyManager(dependencyManager);
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        var oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
             return engineFactory.getCompiledOpenClass();
@@ -169,13 +160,8 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     @Override
-    public ResolvedDependency getDependency() {
-        return dependency;
-    }
-
-    @Override
     public void reset() {
-        CompiledDependency compiledDependency1 = compiledDependency;
+        var compiledDependency1 = compiledDependency;
         if (compiledDependency1 != null) {
             onResetComplete(this, compiledDependency1);
         }

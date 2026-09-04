@@ -7,17 +7,47 @@
   xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
   template="/pages/layout/simpleLayout.xhtml">
 
-  <ui:define name="title">Repository Diff</ui:define>
+  <ui:define name="title">Compare Revisions</ui:define>
 
   <ui:define name="content">
+    <f:event type="preRenderView" listener="#{repositoryDiffController.init}"/>
     <style>
       ul.messages {
         padding-bottom: 6px;
       }
 
+      .selection-panels {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+        margin-top: 10px;
+        padding: 8px;
+        border: 1px dashed rgb(170, 170, 170);
+      }
+
       .selection-column {
         width: 448px;
-        vertical-align: top;
+      }
+
+      .field-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 4px 0;
+      }
+
+      .field-row > label {
+        min-width: 110px;
+      }
+
+      .comparison-tables {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .diff-status {
+        height: 16px;
       }
 
       .text-field-as-input {
@@ -39,7 +69,7 @@
         overflow-x: scroll;
       }
     </style>
-    <br/>
+    <h3 style="margin: 6px;">Compare revisions of &quot;#{repositoryDiffController.projectName}&quot;</h3>
     <h:form id="compareForm" style="margin-left: 6px;">
       <a4j:outputPanel ajaxRendered="true">
         <h:messages infoClass="success" errorClass="error" showDetail="true" showSummary="false" tooltip="true" globalOnly="true" styleClass="messages"/>
@@ -55,133 +85,86 @@
           <f:actionListener binding="#{repositoryDiffController.resetTreeSelection('newTree')}"/>
           <f:ajax execute="@form" render="@form :diffTreeForm"/>
       </h:commandButton>
-      <table style="border: 1px dashed rgb(170,170,170); margin-top: 10px">
-        <tr>
-          <td class="selection-column">
-              <table>
-                <tr>
-                  <td>
-                    <h:outputText value="Revision:" />
-                  </td>
-                  <td>
-                    <div class="text-field-as-input">User workspace</div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h:outputText value="Select Excel file:" />
-                  </td>
-                  <td>
-                    <h:selectOneMenu value="#{repositoryDiffController.selectedExcelFileUW}">
-                      <f:selectItems value="#{repositoryDiffController.excelFilesUW}"/>
-                    </h:selectOneMenu>
-                  </td>
-                </tr>
-              </table>
-            </td>
-            <td class="selection-column">
-              <table>
-                <h:panelGroup rendered="#{repositoryTreeController.isSupportsBranches(repositoryDiffController.repositoryId)}">
-                  <tr>
-                    <td>
-                      <h:outputText value="Branch:" />
-                    </td>
-                    <td>
-                      <h:selectOneMenu value="#{repositoryDiffController.branch}">
-                        <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
-                        <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
-                                execute="@this repositoryRevision repositoryExcelCombo"
-                                render="repositoryRevision repositoryExcelCombo compareBtn"/>
-                      </h:selectOneMenu>
-                    </td>
-                  </tr>
-                </h:panelGroup>
-                <tr>
-                  <td>
-                    <h:outputText value="Revision:" />
-                  </td>
-                <td>
-                  <h:selectOneMenu id="repositoryRevision" value="#{repositoryDiffController.selectedVersionRepo}">
-                    <f:selectItems value="#{repositoryTreeController.toSelectItems(repositoryDiffController.versionsRepo)}"/>
-                    <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
-                            execute="@this repositoryExcelCombo"
-                            render="repositoryExcelCombo compareBtn" />
-                  </h:selectOneMenu>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <h:outputText value="Select Excel file:" />
-                </td>
-                <td>
-                  <h:selectOneMenu id="repositoryExcelCombo"
-                    value="#{repositoryDiffController.selectedExcelFileRepo}">
-                    <f:selectItems value="#{repositoryDiffController.excelFilesRepo}"/>
-                  </h:selectOneMenu>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
+      <div class="selection-panels">
+        <div class="selection-column">
+          <div class="field-row">
+            <h:outputText value="Revision:" />
+            <div class="text-field-as-input">User workspace</div>
+          </div>
+          <div class="field-row">
+            <h:outputText value="Select Excel file:" />
+            <h:selectOneMenu value="#{repositoryDiffController.selectedExcelFileUW}">
+              <f:selectItems value="#{repositoryDiffController.excelFilesUW}"/>
+            </h:selectOneMenu>
+          </div>
+        </div>
+        <div class="selection-column">
+          <h:panelGroup layout="block" rendered="#{repositoryDiffController.supportsBranches}">
+            <div class="field-row">
+              <h:outputText value="Branch:" />
+              <h:selectOneMenu value="#{repositoryDiffController.branch}">
+                <f:selectItems value="#{repositoryDiffController.branches}"/>
+                <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
+                        execute="@this repositoryRevision repositoryExcelCombo"
+                        render="repositoryRevision repositoryExcelCombo compareBtn"/>
+              </h:selectOneMenu>
+            </div>
+          </h:panelGroup>
+          <div class="field-row">
+            <h:outputText value="Revision:" />
+            <h:selectOneMenu id="repositoryRevision" value="#{repositoryDiffController.selectedVersionRepo}">
+              <f:selectItems value="#{repositoryDiffController.versionSelectItems}"/>
+              <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
+                      execute="@this repositoryExcelCombo"
+                      render="repositoryExcelCombo compareBtn" />
+            </h:selectOneMenu>
+          </div>
+          <div class="field-row">
+            <h:outputText value="Select Excel file:" />
+            <h:selectOneMenu id="repositoryExcelCombo"
+              value="#{repositoryDiffController.selectedExcelFileRepo}">
+              <f:selectItems value="#{repositoryDiffController.excelFilesRepo}"/>
+            </h:selectOneMenu>
+          </div>
+        </div>
+      </div>
     </h:form>
 
-    <table>
-      <tr>
-        <td valign="top">
-          <h:form id="diffTreeForm">
-            <table>
-              <tr>
-                <td colspan="2" style="height:16px;">
-                  <a4j:status>
-                    <f:facet name="start">
-                      Loading...
-                    </f:facet>
-                  </a4j:status>
-                </td>
-              </tr>
-              <tr>
-               <td colspan="2">
-                  <rich:panel styleClass="comparison-tree">
-                    <h:outputText value="File elements are identical" style="font-weight:bold;" rendered="#{repositoryDiffController.richDiffTree.status=='EQUALS'}"/>
-                    <rich:tree id="newTree" toggleType="client" selectionType="ajax"
-                      value="#{repositoryDiffController.richDiffTree}"
-                      var="item" nodeType="any" selectionChangeListener="#{repositoryDiffController.processSelection}"
-                      render="tableEditor1 tableEditor2">
-                      <rich:treeNode type="any"
-                        iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.icon}">
-                        <h:outputText value="#{item.name}" />
-                      </rich:treeNode>
-                    </rich:tree>
-                  </rich:panel>
-               </td>
-              </tr>
-              <tr>
-                <td>
-                  <p />
-                  <div class="comparison-table">
-                    <a4j:outputPanel ajaxRendered="true">
-                    <rules:tableEditor id="editor1" table="#{repositoryDiffController.table1}" mode="view"
-                      editable="false" modifiedCells="#{repositoryDiffController.modifiedCells1}"/>
-                      </a4j:outputPanel>
-                   </div>
-                </td>
-                <td>
-                  <p />
-                  <div class="comparison-table">
-                  <a4j:outputPanel ajaxRendered="true">
-                    <rules:tableEditor id="editor2" table="#{repositoryDiffController.table2}" mode="view"
-                      filters="#{repositoryDiffController.filter2}" editable="false" modifiedCells="#{repositoryDiffController.modifiedCells2}"/>
-                  </a4j:outputPanel>
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </h:form>
-          <br />
-        </td>
-      </tr>
-    </table>
+    <h:form id="diffTreeForm">
+      <div class="diff-status">
+        <a4j:status>
+          <f:facet name="start">
+            Loading...
+          </f:facet>
+        </a4j:status>
+      </div>
+      <rich:panel styleClass="comparison-tree">
+        <h:outputText value="File elements are identical" style="font-weight:bold;" rendered="#{repositoryDiffController.richDiffTree.status=='EQUALS'}"/>
+        <rich:tree id="newTree" toggleType="client" selectionType="ajax"
+          value="#{repositoryDiffController.richDiffTree}"
+          var="item" nodeType="any" selectionChangeListener="#{repositoryDiffController.processSelection}"
+          render="tableEditor1 tableEditor2">
+          <rich:treeNode type="any"
+            iconExpanded="#{item.icon}" iconCollapsed="#{item.icon}" iconLeaf="#{item.icon}">
+            <h:outputText value="#{item.name}" />
+          </rich:treeNode>
+        </rich:tree>
+      </rich:panel>
+      <div class="comparison-tables">
+        <div class="comparison-table">
+          <a4j:outputPanel ajaxRendered="true">
+            <rules:tableEditor id="editor1" table="#{repositoryDiffController.table1}" mode="view"
+              editable="false" modifiedCells="#{repositoryDiffController.modifiedCells1}"/>
+          </a4j:outputPanel>
+        </div>
+        <div class="comparison-table">
+          <a4j:outputPanel ajaxRendered="true">
+            <rules:tableEditor id="editor2" table="#{repositoryDiffController.table2}" mode="view"
+              filters="#{repositoryDiffController.filter2}" editable="false" modifiedCells="#{repositoryDiffController.modifiedCells2}"/>
+          </a4j:outputPanel>
+        </div>
+      </div>
+    </h:form>
 
   </ui:define>
 </ui:composition>

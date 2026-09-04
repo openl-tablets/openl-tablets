@@ -34,7 +34,7 @@ public class ArtefactPathImpl implements ArtefactPath {
     }
 
     public ArtefactPathImpl(String pathAsString) {
-        if (pathAsString.length() > 0 && pathAsString.charAt(0) == SEGMENT_DELIMITER) {
+        if (!pathAsString.isEmpty() && pathAsString.charAt(0) == SEGMENT_DELIMITER) {
             appendToSegments(pathAsString.substring(1));
         } else {
             appendToSegments(pathAsString);
@@ -50,15 +50,15 @@ public class ArtefactPathImpl implements ArtefactPath {
     }
 
     protected void appendToSegments(String pathAsString) {
-        int len = pathAsString.length();
-        int pos = 0;
-        for (int end = 0; end < len; ) {
+        var len = pathAsString.length();
+        var pos = 0;
+        for (var end = 0; end < len; ) {
             end = pathAsString.indexOf(SEGMENT_DELIMITER, pos);
             if (end < 0) {
                 end = len;
             }
 
-            String s = pathAsString.substring(pos, end);
+            var s = pathAsString.substring(pos, end);
             addSegment(s);
 
             pos = end + 1;
@@ -106,11 +106,11 @@ public class ArtefactPathImpl implements ArtefactPath {
     @Override
     public String getStringValue() {
         if (stringValue == null) {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
 
             // All paths should be relative. See ArtefactPathImpl(String pathAsString) constructor
             for (Iterator<String> i = segments.iterator(); i.hasNext(); ) {
-                String segment = i.next();
+                var segment = i.next();
                 result.append(segment);
 
                 if (i.hasNext()) {
@@ -125,7 +125,7 @@ public class ArtefactPathImpl implements ArtefactPath {
 
     @Override
     public String getStringValue(int skip) {
-        StringBuilder result = new StringBuilder();
+        var result = new StringBuilder();
         if (skip < segmentCount()) {
             Iterator<String> it = segments.iterator();
             for (; skip > 0; --skip) {
@@ -161,8 +161,8 @@ public class ArtefactPathImpl implements ArtefactPath {
 
     @Override
     public ArtefactPath withoutFirstSegment() {
-        ArrayList<String> relativeSegments = new ArrayList<>();
-        boolean isFisrt = true;
+        var relativeSegments = new ArrayList<String>();
+        var isFisrt = true;
         for (String s : segments) {
             if (isFisrt) {
                 isFisrt = false;
@@ -177,9 +177,9 @@ public class ArtefactPathImpl implements ArtefactPath {
 
     @Override
     public ArtefactPath withoutSegment(int segmentIndex) {
-        ArrayList<String> relativeSegments = new ArrayList<>();
+        var relativeSegments = new ArrayList<String>();
         Iterator<String> segmentIterator = segments.iterator();
-        for (int i = 0; segmentIterator.hasNext(); i++) {
+        for (var i = 0; segmentIterator.hasNext(); i++) {
             if (i != segmentIndex) {
                 relativeSegments.add(segmentIterator.next());
             } else {
@@ -192,7 +192,7 @@ public class ArtefactPathImpl implements ArtefactPath {
 
     @Override
     public ArtefactPath withSegment(String segment) {
-        ArtefactPathImpl api = new ArtefactPathImpl(this);
+        var api = new ArtefactPathImpl(this);
         api.addSegment(segment);
 
         return api;

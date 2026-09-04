@@ -247,7 +247,20 @@ message="Merged feature-auth: kept our business rules"
 
 ---
 
-### 6. **Personal Access Token API** ([personal-access-token-api.md](personal-access-token-api.md))
+### 6. **Project Local History API** ([project-local-history-api.md](project-local-history-api.md))
+
+Reads, restores, and clears the unsaved edit history of a specific project. Each request identifies the project
+and, optionally, the module, so it does not depend on the project selected in an HTTP session.
+
+```bash
+GET /projects/MyProject/local-history?module=Pricing
+POST /projects/MyProject/local-history/restore?module=Pricing
+DELETE /projects/MyProject/local-history
+```
+
+---
+
+### 7. **Personal Access Token API** ([personal-access-token-api.md](personal-access-token-api.md))
 
 The Personal Access Token (PAT) API enables users to generate and manage authentication tokens for programmatic access to OpenL Tablets Studio. PATs provide an alternative to OAuth2/SAML authentication for service-to-service communication and API integrations.
 
@@ -310,7 +323,7 @@ Authorization: Token openl_pat_x1Y2z3A4b5C6d7E8.f9G0h1I2j3K4l5M6n7O8p9Q0r1S2t3U4
 
 ---
 
-### 7. **Projects Trace API (BETA)** ([projects-trace-api.md](projects-trace-api.md))
+### 8. **Projects Trace API (BETA)** ([projects-trace-api.md](projects-trace-api.md))
 
 The Projects Trace API is an **interactive debugger** for OpenL rules: it suspends a real execution on a worker thread and lets you step through it, set breakpoints, inspect the live call stack, and freeze a frame's variables. It replaces the previous tree-based Trace.
 

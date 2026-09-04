@@ -101,7 +101,7 @@ public final class NameChecker {
      */
     public static void validatePath(String path) throws IOException {
         var end = path.length() - 1;
-        for (int i=0; i <= end; i++) {
+        for (var i=0; i <= end; i++) {
             switch (path.charAt(i)) {
                 case '/', '\\' -> {
                     if (i < end && (path.charAt(i + 1) == '/' || path.charAt(i + 1) == '\\')) {
@@ -130,7 +130,7 @@ public final class NameChecker {
 
     static boolean checkSpecialChars(String artefactName) {
         // check for special chars
-        for (int i = 0; i < artefactName.length(); i++) {
+        for (var i = 0; i < artefactName.length(); i++) {
             if (artefactName.charAt(i) < 32) {
                 // contains (bad) special characters (\t, \n, all that less than <space>)
                 return false;
@@ -147,12 +147,12 @@ public final class NameChecker {
 
     public static boolean checkIsFolderPresent(AProjectFolder folder, String folderName) {
         try {
-            AProjectArtefact artefact = folder.getArtefact(folderName);
+            var artefact = folder.getArtefact(folderName);
 
             return artefact instanceof AProjectFolder;
 
         } catch (ProjectException e1) {
-            String parentPath = folder.getInternalPath();
+            var parentPath = folder.getInternalPath();
             String prefix = parentPath.isEmpty() ? "" : parentPath + "/";
             prefix += folderName + "/";
 

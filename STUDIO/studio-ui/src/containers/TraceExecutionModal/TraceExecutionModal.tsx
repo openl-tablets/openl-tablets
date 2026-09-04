@@ -4,6 +4,7 @@ import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from 'hooks'
 import { traceService } from 'services/traceService'
+import { retireTraceLaunch, stampTraceLaunch } from 'services/traceLaunchToken'
 import CONFIG from 'services/config'
 import { useStyles } from './TraceExecutionModal.styles'
 
@@ -20,6 +21,8 @@ export interface TraceExecutionEventDetail {
     fromModule?: string
     inputJson?: string
     downloadMode?: boolean
+    /** Advanced tracer checkbox on the JSF page: true opens the full debugger, false the business view. */
+    advanced?: boolean
 }
 
 /** Save the exported trace text to the user's machine as trace.txt. */
@@ -53,12 +56,17 @@ export const TraceExecutionModal: React.FC = () => {
         params.set('tableId', d.tableId)
         if (d.fromModule) params.set('fromModule', d.fromModule)
         if (d.testRanges) params.set('testRanges', d.testRanges)
+        // Carry the launch-time mode so the trace window opens straight into the business or advanced view.
+        if (d.advanced) params.set('advanced', 'true')
         const url = `${CONFIG.CONTEXT}/trace/${encodeURIComponent(d.projectId)}?${params.toString()}`
         window.open(url, 'trace_win', 'width=1240,height=800,resizable=yes,scrollbars=yes')
     }, [])
 
     const launch = useCallback(async (d: TraceExecutionEventDetail) => {
         setStarting(true)
+        // Stamp this launch before the session is created, so a debugger window closing while the request
+        // is in flight sees a changed token and does not delete the session this launch is creating.
+        const reserved = stampTraceLaunch()
         try {
             await traceService.startTrace(d.projectId, {
                 tableId: d.tableId,
@@ -74,6 +82,8 @@ export const TraceExecutionModal: React.FC = () => {
                 openTraceWindow(d)
             }
         } catch (error: unknown) {
+            // The launch failed, so nothing replaced the previous session — hand the token back to its owner.
+            retireTraceLaunch(reserved)
             notification.error({
                 title: t('modal.errors.startFailed'),
                 description: error instanceof Error ? error.message : String(error),

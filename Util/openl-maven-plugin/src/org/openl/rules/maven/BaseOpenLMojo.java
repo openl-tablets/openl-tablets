@@ -99,18 +99,18 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         info(SEPARATOR);
         try {
             Collection<Artifact> dependencies = getDependentOpenLProjects();
-            boolean hasDependencies = !dependencies.isEmpty();
+            var hasDependencies = !dependencies.isEmpty();
             if (hasDependencies) {
                 debug("Has ", dependencies.size(), " dependencies");
                 for (Artifact artifact : dependencies) {
                     debug("Extract dependency ", artifact.getArtifactId());
-                    File projectFolder = new File(workspaceFolder, artifact.getArtifactId());
+                    var projectFolder = new File(workspaceFolder, artifact.getArtifactId());
                     if (!projectFolder.exists()) {
                         ZipUtils.extractAll(artifact.getFile(), projectFolder);
                     }
                 }
             }
-            String openlRoot = getSourceDirectory();
+            var openlRoot = getSourceDirectory();
             execute(openlRoot, hasDependencies);
         } catch (MojoFailureException ex) {
             throw ex; // skip
@@ -152,7 +152,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
 
     URL[] toURLs(List<String> files) throws MalformedURLException {
         debug("Converting file paths to URLs...");
-        ArrayList<URL> urls = new ArrayList<>(files.size());
+        var urls = new ArrayList<URL>(files.size());
         for (String file : files) {
             debug("   > ", file);
             urls.add(new File(file).toURI().toURL());
@@ -200,7 +200,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         if (CollectionUtils.isEmpty(args)) {
             return message;
         }
-        StringBuilder sb = new StringBuilder(message);
+        var sb = new StringBuilder(message);
         for (Object obj : args) {
             sb.append(obj);
         }
@@ -208,9 +208,9 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     }
 
     protected Set<Artifact> getDependentOpenLProjects() {
-        Set<Artifact> dependencies = new HashSet<>();
+        var dependencies = new HashSet<Artifact>();
         for (Artifact artifact : project.getArtifacts()) {
-            File file = artifact.getFile();
+            var file = artifact.getFile();
             if (ZipUtils.contains(file, OPENL_FILES::contains)) {
                 dependencies.add(artifact);
                 debug("OpenL artifact : ", artifact);
@@ -220,9 +220,9 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     }
 
     protected Set<Artifact> getDependentNonOpenLProjects() {
-        Set<Artifact> dependencies = new HashSet<>();
+        var dependencies = new HashSet<Artifact>();
         for (Artifact artifact : project.getArtifacts()) {
-            File file = artifact.getFile();
+            var file = artifact.getFile();
             if (!ZipUtils.contains(file, OPENL_FILES::contains)) {
                 dependencies.add(artifact);
                 debug("Non OpenL artifact : ", artifact);
@@ -232,8 +232,8 @@ abstract class BaseOpenLMojo extends AbstractMojo {
     }
 
     static boolean skipOpenLCoreDependency(List<String> dependencyTrail) {
-        for (int i = 1; i < dependencyTrail.size() - 1; i++) {
-            String dependency = dependencyTrail.get(i);
+        for (var i = 1; i < dependencyTrail.size() - 1; i++) {
+            var dependency = dependencyTrail.get(i);
             if (dependency.startsWith("org.openl.rules:") || dependency.startsWith("org.openl:") || dependency
                     .startsWith("org.slf4j:")) {
                 return true;
@@ -264,8 +264,8 @@ abstract class BaseOpenLMojo extends AbstractMojo {
      * </ol>
      */
     protected Set<Artifact> getFilteredDependencies(Predicate<String> scopeFilter) {
-        Set<String> allowed = getAllowedDependencies(scopeFilter);
-        Set<Artifact> dependencies = new HashSet<>();
+        var allowed = getAllowedDependencies(scopeFilter);
+        var dependencies = new HashSet<Artifact>();
         for (Artifact artifact : getDependentNonOpenLProjects()) {
             if (!scopeFilter.test(artifact.getScope()) || isOpenLCoreDependency(artifact.getGroupId())) {
                 debug("SKIP : ", artifact);
@@ -280,8 +280,8 @@ abstract class BaseOpenLMojo extends AbstractMojo {
                 debug("SKIP : ", artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
                 continue;
             }
-            String tr = dependencyTrail.get(1);
-            String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
+            var tr = dependencyTrail.get(1);
+            var key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
             if (allowed.contains(key)) {
                 debug("ADD : ", artifact);
                 dependencies.add(artifact);
@@ -296,7 +296,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
      * "allowed" set in {@link #getFilteredDependencies(Predicate)}.
      */
     protected Set<String> getAllowedDependencies(Predicate<String> scopeFilter) {
-        Set<String> allowed = new HashSet<>();
+        var allowed = new HashSet<String>();
         for (Dependency dep : project.getDependencies()) {
             // Maven's effective model preserves the raw POM scope; the documented "compile" default
             // is applied later by the artifact resolver, not the model — normalize here.

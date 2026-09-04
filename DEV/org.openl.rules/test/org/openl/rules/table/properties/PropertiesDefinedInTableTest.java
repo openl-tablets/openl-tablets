@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 class PropertiesDefinedInTableTest extends BaseOpenlBuilderHelper {
 
@@ -19,7 +18,7 @@ class PropertiesDefinedInTableTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testEmptyPropertyValue() {
-        TableSyntaxNode tsn = findTable("Method int test()");
+        var tsn = findTable("Method int test()");
         assertNotNull(tsn);
         assertTrue(tsn.hasPropertiesDefinedInTable(), "There are properties in table");
         assertEquals(0,
@@ -29,7 +28,7 @@ class PropertiesDefinedInTableTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testNotEmptyPropertyValue() {
-        TableSyntaxNode tsn = findTable("Method int test1()");
+        var tsn = findTable("Method int test1()");
         assertNotNull(tsn);
         assertTrue(tsn.hasPropertiesDefinedInTable(), "There are properties in table");
         assertEquals(1, tsn.getTableProperties().getTableProperties().size(), "One property with value in table");

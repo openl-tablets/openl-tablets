@@ -40,7 +40,9 @@ frame's variables — all against a real, suspended execution rather than a pre-
   so memory is bounded by stack depth.
 - **Stepping** — Step Into, Step Over, Step Out, Resume, and asynchronous Pause. A step that finishes a
   frame first suspends at that frame's **own exit** (its result is on the stack), then continues in the
-  caller. An exception suspends at the throwing frame before it propagates.
+  caller. An exception suspends at the throwing frame before it propagates, and every live caller on the
+  stack is stamped with the same throwable for variables and step-inputs so ancestor inspection still
+  returns the messages (the stack frame's `error` flag stays on the completed throwing frame only).
 - **Breakpoints** — on a table by URI or by **name** (stops on every same-named version), on a spreadsheet
   cell, on any fired decision-table rule, or on a specific rule. See [Breakpoint Keys](#breakpoint-keys).
 - **Profiling (executed call tree)** — with `profiling=true` the session retains the structure of returned
@@ -142,9 +144,12 @@ via `PUT /breakpoints`) apply immediately.
   **active** frame, so stepping does not re-send every frame's `steps`; read another frame's steps with
   `GET /stack?view=full` or its variables endpoint.
 
-**Request body** (optional, `application/json`): raw input for a regular method. Supports the structured
-form (`{ "runtimeContext": {...}, "params": {...} }`), a raw named-parameter object, or a positional
-array — parsed by `TableInputParserService`.
+**Request body** (optional, `application/json`): raw input for a regular method. Supports a structured form
+whose `params` is either a named object or a positional array (`{ "runtimeContext": {...}, "params": [...] }`),
+a raw named-parameter object, or a raw positional array. Positional values are matched in method signature order.
+For a method whose only parameter is an array, a raw array remains that parameter's value; use the structured form
+to express positional input unambiguously. A positional array cannot contain more values than the method declares;
+missing trailing values remain unset. The body is parsed by `TableInputParserService`.
 
 > [!Note]
 > The session remembers the last input. A restart that sends **neither** a body **nor** `testRanges`
@@ -357,10 +362,11 @@ or at a **current-line change**:
 | --- | --- | --- |
 | `<uri>` | Entry of the table with this source URI | `file:/.../Rules.xlsx?sheet=Main&range=B2:D8` |
 | `<name>` | Entry of **any** table with this name (every overloaded or dimensional version) | `VehiclePremiumCalculation` |
-| `<uri>#R{r}C{c}` | A spreadsheet cell of that table becoming the current line | `file:/...#R0C1` |
-| `<uri>#rule` | **Any** rule of that decision table firing (all conditions matched) | `file:/...#rule` |
-| `<uri>#{ruleName}` | A **specific** rule of that decision table firing | `file:/...#SeniorDriver` |
-| `<key>@N` | Any of the above, but only on the table's **N-th execution** (0-based) | `file:/...#R48C0@3` |
+| `<table>#R{r}C{c}` | A spreadsheet cell of that table becoming the current line | `file:/...#R0C1` |
+| `<table>#rule` | **Any** rule of that decision table firing (all conditions matched) | `VehicleRating#rule` |
+| `<table>#{ruleName}` | A **specific** rule of that decision table firing | `VehicleRating#SeniorDriver` |
+| `<key>@N` | Any of the above, but only on the table's **N-th execution** (0-based) | `VehiclePremiumCalculation@3` |
+| `after:<key>` | Any of the above, but right **after** the target ran instead of before it | `after:file:/...#R48C0@3` |
 
 Rule-fired breakpoints suspend **before the rule's action runs**, with the evaluated conditions already
 captured — the decision panel shows which rule fired and which conditions matched.
@@ -368,7 +374,16 @@ captured — the decision panel shows which rule fired and which conditions matc
 The `@N` suffix targets one iteration of a table that runs many times (for example one coverage of a
 per-coverage spreadsheet). `N` is the same zero-based number as `DebugFrameView.instance` and a watch
 series' `instance` — so an outlier found on `instance: 3` in a watch is reached with `<uri>#<ref>@3`.
-Without a suffix a cell breakpoint fires on **every** execution, from the first.
+Executions are counted per table version, so `<name>@N` counts the runs of each same-named version
+separately. Without a suffix a cell breakpoint fires on **every** execution, from the first.
+
+An `after:` key does not suspend where its target would. It lets the target run and suspends right after:
+a table at its own exit, with its result on the stack, and a sub-step on the next line once it has
+computed its value. One resume then lands with the target's parameters and result both readable.
+
+`<table>` is either form of the owning table — its URI or its name. A sub-step key therefore works before
+the table has ever run, which matters because [`GET /breakpoint-tables`](#11-list-breakpoint-targets)
+offers targets **by name**: a URI only becomes known once the table appears in a live stack.
 
 ---
 
@@ -457,7 +472,9 @@ interface DebugFrameVariables {
   gridRows?: string[];            // spreadsheet row names (spreadsheet frames only)
   decision?: DecisionView;        // which rule fired and which conditions matched (decision tables only)
   ruleNames?: string[];           // every rule of the decision table, in rule order (decision tables only)
-  errors: MessageDescription[];   // errors, if the frame failed
+  errors: MessageDescription[];   // errors if the frame failed, or the same messages when it is a live
+                                  // caller stamped for inspect (break-on-exception); stack `error`
+                                  // remains true only on the completed throwing frame
 }
 ```
 
@@ -852,7 +869,8 @@ curl "http://localhost:8080/projects/MyProject/trace/breakpoint-tables?fields=na
 - **Decision explanation**: `DebugFrameVariables.decision` — which rule fired and which conditions matched.
 - **Structured errors**: `DebugStackView.error` (`DebugError`) replaces the flat `errorMessage`.
 - **Step exit and exceptions**: a step finishing a frame suspends at the frame's own exit with its result;
-  an exception suspends at the throwing frame before propagating.
+  an exception suspends at the throwing frame before propagating, and stamps every live caller with
+  the same throwable for inspect (stack `error` stays on the completed thrower).
 - **Steps are executable cells only**; the input is remembered for replay/profiling restarts; idle
   sessions are reaped after 10 minutes; the legacy tree-trace implementation was removed.
 

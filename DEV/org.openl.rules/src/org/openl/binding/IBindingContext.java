@@ -108,8 +108,8 @@ public interface IBindingContext extends ICastFactory {
      * varNamePrefix + '$' + available_index.
      */
     default String getTemporaryVarName() {
-        int index = 0;
-        String tmpVarName = "tmp$";
+        var index = 0;
+        var tmpVarName = "tmp$";
         while (findVar(ISyntaxConstants.THIS_NAMESPACE, tmpVarName, true) != null) {
             tmpVarName = "tmp$" + index;
             index++;

@@ -2,24 +2,21 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.util.PropertiesUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class ProjectTags {
     public static final String TAGS_FILE_NAME = "tags.properties";
     protected final AProject project;
     protected volatile Map<String, String> tags;
-
-    public ProjectTags(AProject project) {
-        this.project = project;
-    }
 
     private Map<String, String> readTagsFromStream(InputStream projectTagsFileStream) {
         var readTags = new HashMap<String, String>();
@@ -49,17 +46,17 @@ public class ProjectTags {
 
         if (project.hasArtefact(TAGS_FILE_NAME)) {
             try {
-                AProjectArtefact artefact = project.getArtefact(TAGS_FILE_NAME);
+                var artefact = project.getArtefact(TAGS_FILE_NAME);
                 if (artefact instanceof AProjectResource resource) {
-                    try (InputStream projectTagsFileStream = resource.getContent()) {
+                    try (var projectTagsFileStream = resource.getContent()) {
                         return readTagsFromStream(projectTagsFileStream);
                     }
                 }
             } catch (ProjectException | IOException e) {
                 log.error(e.getMessage(), e);
-                return Collections.emptyMap();
+                return Map.of();
             }
         }
-        return Collections.emptyMap();
+        return Map.of();
     }
 }

@@ -41,7 +41,7 @@ class ProjectIndexSerializerTest {
 
     @Test
     void test() throws IOException {
-        ProjectIndex projectIndex = null;
+        ProjectIndex projectIndex;
         try (var stream = getClass().getResourceAsStream("/openl-projects.yaml")) {
             projectIndex = mapper.readValue(stream, ProjectIndex.class);
             assertTheSame(projectIndex);
@@ -67,7 +67,7 @@ class ProjectIndexSerializerTest {
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour, int minute, int seconds) {
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(year, month - 1, dayOfMonth, hour, minute, seconds);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();

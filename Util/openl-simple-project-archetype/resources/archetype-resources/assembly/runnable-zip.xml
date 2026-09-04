@@ -12,7 +12,7 @@
 
     <fileSets>
         <fileSet>
-            <directory>${symbol_dollar}{project.build.scriptSourceDirectory}</directory>
+            <directory>scripts</directory>
             <outputDirectory>/</outputDirectory>
             <fileMode>0755</fileMode>
             <lineEnding>crlf</lineEnding>
@@ -22,7 +22,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${symbol_dollar}{project.build.scriptSourceDirectory}</directory>
+            <directory>scripts</directory>
             <outputDirectory>/</outputDirectory>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>

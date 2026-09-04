@@ -63,14 +63,14 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void testNoAnnotationMethod() throws Exception {
-        Class<?> enhancedClass = createService(TestInterface.class);
-        boolean f = false;
-        boolean producesAnnotationExists = false;
-        boolean consumesAnnotationExists = false;
+        var enhancedClass = createService(TestInterface.class);
+        var f = false;
+        var producesAnnotationExists = false;
+        var consumesAnnotationExists = false;
 
         for (Annotation annotation : enhancedClass.getAnnotations()) {
             if (annotation instanceof Path path) {
-                String value = path.value();
+                var value = path.value();
                 if (value.equals("/")) {
                     f = true;
                 }
@@ -96,14 +96,14 @@ class JAXRSOpenLServiceEnhancerTest {
             fail("Enhanced interface should contains @Path annotation on class.");
         }
 
-        boolean pathAnnotationExists = false;
-        boolean getAnnotationExists = false;
-        boolean pathParamAnnotationExists = false;
+        var pathAnnotationExists = false;
+        var getAnnotationExists = false;
+        var pathParamAnnotationExists = false;
 
-        Method someMethod = enhancedClass.getMethod("someMethod", int.class);
+        var someMethod = enhancedClass.getMethod("someMethod", int.class);
         for (Annotation annotation : someMethod.getAnnotations()) {
             if (annotation instanceof Path path) {
-                String value = path.value();
+                var value = path.value();
                 pathAnnotationExists = true;
                 if (!value.startsWith("/someMethod")) {
                     fail("Generated method should contains @Path annotation on method with method name value.");
@@ -114,7 +114,7 @@ class JAXRSOpenLServiceEnhancerTest {
             }
         }
         for (Parameter parameter : someMethod.getParameters()) {
-            PathParam param = parameter.getAnnotation(PathParam.class);
+            var param = parameter.getAnnotation(PathParam.class);
             if (param != null) {
                 pathParamAnnotationExists = true;
                 assertNotNull(param.value(), "Method parameter required @PathParam annotation");
@@ -139,19 +139,19 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void testMethodWithAnnotation1() throws Exception {
-        Class<?> enhancedClass = createService(TestAnnotatedInterface1.class);
-        Method someMethod = enhancedClass.getMethod("someMethod", String.class, String.class);
-        Path path = someMethod.getAnnotation(Path.class);
+        var enhancedClass = createService(TestAnnotatedInterface1.class);
+        var someMethod = enhancedClass.getMethod("someMethod", String.class, String.class);
+        var path = someMethod.getAnnotation(Path.class);
         assertNotNull(path);
         assertEquals("/someMethod/{arg1}", path.value());
         assertNotNull(someMethod.getAnnotation(GET.class));
         assertNull(someMethod.getAnnotation(POST.class));
-        Parameter parameter1 = someMethod.getParameters()[0];
-        PathParam pathParam = parameter1.getAnnotation(PathParam.class);
+        var parameter1 = someMethod.getParameters()[0];
+        var pathParam = parameter1.getAnnotation(PathParam.class);
         assertNotNull(pathParam, "Expected @PathParam annotation");
         assertEquals("arg1", pathParam.value());
-        Parameter parameter2 = someMethod.getParameters()[1];
-        QueryParam queryParam = parameter2.getAnnotation(QueryParam.class);
+        var parameter2 = someMethod.getParameters()[1];
+        var queryParam = parameter2.getAnnotation(QueryParam.class);
         assertNotNull(queryParam, "Expected @QueryParam annotation");
         assertEquals("arg1", queryParam.value());
     }
@@ -163,7 +163,7 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void testMethodWithAnnotation2() throws Exception {
-        Class<?> enhancedClass = createService(TestAnnotatedInterface2.class);
+        var enhancedClass = createService(TestAnnotatedInterface2.class);
         Method someMethod = null;
         for (Method method : enhancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
@@ -172,7 +172,7 @@ class JAXRSOpenLServiceEnhancerTest {
             }
         }
         assertNotNull(someMethod);
-        Path path = someMethod.getAnnotation(Path.class);
+        var path = someMethod.getAnnotation(Path.class);
         assertNotNull(path);
         assertEquals("/someMethod", path.value());
         assertNotNull(someMethod.getAnnotation(POST.class));
@@ -188,7 +188,7 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void testMethodWithAnnotation3() throws Exception {
-        Class<?> enhancedClass = createService(TestAnnotatedInterface3.class);
+        var enhancedClass = createService(TestAnnotatedInterface3.class);
         Method someMethod = null;
         for (Method method : enhancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
@@ -197,7 +197,7 @@ class JAXRSOpenLServiceEnhancerTest {
             }
         }
         assertNotNull(someMethod);
-        Path path = someMethod.getAnnotation(Path.class);
+        var path = someMethod.getAnnotation(Path.class);
         assertNotNull(path);
         assertEquals("/value", path.value());
         assertNotNull(someMethod.getAnnotation(POST.class));
@@ -207,12 +207,12 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void testMethodWithAnnotation() throws Exception {
-        Class<?> enhancedClass = createService(TestAnnotatedInterface.class);
-        boolean f = false;
-        Annotation pathAnnotation = enhancedClass.getAnnotation(Path.class);
+        var enhancedClass = createService(TestAnnotatedInterface.class);
+        var f = false;
+        var pathAnnotation = enhancedClass.getAnnotation(Path.class);
         if (pathAnnotation != null) {
-            Path path = (Path) pathAnnotation;
-            String value = path.value();
+            var path = (Path) pathAnnotation;
+            var value = path.value();
             if (value.equals("/test")) {
                 f = true;
             }
@@ -222,16 +222,16 @@ class JAXRSOpenLServiceEnhancerTest {
             fail("Enchanted interface should contains @Path annotation on class.");
         }
 
-        boolean pathAnnotationExists = false;
-        boolean getAnnotationExists = false;
-        boolean producesAnnotationExists = false;
-        boolean consumesAnnotationExists = false;
-        boolean pathParamAnnotationExists = false;
+        var pathAnnotationExists = false;
+        var getAnnotationExists = false;
+        var producesAnnotationExists = false;
+        var consumesAnnotationExists = false;
+        var pathParamAnnotationExists = false;
 
-        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
+        var someMethod = enhancedClass.getMethod("someMethod", String.class);
         for (Annotation annotation : someMethod.getAnnotations()) {
             if (annotation instanceof Path path) {
-                String value = path.value();
+                var value = path.value();
                 pathAnnotationExists = true;
                 if (!value.equals("/someMethod/{arg}")) {
                     fail("Generated method should contains @Path annotation on method with defined value.");
@@ -250,7 +250,7 @@ class JAXRSOpenLServiceEnhancerTest {
             }
         }
         for (Parameter parameter : someMethod.getParameters()) {
-            PathParam param = parameter.getAnnotation(PathParam.class);
+            var param = parameter.getAnnotation(PathParam.class);
             if (param != null) {
                 pathParamAnnotationExists = true;
                 assertEquals("arg", param.value(), "Method parameter required @PathParam annotation");
@@ -275,33 +275,33 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void testParametersInMethod() throws Exception {
-        Class<?> enhancedClass = createService(TestParameterInterface.class);
-        int i = 0;
+        var enhancedClass = createService(TestParameterInterface.class);
+        var i = 0;
         for (Method method : enhancedClass.getMethods()) {
             if ("someMethod".equals(method.getName())) {
                 i++;
-                Annotation postAnnotation = method.getAnnotation(POST.class);
+                var postAnnotation = method.getAnnotation(POST.class);
                 assertNotNull(postAnnotation, "Expected POST annotation.");
 
                 assertEquals(1, method.getParameterTypes().length, "Expected only one parameter in method.");
             }
             if ("someMethod4".equals(method.getName())) {
                 i++;
-                Annotation postAnnotation = method.getAnnotation(POST.class);
+                var postAnnotation = method.getAnnotation(POST.class);
                 assertNotNull(postAnnotation, "Expected POST annotation.");
 
                 assertEquals(1, method.getParameterTypes().length, "Expected only one parameter in method.");
             }
             if ("someMethod2".equals(method.getName())) {
                 i++;
-                Annotation getAnnotation = method.getAnnotation(POST.class);
+                var getAnnotation = method.getAnnotation(POST.class);
                 assertNotNull(getAnnotation, "Expected POST annotation.");
 
                 assertEquals(1, method.getParameterTypes().length, "Expected one parameters in method.");
             }
             if ("someMethod3".equals(method.getName())) {
                 i++;
-                Annotation getAnnotation = method.getAnnotation(GET.class);
+                var getAnnotation = method.getAnnotation(GET.class);
                 assertNotNull(getAnnotation, "Expected GET annotation.");
 
                 assertEquals(0, method.getParameterTypes().length, "Expected no parameters in method.");
@@ -313,13 +313,13 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void testMethodNamesAndPath() throws Exception {
-        Class<?> enhancedClass = createService(TestMethodNameAndPath.class);
-        Method[] methods = enhancedClass.getMethods();
+        var enhancedClass = createService(TestMethodNameAndPath.class);
+        var methods = enhancedClass.getMethods();
         assertEquals(3, methods.length, "Method is not found.");
 
         for (Method method : methods) {
             assertEquals("someMethod", method.getName());
-            Annotation pathAnnotation = method.getAnnotation(Path.class);
+            var pathAnnotation = method.getAnnotation(Path.class);
             assertNotNull(pathAnnotation, "Expected @Path annotation.");
 
             String path = null;
@@ -349,9 +349,9 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void shouldAddApiResponsesIfNotAnnotatedByApiResponses() throws Exception {
-        Class<?> enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
-        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
-        boolean apiResponsesAnnotationExists = false;
+        var enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
+        var someMethod = enhancedClass.getMethod("someMethod", String.class);
+        var apiResponsesAnnotationExists = false;
         for (Annotation annotation : someMethod.getAnnotations()) {
             if (annotation instanceof ApiResponses) {
                 apiResponsesAnnotationExists = true;
@@ -371,9 +371,9 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses() throws Exception {
-        Class<?> enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
-        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
-        boolean apiResponsesAnnotationExists = false;
+        var enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
+        var someMethod = enhancedClass.getMethod("someMethod", String.class);
+        var apiResponsesAnnotationExists = false;
         for (Annotation annotation : someMethod.getAnnotations()) {
             if (annotation instanceof ApiResponses) {
                 apiResponsesAnnotationExists = true;
@@ -393,9 +393,9 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void shouldNotAddApiResponsesIfAnnotatedByApiResponse() throws Exception {
-        Class<?> enhancedClass = createService(TestAnnotatedByApiResponseInterface.class);
-        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
-        boolean apiResponsesAnnotationExists = false;
+        var enhancedClass = createService(TestAnnotatedByApiResponseInterface.class);
+        var someMethod = enhancedClass.getMethod("someMethod", String.class);
+        var apiResponsesAnnotationExists = false;
         for (Annotation annotation : someMethod.getAnnotations()) {
             if (annotation instanceof ApiResponses) {
                 apiResponsesAnnotationExists = true;
@@ -418,9 +418,9 @@ class JAXRSOpenLServiceEnhancerTest {
 
     @Test
     void shouldNotAddApiResponsesIfAlreadyDefinedInOperationAnnotation() throws Exception {
-        Class<?> enhancedClass = createService(TestAnnotatedByOperationWithResponsesInterface.class);
-        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
-        boolean apiResponsesAnnotationExists = false;
+        var enhancedClass = createService(TestAnnotatedByOperationWithResponsesInterface.class);
+        var someMethod = enhancedClass.getMethod("someMethod", String.class);
+        var apiResponsesAnnotationExists = false;
         for (Annotation annotation : someMethod.getAnnotations()) {
             if (annotation instanceof ApiResponses) {
                 apiResponsesAnnotationExists = true;
@@ -433,7 +433,7 @@ class JAXRSOpenLServiceEnhancerTest {
     }
 
     private static Class<?> createService(Class<?> clazz) throws Exception {
-        OpenLService service = new OpenLService.OpenLServiceBuilder()
+        var service = new OpenLService.OpenLServiceBuilder()
                 .setName("test")
                 .setDeployPath("testPath")
                 .setDeployment(new DeploymentDescription("testPath", new CommonVersionImpl("0")))
@@ -445,7 +445,7 @@ class JAXRSOpenLServiceEnhancerTest {
                     }
                 });
         service.setServiceBean(new Object());
-        Object proxy = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service);
+        var proxy = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service);
         return proxy.getClass().getInterfaces()[0];
     }
 }

@@ -51,8 +51,8 @@ public abstract class AbstractDataTableReader<T extends AbstractDataView, R exte
      * Check if any cell in the given row starts with '>' (indicates foreign key)
      */
     protected boolean hasForeignKeysInRow(ITable<?> tableBody) {
-        int width = tableBody.getWidth();
-        for (int col = 0; col < width; col++) {
+        var width = tableBody.getWidth();
+        for (var col = 0; col < width; col++) {
             var cell = tableBody.getCell(col, 1);
             var value = cell.getStringValue();
             if (value != null && value.startsWith(">")) {
@@ -70,12 +70,12 @@ public abstract class AbstractDataTableReader<T extends AbstractDataView, R exte
      * Row 2: Display names if row 1 has foreign keys
      */
     protected List<DataHeaderView> readHeaders(ITable<?> tableBody) {
-        List<DataHeaderView> headers = new ArrayList<>();
-        int width = tableBody.getWidth();
+        var headers = new ArrayList<DataHeaderView>();
+        var width = tableBody.getWidth();
 
-        boolean hasForeignKeys = hasForeignKeysInRow(tableBody);
+        var hasForeignKeys = hasForeignKeysInRow(tableBody);
 
-        for (int col = 0; col < width; col++) {
+        for (var col = 0; col < width; col++) {
             var fieldNameCell = tableBody.getCell(col, 0);
             var fieldName = fieldNameCell.getStringValue();
 
@@ -115,13 +115,13 @@ public abstract class AbstractDataTableReader<T extends AbstractDataView, R exte
      * Read data rows starting from the determined row
      */
     protected List<DataRowView> readRows(ITable<?> tableBody, int startRow, Function<ICell, Object> cellValueReader) {
-        List<DataRowView> rows = new ArrayList<>();
-        int height = tableBody.getHeight();
-        int width = tableBody.getWidth();
+        var rows = new ArrayList<DataRowView>();
+        var height = tableBody.getHeight();
+        var width = tableBody.getWidth();
 
-        for (int row = startRow; row < height; row++) {
-            List<Object> values = new ArrayList<>();
-            for (int col = 0; col < width; col++) {
+        for (var row = startRow; row < height; row++) {
+            var values = new ArrayList<Object>();
+            for (var col = 0; col < width; col++) {
                 var cell = tableBody.getCell(col, row);
                 values.add(cellValueReader.apply(cell));
             }

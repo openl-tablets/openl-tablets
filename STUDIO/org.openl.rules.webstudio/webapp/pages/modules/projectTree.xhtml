@@ -24,9 +24,6 @@
             padding: 7px 0;
             border-bottom: 1px solid #f7f7f7;
         }
-        #projects > ul > li.sel {
-            background: #f3f3f3;
-        }
         #projects > ul > li:last-child {
             border-bottom: 0;
         }
@@ -157,8 +154,7 @@
                     <br />
                     <c:if test="true">
                         #{msg['ws.projects.no.goto1']}
-                        <a href="#{contextPath}/faces/pages/modules/repository/index.xhtml"
-                            title="Repository">#{msg['ws.projects.no.goto2']}</a>
+                        <a href="#{contextPath}/projects" title="Projects">#{msg['ws.projects.no.goto2']}</a>
                         #{msg['ws.projects.no.goto3']}
                     </c:if>
                 </h:panelGroup>

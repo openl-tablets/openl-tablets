@@ -1,0 +1,38 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "*",
+  "name": "EPBDS-15612",
+  "branch": "master",
+  "status": "VIEWING_VERSION",
+  "repository": "design-flat",
+  "modifiedBy": "*",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "EPBDS-15612",
+  "comment": "*",
+  "branchDefault": true,
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  "capabilities": {
+    "canWrite": true,
+    "canClose": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canManageBranches": true,
+    "canExport": true
+  }
+}

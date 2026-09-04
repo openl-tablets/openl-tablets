@@ -5,19 +5,17 @@ import java.time.Instant;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.config.InMemoryProperties;
 import org.openl.spring.env.DynamicPropertySource;
 
+@RequiredArgsConstructor
 @Validated
 public class SettingsServiceImpl implements SettingsService {
 
     private final InMemoryProperties inMemoryProperties;
-
-    public SettingsServiceImpl(InMemoryProperties inMemoryProperties) {
-        this.inMemoryProperties = inMemoryProperties;
-    }
 
     @Override
     public void load(@NotNull SettingsHolder settings) {

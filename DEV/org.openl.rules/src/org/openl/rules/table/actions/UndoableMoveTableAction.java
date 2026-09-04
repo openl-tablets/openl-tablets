@@ -1,5 +1,7 @@
 package org.openl.rules.table.actions;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.service.TableServiceImpl;
@@ -12,15 +14,12 @@ import org.openl.rules.table.IGridTable;
  *
  * @author PUdalau
  */
+@RequiredArgsConstructor
 public class UndoableMoveTableAction extends UndoableEditTableAction {
 
     private IGridRegion prevRegion = null;
     private IGridRegion newRegion = null;
     private final MetaInfoWriter metaInfoWriter;
-
-    public UndoableMoveTableAction(MetaInfoWriter metaInfoWriter) {
-        this.metaInfoWriter = metaInfoWriter;
-    }
 
     /**
      * @return New region after moving.
@@ -33,7 +32,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
     public void doAction(IGridTable table) {
         IGridTable fullTable = getOriginalTable(table);
         prevRegion = fullTable.getRegion();
-        TableServiceImpl tableService = new TableServiceImpl(metaInfoWriter);
+        var tableService = new TableServiceImpl(metaInfoWriter);
         try {
             if (newRegion == null) {
                 newRegion = tableService.moveTable(fullTable);

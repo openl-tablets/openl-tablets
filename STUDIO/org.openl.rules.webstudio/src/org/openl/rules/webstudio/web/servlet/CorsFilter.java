@@ -11,8 +11,6 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.core.env.Environment;
-
 import org.openl.util.StringUtils;
 
 @WebFilter("/*")
@@ -27,9 +25,9 @@ public class CorsFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        String requestOrigin = httpRequest.getHeader("Origin");
+        var httpRequest = (HttpServletRequest) request;
+        var httpResponse = (HttpServletResponse) response;
+        var requestOrigin = httpRequest.getHeader("Origin");
 
         if (isAllowedOrigin(requestOrigin)) {
             httpResponse.addHeader("Access-Control-Allow-Origin", requestOrigin);
@@ -67,9 +65,9 @@ public class CorsFilter implements Filter {
 
     @Override
     public void init(FilterConfig config) {
-        Environment env = SpringInitializer.getApplicationContext(config.getServletContext()).getEnvironment();
+        var env = SpringInitializer.getApplicationContext(config.getServletContext()).getEnvironment();
 
-        String allowed = env.getProperty("cors.allowed.origins");
+        var allowed = env.getProperty("cors.allowed.origins");
         allowedAny = "*".equals(allowed);
         allowedOrigins = StringUtils.split(allowed, ',');
         allowedMethods = env.getProperty("cors.allowed.methods");

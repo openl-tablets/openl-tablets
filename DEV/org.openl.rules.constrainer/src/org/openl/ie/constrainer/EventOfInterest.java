@@ -69,9 +69,9 @@ public abstract class EventOfInterest extends ReusableImpl implements EventOfInt
      * Returns a String representation of the mask of this event.
      */
     public String maskToString() {
-        StringBuilder res = new StringBuilder("(");
-        boolean first = true;
-        for (int i = 0; i < names.length; ++i) {
+        var res = new StringBuilder("(");
+        var first = true;
+        for (var i = 0; i < names.length; ++i) {
             if ((type() & 1 << i) != 0) {
                 if (!first) {
                     res.append(" | ");

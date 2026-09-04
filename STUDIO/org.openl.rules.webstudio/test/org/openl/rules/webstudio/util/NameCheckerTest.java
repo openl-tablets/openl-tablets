@@ -30,7 +30,7 @@ class NameCheckerTest {
                 "test..."};
 
         for (String s : badNames) {
-            boolean res = NameChecker.checkName(s);
+            var res = NameChecker.checkName(s);
             if (res) {
                 fail("wrong name passed check: " + s);
             }

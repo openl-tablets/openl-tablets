@@ -37,11 +37,11 @@ public class DataBase implements IDataBase {
     @Override
     public ITable registerTable(String tableName, TableSyntaxNode tsn) throws DuplicatedTableException {
         synchronized (lock) {
-            ITable table = getTable(tableName);
+            var table = getTable(tableName);
 
             if (table != null) {
-                String uri = table.getTableSyntaxNode().getTable().getSource().getUri();
-                String newUri = tsn.getTable().getSource().getUri();
+                var uri = table.getTableSyntaxNode().getTable().getSource().getUri();
+                var newUri = tsn.getTable().getSource().getUri();
                 if (!uri.equals(newUri)) {
                     throw new DuplicatedTableException(tableName, tsn);
                 } else {
@@ -59,7 +59,7 @@ public class DataBase implements IDataBase {
     @Override
     public ITable registerNewTable(String tableName, TableSyntaxNode tsn) {
         synchronized (lock) {
-            ITable table = makeNewTable(tableName, tsn);
+            var table = makeNewTable(tableName, tsn);
             tables.put(tableName, table);
 
             return table;
@@ -76,10 +76,10 @@ public class DataBase implements IDataBase {
     @Override
     public void registerTable(ITable newTable) throws DuplicatedTableException {
         synchronized (lock) {
-            ITable table = getTable(newTable.getName());
+            var table = getTable(newTable.getName());
             if (table != null) {
-                String uri = table.getUri();
-                String newUri = newTable.getUri();
+                var uri = table.getUri();
+                var newUri = newTable.getUri();
                 if (!uri.equals(newUri)) {
                     throw new DuplicatedTableException(newTable.getName(), newTable.getTableSyntaxNode());
                 }

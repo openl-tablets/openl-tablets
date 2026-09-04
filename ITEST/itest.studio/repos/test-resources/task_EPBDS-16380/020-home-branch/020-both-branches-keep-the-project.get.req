@@ -1,0 +1,4 @@
+GET /rest/projects/EPBDS_16380_HISTORICAL/branches HTTP/1.1
+Authorization: Basic RVBCRFNfMTYzODBfdmlld2VyOkVQQkRTXzE2MzgwX3ZpZXdlcg==
+Cookie: NO_JSESSIONID=noAuth
+

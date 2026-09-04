@@ -1,17 +1,16 @@
 package org.openl.rules.table;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Default implementation for logical tables.
  *
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 public abstract class ALogicalTable implements ILogicalTable {
 
     private final IGridTable table;
-
-    public ALogicalTable(IGridTable table) {
-        this.table = table;
-    }
 
     @Override
     public IGridTable getSource() {
@@ -30,7 +29,7 @@ public abstract class ALogicalTable implements ILogicalTable {
 
     @Override
     public ILogicalTable getColumns(int from, int to) {
-        int colsNum = to - from + 1;
+        var colsNum = to - from + 1;
         return getSubtable(from, 0, colsNum, getHeight());
     }
 
@@ -46,7 +45,7 @@ public abstract class ALogicalTable implements ILogicalTable {
 
     @Override
     public ILogicalTable getRows(int from, int to) {
-        int rowsNum = to - from + 1;
+        var rowsNum = to - from + 1;
         return getSubtable(0, from, getWidth(), rowsNum);
     }
 
@@ -62,7 +61,7 @@ public abstract class ALogicalTable implements ILogicalTable {
 
     @Override
     public String toString() {
-        StringBuilder tableVisualization = new StringBuilder();
+        var tableVisualization = new StringBuilder();
         tableVisualization.append(super.toString())
                 .append("(")
                 .append(getWidth())
@@ -71,10 +70,10 @@ public abstract class ALogicalTable implements ILogicalTable {
                 .append(")")
                 .append("\n");
 
-        for (int i = 0; i < getSource().getHeight(); i++) {
-            int length = 0;
-            for (int j = 0; j < getSource().getWidth(); j++) {
-                String stringValue = getSource().getCell(j, i).getStringValue();
+        for (var i = 0; i < getSource().getHeight(); i++) {
+            var length = 0;
+            for (var j = 0; j < getSource().getWidth(); j++) {
+                var stringValue = getSource().getCell(j, i).getStringValue();
                 if (stringValue == null) {
                     stringValue = "EMPTY";
                 }
@@ -83,7 +82,7 @@ public abstract class ALogicalTable implements ILogicalTable {
                 tableVisualization.append("|");
             }
             tableVisualization.append("\n");
-            for (int k = 0; k <= length; k++) {
+            for (var k = 0; k <= length; k++) {
                 tableVisualization.append("-");
             }
             tableVisualization.append("\n");

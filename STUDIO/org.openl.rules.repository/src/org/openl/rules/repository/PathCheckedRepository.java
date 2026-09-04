@@ -4,9 +4,17 @@ import static org.openl.rules.repository.api.Repository.validatePath;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
+import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
@@ -15,8 +23,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 
@@ -26,13 +32,10 @@ import org.openl.rules.repository.api.UserInfo;
  *
  * @author Yury Molchan
  */
-public class PathCheckedRepository implements BranchRepository, RepositorySettingsAware {
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+public class PathCheckedRepository implements BranchRepository {
 
     private final Repository delegate;
-
-    PathCheckedRepository(Repository delegate) {
-        this.delegate = delegate;
-    }
 
     @Override
     public String getId() {
@@ -174,36 +177,39 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
     }
 
     @Override
-    public void createBranch(String projectPath, String branch) throws IOException {
-        validatePath(projectPath);
+    public void createRepositoryBranch(String branch, @Nullable String startPoint) throws IOException {
         validateBranch(branch);
-        ((BranchRepository) delegate).createBranch(projectPath, branch);
+        ((BranchRepository) delegate).createRepositoryBranch(branch, startPoint);
     }
 
     @Override
-    public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
-        validatePath(projectPath);
+    public void deleteRepositoryBranch(String branch) throws IOException {
         validateBranch(branch);
-        ((BranchRepository) delegate).createBranch(projectPath, branch, startPoint);
+        ((BranchRepository) delegate).deleteRepositoryBranch(branch);
     }
 
     @Override
-    public void deleteBranch(String projectPath, String branch) throws IOException {
-        validatePath(projectPath);
-        validateBranch(branch);
-        ((BranchRepository) delegate).deleteBranch(projectPath, branch);
+    public List<String> listBranches() throws IOException {
+        return ((BranchRepository) delegate).listBranches();
     }
 
     @Override
-    public List<String> getBranches(String projectPath) throws IOException {
-        validatePath(projectPath);
-        return ((BranchRepository) delegate).getBranches(projectPath);
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException {
+        return ((BranchRepository) delegate).getBranchStatuses(branches);
+    }
+
+    @Override
+    public Map<String, BranchTreeRevision> getBranchTreeRevisions(Collection<String> branches,
+                                                                  String path) throws IOException {
+        branches.forEach(this::validateBranch);
+        validatePath(path);
+        return ((BranchRepository) delegate).getBranchTreeRevisions(branches, path);
     }
 
     @Override
     public BranchRepository forBranch(String branch) throws IOException {
         validateBranch(branch);
-        return ((BranchRepository) delegate).forBranch(branch);
+        return new PathCheckedRepository(((BranchRepository) delegate).forBranch(branch));
     }
 
     @Override
@@ -244,10 +250,4 @@ public class PathCheckedRepository implements BranchRepository, RepositorySettin
         }
     }
 
-    @Override
-    public void setRepositorySettings(RepositorySettings settings) {
-        if (delegate instanceof RepositorySettingsAware aware) {
-            aware.setRepositorySettings(settings);
-        }
-    }
 }

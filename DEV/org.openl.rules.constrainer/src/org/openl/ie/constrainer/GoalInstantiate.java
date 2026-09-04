@@ -76,7 +76,6 @@ public class GoalInstantiate extends GoalImpl {
                     goal_limit = _goal_max;
                 }
             }
-            // Debug.on();Debug.print(this + " by "+chosen_value);Debug.off();
 
             return new GoalOr(_goal_value, new GoalAnd(goal_limit, GoalInstantiate.this));
         }
@@ -106,7 +105,7 @@ public class GoalInstantiate extends GoalImpl {
             return null;
         }
 
-        int chosen_value = _intvar.min();
+        var chosen_value = _intvar.min();
 
         return _impl.instantiate(chosen_value);
     }

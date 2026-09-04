@@ -23,7 +23,7 @@ class FileChangesFromFolderTest {
 
     @Test
     void testIterator() throws IOException {
-        Map<String, byte[]> actualEntries = executeIterator("test-resources/archive.zip", FileChangesFromFolder::new);
+        var actualEntries = executeIterator("test-resources/archive.zip", FileChangesFromFolder::new);
         assertEquals(7, actualEntries.size());
         assertSizeEquals(23, actualEntries.get("/deployment.yaml"));
         assertSizeEquals(290, actualEntries.get("/project1/rules-deploy.xml"));
@@ -36,7 +36,7 @@ class FileChangesFromFolderTest {
 
     @Test
     void testIterator2() throws IOException {
-        Map<String, byte[]> actualEntries = executeIterator("test-resources/archive.zip",
+        var actualEntries = executeIterator("test-resources/archive.zip",
                 root -> new FileChangesFromFolder(root,
                         "/root-folder",
                         path -> !Objects.equals(path.toString(), "/deployment.yaml"),
@@ -73,12 +73,12 @@ class FileChangesFromFolderTest {
 
     private static Map<String, byte[]> executeIterator(String pathToArchive,
                                                        FileChangesFactory factory) throws IOException {
-        Map<String, byte[]> actualEntries = new HashMap<>();
+        var actualEntries = new HashMap<String, byte[]>();
         try (FileSystem fs = openFileSystem(pathToArchive)) {
-            try (FileChangesFromFolder changes = factory.create(fs.getPath("/"))) {
+            try (var changes = factory.create(fs.getPath("/"))) {
                 for (FileItem item : changes) {
-                    try (InputStream source = item.getStream()) {
-                        ByteArrayOutputStream target = new ByteArrayOutputStream();
+                    try (var source = item.getStream()) {
+                        var target = new ByteArrayOutputStream();
                         source.transferTo(target);
                         actualEntries.put(item.getData().getName(), target.toByteArray());
                     }

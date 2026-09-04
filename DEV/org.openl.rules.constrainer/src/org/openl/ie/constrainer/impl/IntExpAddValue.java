@@ -1,5 +1,8 @@
 package org.openl.ie.constrainer.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
@@ -15,12 +18,9 @@ import org.openl.ie.tools.ReusableFactory;
  * An implementation of the expression: <code>(IntExp + value)</code>.
  */
 public final class IntExpAddValue extends IntExpImpl {
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     class ExpAddValueObserver extends ExpressionObserver {
         final IntExp _exp_this;
-
-        ExpAddValueObserver(IntExp exp_this) {
-            _exp_this = exp_this;
-        }
 
         @Override
         public Object master() {
@@ -34,7 +34,7 @@ public final class IntExpAddValue extends IntExpImpl {
 
         @Override
         public void update(Subject exp, EventOfInterest event) throws Failure {
-            IntEvent e = (IntEvent) event;
+            var e = (IntEvent) event;
 
             IntEventAddValue ev = IntEventAddValue.getEvent(e, _value);
             ev.exp(_exp_this);
@@ -60,7 +60,7 @@ public final class IntExpAddValue extends IntExpImpl {
         IntEvent _event;
 
         static IntEventAddValue getEvent(IntEvent event, int value) {
-            IntEventAddValue ev = (IntEventAddValue) _factory.getElement();
+            var ev = (IntEventAddValue) _factory.getElement();
             ev.init(event, value);
             return ev;
         }
@@ -178,8 +178,6 @@ public final class IntExpAddValue extends IntExpImpl {
 
     @Override
     public void setMin(int min) throws Failure {
-
-        // System.out.println("++++ Set min: " + min + " in " + this);
 
         _exp.setMin(min - _value);
     }

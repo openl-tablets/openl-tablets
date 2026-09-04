@@ -36,7 +36,7 @@ final class WorkbookLoadUtils {
         } catch (Exception e) {
             log.error("Error while preprocessing workbook", e);
 
-            String message = "Cannot open source file or file is corrupted: " + ExceptionUtils.getRootCauseMessage(e);
+            var message = "Cannot open source file or file is corrupted: " + ExceptionUtils.getRootCauseMessage(e);
             throw new OpenlNotCheckedException(message, e);
         }
     }

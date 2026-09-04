@@ -19,9 +19,9 @@ final class ExportUtils {
             return collection.toArray();
         }
         if (value.getClass().isArray()) {
-            int length = Array.getLength(value);
+            var length = Array.getLength(value);
             Object array = Array.newInstance(field.getType().getInstanceClass(), length);
-            for (int i = 0; i < length; i++) {
+            for (var i = 0; i < length; i++) {
                 Array.set(array, i, fieldValue(Array.get(value, i), field));
             }
             return array;
@@ -31,7 +31,7 @@ final class ExportUtils {
     }
 
     static List<Object> fieldValues(List<?> values, IOpenField field) {
-        List<Object> result = new ArrayList<>(values.size());
+        var result = new ArrayList<Object>(values.size());
         for (Object value : values) {
             result.add(value == null ? null : field.get(value, null));
         }
@@ -39,7 +39,7 @@ final class ExportUtils {
     }
 
     static List<Object> flatten(List<?> list) {
-        List<Object> result = new ArrayList<>();
+        var result = new ArrayList<Object>();
         for (Object element : list) {
             if (element == null) {
                 result.add(null);
@@ -49,7 +49,7 @@ final class ExportUtils {
                 } else if (!element.getClass().isArray()) {
                     result.add(element);
                 } else {
-                    for (int i = 0; i < Array.getLength(element); i++) {
+                    for (var i = 0; i < Array.getLength(element); i++) {
                         result.add(Array.get(element, i));
                     }
                 }

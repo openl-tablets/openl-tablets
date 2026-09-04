@@ -1,0 +1,19 @@
+POST /rest/projects/EPBDS-16418-Titles/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Datatypes",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Datatype",
+    "name": "TitledType",
+    "source": [
+      [{"value": "Datatype TitledType", "colspan": 3}, {"value": null, "covered": true}, {"value": null, "covered": true}],
+      [{"value": "Type"}, {"value": "Name"}, {"value": "Default"}],
+      [{"value": "String"}, {"value": "field1"}, {"value": "someDefault"}]
+    ]
+  }
+}
+

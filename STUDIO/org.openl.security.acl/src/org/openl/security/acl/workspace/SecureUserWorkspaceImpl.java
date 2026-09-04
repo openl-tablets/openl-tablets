@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.acls.domain.BasePermission;
 
@@ -12,6 +13,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -19,6 +21,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.repository.RepositoryAclService;
 
+@RequiredArgsConstructor
 @Slf4j
 public class SecureUserWorkspaceImpl implements UserWorkspace {
 
@@ -26,18 +29,10 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     private final RepositoryAclService designRepositoryAclService;
     private final boolean allowProjectCreateDelete;
 
-    public SecureUserWorkspaceImpl(UserWorkspace userWorkspace,
-                                   RepositoryAclService designRepositoryAclService,
-                                   boolean allowProjectCreateDelete) {
-        this.userWorkspace = userWorkspace;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.allowProjectCreateDelete = allowProjectCreateDelete;
-    }
-
     @Override
     public boolean hasProject(String repositoryId, String name) {
         try {
-            RulesProject project = userWorkspace.getProject(repositoryId, name);
+            var project = userWorkspace.getProject(repositoryId, name);
             return designRepositoryAclService.isGranted(project, List.of(BasePermission.READ));
         } catch (ProjectException e) {
             return false;
@@ -135,16 +130,28 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
                                            String name,
                                            String projectFolder,
                                            String comment) throws ProjectException {
+        return uploadLocalProject(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
+                name,
+                projectFolder,
+                comment);
+    }
+
+    @Override
+    public RulesProject uploadLocalProject(Repository repository,
+                                           String name,
+                                           String projectFolder,
+                                           String comment) throws ProjectException {
+        var repositoryId = repository.getId();
         if (userWorkspace.hasProject(repositoryId, name)) {
-            String path = userWorkspace.getDesignTimeRepository().getRulesLocation() + name;
+            var path = userWorkspace.getDesignTimeRepository().getRulesLocation() + name;
             if (designRepositoryAclService.isGranted(repositoryId, path, List.of(BasePermission.WRITE))) {
-                return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
+                return userWorkspace.uploadLocalProject(repository, name, projectFolder, comment);
             } else {
                 throw new ProjectException("There is no permission for modifying '%s'.".formatted(path));
             }
         } else {
             if (allowProjectCreateDelete && designRepositoryAclService.isGranted(repositoryId, null, List.of(BasePermission.CREATE))) {
-                return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
+                return userWorkspace.uploadLocalProject(repository, name, projectFolder, comment);
             } else {
                 throw new ProjectException("There is no permission for creating a new project.");
             }
@@ -153,7 +160,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public Optional<RulesProject> getProjectByPath(String repositoryId, String realPath) {
-        Optional<RulesProject> rulesProjectOptional = userWorkspace.getProjectByPath(repositoryId, realPath);
+        var rulesProjectOptional = userWorkspace.getProjectByPath(repositoryId, realPath);
         if (rulesProjectOptional
                 .isPresent() && !designRepositoryAclService.isGranted(rulesProjectOptional.get(), List.of(BasePermission.READ))) {
             return Optional.empty();
@@ -168,7 +175,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public RulesProject getProject(String repositoryId, String name) throws ProjectException {
-        RulesProject rulesProject = userWorkspace.getProject(repositoryId, name);
+        var rulesProject = userWorkspace.getProject(repositoryId, name);
         if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))) {
             throw new ProjectException("There is no permission for reading the project.");
         }
@@ -177,11 +184,16 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException {
-        RulesProject rulesProject = userWorkspace.getProject(repositoryId, name, refreshBefore);
+        var rulesProject = userWorkspace.getProject(repositoryId, name, refreshBefore);
         if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(BasePermission.READ))) {
             throw new ProjectException("There is no permission for reading the project.");
         }
         return rulesProject;
+    }
+
+    @Override
+    public void setProjectBranch(RulesProject project, String branch) throws ProjectException {
+        userWorkspace.setProjectBranch(project, branch);
     }
 
     @Override

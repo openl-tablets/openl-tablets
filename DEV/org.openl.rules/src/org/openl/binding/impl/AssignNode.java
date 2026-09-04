@@ -30,9 +30,9 @@ public final class AssignNode extends MethodBoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object res = source.evaluate(env);
+        var res = source.evaluate(env);
         if (boundMethod != null) {
-            Object targetValue = target.evaluate(env);
+            var targetValue = target.evaluate(env);
 
             res = BinaryOpNode.evaluateBinaryMethod(env, new Object[]{targetValue, res}, boundMethod);
         }

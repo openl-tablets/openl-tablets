@@ -26,9 +26,9 @@ class RuleServiceDeploymentRelatedDependencyManagerTest {
     @Test
     void testInstantiation() throws Exception {
         assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertTrue(
                 ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printJavaBean"))
                         .contains("project1"));

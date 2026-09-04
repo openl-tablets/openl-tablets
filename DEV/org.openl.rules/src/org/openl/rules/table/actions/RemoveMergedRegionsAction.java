@@ -3,6 +3,8 @@ package org.openl.rules.table.actions;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
@@ -16,22 +18,19 @@ import org.openl.rules.table.IWritableGrid;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 public class RemoveMergedRegionsAction implements IUndoableGridTableAction {
 
     protected final IGridRegion region;
     private List<IGridRegion> removedRegions;
 
-    public RemoveMergedRegionsAction(IGridRegion region) {
-        this.region = region;
-    }
-
     @Override
     public void doAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
         removedRegions = new ArrayList<>();
-        int nregions = grid.getNumberOfMergedRegions();
-        for (int i = 0; i < nregions; i++) {
-            IGridRegion reg = grid.getMergedRegion(i);
+        var nregions = grid.getNumberOfMergedRegions();
+        for (var i = 0; i < nregions; i++) {
+            var reg = grid.getMergedRegion(i);
             if (IGridRegion.Tool.contains(region, reg.getLeft(), reg.getTop())) {
                 removedRegions.add(reg);
             }
@@ -43,7 +42,7 @@ public class RemoveMergedRegionsAction implements IUndoableGridTableAction {
 
     @Override
     public void undoAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
         for (IGridRegion mergedRegion : removedRegions) {
             grid.addMergedRegion(mergedRegion);
         }

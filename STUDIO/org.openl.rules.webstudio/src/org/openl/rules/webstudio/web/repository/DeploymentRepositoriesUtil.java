@@ -9,7 +9,7 @@ public class DeploymentRepositoriesUtil {
 
     public static boolean isMainBranchProtected(Repository repo) {
         if (repo.supports().branches()) {
-            BranchRepository branchRepo = (BranchRepository) repo;
+            var branchRepo = (BranchRepository) repo;
             return branchRepo.isBranchProtected(branchRepo.getBranch());
         }
         return false;

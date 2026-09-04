@@ -4,6 +4,8 @@
 
 package org.openl.syntax.impl;
 
+import lombok.Getter;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.StringPool;
 import org.openl.util.text.ILocation;
@@ -13,18 +15,15 @@ import org.openl.util.text.ILocation;
  */
 public class IdentifierNode extends TerminalNode {
 
+    @Getter
     private final String identifier;
     private final String originalIdentifier;
 
     public IdentifierNode(String type, ILocation location, String identifier, IOpenSourceCodeModule module) {
         super(type, location, module);
-        String x = identifier.replaceAll("`", "");
+        var x = identifier.replaceAll("`", "");
         this.originalIdentifier = !x.equals(identifier) ? StringPool.intern(identifier) : null;
         this.identifier = StringPool.intern(x);
-    }
-
-    public String getIdentifier() {
-        return identifier;
     }
 
     public String getOriginalText() {

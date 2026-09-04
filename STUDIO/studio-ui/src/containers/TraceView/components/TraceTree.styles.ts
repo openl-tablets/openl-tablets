@@ -18,11 +18,51 @@ export const useStyles = createStyles(({ css, token }) => ({
         letter-spacing: 0.05em;
         color: ${token.colorTextTertiary};
     `,
+    // A quiet caption warning the tree is capped, so its partial branches aren't mistaken for the whole run.
+    // Pinned to the top of the scroll area, so the warning stays visible while drilling deep into the tree.
+    truncated: css`
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        padding: ${token.paddingXXS}px ${token.paddingSM}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorWarningText};
+        background: ${token.colorWarningBg};
+    `,
+    // A per-node caption for sub-calls dropped once the tree hit its size limit, tinted like the truncation
+    // warning so the gap reads as "capped here", distinct from a plain "+N more" that can still be paged in.
+    notRetained: css`
+        color: ${token.colorWarningText};
+        font-style: italic;
+    `,
+    // A clickable "+N more" that pages in the next executions of a lazily-loaded branch.
+    moreLink: css`
+        cursor: pointer;
+        color: ${token.colorLink};
+        &:hover {
+            text-decoration: underline;
+        }
+    `,
+    // The header's right-hand controls (detailed toggle + Total/Self) sit together, away from the title.
+    headerControls: css`
+        display: flex;
+        align-items: center;
+        gap: ${token.marginSM}px;
+    `,
     // The Total/Self switch is a control, not a heading — reset the heading typography.
     timeToggle: css`
         text-transform: none;
         font-weight: normal;
         letter-spacing: normal;
+    `,
+    // Centered progress note while the simple mode runs the calculation and downloads its tree.
+    progress: css`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: ${token.marginXS}px;
+        padding: ${token.paddingLG}px;
+        color: ${token.colorTextSecondary};
     `,
     row: css`
         display: flex;
@@ -51,7 +91,8 @@ export const useStyles = createStyles(({ css, token }) => ({
             background: ${token.colorPrimaryBg};
         }
     `,
-    // Executed and returned: shown for its result only, de-emphasised and not runnable.
+    // Auxiliary rows (step references, "+N more", loading, capped-branch notes): quieter than the
+    // rules themselves, so the tree's structure stays the loudest thing on screen.
     inactive: css`
         opacity: 0.6;
     `,
@@ -71,6 +112,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         justify-content: center;
         width: 14px;
         flex: 0 0 auto;
+        /* Rendered as a <button>, so strip the native chrome and let it read like the plain chevron it was. */
+        border: none;
+        background: none;
+        padding: 0;
+        font: inherit;
         color: ${token.colorTextTertiary};
         cursor: pointer;
         &:hover {
@@ -85,6 +131,12 @@ export const useStyles = createStyles(({ css, token }) => ({
     name: css`
         overflow: hidden;
         text-overflow: ellipsis;
+    `,
+    // A business-tree row's main label: takes the remaining width so a long detailed title truncates in place.
+    // Typography.Text then shows the full text on hover only when it does not fit.
+    labelText: css`
+        flex: 1;
+        min-width: 0;
     `,
     // Executed-tree node header: a returned table, kept readable so its name and timing stand out.
     callNode: css`
@@ -178,40 +230,61 @@ export const useStyles = createStyles(({ css, token }) => ({
             color: ${token.colorPrimary};
         }
     `,
+    // Inherits the row colour, so a greyed (not-yet-reached) row greys its label too.
     leafLabel: css`
         flex: 1;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: ${token.colorText};
     `,
-    // Status is carried by shape as well as colour, so the three step states stay distinct without relying
-    // on hue: pending is a hollow ring, executed/error/frame are filled, and the current step gets a halo.
-    dot: css`
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
+    // Plain, self-explanatory state marks instead of coloured dots: an arrow = where the calculation
+    // is now (muted on the callers leading to it), a cross = it failed. An executed line reads as
+    // plain text and a not-yet-reached line is greyed, so neither needs a mark.
+    mark: css`
+        width: 12px;
         flex: 0 0 auto;
-        box-sizing: border-box;
-        background: transparent;
-        border: 1.5px solid ${token.colorTextQuaternary};
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: ${token.fontSizeSM}px;
     `,
-    dotExecuted: css`
-        background: ${token.colorSuccess};
-        border-color: ${token.colorSuccess};
+    markCurrent: css`
+        color: ${token.colorWarning};
     `,
-    dotCurrent: css`
-        background: ${token.colorWarning};
-        border-color: ${token.colorWarning};
-        box-shadow: 0 0 0 2px ${token.colorWarningBg};
+    markFrame: css`
+        color: ${token.colorPrimary};
     `,
-    dotError: css`
-        background: ${token.colorError};
-        border-color: ${token.colorError};
+    markWaiting: css`
+        color: ${token.colorTextQuaternary};
     `,
-    dotFrame: css`
-        background: ${token.colorPrimary};
-        border-color: ${token.colorPrimary};
+    markError: css`
+        color: ${token.colorError};
+    `,
+    // A failed business-tree row (table or step marked "= ERROR") — the whole label reads in the error colour.
+    // Beat Ant Design Typography's own colour on the same element.
+    errorLabel: css`
+        &.ant-typography {
+            color: ${token.colorError};
+        }
+    `,
+    // A decision table's evaluated conditions: green check when matched, red cross when not — the legacy look.
+    condMatched: css`
+        color: ${token.colorSuccess};
+    `,
+    condUnmatched: css`
+        color: ${token.colorError};
+    `,
+    // A condition is an info row: the ✓/✗ mark is the signal and must stay full-strength, so the row is not
+    // dimmed with opacity (which would wash out the mark). The label is muted instead, and the row carries no
+    // click affordance since a condition runs nothing.
+    conditionRow: css`
+        cursor: default;
+        &:hover {
+            background: transparent;
+        }
+    `,
+    condLabel: css`
+        color: ${token.colorTextSecondary};
     `,
     // Step-reference marker: the formula used a step computed elsewhere; the row links to the original.
     refIcon: css`

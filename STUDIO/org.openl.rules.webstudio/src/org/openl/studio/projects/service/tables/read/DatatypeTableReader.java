@@ -1,12 +1,13 @@
 package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.DatatypeFieldView;
+import org.openl.studio.projects.model.tables.DatatypeLayout;
 import org.openl.studio.projects.model.tables.DatatypeView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.write.DatatypeTableWriter;
@@ -33,22 +34,40 @@ public class DatatypeTableReader extends EditableTableReader<DatatypeView, Datat
         var table = tsn.getTableBody();
         var cellValueReader = new CellValueReader(metaInfoReader);
         if (table != null) {
-            List<DatatypeFieldView> fields = new ArrayList<>();
-            for (int rowId = 0; rowId < table.getHeight(); rowId++) {
-                var row = table.getRow(rowId);
-                var fieldBuilder = DatatypeFieldView.builder()
-                        .type(row.getCell(DatatypeTableWriter.TYPE_COLUMN, 0).getStringValue())
-                        .name(row.getCell(DatatypeTableWriter.NAME_COLUMN, 0).getStringValue());
-                if (row.getWidth() > 2) {
-                    var defaultValueCell = row.getCell(DatatypeTableWriter.DEFAULT_VALUE_COLUMN, 0);
-                    fieldBuilder.defaultValue(cellValueReader.apply(defaultValueCell));
-                }
-                fields.add(fieldBuilder.build());
+            // A datatype may title its columns, and then the first row names them instead of declaring a field.
+            // Where each column sits is decided by DatatypeLayout, which the writer asks too.
+            //
+            // The table is read as it is written. A datatype may also be authored transposed, and the compiler
+            // then turns it upright before binding; no reader or writer here follows it there, because the
+            // orientation cannot be told apart for every table without compiling it, and a reader has to answer
+            // the same way whether or not the module compiled.
+            var columns = DatatypeLayout.of(table);
+            var fields = new ArrayList<DatatypeFieldView>();
+            for (var rowId = columns.firstFieldRow(); rowId < table.getHeight(); rowId++) {
+                fields.add(readField(table.getRow(rowId), columns, cellValueReader));
             }
             builder.fields(fields);
         }
         var header = tsn.getHeader();
         builder.extendz(getExtendsType(header.getSourceString()));
+    }
+
+    private static DatatypeFieldView readField(ILogicalTable row,
+                                               DatatypeLayout.Columns columns,
+                                               CellValueReader cellValueReader) {
+        var fieldBuilder = DatatypeFieldView.builder()
+                .type(row.getCell(columns.type(), 0).getStringValue())
+                .name(row.getCell(columns.name(), 0).getStringValue());
+        for (var column : DatatypeLayout.OPTIONAL_COLUMNS) {
+            // Only a column the body declares carries a value, and only where the row reaches it.
+            var position = columns.at(column.title());
+            if (position >= 0 && row.getWidth() > position) {
+                var cell = row.getCell(position, 0);
+                column.into().accept(fieldBuilder,
+                        column.typedValue() ? cellValueReader.apply(cell) : cell.getStringValue());
+            }
+        }
+        return fieldBuilder.build();
     }
 
     @Override
@@ -57,7 +76,7 @@ public class DatatypeTableReader extends EditableTableReader<DatatypeView, Datat
     }
 
     private static String getExtendsType(String headerSource) {
-        int pos1 = headerSource.indexOf(DatatypeTableWriter.EXTENDS_KEYWORD);
+        var pos1 = headerSource.indexOf(DatatypeTableWriter.EXTENDS_KEYWORD);
         if (pos1 < 0) {
             return null;
         }

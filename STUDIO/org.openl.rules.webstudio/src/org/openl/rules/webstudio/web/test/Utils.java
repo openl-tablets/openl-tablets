@@ -1,14 +1,13 @@
 package org.openl.rules.webstudio.web.test;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 import jakarta.servlet.http.HttpSession;
 
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
@@ -30,7 +29,7 @@ public final class Utils {
     }
 
     public static String displayNameForCollection(IOpenClass collectionType, boolean isEmpty) {
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
         if (isEmpty) {
             builder.append("Empty ");
         }
@@ -42,11 +41,11 @@ public final class Utils {
     @Deprecated(forRemoval = true)
     static TestUnitsResults[] runTests(String id, String testRanges, boolean currentOpenedModule, HttpSession session) {
         TestUnitsResults[] results;
-        ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
+        var model = WebStudioUtils.getWebStudio(session).getModel();
 
-        IOpenLTable table = model.getTableById(id);
+        var table = model.getTableById(id);
         if (table != null) {
-            String uri = table.getUri();
+            var uri = table.getUri();
             IOpenMethod method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
 
             if (method instanceof TestSuiteMethod testSuiteMethod) {
@@ -57,7 +56,7 @@ public final class Utils {
                     testSuite = new TestSuite(testSuiteMethod);
                 } else {
                     // Run only selected test cases of selected test suite
-                    int[] indices = testSuiteMethod.getIndices(testRanges);
+                    var indices = testSuiteMethod.getIndices(testRanges);
                     testSuite = new TestSuite(testSuiteMethod, indices);
                 }
                 // Concrete test with cases
@@ -65,7 +64,7 @@ public final class Utils {
                 results[0] = model.runTest(testSuite, currentOpenedModule);
             } else {
                 // All tests for table
-                TestSuiteMethod[] tests = model.getTestMethods(uri, currentOpenedModule);
+                var tests = model.getTestMethods(uri, currentOpenedModule);
                 results = runAllTests(model, tests, currentOpenedModule);
             }
         } else {
@@ -82,14 +81,14 @@ public final class Utils {
                                                   boolean currentOpenedModule) {
         if (Arrays.isNotEmpty(tests)) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
-            for (int i = 0; i < tests.length; i++) {
-                TestSuiteMethod testSuiteMethod = tests[i];
-                IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
-                TestSuite testSuite = new TestSuite(testSuiteMethod);
+            for (var i = 0; i < tests.length; i++) {
+                var testSuiteMethod = tests[i];
+                var testedMethod = testSuiteMethod.getTestedMethod();
+                var testSuite = new TestSuite(testSuiteMethod);
                 TestUnitsResults testUnitsResults;
                 Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher omd) ? omd
-                        .getCandidates() : Collections.singleton(testedMethod);
-                boolean noErrors = true;
+                        .getCandidates() : Set.of(testedMethod);
+                var noErrors = true;
                 for (IOpenMethod method : methods) {
                     noErrors = noErrors && model.getErrorsByUri(method.getInfo().getSourceUrl()).isEmpty();
                 }
@@ -112,7 +111,7 @@ public final class Utils {
         }
         CompiledOpenClass compiledOpenClass = currentOpenedModule ? model.getOpenedModuleCompiledOpenClass()
                 : model.getCompiledOpenClass();
-        IOpenClass moduleClass = compiledOpenClass.getOpenClassWithErrors();
+        var moduleClass = compiledOpenClass.getOpenClassWithErrors();
         if (moduleClass instanceof XlsModuleOpenClass class1) {
             return class1.getDataBase();
         }
@@ -127,7 +126,7 @@ public final class Utils {
 
     @Deprecated(forRemoval = true)
     public static TestSuite pollTestFromSession(HttpSession session) {
-        TestSuite suite = (TestSuite) session.getAttribute(Utils.INPUT_ARGS_PARAMETER);
+        var suite = (TestSuite) session.getAttribute(Utils.INPUT_ARGS_PARAMETER);
         session.removeAttribute(Utils.INPUT_ARGS_PARAMETER);
         return suite;
     }

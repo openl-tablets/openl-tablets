@@ -5,19 +5,16 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.FileItem;
 
+@RequiredArgsConstructor
 @Slf4j
 public class FileChangesFromZip implements Iterable<FileItem> {
     private final ZipInputStream stream;
     private final String folderTo;
-
-    public FileChangesFromZip(ZipInputStream stream, String folderTo) {
-        this.stream = stream;
-        this.folderTo = folderTo;
-    }
 
     @Override
     public Iterator<FileItem> iterator() {

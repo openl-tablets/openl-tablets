@@ -15,7 +15,6 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 
 /**
  * Regression test for EPBDS-16160.
@@ -33,11 +32,11 @@ class GeneralProjectTraceReproTest {
     @Test
     @DisplayName("Trace node schema for a self-referential spreadsheet result is a $ref, not a StackOverflowError")
     void traceParameterSchemaDoesNotStackOverflowOnSelfReferentialSpreadsheet() {
-        IOpenClass module = new RulesEngineFactory<>(SRC).getCompiledOpenClass().getOpenClass();
-        IOpenMethod myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
+        var module = new RulesEngineFactory<>(SRC).getCompiledOpenClass().getOpenClass();
+        var myRule = module.getMethod("MyRule", IOpenClass.EMPTY);
         assertNotNull(myRule, "MyRule must compile");
         // The return type is the custom spreadsheet result, whose generated bean class is self-referential.
-        IOpenClass returnType = myRule.getType();
+        var returnType = myRule.getType();
         assertInstanceOf(CustomSpreadsheetResultOpenClass.class, returnType,
                 "MyRule must return a custom spreadsheet result");
 
@@ -50,7 +49,7 @@ class GeneralProjectTraceReproTest {
         var param = new ParameterWithValueDeclaration("return", new Object(), returnType);
 
         // Before the fix this threw StackOverflowError from victools schema generation.
-        var parameterValue = assertDoesNotThrow(() -> mapper.buildParameterValue(param, true),
+        var parameterValue = assertDoesNotThrow(() -> mapper.buildParameterValue(param, true, true),
                 "Schema generation must not overflow on a self-referential bean");
         assertNotNull(parameterValue);
         var schema = parameterValue.schema();

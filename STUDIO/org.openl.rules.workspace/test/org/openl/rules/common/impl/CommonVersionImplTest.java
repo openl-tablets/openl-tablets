@@ -9,8 +9,8 @@ class CommonVersionImplTest {
 
     @Test
     void testCompareToTheSameRevision() throws Exception {
-        CommonVersionImpl version1 = new CommonVersionImpl("2.3.17");
-        CommonVersionImpl version2 = new CommonVersionImpl("7.5.17");
+        var version1 = new CommonVersionImpl("2.3.17");
+        var version2 = new CommonVersionImpl("7.5.17");
         assertEquals(0, version1.compareTo(version2));
         assertEquals(0, version2.compareTo(version1));
         assertEquals(version1, version2);
@@ -19,8 +19,8 @@ class CommonVersionImplTest {
 
     @Test
     void testCompareToZeroRevision() throws Exception {
-        CommonVersionImpl version1 = new CommonVersionImpl("2.3.0");
-        CommonVersionImpl version2 = new CommonVersionImpl("7.5.0");
+        var version1 = new CommonVersionImpl("2.3.0");
+        var version2 = new CommonVersionImpl("7.5.0");
         assertEquals(0, version1.compareTo(version2));
         assertEquals(0, version2.compareTo(version1));
         assertEquals(version1, version2);
@@ -29,8 +29,8 @@ class CommonVersionImplTest {
 
     @Test
     void testCompareToRevision() throws Exception {
-        CommonVersionImpl version1 = new CommonVersionImpl("2.3.0");
-        CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
+        var version1 = new CommonVersionImpl("2.3.0");
+        var version2 = new CommonVersionImpl("2.3.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
         assertNotEquals(version1, version2);
@@ -39,8 +39,8 @@ class CommonVersionImplTest {
 
     @Test
     void testCompareToRevision2() throws Exception {
-        CommonVersionImpl version1 = new CommonVersionImpl("2.4.0");
-        CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
+        var version1 = new CommonVersionImpl("2.4.0");
+        var version2 = new CommonVersionImpl("2.3.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
         assertNotEquals(version1, version2);
@@ -49,8 +49,8 @@ class CommonVersionImplTest {
 
     @Test
     void testCompareToRevision3() throws Exception {
-        CommonVersionImpl version1 = new CommonVersionImpl("2.3.0");
-        CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
+        var version1 = new CommonVersionImpl("2.3.0");
+        var version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
         assertNotEquals(version1, version2);
@@ -59,8 +59,8 @@ class CommonVersionImplTest {
 
     @Test
     void testCompareToMinor() throws Exception {
-        CommonVersionImpl version1 = new CommonVersionImpl("2.3.2");
-        CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
+        var version1 = new CommonVersionImpl("2.3.2");
+        var version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
         assertNotEquals(version1, version2);
@@ -69,8 +69,8 @@ class CommonVersionImplTest {
 
     @Test
     void testCompareToMinor2() throws Exception {
-        CommonVersionImpl version1 = new CommonVersionImpl("2.4.2");
-        CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
+        var version1 = new CommonVersionImpl("2.4.2");
+        var version2 = new CommonVersionImpl("2.3.1");
         assertEquals(1, version1.compareTo(version2));
         assertEquals(-1, version2.compareTo(version1));
         assertNotEquals(version1, version2);
@@ -79,8 +79,8 @@ class CommonVersionImplTest {
 
     @Test
     void testCompareToMajor() throws Exception {
-        CommonVersionImpl version1 = new CommonVersionImpl("1.3.2");
-        CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
+        var version1 = new CommonVersionImpl("1.3.2");
+        var version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
         assertNotEquals(version1, version2);
@@ -89,7 +89,7 @@ class CommonVersionImplTest {
 
     @Test
     void testRevision() throws Exception {
-        CommonVersionImpl version = new CommonVersionImpl("17");
+        var version = new CommonVersionImpl("17");
         assertEquals(32767, version.getMajor());
         assertEquals(32767, version.getMinor());
         assertEquals("17", version.getRevision());
@@ -98,7 +98,7 @@ class CommonVersionImplTest {
 
     @Test
     void testVersion() throws Exception {
-        CommonVersionImpl version = new CommonVersionImpl("34.6");
+        var version = new CommonVersionImpl("34.6");
         assertEquals(34, version.getMajor());
         assertEquals(6, version.getMinor());
         assertEquals("0", version.getRevision());
@@ -107,7 +107,7 @@ class CommonVersionImplTest {
 
     @Test
     void testVersionAndRevision() throws Exception {
-        CommonVersionImpl version = new CommonVersionImpl("2.7.4");
+        var version = new CommonVersionImpl("2.7.4");
         assertEquals(2, version.getMajor());
         assertEquals(7, version.getMinor());
         assertEquals("4", version.getRevision());
@@ -116,7 +116,7 @@ class CommonVersionImplTest {
 
     @Test
     void testExtraVersion() throws Exception {
-        CommonVersionImpl version = new CommonVersionImpl("3.5.7.a11");
+        var version = new CommonVersionImpl("3.5.7.a11");
         assertEquals(3, version.getMajor());
         assertEquals(5, version.getMinor());
         assertEquals("7", version.getRevision());

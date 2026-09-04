@@ -18,12 +18,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlTransient;
 import jakarta.xml.bind.annotation.XmlType;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassWriter;
 
@@ -31,14 +32,14 @@ import org.openl.classloader.ClassLoaderUtils;
 
 class InterfaceTransformerTest {
     private Class<?> getGeneratedClass() throws Exception {
-        String className = "org.openl.rules.GeneratedInterface";
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        var className = "org.openl.rules.GeneratedInterface";
+        var classLoader = Thread.currentThread().getContextClassLoader();
         try {
             return Class.forName(className, true, classLoader);
         } catch (ClassNotFoundException e) {
-            ClassWriter classWriter = new ClassWriter(0);
+            var classWriter = new ClassWriter(0);
 
-            InterfaceTransformer transformer = new InterfaceTransformer(getGeneratedClass1(), className);
+            var transformer = new InterfaceTransformer(getGeneratedClass1(), className);
             transformer.accept(classWriter);
             classWriter.visitEnd();
 
@@ -48,14 +49,14 @@ class InterfaceTransformerTest {
 
     // This functionality check that recursive transformation works well too
     private Class<?> getGeneratedClass1() throws Exception {
-        String className = "org.openl.rules.GeneratedInterface1";
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        var className = "org.openl.rules.GeneratedInterface1";
+        var classLoader = Thread.currentThread().getContextClassLoader();
         try {
             return Class.forName(className, true, classLoader);
         } catch (ClassNotFoundException e) {
-            ClassWriter classWriter = new ClassWriter(0);
+            var classWriter = new ClassWriter(0);
 
-            InterfaceTransformer transformer = new InterfaceTransformer(TestInterface.class, className);
+            var transformer = new InterfaceTransformer(TestInterface.class, className);
             transformer.accept(classWriter);
             classWriter.visitEnd();
 
@@ -68,7 +69,7 @@ class InterfaceTransformerTest {
         Class<?> generated = getGeneratedClass();
 
         for (Method method : TestInterface.class.getMethods()) {
-            Method methodInGenerated = generated.getMethod(method.getName(), method.getParameterTypes());
+            var methodInGenerated = generated.getMethod(method.getName(), method.getParameterTypes());
             assertNotNull(methodInGenerated);
             assertEquals(method.getReturnType(), methodInGenerated.getReturnType());
             assertEquals(method.getModifiers(), methodInGenerated.getModifiers());
@@ -82,12 +83,12 @@ class InterfaceTransformerTest {
         checkAnnotations(TestInterface.class, generated);
 
         for (Method method : TestInterface.class.getMethods()) {
-            Method methodInGenerated = generated.getMethod(method.getName(), method.getParameterTypes());
+            var methodInGenerated = generated.getMethod(method.getName(), method.getParameterTypes());
             assertNotNull(methodInGenerated);
             checkAnnotations(method, methodInGenerated);
         }
         for (Field field : TestInterface.class.getFields()) {
-            Field fieldGenerated = generated.getField(field.getName());
+            var fieldGenerated = generated.getField(field.getName());
             assertNotNull(fieldGenerated);
             checkAnnotations(field, fieldGenerated);
         }
@@ -98,7 +99,7 @@ class InterfaceTransformerTest {
         Class<?> generated = getGeneratedClass();
 
         for (Field field : TestInterface.class.getFields()) {
-            Field fieldGenerated = generated.getField(field.getName());
+            var fieldGenerated = generated.getField(field.getName());
             assertNotNull(fieldGenerated);
             assertEquals(field.getType(), fieldGenerated.getType());
             assertEquals(field.getModifiers(), fieldGenerated.getModifiers());
@@ -108,9 +109,9 @@ class InterfaceTransformerTest {
 
     private static void checkAnnotations(AnnotatedElement original, AnnotatedElement generated) {
         for (Annotation annotation : original.getAnnotations()) {
-            Annotation annotationGenerated = generated.getAnnotation(annotation.annotationType());
+            var annotationGenerated = generated.getAnnotation(annotation.annotationType());
             assertNotNull(annotationGenerated);
-            Set<String> keys = new HashSet<>();
+            var keys = new HashSet<String>();
             keys.addAll(Arrays.stream(annotation.annotationType().getDeclaredMethods())
                     .map(Method::getName)
                     .collect(Collectors.toSet()));
@@ -158,15 +159,12 @@ class InterfaceTransformerTest {
         int testMethod2(double arg0);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum ParameterIn {
         DEFAULT(""),
         HEADER("header");
 
         private final String value;
-
-        ParameterIn(String value) {
-            this.value = value;
-        }
 
         @Override
         public String toString() {

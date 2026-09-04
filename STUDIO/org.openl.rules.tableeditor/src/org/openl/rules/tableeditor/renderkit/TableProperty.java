@@ -10,6 +10,7 @@ import jakarta.faces.model.SelectItem;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
@@ -149,7 +150,8 @@ public class TableProperty {
      */
     public String getDisplayValue() {
         if (value instanceof Date date) {
-            if ("expirationDate".equals(name) || "endRequestDate".equals(name)) {
+            if (TableProperties.END_OF_DAY_PROPERTIES.contains(name)) {
+                // The end of the day is the engine's, not the author's: the day it names is what is shown.
                 return formats.formatDate(date);
             }
             return formats.formatDateOrDateTime(date);

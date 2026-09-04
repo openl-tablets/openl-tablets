@@ -1,6 +1,5 @@
 package org.openl.info;
 
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -24,7 +23,7 @@ final class ClasspathLogger extends OpenLLogger {
         while (classLoader != null) {
             log(getClassLoaderName(classLoader));
             if (classLoader instanceof URLClassLoader loader) {
-                URL[] urls = loader.getURLs();
+                var urls = loader.getURLs();
                 for (URL url : urls) {
                     log("  {}", url);
                 }
@@ -35,7 +34,7 @@ final class ClasspathLogger extends OpenLLogger {
 
     private static String getClassLoaderName(ClassLoader classLoader) {
         Class<?> clazz = classLoader.getClass();
-        String name = clazz.getName();
+        var name = clazz.getName();
         try {
             Class<?> cls = clazz.getMethod("toString").getDeclaringClass();
             if (cls != Object.class) {
@@ -46,8 +45,8 @@ final class ClasspathLogger extends OpenLLogger {
         }
 
         try {
-            Method getName = clazz.getMethod("getName");
-            Object getNameStr = getName.invoke(classLoader);
+            var getName = clazz.getMethod("getName");
+            var getNameStr = getName.invoke(classLoader);
             if (getNameStr != null) {
                 name += "  Name: " + getNameStr.toString();
             }

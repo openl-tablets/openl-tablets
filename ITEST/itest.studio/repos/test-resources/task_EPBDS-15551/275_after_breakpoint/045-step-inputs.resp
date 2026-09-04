@@ -1,0 +1,20 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "inputs": [
+    {
+      "name": "$CapitalDynamic",
+      "description": "Double",
+      "lazy": false,
+      "value": 98.60028476965032
+    }
+  ],
+  "result": {
+    "name": "return",
+    "description": "Double",
+    "lazy": false,
+    "value": 0.9
+  },
+  "cell": "G58"
+}

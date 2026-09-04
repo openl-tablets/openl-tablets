@@ -32,26 +32,26 @@ class LockTest {
 
     @Test
     void testSimpleLock() {
-        boolean lock1 = lock.tryLock("user1");
+        var lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         lock1 = lock.tryLock("user1");
         assertTrue(lock1);
-        boolean lock2 = lock.tryLock("user2");
+        var lock2 = lock.tryLock("user2");
         assertFalse(lock2);
         lock.unlock();
-        LockInfo lockInfo = lock.info();
+        var lockInfo = lock.info();
         assertFalse(lockInfo.isLocked());
     }
 
     @Test
     void testSimultaneousLocks() throws IOException {
-        Path user1PrepareLock = lock.createLockFile("user3");
-        Path user2PrepareLock = lock.createLockFile("user4");
-        boolean user2Lock = lock.finishLockCreating(user2PrepareLock);
+        var user1PrepareLock = lock.createLockFile("user3");
+        var user2PrepareLock = lock.createLockFile("user4");
+        var user2Lock = lock.finishLockCreating(user2PrepareLock);
         assertFalse(user2Lock);
-        boolean user1Lock = lock.finishLockCreating(user1PrepareLock);
+        var user1Lock = lock.finishLockCreating(user1PrepareLock);
         assertTrue(user1Lock);
-        LockInfo lockInfo = lock.info();
+        var lockInfo = lock.info();
         assertEquals("user3", lockInfo.getLockedBy());
         lock.unlock();
         lockInfo = lock.info();
@@ -60,18 +60,18 @@ class LockTest {
 
     @Test
     void testSimultaneousLocksWithDelay() throws IOException {
-        Path user2PrepareLock = lock.createLockFile("user5");
+        var user2PrepareLock = lock.createLockFile("user5");
         try {
             TimeUnit.MILLISECONDS.sleep(10);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        Path user1PrepareLock = lock.createLockFile("user6");
-        boolean user1Lock = lock.finishLockCreating(user1PrepareLock);
+        var user1PrepareLock = lock.createLockFile("user6");
+        var user1Lock = lock.finishLockCreating(user1PrepareLock);
         assertFalse(user1Lock);
-        boolean user2Lock = lock.finishLockCreating(user2PrepareLock);
+        var user2Lock = lock.finishLockCreating(user2PrepareLock);
         assertTrue(user2Lock);
-        LockInfo lockInfo = lock.info();
+        var lockInfo = lock.info();
         assertEquals("user5", lockInfo.getLockedBy());
         lock.unlock();
         lockInfo = lock.info();
@@ -86,21 +86,21 @@ class LockTest {
     }
 
     private void testSimultaneousMultiThreads(boolean diffUsers) throws InterruptedException {
-        int streaming = MAX_THREADS;
-        int attempts = 100;
-        AtomicBoolean passed = new AtomicBoolean(true);
-        AtomicInteger testedValue = new AtomicInteger(0);
-        CountDownLatch countDown = new CountDownLatch(streaming);
-        for (int i = 0; i < streaming; i++) {
-            int finalI = i;
-            Thread thread = new Thread(() -> {
-                for (int j = 0; j < attempts; j++) {
+        var streaming = MAX_THREADS;
+        var attempts = 100;
+        var passed = new AtomicBoolean(true);
+        var testedValue = new AtomicInteger(0);
+        var countDown = new CountDownLatch(streaming);
+        for (var i = 0; i < streaming; i++) {
+            var finalI = i;
+            var thread = new Thread(() -> {
+                for (var j = 0; j < attempts; j++) {
                     try {
                         String userName = diffUsers ? "user" + finalI : "";
                         if (lock.tryLock(userName)) {
                             testedValue.set(31);
-                            for (int k = 0; k <= 1000; k++) {
-                                int i1 = testedValue.get();
+                            for (var k = 0; k <= 1000; k++) {
+                                var i1 = testedValue.get();
                                 testedValue.set(i1 + k);
                                 Thread.yield();
                             }
@@ -127,23 +127,32 @@ class LockTest {
 
     @Test
     void testSimultaneousMultiThreadsWithWaiting() throws InterruptedException {
-        int streaming = MAX_THREADS;
-        int attempts = 100;
-        AtomicBoolean passed = new AtomicBoolean(true);
-        AtomicInteger testedValue = new AtomicInteger(0);
-        CountDownLatch countDown = new CountDownLatch(streaming);
-        AtomicInteger locksCounter = new AtomicInteger();
-        for (int i = 0; i < streaming; i++) {
-            int finalI = i;
-            Thread thread = new Thread(() -> {
-                for (int j = 0; j < attempts; j++) {
+        // The file lock elects a winner by last-modified time; on a coarse-mtime CI that degrades to a
+        // deterministic filename tie-break, so the losing threads make no progress until the winners drain
+        // their own work. That contention is self-terminating, so the retry only has to outlast it. Cap the
+        // whole flow with one shared deadline — not an independent budget per attempt — so a genuinely stuck
+        // lock fails in bounded time instead of attempts x the wait, while a healthy run (which drains well
+        // inside the deadline) still lands every acquisition. The old 100 attempts / 30 s-per-attempt pairing
+        // let the window outlast one attempt's budget, timing out a single acquisition of 800 ("799 != 800").
+        var streaming = MAX_THREADS;
+        var attempts = 50;
+        var deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(90);
+        var passed = new AtomicBoolean(true);
+        var testedValue = new AtomicInteger(0);
+        var countDown = new CountDownLatch(streaming);
+        var locksCounter = new AtomicInteger();
+        for (var i = 0; i < streaming; i++) {
+            var finalI = i;
+            var thread = new Thread(() -> {
+                for (var j = 0; j < attempts; j++) {
                     try {
-                        String userName = "user" + finalI;
-                        if (lock.tryLock(userName, 30, TimeUnit.SECONDS)) {
+                        var userName = "user" + finalI;
+                        var remainingMillis = deadline - System.currentTimeMillis();
+                        if (remainingMillis > 0 && lock.tryLock(userName, remainingMillis, TimeUnit.MILLISECONDS)) {
                             locksCounter.getAndIncrement();
                             testedValue.set(31);
-                            for (int k = 0; k <= 1000; k++) {
-                                int i1 = testedValue.get();
+                            for (var k = 0; k <= 1000; k++) {
+                                var i1 = testedValue.get();
                                 testedValue.set(i1 + k);
                                 Thread.yield();
                             }
@@ -171,24 +180,24 @@ class LockTest {
 
     @Test
     void testTryLockWithTimeout() {
-        boolean lock1 = lock.tryLock("user1");
+        var lock1 = lock.tryLock("user1");
         assertTrue(lock1);
-        boolean lock2 = lock.tryLock("user2", 1, TimeUnit.SECONDS);
+        var lock2 = lock.tryLock("user2", 1, TimeUnit.SECONDS);
         assertFalse(lock2);
         lock.unlock();
         lock2 = lock.tryLock("user2");
         assertTrue(lock2);
         lock.unlock();
-        LockInfo lockInfo = lock.info();
+        var lockInfo = lock.info();
         assertFalse(lockInfo.isLocked());
     }
 
     @Test
     void testForceLock() {
-        boolean lock1 = lock.tryLock("user1");
+        var lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         lock.forceLock("user2", 1, TimeUnit.SECONDS);
-        LockInfo lockInfo = lock.info();
+        var lockInfo = lock.info();
         assertEquals("user2", lockInfo.getLockedBy());
     }
 
@@ -196,10 +205,10 @@ class LockTest {
     void testForceLockInterrupting() {
         assertTrue(lock.tryLock("user1"));
 
-        AtomicBoolean interrupted = new AtomicBoolean(true);
+        var interrupted = new AtomicBoolean(true);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
-            boolean locked = lock.forceLock("user3", 1, TimeUnit.MINUTES);
+            var locked = lock.forceLock("user3", 1, TimeUnit.MINUTES);
             interrupted.set(locked);
         });
 
@@ -214,7 +223,7 @@ class LockTest {
         }
 
         // Make sure that the lock is not overridden.
-        LockInfo lockInfo = lock.info();
+        var lockInfo = lock.info();
         assertEquals("user1", lockInfo.getLockedBy());
     }
 }

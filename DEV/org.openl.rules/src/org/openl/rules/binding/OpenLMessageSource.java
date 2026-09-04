@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.util.CollectionUtils;
@@ -18,6 +19,7 @@ import org.openl.util.StringUtils;
 /**
  * OpenL Project MessageSource service. Loads all i18n message properties for required {@link Locale}
  */
+@RequiredArgsConstructor
 @Slf4j
 public class OpenLMessageSource {
 
@@ -30,10 +32,6 @@ public class OpenLMessageSource {
     private final Map<Locale, MessageBundle> cacheLocalProperties = new ConcurrentHashMap<>();
     // Cache to hold already loaded properties per name.
     private final Map<String, Map<String, String>> cacheProperties = new ConcurrentHashMap<>();
-
-    public OpenLMessageSource(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
 
     /**
      * Get message bundle for target {@link Locale}
@@ -57,8 +55,8 @@ public class OpenLMessageSource {
     private Map<String, String> loadProperties(String basename) {
         var result = new HashMap<String, String>();
 
-        String propFileName = basename + ".properties";
-        URL url = classLoader.getResource(propFileName);
+        var propFileName = basename + ".properties";
+        var url = classLoader.getResource(propFileName);
         if (url != null) {
             try {
                 PropertiesUtils.load(url, result::put);
@@ -73,7 +71,7 @@ public class OpenLMessageSource {
             }
             if (urls != null) {
                 while (urls.hasMoreElements()) {
-                    URL url1 = urls.nextElement();
+                    var url1 = urls.nextElement();
                     try {
                         PropertiesUtils.load(url1, result::putIfAbsent);
                     } catch (IOException ex) {
@@ -98,10 +96,10 @@ public class OpenLMessageSource {
      * @return the message bundle
      */
     private MessageBundle loadMessageBundle(String basename, Locale locale) {
-        String language = locale.getLanguage();
-        String country = locale.getCountry();
-        String variant = locale.getVariant();
-        StringBuilder temp = new StringBuilder(basename);
+        var language = locale.getLanguage();
+        var country = locale.getCountry();
+        var variant = locale.getVariant();
+        var temp = new StringBuilder(basename);
 
         var properties = new HashMap<String, String>(getProperties(basename));
 
@@ -125,6 +123,7 @@ public class OpenLMessageSource {
         return new MessageBundle(properties, locale);
     }
 
+    @RequiredArgsConstructor
     public static class MessageBundle {
 
         private final Map<String, String> properties;
@@ -133,16 +132,11 @@ public class OpenLMessageSource {
         // Cache to hold already generated MessageFormats per message code.
         private final Map<String, MessageFormat> cachedMessageFormats = new ConcurrentHashMap<>();
 
-        public MessageBundle(Map<String, String> properties, Locale locale) {
-            this.properties = properties;
-            this.locale = locale;
-        }
-
         public String msg(String code, Object... args) {
             if (code == null) {
                 return null;
             }
-            String msg = properties.get(code);
+            var msg = properties.get(code);
             if (msg == null) {
                 return code;
             }

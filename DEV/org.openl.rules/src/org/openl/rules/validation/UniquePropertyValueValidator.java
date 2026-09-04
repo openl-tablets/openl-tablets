@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -16,7 +18,6 @@ import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -26,27 +27,24 @@ import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.validation.ValidationResult;
 
+@RequiredArgsConstructor
 public class UniquePropertyValueValidator extends TablesValidator {
 
     private final String propertyName;
 
-    public UniquePropertyValueValidator(String propertyName) {
-        this.propertyName = propertyName;
-    }
-
     @Override
     public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
 
-        Collection<ExecutableRulesMethod> executableActiveMethods = selectActiveMethods(
+        var executableActiveMethods = selectActiveMethods(
                 OpenMethodDispatcherHelper.extractMethods(openClass));
 
-        Map<Object, Set<ExecutableRulesMethod>> values = new HashMap<>();
-        Collection<OpenLMessage> messages = new ArrayList<>();
+        var values = new HashMap<Object, Set<ExecutableRulesMethod>>();
+        var messages = new ArrayList<OpenLMessage>();
 
         for (ExecutableRulesMethod method : executableActiveMethods) {
             if (!method.isAlias()) {
 
-                ITableProperties methodProperties = method.getMethodProperties();
+                var methodProperties = method.getMethodProperties();
 
                 if (methodProperties == null) {
 
@@ -57,7 +55,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
 
                 // Get property value.
                 //
-                Object value = methodProperties.getPropertyValue(propertyName);
+                var value = methodProperties.getPropertyValue(propertyName);
 
                 if (value == null) {
                     continue;
@@ -71,7 +69,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 if (values.containsKey(value)) {
                     values.get(value).add(method);
                 } else {
-                    Set<ExecutableRulesMethod> setOfExecutableRulesMethods = new HashSet<>();
+                    var setOfExecutableRulesMethods = new HashSet<ExecutableRulesMethod>();
                     setOfExecutableRulesMethods.add(method);
                     values.put(value, setOfExecutableRulesMethods);
                 }
@@ -85,9 +83,9 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 if (property != null) {
                     errorSeverity = property.getErrorSeverity();
                 }
-                Object value = entry.getKey();
+                var value = entry.getKey();
                 for (ExecutableRulesMethod method : entry.getValue()) {
-                    OpenLMessage message = getMessage(
+                    var message = getMessage(
                             "Found non-unique value '%s' for table property '%s'.".formatted(value, propertyName),
                             errorSeverity,
                             method.getSyntaxNode());

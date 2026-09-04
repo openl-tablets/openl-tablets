@@ -2,47 +2,27 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
+@RequiredArgsConstructor
 public class ParameterModel implements InputParameter {
 
+    @Getter
     private final TypeInfo type;
+    @Getter
     private final String formattedName;
+    @Getter
     private final String originalName;
+    @Getter
+    @Setter
     private In in;
 
     public ParameterModel(TypeInfo type, String formattedName) {
         this.type = type;
         this.formattedName = formattedName;
         this.originalName = formattedName;
-    }
-
-    public ParameterModel(TypeInfo type, String formattedName, String originalName) {
-        this.type = type;
-        this.formattedName = formattedName;
-        this.originalName = originalName;
-    }
-
-    @Override
-    public TypeInfo getType() {
-        return type;
-    }
-
-    @Override
-    public String getFormattedName() {
-        return formattedName;
-    }
-
-    @Override
-    public String getOriginalName() {
-        return originalName;
-    }
-
-    @Override
-    public In getIn() {
-        return in;
-    }
-
-    public void setIn(In in) {
-        this.in = in;
     }
 
     @Override

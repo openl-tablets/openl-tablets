@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.itest</groupId>
+        <artifactId>itest</artifactId>
+        <version>6.5.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>itest.studio</artifactId>
+    <packaging>pom</packaging>
+    <name>ITEST - Studio - POM</name>
+
+    <modules>
+        <module>acl</module>
+        <module>demo</module>
+        <module>disabled-settings</module>
+        <module>dtr</module>
+        <module>multi</module>
+        <module>repos</module>
+        <module>simple</module>
+        <module>sso</module>
+        <module>users</module>
+    </modules>
+
+    <properties>
+        <surefire.argLine.noPerf>-Xms128m -Xmx712m -Xss256k -XX:MaxMetaspaceSize=780m</surefire.argLine.noPerf>
+        <surefire.argLine.perf>-Xms128m -Xmx456m -Xss256k -XX:MaxMetaspaceSize=780m</surefire.argLine.perf>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.itest</groupId>
+            <artifactId>server-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-cdi</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-apache-jsp</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <readiness-url>/healthcheck/readiness</readiness-url>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

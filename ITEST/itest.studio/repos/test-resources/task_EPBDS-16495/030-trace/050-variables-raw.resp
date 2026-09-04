@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "parameters": [
+    {
+      "name": "x",
+      "description": "Integer",
+      "lazy": false,
+      "value": 7
+    }
+  ],
+  "context": "***",
+  "steps": "***",
+  "ruleNames": ["R1"],
+  "errors": []
+}
+

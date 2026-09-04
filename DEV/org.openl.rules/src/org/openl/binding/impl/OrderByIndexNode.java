@@ -2,14 +2,14 @@ package org.openl.binding.impl;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.TreeMap;
+
+import lombok.Getter;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -22,6 +22,7 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
     private final IBoundNode targetNode;
     private final IOpenCast openCast;
     private final Class<?> componentClass;
+    @Getter
     private final IOpenClass type;
 
     OrderByIndexNode(ISyntaxNode syntaxNode,
@@ -43,33 +44,33 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
         } else {
             // Collection
             this.componentClass = tempVar.getType().getInstanceClass();
-            IOpenClass componentType = tempVar.getType();
+            var componentType = tempVar.getType();
             this.type = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
         }
     }
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object target = targetNode.evaluate(env);
+        var target = targetNode.evaluate(env);
         if (target == null) {
             return null;
         }
 
-        IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
-        Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
+        var aggregateInfo = targetNode.getType().getAggregateInfo();
+        var elementsIterator = aggregateInfo.getIterator(target);
 
-        TreeMap<T, Object> map = new TreeMap<>(
+        var map = new TreeMap<T, Object>(
                 Comparator.<T>nullsLast(isDecreasing ? Comparator.reverseOrder() : Comparator.naturalOrder()));
 
         while (elementsIterator.hasNext()) {
-            Object element = elementsIterator.next();
+            var element = elementsIterator.next();
             if (element == null) {
                 continue;
             }
             element = openCast != null ? openCast.convert(element) : element;
             tempVar.set(null, element, env);
-            T key = (T) orderBy.evaluate(env);
-            Object prev = map.put(key, element);
+            var key = (T) orderBy.evaluate(env);
+            var prev = map.put(key, element);
             if (prev != null) {
                 OrderList list;
                 if (prev.getClass() != OrderList.class) {
@@ -84,7 +85,7 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
             }
         }
 
-        ArrayList<Object> objects = new ArrayList<>();
+        var objects = new ArrayList<Object>();
         for (Object element : map.values()) {
             if (element instanceof OrderList list) {
                 objects.addAll(list);
@@ -93,11 +94,6 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
             }
         }
         return CollectionUtils.toArray(objects, componentClass);
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     private static class OrderList extends ArrayList<Object> {

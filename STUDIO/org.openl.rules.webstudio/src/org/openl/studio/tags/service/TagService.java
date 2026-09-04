@@ -2,27 +2,21 @@ package org.openl.studio.tags.service;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.security.standalone.dao.TagDao;
 import org.openl.rules.security.standalone.persistence.Tag;
 
+@RequiredArgsConstructor
 @Service
 public class TagService {
 
     private final TagDao tagDao;
 
-    public TagService(TagDao tagDao) {
-        this.tagDao = tagDao;
-    }
-
     public List<Tag> getAll() {
         return tagDao.getAll();
-    }
-
-    public List<Tag> getByTagType(String type) {
-        return tagDao.getByTagType(type);
     }
 
     @Transactional
@@ -46,9 +40,5 @@ public class TagService {
 
     public Tag getByName(Long tagTypeId, String name) {
         return tagDao.getByName(tagTypeId, name);
-    }
-
-    public Tag getByTypeNameAndName(String key, String value) {
-        return tagDao.getByTagTypeAndName(key, value);
     }
 }

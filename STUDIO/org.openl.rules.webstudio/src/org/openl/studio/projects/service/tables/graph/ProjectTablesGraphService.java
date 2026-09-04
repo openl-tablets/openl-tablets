@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.graph;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -19,21 +20,35 @@ import org.springframework.stereotype.Component;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.WebStudioFormats;
+import org.openl.studio.projects.model.tables.DatatypeNodeFieldView;
+import org.openl.studio.projects.model.tables.DatatypeNodeView;
+import org.openl.studio.projects.model.tables.DatatypeNodeVocabularyView;
+import org.openl.studio.projects.model.tables.ExecutableNodeView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableGraphNodeKind;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.read.VocabularyTableReader;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.ExecutableMethod;
+import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.util.CollectionUtils;
+import org.openl.util.OpenClassUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -54,7 +69,14 @@ public class ProjectTablesGraphService {
      */
     static final String DISPATCHER_KIND = "Dispatcher";
 
+    /**
+     * How many values of a vocabulary a node previews. A longer vocabulary is reported by its first and last values,
+     * so the shape of it is visible without carrying the whole list through the graph.
+     */
+    static final int VOCABULARY_PREVIEW_LIMIT = 6;
+
     private final SummaryTableReader summaryTableReader;
+    private final VocabularyTableReader vocabularyTableReader;
 
     /**
      * Builds the dependency graph of the whole project, or of the opened module only. Every table is returned together
@@ -62,10 +84,11 @@ public class ProjectTablesGraphService {
      *
      * @param model             compiled project model
      * @param currentModuleOnly limit the graph to the opened module instead of the whole project
+     * @param layer             which layer of the graph to build
      * @return graph nodes sorted by table name
      */
-    public List<TableNodeView> buildProjectGraph(ProjectModel model, boolean currentModuleOnly) {
-        return build(model, currentModuleOnly, GraphDirection.DEPENDENCIES, null, null);
+    public List<TableNodeView> buildProjectGraph(ProjectModel model, boolean currentModuleOnly, GraphLayer layer) {
+        return build(model, currentModuleOnly, GraphDirection.DEPENDENCIES, null, null, layer);
     }
 
     /**
@@ -81,15 +104,27 @@ public class ProjectTablesGraphService {
                                                String rootTableId,
                                                GraphDirection direction,
                                                @Nullable Integer maxDepth) {
-        return build(model, false, direction, rootTableId, maxDepth);
+        // the root itself decides which layer the graph covers: neither layer links to the other
+        return build(model, false, direction, rootTableId, maxDepth, GraphLayer.ALL);
     }
 
     private List<TableNodeView> build(ProjectModel model,
                                       boolean currentModuleOnly,
                                       GraphDirection direction,
                                       @Nullable String rootTableId,
-                                      @Nullable Integer maxDepth) {
-        var nodes = collectNodes(model, currentModuleOnly, true);
+                                      @Nullable Integer maxDepth,
+                                      GraphLayer layer) {
+        // reading the index once serves both passes: it is rebuilt over every table of every module on each call
+        var projectByTable = model.getTableSyntaxNodeProjects();
+        Map<String, RawNode> nodes = layer.includesExecutable()
+                ? collectNodes(model, currentModuleOnly, true, projectByTable)
+                : new LinkedHashMap<>();
+        // A datatype is reached from another datatype only, so a graph rooted at a callable table never shows one.
+        // Collecting them there would read every datatype table's source just to drop it — skip the pass instead.
+        // Revisit this when the data model stops being a layer of its own and rules start linking to their types.
+        if (layer.includesDatatypes() && (rootTableId == null || !nodes.containsKey(rootTableId))) {
+            collectDatatypeNodes(model, currentModuleOnly, nodes, projectByTable);
+        }
         if (nodes.isEmpty()) {
             return List.of();
         }
@@ -107,19 +142,22 @@ public class ProjectTablesGraphService {
                 .toList();
     }
 
-    private Map<String, RawNode> collectNodes(ProjectModel model, boolean currentModuleOnly, boolean withDetails) {
+    private Map<String, RawNode> collectNodes(ProjectModel model,
+                                              boolean currentModuleOnly,
+                                              boolean withDetails,
+                                              Map<TableSyntaxNode, String> projectByTable) {
+        var nodes = new LinkedHashMap<String, RawNode>();
         var compiledOpenClass = currentModuleOnly
                 ? model.getOpenedModuleCompiledOpenClass()
                 : model.getCompiledOpenClass();
         if (compiledOpenClass == null) {
-            return Map.of();
+            return nodes;
         }
         var methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
         if (CollectionUtils.isEmpty(methods)) {
-            return Map.of();
+            return nodes;
         }
 
-        var projectByTable = model.getTableSyntaxNodeProjects();
         // The whole-project graph spans every module, so its overloaded-name disambiguation needs the all-module
         // dictionary; the opened-module dictionary would leave versions from other modules with identical names.
         var methodNodesDictionary = currentModuleOnly
@@ -127,9 +165,8 @@ public class ProjectTablesGraphService {
                 : model.getAllMethodNodesDictionary();
         var formats = WebStudioFormats.getInstance();
 
-        Map<String, RawNode> nodes = new LinkedHashMap<>();
-        Map<String, String> candidateToDispatcher = new LinkedHashMap<>();
-        Deque<IOpenMethod> queue = new ArrayDeque<>(methods);
+        var candidateToDispatcher = new LinkedHashMap<String, String>();
+        var queue = new ArrayDeque<IOpenMethod>(methods);
         while (!queue.isEmpty()) {
             var method = queue.poll();
             if (method instanceof OpenMethodDispatcher dispatcher) {
@@ -243,7 +280,141 @@ public class ProjectTablesGraphService {
         var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
         var summary = summaryTableReader.read(new TableSyntaxNodeAdapter(tableSyntaxNode));
         return new RawNode(id, displayNames[INamedThing.SHORT], kind, summary, dimensionProperties(rulesMethod),
-                projectByTable.get(tableSyntaxNode));
+                projectByTable.get(tableSyntaxNode), null);
+    }
+
+    /**
+     * Adds a node for every datatype table and links the data model between the datatypes: the datatype each one
+     * extends and the datatypes its own fields refer to.
+     *
+     * <p>Datatype tables define types, not methods, so they never arrive through the compiled methods; they are read
+     * from the table syntax nodes instead. Only the relations between datatypes are followed — the rules tables that
+     * use a datatype are not linked to it, so the data model reads as its own layer of the graph.
+     */
+    private void collectDatatypeNodes(ProjectModel model,
+                                      boolean currentModuleOnly,
+                                      Map<String, RawNode> nodes,
+                                      Map<TableSyntaxNode, String> projectByTable) {
+        Collection<TableSyntaxNode> tables = currentModuleOnly
+                ? List.of(model.getTableSyntaxNodes())
+                : model.getAllTableSyntaxNodes();
+        tables.forEach(tableSyntaxNode -> {
+            var datatype = datatypeOf(tableSyntaxNode);
+            if (datatype != null) {
+                nodes.computeIfAbsent(tableSyntaxNode.getId(),
+                        id -> datatypeNode(id, tableSyntaxNode, datatype, projectByTable));
+            }
+        });
+    }
+
+    /** The type a table declares, or {@code null} when the table is not a datatype table. */
+    @Nullable
+    private static IOpenClass datatypeOf(TableSyntaxNode tableSyntaxNode) {
+        if (!XlsNodeTypes.XLS_DATATYPE.toString().equals(tableSyntaxNode.getType())) {
+            return null;
+        }
+        return tableSyntaxNode.getMember() instanceof InternalDatatypeClass datatype ? datatype.getType() : null;
+    }
+
+    /**
+     * Builds the node of a datatype table together with the data model around it: the datatype it extends and the
+     * fields it declares. Both become the node's dependencies, so the data model is walkable like any other part of
+     * the graph.
+     */
+    private RawNode datatypeNode(String id,
+                                 TableSyntaxNode tableSyntaxNode,
+                                 IOpenClass datatype,
+                                 Map<TableSyntaxNode, String> projectByTable) {
+        var table = new TableSyntaxNodeAdapter(tableSyntaxNode);
+        var summary = summaryTableReader.read(table);
+        var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
+        var dataModel = dataModelOf(datatype, table);
+        var node = new RawNode(id, summary.name, kind, summary, Map.of(), projectByTable.get(tableSyntaxNode),
+                dataModel);
+        if (dataModel.extendsId() != null) {
+            node.dependencies().add(dataModel.extendsId());
+        }
+        dataModel.fields().stream()
+                .map(DatatypeNodeFieldView::ref)
+                .filter(Objects::nonNull)
+                .forEach(node.dependencies()::add);
+        return node;
+    }
+
+    /**
+     * Reads the data model of one datatype: the datatype it extends, the fields it declares and, for a vocabulary,
+     * the values it lists. Every field is reported, and the ones whose type is a datatype table also name that table,
+     * a collection field through its element type.
+     *
+     * <p>Only the fields the datatype declares itself are listed; the inherited ones belong to the parent's node.
+     */
+    private DataModel dataModelOf(IOpenClass datatype, IOpenLTable table) {
+        // a datatype keeps its fields in declaration order, so the response lists them as the table itself reads
+        var fields = datatype instanceof DatatypeOpenClass declaringType
+                ? declaringType.getDeclaredFields().stream().map(ProjectTablesGraphService::fieldOf).toList()
+                : List.<DatatypeNodeFieldView>of();
+        return new DataModel(datatypeTableId(superTypeOf(datatype)), fields, vocabularyOf(table));
+    }
+
+    /**
+     * Reads the values a vocabulary lists, or {@code null} when the table declares a regular datatype. A vocabulary
+     * declares values rather than fields, so they are reported apart from the fields.
+     *
+     * <p>The values keep the order and the type the table gives them. Only a few of them are previewed: a vocabulary
+     * longer than the preview is reported by its first and last values and is marked as truncated. The complete list
+     * is read through the table API.
+     */
+    @Nullable
+    private DatatypeNodeVocabularyView vocabularyOf(IOpenLTable table) {
+        if (!vocabularyTableReader.supports(table)) {
+            return null;
+        }
+        var vocabulary = vocabularyTableReader.read(table);
+        var values = vocabulary.values.stream().map(value -> value.value).toList();
+        return new DatatypeNodeVocabularyView(vocabulary.type, values.size(), preview(values),
+                values.size() > VOCABULARY_PREVIEW_LIMIT);
+    }
+
+    /** The first and the last values of a vocabulary, or all of them when they fit the preview. */
+    private static List<Object> preview(List<Object> values) {
+        if (values.size() <= VOCABULARY_PREVIEW_LIMIT) {
+            return values;
+        }
+        var edge = VOCABULARY_PREVIEW_LIMIT / 2;
+        return Stream.concat(values.subList(0, edge).stream(), values.subList(values.size() - edge, values.size()).stream())
+                .toList();
+    }
+
+    /** The datatype a type inherits from: the parent of a datatype, or the base type a vocabulary narrows. */
+    @Nullable
+    private static IOpenClass superTypeOf(IOpenClass datatype) {
+        if (datatype instanceof DatatypeOpenClass declaringType) {
+            return declaringType.getSuperClass();
+        }
+        return datatype instanceof DomainOpenClass vocabulary ? vocabulary.getBaseClass() : null;
+    }
+
+    private static DatatypeNodeFieldView fieldOf(IOpenField field) {
+        var type = field.getType();
+        var elementType = OpenClassUtils.getRootComponentClass(type);
+        return new DatatypeNodeFieldView(field.getName(), type.getDisplayName(INamedThing.SHORT),
+                datatypeTableId(elementType), elementType != type ? Boolean.TRUE : null);
+    }
+
+    /**
+     * The id of the node a type is declared by, or {@code null} when the type is not declared by a datatype table. A
+     * datatype knows the table it comes from, so the id is read from the type itself rather than looked up.
+     *
+     * <p>The table may be outside the graph — declared in another module of a module-scoped graph, or left out by the
+     * traversal. Such an id simply matches no node and is dropped along with any other unreachable relation.
+     */
+    @Nullable
+    private static String datatypeTableId(@Nullable IOpenClass type) {
+        if (!(type instanceof DatatypeOpenClass || type instanceof DomainOpenClass)) {
+            return null;
+        }
+        var metaInfo = type.getMetaInfo();
+        return metaInfo != null ? TableUtils.makeTableId(metaInfo.getSourceUrl()) : null;
     }
 
     /**
@@ -263,7 +434,7 @@ public class ProjectTablesGraphService {
                                          String rootTableId,
                                          GraphDirection direction,
                                          @Nullable Integer maxDepth) {
-        var nodes = collectNodes(model, false, false);
+        var nodes = collectNodes(model, false, false, model.getTableSyntaxNodeProjects());
         if (nodes.isEmpty()) {
             return Set.of();
         }
@@ -278,7 +449,7 @@ public class ProjectTablesGraphService {
      */
     private static Map<String, String> dimensionProperties(ExecutableMethod rulesMethod) {
         var properties = PropertiesHelper.getTableProperties(rulesMethod);
-        Map<String, String> dimensions = new LinkedHashMap<>();
+        var dimensions = new LinkedHashMap<String, String>();
         TablePropertyDefinitionUtils.getDimensionalTableProperties().forEach(definition -> {
             var value = properties.getPropertyValueAsString(definition.getName());
             if (StringUtils.isNotEmpty(value)) {
@@ -301,14 +472,14 @@ public class ProjectTablesGraphService {
                                   String rootTableId,
                                   GraphDirection direction,
                                   @Nullable Integer maxDepth) {
-        Set<String> visited = new LinkedHashSet<>();
+        var visited = new LinkedHashSet<String>();
         if (!nodes.containsKey(rootTableId)) {
             return visited;
         }
         visited.add(rootTableId);
-        Deque<String> frontier = new ArrayDeque<>();
+        var frontier = new ArrayDeque<String>();
         frontier.add(rootTableId);
-        for (int depth = 0; !frontier.isEmpty() && (maxDepth == null || depth < maxDepth); depth++) {
+        for (var depth = 0; !frontier.isEmpty() && (maxDepth == null || depth < maxDepth); depth++) {
             expandFrontier(nodes, frontier, visited, direction);
         }
         return visited;
@@ -318,7 +489,7 @@ public class ProjectTablesGraphService {
                                 Deque<String> frontier,
                                 Set<String> visited,
                                 GraphDirection direction) {
-        for (int size = frontier.size(); size > 0; size--) {
+        for (var size = frontier.size(); size > 0; size--) {
             var node = nodes.get(frontier.poll());
             if (node != null) {
                 neighbours(node, direction).stream()
@@ -330,7 +501,7 @@ public class ProjectTablesGraphService {
     }
 
     private Set<String> neighbours(RawNode node, GraphDirection direction) {
-        Set<String> neighbours = new LinkedHashSet<>();
+        var neighbours = new LinkedHashSet<String>();
         if (direction.includesDependencies()) {
             neighbours.addAll(node.dependencies());
         }
@@ -341,16 +512,17 @@ public class ProjectTablesGraphService {
     }
 
     private TableNodeView toView(RawNode node, GraphDirection direction, Set<String> included) {
-        var builder = new TableNodeView.Builder();
+        TableNodeView.Builder<?> builder = node.dataModel() != null
+                ? datatypeBuilder(node.dataModel(), included)
+                : ExecutableNodeView.builder().dimensionProperties(node.dimensionProperties());
         if (node.summary() != null) {
             // map every SummaryTableView field (signature, file, pos, properties…); id/name/kind below stay graph-owned
             builder.summary(node.summary());
         }
         builder.id(node.id())
                 .name(node.name())
-                .kind(node.kind())
-                .project(node.project())
-                .dimensionProperties(node.dimensionProperties());
+                .kind(TableGraphNodeKind.fromValue(node.kind()))
+                .project(node.project());
         if (direction.includesDependencies()) {
             builder.dependencies(retain(node.dependencies(), included));
         }
@@ -358,6 +530,22 @@ public class ProjectTablesGraphService {
             builder.dependents(retain(node.dependents(), included));
         }
         return builder.build();
+    }
+
+    /**
+     * Builds the datatype node, keeping only the references that stay inside the graph: a parent or a field type left
+     * out by the traversal is not addressable, so the field is reported without its reference.
+     */
+    private static DatatypeNodeView.Builder datatypeBuilder(DataModel dataModel, Set<String> included) {
+        var fields = dataModel.fields().stream()
+                .map(field -> field.ref() == null || included.contains(field.ref())
+                        ? field
+                        : new DatatypeNodeFieldView(field.name(), field.type(), null, field.collection()))
+                .toList();
+        return DatatypeNodeView.builder()
+                .extendz(included.contains(dataModel.extendsId()) ? dataModel.extendsId() : null)
+                .fields(fields)
+                .vocabulary(dataModel.vocabulary());
     }
 
     private static Set<String> retain(Set<String> ids, Set<String> included) {
@@ -369,14 +557,20 @@ public class ProjectTablesGraphService {
 
     private record RawNode(String id, String name, String kind, @Nullable SummaryTableView summary,
                            Map<String, String> dimensionProperties, String project,
-                           Set<String> dependencies, Set<String> dependents) {
+                           Set<String> dependencies, Set<String> dependents, @Nullable DataModel dataModel) {
         private RawNode(String id, String name, String kind, String project) {
-            this(id, name, kind, null, Map.of(), project, new LinkedHashSet<>(), new LinkedHashSet<>());
+            this(id, name, kind, null, Map.of(), project, null);
         }
 
-        private RawNode(String id, String name, String kind, SummaryTableView summary,
-                        Map<String, String> dimensionProperties, String project) {
-            this(id, name, kind, summary, dimensionProperties, project, new LinkedHashSet<>(), new LinkedHashSet<>());
+        private RawNode(String id, String name, String kind, @Nullable SummaryTableView summary,
+                        Map<String, String> dimensionProperties, String project, @Nullable DataModel dataModel) {
+            this(id, name, kind, summary, dimensionProperties, project,
+                    new LinkedHashSet<>(), new LinkedHashSet<>(), dataModel);
         }
+    }
+
+    /** The data model a datatype node carries: what it extends, the fields it declares, the values it lists. */
+    private record DataModel(@Nullable String extendsId, List<DatatypeNodeFieldView> fields,
+                            @Nullable DatatypeNodeVocabularyView vocabulary) {
     }
 }

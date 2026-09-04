@@ -1,5 +1,7 @@
 import { notification } from 'antd'
 import CONFIG from './config'
+import { errorMessage } from '../utils/errorMessage'
+import { CLIENT_ID, CLIENT_ID_HEADER } from './clientId'
 import { useAppStore } from 'store'
 
 const fetchInitialConfig = {
@@ -43,13 +45,27 @@ class ForbiddenError extends ApiHttpError {
 const appStore = useAppStore.getState()
 
 /**
+ * Announced after a request changed something on the server.
+ *
+ * Screens and services cache what they read — the projects snapshot above all. A change makes those
+ * caches stale wherever it was made, so it is announced once here instead of every caller having to
+ * remember which other screen it just invalidated.
+ */
+export const WORKSPACE_CHANGED_EVENT = 'openl:workspace-changed'
+
+/** Whether the response body is JSON, per its Content-Type. */
+const isJsonResponse = (response: Response): boolean => {
+    const contentType = response.headers.get('Content-Type')
+    return Boolean(contentType && contentType.includes('application/json'))
+}
+
+/**
  * Extract error message from response body.
  * Tries to parse JSON and extract 'message' field, falls back to default message.
  */
 const extractErrorMessage = async (response: Response, defaultMessage: string): Promise<string> => {
     try {
-        const contentType = response.headers.get('Content-Type')
-        if (contentType && contentType.indexOf('application/json') !== -1) {
+        if (isJsonResponse(response)) {
             const data = await response.json()
             return data.message || defaultMessage
         }
@@ -62,11 +78,10 @@ const extractErrorMessage = async (response: Response, defaultMessage: string): 
 export interface ApiCallOptions {
     throwError?: boolean
     suppressErrorPages?: boolean // If true, don't show error pages (404, 403, 500) - useful when 404 is expected
-}
-
-const isJsonResponse = (response: Response): boolean => {
-    const contentType = response.headers.get('Content-Type')
-    return Boolean(contentType && contentType.indexOf('application/json') !== -1)
+    responseType?: 'auto' | 'blob' | 'response'
+    // If true, a successful non-GET does NOT signal a workspace change. Set it on a POST that reads rather
+    // than mutates (a merge check, a debugger step) so it does not needlessly drop the projects snapshot.
+    skipWorkspaceEvent?: boolean
 }
 
 const tryParseJsonBody = async (response: Response): Promise<unknown> => {
@@ -107,14 +122,32 @@ const apiCall = async (
         ...fetchInitialConfig,
         ...params,
     }
+    const mutating = (responseParams.method ?? 'GET').toUpperCase() !== 'GET'
+    const changing = mutating && !opts.skipWorkspaceEvent
+    if (changing) {
+        // The change this request makes pings every session of the user back. Naming the tab that
+        // asked for it lets this one recognise its own echo instead of re-reading what it just read.
+        // A call that only reads is left unnamed: it must not make this tab the presumed author of
+        // whatever else happens next.
+        const headers = new Headers(responseParams.headers)
+        headers.set(CLIENT_ID_HEADER, CLIENT_ID)
+        responseParams.headers = headers
+    }
 
     return fetch(`${CONFIG.CONTEXT}/web${url}`, responseParams)
         .then(async response => {
             const { status } = response
             if (status >= 200 && status < 300) {
-                const { headers } = response
-                const contentType = headers.get('Content-Type')
-                if (contentType && contentType.indexOf('application/json') !== -1) {
+                if (changing) {
+                    window.dispatchEvent(new Event(WORKSPACE_CHANGED_EVENT))
+                }
+                if (opts.responseType === 'response') {
+                    return response
+                }
+                if (opts.responseType === 'blob') {
+                    return response.blob()
+                }
+                if (isJsonResponse(response)) {
                     return response.json()
                 }
                 // For 204 No Content or responses without body
@@ -125,9 +158,10 @@ const apiCall = async (
                 return text || true
             }
             else if (status === 401) {
-                if (!opts.suppressErrorPages) {
-                    appStore.setShowLogin(true)
-                }
+                // A 401 means the session is gone (expired or invalidated): the whole app is unusable, so
+                // always redirect to login. suppressErrorPages only governs the expected 403/404/500 content
+                // pages a caller handles locally — it must never swallow an authentication failure.
+                appStore.setShowLogin(true)
                 throw new EmptyError()
             } else if (status === 403) {
                 if (!opts.suppressErrorPages) {
@@ -183,6 +217,31 @@ const apiCall = async (
         .finally((result: any = false) => {
             return result
         })
+}
+
+/** Coerce an unknown API response to an array, defaulting to empty when it is not one. */
+export const asArray = <T>(value: unknown): T[] => (Array.isArray(value) ? value : [])
+
+/**
+ * Options for a read whose failure the caller reports itself.
+ *
+ * <p>Without them a 403, 404 or 500 also flips the application store and paints the full-page error screen
+ * over whatever the user was doing, so a locally handled failure would be reported twice.
+ */
+export const LOCAL_LOAD_API_OPTIONS = { throwError: true, suppressErrorPages: true } satisfies ApiCallOptions
+
+/**
+ * Reports a read that failed under {@link LOCAL_LOAD_API_OPTIONS}, which leave the reporting to the caller.
+ *
+ * <p>An expired session is not reported: the request layer answers it by asking for a new login, and its
+ * error carries no message, so a toast would only cover that prompt with a blank one.
+ *
+ * @param title what could not be read, already translated
+ */
+export const notifyLoadFailure = (title: string, error: unknown): void => {
+    if (!(error instanceof EmptyError)) {
+        notification.error({ title, description: errorMessage(error) })
+    }
 }
 
 export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError }

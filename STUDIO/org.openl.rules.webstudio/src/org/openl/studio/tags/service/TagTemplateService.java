@@ -1,13 +1,12 @@
 package org.openl.studio.tags.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +19,7 @@ import org.openl.rules.security.standalone.persistence.TagTemplate;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class TagTemplateService {
@@ -30,12 +30,6 @@ public class TagTemplateService {
     private final TagDao tagDao;
     private final TagTemplateDao tagTemplateDao;
 
-    public TagTemplateService(TagTypeDao tagTypeDao, TagDao tagDao, TagTemplateDao tagTemplateDao) {
-        this.tagTypeDao = tagTypeDao;
-        this.tagDao = tagDao;
-        this.tagTemplateDao = tagTemplateDao;
-    }
-
     public List<String> getTemplates() {
         return tagTemplateDao.getAll().stream().map(TagTemplate::getTemplate).collect(Collectors.toList());
     }
@@ -44,13 +38,13 @@ public class TagTemplateService {
     public void save(List<String> templates) {
         tagTemplateDao.deleteAll();
 
-        for (int i = 0; i < templates.size(); i++) {
+        for (var i = 0; i < templates.size(); i++) {
 
-            final String templateString = templates.get(i);
+            final var templateString = templates.get(i);
             if (StringUtils.isBlank(templateString)) {
                 continue;
             }
-            final TagTemplate template = new TagTemplate();
+            final var template = new TagTemplate();
             template.setTemplate(templateString);
             template.setPriority(i + 1);
             tagTemplateDao.save(template);
@@ -60,21 +54,21 @@ public class TagTemplateService {
     public List<Tag> getTags(String name) {
         final List<TagTemplate> templates = tagTemplateDao.getAll();
         for (TagTemplate template : templates) {
-            List<TagType> tagTypes = new ArrayList<>();
-            String regexPattern = buildPatternAndFindTagTypes(template.getTemplate(), tagTypes);
+            var tagTypes = new ArrayList<TagType>();
+            var regexPattern = buildPatternAndFindTagTypes(template.getTemplate(), tagTypes);
 
             if (tagTypes.isEmpty()) {
                 log.warn("Template '{}' doesn't contain tag types.", template);
                 continue;
             }
 
-            final Matcher matcher = Pattern.compile(regexPattern).matcher(name);
+            final var matcher = Pattern.compile(regexPattern).matcher(name);
             if (matcher.matches()) {
-                List<Tag> tags = new ArrayList<>();
-                for (int i = 0; i < tagTypes.size(); i++) {
-                    TagType tagType = tagTypes.get(i);
-                    final String tagValue = matcher.group(i + 1).trim();
-                    Tag tag = tagDao.getByTagTypeAndName(tagType.getName(), tagValue);
+                var tags = new ArrayList<Tag>();
+                for (var i = 0; i < tagTypes.size(); i++) {
+                    var tagType = tagTypes.get(i);
+                    final var tagValue = matcher.group(i + 1).trim();
+                    var tag = tagDao.getByTagTypeAndName(tagType.getName(), tagValue);
                     if (tag == null) {
                         tag = new Tag();
                         tag.setType(tagType);
@@ -89,16 +83,16 @@ public class TagTemplateService {
             }
         }
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     public String validate(String template) {
-        boolean hasTagTypes = false;
-        final Matcher matcher = TAG_PATTERN.matcher(template);
+        var hasTagTypes = false;
+        final var matcher = TAG_PATTERN.matcher(template);
         while (matcher.find()) {
             hasTagTypes = true;
 
-            final String tagTypeName = matcher.group(1);
+            final var tagTypeName = matcher.group(1);
             if (tagTypeDao.getByName(tagTypeName) == null) {
                 return "Cannot find tag type '" + tagTypeName + "'.";
             }
@@ -111,21 +105,21 @@ public class TagTemplateService {
     }
 
     private String buildPatternAndFindTagTypes(String tagTemplate, List<TagType> tagTypes) {
-        final Matcher matcher = TAG_PATTERN.matcher(tagTemplate);
-        int pos = 0;
-        StringBuilder regexPattern = new StringBuilder();
+        final var matcher = TAG_PATTERN.matcher(tagTemplate);
+        var pos = 0;
+        var regexPattern = new StringBuilder();
         while (matcher.find()) {
             // Part before tag type
-            final int start = matcher.start();
+            final var start = matcher.start();
             if (pos < start) {
-                String nonTagRegex = tagTemplate.substring(pos, start);
+                var nonTagRegex = tagTemplate.substring(pos, start);
                 nonTagRegex = escapeNonTagPart(nonTagRegex);
                 regexPattern.append(nonTagRegex);
             }
 
             // Actual tag type.
-            final String tagTypeName = matcher.group(1);
-            final TagType tagType = tagTypeDao.getByName(tagTypeName);
+            final var tagTypeName = matcher.group(1);
+            final var tagType = tagTypeDao.getByName(tagTypeName);
             if (tagType != null) {
                 tagTypes.add(tagType);
                 regexPattern.append("(.+)"); // Capturing group order will be same as in groupTypes.

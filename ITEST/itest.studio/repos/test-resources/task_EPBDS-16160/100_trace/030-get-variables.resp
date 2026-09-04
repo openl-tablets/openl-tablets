@@ -1,0 +1,41 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "parameters": [],
+  "context": {
+    "name": "context",
+    "description": "DefaultRulesRuntimeContext",
+    "lazy": false,
+    "value": {
+      "currentDate": null,
+      "requestDate": null,
+      "lob": null,
+      "nature": null,
+      "usState": null,
+      "country": null,
+      "usRegion": null,
+      "currency": null,
+      "lang": null,
+      "region": null,
+      "caProvince": null,
+      "caRegion": null,
+      "locale": null
+    }
+  },
+  "steps": [
+    {
+      "ref": "R0C0",
+      "label": "$Test",
+      "cell": "D21",
+      "status": "current"
+    }
+  ],
+  "gridColumns": [
+    "Formula"
+  ],
+  "gridRows": [
+    "Test"
+  ],
+  "errors": []
+}

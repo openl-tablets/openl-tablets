@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -24,6 +25,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
+@RequiredArgsConstructor
 @Slf4j
 public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
 
@@ -39,28 +41,10 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
     private final JdbcMutableAclService aclService;
 
-    public BulkAclOverwriteServiceImpl(UserManagementService userManagementService,
-                                       GroupManagementService groupManagementService,
-                                       RepositoryAclServiceProvider aclServiceProvider,
-                                       LockRegistry lockRegistry,
-                                       TransactionTemplate txTemplate,
-                                       SecureDesignTimeRepository designTimeRepository,
-                                       SecureDeploymentRepositoryService deploymentRepositoryService,
-                                       JdbcMutableAclService aclService) {
-        this.userManagementService = userManagementService;
-        this.groupManagementService = groupManagementService;
-        this.aclServiceProvider = aclServiceProvider;
-        this.lockRegistry = lockRegistry;
-        this.txTemplate = txTemplate;
-        this.designTimeRepository = designTimeRepository;
-        this.deploymentRepositoryService = deploymentRepositoryService;
-        this.aclService = aclService;
-    }
-
     @Override
     public void process(BulkAclOverwriteRequest request) {
         var lock = lockRegistry.obtain(LOCK_NAME);
-        boolean lockAcquired = false;
+        var lockAcquired = false;
         try {
             lockAcquired = lock.tryLock(30, TimeUnit.SECONDS);
             if (!lockAcquired) {

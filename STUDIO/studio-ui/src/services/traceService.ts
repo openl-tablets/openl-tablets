@@ -8,8 +8,10 @@ import type {
     DebugFrameVariables,
     DebugStackView,
     RawTableView,
+    StepInputsView,
     StepType,
     TraceParameterValue,
+    TreeChildrenView,
     WatchView,
 } from 'types/trace'
 
@@ -107,7 +109,8 @@ const retryApiCall = async <T>(
 }
 
 /** Standard API call options for trace endpoints */
-const TRACE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
+// Tracing drives a debug session, not the project workspace, so its POSTs never signal a workspace change.
+const TRACE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
 
 const base = (projectId: string): string => `/projects/${encodeURIComponent(projectId)}/trace`
 
@@ -128,7 +131,10 @@ export const traceService = {
             fromModule?: string
             stopAtEntry?: boolean
             profiling?: boolean
+            detailedTitles?: boolean
+            breakOnErrors?: boolean
             includeTree?: boolean
+            fullTree?: boolean
             inputJson?: string
         }
     ): Promise<DebugStackView> => {
@@ -138,7 +144,13 @@ export const traceService = {
         if (options.fromModule) params.set('fromModule', options.fromModule)
         params.set('stopAtEntry', String(options.stopAtEntry ?? true))
         if (options.profiling) params.set('profiling', 'true')
+        if (options.detailedTitles) params.set('detailedTitles', 'true')
+        // The business view runs straight through a rule error so it still gets the whole executed tree with
+        // the failed branch, instead of the debugger parking on the throwing frame.
+        if (options.breakOnErrors === false) params.set('breakOnErrors', 'false')
         if (options.includeTree === false) params.set('includeTree', 'false')
+        // The business view downloads the whole executed tree once, deep, instead of paging every branch.
+        if (options.fullTree) params.set('fullTree', 'true')
 
         // Not retried: starting a session is not idempotent, so replaying a lost-response POST would spawn
         // and immediately discard a second worker. A transient failure surfaces to the caller instead.
@@ -156,6 +168,29 @@ export const traceService = {
     /** Get the current execution stack. */
     getStack: async (projectId: string): Promise<DebugStackView> =>
         retryApiCall<DebugStackView>(`${base(projectId)}/stack`, undefined, TRACE_API_OPTIONS),
+
+    /** Fetch one page of a step's executed sub-calls, for lazy loading of the executed tree. */
+    getTreeChildren: async (
+        projectId: string,
+        uri: string,
+        instance: number,
+        step: string,
+        offset: number,
+        limit: number
+    ): Promise<TreeChildrenView> => {
+        const params = new URLSearchParams({
+            uri,
+            instance: String(instance),
+            step,
+            offset: String(offset),
+            limit: String(limit),
+        })
+        return retryApiCall<TreeChildrenView>(
+            `${base(projectId)}/tree/children?${params.toString()}`,
+            undefined,
+            TRACE_API_OPTIONS
+        )
+    },
 
     /**
      * Step the suspended session and return the new stack. Not retried: stepping is not idempotent, so
@@ -211,6 +246,18 @@ export const traceService = {
             TRACE_API_OPTIONS
         )
     },
+
+    /**
+     * Get a focused spreadsheet step, self-contained: the values its formula consumed (named as the
+     * formula writes them), the step's own returned value, and the A1 address of its cell. Everything the
+     * step panel shows, so a step click need not also fetch the frame's full variables.
+     */
+    getStepInputs: async (projectId: string, frameIndex: number, ref: string): Promise<StepInputsView> =>
+        retryApiCall<StepInputsView>(
+            `${base(projectId)}/frames/${frameIndex}/step-inputs?ref=${encodeURIComponent(ref)}`,
+            undefined,
+            TRACE_API_OPTIONS
+        ),
 
     /** Get the cells to highlight on a stack frame's table, keyed by A1 address. */
     getFrameHighlights: async (projectId: string, frameIndex: number): Promise<CellHighlight[]> =>
@@ -272,6 +319,16 @@ export const traceService = {
     /** Terminate the debug session. Returns 204 on success, 404 if none. */
     cancelTrace: async (projectId: string): Promise<void> =>
         retryApiCall<void>(base(projectId), { method: 'DELETE' }, TRACE_API_OPTIONS),
+
+    /**
+     * Terminate the debug session as the debugger window closes. Fire-and-forget: keepalive lets the
+     * request outlive the closing page, and its outcome (including a 404 when no session is left) is
+     * irrelevant to a window that is already gone.
+     */
+    releaseOnClose: (projectId: string): void => {
+        void apiCall(base(projectId), { method: 'DELETE', keepalive: true }, TRACE_API_OPTIONS)
+            .catch(() => { /* the window is closing; there is nobody to report to */ })
+    },
 }
 
 export default traceService

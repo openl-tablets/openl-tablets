@@ -43,6 +43,7 @@ import org.openl.rules.rest.model.GroupModel;
 import org.openl.rules.rest.model.GroupType;
 import org.openl.rules.rest.model.UserCreateModel;
 import org.openl.rules.rest.model.UserEditModel;
+import org.openl.rules.rest.model.UserInfoEditModel;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.model.UserModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
@@ -167,8 +168,8 @@ public class UsersController {
         checkUserExists(username);
         validationProvider.validate(userModel);
         validateGroupsNotProvided(userModel.getGroups());
-        User dbUser = userManagementService.getUser(username);
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
+        var dbUser = userManagementService.getUser(username);
+        var emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
                 .isEmailExternal();
         userManagementService.updateUserData(username,
                 userModel.getFirstName(),
@@ -178,7 +179,7 @@ public class UsersController {
                 userModel.getDisplayName(),
                 !emailChanged && dbUser.getExternalFlags().isEmailVerified());
         if (!groupsDisabled) {
-            boolean leaveAdminGroups = adminUsersInitializer.isSuperuser(username) || Objects
+            var leaveAdminGroups = adminUsersInitializer.isSuperuser(username) || Objects
                     .equals(currentUserInfo.getUserName(), username);
             userManagementService.updateAuthorities(username, userModel.getGroups(), leaveAdminGroups);
         }
@@ -190,7 +191,7 @@ public class UsersController {
 
     @Operation(description = "users.edit-user-info.desc", summary = "users.edit-user-info.summary")
     @PutMapping("/info")
-    public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoModel userModel) {
+    public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoEditModel userModel) {
         validationProvider.validate(userModel);
         updateCurrentUserData(request, userModel, null);
     }
@@ -216,8 +217,8 @@ public class UsersController {
     }
 
     private void updateCurrentUserData(HttpServletRequest request, UserInfoModel userModel, String newPassword) {
-        User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
+        var dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+        var emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
                 .isEmailExternal();
         userManagementService.updateUserData(dbUser.getUsername(),
                 userModel.getFirstName(),
@@ -241,7 +242,7 @@ public class UsersController {
                                     boolean testsFailuresOnly,
                                     String treeView) {
         WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
-        String username = currentUserInfo.getUserName();
+        var username = currentUserInfo.getUserName();
         if (studio != null) {
             studio.setShowFormulas(showFormulas);
             studio.setShowHeader(showHeader);
@@ -268,8 +269,8 @@ public class UsersController {
     @Operation(description = "users.get-user-profile.desc", summary = "users.get-user-profile.summary")
     @GetMapping("/profile")
     public UserProfileModel getUserProfile() {
-        String username = currentUserInfo.getUserName();
-        User user = userManagementService.getUser(username);
+        var username = currentUserInfo.getUserName();
+        var user = userManagementService.getUser(username);
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         var isAdmin = SecurityUtils.hasAuthority(authentication, Privileges.ADMIN.getAuthority());
@@ -359,12 +360,12 @@ public class UsersController {
                 .setExternalFlags(user.getExternalFlags());
 
         if (!groupsDisabled) {
-            List<Group> extGroups = extGroupService.findMatchedForUser(user.getUsername());
-            Stream<GroupModel> matchedExtGroupsStream = extGroups.stream()
+            var extGroups = extGroupService.findMatchedForUser(user.getUsername());
+            var matchedExtGroupsStream = extGroups.stream()
                     .map(simpleGroup -> new GroupModel().setName(simpleGroup.getAuthority())
                             .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN
                                     : GroupType.EXTERNAL));
-            Stream<GroupModel> internalGroupStream = user.getAuthorities()
+            var internalGroupStream = user.getAuthorities()
                     .stream()
                     .map(SimpleGroup.class::cast)
                     .filter(g -> extGroups.stream()

@@ -2,6 +2,9 @@ package org.openl.ie.constrainer.impl;
 
 import java.io.Serializable;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Expression;
 import org.openl.ie.constrainer.Failure;
@@ -46,17 +49,14 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * A generic implementation of the EventMap interface.
      */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     static class EventMapImpl implements EventMap {
         private final int[] _masks;
 
-        EventMapImpl(int[] masks) {
-            _masks = masks;
-        }
-
         @Override
         public int publishToSubscribe(int publish_mask) {
-            int result_mask = 0;
-            for (int i = 0; i < _masks.length; i += 2) {
+            var result_mask = 0;
+            for (var i = 0; i < _masks.length; i += 2) {
                 if ((_masks[i + 1] & publish_mask) != 0) {
                     result_mask |= _masks[i];
                 }
@@ -71,7 +71,6 @@ public abstract class ExpressionObserver extends Observer {
      */
     static final private int[] trival_event_map = {MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE};
 
-    // protected Expression _expression;
     private final EventMap _event_map;
 
     /**
@@ -94,15 +93,6 @@ public abstract class ExpressionObserver extends Observer {
         _event_map = new EventMapImpl(masks);
     }
 
-    // /**
-    // * Returns an event map for this observer.
-    // */
-    // public EventMap eventMap()
-    // {
-    // return _event_map;
-    // }
-    //
-
     /**
      * Subscribes for the events from "exp" with a given "publishMask".
      * <p>
@@ -124,9 +114,6 @@ public abstract class ExpressionObserver extends Observer {
     @Override
     public void subscriberMask(int mask, Subject subj) {
         if (_subscriber_mask != mask) {
-            // Debug.on();Debug.print("" + this + " mask: "+ mask + " exp:" +
-            // expression);Debug.off();
-
             _subscriber_mask = mask;
         }
 
@@ -169,7 +156,6 @@ public abstract class ExpressionObserver extends Observer {
 
     @Override
     public void update(Subject exp, EventOfInterest event) throws Failure {
-        // Debug.on();Debug.print("" + this + " : "+event);Debug.off();
         if (event.isValueEvent()) {
             transformValueEvent(event);
         } else if (event.isMinEvent()) {

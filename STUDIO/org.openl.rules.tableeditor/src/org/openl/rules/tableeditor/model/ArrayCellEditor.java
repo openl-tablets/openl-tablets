@@ -1,5 +1,8 @@
 package org.openl.rules.tableeditor.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 
 public class ArrayCellEditor implements ICellEditor {
@@ -16,7 +19,7 @@ public class ArrayCellEditor implements ICellEditor {
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        EditorTypeResponse typeResponse = new EditorTypeResponse(CE_ARRAY);
+        var typeResponse = new EditorTypeResponse(CE_ARRAY);
         typeResponse.setParams(params);
 
         return typeResponse;
@@ -24,33 +27,15 @@ public class ArrayCellEditor implements ICellEditor {
 
     public static class ArrayEditorParams {
 
+        @Getter
+        @Setter
         private String separator;
+        @Getter
+        @Setter
         private String entryEditor;
+        @Getter
+        @Setter
         private boolean intOnly;
-
-        public String getSeparator() {
-            return separator;
-        }
-
-        public void setSeparator(String separator) {
-            this.separator = separator;
-        }
-
-        public String getEntryEditor() {
-            return entryEditor;
-        }
-
-        public void setEntryEditor(String entryEditor) {
-            this.entryEditor = entryEditor;
-        }
-
-        public boolean isIntOnly() {
-            return intOnly;
-        }
-
-        public void setIntOnly(boolean intOnly) {
-            this.intOnly = intOnly;
-        }
     }
 
 }

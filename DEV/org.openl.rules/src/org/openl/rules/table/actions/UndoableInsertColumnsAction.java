@@ -25,11 +25,11 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
 
     public static boolean canInsertColumns(IGridTable table, int nCols) {
         IGridRegion region = getOriginalRegion(table);
-        GridRegion newRegion = new GridRegion(region.getTop() - 1,
+        var newRegion = new GridRegion(region.getTop() - 1,
                 region.getRight() + 1,
                 region.getBottom() + 1,
                 region.getRight() + 1 + nCols);
-        IGridTable[] allGridTables = table.getGrid().getTables();
+        var allGridTables = table.getGrid().getTables();
         for (IGridTable allGridTable : allGridTables) {
             if (!table.getUri().equals(allGridTable.getUri()) && IGridRegion.Tool.intersects(newRegion,
                     allGridTable.getRegion())) {
@@ -46,8 +46,8 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
 
     @Override
     protected int getNumberToInsert(IGridTable table) {
-        int cellWidth = getOriginalTable(table).getCell(beforeCol, row).getWidth();
-        int colToInsert = nCols;
+        var cellWidth = getOriginalTable(table).getCell(beforeCol, row).getWidth();
+        var colToInsert = nCols;
         if (cellWidth > 1) { // merged cell
             colToInsert += cellWidth - 1;
         }

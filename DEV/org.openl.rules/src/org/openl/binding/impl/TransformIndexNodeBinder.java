@@ -23,10 +23,10 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
                                          IOpenCast openCast,
                                          IBindingContext bindingContext) {
         if (expressionNode.getType() == NullOpenClass.the) {
-            String message = "Null cannot be used as expression for array index operator.";
+            var message = "Null cannot be used as expression for array index operator.";
             return makeErrorNode(message, expressionNode.getSyntaxNode(), bindingContext);
         }
-        boolean isUnique = node.getType().contains("unique");
+        var isUnique = node.getType().contains("unique");
         if (isUnique) {
             return new TransformToUniqueIndexNode(node, targetNode, expressionNode, localVar, openCast);
         } else {

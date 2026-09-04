@@ -2,9 +2,12 @@ package org.openl.rules.tbasic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
@@ -28,8 +31,14 @@ public class Algorithm extends AlgorithmFunction {
      * Compile artifacts
      **************************************************************************/
 
+    @Getter(AccessLevel.PROTECTED)
+    @Setter
     private IOpenClass thisClass;
+    @Getter
+    @Setter
     private List<RuntimeOperation> algorithmSteps;
+    @Getter(AccessLevel.PROTECTED)
+    @Setter
     private Map<String, RuntimeOperation> labels;
 
     /**
@@ -66,46 +75,19 @@ public class Algorithm extends AlgorithmFunction {
     }
 
     @Override
-    public void setAlgorithmSteps(List<RuntimeOperation> algorithmSteps) {
-        this.algorithmSteps = algorithmSteps;
-    }
-
-    @Override
-    public void setLabels(Map<String, RuntimeOperation> labels) {
-        this.labels = labels;
-    }
-
-    public void setThisClass(IOpenClass thisClass) {
-        this.thisClass = thisClass;
-    }
-
-    @Override
-    public List<RuntimeOperation> getAlgorithmSteps() {
-        return algorithmSteps;
-    }
-
-    protected Map<String, RuntimeOperation> getLabels() {
-        return labels;
-    }
-
-    protected IOpenClass getThisClass() {
-        return thisClass;
-    }
-
-    @Override
     public BindingDependencies getDependencies() {
-        BindingDependencies bindingDependencies = new RulesBindingDependencies();
+        var bindingDependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(bindingDependencies);
 
         return bindingDependencies;
     }
 
     public Collection<AlgorithmSubroutineMethod> getSubroutines() {
-        IOpenClass thisIOpenClass = getThisClass();
+        var thisIOpenClass = getThisClass();
         if (thisIOpenClass == null) {
-            return Collections.emptyList();
+            return List.of();
         }
-        List<AlgorithmSubroutineMethod> subroutines = new ArrayList<>();
+        var subroutines = new ArrayList<AlgorithmSubroutineMethod>();
         for (IOpenMethod method : thisIOpenClass.getMethods()) {
             if (method instanceof AlgorithmSubroutineMethod subroutineMethod) {
                 subroutines.add(subroutineMethod);

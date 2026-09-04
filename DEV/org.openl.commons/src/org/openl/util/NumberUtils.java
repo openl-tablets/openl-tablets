@@ -19,7 +19,7 @@ public class NumberUtils {
     }
 
     public static Object intOrDouble(double value) {
-        int intValue = (int) value;
+        var intValue = (int) value;
         if (value == intValue) {
             return intValue;
         }

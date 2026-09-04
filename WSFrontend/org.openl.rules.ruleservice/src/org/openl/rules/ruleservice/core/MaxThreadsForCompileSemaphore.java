@@ -2,9 +2,14 @@ package org.openl.rules.ruleservice.core;
 
 import java.util.concurrent.Semaphore;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 public final class MaxThreadsForCompileSemaphore {
+    @Getter(AccessLevel.PRIVATE)
     private final Semaphore limitCompilationThreadsSemaphore = new Semaphore(
             RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
+    @Getter(AccessLevel.PRIVATE)
     private final ThreadLocal<Object> threadsMarker = new ThreadLocal<>();
 
     private MaxThreadsForCompileSemaphore() {
@@ -18,16 +23,8 @@ public final class MaxThreadsForCompileSemaphore {
         return MaxThreadsForCompileSemaphoreHolder.INSTANCE;
     }
 
-    private Semaphore getLimitCompilationThreadsSemaphore() {
-        return limitCompilationThreadsSemaphore;
-    }
-
-    private ThreadLocal<Object> getThreadsMarker() {
-        return threadsMarker;
-    }
-
     public <T> T run(Callable<T> callable) throws Exception {
-        boolean requiredSemaphore = MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().get() == null;
+        var requiredSemaphore = MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().get() == null;
         try {
             if (requiredSemaphore) {
                 MaxThreadsForCompileSemaphore.getInstance().getThreadsMarker().set(Thread.currentThread());

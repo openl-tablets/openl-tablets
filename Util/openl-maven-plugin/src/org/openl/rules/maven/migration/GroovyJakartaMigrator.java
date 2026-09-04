@@ -2,7 +2,6 @@ package org.openl.rules.maven.migration;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +42,7 @@ public final class GroovyJakartaMigrator implements Migrator {
     private static final Map<String, String> JAKARTA_NAMESPACE_REWRITES;
 
     static {
-        Map<String, String> map = new LinkedHashMap<>();
+        var map = new LinkedHashMap<String, String>();
         map.put("javax.ws.rs.", "jakarta.ws.rs.");
         map.put("javax.xml.bind.", "jakarta.xml.bind.");
         map.put("javax.persistence.", "jakarta.persistence.");
@@ -59,13 +57,13 @@ public final class GroovyJakartaMigrator implements Migrator {
      */
     private static boolean migrateFile(Path sourceFolder, Path file) {
         try {
-            var original = Files.readString(file, StandardCharsets.UTF_8);
+            var original = Files.readString(file);
             var migrated = migrate(original);
             if (migrated.equals(original)) {
                 return false;
             }
             log.info("Migrate {}", sourceFolder.relativize(file));
-            Files.writeString(file, migrated, StandardCharsets.UTF_8);
+            Files.writeString(file, migrated);
             return true;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -118,7 +116,7 @@ public final class GroovyJakartaMigrator implements Migrator {
             return List.of();
         }
         var changed = new ArrayList<Path>();
-        try (Stream<Path> stream = Files.walk(sourceFolder)) {
+        try (var stream = Files.walk(sourceFolder)) {
             stream.filter(Files::isRegularFile)
                     .filter(p -> p.getFileName().toString().endsWith(".groovy"))
                     .forEach(file -> {

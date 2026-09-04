@@ -11,7 +11,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,8 +32,8 @@ class DeploymentOutputStreamTest {
 
     @Test
     void testNullableManifest() throws IOException {
-        try (ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(makeZip(null)))) {
-            ZipEntry fileEntry = zipIn.getNextEntry();
+        try (var zipIn = new ZipInputStream(new ByteArrayInputStream(makeZip(null)))) {
+            var fileEntry = zipIn.getNextEntry();
             assertNotNull(fileEntry);
             assertEquals("Main.xlsx", fileEntry.getName());
             assertNull(zipIn.getNextEntry());
@@ -43,14 +42,14 @@ class DeploymentOutputStreamTest {
 
     @Test
     void testNonNullManifest() throws IOException {
-        try (ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(makeZip(manifest)))) {
-            ZipEntry manifestEntry = zipIn.getNextEntry();
+        try (var zipIn = new ZipInputStream(new ByteArrayInputStream(makeZip(manifest)))) {
+            var manifestEntry = zipIn.getNextEntry();
             assertNotNull(manifestEntry);
             assertEquals(JarFile.MANIFEST_NAME, manifestEntry.getName());
-            Manifest actual = new Manifest(zipIn);
+            var actual = new Manifest(zipIn);
             assertEquals(manifest, actual);
 
-            ZipEntry fileEntry = zipIn.getNextEntry();
+            var fileEntry = zipIn.getNextEntry();
             assertNotNull(fileEntry);
             assertEquals("Main.xlsx", fileEntry.getName());
             assertNull(zipIn.getNextEntry());
@@ -58,8 +57,8 @@ class DeploymentOutputStreamTest {
     }
 
     private static byte[] makeZip(Manifest manifest) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (ZipOutputStream zipOut = new DeploymentOutputStream(out, manifest)) {
+        var out = new ByteArrayOutputStream();
+        try (var zipOut = new DeploymentOutputStream(out, manifest)) {
             zipOut.putNextEntry(new ZipEntry("Main.xlsx"));
             zipOut.write(new byte[0]);
             zipOut.closeEntry();

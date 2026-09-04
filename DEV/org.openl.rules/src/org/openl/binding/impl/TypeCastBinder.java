@@ -6,9 +6,7 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
@@ -25,10 +23,10 @@ public class TypeCastBinder extends ANodeBinder {
 
         IBoundNode[] children = bindChildren(node, bindingContext);
 
-        IOpenClass to = children[0].getType();
-        IOpenClass from = children[1].getType();
+        var to = children[0].getType();
+        var from = children[1].getType();
 
-        IOpenCast cast = bindingContext.getCast(from, to);
+        var cast = bindingContext.getCast(from, to);
 
         if (cast == null) {
             return makeErrorNode("Cannot convert from '%s' to '%s'.".formatted(from.getName(), to.getName()),

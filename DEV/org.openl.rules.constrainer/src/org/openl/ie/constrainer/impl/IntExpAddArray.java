@@ -16,7 +16,6 @@ public final class IntExpAddArray extends IntExpImpl {
     class ExpAddVectorObserver extends Observer {
 
         ExpAddVectorObserver() {
-            // super(event_map);
         }
 
         @Override
@@ -36,9 +35,7 @@ public final class IntExpAddArray extends IntExpImpl {
 
         @Override
         public void update(Subject exp, EventOfInterest event) throws Failure {
-            IntEvent e = (IntEvent) event;
-
-            // System.out.println("Event:" + e);
+            var e = (IntEvent) event;
 
             _sum.setMin(_sum.min() + e.mindiff());
             _sum.setMax(_sum.max() + e.maxdiff());
@@ -59,18 +56,18 @@ public final class IntExpAddArray extends IntExpImpl {
         _vars = vars;
         _observer = new ExpAddVectorObserver();
 
-        IntExp[] data = _vars.data();
+        var data = _vars.data();
 
         for (IntExp datum : data) {
             datum.attachObserver(_observer);
         }
 
-        String sum_name = "";
+        var sum_name = "";
 
         if (constrainer().showInternalNames()) {
-            StringBuilder s = new StringBuilder();
+            var s = new StringBuilder();
             s.append("(");
-            for (int i = 0; i < data.length; i++) {
+            for (var i = 0; i < data.length; i++) {
                 if (i != 0) {
                     s.append("+");
                 }
@@ -92,9 +89,9 @@ public final class IntExpAddArray extends IntExpImpl {
     }
 
     public int calc_max() {
-        int max_sum = 0;
+        var max_sum = 0;
 
-        IntExp[] vars = _vars.data();
+        var vars = _vars.data();
 
         for (IntExp var : vars) {
             max_sum += var.max();
@@ -103,9 +100,9 @@ public final class IntExpAddArray extends IntExpImpl {
     }
 
     int calc_min() {
-        int min_sum = 0;
+        var min_sum = 0;
 
-        IntExp[] vars = _vars.data();
+        var vars = _vars.data();
 
         for (IntExp var : vars) {
             min_sum += var.min();
@@ -121,7 +118,7 @@ public final class IntExpAddArray extends IntExpImpl {
 
     @Override
     public boolean isLinear() {
-        for (int i = 0; i < _vars.size(); i++) {
+        for (var i = 0; i < _vars.size(); i++) {
             if (!_vars.get(i).isLinear()) {
                 return false;
             }
@@ -147,12 +144,6 @@ public final class IntExpAddArray extends IntExpImpl {
 
     @Override
     public void onMaskChange() {
-        // int mask = publisherMask();
-        // IntExp[] data =_vars.data();
-        // for(int i=0; i < data.length; i++)
-        // {
-        // _observer.publish(mask,data[i]);
-        // }
     }
 
     @Override
@@ -163,11 +154,11 @@ public final class IntExpAddArray extends IntExpImpl {
 
     @Override
     public void removeValue(int value) throws Failure {
-        int Max = max();
+        var Max = max();
         if (value > Max) {
             return;
         }
-        int Min = min();
+        var Min = min();
         if (value < Min) {
             return;
         }
@@ -189,19 +180,16 @@ public final class IntExpAddArray extends IntExpImpl {
             return;
         }
 
-        // System.out.println("++++ Set max: " + max + " in " + this);
+        var min_sum = min();
 
-        int min_sum = min();
-
-        IntExp[] vars = _vars.data();
+        var vars = _vars.data();
 
         for (IntExp vari : vars) {
-            int maxi = max - (min_sum - vari.min());
+            var maxi = max - (min_sum - vari.min());
             if (maxi < vari.max()) {
                 vari.setMax(maxi);
             }
         }
-        // System.out.println("---- set max:" + max + " in " + this);
     }
 
     @Override
@@ -211,25 +199,22 @@ public final class IntExpAddArray extends IntExpImpl {
             return;
         }
 
-        // System.out.println("++++ Set min: " + min + " in " + this);
+        var max_sum = max();
 
-        int max_sum = max();
-
-        IntExp[] vars = _vars.data();
+        var vars = _vars.data();
 
         for (IntExp vari : vars) {
-            int mini = min - (max_sum - vari.max());
+            var mini = min - (max_sum - vari.max());
             if (mini > vari.min()) {
                 vari.setMin(mini);
             }
         }
-        // System.out.println("---- set min:" + min + " in " + this);
     }
 
     @Override
     public void setValue(int value) throws Failure {
-        int sum_min = min();
-        int sum_max = max();
+        var sum_min = min();
+        var sum_max = max();
 
         if (value < sum_min || value > sum_max) {
             _constrainer.fail("Add Array Set Value");
@@ -244,26 +229,22 @@ public final class IntExpAddArray extends IntExpImpl {
             return;
         }
 
-        // System.out.println("++++ Set value: " + value + " in " + this);
-
-        IntExp[] vars = _vars.data();
+        var vars = _vars.data();
 
         for (IntExp vari : vars) {
-            int mini = vari.min();
-            int maxi = vari.max();
+            var mini = vari.min();
+            var maxi = vari.max();
 
-            int new_min = value - (sum_max - maxi);
+            var new_min = value - (sum_max - maxi);
             if (new_min > mini) {
                 vari.setMin(new_min);
             }
 
-            int new_max = value - (sum_min - mini);
+            var new_max = value - (sum_min - mini);
             if (new_max < maxi) {
                 vari.setMax(new_max);
             }
         }
-
-        // System.out.println("---- set value: " + value + " in " + this);
     }
 
     @Override

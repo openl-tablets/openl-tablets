@@ -1,7 +1,10 @@
 package org.openl.rules.dt;
 
+import lombok.Getter;
+
 class SimpleDTHeader extends DTHeader {
 
+    @Getter
     private String title;
 
     SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, int row, int width) {
@@ -11,10 +14,6 @@ class SimpleDTHeader extends DTHeader {
 
     SimpleDTHeader(int methodParameterIndex, String statement, int column, int row) {
         super(new int[]{methodParameterIndex}, statement, column, row, 1, 1, true);
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     @Override

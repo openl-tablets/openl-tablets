@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "ratingDetails",
+  "description": "SpreadsheetResultRatingDetails",
+  "lazy": false,
+  "value": {
+    "Plan": "P1",
+    "Coverages": [
+      {
+        "code": "C1",
+        "premium": 3.0
+      }
+    ],
+    "Total": 7.0
+  }
+}
+

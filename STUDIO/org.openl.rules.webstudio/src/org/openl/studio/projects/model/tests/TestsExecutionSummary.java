@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 import org.openl.rules.repository.api.Pageable;
 import org.openl.studio.common.model.PageResponse;
@@ -14,12 +15,15 @@ import org.openl.studio.common.model.PageResponse;
 @JsonIgnoreProperties("total")
 public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult> {
 
+    @Getter
     @Parameter(description = "Total execution time of all tests in milliseconds")
     private final double executionTimeMs;
 
+    @Getter
     @Parameter(description = "Total number of tests executed")
     private final int numberOfTests;
 
+    @Getter
     @Parameter(description = "Total number of failed tests")
     private final int numberOfFailures;
 
@@ -41,18 +45,6 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
     @JsonProperty("testCases")
     public Collection<TestCaseExecutionResult> getContent() {
         return super.getContent();
-    }
-
-    public double getExecutionTimeMs() {
-        return executionTimeMs;
-    }
-
-    public int getNumberOfTests() {
-        return numberOfTests;
-    }
-
-    public int getNumberOfFailures() {
-        return numberOfFailures;
     }
 
     public static Builder builder() {

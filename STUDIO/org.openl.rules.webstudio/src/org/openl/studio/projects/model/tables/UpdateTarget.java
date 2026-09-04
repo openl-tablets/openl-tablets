@@ -27,8 +27,9 @@ import org.jspecify.annotations.Nullable;
 public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Column, UpdateTarget.Cell,
         UpdateTarget.Range {
 
-    @Schema(name = "UpdateRow", description = "Overwrites the cells of an existing row, left to right. "
-            + "The table is not resized.")
+    @Schema(name = "UpdateRow", description = """
+            Overwrites the cells of an existing row, left to right. \
+            The table is not resized.""")
     record Row(
             @Schema(description = "0-based index of the row to update (0..height-1).")
             @NotNull
@@ -36,13 +37,15 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             Integer position,
             @NotEmpty
             @Valid
-            @Parameter(description = "New row cells, left to right. A cell may set colspan/rowspan to merge. "
-                    + "Must not be wider than the table.")
+            @Parameter(description = """
+                    New row cells, left to right. A cell may set colspan/rowspan to merge. \
+                    Must not be wider than the table.""")
             List<RawCellInput> cells) implements UpdateTarget {
     }
 
-    @Schema(name = "UpdateColumn", description = "Overwrites the cells of an existing column, top to bottom. "
-            + "The table is not resized.")
+    @Schema(name = "UpdateColumn", description = """
+            Overwrites the cells of an existing column, top to bottom. \
+            The table is not resized.""")
     record Column(
             @Schema(description = "0-based index of the column to update (0..width-1).")
             @NotNull
@@ -50,8 +53,9 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             Integer position,
             @NotEmpty
             @Valid
-            @Parameter(description = "New column cells, top to bottom. A cell may set colspan/rowspan to merge. "
-                    + "Must not be taller than the table.")
+            @Parameter(description = """
+                    New column cells, top to bottom. A cell may set colspan/rowspan to merge. \
+                    Must not be taller than the table.""")
             List<RawCellInput> cells) implements UpdateTarget {
     }
 
@@ -65,15 +69,18 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @NotNull
             @Min(0)
             Integer column,
-            @Schema(description = "New cell value: a string, a number or a boolean. Null clears the cell.",
-                    oneOf = {String.class, Number.class, Boolean.class})
+            @Parameter(description = """
+                    New cell value: a string, a number, a boolean or a one-dimensional array of these values. \
+                    Null clears the cell.""")
+            @Schema(oneOf = {NullableCellValueSchema.class, Number.class, Boolean.class, CellValueArraySchema.class})
             @CellValueConstraint
             @Nullable Object value) implements UpdateTarget {
     }
 
-    @Schema(name = "UpdateRange", description = "Overwrites a rectangular block of cells in place, anchored at the "
-            + "top-left corner. The block must cover more than one cell and fit within the table; the table is not "
-            + "resized.")
+    @Schema(name = "UpdateRange", description = """
+            Overwrites a rectangular block of cells in place, anchored at the \
+            top-left corner. The block must cover more than one cell and fit within the table; the table is not \
+            resized.""")
     record Range(
             @Schema(description = "0-based row index of the top-left cell (0..height-1).")
             @NotNull
@@ -84,8 +91,9 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
             @Min(0)
             Integer column,
             @NotEmpty
-            @Parameter(description = "Block rows top to bottom, each a list of cells left to right. A cell may set "
-                    + "colspan/rowspan to merge. Must be rectangular, cover more than one cell, and fit the table.")
+            @Parameter(description = """
+                    Block rows top to bottom, each a list of cells left to right. A cell may set \
+                    colspan/rowspan to merge. Must be rectangular, cover more than one cell, and fit the table.""")
             List<List<@Valid RawCellInput>> cells) implements UpdateTarget {
     }
 

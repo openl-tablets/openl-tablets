@@ -9,12 +9,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 class CompoundPath {
 
     static final String PATH_SEPARATOR = "/";
 
+    @Getter
     private final Path root;
     private final Path resolvedPath;
+    @Getter(AccessLevel.PACKAGE)
     private final Path pathToArchive;
     private BasicFileAttributes attributes;
 
@@ -38,10 +43,6 @@ class CompoundPath {
 
     Path getPath() {
         return resolvedPath;
-    }
-
-    Path getPathToArchive() {
-        return pathToArchive;
     }
 
     boolean isDirectory() throws IOException {
@@ -71,7 +72,7 @@ class CompoundPath {
                     .map(alias)
                     .orElseGet(() -> root.relativize(resolvedPath).toString());
         } else {
-            String pathInArchive = resolvedPath.toString();
+            var pathInArchive = resolvedPath.toString();
             if (pathInArchive.charAt(0) == PATH_SEPARATOR.charAt(0)) {
                 pathInArchive = pathInArchive.substring(1);
             }
@@ -83,9 +84,5 @@ class CompoundPath {
                     .toString();
         }
         return name.replace('\\', PATH_SEPARATOR.charAt(0));
-    }
-
-    public Path getRoot() {
-        return root;
     }
 }

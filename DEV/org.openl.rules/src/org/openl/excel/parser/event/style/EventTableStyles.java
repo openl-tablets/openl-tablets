@@ -1,9 +1,9 @@
 package org.openl.excel.parser.event.style;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
 import org.apache.poi.hssf.record.FontRecord;
 import org.apache.poi.hssf.record.FormatRecord;
@@ -19,6 +19,7 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsCellComment;
 
 public class EventTableStyles implements TableStyles {
+    @Getter
     private final IGridRegion region;
     private final int[][] cellIndexes;
     private final List<ExtendedFormatRecord> extendedFormats;
@@ -42,24 +43,19 @@ public class EventTableStyles implements TableStyles {
         this.customFormats = customFormats;
         this.palette = palette;
         this.fonts = fonts;
-        this.comments = comments == null ? Collections.emptyList() : comments;
+        this.comments = comments == null ? List.of() : comments;
         this.formulas = formulas;
     }
 
     @Override
-    public IGridRegion getRegion() {
-        return region;
-    }
-
-    @Override
     public ICellStyle getStyle(int row, int column) {
-        int index = cellIndexes[row - region.getTop()][column - region.getLeft()];
+        var index = cellIndexes[row - region.getTop()][column - region.getLeft()];
         return new OpenLCellStyle(index, extendedFormats.get(index), palette, customFormats);
     }
 
     @Override
     public ICellFont getFont(int row, int column) {
-        int index = cellIndexes[row - region.getTop()][column - region.getLeft()];
+        var index = cellIndexes[row - region.getTop()][column - region.getLeft()];
         return new OpenLCellFont(getFont(extendedFormats.get(index).getFontIndex()), palette);
     }
 

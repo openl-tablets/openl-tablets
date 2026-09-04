@@ -18,18 +18,14 @@ public class TablePropertyDefinitionWrappers {
     private void init(TablePropertyDefinition[] definitions) {
 
         for (TablePropertyDefinition definition : definitions) {
-            TablePropertyDefinitionWrapper wrapper = new TablePropertyDefinitionWrapper(definition);
+            var wrapper = new TablePropertyDefinitionWrapper(definition);
             wrappers.add(wrapper);
         }
     }
 
-    public List<TablePropertyDefinitionWrapper> asList() {
-        return new ArrayList<>(wrappers);
-    }
-
     public List<TablePropertyDefinitionWrapper> getDimensionalProperties(Selector selector) {
 
-        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = new ArrayList<>();
+        var dimensionalTablePropertyDefinitions = new ArrayList<TablePropertyDefinitionWrapper>();
 
         for (TablePropertyDefinitionWrapper wrapper : wrappers) {
 
@@ -60,12 +56,12 @@ public class TablePropertyDefinitionWrappers {
 
     public List<TablePropertyDefinitionWrapper> getGapOverlapDimensionalProperties() {
 
-        List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = new ArrayList<>();
+        var dimensionalTablePropertyDefinitions = new ArrayList<TablePropertyDefinitionWrapper>();
 
         for (TablePropertyDefinitionWrapper wrapper : wrappers) {
 
             if (wrapper.getDefinition().isDimensional()) {
-                String operation = wrapper.getOperation();
+                var operation = wrapper.getOperation();
                 if (ContainsMatchingExpression.OPERATION_NAME
                         .equalsIgnoreCase(operation) || EQMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operation)) {
                     dimensionalTablePropertyDefinitions.add(wrapper);

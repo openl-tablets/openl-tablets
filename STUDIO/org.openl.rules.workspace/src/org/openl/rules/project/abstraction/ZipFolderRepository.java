@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -20,16 +23,11 @@ import org.openl.util.IOUtils;
 /**
  * Treat zip files as separate repositories
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class ZipFolderRepository implements Repository {
     private final Repository delegate;
     private final String zipPath;
     private final String version;
-
-    ZipFolderRepository(Repository delegate, String zipPath, String version) {
-        this.delegate = delegate;
-        this.zipPath = zipPath;
-        this.version = version;
-    }
 
     @Override
     public String getId() {
@@ -43,9 +41,9 @@ class ZipFolderRepository implements Repository {
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        String artefactPath = path.substring(zipPath.length() + 1);
+        var artefactPath = path.substring(zipPath.length() + 1);
 
-        List<FileData> result = new ArrayList<>();
+        var result = new ArrayList<FileData>();
 
         ZipInputStream zipInputStream = null;
         try {
@@ -69,9 +67,9 @@ class ZipFolderRepository implements Repository {
 
     @Override
     public FileItem read(String name) throws IOException {
-        String artefactName = name.substring(zipPath.length() + 1);
+        var artefactName = name.substring(zipPath.length() + 1);
 
-        ZipInputStream zipInputStream = getZipInputStream();
+        var zipInputStream = getZipInputStream();
         ZipEntry entry;
         while ((entry = zipInputStream.getNextEntry()) != null) {
             if (entry.getName().equals(artefactName)) {
@@ -157,7 +155,7 @@ class ZipFolderRepository implements Repository {
     }
 
     private FileData createFileData(ZipEntry entry) {
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(zipPath + "/" + entry.getName());
         fileData.setSize(entry.getSize());
         fileData.setModifiedAt(new Date(entry.getTime()));

@@ -1,5 +1,8 @@
 package org.openl.rules.datatype.binding;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.AGridTable;
 import org.openl.rules.table.GridRegion;
@@ -22,18 +25,19 @@ import org.openl.rules.table.IGridTable;
 public class MockGridTable extends AGridTable {
     private final Object[][] values;
 
+    @Getter
     private final IGrid grid;
 
     public MockGridTable(Object[][] cells) {
         // Flag indicating that previously there was a
         // null cell
         //
-        boolean nullCell = false;
+        var nullCell = false;
 
         // Flag indicating that previosly there was a
         // not null cell
         //
-        boolean notNullCell = false;
+        var notNullCell = false;
         for (Object[] row : cells) {
             for (Object cell : row) {
                 if (cell != null) {
@@ -78,11 +82,11 @@ public class MockGridTable extends AGridTable {
 
     @Override
     public ICell getCell(int column, int row) {
-        Cell cell = new Cell();
+        var cell = new Cell();
         cell.setColumn(column);
         cell.setRow(row);
 
-        Object value = values[row][column];
+        var value = values[row][column];
         if (value != null) {
             cell.setObjectValue(value);
             cell.setStringValue(value.toString());
@@ -91,16 +95,16 @@ public class MockGridTable extends AGridTable {
             // 1 is the given cell itself
             // add the number of empty cells to the right (merged cell)
             //
-            int rightEmptyCells = rightEmptyCells(column, row);
+            var rightEmptyCells = rightEmptyCells(column, row);
             cell.setWidth(1 + rightEmptyCells);
 
             // Set height of the cell
             // 1 is the given cell itself
             // add the number of empty cells down (merged cell)
             //
-            int downEmptyCells = downEmptyCells(column, row);
+            var downEmptyCells = downEmptyCells(column, row);
             cell.setHeight(1 + downEmptyCells);
-            GridRegion region = new GridRegion(row, column, row + downEmptyCells, column + rightEmptyCells);
+            var region = new GridRegion(row, column, row + downEmptyCells, column + rightEmptyCells);
             cell.setRegion(region);
         }
         // If value is null, nothing should be set
@@ -117,9 +121,9 @@ public class MockGridTable extends AGridTable {
      * @return number of null cells down after the given one
      */
     private int downEmptyCells(int column, int row) {
-        int i = 0;
+        var i = 0;
         while (row + 1 < getHeight()) {
-            Object nextRowValue = values[row + 1][column];
+            var nextRowValue = values[row + 1][column];
             if (nextRowValue == null) {
                 i++;
                 row++;
@@ -138,9 +142,9 @@ public class MockGridTable extends AGridTable {
      * @return number of null cells right after the given one
      */
     private int rightEmptyCells(int column, int row) {
-        int i = 0;
+        var i = 0;
         while (column + 1 < getWidth()) { // Last Column in the row
-            Object next = values[row][column + 1];
+            var next = values[row][column + 1];
             if (next == null) {
                 i++;
                 column++;
@@ -150,11 +154,6 @@ public class MockGridTable extends AGridTable {
 
         }
         return i;
-    }
-
-    @Override
-    public IGrid getGrid() {
-        return grid;
     }
 
     @Override
@@ -181,21 +180,13 @@ public class MockGridTable extends AGridTable {
         return 0;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
     /**
      * Stub implementation for the IGrid just getCell is implemented to avoid NPE
      */
+    @RequiredArgsConstructor
     private static class TestGrid extends AGrid {
 
         private final IGridTable table;
-
-        public TestGrid(IGridTable table) {
-            this.table = table;
-        }
 
         @Override
         public ICell getCell(int column, int row) {

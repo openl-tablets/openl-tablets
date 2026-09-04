@@ -33,7 +33,7 @@ public final class NodeUsageFactory {
      * @return node usage list
      */
     public static List<NodeUsage> createNodeUsageList(IBoundNode boundNode, String sourceString, int startIndex) {
-        List<NodeUsage> nodeUsages = new ArrayList<>();
+        var nodeUsages = new ArrayList<NodeUsage>();
         findNodeUsages(nodeUsages, boundNode, sourceString.substring(startIndex), startIndex);
         nodeUsages.sort(Comparator.comparingInt(NodeUsage::getStart));
         return Collections.unmodifiableList(nodeUsages);
@@ -53,14 +53,14 @@ public final class NodeUsageFactory {
             }
         }
 
-        IBoundNode[] children = boundNode.getChildren();
+        var children = boundNode.getChildren();
         if (CollectionUtils.isNotEmpty(children)) {
             for (IBoundNode child : children) {
                 findNodeUsages(nodeUsages, child, sourceString, startIndex);
             }
         }
         if (boundNode instanceof ATargetBoundNode) {
-            IBoundNode targetNode = boundNode.getTargetNode();
+            var targetNode = boundNode.getTargetNode();
             if (targetNode != null) {
                 findNodeUsages(nodeUsages, targetNode, sourceString, startIndex);
             }

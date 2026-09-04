@@ -5,11 +5,9 @@
 package org.openl.binding.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -37,7 +35,7 @@ public class LocalVarBinder extends ANodeBinder {
             }
         }
 
-        ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, name, varType);
+        var var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, name, varType);
 
         return new LocalVarDeclarationNode(node, init, var);
     }
@@ -46,21 +44,21 @@ public class LocalVarBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode typeNode = bindChildNode(node.getChild(0), bindingContext);
-        IOpenClass varType = typeNode.getType();
+        var varType = typeNode.getType();
 
-        List<IBoundNode> boundNodes = new ArrayList<>();
+        var boundNodes = new ArrayList<IBoundNode>();
 
-        for (int i = 1; i < node.getNumberOfChildren(); ++i) {
+        for (var i = 1; i < node.getNumberOfChildren(); ++i) {
 
             // we may get basically 2 different situations here, either just
             // name or name and initializer
-            ISyntaxNode child = node.getChild(i);
+            var child = node.getChild(i);
 
             if (child instanceof IdentifierNode) {
-                String name = child.getText();
+                var name = child.getText();
                 boundNodes.add(createLocalVarDeclarationNode(child, name, null, varType, bindingContext, false));
             } else {
-                String name = child.getChild(0).getText();
+                var name = child.getChild(0).getText();
                 boundNodes
                         .add(createLocalVarDeclarationNode(child, name, child.getChild(1), varType, bindingContext, false));
             }

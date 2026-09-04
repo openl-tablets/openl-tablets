@@ -21,14 +21,14 @@ class TestDomainBits {
 
     @Test
     void forceSize() {
-        DomainBits db = new DomainBits(_var, _var.min() + 5, _var.max());
+        var db = new DomainBits(_var, _var.min() + 5, _var.max());
         db.forceSize(125);
         assertEquals(db.size(), 125);
     }
 
     @Test
     void setValue() {
-        DomainBits db = new DomainBits(_var, _var.min(), _var.max());
+        var db = new DomainBits(_var, _var.min(), _var.max());
         boolean[] mask = new boolean[db.size()];
         Arrays.fill(mask, true);
         mask[5] = false;
@@ -53,11 +53,11 @@ class TestDomainBits {
 
     @Test
     void testBits() {
-        DomainBits db = new DomainBits(_var, _var.min() + 5, _var.max());
+        var db = new DomainBits(_var, _var.min() + 5, _var.max());
         boolean[] bits = {false, false, true, false, true, true};
         db.forceBits(bits);
-        boolean[] bt = db.bits();
-        for (int i = 0; i < bits.length; i++) {
+        var bt = db.bits();
+        for (var i = 0; i < bits.length; i++) {
             assertEquals(bits[i], bt[i]);
         }
     }
@@ -66,7 +66,7 @@ class TestDomainBits {
     void testContains() {
         int[] goodArray = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         int[] badArray = {-1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11};
-        for (int i = 0; i < goodArray.length; i++) {
+        for (var i = 0; i < goodArray.length; i++) {
             assertTrue(_probeDomainBits.contains(goodArray[i]));
             assertFalse(_probeDomainBits.contains(badArray[i]));
         }
@@ -74,32 +74,32 @@ class TestDomainBits {
 
     @Test
     void testForceBits() {
-        DomainBits db = new DomainBits(_var, _var.min() + 5, _var.max());
+        var db = new DomainBits(_var, _var.min() + 5, _var.max());
         boolean[] bits = new boolean[]{false, true, false, true, false, true};
         db.forceBits(bits);
-        for (int i = 5; i <= _var.max(); i++) {
+        for (var i = 5; i <= _var.max(); i++) {
             assertEquals(db.contains(i), bits[i - 5], "does not contain " + i);
         }
     }
 
     @Test
     void testForceInsert() {
-        DomainBits db = new DomainBits(_var, _var.min() + 5, _var.max());
+        var db = new DomainBits(_var, _var.min() + 5, _var.max());
         boolean[] bits = new boolean[]{false, false, false, false, false, false};
         db.forceBits(bits);
         db.forceInsert(5);
         db.forceInsert(6);
         db.forceInsert(7);
         db.forceInsert(8);
-        for (int i = 5; i <= 8; i++) {
+        for (var i = 5; i <= 8; i++) {
             assertTrue(db.contains(i), "does not contain " + i);
         }
     }
 
     @Test
     void testIterateDomain() {
-        IntVar intvar = C.addIntVar(0, 10);
-        DomainBits db = new DomainBits(intvar, intvar.min(), intvar.max());
+        var intvar = C.addIntVar(0, 10);
+        var db = new DomainBits(intvar, intvar.min(), intvar.max());
         final int[] values = new int[db.size()];
         try {
             db.iterateDomain(new IntExp.IntDomainIterator() {
@@ -111,7 +111,7 @@ class TestDomainBits {
                     return true;
                 }
             });
-            for (int i = intvar.min(); i < intvar.max(); i++) {
+            for (var i = intvar.min(); i < intvar.max(); i++) {
                 assertEquals(i, values[i]);
             }
         } catch (Failure f) {
@@ -121,11 +121,11 @@ class TestDomainBits {
 
     @Test
     void testRemoveRange() {
-        IntVar var = C.addIntVar(-10, 10, IntVar.DOMAIN_PLAIN);
-        DomainBits di = new DomainBits(var, var.min(), var.max());
-        int start_size = di.size();
-        int start_min = di.min();
-        int start_max = di.max();
+        var var = C.addIntVar(-10, 10, IntVar.DOMAIN_PLAIN);
+        var di = new DomainBits(var, var.min(), var.max());
+        var start_size = di.size();
+        var start_min = di.min();
+        var start_max = di.max();
 
         // intersection of range to be removed and the domain is an empty set
         try {
@@ -153,8 +153,8 @@ class TestDomainBits {
         }
         // intersection is a part of a domain (less than the whole) including
         // left end
-        int newmin = start_min + (start_max - start_min) / 2 + 1;
-        int newsize = start_size - (start_max - start_min) / 2 - 1;
+        var newmin = start_min + (start_max - start_min) / 2 + 1;
+        var newsize = start_size - (start_max - start_min) / 2 - 1;
         try {
             assertTrue(di.removeRange(start_min - 10, start_min + (start_max - start_min) / 2));
             assertEquals(newmin, di.min());
@@ -165,7 +165,7 @@ class TestDomainBits {
         }
         // intersection is a part of a domain (less than the whole) including
         // right end
-        int newmax = start_max - (start_max - newmin) / 2 - 1;
+        var newmax = start_max - (start_max - newmin) / 2 - 1;
         newsize = newsize - (start_max - newmin) / 2 - 1;
         try {
             assertTrue(di.removeRange(start_max - (start_max - newmin) / 2, start_max + 10));
@@ -185,13 +185,13 @@ class TestDomainBits {
             assertEquals(newmin, di.min());// hasn't changed
             assertEquals(newmax, di.max());// hasn't changed
             assertEquals(newsize, di.size());
-            for (int i = di.min(); i < newmin + 1; i++) {
+            for (var i = di.min(); i < newmin + 1; i++) {
                 assertTrue(di.contains(i));
             }
-            for (int i = di.max(); i > newmax - 1; i--) {
+            for (var i = di.max(); i > newmax - 1; i--) {
                 assertTrue(di.contains(i));
             }
-            for (int i = newmin + 1; i < newmax - 1; i++) {
+            for (var i = newmin + 1; i < newmax - 1; i++) {
                 assertFalse(di.contains(i));
             }
         } catch (Failure f) {
@@ -201,10 +201,10 @@ class TestDomainBits {
 
     @Test
     void testRemoveValue() {
-        DomainBits db = new DomainBits(_var, _var.min(), _var.max());
-        int start_size = db.size();
-        int start_min = db.min();
-        for (int i = start_min; i < db.max(); i++) {
+        var db = new DomainBits(_var, _var.min(), _var.max());
+        var start_size = db.size();
+        var start_min = db.min();
+        for (var i = start_min; i < db.max(); i++) {
             try {
                 assertTrue(db.removeValue(i));
             } catch (Failure f) {
@@ -220,7 +220,7 @@ class TestDomainBits {
 
     @Test
     void testSetMax() {
-        DomainBits db = new DomainBits(_var, _var.min(), _var.max());
+        var db = new DomainBits(_var, _var.min(), _var.max());
         try {
             assertFalse(db.setMax(_var.max() + 1));
         } catch (Failure f) {

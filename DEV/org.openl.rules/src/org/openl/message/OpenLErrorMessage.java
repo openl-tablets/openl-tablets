@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.exception.OpenLException;
 import org.openl.util.StringUtils;
 
@@ -13,6 +15,7 @@ import org.openl.util.StringUtils;
  */
 public class OpenLErrorMessage extends OpenLMessage {
 
+    @Getter
     private final OpenLException error;
 
     public OpenLErrorMessage(OpenLException error) {
@@ -20,20 +23,16 @@ public class OpenLErrorMessage extends OpenLMessage {
         this.error = Objects.requireNonNull(error);
     }
 
-    public OpenLException getError() {
-        return error;
-    }
-
     @Override
     public String toString() {
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
+        var stringWriter = new StringWriter();
+        var printWriter = new PrintWriter(stringWriter);
 
         printWriter.print(super.toString());
         printWriter.print("\r\n");
 
         if (getError() != null) {
-            String url = getError().getSourceLocation();
+            var url = getError().getSourceLocation();
 
             if (StringUtils.isNotEmpty(url)) {
                 printWriter.print("    at " + url + "\r\n");
@@ -60,9 +59,9 @@ public class OpenLErrorMessage extends OpenLMessage {
             return null;
         }
 
-        Throwable t = (Throwable) ex;
+        var t = (Throwable) ex;
 
-        OpenLException cause = ex;
+        var cause = ex;
         while (t != null) {
             if (t instanceof OpenLException exception) {
                 cause = exception;

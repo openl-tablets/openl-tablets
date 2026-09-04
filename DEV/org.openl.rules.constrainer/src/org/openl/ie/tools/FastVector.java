@@ -71,10 +71,8 @@ public final class FastVector implements Cloneable, Serializable {
     @Override
     public Object clone() {
         try {
-            FastVector v = (FastVector) super.clone();
+            var v = (FastVector) super.clone();
             v.m_data = m_data.clone();
-            // v.m_data = new Object[m_data.length];
-            // System.arraycopy(m_data, 0, v.m_data, 0, m_data.length);
             return v;
         } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
@@ -95,7 +93,7 @@ public final class FastVector implements Cloneable, Serializable {
     }
 
     void grow() {
-        Object[] old = m_data;
+        var old = m_data;
 
         m_data = new Object[m_data.length * 2];
         System.arraycopy(old, 0, m_data, 0, m_size);
@@ -103,13 +101,13 @@ public final class FastVector implements Cloneable, Serializable {
 
     public int indexOf(Object elem) {
         if (elem == null) {
-            for (int i = 0; i < m_size; i++) {
+            for (var i = 0; i < m_size; i++) {
                 if (m_data[i] == null) {
                     return i;
                 }
             }
         } else {
-            for (int i = 0; i < m_size; i++) {
+            for (var i = 0; i < m_size; i++) {
                 if (elem.equals(m_data[i])) {
                     return i;
                 }
@@ -141,7 +139,7 @@ public final class FastVector implements Cloneable, Serializable {
     }
 
     public boolean removeElement(Object obj) {
-        int i = indexOf(obj);
+        var i = indexOf(obj);
         if (i >= 0) {
             removeElementAt(i);
             return true;
@@ -150,7 +148,7 @@ public final class FastVector implements Cloneable, Serializable {
     }
 
     public void removeElementAt(int index) {
-        int j = m_size - index - 1;
+        var j = m_size - index - 1;
         if (j > 0) {
             System.arraycopy(m_data, index + 1, m_data, index, j);
         }

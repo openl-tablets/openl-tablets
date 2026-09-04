@@ -2,6 +2,8 @@ package org.openl.rules.dt.data;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IBaseDecisionRow;
@@ -15,6 +17,7 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
 
     private final int numberOfTableParameters;
     private final IDecisionRow decisionRow;
+    @Getter
     private final int paramNum;
     private final DecisionTableDataType decisionTableDataType;
 
@@ -35,15 +38,15 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        RuleExecutionObject reo = (RuleExecutionObject) target;
-        int ruleNum = reo.getRuleNum();
+        var reo = (RuleExecutionObject) target;
+        var ruleNum = reo.getRuleNum();
 
-        Object[] params = env.getLocalFrame();
+        var params = env.getLocalFrame();
         if (numberOfTableParameters != env.getLocalFrame().length) {
             params = new Object[numberOfTableParameters];
             System.arraycopy(env.getLocalFrame(), 0, params, 0, numberOfTableParameters);
         }
-        Object ret = decisionRow.loadValue(paramNum, ruleNum, target, params, env);
+        var ret = decisionRow.loadValue(paramNum, ruleNum, target, params, env);
         if (ret == null) {
             return getType().nullObject();
         }
@@ -68,10 +71,6 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException();
-    }
-
-    public int getParamNum() {
-        return paramNum;
     }
 
     @Override

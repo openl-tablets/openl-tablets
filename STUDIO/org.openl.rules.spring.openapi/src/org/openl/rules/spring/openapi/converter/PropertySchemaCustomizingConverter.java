@@ -34,6 +34,8 @@ import org.openl.util.StringUtils;
  * Schema customizer. The purpose of this class is to support {@link Deprecated}, {@link Parameter} annotations when
  * they are defined on class properties. Original v3 implementation doesn't support this case. Also, it's used for
  * schema description localization.
+ * <p>
+ * Unions containing non-object alternatives are emitted without an inferred object type.
  *
  * @author Vladyslav Pikus
  */
@@ -57,6 +59,8 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
             if (resolvedSchema == null) {
                 return null;
             }
+            removeInferredObjectTypeFromUnion(resolvedSchema);
+            removeInferredObjectTypeFromUnion(resolvedSchema.getItems());
             if (resolvedSchema.get$ref() != null || (resolvedSchema.getName() != null && "object".equals(resolvedSchema.getType()))) {
                 JavaType javaType;
                 if (type.getType() instanceof JavaType) {
@@ -121,6 +125,19 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
         return null;
     }
 
+    private static void removeInferredObjectTypeFromUnion(Schema<?> schema) {
+        if (schema == null || !"object".equals(schema.getType()) || CollectionUtils.isEmpty(schema.getOneOf())) {
+            return;
+        }
+        if (schema.getOneOf().stream().anyMatch(PropertySchemaCustomizingConverter::isNonObjectSchema)) {
+            schema.setType(null);
+        }
+    }
+
+    private static boolean isNonObjectSchema(Schema<?> schema) {
+        return schema.get$ref() == null && schema.getType() != null && !"object".equals(schema.getType());
+    }
+
     @SuppressWarnings("rawtypes")
     private Schema findProperty(Schema definedSchema, BeanPropertyDefinition propertyDefinition) {
         Schema propSchema = null;
@@ -155,14 +172,14 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
             discriminator = new Discriminator().propertyName(typeInfo.property());
             definedSchema.setDiscriminator(discriminator);
         }
-        boolean needsMapping = discriminator.getMapping() == null || discriminator.getMapping().isEmpty();
-        boolean needsOneOf = definedSchema.getOneOf() == null || definedSchema.getOneOf().isEmpty();
+        var needsMapping = discriminator.getMapping() == null || discriminator.getMapping().isEmpty();
+        var needsOneOf = definedSchema.getOneOf() == null || definedSchema.getOneOf().isEmpty();
         if (!needsMapping && !needsOneOf) {
             return;
         }
         var mapping = needsMapping ? new LinkedHashMap<String, String>() : null;
         for (var subType : subTypes.value()) {
-            String ref = resolveSubTypeRef(subType, context);
+            var ref = resolveSubTypeRef(subType, context);
             if (ref == null) {
                 continue;
             }

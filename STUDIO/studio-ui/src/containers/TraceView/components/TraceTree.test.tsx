@@ -1,8 +1,8 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useTraceStore } from 'store/traceStore'
-import type { DebugFrameView, StepValueView } from 'types/trace'
+import type { CallNodeView, DebugFrameView, StepValueView } from 'types/trace'
 import TraceTree from 'containers/TraceView/components/TraceTree'
 
 vi.mock('services/traceService', () => ({
@@ -13,6 +13,7 @@ vi.mock('services/traceService', () => ({
         getVariables: vi.fn().mockResolvedValue({ parameters: [], steps: [], errors: []}),
         cancelTrace: vi.fn().mockResolvedValue(undefined),
         getStack: vi.fn().mockResolvedValue({ status: 'suspended', frames: []}),
+        getTreeChildren: vi.fn().mockResolvedValue({ children: [], total: 0 }),
     },
 }))
 
@@ -51,6 +52,31 @@ describe('TraceTree', () => {
         useTraceStore.getState().reset()
     })
 
+    const profile = (truncated: boolean) =>
+        ({ hotspots: [], distinctTables: 5, nodeCount: 999_999, totalMillis: 10, truncated })
+
+    it('warns that the tree is truncated so its partial branches are not mistaken for the whole run', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            frames: [frame(0, { name: 'ROOT', active: true })],
+            selectedFrameIndex: 0,
+            profile: profile(true),
+        })
+        render(<TraceTree />)
+        expect(screen.getByTestId('trace-tree-truncated')).toBeInTheDocument()
+    })
+
+    it('shows no truncation banner when the tree is complete', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            frames: [frame(0, { name: 'ROOT', active: true })],
+            selectedFrameIndex: 0,
+            profile: profile(false),
+        })
+        render(<TraceTree />)
+        expect(screen.queryByTestId('trace-tree-truncated')).toBeNull()
+    })
+
     it('renders a frame with its steps and runs to a not-yet-reached step', async () => {
         useTraceStore.setState({
             projectId: 'p1',
@@ -72,6 +98,37 @@ describe('TraceTree', () => {
         await userEvent.click(screen.getByTestId('tree-step-0-R1C0'))
         await waitFor(() => expect(resume).toHaveBeenCalledWith('p1'))
         expect(useTraceStore.getState().breakpoints).toContain('u0#R1C0')
+    })
+
+    it('starts a new run fully collapsed instead of inheriting stale expansions', async () => {
+        const child: CallNodeView = {
+            uri: 'cu', name: 'ChildTable', instance: 0, kind: 'spreadsheet',
+            durationMillis: 1, selfMillis: 1, steps: [],
+        }
+        useTraceStore.setState({
+            status: 'suspended',
+            frames: [frame(0, {
+                name: 'ROOT',
+                active: true,
+                steps: [{ ...step('R0C0', 'executed', '$Step1'), children: [child], childrenTotal: 1 }],
+            })],
+            selectedFrameIndex: 0,
+        })
+        render(<TraceTree />)
+
+        await userEvent.click(screen.getByTestId('tree-toggle-f0/R0C0'))
+        expect(screen.getByText('ChildTable')).toBeInTheDocument()
+        // The toggle carries an accessible name for screen readers, reflecting the action it performs.
+        expect(screen.getByTestId('tree-toggle-f0/R0C0')).toHaveAttribute('aria-label', 'tree.collapse')
+
+        // A replay/rerun bumps runId; row keys are positional, so the previous run's expansions must
+        // not survive into the new run (pseudo-open chevrons then need two clicks to expand).
+        act(() => {
+            useTraceStore.setState({ runId: useTraceStore.getState().runId + 1 })
+        })
+        expect(screen.queryByText('ChildTable')).toBeNull()
+        expect(screen.getByTestId('tree-toggle-f0/R0C0')).toHaveAttribute('aria-expanded', 'false')
+        expect(screen.getByTestId('tree-toggle-f0/R0C0')).toHaveAttribute('aria-label', 'tree.expand')
     })
 
     it('badges a looped frame with its execution pass so stepping through a loop visibly advances', () => {
@@ -96,15 +153,17 @@ describe('TraceTree', () => {
         expect(screen.queryByTestId('tree-pass-0')).toBeNull()
     })
 
-    it('caps an expanded branch to the first executions and marks the rest with one more row', async () => {
-        const children = Array.from({ length: 101 }, (_, i) => ({
+    it('renders the server-provided children page and marks the omitted rest with one more row', async () => {
+        // The server caps inline children at its page size and reports the true total in childrenTotal; the
+        // client renders what it received and shows a single "+N more" for what the server left out.
+        const children = Array.from({ length: 100 }, (_, i) => ({
             uri: `uc${i}`, name: `Call${i}`, instance: i, kind: 'spreadsheet' as const, durationMillis: 1, selfMillis: 1, steps: [],
         }))
         useTraceStore.setState({
             status: 'suspended',
             frames: [frame(0, {
                 name: 'ROOT', active: true,
-                steps: [{ ...step('R0C0', 'executed', '$Loop'), children }],
+                steps: [{ ...step('R0C0', 'executed', '$Loop'), children, childrenTotal: 150 }],
             })],
             selectedFrameIndex: 0,
         })
@@ -113,9 +172,8 @@ describe('TraceTree', () => {
         await userEvent.click(screen.getByTestId('tree-toggle-f0/R0C0'))
 
         expect(screen.getByText('Call0')).toBeInTheDocument()
-        expect(screen.getByText('Call99')).toBeInTheDocument() // the 100th executed branch
-        expect(screen.queryByText('Call100')).toBeNull() // the 101st is dropped
-        expect(screen.getByText('tree.more')).toBeInTheDocument() // a single marker stands in for the rest
+        expect(screen.getByText('Call99')).toBeInTheDocument() // the last server-provided branch
+        expect(screen.getByText('tree.more')).toBeInTheDocument() // "+50 more" stands in for the omitted rest
     })
 
     it('drills the current step into the child frame so every level shows at once', () => {
@@ -194,6 +252,7 @@ describe('TraceTree', () => {
     it('renders the completed tree with a node timing and toggles Total/Self', async () => {
         useTraceStore.setState({
             status: 'completed',
+            profiling: true,
             frames: [],
             tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet', durationMillis: 42, selfMillis: 12, steps: []},
         })
@@ -205,6 +264,29 @@ describe('TraceTree', () => {
         // Switching to Self time shows the node's own time instead of the inclusive total.
         await userEvent.click(screen.getByText('tree.timeSelf'))
         expect(screen.getByText('12 ms')).toBeInTheDocument()
+    })
+
+    it('labels how many sub-calls a node dropped once the tree outgrew its size limit', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            frames: [],
+            tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet',
+                durationMillis: 42, selfMillis: 12, steps: [], notRetained: 128 },
+        })
+        render(<TraceTree />)
+        // The gap is shown, not hidden — the analyst sees this node's children are incomplete, not absent.
+        expect(screen.getByTestId('tree-not-retained-tree/notRetained')).toBeInTheDocument()
+    })
+
+    it('shows no dropped-sub-calls note when the node retained everything', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            frames: [],
+            tree: { uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet',
+                durationMillis: 42, selfMillis: 12, steps: []},
+        })
+        render(<TraceTree />)
+        expect(screen.queryByTestId('tree-not-retained-tree/notRetained')).toBeNull()
     })
 
     it('replays a returned node by restarting the trace and running to it', async () => {
@@ -293,6 +375,7 @@ describe('TraceTree', () => {
     it('shows execution time on an executed step', () => {
         useTraceStore.setState({
             status: 'completed',
+            profiling: true,
             frames: [],
             tree: {
                 uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet', durationMillis: 20, selfMillis: 8,
@@ -308,6 +391,7 @@ describe('TraceTree', () => {
     it('does not lend a completed frame time to a step that has none', () => {
         useTraceStore.setState({
             status: 'suspended',
+            profiling: true,
             frames: [frame(0, {
                 name: 'ROOT',
                 active: true,
@@ -323,5 +407,104 @@ describe('TraceTree', () => {
         expect(screen.getByText('ROOT')).toBeInTheDocument()
         expect(screen.getByText('$Divider')).toBeInTheDocument()
         expect(screen.getAllByText('42 ms')).toHaveLength(1)
+    })
+
+    it('hides every timing when profiling is off — the run is not being measured', () => {
+        useTraceStore.setState({
+            status: 'completed',
+            profiling: false,
+            frames: [frame(0, {
+                name: 'ROOT',
+                active: true,
+                completed: true,
+                durationMillis: 42,
+                selfMillis: 42,
+                steps: [step('R0C0', 'executed', '$Step1')],
+            })],
+            selectedFrameIndex: 0,
+        })
+        render(<TraceTree />)
+        // The tree itself stays browsable; only the durations and the Total/Self toggle disappear.
+        expect(screen.getByText('ROOT')).toBeInTheDocument()
+        expect(screen.getByText('$Step1')).toBeInTheDocument()
+        expect(screen.queryByText('42 ms')).toBeNull()
+        expect(screen.queryByTestId('trace-time-mode')).toBeNull()
+    })
+
+    const getTreeChildren = traceService.getTreeChildren as ReturnType<typeof vi.fn>
+
+    const childNode = (name: string, instance: number) => ({
+        uri: `u${name}`, name, instance, kind: 'spreadsheet' as const, durationMillis: 1, selfMillis: 1, steps: [],
+    })
+
+    const lazyTree = (childrenTotal: number) => ({
+        uri: 'uRoot', name: 'ROOT', instance: 0, kind: 'spreadsheet' as const, durationMillis: 10, selfMillis: 5,
+        steps: [{ ref: 'R0C0', label: '$Calc', status: 'executed' as const, childrenTotal }],
+    })
+
+    it("lazily fetches a tree step's sub-calls only when it is expanded", async () => {
+        getTreeChildren.mockResolvedValueOnce({ children: [childNode('Child', 0)], total: 1 })
+        useTraceStore.setState({ projectId: 'p1', status: 'completed', tree: lazyTree(1) })
+        render(<TraceTree />)
+
+        expect(getTreeChildren).not.toHaveBeenCalled()
+        await userEvent.click(screen.getByTestId('tree-toggle-tree/R0C0'))
+
+        await waitFor(() => expect(getTreeChildren).toHaveBeenCalledWith('p1', 'uRoot', 0, 'R0C0', 0, 100))
+        expect(await screen.findByText('Child')).toBeInTheDocument()
+    })
+
+    it('pages in the next executions from a fetched offset when "+N more" is clicked', async () => {
+        getTreeChildren
+            .mockResolvedValueOnce({ children: [childNode('Call0', 0)], total: 2 })
+            .mockResolvedValueOnce({ children: [childNode('Call1', 1)], total: 2 })
+        useTraceStore.setState({ projectId: 'p1', status: 'completed', tree: lazyTree(2) })
+        render(<TraceTree />)
+
+        await userEvent.click(screen.getByTestId('tree-toggle-tree/R0C0'))
+        expect(await screen.findByText('Call0')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('tree-more-tree/R0C0/more'))
+        await waitFor(() => expect(getTreeChildren).toHaveBeenLastCalledWith('p1', 'uRoot', 0, 'R0C0', 1, 100))
+        expect(await screen.findByText('Call1')).toBeInTheDocument()
+    })
+
+    // A decision-table node whose executed tree carries the legacy per-condition breakdown.
+    const decisionTree = (): CallNodeView => ({
+        uri: 'uDT', name: 'NonZeroValues', instance: 0, kind: 'decisionTable', durationMillis: 1, selfMillis: 1,
+        steps: [
+            { ref: 'c0', label: 'Condition: MC1, Rules: [R1]', status: 'executed', decision: 'unmatched' },
+            { ref: 'c1', label: 'Condition: MC1, Rules: [R2]', status: 'executed', decision: 'matched' },
+            { ref: 'R2', label: 'Returned rule: [R2]', status: 'executed', decision: 'returned' },
+        ],
+    })
+
+    it('breaks a decision table into its conditions and returned rule, like the legacy detailed trace', () => {
+        useTraceStore.setState({
+            status: 'completed', profiling: true, showDetailed: true, frames: [], tree: decisionTree(),
+        })
+        render(<TraceTree />)
+
+        // An unmatched condition shows a red cross, a matched one a green check — each with the legacy label.
+        const unmatched = screen.getByTestId('tree-condition-tree/c0')
+        const matched = screen.getByTestId('tree-condition-tree/c1')
+        expect(unmatched).toHaveTextContent('Condition: MC1, Rules: [R1]')
+        expect(unmatched.querySelector('[data-icon="close"]')).toBeInTheDocument()
+        expect(matched.querySelector('[data-icon="check"]')).toBeInTheDocument()
+        // The returned rule keeps the legacy title; its icon is the same rule icon the business tree uses.
+        const returned = screen.getByTestId('tree-returned-tree/R2')
+        expect(returned).toHaveTextContent('Returned rule: [R2]')
+        expect(returned.querySelector('svg')).toBeInTheDocument()
+    })
+
+    it('keeps a decision table plain when Show detailed view is off, showing only its returned rule', () => {
+        // Off (business-plain): the executed tree carries the conditions, but they stay hidden. The toggle
+        // itself now lives in the toolbar's settings, not the tree.
+        useTraceStore.setState({ status: 'completed', profiling: true, showDetailed: false, frames: [], tree: decisionTree() })
+        render(<TraceTree />)
+
+        expect(screen.queryByTestId('tree-condition-tree/c0')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('tree-condition-tree/c1')).not.toBeInTheDocument()
+        expect(screen.getByText('Returned rule: [R2]')).toBeInTheDocument()
     })
 })

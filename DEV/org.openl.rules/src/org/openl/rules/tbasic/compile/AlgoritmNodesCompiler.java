@@ -1,7 +1,6 @@
 package org.openl.rules.tbasic.compile;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.openl.binding.IBindingContext;
@@ -10,7 +9,6 @@ import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 
 /**
@@ -60,11 +58,11 @@ public class AlgoritmNodesCompiler {
 
     private List<RuntimeOperation> compileNestedNodes(List<AlgorithmTreeNode> nodesToProcess,
                                                       IBindingContext bindingContext) {
-        final List<RuntimeOperation> emittedOperations = new ArrayList<>();
+        final var emittedOperations = new ArrayList<RuntimeOperation>();
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             if (hasUnreachableCode(nodesToProcess, i)) {
-                IOpenSourceCodeModule errorSource = nodesToProcess.get(i + 1)
+                var errorSource = nodesToProcess.get(i + 1)
                         .getAlgorithmRow()
                         .getOperation()
                         .asSourceCodeModule();
@@ -75,7 +73,7 @@ public class AlgoritmNodesCompiler {
 
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
-            final List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
+            final var nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
             emittedOperations.addAll(compileLinkedNodesGroup(nodesToCompile, bindingContext));
         }
 
@@ -86,16 +84,16 @@ public class AlgoritmNodesCompiler {
                                                            IBindingContext bindingContext) {
         assert !nodesToCompile.isEmpty();
 
-        List<RuntimeOperation> emittedOperations = new ArrayList<>();
+        var emittedOperations = new ArrayList<RuntimeOperation>();
 
         ConversionRuleBean conversionRule = ConversionRulesController
                 .getConvertionRule(nodesToCompile, bindingContext);
         if (conversionRule == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         // the first operation always contains definition
-        boolean isLoopOperation = nodesToCompile.getFirst().getSpecification().isLoopOperation();
+        var isLoopOperation = nodesToCompile.getFirst().getSpecification().isLoopOperation();
         labelManager.startOperationsSet(isLoopOperation);
 
         for (var step : conversionRule.getConvertionSteps()) {
@@ -103,20 +101,20 @@ public class AlgoritmNodesCompiler {
         }
 
         // compile before statement
-        RuntimeOperation beforeOperation = createOperationForFirstNodeField(nodesToCompile, "before", bindingContext);
+        var beforeOperation = createOperationForFirstNodeField(nodesToCompile, "before", bindingContext);
         if (beforeOperation != null) {
             emittedOperations.add(beforeOperation);
         }
 
         for (ConversionRuleStep convertionStep : conversionRule.getConvertionSteps()) {
-            List<RuntimeOperation> stepEmittedOperations = processConversionStep(nodesToCompile,
+            var stepEmittedOperations = processConversionStep(nodesToCompile,
                     convertionStep,
                     bindingContext);
             emittedOperations.addAll(stepEmittedOperations);
         }
 
         // compile after statement
-        RuntimeOperation afterOperation = createOperationForFirstNodeField(nodesToCompile, "after", bindingContext);
+        var afterOperation = createOperationForFirstNodeField(nodesToCompile, "after", bindingContext);
         if (afterOperation != null) {
             emittedOperations.add(afterOperation);
         }
@@ -139,7 +137,7 @@ public class AlgoritmNodesCompiler {
                                                               String fieldName,
                                                               IBindingContext bindingContext) {
         // TODO: strange method, refactore
-        String param = nodesToCompile.getFirst()
+        var param = nodesToCompile.getFirst()
                 .getAlgorithmRow()
                 .getOperation() + AlgorithmCompilerTool.FIELD_SEPARATOR + fieldName;
 
@@ -147,7 +145,7 @@ public class AlgoritmNodesCompiler {
         RuntimeOperation operation = null;
 
         if (content.getValue() != null && !content.getValue().trim().isEmpty()) {
-            ConversionRuleStep conversionStep = ConversionRuleStep.builder()
+            var conversionStep = ConversionRuleStep.builder()
                     .operationType("Perform")
                     .operationParam1(param)
                     .nameForDebug(fieldName + " execution")
@@ -179,11 +177,11 @@ public class AlgoritmNodesCompiler {
             label = labelManager.getLabelByInstruction(conversionStep.getLabelInstruction());
         }
 
-        String operationType = conversionStep.getOperationType();
-        List<RuntimeOperation> emittedOperations = new ArrayList<>();
+        var operationType = conversionStep.getOperationType();
+        var emittedOperations = new ArrayList<RuntimeOperation>();
         for (OperationAnalyzer analyzer : operationAnalyzers) {
             if (analyzer.suits(operationType)) {
-                List<RuntimeOperation> operations = analyzer
+                var operations = analyzer
                         .getOperations(nodesToCompile, conversionStep, bindingContext);
                 if (operations != null) {
                     emittedOperations.addAll(operations);
@@ -220,8 +218,8 @@ public class AlgoritmNodesCompiler {
         public List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
                                                     ConversionRuleStep conversionStep,
                                                     IBindingContext bindingContext) {
-            List<RuntimeOperation> emittedOperations = new ArrayList<>();
-            RuntimeOperation emittedOperation = operationFactory
+            var emittedOperations = new ArrayList<RuntimeOperation>();
+            var emittedOperation = operationFactory
                     .createOperation(nodesToCompile, conversionStep, bindingContext);
             emittedOperations.add(emittedOperation);
             return emittedOperations;
@@ -258,14 +256,14 @@ public class AlgoritmNodesCompiler {
         public List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
                                                     ConversionRuleStep conversionStep,
                                                     IBindingContext bindingContext) {
-            String labelName = (String) parameterConverter
+            var labelName = (String) parameterConverter
                     .convertParam(nodesToCompile, String.class, conversionStep.getOperationParam1(), bindingContext);
             if (!currentCompileContext.isLabelRegistered(labelName)) {
-                IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
+                var errorSource = nodesToCompile.getFirst()
                         .getAlgorithmRow()
                         .getOperation()
                         .asSourceCodeModule();
-                String errorMessage = "Such label is not available from this place: '%s'.".formatted(labelName);
+                var errorMessage = "Such label is not available from this place: '%s'.".formatted(labelName);
                 BindHelper.processError(errorMessage, errorSource, bindingContext);
             }
             return null;

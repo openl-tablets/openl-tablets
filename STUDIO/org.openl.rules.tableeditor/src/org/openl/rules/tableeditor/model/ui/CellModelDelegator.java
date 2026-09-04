@@ -1,15 +1,16 @@
 package org.openl.rules.tableeditor.model.ui;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.filters.IColorFilter;
 
+@RequiredArgsConstructor
 public class CellModelDelegator implements ICellModel {
 
+    @Getter
     private final CellModel model;
-
-    public CellModelDelegator(CellModel model) {
-        this.model = model;
-    }
 
     @Override
     public BorderStyle[] getBorderStyle() {
@@ -34,10 +35,6 @@ public class CellModelDelegator implements ICellModel {
     @Override
     public int getIndent() {
         return model.getIndent();
-    }
-
-    public CellModel getModel() {
-        return model;
     }
 
     @Override

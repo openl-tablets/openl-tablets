@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -45,7 +47,7 @@ class YamlMapperFactoryTest {
     @Test
     void testConfiguration() throws IOException {
         var mapper = YamlMapperFactory.getYamlMapper();
-        MyBean myBean = null;
+        MyBean myBean;
         try (var stream = getClass().getResourceAsStream("/myBean.yaml")) {
             myBean = mapper.readValue(stream, MyBean.class);
             assertTheSame(myBean);
@@ -66,7 +68,7 @@ class YamlMapperFactoryTest {
     }
 
     private static Date createDate(int year, int month, int dayOfMonth) {
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(year, month - 1, dayOfMonth, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
@@ -74,50 +76,20 @@ class YamlMapperFactoryTest {
 
     private static class MyBean {
 
+        @Getter
+        @Setter
         private String field1;
+        @Getter
+        @Setter
         private Date field2;
+        @Getter
+        @Setter
         private List<String> field3;
+        @Getter
+        @Setter
         private Boolean field4;
+        @Getter
+        @Setter
         private transient String transientField5;
-
-        public String getField1() {
-            return field1;
-        }
-
-        public void setField1(String field1) {
-            this.field1 = field1;
-        }
-
-        public Date getField2() {
-            return field2;
-        }
-
-        public void setField2(Date field2) {
-            this.field2 = field2;
-        }
-
-        public List<String> getField3() {
-            return field3;
-        }
-
-        public void setField3(List<String> field3) {
-            this.field3 = field3;
-        }
-
-        public Boolean getField4() {
-            return field4;
-        }
-
-        public void setField4(Boolean field4) {
-            this.field4 = field4;
-        }
-
-        public String getTransientField5() {
-            return transientField5;
-        }
-
-        public void setTransientField5(String transientField5) {
-            this.transientField5 = transientField5;
-        }
     }
 }

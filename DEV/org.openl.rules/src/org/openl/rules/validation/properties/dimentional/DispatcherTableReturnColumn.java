@@ -1,5 +1,9 @@
 package org.openl.rules.validation.properties.dimentional;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 
@@ -9,6 +13,7 @@ import org.openl.types.IOpenClass;
  *
  * @author DLiauchuk
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DispatcherTableReturnColumn {
 
     private static final String RESULT_VAR = "result";
@@ -23,13 +28,8 @@ public class DispatcherTableReturnColumn {
     /**
      * Signature of the member of overloaded tables group.
      */
+    @Getter(AccessLevel.PACKAGE)
     private final IMethodSignature originalSignature;
-
-    DispatcherTableReturnColumn(IOpenClass originalReturnType, String methodName, IMethodSignature originalSignature) {
-        this.originalReturnType = originalReturnType;
-        this.methodName = methodName;
-        this.originalSignature = originalSignature;
-    }
 
     public String getParameterDeclaration() {
         return "%s %s".formatted(getReturnType().getDisplayName(0), getCodeExpression());
@@ -44,17 +44,17 @@ public class DispatcherTableReturnColumn {
     }
 
     public String getRuleValue(int ruleIndex, int elementNum) {
-        final StringBuilder builder = new StringBuilder(128);
+        final var builder = new StringBuilder(128);
         builder.append('=')
                 .append(methodName)
                 .append(TableSyntaxNodeDispatcherBuilder.AUXILIARY_METHOD_DELIMETER)
                 .append(ruleIndex)
                 .append('(');
 
-        boolean prependComma = false;
-        final int numberOfParameters = originalSignature.getNumberOfParameters();
-        for (int i = 0; i < numberOfParameters; i++) {
-            final String parameterName = originalSignature.getParameterName(i);
+        var prependComma = false;
+        final var numberOfParameters = originalSignature.getNumberOfParameters();
+        for (var i = 0; i < numberOfParameters; i++) {
+            final var parameterName = originalSignature.getParameterName(i);
             final String parameter = TableSyntaxNodeDispatcherBuilder
                     .getDispatcherParameterNameForOriginalParameter(parameterName);
             if (prependComma) {
@@ -70,10 +70,6 @@ public class DispatcherTableReturnColumn {
 
     public IOpenClass getReturnType() {
         return originalReturnType;
-    }
-
-    IMethodSignature getOriginalSignature() {
-        return originalSignature;
     }
 
     public String getRuleValue(int ruleIndex) {

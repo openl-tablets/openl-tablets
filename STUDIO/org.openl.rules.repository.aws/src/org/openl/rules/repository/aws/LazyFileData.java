@@ -49,7 +49,7 @@ class LazyFileData extends FileData {
     }
 
     private void verifyLoaded() {
-        S3Client api = s3;
+        var api = s3;
         if (api != null) {
             var request = HeadObjectRequest.builder().bucket(bucketName).key(getName()).versionId(getVersion()).build();
 

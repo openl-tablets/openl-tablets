@@ -3,6 +3,8 @@ package org.openl.rules.lang.xls.types;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import lombok.Getter;
+
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
@@ -20,8 +22,11 @@ public class DatatypeOpenField extends AOpenField {
     private volatile byte flag;
     private volatile Method getter;
     private volatile Method setter;
+    @Getter
     private final boolean isTransient;
+    @Getter
     private final IOpenClass declaringClass;
+    @Getter
     private final String contextProperty;
 
     public DatatypeOpenField(IOpenClass declaringClass,
@@ -36,18 +41,8 @@ public class DatatypeOpenField extends AOpenField {
     }
 
     @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
-    }
-
-    @Override
     public boolean isContextProperty() {
         return contextProperty != null;
-    }
-
-    @Override
-    public String getContextProperty() {
-        return contextProperty;
     }
 
     private void initMethods() {
@@ -96,16 +91,11 @@ public class DatatypeOpenField extends AOpenField {
             return null;
         }
         try {
-            Object res = getGetter().invoke(target);
+            var res = getGetter().invoke(target);
             return res != null ? res : getType().nullObject();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new OpenLRuntimeException(e);
         }
-    }
-
-    @Override
-    public boolean isTransient() {
-        return isTransient;
     }
 
     @Override

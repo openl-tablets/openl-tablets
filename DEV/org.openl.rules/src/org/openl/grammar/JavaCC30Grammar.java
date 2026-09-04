@@ -104,7 +104,6 @@ public abstract class JavaCC30Grammar implements IGrammar {
         // TODO exception?
         switch (stack.size()) {
             case 0:
-                // addError(new SyntaxException());
                 return null;
             case 1:
                 return pop();
@@ -116,20 +115,18 @@ public abstract class JavaCC30Grammar implements IGrammar {
                 }
 
                 // grammar problem???
-                ISyntaxNode node = pop();
+                var node = pop();
                 syntaxError = SyntaxNodeExceptionUtils.createError(
                         "More than one syntax node on stack:\nSource:\n" + node.getModule().getCode(),
                         null,
                         node);
                 return node;
-            // throw new RuntimeException("More than one syntax node on
-            // stack");
         }
     }
 
     public void bop(String type, TextInterval pos) {
-        ISyntaxNode right = pop();
-        ISyntaxNode left = pop();
+        var right = pop();
+        var left = pop();
 
         push(new BinaryNode(type, pos, left, right, module));
     }
@@ -151,11 +148,11 @@ public abstract class JavaCC30Grammar implements IGrammar {
     }
 
     public void nop(String type, TextInterval pos, boolean[] args) {
-        int n = args.length;
+        var n = args.length;
 
         ISyntaxNode[] nodes = new ISyntaxNode[n];
 
-        for (int i = n - 1; i >= 0; --i) {
+        for (var i = n - 1; i >= 0; --i) {
             nodes[i] = args[i] ? pop() : null;
         }
 
@@ -171,7 +168,7 @@ public abstract class JavaCC30Grammar implements IGrammar {
     }
 
     public void uop(String type, TextInterval pos) {
-        ISyntaxNode left = pop();
+        var left = pop();
 
         push(new UnaryNode(type, pos, left, module));
     }
@@ -187,7 +184,7 @@ public abstract class JavaCC30Grammar implements IGrammar {
     private ISyntaxNode[] popN(int n) {
         ISyntaxNode[] nodes = new ISyntaxNode[n];
 
-        for (int i = 0; i < n; ++i) {
+        for (var i = 0; i < n; ++i) {
             nodes[n - 1 - i] = pop();
         }
 

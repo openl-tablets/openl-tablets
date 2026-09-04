@@ -54,7 +54,7 @@ public class OpenLMessageController {
                         .filter(m -> m.getId() == messageId)
                         .findFirst()
                         .map(message -> {
-                            String sourceUrl = messageHandler.getSourceUrl(message.getSourceLocation(),
+                            var sourceUrl = messageHandler.getSourceUrl(message.getSourceLocation(),
                                     message.getSeverity().name(),
                                     messageId,
                                     webStudio.getModel());

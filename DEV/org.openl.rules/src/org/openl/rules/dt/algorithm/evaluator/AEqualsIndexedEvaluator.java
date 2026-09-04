@@ -21,14 +21,14 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
     @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
-        IOpenSourceCodeModule condSource = condition.getSourceCodeModule();
+        var condSource = condition.getSourceCodeModule();
         return new StringSourceCodeModule("(" + condSource.getCode() + ") == " + condition.getParams()[0].getName(),
                 condSource.getUri());
     }
 
     @Override
     public IIntSelector getSelector(ICondition condition, Object target, Object[] dtparams, IRuntimeEnv env) {
-        Object value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, dtparams, env));
+        var value = conditionCasts.castToConditionType(condition.getEvaluator().invoke(target, dtparams, env));
         return new EqualsSelector(condition, value, target, dtparams, env);
     }
 
@@ -39,15 +39,15 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
     @Override
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
-        int len = condition.getNumberOfRules();
-        ArrayList<Object> list = new ArrayList<>(len);
-        HashSet<Object> set = new HashSet<>(len);
+        var len = condition.getNumberOfRules();
+        var list = new ArrayList<Object>(len);
+        var set = new HashSet<Object>(len);
 
-        for (int ruleN = 0; ruleN < len; ruleN++) {
+        for (var ruleN = 0; ruleN < len; ruleN++) {
             if (condition.isEmpty(ruleN)) {
                 continue;
             }
-            Object key = condition.getParamValue(0, ruleN);
+            var key = condition.getParamValue(0, ruleN);
             if (key == null || !set.add(key)) {
                 continue;
             }

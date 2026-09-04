@@ -1,9 +1,11 @@
 package org.openl.excel.parser.sax;
 
+import lombok.Getter;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class StyleHandler extends DefaultHandler {
+    @Getter
     private final MinimalStyleTable styleTable = new MinimalStyleTable();
 
     private boolean startCellXfs = false;
@@ -15,11 +17,11 @@ public class StyleHandler extends DefaultHandler {
         } else if (startCellXfs && "xf".equals(localName)) {
             styleTable.addStyle(Integer.parseInt(attributes.getValue("numFmtId")));
         } else if ("numFmt".equals(localName)) {
-            int numFmtId = Integer.parseInt(attributes.getValue("numFmtId"));
-            String formatCode = attributes.getValue("formatCode");
+            var numFmtId = Integer.parseInt(attributes.getValue("numFmtId"));
+            var formatCode = attributes.getValue("formatCode");
             styleTable.addFormatString(numFmtId, formatCode);
         } else if (startCellXfs && "alignment".equals(localName)) {
-            String indent = attributes.getValue("indent");
+            var indent = attributes.getValue("indent");
             if (indent != null) {
                 styleTable.addIndent(Short.parseShort(indent));
             }
@@ -31,9 +33,5 @@ public class StyleHandler extends DefaultHandler {
         if ("cellXfs".equals(localName)) {
             startCellXfs = false;
         }
-    }
-
-    public MinimalStyleTable getStyleTable() {
-        return styleTable;
     }
 }

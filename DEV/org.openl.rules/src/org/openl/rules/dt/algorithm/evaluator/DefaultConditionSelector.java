@@ -1,22 +1,19 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DefaultConditionSelector implements IIntSelector {
 
     private final ICondition condition;
     private final Object target;
     private final Object[] params;
     private final IRuntimeEnv env;
-
-    DefaultConditionSelector(ICondition condition, Object target, Object[] params, IRuntimeEnv env) {
-        this.condition = condition;
-        this.target = target;
-        this.params = params;
-        this.env = env;
-    }
 
     @Override
     public boolean select(int rule) {

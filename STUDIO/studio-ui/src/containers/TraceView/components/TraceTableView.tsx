@@ -9,6 +9,10 @@ import { useStyles } from './TraceTableView.styles'
 
 interface TraceTableViewProps {
     frameIndex: number
+    /** When set, highlight exactly this A1 cell as current instead of fetching the frame's highlights. */
+    highlightCell?: string | null | undefined
+    /** Mute every non-highlighted cell to grey (the business view), so the highlights carry the colour. */
+    dimOthers?: boolean | undefined
 }
 
 const formatValue = (value: RawTableCell['value']): string => (value == null ? '' : String(value))
@@ -40,7 +44,7 @@ const cellStyle = (s: RawTableCell['style'], highlighted: boolean): React.CSSPro
  * The raw grid is immutable during a session, so it is cached per table: revisiting a frame is instant
  * and stepping never reloads the structure — only the small highlight overlay is refetched.
  */
-const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex }) => {
+const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCell, dimOthers }) => {
     const { t } = useTranslation('trace')
     const { styles, cx } = useStyles()
     const projectId = useTraceStore(s => s.projectId)
@@ -81,6 +85,11 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex }) => {
 
     // Highlights move as execution advances; the cached structure stays put, so stepping is flicker-free.
     useEffect(() => {
+        // A caller that knows the exact cell to point at (a clicked step) paints it directly.
+        if (highlightCell) {
+            setHighlights({ [highlightCell]: 'current' })
+            return
+        }
         if (!projectId || !tableId) {
             setHighlights({})
             return
@@ -97,7 +106,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex }) => {
         return () => {
             cancelled = true
         }
-    }, [projectId, frameIndex, stackVersion, tableId])
+    }, [projectId, frameIndex, stackVersion, tableId, highlightCell])
 
     if (loading) {
         return (
@@ -122,6 +131,25 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex }) => {
         return null
     }
 
+    // Mute the rest of the table only when there is a calculation to point at — a table with no
+    // highlights stays fully readable.
+    const dim = !!dimOthers && Object.keys(highlights).length > 0
+
+    // The effective highlight of a cell: the dimmed business view suppresses the 'current' colour (the clicked
+    // cell already stands out undimmed), so the legend below keys only the colours actually painted.
+    const paintedState = (state: HighlightState | undefined): HighlightState | undefined =>
+        dim && state === 'current' ? undefined : state
+    const paintedStates = new Set(
+        Object.values(highlights).map(paintedState).filter((state): state is HighlightState => state !== undefined)
+    )
+    const legend: { state: HighlightState; swatch: string; label: string }[] = [
+        { state: 'current', swatch: styles.swatchCurrent, label: 'legend.current' },
+        { state: 'result', swatch: styles.swatchResult, label: 'legend.result' },
+        { state: 'conditionTrue', swatch: styles.swatchMet, label: 'legend.conditionMet' },
+        { state: 'conditionFalse', swatch: styles.swatchNotMet, label: 'legend.conditionNotMet' },
+    ]
+    const shownLegend = legend.filter(item => paintedStates.has(item.state))
+
     return (
         <Card className={styles.card} size="small" title={t('details.table')}>
             <div className={styles.content}>
@@ -132,14 +160,20 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex }) => {
                                 {row.map((cell, c) => {
                                     if (cell.covered) return null
                                     const state = cell.cell ? highlights[cell.cell] : undefined
+                                    // In the dimmed business view the current cell needs no colour of its
+                                    // own — it is the only cell left uncoloured, so it already stands out;
+                                    // keep it exactly as the table draws it. A decision table's matched
+                                    // conditions and result still carry meaning and keep their highlight.
+                                    const painted = paintedState(state)
                                     return (
                                         <td
                                             key={cell.cell ?? `c${c}`}
-                                            className={cx(styles.cell, state && styles[state])}
                                             colSpan={cell.colspan}
                                             data-cell={cell.cell}
                                             rowSpan={cell.rowspan}
-                                            style={cellStyle(cell.style, !!state)}
+                                            style={cellStyle(cell.style, !!painted)}
+                                            className={cx(styles.cell, painted && styles[painted],
+                                                dim && !state && styles.dimmed)}
                                         >
                                             {formatValue(cell.value)}
                                         </td>
@@ -150,6 +184,16 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex }) => {
                     </tbody>
                 </table>
             </div>
+            {shownLegend.length > 0 && (
+                <div className={styles.legend} data-testid="trace-legend">
+                    {shownLegend.map(item => (
+                        <span key={item.state} className={styles.legendItem}>
+                            <span className={cx(styles.swatch, item.swatch)} />
+                            {t(item.label)}
+                        </span>
+                    ))}
+                </div>
+            )}
             {table.totalRows != null && (
                 <div className={styles.truncated}>
                     {t('table.truncated', { count: rows.length, total: table.totalRows })}

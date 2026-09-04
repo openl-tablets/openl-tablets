@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.CollectionUtils;
 import org.openl.util.IOUtils;
@@ -48,7 +46,7 @@ class ZippedLocalRepositoryTest {
     }
 
     private void configureZipRepository(String... archives) {
-        ZippedLocalRepository repository = new ZippedLocalRepository();
+        var repository = new ZippedLocalRepository();
         repository.setUri(repositoryRoot.getPath());
         repository.setArchives(archives);
         repository.initialize();
@@ -56,14 +54,14 @@ class ZippedLocalRepositoryTest {
     }
 
     private void setUpZipRepository() throws IOException {
-        Map<String, byte[]> singleDeployment = new HashMap<>();
+        var singleDeployment = new HashMap<String, byte[]>();
         singleDeployment.put("rules.xml", "foo".getBytes());
         singleDeployment.put("rules/Algorithm.xlsx", "bar".getBytes());
         singleDeployment.put("rules/dir/", null);
         generateZipFile("", "singleDeployment", singleDeployment);
         this.singleDeployment = Collections.unmodifiableMap(singleDeployment);
 
-        Map<String, byte[]> multiDeployment = new HashMap<>();
+        var multiDeployment = new HashMap<String, byte[]>();
         multiDeployment.put("project1/rules.xml", "project1-foo".getBytes());
         multiDeployment.put("project1/rules/Algorithm1.xlsx", "project1-bar".getBytes());
         multiDeployment.put("project2/rules.xml", "project2-foo".getBytes());
@@ -73,7 +71,7 @@ class ZippedLocalRepositoryTest {
     }
 
     private void generateZipFile(String dirs, String name, Map<String, byte[]> entries) throws IOException {
-        Path zipFilePath = repositoryRoot.toPath().resolve(dirs);
+        var zipFilePath = repositoryRoot.toPath().resolve(dirs);
         if (!Files.exists(zipFilePath)) {
             Files.createDirectories(zipFilePath);
         }
@@ -81,12 +79,12 @@ class ZippedLocalRepositoryTest {
         if (Files.exists(zipFilePath)) {
             throw new IOException("Duplicated file " + name);
         }
-        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
+        try (var zos = new ZipOutputStream(Files.newOutputStream(zipFilePath))) {
             for (Map.Entry<String, byte[]> entry : entries.entrySet()) {
-                String zipPath = entry.getKey();
-                ZipEntry zipEntry = new ZipEntry(zipPath);
+                var zipPath = entry.getKey();
+                var zipEntry = new ZipEntry(zipPath);
                 zos.putNextEntry(zipEntry);
-                byte[] bytes = entry.getValue();
+                var bytes = entry.getValue();
                 if (bytes != null) {
                     zos.write(bytes);
                 }
@@ -98,9 +96,9 @@ class ZippedLocalRepositoryTest {
     @Test
     void listFoldersTest() throws IOException {
         //test deployment folders
-        List<FileData> fileDataRoot = repository.listFolders("/");
+        var fileDataRoot = repository.listFolders("/");
         assertEquals(2, fileDataRoot.size());
-        Map<String, FileData> fileMap = flatMap(fileDataRoot, FileData::getName);
+        var fileMap = flatMap(fileDataRoot, FileData::getName);
         assertExistsFolderFileData(fileMap.get("singleDeployment"));
         assertExistsFolderFileData(fileMap.get("multiDeployment"));
 
@@ -120,9 +118,9 @@ class ZippedLocalRepositoryTest {
     @Test
     void listFilesTest() throws IOException {
         //test folder files
-        List<FileData> fileDataRoot = repository.listFiles("/singleDeployment", null);
+        var fileDataRoot = repository.listFiles("/singleDeployment", null);
         assertEquals(2, fileDataRoot.size());
-        Map<String, FileData> fileMap = flatMap(fileDataRoot, FileData::getName);
+        var fileMap = flatMap(fileDataRoot, FileData::getName);
         assertExistsFileData(fileMap.get("singleDeployment/rules.xml"));
         assertExistsFileData(fileMap.get("singleDeployment/rules/Algorithm.xlsx"));
 
@@ -141,9 +139,9 @@ class ZippedLocalRepositoryTest {
 
     @Test
     void listTest() throws IOException {
-        List<FileData> fileDataRoot = repository.list("/");
+        var fileDataRoot = repository.list("/");
         assertEquals(6, fileDataRoot.size());
-        Map<String, FileData> fileMap = flatMap(fileDataRoot, FileData::getName);
+        var fileMap = flatMap(fileDataRoot, FileData::getName);
         assertExistsFileData(fileMap.get("singleDeployment/rules.xml"));
         assertExistsFileData(fileMap.get("singleDeployment/rules/Algorithm.xlsx"));
         assertExistsFileData(fileMap.get("multiDeployment/project1/rules.xml"));
@@ -161,7 +159,7 @@ class ZippedLocalRepositoryTest {
         assertMultiDeployment("/multiDeployment/project2/rules.xml", "project2/rules.xml");
         assertMultiDeployment("/multiDeployment/project2/Algorithm2.xlsx", "project2/Algorithm2.xlsx");
         //An archive must be returned as stream
-        FileItem zipArchive = repository.read("/multiDeployment");
+        var zipArchive = repository.read("/multiDeployment");
         assertNotNull(zipArchive);
         read(zipArchive.getStream());
         zipArchive = repository.read("multiDeployment");
@@ -216,9 +214,9 @@ class ZippedLocalRepositoryTest {
         assertMultiDeployment("/multiDeployment/project2/rules.xml", "project2/rules.xml");
         assertMultiDeployment("/multiDeployment/project2/Algorithm2.xlsx", "project2/Algorithm2.xlsx");
 
-        List<FileData> fileDataRoot = repository.list("/");
+        var fileDataRoot = repository.list("/");
         assertEquals(4, fileDataRoot.size());
-        Map<String, FileData> fileMap = flatMap(fileDataRoot, FileData::getName);
+        var fileMap = flatMap(fileDataRoot, FileData::getName);
         assertExistsFileData(fileMap.get("multiDeployment/project1/rules.xml"));
         assertExistsFileData(fileMap.get("multiDeployment/project1/rules/Algorithm1.xlsx"));
         assertExistsFileData(fileMap.get("multiDeployment/project2/rules.xml"));
@@ -257,20 +255,20 @@ class ZippedLocalRepositoryTest {
 
     @Test
     void testNoUri() throws IOException {
-        ZippedLocalRepository repository = new ZippedLocalRepository();
+        var repository = new ZippedLocalRepository();
         repository.initialize();
         assertEquals(0, repository.list("/").size());
     }
 
     private void assertSingleDeployment(String repositoryPath, String name) throws IOException {
-        FileItem actualFileItem = repository.read(repositoryPath);
+        var actualFileItem = repository.read(repositoryPath);
         assertNotNull(actualFileItem);
         assertExistsFileData(actualFileItem.getData());
         assertArrayEquals(singleDeployment.get(name), read(actualFileItem.getStream()));
     }
 
     private void assertMultiDeployment(String repositoryPath, String name) throws IOException {
-        FileItem actualFileItem = repository.read(repositoryPath);
+        var actualFileItem = repository.read(repositoryPath);
         assertNotNull(actualFileItem);
         assertExistsFileData(actualFileItem.getData());
         assertArrayEquals(multiDeployment.get(name), read(actualFileItem.getStream()));
@@ -301,7 +299,7 @@ class ZippedLocalRepositoryTest {
 
     private static <T, K> Map<K, T> flatMap(List<T> list, Function<T, K> key) {
         if (CollectionUtils.isEmpty(list)) {
-            return Collections.emptyMap();
+            return Map.of();
         }
         return list.stream().collect(Collectors.toMap(key, it -> it));
     }

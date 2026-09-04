@@ -6,15 +6,14 @@
 
 package org.openl.util.text;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class AbsolutePosition implements IPosition {
     private final int pos;
-
-    public AbsolutePosition(int pos) {
-        this.pos = pos;
-    }
 
     /*
      * (non-Javadoc)
@@ -33,8 +32,8 @@ public class AbsolutePosition implements IPosition {
      */
     @Override
     public int getColumn(TextInfo info) {
-        int line = info.getLineIdx(pos);
-        int start = info.getPosition(line);
+        var line = info.getLineIdx(pos);
+        var start = info.getPosition(line);
 
         return pos - start + 1;
     }

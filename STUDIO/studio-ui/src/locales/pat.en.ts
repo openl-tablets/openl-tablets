@@ -21,15 +21,11 @@ i18next.addResourceBundle('en', 'pat', {
     no_tokens_description: 'You have not created any personal access tokens yet. Create one to get started.',
     token_created_title: 'Token Created Successfully',
     token_created_message: 'Your new personal access token has been created. Make sure to copy it now - you will not be able to see it again!',
-    copy_token: 'Copy Token',
     token_copied: 'Token copied to clipboard',
-    token_prefix: 'Token',
     usage_hint: 'Use this token in your API requests:',
-    usage_example: 'Authorization: Token {{token}}',
     validation: {
         name_required: 'Token name is required',
         name_max_length: 'Token name must not exceed 100 characters',
-        name_duplicate: 'A token with this name already exists',
     },
     expiration_options: {
         '7_days': '7 days',

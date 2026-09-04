@@ -1,11 +1,9 @@
 package org.openl.rules.convertor;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
@@ -27,7 +25,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
             return null;
         }
         if (format != null) {
-            DateFormat df = new SimpleDateFormat(format, LocaleDependConvertor.getLocale());
+            var df = new SimpleDateFormat(format, LocaleDependConvertor.getLocale());
             try {
                 return df.parse(data);
             } catch (ParseException e) {
@@ -38,7 +36,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
 
         try {
             // Special case for the two digit year in US format.
-            LocalDateTime localDateTime = new DateTimeFormatterBuilder().appendPattern("M/d/")
+            var localDateTime = new DateTimeFormatterBuilder().appendPattern("M/d/")
                     .appendValueReduced(ChronoField.YEAR, 2, 2, BASE_DATE)
                     .parseStrict()
                     .toFormatter(LocaleDependConvertor.getLocale())
@@ -49,7 +47,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
             // Ignore
         }
 
-        DateTimeFormatterBuilder patternBuilder = new DateTimeFormatterBuilder()
+        var patternBuilder = new DateTimeFormatterBuilder()
                 .appendPattern("y-M-d['T'H:m[:s[.")
                 .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, false)
                 .appendPattern("]][X]]");

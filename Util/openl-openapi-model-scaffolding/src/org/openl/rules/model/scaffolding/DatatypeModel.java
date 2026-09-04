@@ -3,39 +3,23 @@ package org.openl.rules.model.scaffolding;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class DatatypeModel implements Model {
 
+    @Getter
+    @Setter
     private String parent;
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private List<FieldModel> fields;
 
     public DatatypeModel(String name) {
         this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<FieldModel> getFields() {
-        return fields;
-    }
-
-    public void setFields(List<FieldModel> fields) {
-        this.fields = fields;
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-    public void setParent(String parent) {
-        this.parent = parent;
     }
 
     @Override

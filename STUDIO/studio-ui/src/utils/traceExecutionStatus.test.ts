@@ -4,6 +4,7 @@ import {
     isTraceExecutionInProgress,
     isTraceExecutionTerminal,
     isTraceExecutionError,
+    isTraceExecutionAbnormalTerminal,
 } from 'utils/traceExecutionStatus'
 
 describe('traceExecutionStatus utils', () => {
@@ -27,6 +28,14 @@ describe('traceExecutionStatus utils', () => {
         expect(isTraceExecutionTerminal('suspended')).toBe(false)
         expect(isTraceExecutionTerminal(undefined)).toBe(false)
         expect(isTraceExecutionTerminal(null)).toBe(false)
+    })
+
+    it('treats only a non-clean end (failed or stopped) as abnormal terminal', () => {
+        expect(isTraceExecutionAbnormalTerminal('error')).toBe(true)
+        expect(isTraceExecutionAbnormalTerminal('terminated')).toBe(true)
+        expect(isTraceExecutionAbnormalTerminal('completed')).toBe(false)
+        expect(isTraceExecutionAbnormalTerminal('suspended')).toBe(false)
+        expect(isTraceExecutionAbnormalTerminal(null)).toBe(false)
     })
 
     it('detects error status precisely', () => {

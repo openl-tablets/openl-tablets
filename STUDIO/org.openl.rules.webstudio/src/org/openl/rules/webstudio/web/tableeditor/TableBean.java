@@ -1,38 +1,28 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestMethodBoundNode;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.test.Utils;
@@ -52,20 +42,22 @@ import org.openl.util.StringUtils;
 public class TableBean {
     private static final String REQUEST_ID_FORMAT = "request-id:%s;project-name:%s";
     private static final Pattern REQUEST_ID_PATTERN = Pattern.compile("request-id:(.+);project-name:(.+)");
-    private static final int MAX_PROBLEMS = 100;
 
     private IOpenMethod method;
 
     // Test in current table (only for test tables)
     private TestDescription[] runnableTestMethods = {}; // test units
-    // All checks and tests for current table (including tests with no cases, run methods).
-    private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
 
+    @Getter
     private String uri;
+    @Getter
     private String id;
+    @Getter
     private IOpenLTable table;
+    @Getter
     private boolean editable;
+    @Getter
     private boolean copyable;
 
     private final PropertyResolver propertyResolver;
@@ -76,7 +68,7 @@ public class TableBean {
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
-        final ProjectModel model = studio.getModel();
+        final var model = studio.getModel();
 
         table = model.getTableById(id);
 
@@ -91,7 +83,7 @@ public class TableBean {
             uri = table.getUri();
             // Save URI because some actions don't provide table ID
             studio.setTableUri(uri);
-            boolean currentOpenedModule = !model.isProjectCompilationCompleted();
+            var currentOpenedModule = !model.isProjectCompilationCompleted();
             method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             copyable = editable && table
@@ -103,7 +95,7 @@ public class TableBean {
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
             // Check the save table parameter
             String saveTable1 = WebStudioUtils.getRequestParameter("saveTable");
-            boolean saveTable = saveTable1 == null || Boolean.parseBoolean(saveTable1);
+            var saveTable = saveTable1 == null || Boolean.parseBoolean(saveTable1);
             if (saveTable) {
                 storeTable();
             }
@@ -112,13 +104,12 @@ public class TableBean {
 
     private void storeTable() {
         ProjectModel model = WebStudioUtils.getProjectModel();
-        RecentlyVisitedTables recentlyVisitedTables = model.getRecentlyVisitedTables();
+        var recentlyVisitedTables = model.getRecentlyVisitedTables();
         recentlyVisitedTables.add(table);
     }
 
     private void initTests(final ProjectModel model, boolean currentOpenedModule) {
         initRunnableTestMethods();
-        allTests = model.getTestAndRunMethods(uri, currentOpenedModule);
         tests = model.getTestMethods(uri, currentOpenedModule);
     }
 
@@ -141,10 +132,6 @@ public class TableBean {
         return isEditable() ? WebStudioUtils.getRequestParameter("mode") : null;
     }
 
-    public IOpenLTable getTable() {
-        return table;
-    }
-
     /**
      * Return test cases for current table.
      *
@@ -160,10 +147,10 @@ public class TableBean {
             ParameterWithValueDeclaration[] contextParams = TestUtils
                     .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
             Utils.getDb(WebStudioUtils.getProjectModel(), false);
-            ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
+            var inputParams = testCase.getExecutionParams();
 
             params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];
-            int n = 0;
+            var n = 0;
             for (ParameterWithValueDeclaration contextParam : contextParams) {
                 params[n++] = contextParam;
             }
@@ -176,27 +163,11 @@ public class TableBean {
         return params;
     }
 
-    public String getUri() {
-        return uri;
-    }
-
-    public String getId() {
-        return id;
-    }
-
     /**
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
         return table != null && table.isExecutable() && isEditable();
-    }
-
-    public boolean isEditable() {
-        return editable;
-    }
-
-    public boolean isCopyable() {
-        return copyable;
     }
 
     public boolean isTablePart() {
@@ -212,49 +183,18 @@ public class TableBean {
         return runnableTestMethods.length > 0;
     }
 
-    /**
-     * Checks if there are tests, including tests with test cases, runs with filled runs, tests without cases(empty),
-     * runs without any parameters and tests without cases and runs.
-     */
-    public boolean isHasAnyTests() {
-        return CollectionUtils.isNotEmpty(allTests);
-    }
-
     public boolean isHasTests() {
         return CollectionUtils.isNotEmpty(tests);
-    }
-
-    /**
-     * Gets all tests for current table.
-     */
-    public TableDescription[] getAllTests() {
-        if (allTests == null) {
-            return null;
-        }
-        List<TableDescription> tableDescriptions = new ArrayList<>(allTests.length);
-        for (IOpenMethod test : allTests) {
-            TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
-            tableDescriptions.add(new TableDescription(syntaxNode.getUri(), syntaxNode.getId(), getTestName(test)));
-        }
-        tableDescriptions.sort(Comparator.comparing(TableDescription::getName));
-        return tableDescriptions.toArray(new TableDescription[0]);
-    }
-
-    public String getTestName(Object testMethod) {
-        IOpenMethod method = (IOpenMethod) testMethod;
-        String name = TableSyntaxNodeUtils.getTestName(method);
-        String info = ProjectHelper.getTestInfo(method);
-        return "%s (%s)".formatted(name, info);
     }
 
     public String removeTable() throws Throwable {
         try {
             final WebStudio studio = WebStudioUtils.getWebStudio();
-            IGridTable gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+            var gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
 
             gridTable.edit();
             new TableServiceImpl().removeTable(gridTable);
-            XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
+            var sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
             gridTable.stopEditing();
             WebStudioUtils.getExternalContext()
@@ -262,7 +202,7 @@ public class TableBean {
                     .remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
             studio.compile();
-            RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
+            var visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);
         } catch (Exception e) {
             throw e.getCause() == null ? e : e.getCause();
@@ -272,7 +212,7 @@ public class TableBean {
 
     public boolean beforeEditAction() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        var currentProject = studio.getCurrentProject();
         if (currentProject != null) {
             try {
                 return currentProject.tryLock();
@@ -291,13 +231,13 @@ public class TableBean {
         String editorId = WebStudioUtils
                 .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
-        Map<?, ?> editorModelMap = (Map<?, ?>) WebStudioUtils.getExternalContext()
+        var editorModelMap = (Map<?, ?>) WebStudioUtils.getExternalContext()
                 .getSessionMap()
                 .get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
-        TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
+        var editorModel = (TableEditorModel) editorModelMap.get(editorId);
 
-        Workbook workbook = editorModel.getSheetSource().getWorkbookSource().getWorkbook();
+        var workbook = editorModel.getSheetSource().getWorkbookSource().getWorkbook();
         if (workbook instanceof XSSFWorkbook fWorkbook) {
             XSSFOptimizer.removeUnusedStyles(fWorkbook);
         }
@@ -316,7 +256,7 @@ public class TableBean {
 
     public String getRequestId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        var currentProject = studio.getCurrentProject();
         String requestId = currentProject == null ? "" : currentProject.getRepository().getId();
         String projectName = currentProject == null ? "" : currentProject.getName();
         return REQUEST_ID_FORMAT.formatted(requestId, projectName);
@@ -326,16 +266,16 @@ public class TableBean {
         if (StringUtils.isBlank(requestId)) {
             return;
         }
-        Matcher matcher = REQUEST_ID_PATTERN.matcher(requestId);
+        var matcher = REQUEST_ID_PATTERN.matcher(requestId);
         if (!matcher.matches()) {
             return;
         }
 
-        String repositoryId = matcher.group(1);
-        String projectName = matcher.group(2);
+        var repositoryId = matcher.group(1);
+        var projectName = matcher.group(2);
 
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getProject(repositoryId, projectName);
+        var currentProject = studio.getProject(repositoryId, projectName);
         if (currentProject != null) {
             try {
                 if (!currentProject.isModified()) {
@@ -349,7 +289,7 @@ public class TableBean {
 
     public boolean getCanRun() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        var currentProject = studio.getCurrentProject();
         if (currentProject == null) {
             return false;
         }
@@ -358,7 +298,7 @@ public class TableBean {
 
     public boolean getCanBenchmark() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        var currentProject = studio.getCurrentProject();
         if (currentProject == null) {
             return false;
         }
@@ -368,7 +308,7 @@ public class TableBean {
     public Integer getRowIndex() {
         if (runnableTestMethods.length > 0 && !runnableTestMethods[0].hasId()) {
             if (method instanceof TestSuiteMethod suiteMethod) {
-                TestMethodBoundNode boundNode = suiteMethod.getBoundNode();
+                var boundNode = suiteMethod.getBoundNode();
                 if (boundNode != null && !boundNode.getTable().getHeaderTable().isNormalOrientation()) {
                     // Currently row indexes aren't supported for transposed test tables
                     return null;
@@ -380,27 +320,13 @@ public class TableBean {
         return null;
     }
 
+    @RequiredArgsConstructor
     public static class TableDescription {
+        @Getter
         private final String uri;
+        @Getter
         private final String id;
+        @Getter
         private final String name;
-
-        public TableDescription(String uri, String id, String name) {
-            this.uri = uri;
-            this.id = id;
-            this.name = name;
-        }
-
-        public String getUri() {
-            return uri;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
     }
 }

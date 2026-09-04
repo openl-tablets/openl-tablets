@@ -1,6 +1,5 @@
 package org.openl.info;
 
-import java.net.URL;
 import java.sql.DriverManager;
 
 /**
@@ -24,7 +23,7 @@ final class JdbcLogger extends OpenLLogger {
             return;
         }
 
-        int i = 1;
+        var i = 1;
         // Iterate through the list of drivers and print their details
         while (drivers.hasMoreElements()) {
             var driver = drivers.nextElement();
@@ -39,7 +38,7 @@ final class JdbcLogger extends OpenLLogger {
 
     private static String getPath(Class<?> aClass) {
         try {
-            URL resource = aClass.getResource(aClass.getSimpleName() + ".class");
+            var resource = aClass.getResource(aClass.getSimpleName() + ".class");
             if (resource != null) {
                 return resource.toString();
             }

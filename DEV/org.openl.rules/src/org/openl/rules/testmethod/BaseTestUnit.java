@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
@@ -18,24 +20,29 @@ import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.types.IOpenField;
-import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
 public class BaseTestUnit implements ITestUnit {
 
+    @Getter
     private final TestDescription test;
+    @Getter(AccessLevel.PACKAGE)
     private final Throwable actualError;
+    @Getter
     private final TestStatus resultStatus;
+    @Getter
     private final long executionTime;
     // must be increased only through addComparisonResult method
+    @Getter
     private final List<ComparedResult> comparisonResults = new ArrayList<>();
+    @Getter
     private int numberOfFailedTests;
 
     BaseTestUnit(TestDescription test, Object res, Throwable error, long executionTime) {
         this.test = test;
         this.executionTime = executionTime;
-        Object expectedResult = test.getExpectedResult();
-        Object expectedError = test.getExpectedError();
+        var expectedResult = test.getExpectedResult();
+        var expectedError = test.getExpectedError();
         if (expectedError != null && expectedResult != null) {
             // Force testcase failure
             this.actualError = new IllegalArgumentException(
@@ -45,10 +52,6 @@ public class BaseTestUnit implements ITestUnit {
         }
 
         this.resultStatus = compareResult(expectedError, expectedResult, res);
-    }
-
-    Throwable getActualError() {
-        return actualError;
     }
 
     /**
@@ -61,11 +64,6 @@ public class BaseTestUnit implements ITestUnit {
         return actualError;
     }
 
-    @Override
-    public long getExecutionTime() {
-        return executionTime;
-    }
-
     /**
      * Gets the description field value.
      *
@@ -74,23 +72,8 @@ public class BaseTestUnit implements ITestUnit {
      */
     @Override
     public String getDescription() {
-        String descr = test.getDescription();
+        var descr = test.getDescription();
         return descr == null ? DEFAULT_DESCRIPTION : descr;
-    }
-
-    @Override
-    public TestStatus getResultStatus() {
-        return resultStatus;
-    }
-
-    @Override
-    public TestDescription getTest() {
-        return test;
-    }
-
-    @Override
-    public List<ComparedResult> getComparisonResults() {
-        return comparisonResults;
     }
 
     /**
@@ -119,7 +102,7 @@ public class BaseTestUnit implements ITestUnit {
                             rootCause.getMessage());
                 }
             } else {
-                ComparedResult results = new ComparedResult(null,
+                var results = new ComparedResult(null,
                         expectedError == null ? expectedResult : expectedError,
                         rootCause == null ? actualResult : rootCause.getMessage(),
                         TR_EXCEPTION);
@@ -129,7 +112,7 @@ public class BaseTestUnit implements ITestUnit {
             }
         } else {
             if (expectedError != null) {
-                ComparedResult results = new ComparedResult(null, expectedError, actualResult, TR_NEQ);
+                var results = new ComparedResult(null, expectedError, actualResult, TR_NEQ);
                 addComparisonResult(results);
                 return TR_NEQ;
             } else {
@@ -159,7 +142,7 @@ public class BaseTestUnit implements ITestUnit {
             return TR_OK;
         }
         TestStatus status = isEqual ? TR_OK : TR_NEQ;
-        ComparedResult results = new ComparedResult(null, expectedValue, actualError, status);
+        var results = new ComparedResult(null, expectedValue, actualError, status);
         addComparisonResult(results);
         return status;
     }
@@ -171,14 +154,14 @@ public class BaseTestUnit implements ITestUnit {
         if (expectedResult == null) {
             return compareAndGetResult(expectedError, actualError, test.getErrorFields());
         } else {
-            ComparedResult results = new ComparedResult(null, expectedResult, actualErrorMessage, TR_NEQ);
+            var results = new ComparedResult(null, expectedResult, actualErrorMessage, TR_NEQ);
             addComparisonResult(results);
             return TR_NEQ;
         }
     }
 
     private TestStatus compareAndGetResult(Object expectedResult, Object actualResult, List<IOpenField> fieldsToTest) {
-        boolean success = true;
+        var success = true;
 
         for (IOpenField field : fieldsToTest) {
             Object actualFieldValue = getFieldValueOrNull(actualResult, field);
@@ -197,14 +180,14 @@ public class BaseTestUnit implements ITestUnit {
         Class<?> clazz = field.getType().getInstanceClass();
         TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, columnDelta);
 
-        final boolean equal = comparator.isEqual(expectedFieldValue, actualFieldValue);
+        final var equal = comparator.isEqual(expectedFieldValue, actualFieldValue);
 
         if (writeFailuresOnly() && equal) {
             return true;
         }
 
         TestStatus status = equal ? TR_OK : TR_NEQ;
-        ComparedResult fieldComparisonResults = new ComparedResult(field.getName(),
+        var fieldComparisonResults = new ComparedResult(field.getName(),
                 expectedFieldValue,
                 actualFieldValue,
                 status);
@@ -221,7 +204,7 @@ public class BaseTestUnit implements ITestUnit {
         Object fieldValue = null;
         if (result != null) {
             try {
-                IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+                var env = new SimpleVM().getRuntimeEnv();
                 fieldValue = field.get(result, env);
             } catch (Exception ex) {
                 fieldValue = ex;
@@ -248,11 +231,6 @@ public class BaseTestUnit implements ITestUnit {
     @Override
     public List<OpenLMessage> getErrors() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getNumberOfFailedTests() {
-        return numberOfFailedTests;
     }
 
     @Override

@@ -11,8 +11,8 @@ public interface IRulesMethodWrapper extends IOpenMethodWrapper {
                                                                Object[] params,
                                                                IRuntimeEnv env,
                                                                SimpleRuntimeEnv simpleRuntimeEnv) {
-        boolean isNewRuntimeContext = getContextPropertiesInjector().push(params, env, simpleRuntimeEnv);
-        IRulesMethodWrapper rulesMethodWrapper = simpleRuntimeEnv.getMethodWrapper();
+        var isNewRuntimeContext = getContextPropertiesInjector().push(params, env, simpleRuntimeEnv);
+        var rulesMethodWrapper = simpleRuntimeEnv.getMethodWrapper();
         try {
             simpleRuntimeEnv.setMethodWrapper(this);
             return getDelegate().invoke(target, params, env);

@@ -31,7 +31,8 @@ describe('SpreadsheetGrid', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         useTraceStore.getState().reset()
-        useTraceStore.setState({ projectId: 'p1' })
+        // The breakpoint gutter belongs to the advanced debugger; these cases exercise it.
+        useTraceStore.setState({ projectId: 'p1', advanced: true })
     })
 
     it('shows the empty state when there are no steps', () => {
@@ -126,6 +127,21 @@ describe('SpreadsheetGrid', () => {
         screen.getByTestId('debug-cell-bp-R0C0').focus()
         await userEvent.keyboard('{Enter}')
         await waitFor(() => expect(useTraceStore.getState().breakpoints).toContain('u0#R0C0'))
+    })
+
+    it('shows no breakpoint gutter in the business view', () => {
+        useTraceStore.setState({ advanced: false })
+        render(
+            <SpreadsheetGrid
+                columns={['Formula']}
+                frameUri="u0"
+                rows={['Base']}
+                steps={[step('R0C0', 'pending')]}
+            />
+        )
+        // Breakpoints are a debugger feature; the business view offers none, even on a not-yet-run cell.
+        expect(screen.queryByTestId('debug-cell-bp-R0C0')).toBeNull()
+        expect(screen.getByTestId('debug-cell-R0C0')).toHaveTextContent('debug.pending')
     })
 
     it('marks an armed gutter as active', () => {

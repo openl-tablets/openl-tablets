@@ -1,0 +1,7 @@
+PUT /rest/acls/projects/ZGVzaWduOkRiU291cmNl?sid=zzz_project_manager&principal=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "role": "MANAGER"
+}

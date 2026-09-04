@@ -3,18 +3,17 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.RowIdField;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -25,11 +24,18 @@ import org.openl.types.impl.ThisField;
 public class TestDescription {
 
 
+    @Getter
     private final ParameterWithValueDeclaration[] executionParams;
+    @Getter
     private final IOpenMethod testedMethod;
+    @Getter
     private final DynamicObject testObject;
+    @Getter
+    @Setter
     private int index;
+    @Getter
     private List<IOpenField> fields = new ArrayList<>();
+    @Getter
     private List<IOpenField> errorFields = new ArrayList<>();
 
     public TestDescription(IOpenMethod testedMethod,
@@ -55,33 +61,21 @@ public class TestDescription {
                                                   IRulesRuntimeContext context,
                                                   Object[] arguments) {
         // TODO should be created OpenClass like in TestSuiteMethod
-        DynamicObject testObj = new DynamicObject();
+        var testObj = new DynamicObject();
         if (context != null) {
             testObj.setFieldValue(TestMethodHelper.CONTEXT_NAME, context);
         }
-        IMethodSignature signature = testedMethod.getSignature();
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            String paramName = signature.getParameterName(i);
+        var signature = testedMethod.getSignature();
+        for (var i = 0; i < signature.getNumberOfParameters(); i++) {
+            var paramName = signature.getParameterName(i);
             testObj.setFieldValue(paramName, arguments[i]);
         }
         return testObj;
     }
 
-    public IOpenMethod getTestedMethod() {
-        return testedMethod;
-    }
-
-    public DynamicObject getTestObject() {
-        return testObject;
-    }
-
-    public ParameterWithValueDeclaration[] getExecutionParams() {
-        return executionParams;
-    }
-
     public String[] getParametersNames() {
         String[] names = new String[executionParams.length];
-        for (int i = 0; i < executionParams.length; i++) {
+        for (var i = 0; i < executionParams.length; i++) {
             names[i] = executionParams[i].getName();
         }
         return names;
@@ -89,9 +83,9 @@ public class TestDescription {
 
     public Object[] getArguments() {
         Object[] args = new Object[executionParams.length];
-        for (int i = 0; i < args.length; i++) {
-            Object value = executionParams[i].getValue();
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        for (var i = 0; i < args.length; i++) {
+            var value = executionParams[i].getValue();
+            var oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 if (value != null) {
                     Thread.currentThread().setContextClassLoader(value.getClass().getClassLoader());
@@ -116,10 +110,10 @@ public class TestDescription {
                                                                        ITableModel dataModel) {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
                 .getNumberOfParameters()];
-        for (int i = 0; i < executionParams.length; i++) {
-            String paramName = testedMethod.getSignature().getParameterName(i);
-            Object paramValue = testObject.getFieldValue(paramName);
-            IOpenClass paramType = testedMethod.getSignature().getParameterType(i);
+        for (var i = 0; i < executionParams.length; i++) {
+            var paramName = testedMethod.getSignature().getParameterName(i);
+            var paramValue = testObject.getFieldValue(paramName);
+            var paramType = testedMethod.getSignature().getParameterType(i);
 
             IOpenField keyField = getKeyField(paramName, paramType, paramValue, db, dataModel);
 
@@ -164,7 +158,7 @@ public class TestDescription {
     }
 
     public IRulesRuntimeContext getRuntimeContext() {
-        IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
+        var context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
 
         if (context == null) {
             return RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -193,22 +187,6 @@ public class TestDescription {
         return testObject.containsField(RowIdField.ROW_ID);
     }
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public List<IOpenField> getFields() {
-        return fields;
-    }
-
-    public List<IOpenField> getErrorFields() {
-        return errorFields;
-    }
-
     protected static IOpenField getKeyField(String paramName,
                                             IOpenClass type,
                                             Object value,
@@ -219,12 +197,12 @@ public class TestDescription {
         }
         IOpenField foreignKeyField = null;
         if (dataModel != null) {
-            for (int colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
-                ColumnDescriptor columnDescriptor = dataModel.getDescriptor(colNum);
+            for (var colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
+                var columnDescriptor = dataModel.getDescriptor(colNum);
                 if (columnDescriptor == null) {
                     continue;
                 }
-                IdentifierNode[] fieldChainTokens = columnDescriptor.getFieldChainTokens();
+                var fieldChainTokens = columnDescriptor.getFieldChainTokens();
                 if (fieldChainTokens.length > 0 && fieldChainTokens[0].getIdentifier().equals(paramName)) {
                     // Found first column descriptor for needed parameter
                     if (columnDescriptor.isReference() && columnDescriptor instanceof ForeignKeyColumnDescriptor descriptor) {
@@ -233,7 +211,7 @@ public class TestDescription {
                         // Test data is described in the current Test Table
                         if (fieldChainTokens.length > 1) {
                             // The field of a complex bean
-                            IdentifierNode fieldName = fieldChainTokens[fieldChainTokens.length - 1];
+                            var fieldName = fieldChainTokens[fieldChainTokens.length - 1];
                             foreignKeyField = type.getField(fieldName.getIdentifier());
                         }
                     }

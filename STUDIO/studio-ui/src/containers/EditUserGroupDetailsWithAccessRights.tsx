@@ -2,6 +2,7 @@ import React, { useContext, useMemo, useEffect, useState, ReactNode } from 'reac
 import { Form, Tabs, TabsProps, notification, Divider, Button, Drawer } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName, RepositoryType, Role, ROOT_REPOSITORY_ID_MAP } from 'constants/'
+import { deriveDisplayNameMode } from 'utils/displayName'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../components/accessManagement'
 import { NONE_ROLE_VALUE } from '../components/accessManagement/utils'
 import { apiCall } from '../services'
@@ -185,18 +186,6 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }, [isOpenFromParent, isOpen, group, sid])
 
     const getUserInitialValues = () => {
-        const displayNameSelectInitialValue = () => {
-            const firstName = user?.firstName || ''
-            const lastName = user?.lastName || ''
-            if (user?.displayName === `${firstName} ${lastName}`.trim()) {
-                return DisplayUserName.FirstLast
-            }
-            if (user?.displayName === `${lastName} ${firstName}`.trim()) {
-                return DisplayUserName.LastFirst
-            }
-            return DisplayUserName.Other
-        }
-
         return {
             username: user?.username || '',
             email: user?.email,
@@ -204,7 +193,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             firstName: user?.firstName || '',
             lastName: user?.lastName || '',
             displayName: user?.displayName,
-            displayNameSelect: displayNameSelectInitialValue(),
+            displayNameSelect: deriveDisplayNameMode(user ?? {}),
         }
     }
 
@@ -646,6 +635,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
                 >
                     {isUser ? (
                         <UserDetailsTab
+                            requireEmailAndDisplayName
                             externalFlags={user?.externalFlags}
                             isNewUser={!!newUser}
                             showResendVerification={true}

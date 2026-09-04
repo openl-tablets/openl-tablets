@@ -5,15 +5,19 @@ import java.util.List;
 import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 public class SettingsModel {
 
+    @Getter
     @Parameter(description = "User management mode")
     private final UserManagementMode userMode;
 
+    @Getter
     @Parameter(required = true)
     private final SupportedFeaturesModel supportedFeatures;
 
+    @Getter
     @Parameter(description = "List of JavaScript files to be loaded in the application")
     private final List<String> scripts;
 
@@ -21,18 +25,6 @@ public class SettingsModel {
         this.userMode = builder.userMode;
         this.supportedFeatures = builder.supportedFeatures;
         this.scripts = Optional.ofNullable(builder.scripts).map(List::copyOf).orElseGet(Collections::emptyList);
-    }
-
-    public UserManagementMode getUserMode() {
-        return userMode;
-    }
-
-    public SupportedFeaturesModel getSupportedFeatures() {
-        return supportedFeatures;
-    }
-
-    public List<String> getScripts() {
-        return scripts;
     }
 
     public static Builder builder() {

@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "name": "Quoting",
+      "branch": "master",
+      "path": "catalog/quoting-core"
+    },
+    {
+      "name": "Quoting",
+      "branch": "side",
+      "path": "catalog/quoting-core-eu"
+    },
+    {
+      "name": "Quoting",
+      "branch": "side",
+      "path": "catalog/quoting-core-legacy"
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 3,
+  "numberOfElements": 3,
+  "total": 3
+}

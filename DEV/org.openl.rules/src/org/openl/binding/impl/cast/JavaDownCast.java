@@ -19,11 +19,11 @@ final class JavaDownCast implements IOpenCast {
 
     private int calcArrayMinDim(Object from) {
         if (from != null && from.getClass().isArray()) {
-            int arrayLength = Array.getLength(from);
+            var arrayLength = Array.getLength(from);
             if (arrayLength > 0) {
-                int minDim = Integer.MAX_VALUE;
-                for (int i = 0; i < arrayLength; i++) {
-                    int p = calcArrayMinDim(Array.get(from, i));
+                var minDim = Integer.MAX_VALUE;
+                for (var i = 0; i < arrayLength; i++) {
+                    var p = calcArrayMinDim(Array.get(from, i));
                     if (minDim > p) {
                         minDim = p;
                     }
@@ -44,17 +44,17 @@ final class JavaDownCast implements IOpenCast {
         } else {
             Class<?> fromClass = from.getClass();
             IOpenClass fromOpenClass = JavaOpenClass.getOpenClass(fromClass);
-            IOpenClass t = fromOpenClass;
-            int d = 0;
+            var t = fromOpenClass;
+            var d = 0;
             while (t.isArray()) {
                 t = t.getComponentClass();
                 d++;
             }
             if (d > 0 && t.getInstanceClass() == Object.class) {
-                int dim = calcArrayMinDim(from);
+                var dim = calcArrayMinDim(from);
                 fromOpenClass = JavaOpenClass.OBJECT.getArrayType(dim);
             }
-            IOpenCast openCast = castFactory.getCast(fromOpenClass, to);
+            var openCast = castFactory.getCast(fromOpenClass, to);
             if (openCast != null && !(openCast instanceof JavaDownCast)) {
                 return openCast.convert(from);
             }

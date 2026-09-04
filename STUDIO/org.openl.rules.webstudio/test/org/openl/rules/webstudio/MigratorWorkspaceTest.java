@@ -15,10 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.project.impl.local.MetainfoRegistry;
-import org.openl.rules.project.impl.local.ProjectMetainfo;
 
 /**
- * Tests of the one-time migration of legacy {@code .studioProps} workspaces to the metainfo registry.
+ * Tests of the migration of legacy {@code .studioProps} workspaces to the metainfo registry.
  *
  * @author Yury Molchan
  */
@@ -37,8 +36,8 @@ class MigratorWorkspaceTest {
 
     @Test
     void fullLegacyMetainfoIsConverted() throws IOException {
-        Path project = createProject("Example 1");
-        Path studioProps = project.resolve(".studioProps");
+        var project = createProject("Example 1");
+        var studioProps = project.resolve(".studioProps");
         Files.createDirectories(studioProps);
         Files.writeString(studioProps.resolve(".version"), """
                 repository-id=design
@@ -52,7 +51,7 @@ class MigratorWorkspaceTest {
                 comment=Copied from Example 1
                 """);
         Files.createFile(studioProps.resolve(".modified"));
-        Path fileProperties = studioProps.resolve("file-properties").resolve("rules");
+        var fileProperties = studioProps.resolve("file-properties").resolve("rules");
         Files.createDirectories(fileProperties);
         Files.writeString(fileProperties.resolve("Main.xlsx"), """
                 unique-id=9f3c1a7e
@@ -66,7 +65,7 @@ class MigratorWorkspaceTest {
 
         assertFalse(Files.exists(studioProps), "The legacy .studioProps folder must be deleted.");
         assertFalse(Files.exists(project.resolve(".history")), "The in-project edit history must be deleted.");
-        ProjectMetainfo metainfo = MetainfoRegistry.open(userDir).get("Example 1");
+        var metainfo = MetainfoRegistry.open(userDir).get("Example 1");
         assertNotNull(metainfo);
         assertEquals("design", metainfo.repositoryId());
         assertEquals("DESIGN/rules/Example 1", metainfo.pathInRepository());
@@ -86,7 +85,7 @@ class MigratorWorkspaceTest {
 
     @Test
     void folderWithoutMetainfoIsDeletedAtFirstLoad() throws IOException {
-        Path project = createProject("Stray");
+        var project = createProject("Stray");
 
         Migrator.migrateUserWorkspacesToMetainfoRegistry(workspacesRoot);
 
@@ -98,8 +97,8 @@ class MigratorWorkspaceTest {
 
     @Test
     void versionWithoutRepositoryLinkGetsNoRecord() throws IOException {
-        Path project = createProject("NoLink");
-        Path studioProps = project.resolve(".studioProps");
+        var project = createProject("NoLink");
+        var studioProps = project.resolve(".studioProps");
         Files.createDirectories(studioProps);
         Files.writeString(studioProps.resolve(".version"), """
                 version=rev-1
@@ -115,7 +114,7 @@ class MigratorWorkspaceTest {
 
     @Test
     void deprecatedDateFormatIsDropped() throws IOException {
-        Path studioProps = createProject("OldDate").resolve(".studioProps");
+        var studioProps = createProject("OldDate").resolve(".studioProps");
         Files.createDirectories(studioProps);
         Files.writeString(studioProps.resolve(".version"), """
                 repository-id=design
@@ -126,7 +125,7 @@ class MigratorWorkspaceTest {
 
         Migrator.migrateUserWorkspacesToMetainfoRegistry(workspacesRoot);
 
-        ProjectMetainfo metainfo = MetainfoRegistry.open(userDir).get("OldDate");
+        var metainfo = MetainfoRegistry.open(userDir).get("OldDate");
         assertNotNull(metainfo);
         assertEquals("design", metainfo.repositoryId());
         assertEquals("rev-1", metainfo.version());
@@ -136,8 +135,8 @@ class MigratorWorkspaceTest {
 
     @Test
     void unparsableNumbersAreTolerated() throws IOException {
-        Path studioProps = createProject("Broken").resolve(".studioProps");
-        Path fileProperties = studioProps.resolve("file-properties");
+        var studioProps = createProject("Broken").resolve(".studioProps");
+        var fileProperties = studioProps.resolve("file-properties");
         Files.createDirectories(fileProperties);
         Files.writeString(studioProps.resolve(".version"), """
                 repository-id=design
@@ -153,7 +152,7 @@ class MigratorWorkspaceTest {
 
         Migrator.migrateUserWorkspacesToMetainfoRegistry(workspacesRoot);
 
-        ProjectMetainfo metainfo = MetainfoRegistry.open(userDir).get("Broken");
+        var metainfo = MetainfoRegistry.open(userDir).get("Broken");
         assertNotNull(metainfo);
         assertTrue(metainfo.hasRevision());
         assertNull(metainfo.size());
@@ -163,7 +162,7 @@ class MigratorWorkspaceTest {
 
     @Test
     void serviceFoldersAreNotTouched() throws IOException {
-        Path locks = workspacesRoot.resolve(".locks").resolve("design").resolve("Example 1");
+        var locks = workspacesRoot.resolve(".locks").resolve("design").resolve("Example 1");
         Files.createDirectories(locks);
         Files.writeString(locks.resolve("ready.lock"), "user=jdoe");
         createProject("Plain");
@@ -176,7 +175,7 @@ class MigratorWorkspaceTest {
 
     @Test
     void migrationIsIdempotent() throws IOException {
-        Path studioProps = createProject("Twice").resolve(".studioProps");
+        var studioProps = createProject("Twice").resolve(".studioProps");
         Files.createDirectories(studioProps);
         Files.writeString(studioProps.resolve(".version"), """
                 repository-id=design
@@ -187,14 +186,38 @@ class MigratorWorkspaceTest {
         Migrator.migrateUserWorkspacesToMetainfoRegistry(workspacesRoot);
         Migrator.migrateUserWorkspacesToMetainfoRegistry(workspacesRoot);
 
-        ProjectMetainfo metainfo = MetainfoRegistry.open(userDir).get("Twice");
+        var metainfo = MetainfoRegistry.open(userDir).get("Twice");
         assertNotNull(metainfo);
         assertEquals("design", metainfo.repositoryId(),
                 "A repeated migration must not degrade the record to a local project.");
     }
 
+    @Test
+    void linkedLegacyFolderWithUnsavedWorkSurvivesReconcile() throws IOException {
+        var project = createProject("Linked");
+        var studioProps = project.resolve(".studioProps");
+        Files.createDirectories(studioProps);
+        Files.writeString(studioProps.resolve(".version"), """
+                repository-id=design
+                path-in-repository=Linked
+                version=rev-7
+                branch=master
+                """);
+        var unsaved = project.resolve("unsaved.txt");
+        Files.writeString(unsaved, "work in progress, never committed");
+
+        // The conversion, then the registry-first reconciliation that open() performs on the first load.
+        Migrator.migrateUserWorkspacesToMetainfoRegistry(workspacesRoot);
+        MetainfoRegistry.open(userDir);
+
+        assertTrue(Files.exists(project), "A converted legacy folder must survive the reconciliation.");
+        assertTrue(Files.exists(unsaved), "Uncommitted work in a converted folder must be kept.");
+        assertNotNull(MetainfoRegistry.open(userDir).get("Linked"),
+                "The converted project keeps its registry record.");
+    }
+
     private Path createProject(String name) throws IOException {
-        Path project = userDir.resolve(name);
+        var project = userDir.resolve(name);
         Files.createDirectories(project.resolve("rules"));
         Files.writeString(project.resolve("rules").resolve("Main.xlsx"), "content");
         return project;

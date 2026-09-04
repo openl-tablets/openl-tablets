@@ -1,0 +1,104 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "suspended",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "instance": 0,
+      "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D54:G68",
+      "tableId": "ecbdd3752cd6916e883e10cd08eb57cf",
+      "name": "BalanceDynamicIndexCalculation",
+      "kind": "spreadsheet",
+      "location": {
+        "kind": "cell",
+        "row": 2,
+        "column": 1,
+        "ref": "R2C1",
+        "label": "$Value$QuickLiquidityDynamic"
+      },
+      "active": true,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R0C1",
+          "label": "$Value$CapitalDynamic",
+          "cell": "G57",
+          "status": "executed",
+          "durationMillis": "*"
+        },
+        {
+          "ref": "R1C1",
+          "label": "$Value$CapitalDynamicScore",
+          "cell": "G58",
+          "status": "executed",
+          "durationMillis": "*"
+        },
+        {
+          "ref": "R2C1",
+          "label": "$Value$QuickLiquidityDynamic",
+          "cell": "G59",
+          "status": "current"
+        },
+        {
+          "ref": "R3C1",
+          "label": "$Value$QuickLiquidityDynamicScore",
+          "cell": "G60",
+          "status": "pending"
+        },
+        {
+          "ref": "R4C1",
+          "label": "$Value$LiquidityDynamic",
+          "cell": "G61",
+          "status": "pending"
+        },
+        {
+          "ref": "R5C1",
+          "label": "$Value$LiquidityDynamicScore",
+          "cell": "G62",
+          "status": "pending"
+        },
+        {
+          "ref": "R6C1",
+          "label": "$Value$ProfitDynamic",
+          "cell": "G63",
+          "status": "pending"
+        },
+        {
+          "ref": "R7C1",
+          "label": "$Value$ProfitDynamicScore",
+          "cell": "G64",
+          "status": "pending"
+        },
+        {
+          "ref": "R8C1",
+          "label": "$Value$LiabilitiesToCustomersDynamic",
+          "cell": "G65",
+          "status": "pending"
+        },
+        {
+          "ref": "R9C1",
+          "label": "$Value$LiabilitiesToCustomersDynamicScore",
+          "cell": "G66",
+          "status": "pending"
+        },
+        {
+          "ref": "R10C1",
+          "label": "$Value$BalanceDynamicIndex",
+          "cell": "G67",
+          "status": "pending"
+        },
+        {
+          "ref": "R11C1",
+          "label": "$Value$RETURN",
+          "cell": "G68",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "sessionId": "***"
+}

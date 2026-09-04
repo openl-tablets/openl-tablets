@@ -13,7 +13,7 @@ public final class StoreLogDataHolder {
     public static final ThreadLocal<StoreLogData> RULESERVICE_LOGGING_HOLDER = new ThreadLocal<>();
 
     public static StoreLogData get() {
-        StoreLogData storeLogData = RULESERVICE_LOGGING_HOLDER.get();
+        var storeLogData = RULESERVICE_LOGGING_HOLDER.get();
         if (storeLogData == null) {
             storeLogData = new StoreLogData();
             RULESERVICE_LOGGING_HOLDER.set(storeLogData);

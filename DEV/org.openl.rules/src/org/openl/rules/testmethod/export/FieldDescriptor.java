@@ -12,14 +12,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
 import org.openl.util.OpenClassUtils;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class FieldDescriptor {
+    @Getter
     private final IOpenField field;
+    @Getter
     private final List<FieldDescriptor> children;
 
     private static final BiPredicate<IOpenClass, Object> SKIP_EMPTY_PARAMETER_FILTER = (fieldType,
@@ -34,7 +41,7 @@ class FieldDescriptor {
      * @return fields from all test results(values) based on boolean flag.
      */
     static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values, Boolean skipEmptyParameters) {
-        Set<String> coveredFields = new HashSet<>();
+        var coveredFields = new HashSet<String>();
         return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values), skipEmptyParameters, coveredFields, "");
     }
 
@@ -49,26 +56,26 @@ class FieldDescriptor {
             return null;
         }
 
-        List<FieldDescriptor> result = new ArrayList<>();
+        var result = new ArrayList<FieldDescriptor>();
 
         for (IOpenField field : type.getFields()) {
             if (field.getType().equals(CLASS)) {
                 continue;
             }
-            IOpenClass fieldType = field.getType();
-            List<Object> childFieldValues = ExportUtils.flatten(ExportUtils.fieldValues(values, field));
+            var fieldType = field.getType();
+            var childFieldValues = ExportUtils.flatten(ExportUtils.fieldValues(values, field));
             String newPath = path.isEmpty() ? field.getName() : path + "." + field.getName();
 
             for (Object value : values) {
                 Object fieldValue = value == null ? null : field.get(value, null);
-                String fieldName = newPath + (fieldValue != null ? fieldValue.toString() : "null");
+                var fieldName = newPath + (fieldValue != null ? fieldValue.toString() : "null");
                 if (!coveredFields.contains(fieldName)) {
                     coveredFields.add(fieldName);
                     if (!skipEmptyParameters || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
                         if (fieldValue instanceof Collection<?> collection) {
                             fieldType = CastToWiderType.defineCollectionWiderType(collection);
                         }
-                        List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType,
+                        var children = nonEmptyFieldsForFlatten(fieldType,
                                 childFieldValues,
                                 skipEmptyParameters,
                                 coveredFields,
@@ -86,19 +93,6 @@ class FieldDescriptor {
         return result;
     }
 
-    private FieldDescriptor(IOpenField field, List<FieldDescriptor> children) {
-        this.field = field;
-        this.children = children;
-    }
-
-    public IOpenField getField() {
-        return field;
-    }
-
-    public List<FieldDescriptor> getChildren() {
-        return children;
-    }
-
     public boolean isArray() {
         return field.getType().isArray();
     }
@@ -113,7 +107,7 @@ class FieldDescriptor {
             return 1;
         }
 
-        int width = 0;
+        var width = 0;
         for (FieldDescriptor child : children) {
             width += child.getLeafNodeCount();
         }
@@ -133,9 +127,9 @@ class FieldDescriptor {
         }
 
         if (object.getClass().isArray()) {
-            int count = Array.getLength(object);
-            int height = 0;
-            for (int i = 0; i < count; i++) {
+            var count = Array.getLength(object);
+            var height = 0;
+            for (var i = 0; i < count; i++) {
                 height += getMaxArraySize(Array.get(object, i));
             }
             return height == 0 ? 1 : height;
@@ -156,17 +150,17 @@ class FieldDescriptor {
         }
 
         if (fieldValue.getClass().isArray()) {
-            int size = 0;
-            int count = Array.getLength(fieldValue);
-            for (int i = 0; i < count; i++) {
+            var size = 0;
+            var count = Array.getLength(fieldValue);
+            for (var i = 0; i < count; i++) {
                 size += calcArraySizeForChild(Array.get(fieldValue, i));
             }
             return size == 0 ? 1 : size;
         } else {
 
-            int max = 1;
+            var max = 1;
             for (FieldDescriptor child : children) {
-                int childSize = child.getMaxArraySize(fieldValue);
+                var childSize = child.getMaxArraySize(fieldValue);
                 if (childSize > max) {
                     max = childSize;
                 }

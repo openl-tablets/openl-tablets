@@ -2,6 +2,8 @@ package org.openl.rules.webstudio.web;
 
 import java.util.function.Predicate;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -12,17 +14,14 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  *
  * @author snshor
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class TableTypeSelector implements Predicate<TableSyntaxNode> {
 
     private final String[] types;
 
-    TableTypeSelector(String[] types) {
-        this.types = types;
-    }
-
     @Override
     public boolean test(TableSyntaxNode node) {
-        String type = node.getType();
+        var type = node.getType();
         return ArrayUtils.contains(types, type);
     }
 

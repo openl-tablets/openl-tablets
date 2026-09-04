@@ -1,8 +1,12 @@
 package org.openl.ie.constrainer.consistencyChecking;
 
+import lombok.Getter;
+
 public class IntPair {
 
+    @Getter
     private final int x;
+    @Getter
     private final int y;
 
     public IntPair(int x, int y) {
@@ -11,18 +15,10 @@ public class IntPair {
         this.y = y;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        final var prime = 31;
+        var result = 1;
         result = prime * result + x;
         result = prime * result + y;
         return result;

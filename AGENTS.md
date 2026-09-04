@@ -8,6 +8,11 @@ generation.
 - Check folder-specific `AGENTS.md` hierarchically before modifying files in a folder.
 - **Every change of functionality ships in one commit together with its tests and its documentation update** — never
   as separate follow-up commits.
+- **Documentation mirrors functionality.** A behavior change updates every place that describes it — `Docs/` guides,
+  `AGENTS.md` files and JavaDoc — so no page is left describing the previous behavior.
+- **Guides describing the UI keep current screenshots.** When a change alters what a screen shows — layout, labels,
+  controls, dialogs, icons — recapture the affected images in the guide's `images/` folder, matching the crop and
+  scale of the picture they replace, and delete images no longer referenced.
 - Run tests after changes. New or changed Java code keeps ≥80% line coverage on the diff (see Build and Verify).
 - Execute `mvn validate -N` after changes and before committing to ensure all files are formatted correctly.
 - Follow `.editorconfig` formatting (LF endings, 4-space indent for Java/XML, 120 char line length).
@@ -52,9 +57,9 @@ Read those files for current versions, prefer the latest ones, and do not hardco
 
 ```bash
 mvn clean install -Dquick -DnoPerf -T1C   # Fast dev build
-mvn clean install -DskipTests              # Skip all tests
+mvn clean install -DskipTests              # Skip all tests; also drops ITEST and the archetypes from the reactor
 mvn test -pl <module-path>                 # Test specific module
-mvn validate -N                            # Format check — run before committing
+mvn validate -N                            # Format and mirrored-version check — run before committing
 mvn verify -Dsonar                         # Coverage: JaCoCo runs ONLY with -Dsonar
 docker compose up --build                  # Studio :8080, Rule Services :8081 (compose.yaml, NOT docker-compose.yaml)
 ```
@@ -62,9 +67,15 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **`-Dquick`** — skip heavy tests
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
+- **`-DskipTests`** — skip all tests and drop the integration-test modules (ITEST, the archetypes) from
+  the reactor; openl-maven-plugin still builds with its tests skipped. CI re-adds the dropped modules
+  with `-Pitest` where it needs them
 - **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
   `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).
+- **Mirrored versions** — `Dockerfile` and the `DEMO/start*` launch scripts cannot read Maven properties, so they
+  spell out `log4j.version`, `opentelemetry.version`, `jetty.version`, `postgresql.version` and `mssql.version` a
+  second time. `mvn validate -N` fails when a copy drifts from its property; bump both sides together.
 - Coverage report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`; a line is uncovered when `ci="0"`.
   Coverage is measured on the diff, not the whole project — add tests until new lines reach ≥80%.
 
@@ -76,19 +87,18 @@ EPBDS-NNNNN <subject>
 <optional body>
 ```
 
-- **One logical change per commit.** Each commit is a logically complete implementation of one small piece of
-  functionality or one refactoring step: the code together with its tests and documentation, buildable and green on
-  its own.
-- **Fix issues in the commit that introduced them.** On a branch that is not pushed yet, fold fixes for bugs, failing
-  tests, documentation, and code review findings into the originating commit instead of stacking follow-up commits:
+- **One logical change per commit** — one small piece of functionality or one refactoring step, with its tests and
+  documentation, buildable and green on its own.
+- **Fix issues in the commit that introduced them.** On an unpushed branch, fold fixes (bugs, failing tests,
+  documentation, review findings) into the originating commit instead of stacking follow-up commits:
     - for the latest commit, use `git commit --amend`;
     - for an earlier commit, use `git commit --fixup=<sha>` and squash with
       `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash --autostash <base>`;
     - when a fix interacts with code changed by later commits (for example, an import they removed), adjust those
       commits in the same rebase so that every commit in the history stays buildable.
 - **Prefix with the Jira ticket** (`EPBDS-NNNNN`), usually equal to the branch name.
-- **The subject explains _why_ the change is needed or _what_ it achieves** — not the mechanical move, which is already
-  visible in the diff and history. Start it with an imperative verb.
+- **The subject explains _why_ or _what_, not the mechanical move** already visible in the diff. Start it with an
+  imperative verb.
     - Good — `EPBDS-15494 Stream file downloads instead of buffering`
     - Avoid — `EPBDS-15494 Move FileService into the rest package`
 - **For bug fixes, name the cause and its observable effect**, not the symptom:
@@ -97,10 +107,26 @@ EPBDS-NNNNN <subject>
 - **Subject line only.** Add a body only when a single line cannot explain the change with fewer words.
 - **No `Co-Authored-By:` or other co-author trailers.**
 - **Skip the Jira prefix** when the change is unrelated to the ticket or conversation theme — an independent bug, a
-  misconfiguration, or a dependency bump.
+  misconfiguration, code cleanup or a dependency bump.
+
+## Sources of Truth
+
+- **Repository documentation is the centralized primary source.** `Docs/` (notably `Docs/architecture/`) and
+  `AGENTS.md` files hold the approved architecture and decisions and must always contain the most current
+  knowledge.
+- **Jira is supplementary, non-centralized working information.** Tickets may contradict each other and the
+  repository documentation.
+- **Surface every conflict.** When tickets disagree with the repository documentation or with each other, show
+  the divergence to the user instead of silently preferring one side. The repository document remains the
+  approved position until the user decides otherwise.
 
 ## Jira Workflow
 
+- **Verify the sprint before starting work.** The ticket must belong to the active sprint. If it does not, ask the
+  user whether to add it to the active sprint before proceeding.
+- **Claim unresolved tickets before starting work.** When the ticket resolution is Unresolved, transition it to
+  In Progress and assign it to the current Jira user.
+- **Send completed work to Code Review.** Never resolve or close a ticket without explicit user permission.
 - **Search Jira before creating a ticket.** When a bug or an improvement is implemented, look for existing issues
   first, trying different wordings — do not duplicate tickets.
 - **Keep the ticket description up to date.** When the scope or behavior changes during development, update the
@@ -115,11 +141,10 @@ EPBDS-NNNNN <subject>
 - **Show ticket IDs as links** (`https://jira.eisgroup.com/browse/EPBDS-NNNNN`) in replies and reports for easy
   navigation.
 - **Ticket creation can be skipped** when the change does not affect the code functionality (build configuration,
-  process documentation, developer tooling) and no relevant ticket exists in Jira.
+  process documentation, developer tooling, dead code) and no relevant ticket exists in Jira.
 
 ## Markdown Rules
 
-- No HTML when Markdown equivalents exist
 - GFM style only
 - Single located images MUST have descriptive title text
 - Prefer bullet lists over dense prose

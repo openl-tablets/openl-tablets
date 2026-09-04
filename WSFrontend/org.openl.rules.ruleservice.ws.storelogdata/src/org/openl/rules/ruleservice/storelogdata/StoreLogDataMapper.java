@@ -16,7 +16,6 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.kafka.common.header.Header;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
@@ -49,16 +48,16 @@ public class StoreLogDataMapper {
         customAnnotations.add(Value.class);
         CUSTOM_ANNOTATIONS = Collections.unmodifiableSet(customAnnotations);
 
-        Set<Class<? extends Annotation>> mappingAnnotations = new HashSet<>();
-        mappingAnnotations.add(Publisher.class);
-        mappingAnnotations.add(IncomingTime.class);
-        mappingAnnotations.add(OutcomingTime.class);
-        mappingAnnotations.add(MethodName.class);
-        mappingAnnotations.add(Url.class);
-        mappingAnnotations.add(Request.class);
-        mappingAnnotations.add(Response.class);
-        mappingAnnotations.add(ServiceName.class);
-        mappingAnnotations.add(KafkaMessageHeader.class);
+        Set<Class<? extends Annotation>> mappingAnnotations = new HashSet<>(Set.of(
+                Publisher.class,
+                IncomingTime.class,
+                OutcomingTime.class,
+                MethodName.class,
+                Url.class,
+                Request.class,
+                Response.class,
+                ServiceName.class,
+                KafkaMessageHeader.class));
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
     }
@@ -70,14 +69,14 @@ public class StoreLogDataMapper {
 
         Class<?> targetClass = target.getClass();
 
-        QualifyPublisherType qualifyPublisherTypeOnClass = targetClass.getAnnotation(QualifyPublisherType.class);
+        var qualifyPublisherTypeOnClass = targetClass.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherTypeOnClass != null) {
             matchPublisherType(qualifyPublisherTypeOnClass.value(), storeLogData.getPublisherType());
         }
 
         Class<?> clazz = targetClass;
-        List<Pair<Annotation, AnnotatedElement>> customAnnotationElements = new ArrayList<>();
-        List<Pair<Annotation, AnnotatedElement>> annotationElements = new ArrayList<>();
+        var customAnnotationElements = new ArrayList<Pair<Annotation, AnnotatedElement>>();
+        var annotationElements = new ArrayList<Pair<Annotation, AnnotatedElement>>();
         while (clazz != Object.class) {
             for (final Method method : clazz.getDeclaredMethods()) {
                 processAnnotatedElement(customAnnotationElements, annotationElements, method);
@@ -89,8 +88,8 @@ public class StoreLogDataMapper {
         }
 
         for (Entry<Annotation, AnnotatedElement> entry : annotationElements) {
-            Annotation annotation = entry.getKey();
-            AnnotatedElement annotatedElement = entry.getValue();
+            var annotation = entry.getKey();
+            var annotatedElement = entry.getValue();
             if (annotation instanceof IncomingTime) {
                 injectValue(storeLogData, target, annotation, annotatedElement, storeLogData.getIncomingMessageTime());
             } else if (annotation instanceof OutcomingTime) {
@@ -135,7 +134,7 @@ public class StoreLogDataMapper {
                 switch (storeLogData.getPublisherType()) {
                     case KAFKA -> {
                         if (storeLogData.getDltRecord() != null) {
-                            final byte[] bytes = storeLogData.getDltRecord().value();
+                            final var bytes = storeLogData.getDltRecord().value();
                             response = new String(bytes, StandardCharsets.UTF_8);
                         } else if (storeLogData.getProducerRecord() != null) {
                             try {
@@ -158,7 +157,7 @@ public class StoreLogDataMapper {
             } else if (annotation instanceof KafkaMessageHeader kafkaMessageHeader) {
                 if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
                     if (storeLogData.getConsumerRecord() != null) {
-                        Header header = storeLogData.getConsumerRecord()
+                        var header = storeLogData.getConsumerRecord()
                                 .headers()
                                 .lastHeader(kafkaMessageHeader.value());
                         if (header != null) {
@@ -167,14 +166,14 @@ public class StoreLogDataMapper {
                     }
                 } else {
                     if (storeLogData.getProducerRecord() != null) {
-                        Header header = storeLogData.getProducerRecord()
+                        var header = storeLogData.getProducerRecord()
                                 .headers()
                                 .lastHeader(kafkaMessageHeader.value());
                         if (header != null) {
                             injectValue(storeLogData, target, annotation, annotatedElement, header.value());
                         }
                     } else if (storeLogData.getDltRecord() != null) {
-                        Header header = storeLogData.getDltRecord().headers().lastHeader(kafkaMessageHeader.value());
+                        var header = storeLogData.getDltRecord().headers().lastHeader(kafkaMessageHeader.value());
                         if (header != null) {
                             injectValue(storeLogData, target, annotation, annotatedElement, header.value());
                         }
@@ -184,13 +183,13 @@ public class StoreLogDataMapper {
         }
 
         for (Entry<Annotation, AnnotatedElement> entry : customAnnotationElements) {
-            Annotation annotation = entry.getKey();
-            AnnotatedElement annotatedElement = entry.getValue();
+            var annotation = entry.getKey();
+            var annotatedElement = entry.getValue();
             if (annotation instanceof Value valueAnnotation) {
                 if (StoreLogDataConverter.class.isAssignableFrom(valueAnnotation.converter())) {
                     injectValue(storeLogData, target, annotation, annotatedElement, storeLogData);
                 } else {
-                    String key = valueAnnotation.value();
+                    var key = valueAnnotation.value();
                     injectValue(storeLogData,
                             target,
                             annotation,
@@ -205,13 +204,13 @@ public class StoreLogDataMapper {
                                          List<Pair<Annotation, AnnotatedElement>> annotationElements,
                                          final AnnotatedElement annotatedElement) {
         for (Class<? extends Annotation> annotationClass : CUSTOM_ANNOTATIONS) {
-            Annotation annotation = annotatedElement.getAnnotation(annotationClass);
+            var annotation = annotatedElement.getAnnotation(annotationClass);
             if (annotation != null) {
                 customAnnotationElements.add(Pair.of(annotation, annotatedElement));
             }
         }
         for (Class<? extends Annotation> annotationClass : MAPPING_ANNOTATIONS) {
-            Annotation annotation = annotatedElement.getAnnotation(annotationClass);
+            var annotation = annotatedElement.getAnnotation(annotationClass);
             if (annotation != null) {
                 annotationElements.add(Pair.of(annotation, annotatedElement));
             }
@@ -224,7 +223,7 @@ public class StoreLogDataMapper {
                              Annotation annotation,
                              AnnotatedElement annotatedElement,
                              Object value) {
-        QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
+        var qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
         if (qualifyPublisherType != null && !matchPublisherType(qualifyPublisherType.value(),
                 storeLogData.getPublisherType())) {
             return;
@@ -232,7 +231,7 @@ public class StoreLogDataMapper {
 
         Class<? extends Converter<?, ?>> converterClass;
         try {
-            Method converterMethod = annotation.annotationType().getMethod("converter");
+            var converterMethod = annotation.annotationType().getMethod("converter");
             converterClass = (Class<? extends Converter<?, ?>>) converterMethod.invoke(annotation);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(
@@ -297,7 +296,7 @@ public class StoreLogDataMapper {
         if (annotatedElement instanceof Method method) {
             if (method.getParameterCount() == 0 && method.getName().startsWith("get")) {
                 try {
-                    Method m = method.getDeclaringClass()
+                    var m = method.getDeclaringClass()
                             .getMethod("set" + method.getName().substring(3), method.getReturnType());
                     if (value != null || !m.getParameters()[0].getType().isPrimitive()) {
                         m.invoke(target, value);

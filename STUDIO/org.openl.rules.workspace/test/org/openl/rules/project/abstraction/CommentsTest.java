@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,12 +19,12 @@ class CommentsTest {
 
     @BeforeEach
     void setUp() {
-        String dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
-        String saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
-        String createProjectTemplate = "Project {username} {project-name} is created. {foo}";
-        String copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
-        String restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
-        String newBranchNameTemplate = "{project-name}/{username}/{current-date} {foo}";
+        var dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
+        var saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
+        var createProjectTemplate = "Project {username} {project-name} is created. {foo}";
+        var copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
+        var restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
+        var newBranchNameTemplate = "{project-name}/{username}/{current-date} {foo}";
         comments = new Comments(dateTimeFormat,
                 saveProjectTemplate,
                 createProjectTemplate,
@@ -43,67 +42,67 @@ class CommentsTest {
 
     @Test
     void testSaveProject() {
-        String actual = comments.saveProject("myProjectName");
+        var actual = comments.saveProject("myProjectName");
         assertEquals("Project {username} {myProjectName} is saved. {foo}", actual);
     }
 
     @Test
     void testSaveProjectWithDollarSign() {
-        String actualWithSymbol = comments.saveProject("$$$myProj$ectName$$");
+        var actualWithSymbol = comments.saveProject("$$$myProj$ectName$$");
         assertEquals("Project {username} {$$$myProj$ectName$$} is saved. {foo}", actualWithSymbol);
     }
 
     @Test
     void testCreateProject() {
-        String actual = comments.createProject("myProjectName");
+        var actual = comments.createProject("myProjectName");
         assertEquals("Project {username} myProjectName is created. {foo}", actual);
     }
 
     @Test
     void testCreateProjectWithDollarSign() {
-        String actualWithSymbol = comments.createProject("$$$myProj$ectName$$");
+        var actualWithSymbol = comments.createProject("$$$myProj$ectName$$");
         assertEquals("Project {username} $$$myProj$ectName$$ is created. {foo}", actualWithSymbol);
     }
 
     @Test
     void testCopiedFrom() {
-        String actual = comments.copiedFrom("myProjectName");
+        var actual = comments.copiedFrom("myProjectName");
         assertEquals("Project {username} {myProjectName} is copied-from. {foo}", actual);
     }
 
     @Test
     void testCopiedFromProjectWithSpecialSymbols() {
-        String actualWithSymbol = comments.copiedFrom("$$$myProj$ectName$$");
+        var actualWithSymbol = comments.copiedFrom("$$$myProj$ectName$$");
         assertEquals("Project {username} {$$$myProj$ectName$$} is copied-from. {foo}", actualWithSymbol);
     }
 
     @Test
     void testParseSourceOfCopy() {
-        List<String> commentParts = comments
+        var commentParts = comments
                 .getCommentParts("Project {username} {myProjectName} is copied-from. {foo}");
         assertEquals(3, commentParts.size());
         assertEquals("Project {username} {", commentParts.getFirst());
         assertEquals("myProjectName", commentParts.get(1));
         assertEquals("} is copied-from. {foo}", commentParts.get(2));
 
-        List<String> parts2 = comments.getCommentParts(null);
+        var parts2 = comments.getCommentParts(null);
         assertEquals(1, parts2.size());
         assertNull(parts2.getFirst());
 
-        List<String> parts3 = comments.getCommentParts("");
+        var parts3 = comments.getCommentParts("");
         assertEquals(1, parts3.size());
         assertEquals("", parts3.getFirst());
 
         // Not applied to pattern
-        List<String> parts4 = comments.getCommentParts("My comment");
+        var parts4 = comments.getCommentParts("My comment");
         assertEquals(1, parts4.size());
         assertEquals("My comment", parts4.getFirst());
     }
 
     @Test
     void testRestoredFrom() {
-        Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
-        String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd", "john", date);
+        var date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
+        var actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd", "john", date);
         assertEquals(
                 "Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
                 actual);
@@ -111,8 +110,8 @@ class CommentsTest {
 
     @Test
     void testRestoredFromWithDollarSign() {
-        Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
-        String actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
+        var date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
+        var actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
         assertEquals(
                 "Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
                 actualWithSymbol);

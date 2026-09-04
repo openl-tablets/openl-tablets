@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.dependencies;
 
-import java.util.Collection;
 import java.util.LinkedHashSet;
 
 import org.openl.CompiledOpenClass;
@@ -32,26 +31,26 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
 
     @Override
     protected CompiledDependency onCompilationFailure(Exception ex, AbstractDependencyManager dependencyManager) {
-        ClassLoader classLoader = dependencyManager.getExternalJarsClassLoader(getProject());
+        var classLoader = dependencyManager.getExternalJarsClassLoader(getProject());
         return createFailedCompiledDependency(classLoader, ex);
     }
 
     @Override
     protected boolean isActualDependency() {
-        final Long currentThreadVersion = webStudioWorkspaceRelatedDependencyManager.getThreadVersion().get();
-        final Long version = webStudioWorkspaceRelatedDependencyManager.getVersion().get();
+        final var currentThreadVersion = webStudioWorkspaceRelatedDependencyManager.getThreadVersion().get();
+        final var version = webStudioWorkspaceRelatedDependencyManager.getVersion().get();
         return currentThreadVersion >= version;
     }
 
     private CompiledDependency createFailedCompiledDependency(ClassLoader classLoader, Exception ex) {
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        var messages = new LinkedHashSet<OpenLMessage>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(ex)) {
-            String message = "Failed to load dependent module '%s': %s"
+            var message = "Failed to load dependent module '%s': %s"
                     .formatted(getDependency(), openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
 
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        var oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
 
         try {
@@ -79,7 +78,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     @Override
     protected CompiledDependency compileDependency() throws OpenLCompilationException {
         try {
-            LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(
+            var factory = new LazyWorkbookLoaderFactory(
                     ((WebStudioWorkspaceRelatedDependencyManager) getDependencyManager()).isCanUnload());
             WorkbookLoaders.setCurrentFactory(factory);
             return super.compileDependency();

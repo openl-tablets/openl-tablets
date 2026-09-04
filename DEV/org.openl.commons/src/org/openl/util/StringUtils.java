@@ -2,7 +2,6 @@ package org.openl.util;
 
 import java.util.Arrays;
 import java.util.function.IntPredicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -78,12 +77,12 @@ public class StringUtils {
         if (str == null) {
             return null;
         }
-        final int len = str.length();
+        final var len = str.length();
 
         // count of the result size
         var count = 0;
         var match = false;
-        for (int i = 0; i < len; i++) {
+        for (var i = 0; i < len; i++) {
             var ch = str.charAt(i);
             if (tester.test(ch)) {
                 match = false;
@@ -103,7 +102,7 @@ public class StringUtils {
         match = false;
         count = 0;
         while (i < len) {
-            char ch = str.charAt(i++);
+            var ch = str.charAt(i++);
             if (tester.test(ch)) {
                 if (match) {
                     result[count] = str.substring(start, end);
@@ -297,9 +296,9 @@ public class StringUtils {
         if (str == null || searchStr == null) {
             return false;
         }
-        final int len = searchStr.length();
-        final int end = str.length() - len;
-        for (int i = 0; i <= end; i++) {
+        final var len = searchStr.length();
+        final var end = str.length() - len;
+        for (var i = 0; i <= end; i++) {
             if (str.regionMatches(true, i, searchStr, 0, len)) {
                 return true;
             }
@@ -315,7 +314,7 @@ public class StringUtils {
      * @return {@code true} if, and only if, this string matches the given regular expression
      */
     public static boolean matches(Pattern regex, CharSequence input) {
-        Matcher m = regex.matcher(input);
+        var m = regex.matcher(input);
         return m.matches();
     }
 
@@ -340,12 +339,12 @@ public class StringUtils {
         if (str == null || str.isEmpty()) {
             return str;
         }
-        int start = 0;
+        var start = 0;
         while (start < str.length() && isSpaceOrControl(str.charAt(start))) {
             start++;
         }
 
-        int end = str.length();
+        var end = str.length();
         while (start < end && isSpaceOrControl(str.charAt(end - 1))) {
             end--;
         }
@@ -432,7 +431,7 @@ public class StringUtils {
             return str;
         }
 
-        char firstChar = str.charAt(0);
+        var firstChar = str.charAt(0);
         if (Character.isTitleCase(firstChar)) {
             // already capitalized
             return str;
@@ -466,7 +465,7 @@ public class StringUtils {
             return str;
         }
 
-        char firstChar = str.charAt(0);
+        var firstChar = str.charAt(0);
         if (Character.isLowerCase(firstChar)) {
             // already uncapitalized
             return str;
@@ -500,10 +499,10 @@ public class StringUtils {
         if (isEmpty(camel)) {
             return camel;
         }
-        int length = camel.length();
-        StringBuilder sb = new StringBuilder(length + (length / 4) + 1); // Every 4th symbol expected to be Upper cased
-        for (int i = 0; i < length; i++) {
-            char c = camel.charAt(i);
+        var length = camel.length();
+        var sb = new StringBuilder(length + (length / 4) + 1); // Every 4th symbol expected to be Upper cased
+        for (var i = 0; i < length; i++) {
+            var c = camel.charAt(i);
             if (Character.isUpperCase(c)) {
                 if (i > 0 && ((i < (length - 1) && Character.isLowerCase(camel.charAt(i + 1))) || Character
                         .isLowerCase(camel.charAt(i - 1)))) {
@@ -529,8 +528,8 @@ public class StringUtils {
      */
     public static int first(CharSequence text, int start, int end, IntPredicate tester) {
         end = Math.min(text.length(), end);
-        for (int i = Math.max(start, 0); i < end; i++) {
-            char ch = text.charAt(i);
+        for (var i = Math.max(start, 0); i < end; i++) {
+            var ch = text.charAt(i);
             if (tester.test(ch)) {
                 return i;
             }
@@ -549,8 +548,8 @@ public class StringUtils {
      */
     public static int last(CharSequence text, int start, int end, IntPredicate tester) {
         start = Math.max(start, 0);
-        for (int i = Math.min(text.length(), end) - 1; i >= start; i--) {
-            char ch = text.charAt(i);
+        for (var i = Math.min(text.length(), end) - 1; i >= start; i--) {
+            var ch = text.charAt(i);
             if (tester.test(ch)) {
                 return i;
             }

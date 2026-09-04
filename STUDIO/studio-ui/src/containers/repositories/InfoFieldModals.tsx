@@ -79,22 +79,6 @@ export const MewBranchRegexErrorModal = (
     />
 )
 
-export const MessageTemplateModal = (
-    <InfoFieldModal
-        text={(
-            <>
-                <p>Comment message template for Git commits.</p>
-                <ul>
-
-                    <li>&#123;user-message&#125;  is replaced by user defined commit message. This part of commit message is mandatory.</li>
-                    <li>&#123;commit-type&#125; is a system property for commits to recognize commit type from a message. This part of commit message is mandatory.</li>
-                </ul>
-                <p><b>NOTE:</b> Keep default value for non Git repositories.</p>
-            </>
-        )}
-    />
-)
-
 export const UserMessagePatternModal = (
     <InfoFieldModal text={(<p>A regular expression that is used to validate user message.</p>)} />
 )

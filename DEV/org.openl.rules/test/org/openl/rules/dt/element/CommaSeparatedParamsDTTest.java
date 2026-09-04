@@ -15,7 +15,7 @@ class CommaSeparatedParamsDTTest {
 
     @BeforeEach
     void initEngine() {
-        RulesEngineFactory<CommaSeparatedTest> engineFactory = new RulesEngineFactory<>(SRC, CommaSeparatedTest.class);
+        var engineFactory = new RulesEngineFactory<CommaSeparatedTest>(SRC, CommaSeparatedTest.class);
 
         instance = engineFactory.newEngineInstance();
     }
@@ -48,28 +48,28 @@ class CommaSeparatedParamsDTTest {
     }
 
     private void testArrayParametersContainsAllString(String[] income1, String[] income2, String expectedResult) {
-        String result = instance.testArrayParametersContainsAllString(income1, income2);
+        var result = instance.testArrayParametersContainsAllString(income1, income2);
         assertEquals(expectedResult, result);
 
     }
 
     private void testArrayParametersContainsAll(int[] income1, int[] income2, String expectedResult) {
-        String result = instance.testArrayParametersContainsAll(income1, income2);
+        var result = instance.testArrayParametersContainsAll(income1, income2);
         assertEquals(expectedResult, result);
     }
 
     private void testInt(int income1, int income2, String expectedResult) {
-        String result = instance.helloInt(income1, income2);
+        var result = instance.helloInt(income1, income2);
         assertEquals(expectedResult, result);
     }
 
     private void testString(String income1, String income2, String expectedResult) {
-        String result = instance.hello2(income1, income2);
+        var result = instance.hello2(income1, income2);
         assertEquals(expectedResult, result);
     }
 
     private void testBexSnippetContains(int income1, int income2, String expectedResult) {
-        String result = instance.testArrayParameterBexCodeSnippetsContains(income1, income2);
+        var result = instance.testArrayParameterBexCodeSnippetsContains(income1, income2);
         assertEquals(expectedResult, result);
     }
 

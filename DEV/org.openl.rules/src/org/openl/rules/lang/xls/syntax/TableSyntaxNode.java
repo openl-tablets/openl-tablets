@@ -76,7 +76,7 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public StringValue getHeaderLineValue() {
-        String value = table.getSource().getCell(0, 0).getStringValue();
+        var value = table.getSource().getCell(0, 0).getStringValue();
 
         if (value == null) {
             return new StringValue("");
@@ -177,7 +177,7 @@ public class TableSyntaxNode extends NaryNode {
     public boolean isExecutableNode() {
         if (getMember() != null) {
             Class<?> memberClass = getMember().getClass();
-            Annotation[] annotations = memberClass.getAnnotations();
+            var annotations = memberClass.getAnnotations();
 
             for (Annotation annotation : annotations) {
                 if (annotation instanceof Executable) {

@@ -3,9 +3,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -25,14 +23,14 @@ public class ArrayInitializerNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        IAggregateInfo info = type.getAggregateInfo();
+        var info = type.getAggregateInfo();
 
-        Object ary = info.makeIndexedAggregate(info.getComponentType(type), children.length);
+        var ary = info.makeIndexedAggregate(info.getComponentType(type), children.length);
 
-        IOpenIndex index = info.getIndex(type, JavaOpenClass.INT);
+        var index = info.getIndex(type, JavaOpenClass.INT);
 
-        for (int i = 0; i < children.length; i++) {
-            Object obj = children[i].evaluate(env);
+        for (var i = 0; i < children.length; i++) {
+            var obj = children[i].evaluate(env);
             if (casts[i] != null) {
                 obj = casts[i].convert(obj);
             }

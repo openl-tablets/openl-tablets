@@ -2,12 +2,16 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import lombok.Getter;
+
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
 class GridTableCell implements ICell {
 
+    @Getter
     private final int column;
+    @Getter
     private final int row;
     private final IGridTable table;
     private final ICell cell;
@@ -21,19 +25,9 @@ class GridTableCell implements ICell {
         this.column = column;
         this.row = row;
         this.table = table;
-        int gridColumn = table.getGridColumn(column, row);
-        int gridRow = table.getGridRow(column, row);
+        var gridColumn = table.getGridColumn(column, row);
+        var gridRow = table.getGridRow(column, row);
         this.cell = table.getGrid().getCell(gridColumn, gridRow);
-    }
-
-    @Override
-    public int getColumn() {
-        return column;
-    }
-
-    @Override
-    public int getRow() {
-        return row;
     }
 
     @Override

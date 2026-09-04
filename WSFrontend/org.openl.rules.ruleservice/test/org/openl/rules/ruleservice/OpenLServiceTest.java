@@ -226,7 +226,7 @@ class OpenLServiceTest {
         assertEquals("i: 80 s: Mike", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", "80", "Mike"));
         assertEquals("i: 80 s: null", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", "80", null));
 
-        ex = assertThrows(Exception.class, () -> {
+        assertThrows(Exception.class, () -> {
             OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "twoArgs", "Mike", "80");
         });
 

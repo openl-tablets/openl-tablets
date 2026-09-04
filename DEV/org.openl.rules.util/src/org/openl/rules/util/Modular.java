@@ -116,7 +116,7 @@ public final class Modular {
         if (divisor.signum() == 0) {
             return dividend;
         }
-        BigDecimal remainder = dividend.remainder(divisor);
+        var remainder = dividend.remainder(divisor);
         if (remainder.signum() == 0) {
             return BigDecimal.ZERO;
         }
@@ -127,7 +127,7 @@ public final class Modular {
         if (divisor == 0.0f) {
             throw new ArithmeticException("/ by zero");
         }
-        float remainder = dividend % divisor;
+        var remainder = dividend % divisor;
         if (remainder == 0.0f || Float.isInfinite(divisor) || Float.isNaN(remainder)) {
             return remainder;
         }
@@ -138,7 +138,7 @@ public final class Modular {
         if (divisor == 0.0d) {
             throw new ArithmeticException("/ by zero");
         }
-        double remainder = dividend % divisor;
+        var remainder = dividend % divisor;
         if (remainder == 0.0d || Double.isInfinite(divisor) || Double.isNaN(remainder)) {
             return remainder;
         }

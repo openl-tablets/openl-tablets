@@ -3,25 +3,22 @@
  */
 package org.openl.rules.table;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CellKey {
 
     private final int col;
+    @Getter
     private final int row;
-
-    private CellKey(int col, int row) {
-        this.col = col;
-        this.row = row;
-    }
 
     public int getColumn() {
         return col;
-    }
-
-    public int getRow() {
-        return row;
     }
 
     @Override
@@ -37,7 +34,7 @@ public final class CellKey {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        CellKey k = (CellKey) obj;
+        var k = (CellKey) obj;
         return col == k.col && row == k.row;
     }
 

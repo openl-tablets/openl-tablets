@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
@@ -38,15 +40,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private List<IOpenMethod> candidatesSorted;
 
+    @Getter
+    @Setter
     private IOpenMethod decisionTableOpenMethod;
-
-    public IOpenMethod getDecisionTableOpenMethod() {
-        return decisionTableOpenMethod;
-    }
-
-    public void setDecisionTableOpenMethod(IOpenMethod decisionTableOpenMethod) {
-        this.decisionTableOpenMethod = decisionTableOpenMethod;
-    }
 
     public MatchingOpenMethodDispatcher() {
     }
@@ -63,14 +59,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     @Override
     protected IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context) {
-        Set<IOpenMethod> selected = new HashSet<>(candidates);
+        var selected = new HashSet<IOpenMethod>(candidates);
 
         selectCandidates(selected, (IRulesRuntimeContext) context);
         maxMinSelectCandidates(selected, (IRulesRuntimeContext) context);
 
         switch (selected.size()) {
             case 0:
-                IOpenMethod candidateMethod = candidates.getFirst();
+                var candidateMethod = candidates.getFirst();
                 throw new OpenLRuntimeException("No matching methods with name '%3$s' for the context. Details: \n%1$s\nContext: %2$s".formatted(
                         toString(candidates),
                         context.toString(),
@@ -78,7 +74,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             case 1:
                 return selected.iterator().next();
             default:
-                IOpenMethod method = selected.iterator().next();
+                var method = selected.iterator().next();
                 throw new OpenLRuntimeException(
                         "Ambiguous dispatch for method '%3$s'. Details: \n%1$s\nContext: %2$s".formatted(
                                 toString(selected),
@@ -91,12 +87,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     public TableSyntaxNode getDispatcherTable() {
         if (decisionTableOpenMethod == null) {
-            XlsModuleOpenClass moduleOpenClass = getDeclaringClass();
-            TableSyntaxNode tsn = new TableSyntaxNodeDispatcherBuilder(moduleOpenClass.getRulesModuleBindingContext(),
+            var moduleOpenClass = getDeclaringClass();
+            var tsn = new TableSyntaxNodeDispatcherBuilder(moduleOpenClass.getRulesModuleBindingContext(),
                     moduleOpenClass,
                     this).build();
             if (tsn != null) {
-                XlsModuleSyntaxNode xlsModuleNode = moduleOpenClass.getXlsMetaInfo().getXlsModuleNode();
+                var xlsModuleNode = moduleOpenClass.getXlsMetaInfo().getXlsModuleNode();
                 xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);
             }
         }
@@ -123,8 +119,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private MethodDispatchingPriority compareMethodProperties(ITableProperties candidateProperties,
                                                               ITableProperties mostPriorityProperties,
                                                               List<String> notNullPropertyNames) {
-        boolean nested = false;
-        boolean contains = false;
+        var nested = false;
+        var contains = false;
         propsLoop:
         for (String propName : notNullPropertyNames) {
             switch (intersectionMatcher.match(propName, candidateProperties, mostPriorityProperties)) {
@@ -158,11 +154,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         // If more that one method
         if (selected.size() > 1) {
-            List<IOpenMethod> notPriorMethods = new ArrayList<>();
+            var notPriorMethods = new ArrayList<IOpenMethod>();
 
-            List<String> notNullPropertyNames = getNotNullPropertyNames(context);
+            var notNullPropertyNames = getNotNullPropertyNames(context);
             // Find the most high priority method
-            List<IOpenMethod> mostPriority = new ArrayList<>();
+            var mostPriority = new ArrayList<IOpenMethod>();
             ITableProperties mostPriorityProperties = null;
 
             for (IOpenMethod candidate : selected) {
@@ -171,7 +167,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
                 } else {
                     ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
-                    int cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
+                    var cmp = compareMaxMinPriorities(candidateProperties, mostPriorityProperties);
                     if (cmp < 0) {
                         notPriorMethods.addAll(mostPriority);
                         mostPriority.clear();
@@ -193,11 +189,11 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                         mostPriority.add(candidate);
                     } else {
                         ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
-                        int higherCount = 0;
-                        int lowerCount = 0;
+                        var higherCount = 0;
+                        var lowerCount = 0;
                         for (IOpenMethod m : mostPriority) {
                             ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
-                            MethodDispatchingPriority priority = compareMethodProperties(candidateProperties,
+                            var priority = compareMethodProperties(candidateProperties,
                                     mProperties,
                                     notNullPropertyNames);
                             if (priority == MethodDispatchingPriority.HIGHER) {
@@ -224,7 +220,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private int compareMaxMinPriorities(ITableProperties properties1, ITableProperties properties2) {
         for (Comparator<ITableProperties> comparator : prioritySorter.getMaxMinPriorityRules()) {
-            int cmp = comparator.compare(properties1, properties2);
+            var cmp = comparator.compare(properties1, properties2);
             if (cmp != 0) {
                 return cmp;
             }
@@ -233,15 +229,15 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     private void selectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
-        List<IOpenMethod> nomatched = new ArrayList<>();
+        var nomatched = new ArrayList<IOpenMethod>();
 
-        List<String> notNullPropertyNames = getNotNullPropertyNames(context);
+        var notNullPropertyNames = getNotNullPropertyNames(context);
 
         for (IOpenMethod method : selected) {
             ITableProperties props = PropertiesHelper.getTableProperties(method);
 
             for (String propName : notNullPropertyNames) {
-                MatchingResult res = matcher.match(propName, props, context);
+                var res = matcher.match(propName, props, context);
 
                 if (MatchingResult.NO_MATCH.equals(res)) {
                     nomatched.add(method);
@@ -255,10 +251,10 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     private String toString(Collection<IOpenMethod> methods) {
 
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
         builder.append("Candidates: {\n");
 
-        boolean g = false;
+        var g = false;
 
         for (IOpenMethod method : methods) {
             if (g) {
@@ -268,7 +264,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             }
             builder.append("{");
             ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
-            boolean f = false;
+            var f = false;
             for (Entry<String, Object> entry : tableProperties.getAllDimensionalProperties().entrySet()) {
                 if (f) {
                     builder.append(", ");
@@ -297,7 +293,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     // <<< INSERT MatchingProperties >>>
     private List<String> getNotNullPropertyNames(IRulesRuntimeContext context) {
-        List<String> propNames = new ArrayList<>();
+        var propNames = new ArrayList<String>();
 
         if (context.getCurrentDate() != null) {
             propNames.add("effectiveDate");

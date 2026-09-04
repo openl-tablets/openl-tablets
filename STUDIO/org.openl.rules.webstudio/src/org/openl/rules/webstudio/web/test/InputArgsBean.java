@@ -24,10 +24,10 @@ import jakarta.faces.model.SelectItem;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.richfaces.component.UITree;
 import org.richfaces.model.SequenceRowKey;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +41,9 @@ import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.studio.projects.service.trace.TableInputParserService;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -56,17 +56,17 @@ import org.openl.vm.SimpleVM;
 @Service
 @ViewScope
 @Slf4j
+@RequiredArgsConstructor
 public class InputArgsBean {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
+    private final TableInputParserService inputParserService;
 
     private String uri;
     private UITree currentTreeNode;
     private ParameterWithValueDeclaration[] arguments;
     private ParameterDeclarationTreeNode[] argumentTreeNodes;
     private IRulesRuntimeContext runtimeContext;
-    private String className;
     private final Map<String, ComplexParameterTreeNode> complexParameters = new HashMap<>();
     private InputTestCaseType inputTestCaseType = InputTestCaseType.BEAN;
     private String inputTextBean;
@@ -105,21 +105,9 @@ public class InputArgsBean {
         predefinedTypes.add(CHAR);
     }
 
-    public InputArgsBean(Environment environment) {
-        this.environment = environment;
-    }
-
     enum InputTestCaseType {
         TEXT,
         BEAN
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
     }
 
     public String getUri() {
@@ -162,7 +150,7 @@ public class InputArgsBean {
         if (rulesDeploy == null) {
             return true;
         } else {
-            return rulesDeploy.isProvideRuntimeContext();
+            return Boolean.TRUE.equals(rulesDeploy.isProvideRuntimeContext());
         }
     }
 
@@ -187,14 +175,14 @@ public class InputArgsBean {
                 if (stringStringMap.isEmpty()) {
                     validateFirstJsonSymbol(inputTextBean);
                 }
+                ObjectMapper objectMapper = configureObjectMapper();
                 for (ParameterDeclarationTreeNode arg : argumentTreeNodes) {
                     String field = stringStringMap.get(arg.getName());
-                    ObjectMapper objectMapper = configureObjectMapper();
                     if (field != null) {
-                        arg.setValueForced(JsonUtils.fromJSON(field, arg.getType().getInstanceClass(), objectMapper));
+                        arg.setValueForced(inputParserService.parseParameter(field, arg.getType(), objectMapper));
                     } else if (argumentTreeNodes.length == 1) {
-                        argumentTreeNodes[0].setValueForced(JsonUtils
-                                .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper));
+                        argumentTreeNodes[0].setValueForced(inputParserService
+                                .parseParameter(inputTextBean, argumentTreeNodes[0].getType(), objectMapper));
                     }
                 }
             } catch (JsonParseException e) {
@@ -234,14 +222,14 @@ public class InputArgsBean {
             if (InputTestCaseType.TEXT.equals(inputTestCaseType) && stringStringMap != null) {
                 ObjectMapper objectMapper = configureObjectMapper();
                 if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
-                    parsedArguments[0] = JsonUtils
-                            .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper);
+                    parsedArguments[0] = inputParserService
+                            .parseParameter(inputTextBean, argumentTreeNodes[0].getType(), objectMapper);
                 } else {
                     for (int i = 0; i < argumentTreeNodes.length; i++) {
                         String field = stringStringMap.get(argumentTreeNodes[i].getName());
                         if (field != null) {
-                            parsedArguments[i] = tryParseJson(field,
-                                    argumentTreeNodes[i].getType().getInstanceClass(),
+                            parsedArguments[i] = tryParseParameter(field,
+                                    argumentTreeNodes[i].getType(),
                                     objectMapper);
                             stringStringMap.remove(argumentTreeNodes[i].getName());
                         }
@@ -504,37 +492,8 @@ public class InputArgsBean {
             // Get params - this also populates runtimeContext as side effect
             Object[] paramValues = getParams();
 
-            // Build JSON using tree model to preserve type-aware serialization.
-            // Each parameter is serialized with its declared type via writerFor(),
-            // so Jackson uses the mixin's @JsonTypeInfo (NAME mode) instead of
-            // default typing (CLASS mode) which produces fully-qualified class names.
-            var paramsNode = mapper.createObjectNode();
-            IOpenMethod method = getTestedMethod();
-            if (method != null && paramValues != null) {
-                var signature = method.getSignature();
-                for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-                    String paramName = signature.getParameterName(i);
-                    Object value = i < paramValues.length ? paramValues[i] : null;
-                    if (value == null) {
-                        paramsNode.putNull(paramName);
-                    } else {
-                        var javaType = mapper.getTypeFactory()
-                                .constructType(signature.getParameterType(i).getInstanceClass());
-                        var json = mapper.writerFor(javaType).writeValueAsString(value);
-                        paramsNode.set(paramName, mapper.readTree(json));
-                    }
-                }
-            }
-
-            var resultNode = mapper.createObjectNode();
-            resultNode.set("params", paramsNode);
-
-            // Include runtime context if available
-            if (runtimeContext != null) {
-                resultNode.set("runtimeContext", mapper.valueToTree(runtimeContext));
-            }
-
-            return mapper.writeValueAsString(resultNode);
+            // getTestedMethod() is null when the table the URI pointed at is gone.
+            return inputParserService.formatInput(paramValues, runtimeContext, getTestedMethod(), mapper);
         } catch (Message e) {
             throw e;
         } catch (IOException e) {
@@ -551,9 +510,18 @@ public class InputArgsBean {
         }
     }
 
+    private Object tryParseParameter(String json, IOpenClass type, ObjectMapper mapper) throws IOException {
+        try {
+            return inputParserService.parseParameter(json, type, mapper);
+        } catch (MismatchedInputException ignored) {
+            // can be happened if plain text is passed instead of JSON.
+            return null;
+        }
+    }
+
     private static <T> T tryParseJson(String json, Class<T> clazz, ObjectMapper mapper) throws IOException {
         try {
-            return JsonUtils.fromJSON(json, clazz, mapper);
+            return mapper.readValue(json, clazz);
         } catch (MismatchedInputException ignored) {
             // can be happened if plain text is passed instead of JSON.
             return null;

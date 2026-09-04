@@ -3,18 +3,24 @@ package org.openl.rules.data;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class DatatypeArrayMultiRowElementContext {
     private final Map<String, Map<Integer, Pair<Integer, Object>>> arrayIndexes = new HashMap<>();
 
+    @Getter
+    @Setter
     private int row;
 
+    @Getter
+    @Setter
     private boolean rowValueIsTheSameAsPrevious;
 
     public int getIndex(String array, Object target) {
-        Map<Integer, Pair<Integer, Object>> a = arrayIndexes.computeIfAbsent(array, k -> new HashMap<>());
+        var a = arrayIndexes.computeIfAbsent(array, k -> new HashMap<>());
         Pair<Integer, Object> index = a.get(getRow());
         if (index != null) {
             return index.getLeft();
@@ -36,21 +42,5 @@ public class DatatypeArrayMultiRowElementContext {
         }
         a.put(getRow(), index);
         return index.getLeft();
-    }
-
-    public void setRowValueIsTheSameAsPrevious(boolean rowValueIsTheSameAsPrevious) {
-        this.rowValueIsTheSameAsPrevious = rowValueIsTheSameAsPrevious;
-    }
-
-    public boolean isRowValueIsTheSameAsPrevious() {
-        return rowValueIsTheSameAsPrevious;
-    }
-
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    public int getRow() {
-        return row;
     }
 }

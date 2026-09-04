@@ -1,39 +1,27 @@
 package org.openl.rules.calc;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.types.IOpenClass;
 
 public class SpreadsheetHeaderDefinition {
 
+    @Getter
     private final int row;
+    @Getter
     private final int column;
 
+    @Getter
+    @Setter
     private IOpenClass type;
+    @Getter
     private final SymbolicTypeDefinition definition;
 
     public SpreadsheetHeaderDefinition(SymbolicTypeDefinition definition, int row, int column) {
         this.definition = definition;
         this.row = row;
         this.column = column;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
-    public IOpenClass getType() {
-        return type;
-    }
-
-    public void setType(IOpenClass type) {
-        this.type = type;
-    }
-
-    public SymbolicTypeDefinition getDefinition() {
-        return definition;
     }
 
     public String getDefinitionName() {

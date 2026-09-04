@@ -1,38 +1,32 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Badge, Collapse, Segmented } from 'antd'
-import type { BadgeProps } from 'antd'
+import { Alert, Collapse, Segmented, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
-import type { DebugError, DebugStatus } from 'types/trace'
-import DebugToolbar from './components/DebugToolbar'
+import type { DebugError } from 'types/trace'
+import TraceToolbar from './components/TraceToolbar'
 import DebugCallStack from './components/DebugCallStack'
 import TraceTree from './components/TraceTree'
+import SimpleTraceTree from './components/SimpleTraceTree'
 import HotspotsPanel from './components/HotspotsPanel'
 import BreakpointsPanel from './components/BreakpointsPanel'
 import WatchPanel from './components/WatchPanel'
 import TraceDetails from './components/TraceDetails'
 import useTraceProgress from './hooks/useTraceProgress'
-import { isTraceExecutionError, isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
+import useTerminateOnClose from './hooks/useTerminateOnClose'
+import {
+    isTraceExecutionAbnormalTerminal,
+    isTraceExecutionError,
+    isTraceExecutionTerminal,
+} from 'utils/traceExecutionStatus'
 import { useStyles } from './TraceView.styles'
 
 interface TraceViewParams {
     projectId: string
 }
 
-// Distinct semantics per state: suspended (paused — your turn) reads as a calm amber, while running
-// (busy — please wait) is the only animated, blue "processing" dot. No two states share a colour.
-const STATUS_BADGE: Record<DebugStatus, NonNullable<BadgeProps['status']>> = {
-    pending: 'default',
-    running: 'processing',
-    suspended: 'warning',
-    completed: 'success',
-    error: 'error',
-    terminated: 'default',
-}
-
-// Default to the simple call-tree view; the stepwise call stack is the "Advanced" mode, and the profiler
-// hot-spots overview appears as a third tab only while profiling.
+// Left-panel tabs of the advanced debugger: the call tree, the stepwise execution path, and the profiler
+// hot-spots overview that appears as a third tab only while profiling.
 type ViewMode = 'tree' | 'advanced' | 'hotspots'
 
 const VIEW_COMPONENTS: Record<ViewMode, React.FC> = {
@@ -89,6 +83,8 @@ const TraceView: React.FC = () => {
     const tableId = searchParams.get('tableId')
     const fromModule = searchParams.get('fromModule')
     const testRanges = searchParams.get('testRanges')
+    // The trace mode is chosen at launch (the Advanced tracer checkbox on the JSF page), not in this view.
+    const advancedLaunch = searchParams.get('advanced') === 'true'
 
     const setRouteParams = useTraceStore(s => s.setRouteParams)
     const start = useTraceStore(s => s.start)
@@ -98,11 +94,15 @@ const TraceView: React.FC = () => {
     const debugError = useTraceStore(s => s.debugError)
     const error = useTraceStore(s => s.error)
     const profiling = useTraceStore(s => s.profiling)
+    const advanced = useTraceStore(s => s.advanced)
+    const simpleRun = useTraceStore(s => s.simpleRun)
+    const simpleLoading = useTraceStore(s => s.simpleLoading)
 
     const [leftPanelWidth, setLeftPanelWidth] = useState(35)
     const [isResizing, setIsResizing] = useState(false)
     const [bannerDismissed, setBannerDismissed] = useState(false)
     const [viewMode, setViewMode] = useState<ViewMode>('tree')
+    const [busy, setBusy] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
 
     // The hot-spots tab is profiling-only; fall back to the tree if profiling is switched off while it is open.
@@ -118,14 +118,26 @@ const TraceView: React.FC = () => {
         enabled: !!projectId && !!tableId,
     })
 
-    useEffect(() => {
+    // There is no Stop button — closing the debugger window terminates the session instead.
+    useTerminateOnClose(projectId)
+
+    // Layout effect so the launch mode reaches the store before the first paint: otherwise the toolbar and
+    // other advanced-gated components would flash the business UI (the store default `advanced` is false)
+    // even when this window was opened as the advanced tracer.
+    useLayoutEffect(() => {
         if (projectId && tableId) {
-            setRouteParams({ projectId, tableId, fromModule, testRanges })
-            void loadBreakpoints()
-            void start()
+            setRouteParams({ projectId, tableId, fromModule, testRanges, advanced: advancedLaunch })
+            if (advancedLaunch) {
+                void loadBreakpoints()
+                void start()
+            } else {
+                // Business mode is fixed at launch, so it runs straight away — there is no Run button.
+                void simpleRun()
+            }
         }
         return () => reset()
-    }, [projectId, tableId, fromModule, testRanges, setRouteParams, loadBreakpoints, start, reset])
+    }, [projectId, tableId, fromModule, testRanges, advancedLaunch,
+        setRouteParams, loadBreakpoints, start, simpleRun, reset])
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         e.preventDefault()
@@ -160,6 +172,19 @@ const TraceView: React.FC = () => {
         }
     }, [status])
 
+    // Dim the content with a spinner once a run lasts a moment, so a heavy request is clearly busy — for the
+    // advanced debugger while it runs, and for the business view for its whole auto-run (which has no Run
+    // button to signal it started). Delayed so quick step-to-step or fast runs do not flash it.
+    const running = status === 'running' || simpleLoading
+    useEffect(() => {
+        if (!running) {
+            setBusy(false)
+            return undefined
+        }
+        const id = setTimeout(() => setBusy(true), 500)
+        return () => clearTimeout(id)
+    }, [running])
+
     if (!projectId || !tableId) {
         return (
             <div className={cx(styles.view, styles.viewError)} id="trace-view">
@@ -168,27 +193,18 @@ const TraceView: React.FC = () => {
         )
     }
 
-    const showTerminalBanner = !bannerDismissed && isTraceExecutionTerminal(status)
+    // A clean finish needs no banner — the status tag already says Finished. The advanced mode also
+    // flags an interrupted run; in the simple view a stop is just click mechanics (inspections restart
+    // the session), so only a real failure warrants a banner there.
+    const showTerminalBanner = !bannerDismissed && (advanced
+        ? isTraceExecutionAbnormalTerminal(status)
+        : isTraceExecutionError(status))
     const isError = isTraceExecutionError(status)
     const ActiveView = VIEW_COMPONENTS[viewMode]
-    // Banner tone follows the terminal outcome: error, a clean success, or an interrupted-run warning.
-    const bannerType = ((): 'error' | 'success' | 'warning' => {
-        if (isError) {
-            return 'error'
-        }
-        return status === 'completed' ? 'success' : 'warning'
-    })()
+    const bannerType = isError ? 'error' : 'warning'
 
     return (
         <div className={styles.debugView} id="trace-view">
-            <div className={styles.toolbar} data-testid="debug-header">
-                <DebugToolbar />
-                {status && (
-                    <span className={styles.statusPill} data-testid="debug-status">
-                        <Badge status={STATUS_BADGE[status]} text={t(`debug.status.${status}`)} />
-                    </span>
-                )}
-            </div>
             {showTerminalBanner && (
                 <Alert
                     className={styles.errorBanner}
@@ -209,29 +225,51 @@ const TraceView: React.FC = () => {
                 ref={containerRef}
                 className={cx(styles.panels, isResizing && styles.resizing)}
             >
+                {busy && (
+                    <div className={styles.runningOverlay} data-testid="trace-running-overlay">
+                        <div className={styles.runningCard}>
+                            <Spin size="large" />
+                            <span className={styles.runningText}>
+                                {advanced ? t('debug.runningNotice') : t('simple.calculating')}
+                            </span>
+                        </div>
+                    </div>
+                )}
                 <div
                     className={cx(styles.leftPanel, isResizing && styles.panelDisabled)}
                     style={{ width: `${leftPanelWidth}%` }}
                 >
-                    <Segmented
-                        block
-                        className={styles.viewModeToggle}
-                        data-testid="trace-view-mode"
-                        onChange={(value) => setViewMode(value as ViewMode)}
-                        size="small"
-                        value={viewMode}
-                        options={[
-                            { label: t('tree.modeSimple'), value: 'tree' },
-                            { label: t('tree.modeCallStack'), value: 'advanced' },
-                            // The hot-spots overview only exists in profiling mode (it needs the executed tree).
-                            ...(profiling ? [{ label: t('hotspots.tab'), value: 'hotspots' }] : []),
-                        ]}
-                    />
-                    <BreakpointsPanel />
-                    <WatchPanel />
-                    <div className={styles.viewContent}>
-                        <ActiveView />
-                    </div>
+                    {/* The toolbar heads the left column and stays put in both modes, so its controls are
+                        always reachable. The business view is otherwise one tree; the debugger adds the view
+                        tabs, breakpoints, watches, and execution path. */}
+                    <TraceToolbar />
+                    {advanced ? (
+                        <>
+                            <Segmented
+                                block
+                                className={styles.viewModeToggle}
+                                data-testid="trace-view-mode"
+                                onChange={(value) => setViewMode(value as ViewMode)}
+                                size="small"
+                                value={viewMode}
+                                options={[
+                                    { label: t('tree.modeSimple'), value: 'tree' },
+                                    { label: t('tree.modeCallStack'), value: 'advanced' },
+                                    // The hot-spots overview only exists in profiling mode (it needs the executed tree).
+                                    ...(profiling ? [{ label: t('hotspots.tab'), value: 'hotspots' }] : []),
+                                ]}
+                            />
+                            <BreakpointsPanel />
+                            <WatchPanel />
+                            <div className={styles.viewContent}>
+                                <ActiveView />
+                            </div>
+                        </>
+                    ) : (
+                        <div className={styles.viewContent}>
+                            <SimpleTraceTree />
+                        </div>
+                    )}
                 </div>
                 <div className={styles.resizer} onMouseDown={handleMouseDown} />
                 <div

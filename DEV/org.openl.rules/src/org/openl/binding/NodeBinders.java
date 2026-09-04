@@ -123,7 +123,7 @@ public class NodeBinders {
             // return an existed binder
             return nodeBinder;
         }
-        int lastDot = node.lastIndexOf('.');
+        var lastDot = node.lastIndexOf('.');
         if (lastDot == -1) {
             // no parent node can be extracted, so exit
             return NotExistNodeBinder.the;

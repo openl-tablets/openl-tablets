@@ -1,0 +1,10 @@
+POST /rest/repos/design-flat/projects/EPBDS_8537_COPY/from-project HTTP/1.1
+Authorization: Basic RVBCRFNfODUzN19jcmVhdG9yOkVQQkRTXzg1MzdfY3JlYXRvcg==
+Content-Type: application/json
+
+{
+  "sourceRepositoryId": "design-flat",
+  "sourceProject": "EPBDS_8537_SOURCE",
+  "comment": "Copied from: EPBDS_8537_SOURCE.",
+  "branch": "EPBDS-8537-copy-feature"
+}

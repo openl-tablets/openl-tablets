@@ -4,6 +4,7 @@ import { Header } from 'containers/Header'
 import { DeployModal } from 'containers/DeployModal'
 import { MergeModal } from 'containers/MergeModal'
 import { DeleteBranchModal } from 'containers/DeleteBranchModal'
+import { OpenProjectModal } from 'containers/projects/OpenProjectModal'
 import { DeleteFileModal } from 'containers/DeleteFileModal'
 import { DeleteProjectModal } from 'containers/DeleteProjectModal'
 import { ConfirmModal } from 'containers/ConfirmModal'
@@ -11,6 +12,11 @@ import { TraceExecutionModal } from 'containers/TraceExecutionModal'
 import { TableGraphModal } from 'containers/TableGraphModal'
 import { UpdateModuleModal } from 'containers/UpdateModuleModal'
 import { UpdateProjectModal } from 'containers/UpdateProjectModal'
+import { CreateTableModal } from 'containers/CreateTableModal'
+import { CopyTableModal } from 'containers/CopyTableModal'
+import { CopyProjectModalHost } from 'containers/CopyProjectModalHost'
+import { SaveProjectModalHost } from 'containers/SaveProjectModalHost'
+import { ExportProjectModalHost } from 'containers/ExportProjectModalHost'
 import { JsfIslandHost } from 'components/JsfIslandHost'
 import { LoadingOverlay } from 'components/LoadingOverlay'
 import { Outlet, useLocation } from 'react-router-dom'
@@ -60,12 +66,18 @@ export const DefaultLayout = () => {
             <DeployModal />
             <MergeModal />
             <DeleteBranchModal />
+            <OpenProjectModal />
             <DeleteFileModal />
             <DeleteProjectModal />
             <TraceExecutionModal />
             <TableGraphModal />
+            <CreateTableModal />
+            <CopyTableModal />
             <UpdateProjectModal />
             <UpdateModuleModal />
+            <CopyProjectModalHost />
+            <SaveProjectModalHost />
+            <ExportProjectModalHost />
             <ConfirmModal />
             <LoadingOverlay />
             <JsfIslandHost />

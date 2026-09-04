@@ -1,14 +1,11 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-import java.util.Locale;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
 
-import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.security.standalone.persistence.ExternalGroup;
@@ -22,8 +19,6 @@ import org.openl.rules.security.standalone.persistence.Group;
  */
 @Component("externalGroupDao")
 public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implements ExternalGroupDao {
-
-    public static final char ESCAPE_CHAR = '\\';
 
     @Override
     public void deleteAll() {
@@ -39,10 +34,10 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
     @Override
     public List<ExternalGroup> findAllForUser(String loginName) {
-        Session session = getSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<ExternalGroup> query = cb.createQuery(ExternalGroup.class);
-        Root<ExternalGroup> root = query.from(ExternalGroup.class);
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var query = cb.createQuery(ExternalGroup.class);
+        var root = query.from(ExternalGroup.class);
 
         query.select(root).where(getPredicatesAllForUser(root, cb, loginName));
 
@@ -51,10 +46,10 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
     @Override
     public long countAllForUser(String loginName) {
-        Session session = getSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<ExternalGroup> root = query.from(ExternalGroup.class);
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var query = cb.createQuery(Long.class);
+        var root = query.from(ExternalGroup.class);
 
         query.select(cb.count(root)).where(getPredicatesAllForUser(root, cb, loginName));
 
@@ -67,10 +62,10 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
     @Override
     public List<Group> findMatchedForUser(String loginName) {
-        Session session = getSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Group> query = cb.createQuery(Group.class);
-        Root<Group> groupRoot = query.from(Group.class);
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var query = cb.createQuery(Group.class);
+        var groupRoot = query.from(Group.class);
 
         query.select(groupRoot).where(getPredicatesMatchedForUser(groupRoot, query, cb, loginName));
 
@@ -79,10 +74,10 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
     @Override
     public long countMatchedForUser(String loginName) {
-        Session session = getSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<Group> groupRoot = query.from(Group.class);
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var query = cb.createQuery(Long.class);
+        var groupRoot = query.from(Group.class);
 
         query.select(cb.count(groupRoot)).where(getPredicatesMatchedForUser(groupRoot, query, cb, loginName));
 
@@ -93,7 +88,7 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
                                                     CriteriaQuery<?> query,
                                                     CriteriaBuilder cb,
                                                     String loginName) {
-        Root<ExternalGroup> extGroupRoot = query.from(ExternalGroup.class);
+        var extGroupRoot = query.from(ExternalGroup.class);
 
         return new Predicate[]{cb.equal(extGroupRoot.get("loginName"), loginName),
                 cb.equal(root.get("name"), extGroupRoot.get("groupName"))};
@@ -101,10 +96,10 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
     @Override
     public List<ExternalGroup> findNotMatchedForUser(String loginName) {
-        Session session = getSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<ExternalGroup> query = cb.createQuery(ExternalGroup.class);
-        Root<ExternalGroup> extGroupRoot = query.from(ExternalGroup.class);
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var query = cb.createQuery(ExternalGroup.class);
+        var extGroupRoot = query.from(ExternalGroup.class);
 
         query.select(extGroupRoot).where(getPredicatesNotMatchedForUser(extGroupRoot, query, cb, loginName));
 
@@ -113,10 +108,10 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
     @Override
     public long countNotMatchedForUser(String loginName) {
-        Session session = getSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<ExternalGroup> extGroupRoot = query.from(ExternalGroup.class);
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var query = cb.createQuery(Long.class);
+        var extGroupRoot = query.from(ExternalGroup.class);
 
         query.select(cb.count(extGroupRoot)).where(getPredicatesNotMatchedForUser(extGroupRoot, query, cb, loginName));
 
@@ -127,8 +122,8 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
                                                        CriteriaQuery<?> query,
                                                        CriteriaBuilder cb,
                                                        String loginName) {
-        Subquery<String> sqGroup = query.subquery(String.class);
-        Root<Group> rootGroup = sqGroup.from(Group.class);
+        var sqGroup = query.subquery(String.class);
+        var rootGroup = sqGroup.from(Group.class);
 
         return new Predicate[]{cb.equal(root.get("loginName"), loginName),
                 root.get("groupName").in(sqGroup.select(rootGroup.get("name"))).not()};
@@ -136,10 +131,10 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
     @Override
     public List<String> findAllByName(String groupName, int limit) {
-        Session session = getSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<String> query = cb.createQuery(String.class);
-        Root<ExternalGroup> extGroupRoot = query.from(ExternalGroup.class);
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var query = cb.createQuery(String.class);
+        var extGroupRoot = query.from(ExternalGroup.class);
 
         query.select(extGroupRoot.get("groupName"))
                 .distinct(true)
@@ -148,13 +143,6 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         return session.createQuery(query).setMaxResults(limit).getResultList();
     }
 
-    private static String escape(String searchTerm) {
-        searchTerm = searchTerm.toLowerCase(Locale.ROOT);
-        searchTerm = searchTerm.replace("\\", ESCAPE_CHAR + "\\");
-        searchTerm = searchTerm.replace("[", ESCAPE_CHAR + "[");
-        searchTerm = searchTerm.replace("_", ESCAPE_CHAR + "_");
-        return searchTerm.replace("%", ESCAPE_CHAR + "%");
-    }
 
     @Override
     public long countUsersInGroup(String groupName) {

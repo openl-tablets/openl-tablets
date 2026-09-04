@@ -27,7 +27,7 @@ public class DatasourceDBRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        DatasourceDBRepository repository = new DatasourceDBRepository();
+        var repository = new DatasourceDBRepository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;

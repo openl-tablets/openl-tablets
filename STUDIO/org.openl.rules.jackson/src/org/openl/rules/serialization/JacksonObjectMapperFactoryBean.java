@@ -30,6 +30,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import groovy.lang.GroovyObject;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -51,31 +53,53 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     private static final DefaultTypingMode DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE = DefaultTypingMode.JAVA_LANG_OBJECT;
 
 
+    @Getter
     private DefaultTypingMode defaultTypingMode = DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE;
 
+    @Getter
+    @Setter
     private DateFormat defaultDateFormat = new StdDateFormat();
 
+    @Getter
+    @Setter
     private JsonInclude.Include serializationInclusion;
 
+    @Getter
+    @Setter
     private Set<String> overrideTypes;
 
+    @Getter
+    @Setter
     private Set<Class<?>> overrideClasses;
 
+    @Getter
+    @Setter
     private boolean failOnUnknownProperties = false;
 
+    @Getter
+    @Setter
     private boolean failOnEmptyBeans = SerializationFeature.FAIL_ON_EMPTY_BEANS.enabledByDefault();
 
+    @Getter
+    @Setter
     private boolean polymorphicTypeValidation = false;
 
+    @Getter
+    @Setter
     private boolean caseInsensitiveProperties = MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES.enabledByDefault();
 
+    @Setter
     private ClassLoader classLoader;
 
     @Deprecated
+    @Setter
     private Boolean simpleClassNameAsTypingPropertyValue;
 
+    @Getter
     private JsonTypeInfo.Id jsonTypeInfoId = JsonTypeInfo.Id.CLASS;
 
+    @Getter
+    @Setter
     private String typingPropertyName = JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
 
     private Class<?> enhanceMixInClassWithSubTypes(Class<?> classFor,
@@ -290,18 +314,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
     }
 
-    private void addMixIn(ObjectMapper mapper, Class<?> classFor, Class<?> mixIn) {
-        if (mapper.findMixInClassFor(classFor) == null) {
-            mapper.addMixIn(classFor, mixIn);
-        }
-    }
-
     private Class<?> loadClass(String className) throws ClassNotFoundException {
         return getClassLoader().loadClass(className);
-    }
-
-    public DefaultTypingMode getDefaultTypingMode() {
-        return defaultTypingMode;
     }
 
     public void setDefaultTypingMode(DefaultTypingMode defaultTypingMode) {
@@ -312,54 +326,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
     }
 
-    public void setFailOnUnknownProperties(boolean failOnUnknownProperties) {
-        this.failOnUnknownProperties = failOnUnknownProperties;
-    }
-
-    public boolean isFailOnUnknownProperties() {
-        return failOnUnknownProperties;
-    }
-
-    public void setFailOnEmptyBeans(boolean failOnEmptyBeans) {
-        this.failOnEmptyBeans = failOnEmptyBeans;
-    }
-
-    public boolean isFailOnEmptyBeans() {
-        return failOnEmptyBeans;
-    }
-
-    public Set<String> getOverrideTypes() {
-        return overrideTypes;
-    }
-
-    public void setOverrideTypes(Set<String> overrideTypes) {
-        this.overrideTypes = overrideTypes;
-    }
-
-    public DateFormat getDefaultDateFormat() {
-        return defaultDateFormat;
-    }
-
-    public void setDefaultDateFormat(DateFormat defaultDateFormat) {
-        this.defaultDateFormat = defaultDateFormat;
-    }
-
-    public JsonInclude.Include getSerializationInclusion() {
-        return serializationInclusion;
-    }
-
-    public void setSerializationInclusion(JsonInclude.Include serializationInclusion) {
-        this.serializationInclusion = serializationInclusion;
-    }
-
-    public boolean isPolymorphicTypeValidation() {
-        return polymorphicTypeValidation;
-    }
-
-    public void setPolymorphicTypeValidation(boolean polymorphicTypeValidation) {
-        this.polymorphicTypeValidation = polymorphicTypeValidation;
-    }
-
     public ClassLoader getClassLoader() {
         if (classLoader == null) {
             return Thread.currentThread().getContextClassLoader();
@@ -367,44 +333,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         return classLoader;
     }
 
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
-    }
-
-    public Set<Class<?>> getOverrideClasses() {
-        return overrideClasses;
-    }
-
-    public void setOverrideClasses(Set<Class<?>> overrideClasses) {
-        this.overrideClasses = overrideClasses;
-    }
-
-    public boolean isCaseInsensitiveProperties() {
-        return caseInsensitiveProperties;
-    }
-
-    public void setCaseInsensitiveProperties(boolean caseInsensitiveProperties) {
-        this.caseInsensitiveProperties = caseInsensitiveProperties;
-    }
-
-    public String getTypingPropertyName() {
-        return typingPropertyName;
-    }
-
-    public void setTypingPropertyName(String typingPropertyName) {
-        this.typingPropertyName = typingPropertyName;
-    }
-
     public Boolean isSimpleClassNameAsTypingPropertyValue() {
         return simpleClassNameAsTypingPropertyValue;
-    }
-
-    public void setSimpleClassNameAsTypingPropertyValue(Boolean simpleClassNameAsTypingPropertyValue) {
-        this.simpleClassNameAsTypingPropertyValue = simpleClassNameAsTypingPropertyValue;
-    }
-
-    public JsonTypeInfo.Id getJsonTypeInfoId() {
-        return jsonTypeInfoId;
     }
 
     public void setJsonTypeInfoId(JsonTypeInfo.Id jsonTypeInfoId) {

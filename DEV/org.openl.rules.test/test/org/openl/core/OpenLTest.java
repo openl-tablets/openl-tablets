@@ -19,7 +19,6 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 
 final class OpenLTest {
 
@@ -44,25 +43,25 @@ final class OpenLTest {
 
     @Test
     void checkTestBehavior() throws Exception {
-        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+        var simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
                 .setExecutionMode(false)
                 .setProject("test-resources/check-openl-test")
                 .build();
-        IOpenClass openClass = simpleProjectEngineFactory.getCompiledOpenClass().getOpenClass();
+        var openClass = simpleProjectEngineFactory.getCompiledOpenClass().getOpenClass();
 
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         assertEquals(2, tests.length);
         {
-            IOpenMethod method = openClass.getMethod("HelloTest12", IOpenClass.EMPTY);
+            var method = openClass.getMethod("HelloTest12", IOpenClass.EMPTY);
             assertNotNull(method);
             assertTrue(method instanceof TestSuiteMethod);
-            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+            var testSuiteMethod = (TestSuiteMethod) method;
             assertEquals("Main", testSuiteMethod.getModuleName(), "Module name must be initialized");
-            Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
-            Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
+            var instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
+            var result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
-            TestUnitsResults testUnitsResults = (TestUnitsResults) result;
+            var testUnitsResults = (TestUnitsResults) result;
             assertEquals("HelloTest12()", testUnitsResults.getName(), "Unexpected test name");
             assertTrue(testUnitsResults.getExecutionTime() > 0, "Unexpected execution time");
             assertTrue(testUnitsResults.hasContext(), "Should have a context");
@@ -73,15 +72,15 @@ final class OpenLTest {
         }
 
         {
-            IOpenMethod method = openClass.getMethod("GreetingTest", IOpenClass.EMPTY);
+            var method = openClass.getMethod("GreetingTest", IOpenClass.EMPTY);
             assertNotNull(method);
             assertTrue(method instanceof TestSuiteMethod);
-            TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
+            var testSuiteMethod = (TestSuiteMethod) method;
             assertEquals("Second Module", testSuiteMethod.getModuleName(), "Module name must be initialized");
-            Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
-            Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
+            var instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
+            var result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
-            TestUnitsResults testUnitsResults = (TestUnitsResults) result;
+            var testUnitsResults = (TestUnitsResults) result;
             assertEquals("GreetingTest()", testUnitsResults.getName(), "Unexpected test name");
             assertTrue(testUnitsResults.getExecutionTime() > 0, "Unexpected execution time");
             assertFalse(testUnitsResults.hasContext(), "Should not have a context");
@@ -95,19 +94,19 @@ final class OpenLTest {
 
     @Test
     void testAllFailures() {
-        final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(true, false);
+        final var rulesInFolderTestRunner = new RulesInFolderTestRunner(true, false);
         assertFalse(rulesInFolderTestRunner.run(FAILURES_DIR), "Test is failed.");
     }
 
     @Test
     void testAll() {
-        final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(false, false);
+        final var rulesInFolderTestRunner = new RulesInFolderTestRunner(false, false);
         assertFalse(rulesInFolderTestRunner.run(DIR), "Test is failed.");
     }
 
     @Test
     void testAllInExecutionMode() {
-        final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(false, true);
+        final var rulesInFolderTestRunner = new RulesInFolderTestRunner(false, true);
         assertFalse(rulesInFolderTestRunner.run(DIR), "Test is failed.");
     }
 }

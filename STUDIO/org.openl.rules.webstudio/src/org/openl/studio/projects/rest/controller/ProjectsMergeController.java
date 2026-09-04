@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,12 +35,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
-import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
@@ -78,11 +78,9 @@ public class ProjectsMergeController {
     @PostMapping("/check")
     public CheckMergeResult check(@ProjectId @PathVariable("projectId") RulesProject project,
                                   @Parameter(description = "projects.merge.check.request.desc")
-                                  @RequestBody @Valid MergeRequest request,
-                                  @Parameter(description = "projects.merge.param.force.desc")
-                                  @RequestParam(name = "force", defaultValue = "false") boolean force) throws IOException {
+                                  @RequestBody @Valid MergeRequest request) throws IOException {
         validateUnresolvedConflict(project);
-        return mergeService.checkMerge(project, request.otherBranch(), request.mode(), force);
+        return mergeService.checkMerge(project, request.otherBranch(), request.mode());
     }
 
     @Operation(summary = "projects.merge.get-conflicts.summary", description = "projects.merge.get-conflicts.desc")
@@ -131,23 +129,21 @@ public class ProjectsMergeController {
                                      @Parameter(description = "projects.merge.param.force.desc")
                                      @RequestParam(name = "force", defaultValue = "false") boolean force) throws IOException, ProjectException {
         validateUnresolvedConflict(project);
-        var checkMergeResult = mergeService.checkMerge(project, request.otherBranch(), request.mode(), force);
-        if (checkMergeResult.status() != CheckMergeStatus.MERGEABLE) {
-            throw new ConflictException("project.branch.merge.not.mergeable.message");
-        }
-        var model = projectService.openProject(project).awaitCompiled();
-        var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
+        // Refuse before opening the project: a merge that is not allowed must not pause the compilation.
+        mergeService.validateMergeAllowed(project, request.otherBranch(), request.mode(), force);
+        var wasOpened = project.isOpened();
+        var model = editorModelOf(project);
+        var dependencyManager = model == null ? null : model.getWebStudioWorkspaceDependencyManager();
         if (dependencyManager != null) {
             dependencyManager.pause();
         }
         var studio = projectService.getWebStudio();
-        String nameBeforeMerge = project.getName();
-        String nameAfterMerge = nameBeforeMerge;
-        String realPath = project.getRealPath();
-        String currentBranch = project.getBranch();
-        boolean wasOpened = project.isOpened();
+        var nameBeforeMerge = project.getName();
+        var nameAfterMerge = nameBeforeMerge;
+        var realPath = project.getRealPath();
+        var currentBranch = project.getBranch();
         var repoId = project.getDesignRepository().getId();
-        boolean shouldResumeDependencies = false;
+        var shouldResumeDependencies = false;
         try {
             studio.freezeProject(nameBeforeMerge);
             var mergeResult = mergeService.merge(project, request.otherBranch(), request.mode(), force);
@@ -160,19 +156,21 @@ public class ProjectsMergeController {
                         // Project can be renamed after merge, so we close it before opening to ensure that
                         // project folder name in editor is up to date.
                         project.close();
+                        workspace.refresh();
 
-                        Optional<RulesProject> refreshedProject = workspace.getProjectByPath(repoId, realPath);
+                        var refreshedProject = workspace.getProjectByPath(repoId, realPath);
                         if (refreshedProject.isPresent()) {
-                            RulesProject mergedProject = refreshedProject.get();
-                            mergedProject.setBranch(currentBranch);
+                            var mergedProject = refreshedProject.get();
+                            workspace.setProjectBranch(mergedProject, currentBranch);
                             mergedProject.open();
                             nameAfterMerge = mergedProject.getName();
                         }
                     }
                 }
-                workspace.refresh();
                 studio.reset();
-                model.clearModuleInfo();
+                if (model != null) {
+                    model.clearModuleInfo();
+                }
                 if (!nameAfterMerge.equals(nameBeforeMerge)) {
                     studio.init(repoId, currentBranch, nameAfterMerge, null);
                 }
@@ -208,8 +206,8 @@ public class ProjectsMergeController {
         // Validate that the project has unresolved conflicts
         var mergeConflictInfo = getMergeConflictInfo0(project);
 
-        List<FileConflictResolution> resolutions = new ArrayList<>();
-        Map<String, InputStreamSource> customFiles = new HashMap<>();
+        var resolutions = new ArrayList<FileConflictResolution>();
+        var customFiles = new HashMap<String, InputStreamSource>();
         request.resolutions()
                 .forEach(resolution -> {
                     resolutions.add(new FileConflictResolution(resolution.filePath(), resolution.strategy()));
@@ -222,14 +220,17 @@ public class ProjectsMergeController {
                 });
 
         var mergeOperation = mergeConflictInfo.isMerging();
-        var model = projectService.openProject(project).awaitCompiled();
-        var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
-        boolean wasOpened = project.isOpened();
+        var wasOpened = project.isOpened();
+        var model = editorModelOf(project);
+        var dependencyManager = model == null ? null : model.getWebStudioWorkspaceDependencyManager();
+        var repositoryId = project.getDesignRepository().getId();
+        var realPath = project.getRealPath();
+        var currentBranch = project.getBranch();
         if (dependencyManager != null) {
             dependencyManager.pause();
         }
         var studio = projectService.getWebStudio();
-        boolean shouldResumeDependencies = false;
+        var shouldResumeDependencies = false;
         // Delegate to service for resolution
         try {
             if (!mergeOperation) {
@@ -241,17 +242,28 @@ public class ProjectsMergeController {
                 var projectId = projectIdentifierMapper.map(project);
                 conflictsSessionHolder.remove(projectId);
                 var workspace = projectService.getUserWorkspace();
-                project = workspace.getProject(project.getRepository().getId(), project.getName());
+                if (wasOpened && mergeOperation) {
+                    project.close();
+                }
+                workspace.refresh();
+                var refreshedProject = workspace.getProjectByPath(repositoryId, realPath);
+                project = refreshedProject.isPresent()
+                        ? refreshedProject.orElseThrow()
+                        : workspace.getProject(repositoryId, project.getName());
                 if (wasOpened) {
+                    if (mergeOperation && currentBranch != null) {
+                        workspace.setProjectBranch(project, currentBranch);
+                    }
                     if (project.isDeleted()) {
                         project.close();
                     } else {
                         project.open();
                     }
                 }
-                workspace.refresh();
                 studio.reset();
-                model.clearModuleInfo();
+                if (model != null) {
+                    model.clearModuleInfo();
+                }
             } else {
                 shouldResumeDependencies = true;
             }
@@ -279,6 +291,20 @@ public class ProjectsMergeController {
         }
 
         conflictsSessionHolder.remove(projectId);
+    }
+
+    /**
+     * The editor model a merge has to keep consistent, or {@code null} when the project has none.
+     *
+     * <p>A merge is performed in the repository, so a closed project is merged just as well as an opened one.
+     * Only an opened project carries editor state — a compiled model, a dependency manager to pause, modules
+     * on screen — and only it is reopened afterwards.
+     *
+     * <p>Opening the project here instead would compile a project nobody is looking at, and it used to fail
+     * outright: the merge answered "the project is not opened" and refused — see EPBDS-16420.
+     */
+    private @Nullable ProjectModel editorModelOf(RulesProject project) {
+        return project.isOpened() ? projectService.openProject(project).awaitCompiled() : null;
     }
 
     private void validateUnresolvedConflict(RulesProject project) {

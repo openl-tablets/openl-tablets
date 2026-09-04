@@ -5,13 +5,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -406,16 +407,25 @@ public final class MethodSearch {
     }
 
     private static class Match {
+        @Getter
         private final IOpenMethod method;
+        @Getter
         private final IOpenClass[] callParams;
         private final IOpenClass[] originalCallParams;
+        @Getter
         private final IOpenCast[] paramCasts;
+        @Getter
         private final boolean[] multiCallParams;
+        @Getter
         private final IOpenClass varargElementType;
+        @Getter
         private final IOpenCast returnCast;
+        @Getter
         private final IOpenClass returnType;
+        @Getter
         private final int[] sortedDistances;
         private int[] sortedDims;
+        @Getter
         private final boolean vararg;
 
         private IOpenClass[] mostSpecificParamsToCompare;
@@ -507,42 +517,6 @@ public final class MethodSearch {
             }
         }
 
-        public IOpenClass[] getOriginalCallParams() {
-            return originalCallParams;
-        }
-
-        public IOpenClass getVarargElementType() {
-            return varargElementType;
-        }
-
-        public boolean isVararg() {
-            return vararg;
-        }
-
-        public IOpenMethod getMethod() {
-            return method;
-        }
-
-        public int[] getSortedDistances() {
-            return sortedDistances;
-        }
-
-        public boolean[] getMultiCallParams() {
-            return multiCallParams;
-        }
-
-        public IOpenCast getReturnCast() {
-            return returnCast;
-        }
-
-        public IOpenClass getReturnType() {
-            return returnType;
-        }
-
-        public IOpenCast[] getParamCasts() {
-            return paramCasts;
-        }
-
         public int[] getSortedDims() {
             if (sortedDims == null) {
                 IOpenClass[] variableArityParameters = getVariableArityParameters();
@@ -571,10 +545,6 @@ public final class MethodSearch {
             }
             return sortedDims;
         }
-
-        public IOpenClass[] getCallParams() {
-            return callParams;
-        }
     }
 
     private static IMethodCaller findCastingMethod(final String name,
@@ -583,7 +553,7 @@ public final class MethodSearch {
                                                    Iterable<IOpenMethod> methods,
                                                    boolean allowMultiCallParams) throws AmbiguousMethodException {
         final int nParams = callParams.length;
-        Iterable<IOpenMethod> filtered = methods == null ? Collections.emptyList()
+        Iterable<IOpenMethod> filtered = methods == null ? List.of()
                 : CollectionUtils.findAll(methods,
                 method -> method.getName().equals(name) && (method
                         .getSignature()

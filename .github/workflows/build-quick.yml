@@ -1,6 +1,19 @@
-# This workflow will build a Java project with Maven on every push or pull request for quick checking of incoming commits.
-# Verifies only on the latest Ubuntu LTS version and JDK 8.
+# This workflow builds the project with Maven on every push or pull request for quick checking of incoming commits.
+# Verifies only on the latest Ubuntu LTS version and the latest JDK.
 # Checks performance on limited amount of memory to detect extra memory consumption by throwing timeouts and memory errors.
+#
+# The work is split into parallel jobs:
+#   build  - compiles everything without tests (-T1C) and shares the artifacts (jars, wars) via ~/.m2
+#   itest  - a matrix of integration-test jobs (the ITEST suites, the openl-maven-plugin invoker
+#            tests with the archetypes) running against the artifacts from 'build'
+#   tests  - the whole build with unit tests but without integration tests, in parallel with the 'build' track
+#   sonar  - waits for 'tests' and 'itest', combines their JaCoCo execution data into the aggregate
+#            report (jacoco-report) and runs the SonarCloud analysis
+#
+# Coverage: 'tests' and every 'itest' leg write target/*.exec files with the JaCoCo agent (-Psonar) and
+# upload them. The 'sonar' job downloads them into the same workspace locations, recompiles the sources
+# (same commit, same JDK - the class ids match) without running tests, and the report-aggregate goal
+# folds all execution data onto the production classes exactly as the former single-job build did.
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 name: Quick Build
@@ -29,7 +42,7 @@ on:
 jobs:
   build:
 
-    name: Build
+    name: Build artifacts
 
     runs-on: ubuntu-latest
 
@@ -44,30 +57,213 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Setup Java 25
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: 25
+          cache: 'maven'
+
+      - name: Maven version
+        run: mvn -v
+
+        # The restored cache may contain project artifacts of previous commits: OpenL builds
+        # and the com.example artifacts installed by the openl-maven-plugin integration tests.
+        # Drop them so the shared artifact contains only this commit's build.
+      - name: Purge cached project artifacts
+        run: rm -rf ~/.m2/repository/org/openl ~/.m2/repository/com/example
+
+      - name: Build with Maven
+        run: mvn -B "-Dstyle.color=always" -T1C install -DskipTests
+
+      - name: Share OpenL artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: openl-artifacts
+          path: ~/.m2/repository/org/openl/
+          compression-level: 0
+          retention-days: 7
+
+  tests:
+
+    name: Tests (without ITEST)
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Configure GIT
+        run: |
+          git config --global user.name "OpenL Tablets"
+          git config --global user.email openltablets@gmail.com
+          git config --global core.autocrlf false
+
+      - uses: actions/checkout@v7
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: 25
+          cache: 'maven'
+
+        # -P '!itest' drops the ITEST suites and the archetypes: their tests run in the 'itest' matrix.
+        # openl-maven-plugin is deselected for the same reason - the maven-plugin leg runs its unit and
+        # invoker tests, so running them here would only clobber that leg's coverage data.
+        # jacoco-report is deselected because it depends on the dropped ITEST modules;
+        # the aggregate report is built by the 'sonar' job instead.
+      - name: Build and Verify
+        run: mvn -B "-Dstyle.color=always" -T1C verify -P 'sonar,!itest' -pl '!jacoco-report,!Util/openl-maven-plugin'
+
+        # The root pom.xml anchors the artifact at the repository root - see the itest job.
+      - name: Share coverage data
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-tests
+          path: |
+            pom.xml
+            **/target/*.exec
+            STUDIO/studio-ui/coverage/lcov.info
+          retention-days: 7
+
+  itest:
+
+    name: IT (${{ matrix.name }})
+
+    needs: build
+
+    # Do not start the legs when the artifacts failed to build
+    if: success()
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      # Rebalance the legs from the job timings when they drift apart.
+      # The maven-plugin leg runs 'install': the archetype integration tests build a generated
+      # project in a forked Maven, which resolves openl-maven-plugin from ~/.m2.
+      matrix:
+        include:
+          - name: studio-acl
+            modules: ITEST/server-core,ITEST/itest.studio/acl
+          - name: studio-sso
+            modules: ITEST/server-core,ITEST/itest.studio/sso
+          - name: studio
+            modules: ITEST/server-core,ITEST/itest.studio/users,ITEST/itest.studio/simple,ITEST/itest.studio/multi,ITEST/itest.studio/repos,ITEST/itest.studio/dtr,ITEST/itest.studio/disabled-settings,ITEST/itest.studio/demo
+          - name: services
+            modules: ITEST/server-core,ITEST/itest.WebService,ITEST/itest.BigServiceDeploy,ITEST/itest.ruleServices-memory,ITEST/itest.ruleServices-large-response
+          - name: services-smoke
+            modules: ITEST/server-core,ITEST/itest.smoke,ITEST/itest.security,ITEST/itest.healthchecks,ITEST/itest.deployment-filter,ITEST/itest.unpackClasspathJar,ITEST/itest.unpackClasspathZip,ITEST/itest.ws-rest-rules-deploy,ITEST/itest.local-zip-repository,ITEST/itest.spring-boot,ITEST/itest.spring-boot/spring-boot-app,ITEST/itest.spring-boot/spring-boot-web-app,ITEST/itest.spring-boot/openl-rules
+          - name: services-data
+            modules: ITEST/server-core,ITEST/itest.kafka.smoke,ITEST/itest.tracing,ITEST/itest.storelogdata,ITEST/itest.s3
+          - name: maven-plugin
+            modules: Util/openl-maven-plugin,Util/openl-simple-project-archetype,Util/openl-project-archetype
+            goal: install
+            # The default invoker parallelism 0.4C truncates to a single thread on a 4-core runner
+            opts: -Dinvoker.parallelThreads=1C
+
+    steps:
+
+      - name: Configure GIT
+        run: |
+          git config --global user.name "OpenL Tablets"
+          git config --global user.email openltablets@gmail.com
+          git config --global core.autocrlf false
+
+      - uses: actions/checkout@v7
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: 25
+          cache: 'maven'
+
+      - name: Download OpenL artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: openl-artifacts
+          path: ~/.m2/repository/org/openl/
+
+      - name: Run integration tests
+        run: mvn -B "-Dstyle.color=always" ${{ matrix.goal || 'verify' }} ${{ matrix.opts }} -Psonar -nsu -pl "${{ matrix.modules }}"
+
+        # The root pom.xml anchors the artifact at the repository root, so every coverage
+        # artifact restores to the same workspace locations by a single download step.
+      - name: Share coverage data
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-itest-${{ matrix.name }}
+          path: |
+            pom.xml
+            ITEST/**/target/*.exec
+            Util/**/target/*.exec
+          retention-days: 7
+
+  sonar:
+
+    name: Sonar analysis
+
+    needs: [ tests, itest ]
+
+    # Runs only when every previous job succeeded, and never for dependabot
+    if: success() && github.actor != 'dependabot[bot]'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Configure GIT
+        run: |
+          git config --global user.name "OpenL Tablets"
+          git config --global user.email openltablets@gmail.com
+          git config --global core.autocrlf false
+
+      - uses: actions/checkout@v7
+        with:
+          # Full history: without it SonarCloud cannot find the merge-base with the target
+          # branch and treats already-merged code as "new code", inflating coverage/duplication.
+          fetch-depth: 0
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: 25
           cache: 'maven'
 
       - name: Cache SonarCloud packages
-        # This step only runs if the sender is NOT dependabot
-        if: github.actor != 'dependabot[bot]'
         uses: actions/cache@v6
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Maven version
-        run: mvn -v
+        # All coverage artifacts are anchored at the repository root, so they merge into the
+        # workspace by one step. Only ITEST/server-core/target/jacoco.exec overlaps between
+        # the legs - it is the shared test harness, so losing all but one copy of its own
+        # coverage is acceptable.
+      - name: Download coverage data
+        uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+          path: .
 
-      - name: Build and Verify
-        run: mvn -B "-Dstyle.color=always" -Psonar
+        # Recompile the sources the downloaded execution data was recorded against
+        # (-Dmaven.test.skip=false brings the test classes back for the Sonar analysis, while
+        # -DskipTests still skips their execution; -Pitest re-includes the integration-test
+        # modules that -DskipTests drops from the reactor) and build the JaCoCo aggregate report.
+      - name: Aggregate coverage
+        shell: bash
+        run: mvn -B "-Dstyle.color=always" -T1C verify -Psonar,itest -DskipTests -Dmaven.test.skip=false "-Dunpack-webapp.skip=true" | tee build.log
+
+      - name: Verify coverage consistency
+        run: |
+          test -s jacoco-report/target/site/jacoco-aggregate/jacoco.xml
+          # JaCoCo drops coverage of classes whose bytecode differs from the execution data
+          ! grep -E "does not match|do not match" build.log
 
       - name: Sonar Analysis
-        # This step only runs if the sender is NOT dependabot
-        if: github.actor != 'dependabot[bot]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

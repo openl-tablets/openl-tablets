@@ -1,19 +1,27 @@
-import React, { useMemo, useRef, useState } from 'react'
-import { Button, Empty, Segmented, Tooltip } from 'antd'
-import { BranchesOutlined, CaretDownOutlined, CaretRightOutlined, LinkOutlined, RedoOutlined } from '@ant-design/icons'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
+import {
+    CloseCircleFilled,
+    DoubleRightOutlined,
+    LinkOutlined,
+    RedoOutlined,
+} from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useTraceStore } from 'store'
-import type { CallNodeView, DebugFrameView, DispatchInfo, StepValueView } from 'types/trace'
+import { treeChildKey, useTraceStore } from 'store'
+import type { CallNodeView, DebugFrameView, FrameKind, StepValueView } from 'types/trace'
 import { formatMs } from 'utils/formatDuration'
+import ConditionRow from './ConditionRow'
+import { displaySteps, isCondition } from './decisionRows'
+import DispatchBadge from './DispatchBadge'
 import { onActivate } from './keyboardActivate'
+import { kindIcon, stepIcon } from './TraceIcons'
+import { NotRetainedRow, treeIndent, toggleKey, Twisty } from './TreeRow'
+import { useFlashJump } from './useFlashJump'
 import { useStyles } from './TraceTree.styles'
-
-/** A table computed in a loop can return thousands of executed branches; render only the first, on expand. */
-const MAX_TREE_CHILDREN = 100
 
 /** One row of the flattened tree: a live frame, a live step, an executed-branch node/step, or a "more" marker. */
 interface TreeRow {
-    type: 'frame' | 'liveStep' | 'callNode' | 'callStep' | 'more'
+    type: 'frame' | 'liveStep' | 'callNode' | 'callStep' | 'more' | 'loading' | 'notRetained'
     key: string
     depth: number
     frame?: DebugFrameView
@@ -24,6 +32,8 @@ interface TreeRow {
     nodeUri?: string
     /** Execution index of the table a callStep belongs to, so replay targets that exact iteration. */
     nodeInstance?: number
+    /** Kind of the table a callStep belongs to, so the step shows that kind's icon. */
+    nodeKind?: FrameKind
     /** Set when the row has an executed sub-tree to expand. */
     expandKey?: string
     /** For a step-reference row, the key of the original step row it points at. */
@@ -32,14 +42,22 @@ interface TreeRow {
     moreCount?: number
 }
 
-const hasChildren = (step: StepValueView): boolean => !!step.children && step.children.length > 0
+const hasChildren = (step: StepValueView): boolean =>
+    (step.children?.length ?? 0) > 0 || (step.childrenTotal ?? 0) > 0
 
 /**
  * Flatten the live stack — plus any expanded executed branches — into indented rows. The live path is
  * always present and rebuilds as execution moves. Executed sub-calls (profiling mode) hang off the step
  * that made them and are collapsed by default; expanding one walks its retained structure, never values.
  */
-const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: Set<string>): TreeRow[] => {
+const flatten = (
+    frames: DebugFrameView[],
+    tree: CallNodeView | null,
+    expanded: Set<string>,
+    treeChildren: Record<string, CallNodeView[]>,
+    treeLoading: Record<string, boolean>,
+    showDetailed: boolean
+): TreeRow[] => {
     const rows: TreeRow[] = []
 
     // `refBase` is the key namespace of the branch the node hangs off, so a step-reference node can point
@@ -47,27 +65,51 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
     const walkNode = (node: CallNodeView, depth: number, path: string, refBase?: string): void => {
         rows.push({ type: 'callNode', key: path, depth, node,
             ...(node.refStep && refBase ? { refTargetKey: `${refBase}/${node.refStep}` } : {}) })
-        for (const step of node.steps) {
+        // Off the "Show detailed trace" toggle, a decision table shows only its returned rule, not the
+        // per-condition breakdown — matching the legacy trace.
+        const steps = displaySteps(node.steps, showDetailed)
+        for (const step of steps) {
             const stepKey = `${path}/${step.ref}`
             const open = hasChildren(step)
             rows.push({ type: 'callStep', key: stepKey, depth: depth + 1, step, nodeUri: node.uri,
-                nodeInstance: node.instance, ...(open ? { expandKey: stepKey } : {}) })
+                nodeInstance: node.instance, nodeKind: node.kind, ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                walkChildren(step.children, depth + 2, stepKey, path)
+                walkChildren(node.uri, node.instance, step, depth + 2, stepKey, path)
             }
+        }
+        // A branch that outgrew the tree's size limit honestly reports how many of its sub-calls were dropped,
+        // so an analyst reading Hot Spots knows this node's children are incomplete rather than absent.
+        if ((node.notRetained ?? 0) > 0) {
+            rows.push({ type: 'notRetained', key: `${path}/notRetained`, depth: depth + 1, moreCount: node.notRetained ?? 0 })
         }
     }
 
-    // Render only the first executions of a step's branch — a looped table can return thousands — and mark
-    // the rest with a single "more" row, so expanding a hot branch never floods the tree.
-    const walkChildren = (children: CallNodeView[] | null | undefined, depth: number, keyBase: string,
-        refBase: string): void => {
-        if (!children) {
+    // A live frame carries its sub-calls inline (capped for display); the completed tree fetches them lazily
+    // by (uri, instance, step) and pages them, so expanding a hot branch never floods the tree or the response.
+    const walkChildren = (nodeUri: string, nodeInstance: number, step: StepValueView,
+        depth: number, keyBase: string, refBase: string): void => {
+        if (step.children) {
+            // The server already caps inline children and reports the full count in childrenTotal, so the list
+            // is rendered as-is and the "+N more" reflects what the server omitted.
+            step.children.forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
+            const total = step.childrenTotal ?? step.children.length
+            if (total > step.children.length) {
+                rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: total - step.children.length })
+            }
             return
         }
-        children.slice(0, MAX_TREE_CHILDREN).forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
-        if (children.length > MAX_TREE_CHILDREN) {
-            rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: children.length - MAX_TREE_CHILDREN })
+        const key = treeChildKey(nodeUri, nodeInstance, step.ref)
+        const loaded = treeChildren[key]
+        if (loaded) {
+            loaded.forEach((child, i) => walkNode(child, depth, `${keyBase}#${i}`, refBase))
+            const total = step.childrenTotal ?? loaded.length
+            if (total > loaded.length) {
+                rows.push({ type: 'more', key: `${keyBase}/more`, depth, moreCount: total - loaded.length,
+                    nodeUri, nodeInstance, step })
+            }
+        }
+        if (treeLoading[key]) {
+            rows.push({ type: 'loading', key: `${keyBase}/loading`, depth })
         }
     }
 
@@ -84,7 +126,7 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
             rows.push({ type: 'liveStep', key: stepKey, depth: depth + 1, frameIndex: i, frame, step,
                 ...(open ? { expandKey: stepKey } : {}) })
             if (open && expanded.has(stepKey)) {
-                walkChildren(step.children, depth + 2, stepKey, `f${i}`)
+                walkChildren(frame.uri, frame.instance, step, depth + 2, stepKey, `f${i}`)
             }
             if (!drilled && step.status === 'current' && i + 1 < frames.length) {
                 walk(i + 1, depth + 2)
@@ -105,13 +147,6 @@ const flatten = (frames: DebugFrameView[], tree: CallNodeView | null, expanded: 
         walk(0, 0)
     }
     return rows
-}
-
-const dotFor = (status: StepValueView['status']): 'dotExecuted' | 'dotCurrent' | 'dot' => {
-    if (status === 'executed') {
-        return 'dotExecuted'
-    }
-    return status === 'current' ? 'dotCurrent' : 'dot'
 }
 
 type TimeMode = 'total' | 'self'
@@ -137,7 +172,7 @@ const rowTiming = (row: TreeRow, timeMode: TimeMode): number | null => {
 /**
  * Simple-mode view of a trace: the live call stack as a mutating tree, with executed branches retained
  * (profiling mode) as collapsible sub-trees. The current line of each frame expands into the called
- * table; already-executed lines are inactive (click to read their result); not-yet-reached lines run
+ * table; already-executed lines read as plain text (click to read their result); not-yet-reached lines run
  * execution here on click. The live path is always shown; returned branches collapse and expand on demand.
  */
 const TraceTree: React.FC = () => {
@@ -150,41 +185,52 @@ const TraceTree: React.FC = () => {
     const runTo = useTraceStore(s => s.runTo)
     const replayNode = useTraceStore(s => s.replayNode)
     const status = useTraceStore(s => s.status)
+    const truncated = useTraceStore(s => s.profile?.truncated ?? false)
+    const treeChildren = useTraceStore(s => s.treeChildren)
+    const treeLoading = useTraceStore(s => s.treeLoading)
+    const fetchTreeChildren = useTraceStore(s => s.fetchTreeChildren)
+    const runId = useTraceStore(s => s.runId)
+    const profiling = useTraceStore(s => s.profiling)
+    const showDetailed = useTraceStore(s => s.showDetailed)
     const [expanded, setExpanded] = useState<Set<string>>(new Set())
     const [timeMode, setTimeMode] = useState<TimeMode>('total')
-    const [flashKey, setFlashKey] = useState<string | null>(null)
-    const treeRef = useRef<HTMLDivElement>(null)
-    const rows = useMemo(() => flatten(frames, tree, expanded), [frames, tree, expanded])
-    // One pass over the rows for the heatmap: whether any row is timed, and the slowest timing (by the chosen
-    // metric) that sets the bar scale. Recomputed only when the rows or the metric change, not on every render.
+
+    // Row keys are positional, so a new run (replay/rerun) would inherit the previous run's expansions:
+    // matching rows silently re-open, and rows without loaded children show an open chevron over a
+    // collapsed branch that then needs two clicks to expand. A fresh run starts fully collapsed.
+    useEffect(() => {
+        setExpanded(new Set())
+    }, [runId])
+    const { treeRef, flashKey, jumpToRow } = useFlashJump()
+    const rows = useMemo(() => flatten(frames, tree, expanded, treeChildren, treeLoading, showDetailed),
+        [frames, tree, expanded, treeChildren, treeLoading, showDetailed])
+    // The single gate on timings: they are a profiling concern, so without profiling no durations
+    // (or the Total/Self toggle) are shown, even where the backend reports them.
+    const timingOf = useCallback(
+        (row: TreeRow): number | null => (profiling ? rowTiming(row, timeMode) : null),
+        [profiling, timeMode]
+    )
+    // One pass over the rows for the heatmap: whether any row is timed, and the slowest timing (by the
+    // chosen metric) that sets the bar scale. Recomputed only when the rows or the gate change.
     const { hasTimings, maxDuration } = useMemo(() => {
         let max = 0
         let anyTimed = false
         for (const row of rows) {
-            const ms = rowTiming(row, timeMode)
+            const ms = timingOf(row)
             if (ms != null) {
                 anyTimed = true
                 max = Math.max(max, ms)
             }
         }
         return { hasTimings: anyTimed, maxDuration: max }
-    }, [rows, timeMode])
-
-    // Scroll the referenced original step into view and flash it, so the eye lands on it.
-    const jumpToRow = (key: string): void => {
-        treeRef.current?.querySelector(`[data-rowkey="${CSS.escape(key)}"]`)
-            ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
-        setFlashKey(key)
-        window.setTimeout(() => setFlashKey(prev => (prev === key ? null : prev)), 1600)
-    }
+    }, [rows, timingOf])
 
     if (frames.length === 0 && !tree) {
         return <Empty description={t('debug.notSuspended')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
     }
 
     const canRunTo = status === 'suspended'
-    const indent = (depth: number): React.CSSProperties => ({ paddingLeft: 8 + depth * 14 })
-    const timingOf = (row: TreeRow): number | null => rowTiming(row, timeMode)
+    const indent = treeIndent
     // Render a timing as a length-based heat bar plus the value, so relative cost reads pre-attentively by
     // bar length and the status colours stay free to mean only execution state.
     const durationCell = (ms: number): React.ReactNode => (
@@ -199,37 +245,44 @@ const TraceTree: React.FC = () => {
         </span>
     )
 
-    const toggle = (key: string): void => setExpanded(prev => {
-        const next = new Set(prev)
-        if (!next.delete(key)) {
-            next.add(key)
-        }
-        return next
-    })
+    const toggle = (key: string): void => setExpanded(toggleKey(key))
 
-    const twisty = (expandKey?: string): React.ReactNode => {
-        if (!expandKey) {
-            return <span className={styles.chevronSlot} />
+    // Toggle a step and, when opening a lazily-loaded tree step, fetch its first page of sub-calls.
+    const onToggle = (key: string): void => {
+        const willOpen = !expanded.has(key)
+        toggle(key)
+        if (!willOpen) {
+            return
         }
-        return (
-            <span
-                aria-expanded={expanded.has(expandKey)}
-                className={styles.chevron}
-                data-testid={`tree-toggle-${expandKey}`}
-                onClick={(e) => { e.stopPropagation(); toggle(expandKey) }}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        toggle(expandKey)
-                    }
-                }}
-            >
-                {expanded.has(expandKey) ? <CaretDownOutlined /> : <CaretRightOutlined />}
-            </span>
-        )
+        const row = rows.find(r => r.expandKey === key)
+        // Fetch a lazy tree step's first page only once — re-expanding a loaded branch reuses the cache; the
+        // "+N more" row is what pages in the rest.
+        if (row?.type === 'callStep' && row.step && !row.step.children && row.nodeUri !== undefined
+            && !treeChildren[treeChildKey(row.nodeUri, row.nodeInstance ?? 0, row.step.ref)]) {
+            void fetchTreeChildren(row.nodeUri, row.nodeInstance ?? 0, row.step.ref)
+        }
+    }
+
+    const twisty = (expandKey?: string): React.ReactNode =>
+        <Twisty expanded={expanded} expandKey={expandKey} onToggle={onToggle} testIdPrefix="tree" />
+
+    // Plain, self-explanatory marks instead of coloured dots: a » points along the call path the
+    // calculation is on right now (bright on the current line, muted on the callers waiting above it),
+    // a red cross flags a failure. Executed lines read as plain text; not-yet-reached lines are greyed.
+    // A double chevron, so the mark cannot be mistaken for the single expand/collapse triangle.
+    const stepMark = (status: StepValueView['status']): React.ReactNode =>
+        (status === 'current'
+            ? <DoubleRightOutlined className={cx(styles.mark, styles.markCurrent)} />
+            : <span className={styles.mark} />)
+
+    const frameMark = (frame: DebugFrameView): React.ReactNode => {
+        if (frame.error) {
+            return <CloseCircleFilled className={cx(styles.mark, styles.markError)} />
+        }
+        if (frame.completed) {
+            return <span className={styles.mark} />
+        }
+        return <DoubleRightOutlined className={cx(styles.mark, frame.active ? styles.markFrame : styles.markWaiting)} />
     }
 
     const replayButton = (key: string, label: string, testId: string, hint: string): React.ReactNode => (
@@ -244,45 +297,6 @@ const TraceTree: React.FC = () => {
             />
         </Tooltip>
     )
-
-    // A dispatched table (versioned by dimension properties) is shown in place, badged with the versions it
-    // was chosen from — the chosen one flagged — rather than as an extra dispatcher node in the tree.
-    const dispatchBadge = (dispatch?: DispatchInfo | null): React.ReactNode => {
-        if (!dispatch || dispatch.candidates.length === 0) {
-            return null
-        }
-        const tip = (
-            <div>
-                <div className={styles.dispatchTipTitle}>
-                    {t('tree.dispatchTitle', { count: dispatch.candidates.length })}
-                </div>
-                {dispatch.candidates.map((candidate, i) => (
-                    <div
-                        key={`${i}-${candidate.label}`}
-                        className={cx(styles.dispatchCandidate, candidate.chosen && styles.dispatchChosen)}
-                    >
-                        {candidate.label}
-                    </div>
-                ))}
-            </div>
-        )
-        return (
-            <Tooltip title={tip}>
-                <span className={styles.dispatchTag} data-testid="tree-dispatch">
-                    <BranchesOutlined />
-                    {dispatch.candidates.length}
-                </span>
-            </Tooltip>
-        )
-    }
-
-    // The frame dot carries state by colour: red on error, green when returned, blue while on the stack.
-    const frameDot = (frame: DebugFrameView): string => {
-        if (frame.error) {
-            return styles.dotError
-        }
-        return frame.completed ? styles.dotExecuted : styles.dotFrame
-    }
 
     const renderFrame = (row: TreeRow): React.ReactNode => {
         const frame = row.frame as DebugFrameView
@@ -301,7 +315,8 @@ const TraceTree: React.FC = () => {
                     row.frameIndex === selectedFrameIndex && styles.selected)}
             >
                 <span className={styles.chevronSlot} />
-                <span className={cx(styles.dot, frameDot(frame))} />
+                {frameMark(frame)}
+                {kindIcon(frame.kind)}
                 <span className={styles.name}>{frame.name}</span>
                 {frame.instance > 0 && (
                     <Tooltip title={t('tree.passHint', { n: frame.instance + 1 })}>
@@ -311,7 +326,7 @@ const TraceTree: React.FC = () => {
                     </Tooltip>
                 )}
                 <span className={styles.kind}>{frame.kind}</span>
-                {dispatchBadge(frame.dispatch)}
+                <DispatchBadge dispatch={frame.dispatch} />
                 {ms != null && durationCell(ms)}
                 {frame.completed && replayButton(`${frame.uri}@${frame.instance}`, frame.name,
                     `tree-replay-${frame.uri}`, t('tree.replayHint'))}
@@ -349,13 +364,16 @@ const TraceTree: React.FC = () => {
                     tabIndex={0}
                     className={cx(styles.row,
                         runnable && styles.runnable,
-                        step.status === 'executed' && styles.inactive,
                         step.status === 'current' && styles.currentStep,
                         step.status === 'pending' && styles.pending,
                         flashKey === row.key && styles.flashed)}
                 >
                     {twisty(row.expandKey)}
-                    <span className={cx(styles.dot, styles[dotFor(step.status)])} />
+                    {stepMark(step.status)}
+                    {/* A not-yet-executed step stays bare — an icon on it would suggest it already ran. */}
+                    {step.status === 'pending'
+                        ? <span className={styles.mark} />
+                        : stepIcon(frame.kind)}
                     <span className={styles.leafLabel}>{step.label || step.ref}</span>
                     {ms != null && durationCell(ms)}
                     {step.status === 'executed' && replayButton(`${frame.uri}#${step.ref}@${frame.instance}`,
@@ -387,7 +405,7 @@ const TraceTree: React.FC = () => {
                 </Tooltip>
             )
         }
-        const ms = timingOf(row) ?? 0
+        const ms = timingOf(row)
         return (
             <div
                 key={row.key}
@@ -395,32 +413,53 @@ const TraceTree: React.FC = () => {
                 style={indent(row.depth)}
             >
                 <span className={styles.chevronSlot} />
-                <span className={cx(styles.dot, styles.dotExecuted)} />
+                {/* An empty mark slot, matching the live frame's, so executed nodes line up with live rows. */}
+                <span className={styles.mark} />
+                {kindIcon(node.kind)}
                 <span className={styles.name}>{node.name}</span>
                 <span className={styles.kind}>{node.kind}</span>
-                {dispatchBadge(node.dispatch)}
-                {durationCell(ms)}
+                <DispatchBadge dispatch={node.dispatch} />
+                {ms != null && durationCell(ms)}
                 {replayButton(`${node.uri}@${node.instance}`, node.name, `tree-replay-${node.uri}`, t('tree.replayHint'))}
             </div>
         )
     }
 
+    const renderConditionStep = (row: TreeRow): React.ReactNode => (
+        <ConditionRow
+            key={row.key}
+            markSlot
+            depth={row.depth}
+            rowKey={row.key}
+            step={row.step as StepValueView}
+            testId={`tree-condition-${row.key}`}
+        />
+    )
+
     const renderCallStep = (row: TreeRow): React.ReactNode => {
         const step = row.step as StepValueView
+        if (isCondition(step)) {
+            return renderConditionStep(row)
+        }
+        const returned = step.decision === 'returned'
         const ms = timingOf(row)
         const replayKey = `${row.nodeUri}#${step.ref}@${row.nodeInstance}`
-        const expand = row.expandKey ? () => toggle(row.expandKey as string) : undefined
+        const expand = row.expandKey ? () => onToggle(row.expandKey as string) : undefined
         return (
             <div
                 key={row.key}
                 data-rowkey={row.key}
+                data-testid={returned ? `tree-returned-${row.key}` : undefined}
                 style={indent(row.depth)}
-                className={cx(styles.row, styles.inactive, row.expandKey && styles.runnable,
+                className={cx(styles.row, row.expandKey && styles.runnable,
                     flashKey === row.key && styles.flashed)}
                 {...(expand && { onClick: expand, onKeyDown: onActivate(expand), role: 'button', tabIndex: 0 })}
             >
                 {twisty(row.expandKey)}
-                <span className={cx(styles.dot, styles.dotExecuted)} />
+                {/* An empty mark slot, matching the live step's, so executed steps line up with live rows. */}
+                <span className={styles.mark} />
+                {/* The returned rule uses the same legacy rule icon as the business tree — icons match in both modes. */}
+                {stepIcon(row.nodeKind)}
                 <span className={styles.leafLabel}>{step.label || step.ref}</span>
                 {ms != null && durationCell(ms)}
                 {row.nodeUri && replayButton(replayKey, step.label || step.ref,
@@ -429,12 +468,46 @@ const TraceTree: React.FC = () => {
         )
     }
 
-    const renderMore = (row: TreeRow): React.ReactNode => (
+    const renderMore = (row: TreeRow): React.ReactNode => {
+        // A lazy tree step carries its address on the "more" row, so clicking loads the next page of
+        // executions. A live frame's inline "more" has no address and stays a plain count.
+        const { nodeUri, nodeInstance, step } = row
+        const loadMore = nodeUri !== undefined && step
+            ? () => void fetchTreeChildren(nodeUri, nodeInstance ?? 0, step.ref)
+            : undefined
+        return (
+            <div
+                key={row.key}
+                className={cx(styles.row, styles.inactive)}
+                style={indent(row.depth)}
+                {...(loadMore && { onClick: loadMore, onKeyDown: onActivate(loadMore), role: 'button',
+                    tabIndex: 0, 'data-testid': `tree-more-${row.key}` })}
+            >
+                <span className={styles.chevronSlot} />
+                <span className={cx(styles.leafLabel, loadMore && styles.moreLink)}>
+                    {t('tree.more', { count: row.moreCount })}
+                </span>
+            </div>
+        )
+    }
+
+    const renderLoading = (row: TreeRow): React.ReactNode => (
         <div key={row.key} className={cx(styles.row, styles.inactive)} style={indent(row.depth)}>
             <span className={styles.chevronSlot} />
-            <span className={styles.leafLabel}>{t('tree.more', { count: row.moreCount })}</span>
+            <Spin size="small" />
+            <span className={styles.leafLabel}>{t('tree.loading')}</span>
         </div>
     )
+
+    // A node whose sub-calls overflowed the tree's size limit: label how many were dropped, so the gap is
+    // visible instead of silently missing. Not clickable — the dropped branches were never retained to load.
+    const renderNotRetained = (row: TreeRow): React.ReactNode =>
+        (<NotRetainedRow
+            key={row.key}
+            count={row.moreCount ?? 0}
+            depth={row.depth}
+            testId={`tree-not-retained-${row.key}`}
+        />)
 
     const render = (row: TreeRow): React.ReactNode => {
         switch (row.type) {
@@ -442,6 +515,8 @@ const TraceTree: React.FC = () => {
             case 'liveStep': return renderLiveStep(row)
             case 'callNode': return renderCallNode(row)
             case 'more': return renderMore(row)
+            case 'loading': return renderLoading(row)
+            case 'notRetained': return renderNotRetained(row)
             default: return renderCallStep(row)
         }
     }
@@ -450,20 +525,25 @@ const TraceTree: React.FC = () => {
         <div ref={treeRef} className={styles.tree} data-testid="trace-tree">
             <div className={styles.header}>
                 <span>{t('tree.title')}</span>
-                {hasTimings && (
-                    <Segmented
-                        className={styles.timeToggle}
-                        data-testid="trace-time-mode"
-                        onChange={(value) => setTimeMode(value as 'total' | 'self')}
-                        size="small"
-                        value={timeMode}
-                        options={[
-                            { label: t('tree.timeTotal'), value: 'total' },
-                            { label: t('tree.timeSelf'), value: 'self' },
-                        ]}
-                    />
-                )}
+                <span className={styles.headerControls}>
+                    {hasTimings && (
+                        <Segmented
+                            className={styles.timeToggle}
+                            data-testid="trace-time-mode"
+                            onChange={(value) => setTimeMode(value as 'total' | 'self')}
+                            size="small"
+                            value={timeMode}
+                            options={[
+                                { label: t('tree.timeTotal'), value: 'total' },
+                                { label: t('tree.timeSelf'), value: 'self' },
+                            ]}
+                        />
+                    )}
+                </span>
             </div>
+            {truncated && (
+                <div className={styles.truncated} data-testid="trace-tree-truncated">{t('tree.truncated')}</div>
+            )}
             {rows.map(render)}
         </div>
     )

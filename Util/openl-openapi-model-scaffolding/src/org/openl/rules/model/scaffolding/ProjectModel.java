@@ -10,20 +10,29 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.model.scaffolding.data.DataModel;
 
 public class ProjectModel {
 
+    @Getter
+    @Setter
     private String name;
+    @Getter
     private boolean isRuntimeContextProvided;
+    @Getter
     private Set<DatatypeModel> datatypeModels = new HashSet<>();
     private List<SpreadsheetModel> spreadsheetModels;
+    @Getter
     private List<DataModel> dataModels = new ArrayList<>();
     private Set<String> includeMethodFilter;
     /*
      * Spreadsheets which will be generate through interface. for case, when isRuntimeContextProvided is true, but these
      * spreadsheets don't have it.
      */
+    @Getter
     private List<SpreadsheetModel> notOpenLModels = new ArrayList<>();
 
     public ProjectModel() {
@@ -43,32 +52,8 @@ public class ProjectModel {
         this.notOpenLModels = modelsForInterface;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<DatatypeModel> getDatatypeModels() {
-        return datatypeModels;
-    }
-
     public List<SpreadsheetModel> getSpreadsheetResultModels() {
         return spreadsheetModels;
-    }
-
-    public boolean isRuntimeContextProvided() {
-        return isRuntimeContextProvided;
-    }
-
-    public List<SpreadsheetModel> getNotOpenLModels() {
-        return notOpenLModels;
-    }
-
-    public List<DataModel> getDataModels() {
-        return dataModels;
     }
 
     public Set<String> getIncludeMethodFilter() {

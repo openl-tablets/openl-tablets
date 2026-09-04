@@ -79,9 +79,9 @@ public final class FloorDiv {
         if (dividend == null || divisor == null) {
             return null;
         }
-        BigInteger[] divMod = dividend.divideAndRemainder(divisor);
-        BigInteger quotient = divMod[0];
-        BigInteger remainder = divMod[1];
+        var divMod = dividend.divideAndRemainder(divisor);
+        var quotient = divMod[0];
+        var remainder = divMod[1];
         // divideAndRemainder truncates toward zero; adjust only when signs differ and remainder != 0.
         if (remainder.signum() != 0 && remainder.signum() != divisor.signum()) {
             quotient = quotient.subtract(BigInteger.ONE);

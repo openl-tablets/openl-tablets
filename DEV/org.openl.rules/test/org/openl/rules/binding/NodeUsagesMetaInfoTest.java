@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +15,6 @@ import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridTable;
 
 class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private static final String SRC = "test/rules/binding/NodeUsagesMetaInfoTest.xls";
@@ -122,7 +118,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testDataTableReference() {
         // Reference in dataB table points to dataA
-        List<? extends NodeUsage> nodeUsages = assertMetaInfo(dataB, 0, 2, 1);
+        var nodeUsages = assertMetaInfo(dataB, 0, 2, 1);
 
         assertNodeUsage(dataA.getUri(), nodeUsages.getFirst(), "Data String dataA", 1, 6, NodeType.DATA);
 
@@ -139,14 +135,14 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testDataTypeNodeInDataTable() {
-        List<? extends NodeUsage> nodeUsages = assertMetaInfo(dataB, 0, 0, 1);
+        var nodeUsages = assertMetaInfo(dataB, 0, 0, 1);
 
         assertNodeUsage(typeB.getUri(), nodeUsages.getFirst(), "Datatype TypeB", 5, 10, NodeType.DATATYPE);
     }
 
     @Test
     void testDataTypeTable() {
-        List<? extends NodeUsage> nodeUsages = assertMetaInfo(typeC, 0, 0, 1);
+        var nodeUsages = assertMetaInfo(typeC, 0, 0, 1);
 
         assertNodeUsage(typeB.getUri(), nodeUsages.getFirst(), "Datatype TypeB", 23, 28, NodeType.DATATYPE);
 
@@ -165,7 +161,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testLinksInDecisionTableHeader() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(rule1, 0, 0, 3);
+        var usedNodes = assertMetaInfo(rule1, 0, 0, 3);
 
         assertNodeUsage(typeB.getUri(), usedNodes.getFirst(), "Datatype TypeB", 6, 11, NodeType.DATATYPE);
 
@@ -186,7 +182,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testLinksInMethodTableHeader() {
-        List<? extends NodeUsage> nodeUsages = assertMetaInfo(convert, 0, 0, 2);
+        var nodeUsages = assertMetaInfo(convert, 0, 0, 2);
 
         assertNodeUsage(typeB.getUri(), nodeUsages.getFirst(), "Datatype TypeB", 7, 12, NodeType.DATATYPE);
 
@@ -196,7 +192,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testForFieldUsageInDecisionTable() {
         // First condition
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(rule2, 0, 2, 2);
+        var usedNodes = assertMetaInfo(rule2, 0, 2, 2);
 
         assertNodeUsage(typeC.getUri(), usedNodes.getFirst(), "Datatype TypeC extends TypeB\nTypeB bField", 0, 6, NodeType.FIELD);
 
@@ -218,7 +214,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testForFieldUsageInDecisionTable3() {
         // First condition
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(rule3, 0, 2, 2);
+        var usedNodes = assertMetaInfo(rule3, 0, 2, 2);
 
         assertNodeUsage(typeC.getUri(), usedNodes.getFirst(), "Datatype TypeC extends TypeB\nTypeB bField", 0, 6, NodeType.FIELD);
 
@@ -240,7 +236,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testForFieldUsageInDecisionTable4() {
         // First condition
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(rule4, 0, 2, 2);
+        var usedNodes = assertMetaInfo(rule4, 0, 2, 2);
 
         assertNodeUsage(typeC.getUri(), usedNodes.getFirst(), "Datatype TypeC extends TypeB\nTypeB bField", 0, 6, NodeType.FIELD);
 
@@ -264,7 +260,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testForMixedNodeUsageInMethod1Table() {
         // Header line
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(method1, 0, 0, 1);
+        var usedNodes = assertMetaInfo(method1, 0, 0, 1);
 
         assertNodeUsage(typeC.getUri(), usedNodes.getFirst(), "Datatype TypeC extends TypeB", 22, 27, NodeType.DATATYPE);
 
@@ -292,7 +288,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testForMixedNodeUsageInMethod3Table() {
         // First line of method body
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(method3, 0, 1, 2);
+        var usedNodes = assertMetaInfo(method3, 0, 1, 2);
 
         assertNodeUsage(dataB.getUri(), usedNodes.getFirst(), "Data TypeB dataB", 20, 25, NodeType.FIELD);
 
@@ -315,7 +311,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testForMixedNodeUsageInMethod4Table() {
         // First line of method body
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(method4, 0, 1, 2);
+        var usedNodes = assertMetaInfo(method4, 0, 1, 2);
 
         assertNodeUsage(dataB.getUri(), usedNodes.getFirst(), "Data TypeB dataB", 20, 25, NodeType.FIELD);
 
@@ -351,7 +347,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testDescriptionInSpreadsheetAssetsCompare() {
         // Variable declaration: "AssetsCalc2012 : SpreadsheetResultTotalAssets"
-        List<? extends NodeUsage> nodeUsages = assertMetaInfo(assetsCompare, 0, 2, 1);
+        var nodeUsages = assertMetaInfo(assetsCompare, 0, 2, 1);
 
         assertNodeUsage(totalAssets.getUri(), nodeUsages.getFirst(), "Spreadsheet TotalAssets", 17, 45, NodeType.DATATYPE);
 
@@ -449,7 +445,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testTransposedDataTypeTable() {
-        List<? extends NodeUsage> nodeUsages = assertMetaInfo(typeCTransposed, 0, 0, 1);
+        var nodeUsages = assertMetaInfo(typeCTransposed, 0, 0, 1);
 
         assertNodeUsage(typeB.getUri(), nodeUsages.getFirst(), "Datatype TypeB", 33, 38, NodeType.DATATYPE);
 
@@ -468,10 +464,10 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testAliasTable() {
-        MetaInfoReader metaInfoReader = carType.getMetaInfoReader();
-        IGridTable gridTable = carType.getGridTable();
+        var metaInfoReader = carType.getMetaInfoReader();
+        var gridTable = carType.getGridTable();
 
-        ICell cell = gridTable.getCell(0, 0);
+        var cell = gridTable.getCell(0, 0);
         assertNull(metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
 
         assertCellType(carType, 0, 1, "java.lang.String");
@@ -479,7 +475,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForFirstStep() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 2, 6);
+        var usedNodes = assertMetaInfo(constructors, 1, 2, 6);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: TypeC", 0, 1, NodeType.OTHER);
 
@@ -497,7 +493,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForSecondStep() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 3, 2);
+        var usedNodes = assertMetaInfo(constructors, 1, 3, 2);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: CarType[]", 0, 1, NodeType.OTHER);
 
@@ -506,7 +502,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForThirdStep() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 4, 3);
+        var usedNodes = assertMetaInfo(constructors, 1, 4, 3);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: CarType[]", 0, 1, NodeType.OTHER);
 
@@ -517,7 +513,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForFourthStep() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 5, 2);
+        var usedNodes = assertMetaInfo(constructors, 1, 5, 2);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: BigDecimal", 0, 1, NodeType.OTHER);
 
@@ -526,7 +522,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForFifthStep() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 6, 2);
+        var usedNodes = assertMetaInfo(constructors, 1, 6, 2);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: SimpleDateFormat", 0, 1, NodeType.OTHER);
 
@@ -535,7 +531,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForS6Step() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 7, 2);
+        var usedNodes = assertMetaInfo(constructors, 1, 7, 2);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: TypeB", 0, 1, NodeType.OTHER);
 
@@ -545,7 +541,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testConstructorsMetaInformation_FormulaColumnForS7Step() {
 
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 8, 2);
+        var usedNodes = assertMetaInfo(constructors, 1, 8, 2);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: TypeB", 0, 1, NodeType.OTHER);
 
@@ -555,7 +551,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testConstructorsMetaInformation_FormulaColumnForS8Step() {
 
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 9, 3);
+        var usedNodes = assertMetaInfo(constructors, 1, 9, 3);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: TypeB", 0, 1, NodeType.OTHER);
 
@@ -566,7 +562,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForS9Step() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 10, 8);
+        var usedNodes = assertMetaInfo(constructors, 1, 10, 8);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: TypeCTransposed", 0, 1, NodeType.OTHER);
 
@@ -590,7 +586,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForS10Step() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 11, 3);
+        var usedNodes = assertMetaInfo(constructors, 1, 11, 3);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: Object", 0, 1, NodeType.OTHER);
 
@@ -601,7 +597,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForS11Step() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 12, 2);
+        var usedNodes = assertMetaInfo(constructors, 1, 12, 2);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: SpreadsheetResultmySpr", 0, 1, NodeType.OTHER);
 
@@ -611,7 +607,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstructorsMetaInformation_FormulaColumnForS12Step() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 13, 2);
+        var usedNodes = assertMetaInfo(constructors, 1, 13, 2);
 
         assertNodeUsage(usedNodes.getFirst(), "Cell type: TypeB", 0, 1, NodeType.OTHER);
         assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nTypeB ()", 8, 13, NodeType.DATATYPE);
@@ -619,7 +615,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testArrayBoundNodeMetaInformation() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(arrayNodeHints, 1, 2, 2);
+        var usedNodes = assertMetaInfo(arrayNodeHints, 1, 2, 2);
 
         assertNodeUsage(typeC.getUri(), usedNodes.get(1), "Datatype TypeC extends TypeB", 6, 11, NodeType.DATATYPE);
 
@@ -654,7 +650,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testTernaryOp() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(ternaryOpHints, 1, 2, 4);
+        var usedNodes = assertMetaInfo(ternaryOpHints, 1, 2, 4);
 
         assertNodeUsage(usedNodes.get(1), "org.openl.rules.calc\nclass SpreadsheetResult", 16, 33, NodeType.OTHER);
 
@@ -665,7 +661,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testTernaryOpStep3() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(ternaryOpHints, 1, 4, 7);
+        var usedNodes = assertMetaInfo(ternaryOpHints, 1, 4, 7);
 
         assertNodeUsage(usedNodes.get(1), "org.openl.rules.calc\nclass SpreadsheetResult", 11, 28, NodeType.OTHER);
         assertNodeUsage(methodFoo.getUri(), usedNodes.get(2), "Object Foo(Object object)", 30, 33, NodeType.RULE);
@@ -677,13 +673,13 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testMain() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(main, 1, 2, 3);
+        var usedNodes = assertMetaInfo(main, 1, 2, 3);
         assertNodeUsage(mySpr1.getUri(), usedNodes.get(1), "String mySpr1(String x)", 2, 8, NodeType.RULE);
     }
 
     @Test
     void testMainStep2() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(main, 1, 3, 2);
+        var usedNodes = assertMetaInfo(main, 1, 3, 2);
         assertNodeUsage(mySpr1.getUri(), usedNodes.getFirst(), "String mySpr1(String x)", 2, 8, NodeType.RULE);
         assertNodeUsage(usedNodes.get(1), "java.lang\nclass String", 13, 19, NodeType.OTHER);
     }
@@ -691,7 +687,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     void testDTArrays() {
         // Tab
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(tabs, 1, 2, 1);
+        var usedNodes = assertMetaInfo(tabs, 1, 2, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
         usedNodes = assertMetaInfo(tabs, 1, 3, 1);
         assertNodeUsage(tab.getUri(), usedNodes.getFirst(), "String Tab(String componentID)", 1, 4, NodeType.RULE);
@@ -758,13 +754,13 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testDTLink() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(myDatatypeRule, 1, 3, 1);
+        var usedNodes = assertMetaInfo(myDatatypeRule, 1, 3, 1);
         assertNodeUsage(myDatatype.getUri(), usedNodes.getFirst(), "Datatype MyDatatype\nMyDatatype ()", 6, 16, NodeType.DATATYPE);
     }
 
     @Test
     void testDTCondition2Columns() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(myRule, 1, 3, 1);
+        var usedNodes = assertMetaInfo(myRule, 1, 3, 1);
         assertNodeUsage(alias2.getUri(), usedNodes.getFirst(), "Datatype Alias2 <String>", 0, 6, NodeType.DATATYPE);
 
         usedNodes = assertMetaInfo(myRule, 0, 3, 1);
@@ -773,7 +769,7 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testConstantsHints() {
-        List<? extends NodeUsage> usedNodes = assertMetaInfo(checkApplications, 1, 3, 1);
+        var usedNodes = assertMetaInfo(checkApplications, 1, 3, 1);
         assertNodeUsage(constant1.getUri(), usedNodes.getFirst(), "String ve_VALIDATION_RULE_NOT_FOUND = Not found", 0, 28, NodeType.OTHER);
 
         usedNodes = assertMetaInfo(myDatatype1, 2, 1, 1);
@@ -789,9 +785,9 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     private static void assertCellType(TableSyntaxNode node, int column, int row, String type) {
-        MetaInfoReader metaInfoReader = node.getMetaInfoReader();
-        ICell cell = node.getGridTable().getCell(column, row);
-        CellMetaInfo cellMetaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+        var metaInfoReader = node.getMetaInfoReader();
+        var cell = node.getGridTable().getCell(column, row);
+        var cellMetaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
         assertNotNull(cellMetaInfo);
         assertFalse(CellMetaInfo.isCellContainsNodeUsages(cellMetaInfo));
         assertEquals(type, cellMetaInfo.getDataType().getName());
@@ -799,18 +795,18 @@ class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     private static List<? extends NodeUsage> assertMetaInfo(TableSyntaxNode node, int column, int row, int size) {
-        MetaInfoReader metaInfoReader = node.getMetaInfoReader();
-        ICell cell = node.getGridTable().getCell(column, row);
+        var metaInfoReader = node.getMetaInfoReader();
+        var cell = node.getGridTable().getCell(column, row);
         cell = cell.getTopLeftCellFromRegion();
-        CellMetaInfo cellMetaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+        var cellMetaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
         if (size > 0) {
             assertNotNull(cellMetaInfo);
             assertEquals("java.lang.String", cellMetaInfo.getDataType().getName());
         }
         List<? extends NodeUsage> usedNodes = cellMetaInfo != null ? cellMetaInfo.getUsedNodes()
-                : Collections.emptyList();
+                : List.of();
         if (usedNodes == null) {
-            usedNodes = Collections.emptyList();
+            usedNodes = List.of();
         }
         assertEquals(size, usedNodes.size());
         return usedNodes;

@@ -3,6 +3,8 @@ package org.openl.rules.table.constraints;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.util.CollectionUtils;
 
 /**
@@ -11,6 +13,7 @@ import org.openl.util.CollectionUtils;
 public class Constraints {
 
     private List<Constraint> constraints = new ArrayList<>();
+    @Getter
     private String constraintsStr;
 
     public Constraints() {
@@ -22,10 +25,6 @@ public class Constraints {
 
     public Constraints(String constraintsStr) {
         setAll(constraintsStr);
-    }
-
-    public String getConstraintsStr() {
-        return constraintsStr;
     }
 
     public void setAll(String constraintsStr) {

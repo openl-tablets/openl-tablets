@@ -1,0 +1,33 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
+  "name": "EPBDS-14418",
+  "status": "CLOSED",
+  "repository": "design",
+  "modifiedBy": "admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "comment": "Project EPBDS-14418 is created.",
+  "repositoryInfo": {
+    "id": "design",
+    "name": "H2",
+    "type": "repo-jdbc",
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false
+    }
+  },
+  "capabilities": {
+    "canOpen": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
+}

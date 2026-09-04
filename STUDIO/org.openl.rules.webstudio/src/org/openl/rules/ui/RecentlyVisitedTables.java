@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
@@ -35,7 +33,7 @@ public class RecentlyVisitedTables {
     }
 
     public void add(IOpenLTable table) {
-        VisitedTableWrapper vtw = new VisitedTableWrapper(table);
+        var vtw = new VisitedTableWrapper(table);
 
         synchronized (lock) {
             tables.remove(vtw);
@@ -78,11 +76,11 @@ public class RecentlyVisitedTables {
     }
 
     private void checkTableAvailability() {
-        List<VisitedTableWrapper> tableForRemove = new ArrayList<>();
+        var tableForRemove = new ArrayList<VisitedTableWrapper>();
 
         for (VisitedTableWrapper table : tables) {
             WebStudio studio = WebStudioUtils.getWebStudio();
-            IOpenLTable refreshTable = studio.getModel().getTableById(table.getId());
+            var refreshTable = studio.getModel().getTableById(table.getId());
 
             if (refreshTable == null) {
                 tableForRemove.add(table);
@@ -138,7 +136,7 @@ public class RecentlyVisitedTables {
         }
 
         private String getName(IOpenLTable table) {
-            String tableName = table.getDisplayName();
+            var tableName = table.getDisplayName();
 
             if (tableName == null || tableName.isEmpty()) {
                 tableName = TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue(),
@@ -146,12 +144,12 @@ public class RecentlyVisitedTables {
             }
 
             String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-            ITableProperties tableProps = table.getProperties();
-            StringBuilder dimensionBuilder = new StringBuilder();
+            var tableProps = table.getProperties();
+            var dimensionBuilder = new StringBuilder();
 
             if (tableProps != null) {
                 for (String dimensionProp : dimensionProps) {
-                    String propValue = tableProps.getPropertyValueAsString(dimensionProp);
+                    var propValue = tableProps.getPropertyValueAsString(dimensionProp);
 
                     if (propValue != null && !propValue.isEmpty()) {
                         dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
@@ -183,7 +181,7 @@ public class RecentlyVisitedTables {
                 return false;
             }
 
-            VisitedTableWrapper wrapper = (VisitedTableWrapper) obj;
+            var wrapper = (VisitedTableWrapper) obj;
 
             return Objects.equals(getId(), wrapper.getId());
         }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -53,7 +54,7 @@ public final class OpenLService {
     private Throwable exception;
     @Getter
     @Setter
-    private Map<String, String> urls = Collections.emptyMap();
+    private Map<String, String> urls = Map.of();
     @Getter
     private final DeploymentDescription deployment;
     @Getter
@@ -95,14 +96,14 @@ public final class OpenLService {
         if (modules != null) {
             this.modules = Collections.unmodifiableCollection(modules);
         } else {
-            this.modules = Collections.emptyList();
+            this.modules = List.of();
         }
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         if (publishers != null) {
             this.publishers = Collections.unmodifiableSet(publishers);
         } else {
-            this.publishers = Collections.emptySet();
+            this.publishers = Set.of();
         }
 
         this.classLoader = classLoader;
@@ -131,7 +132,7 @@ public final class OpenLService {
      */
     public Collection<String> getPublishers() {
         if (publishers == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         return publishers;
     }
@@ -143,7 +144,7 @@ public final class OpenLService {
      */
     public Collection<Module> getModules() {
         if (modules == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         return modules;
     }
@@ -193,8 +194,8 @@ public final class OpenLService {
      */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        final var prime = 31;
+        var result = 1;
         result = prime * result + (deployPath == null ? 0 : deployPath.hashCode());
         return result;
     }
@@ -213,7 +214,7 @@ public final class OpenLService {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        OpenLService other = (OpenLService) obj;
+        var other = (OpenLService) obj;
         if (deployPath == null) {
             if (other.deployPath != null) {
                 return false;

@@ -60,19 +60,19 @@ public class LookupTableReader extends ExecutableTableReader<LookupView, LookupV
     }
 
     private static List<LookupHeaderView> buildHeaders(ILogicalTable headerTable, boolean trimEmptyColumns) {
-        List<LookupHeaderView> headers = new ArrayList<>();
+        var headers = new ArrayList<LookupHeaderView>();
         var width = trimEmptyColumns
                 ? OpenLTableUtils.getWidthWithoutEmptyColumns(headerTable)
                 : headerTable.getWidth();
-        for (int colNum = 0; colNum < width; colNum++) {
+        for (var colNum = 0; colNum < width; colNum++) {
             var column = headerTable.getColumn(colNum);
             var title = column.getCell(0, 0).getStringValue();
             var headerBuilder = LookupHeaderView.builder()
                     .title(title != null ? title : "");
             var colHeight = column.getHeight();
             if (colHeight > 1) {
-                List<LookupHeaderView> subHeaders = new ArrayList<>();
-                for (int rowNum = 1; rowNum < colHeight; rowNum++) {
+                var subHeaders = new ArrayList<LookupHeaderView>();
+                for (var rowNum = 1; rowNum < colHeight; rowNum++) {
                     var subHeader = column.getRow(rowNum);
                     subHeaders.addAll(buildHeaders(subHeader, false));
                 }
@@ -94,12 +94,12 @@ public class LookupTableReader extends ExecutableTableReader<LookupView, LookupV
         var sourceTable = rowsTable.getSource();
         var height = OpenLTableUtils.getHeightWithoutEmptyRows(sourceTable);
 
-        for (int rowId = 0; rowId < height; rowId++) {
+        for (var rowId = 0; rowId < height; rowId++) {
             var row = new LinkedHashMap<String, Object>();
-            int colId = 0;
+            var colId = 0;
 
             for (var header : headers) {
-                Object value = readHeaderValue(sourceTable, header, colId, rowId, cellValueReader);
+                var value = readHeaderValue(sourceTable, header, colId, rowId, cellValueReader);
                 row.put(header.title, value);
                 colId += getHeaderColumnCount(header);
             }
@@ -125,10 +125,10 @@ public class LookupTableReader extends ExecutableTableReader<LookupView, LookupV
         } else {
             // Parent header - build nested map from children
             var nestedMap = new LinkedHashMap<String, Object>();
-            int col = startCol;
+            var col = startCol;
 
             for (var child : header.children) {
-                Object childValue = readHeaderValue(sourceTable, child, col, rowId, cellValueReader);
+                var childValue = readHeaderValue(sourceTable, child, col, rowId, cellValueReader);
                 nestedMap.put(child.title, childValue);
                 col += getHeaderColumnCount(child);
             }

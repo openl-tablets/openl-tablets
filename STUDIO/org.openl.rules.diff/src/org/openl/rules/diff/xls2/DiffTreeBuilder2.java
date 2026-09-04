@@ -14,7 +14,6 @@ import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.tree.DiffTreeNodeImpl;
 import org.openl.rules.diff.xls.XlsProjection;
 import org.openl.rules.diff.xls.XlsProjectionType;
-import org.openl.rules.table.IGridTable;
 
 public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
     // @Override
@@ -30,7 +29,7 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
     }
 
     protected DiffTreeNodeImpl newDiffTreeNode() {
-        DiffTreeNodeImpl n = new DiffTreeNodeImpl();
+        var n = new DiffTreeNodeImpl();
         DiffElement[] a = new DiffElementImpl[2];
         n.setElements(a);
         n.setChildren(new ArrayList<>());
@@ -42,7 +41,7 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
 
     public void add(DiffPair diff) {
         String sheetName = diff.getTable1() != null ? diff.getTable1().getSheetName() : diff.getTable2().getSheetName();
-        List<DiffPair> list = sheetMap.computeIfAbsent(sheetName, e -> new ArrayList<>());
+        var list = sheetMap.computeIfAbsent(sheetName, e -> new ArrayList<>());
         list.add(diff);
     }
 
@@ -52,11 +51,11 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
 
         for (Map.Entry<String, List<DiffPair>> entry : sheetMap.entrySet()) {
             // Create Sheet Node
-            String sheetName = entry.getKey();
+            var sheetName = entry.getKey();
             List<DiffPair> diffs = entry.getValue();
 
-            int n1 = 0;
-            int n2 = 0;
+            var n1 = 0;
+            var n2 = 0;
             for (DiffPair r : diffs) {
                 if (r.getTable1() != null) {
                     n1++;
@@ -66,7 +65,7 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
                 }
             }
 
-            DiffTreeNodeImpl sheetNode = newDiffTreeNode();
+            var sheetNode = newDiffTreeNode();
             root.getChildren().add(sheetNode);
 
             XlsProjection p1 = null;
@@ -89,14 +88,14 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
 
             // Create Table Nodes in a Sheet
             for (DiffPair r : diffs) {
-                DiffTreeNodeImpl tableNode = newDiffTreeNode();
+                var tableNode = newDiffTreeNode();
                 sheetNode.getChildren().add(tableNode);
 
                 XlsProjection tp1 = null;
                 XlsProjection tp2 = null;
 
-                XlsTable t1 = r.getTable1();
-                XlsTable t2 = r.getTable2();
+                var t1 = r.getTable1();
+                var t2 = r.getTable2();
 
                 if (t1 != null) {
                     tp1 = new XlsProjection(t1.getTableName(), XlsProjectionType.TABLE);
@@ -122,12 +121,12 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
     public void fillProps(XlsProjection projection, XlsTable xlsTable) {
         projection.addProperty(new AbstractProperty("name", xlsTable.getTableName()));
         projection.addProperty(new AbstractProperty("location", xlsTable.getLocation().getStart().toString()));
-        IGridTable grid = xlsTable.getTable().getGridTable();
+        var grid = xlsTable.getTable().getGridTable();
         projection.addProperty(new AbstractProperty("size", grid.getWidth() + "x" + grid.getHeight()));
     }
 
     public DiffTreeNode compare() {
-        DiffTreeNodeImpl root = newDiffTreeNode();
+        var root = newDiffTreeNode();
         buildTree(root);
         diffTree(root);
         return root;

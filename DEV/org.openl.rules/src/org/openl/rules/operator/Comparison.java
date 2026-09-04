@@ -89,8 +89,8 @@ public class Comparison {
 
     public static boolean eq(BigDecimal x, BigDecimal y) {
         if (x != null && y != null) {
-            BigDecimal xUlp = x.ulp();
-            BigDecimal yUlp = y.ulp();
+            var xUlp = x.ulp();
+            var yUlp = y.ulp();
             BigDecimal ulp;
             if (xUlp.compareTo(yUlp) > 0) {
                 ulp = xUlp;

@@ -36,7 +36,7 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
     @Override
     protected void mergeHeaderCells(SmartRulesView tableView) {
         if (!isUpdateMode()) {
-            int latestCol = tableView.headers.stream()
+            var latestCol = tableView.headers.stream()
                     .mapToInt(h -> Math.max(h.width, 1))
                     .sum() - 1;
             if (CollectionUtils.isNotEmpty(tableView.properties)) {
@@ -53,10 +53,10 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
     protected void updateBusinessBody(SmartRulesView tableView) {
         var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
         writeConditionHeaders(tableBody, tableView);
-        int row = 1;
-        int colMax = 0;
+        var row = 1;
+        var colMax = 0;
         for (var rule : tableView.rules) {
-            int col = 0;
+            var col = 0;
             for (var header : tableView.headers) {
                 var value = rule.get(header.title);
                 if (header.width == 2) {
@@ -91,12 +91,12 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
     }
 
     private void writeConditionHeaders(IGridTable tableBody, SmartRulesView tableView) {
-        int col = 0;
-        List<IGridRegion> mergeRegions = new ArrayList<>();
+        var col = 0;
+        var mergeRegions = new ArrayList<IGridRegion>();
         for (var header : tableView.headers) {
             updateHeaderWidth(header, tableView.rules);
-            int fromCol = col;
-            for (int i = 0; i < header.width; i++) {
+            var fromCol = col;
+            for (var i = 0; i < header.width; i++) {
                 createOrUpdateCell(tableBody, buildCellKey(col, 0), header.title);
                 col++;
             }
@@ -129,9 +129,9 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var headers = SmartRulesTableReader
                     .getConditionHeaders(LogicalTableHelper.logicalTable(tableBody.getRow(0)));
-            int row = IGridRegion.Tool.height(tableBody.getRegion());
+            var row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var rule : tableAppend.getRules()) {
-                int col = 0;
+                var col = 0;
                 for (var header : headers) {
                     var value = rule.get(header.title);
                     if (header.width == 2) {

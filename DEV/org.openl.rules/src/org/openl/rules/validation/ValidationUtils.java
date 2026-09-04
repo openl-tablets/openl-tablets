@@ -17,7 +17,7 @@ public final class ValidationUtils {
         if (messages == null || messages.isEmpty()) {
             return validationSuccess();
         }
-        Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
+        var errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
         if (errorMessages.isEmpty()) {
             return new ValidationResult(ValidationStatus.SUCCESS, messages);
         } else {

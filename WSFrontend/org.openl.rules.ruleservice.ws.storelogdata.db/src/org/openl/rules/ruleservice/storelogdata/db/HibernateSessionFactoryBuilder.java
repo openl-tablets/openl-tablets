@@ -3,8 +3,8 @@ package org.openl.rules.ruleservice.storelogdata.db;
 import java.util.Arrays;
 import java.util.Properties;
 
+import lombok.Setter;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.springframework.context.ApplicationContext;
@@ -14,13 +14,9 @@ import org.openl.rules.ruleservice.storelogdata.PropertiesLoader;
 
 public class HibernateSessionFactoryBuilder implements ApplicationContextAware {
 
+    @Setter
     private ApplicationContext applicationContext;
     private volatile Properties applicationContextProperties;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
 
     private Properties getApplicationContextProperties() {
         if (this.applicationContextProperties == null) {
@@ -35,12 +31,12 @@ public class HibernateSessionFactoryBuilder implements ApplicationContextAware {
     }
 
     public SessionFactory buildSessionFactory(Class<?>[] entityClasses) {
-        Configuration configuration = new Configuration();
+        var configuration = new Configuration();
         Arrays.stream(entityClasses).forEach(configuration::addAnnotatedClass);
         configuration.setProperties(getApplicationContextProperties());
-        StandardServiceRegistryBuilder serviceRegistryBuilder = new StandardServiceRegistryBuilder();
+        var serviceRegistryBuilder = new StandardServiceRegistryBuilder();
         serviceRegistryBuilder.applySettings(configuration.getProperties());
-        StandardServiceRegistry serviceRegistry = serviceRegistryBuilder.build();
+        var serviceRegistry = serviceRegistryBuilder.build();
         return configuration.buildSessionFactory(serviceRegistry);
     }
 }

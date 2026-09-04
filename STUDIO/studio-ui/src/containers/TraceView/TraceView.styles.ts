@@ -8,30 +8,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         background: ${token.colorBgContainer};
     `,
-    toolbar: css`
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: ${token.marginSM}px;
-        flex: 0 0 auto;
-        padding: ${token.paddingXXS}px ${token.paddingSM}px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-    `,
-    statusPill: css`
-        display: inline-flex;
-        align-items: center;
-        flex: 0 0 auto;
-        padding: ${token.paddingXXS}px ${token.paddingSM}px;
-        border-radius: ${token.borderRadius}px;
-        background: ${token.colorFillQuaternary};
-        white-space: nowrap;
-
-        .ant-badge-status-text {
-            font-size: ${token.fontSizeSM}px;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-        }
-    `,
     panels: css`
         flex: 1;
         display: flex;
@@ -103,6 +79,31 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     panelDisabled: css`
         pointer-events: none;
+    `,
+    runningOverlay: css`
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: ${token.colorBgMask};
+    `,
+    runningCard: css`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: ${token.margin}px;
+        max-width: 320px;
+        padding: ${token.paddingLG}px ${token.paddingXL}px;
+        text-align: center;
+        background: ${token.colorBgElevated};
+        border-radius: ${token.borderRadiusLG}px;
+        box-shadow: ${token.boxShadowSecondary};
+    `,
+    runningText: css`
+        color: ${token.colorText};
+        font-size: ${token.fontSize}px;
     `,
     errorBanner: css`
         flex: 0 0 auto;

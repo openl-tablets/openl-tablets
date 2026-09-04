@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * The request nests two discriminators: {@code operation} selects the edit and the {@code target} object's
  * {@code type} selects the resource it acts on, e.g.
- * {@code {"operation": "insert", "target": {"type": "row", "position": 2, "cells": [...]}}}.
+ * {@code {"operation": "insert", "target": {"type": "rows", "position": 2, "cells": [...]}}}.
  * <p>
  * All coordinates are 0-based and refer to the matrix returned by
  * {@code GET /projects/{projectId}/tables/{tableId}?raw=true}. The table type is never interpreted; the action works
@@ -20,8 +20,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *
  * @author Vladyslav Pikus
  */
-@Schema(description = "Single in-place edit of a table's raw source. `operation` selects the edit and the target's "
-        + "`type` the resource it acts on.", discriminatorProperty = "operation")
+@Schema(description = """
+        Single in-place edit of a table's raw source. `operation` selects the edit and the target's \
+        `type` the resource it acts on.""", discriminatorProperty = "operation")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "operation")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = RawTableSourceAction.Append.class, name = "append"),
@@ -39,11 +40,11 @@ public sealed interface RawTableSourceAction
         RawTableSourceAction.Merge,
         RawTableSourceAction.Unmerge {
 
-    @Schema(name = "Append", description = "Adds a row or column to the end of the table.")
+    @Schema(name = "Append", description = "Adds one or more rows or columns to the end of the table.")
     record Append(@NotNull @Valid AppendTarget target) implements RawTableSourceAction {
     }
 
-    @Schema(name = "Insert", description = "Inserts a row or column at a position.")
+    @Schema(name = "Insert", description = "Inserts one or more rows or columns at a position.")
     record Insert(@NotNull @Valid InsertTarget target) implements RawTableSourceAction {
     }
 

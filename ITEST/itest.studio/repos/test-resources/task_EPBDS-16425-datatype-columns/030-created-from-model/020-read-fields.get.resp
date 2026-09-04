@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "465f789513bd549f19c60a1327adbcd5",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Policy",
+  "fields": [
+    {
+      "name": "holder",
+      "type": "String",
+      "defaultValue": "unknown",
+      "description": "Who is insured"
+    }
+  ]
+}
+

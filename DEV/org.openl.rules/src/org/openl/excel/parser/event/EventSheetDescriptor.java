@@ -1,50 +1,25 @@
 package org.openl.excel.parser.event;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import org.openl.excel.parser.SheetDescriptor;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class EventSheetDescriptor implements SheetDescriptor {
+    @Getter
     private final String name;
+    @Getter
     private final int index;
+    @Getter
     private final int offset;
 
+    @Getter
+    @Setter
     private int firstRowNum;
+    @Getter
+    @Setter
     private int firstColNum;
-
-    EventSheetDescriptor(String name, int index, int offset) {
-        this.name = name;
-        this.index = index;
-        this.offset = offset;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public int getIndex() {
-        return index;
-    }
-
-    public int getOffset() {
-        return offset;
-    }
-
-    @Override
-    public int getFirstRowNum() {
-        return firstRowNum;
-    }
-
-    public void setFirstRowNum(int firstRowNum) {
-        this.firstRowNum = firstRowNum;
-    }
-
-    @Override
-    public int getFirstColNum() {
-        return firstColNum;
-    }
-
-    public void setFirstColNum(int firstColNum) {
-        this.firstColNum = firstColNum;
-    }
 }

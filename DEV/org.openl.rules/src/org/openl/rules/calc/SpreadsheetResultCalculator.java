@@ -2,11 +2,12 @@ package org.openl.rules.calc;
 
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetResultCalculator implements IDynamicObject {
@@ -14,6 +15,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     public static final Object EMPTY_CELL = new Object();
     public static final Object DESCRIPTION_CELL = new Object();
 
+    @Getter
     private final Spreadsheet spreadsheet;
     /**
      * OpenL module
@@ -26,6 +28,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     /**
      * Copy of the call environment.
      */
+    @Getter
     protected final IRuntimeEnv env;
 
     private final Object[][] results;
@@ -49,8 +52,8 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     }
 
     private Object[][] clonePrecalculatedResults(Object[][] preCalculatedResult) {
-        Object[][] res = preCalculatedResult.clone();
-        for (int i = 0; i < res.length; i++) {
+        var res = preCalculatedResult.clone();
+        for (var i = 0; i < res.length; i++) {
             res[i] = preCalculatedResult[i].clone();
         }
 
@@ -60,16 +63,16 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     @Override
     public Object getFieldValue(String name) {
 
-        IOpenField field = spreadsheet.getSpreadsheetType().getField(name);
+        var field = spreadsheet.getSpreadsheetType().getField(name);
 
         if (field == null) {
             return targetModule.getFieldValue(name);
         }
 
-        SpreadsheetCellField cellField = (SpreadsheetCellField) field;
+        var cellField = (SpreadsheetCellField) field;
 
-        int row = cellField.getCell().getRowIndex();
-        int column = cellField.getCell().getColumnIndex();
+        var row = cellField.getCell().getRowIndex();
+        var column = cellField.getCell().getColumnIndex();
 
         return getValue(row, column);
     }
@@ -81,10 +84,6 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
 
     public Object getRow(int row, IRuntimeEnv env) {
         return null;
-    }
-
-    public Spreadsheet getSpreadsheet() {
-        return spreadsheet;
     }
 
     @Override
@@ -101,7 +100,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
      */
     public Object getValue(int row, int column) {
         // row and column are logical indices (from SpreadsheetCell which now stores logical indices)
-        Object result = results[row][column];
+        var result = results[row][column];
         if (result == EMPTY_CELL) {
             return null;
         }
@@ -112,7 +111,7 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         // cells[][] is also indexed with logical indices
         var spreadsheetCell = spreadsheet.getCells()[row][column];
         if (result != METHOD_VALUE) {
-            boolean resolved = false;
+            var resolved = false;
             if (spreadsheetCell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
                 resolved = env.getTracer().resolveTraceNode(spreadsheetCell, this, params, env, this);
             }
@@ -149,21 +148,17 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     }
 
     public Object[][] getValues() {
-        int height = height();
-        int width = width();
+        var height = height();
+        var width = width();
 
         Object[][] resultArray = new Object[height][width];
 
         // Iterate with logical indices since getValue() now expects logical indices
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
+        for (var row = 0; row < height; row++) {
+            for (var col = 0; col < width; col++) {
                 resultArray[row][col] = getValue(row, col);
             }
         }
         return resultArray;
-    }
-
-    public IRuntimeEnv getEnv() {
-        return env;
     }
 }

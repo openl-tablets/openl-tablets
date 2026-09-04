@@ -24,7 +24,7 @@ final class TestGitUtils {
     }
 
     static FileData createFileData(String path, String text, String comment) {
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(path);
         fileData.setSize(text.length());
         fileData.setComment(comment);
@@ -36,7 +36,7 @@ final class TestGitUtils {
         if (!parent.mkdirs() && !parent.exists()) {
             throw new IOException("Could not create folder " + parent);
         }
-        File file = new File(parent, fileName);
+        var file = new File(parent, fileName);
         if (!file.createNewFile()) {
             throw new IOException("Could not create file " + file.getAbsolutePath());
         }
@@ -45,13 +45,13 @@ final class TestGitUtils {
     }
 
     static void writeText(File file, String text) throws FileNotFoundException, UnsupportedEncodingException {
-        try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8.displayName())) {
+        try (var writer = new PrintWriter(file, StandardCharsets.UTF_8.displayName())) {
             writer.append(text);
         }
     }
 
     static void assertContains(List<FileData> files, String fileName) {
-        boolean contains = false;
+        var contains = false;
         for (FileData file : files) {
             if (fileName.equals(file.getName())) {
                 contains = true;

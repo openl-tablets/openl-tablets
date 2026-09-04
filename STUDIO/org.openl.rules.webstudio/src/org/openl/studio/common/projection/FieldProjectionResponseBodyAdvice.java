@@ -45,15 +45,15 @@ public class FieldProjectionResponseBodyAdvice extends AbstractMappingJacksonRes
         if (!(request instanceof ServletServerHttpRequest servletRequest)) {
             return;
         }
-        var rawFields = servletRequest.getServletRequest().getParameter(FieldProjectionSupport.PARAMETER_NAME);
-        if (StringUtils.isBlank(rawFields)) {
-            return;
-        }
         // Projection eligibility follows the declared return type, with the runtime body as a fallback
         // for wildcard types like ResponseEntity<?>. This decouples validation of the fields parameter
         // from whether the current response happens to be empty: an invalid value fails the same way
         // whether the page has zero or many elements.
         if (!isProjectableEndpoint(returnType, bodyContainer.getValue())) {
+            return;
+        }
+        var rawFields = servletRequest.getServletRequest().getParameter(FieldProjectionSupport.PARAMETER_NAME);
+        if (StringUtils.isBlank(rawFields)) {
             return;
         }
         var selection = support.parseSelection(rawFields);

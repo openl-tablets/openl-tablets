@@ -4,12 +4,21 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:oh="http://openl-tablets.sf.net/jsf/html"
     xmlns:rich="http://richfaces.org/rich">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
     <c:set var="pathRoot" value="#{contextPath}/faces/pages/modules" />
 
+<ui:remove>
+    This page is the shell the user keeps open for the whole session, while every panel and content page it
+    shows is loaded as a view of its own. Those views share one bounded per-session cache, so a shell holding
+    state would be pushed out of it after a dozen or so panel loads and every later request of its own would
+    answer that the view has expired. The shell carries no state to keep between requests, so it declares
+    itself transient and stays out of that cache.
+</ui:remove>
+<f:view transient="true">
 <h:head>
     #{mainBean.init}
 
@@ -19,11 +28,10 @@
 
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <link href="css/bootstrap.min.css" rel="stylesheet" />
-    <link href="css/common.css?11" rel="stylesheet" />
+    <link href="css/common.css?12" rel="stylesheet" />
     <link href="css/layout/main.css" rel="stylesheet" />
     <link href="css/jquery.popup.css" rel="stylesheet" />
     <link href="css/jquery.multiselect.css" rel="stylesheet" />
-    <link href="css/jquery-editable-select.min.css" rel="stylesheet" />
 
     <link href="webresource/css/tableeditor.min.css" rel="stylesheet" />
 
@@ -33,7 +41,6 @@
     <script src="javascript/vendor/jquery-3.7.1.min.js"></script>
     <script src="javascript/vendor/jquery-migrate-3.4.1.min.js"></script>
     <script src="javascript/vendor/jquery-back-compat.js"></script>
-    <script src="javascript/vendor/jquery.are-you-sure.js"></script>
     <script src="javascript/vendor/bootstrap.min.js"></script>
     <script src="javascript/vendor/signals.min.js"></script>
     <script src="javascript/vendor/crossroads.min.js"></script>
@@ -43,7 +50,6 @@
     <script src="javascript/jquery.multiselect.js?1"></script>
     <script src="javascript/bomjs.js"></script>
     <script src="javascript/vendor/response-monitor.js"></script>
-    <script src="javascript/vendor/jquery-editable-select.min.js?1"></script>
 
     <h:outputScript name="faces.js" library="jakarta.faces" />
 
@@ -457,6 +463,35 @@
                                 onOK: options.onOK
                             }
                         }));
+                    },
+                    // Opens a React table modal mounted by studio-ui in #appRoot: 'openCreateTableModal' or
+                    // 'openCopyTableModal'. The `guard` is the page's own check that a newer revision may be
+                    // overwritten and runs before the modal opens. The module chosen in the modal may differ
+                    // from the one open in the legacy editor, so navigation is built from the module reported
+                    // back on success. Always returns false, so the triggering link never follows its href.
+                    //
+                    // The project, module and source table identities arrive as data attributes of the trigger
+                    // rather than inlined into a page script: a script body is rendered verbatim, so a module
+                    // named with a quote would end the string it sits in and break every function defined
+                    // there. An attribute value is escaped as markup, and reaches the modal as text whatever
+                    // it holds.
+                    openTableModal: function (source, eventName, guard) {
+                        if (!guard()) {
+                            return false;
+                        }
+                        const projectUrl = source.dataset.projectUrl;
+                        globalThis.dispatchEvent(new CustomEvent(eventName, {
+                            detail: {
+                                projectId: source.dataset.projectId,
+                                currentModuleName: source.dataset.moduleName,
+                                sourceTableId: source.dataset.sourceTableId,
+                                onSuccess: (table, moduleName) => {
+                                    api.nav.go(projectUrl + '/' + encodeURIComponent(moduleName) + '/table?id='
+                                        + encodeURIComponent(table.id), true);
+                                }
+                            }
+                        }));
+                        return false;
                     },
                     showLoader: function () {
                         notifyLoader("show");
@@ -1163,14 +1198,15 @@
         <oh:fileUpload id="initRfUpload" />
         <rich:tree id="initRfTree" />
 
-        <h:form>
-            <a4j:jsFunction name="onPageUnload" action="#{mainBean.onPageUnload}" onbegin="ws.ui.showLoader()" oncomplete="ws.ui.hideLoader()">
+        <h:form id="shellForm">
+            <a4j:jsFunction id="onPageUnloadFunction" name="onPageUnload" action="#{mainBean.onPageUnload}" onbegin="ws.ui.showLoader()" oncomplete="ws.ui.hideLoader()">
                 <a4j:param name="requestId" assignTo="#{mainBean.requestId}" />
             </a4j:jsFunction>
-            <a4j:jsFunction name="reloadModule" action="#{studio.compile}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
+            <a4j:jsFunction id="reloadModuleFunction" name="reloadModule" action="#{studio.compile}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         </h:form>
     </div>
 
     <ui:include src="/pages/modules/tooLongDownload.xhtml"/>
 </h:body>
+</f:view>
 </html>

@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -39,6 +38,19 @@ import org.openl.rules.project.model.ProjectDescriptor;
  */
 class PomlessMojoTest {
 
+    /**
+     * Root of the fake reactor layout used by the tests.
+     *
+     * <p>The mojo turns every path it works with into an absolute one. A literal such as {@code /repo} is already
+     * absolute on Linux and macOS, but on Windows it names a folder on the current drive and only becomes absolute
+     * once a drive letter is prepended. Anchoring the layout here keeps both sides of every comparison in the same
+     * form on all platforms.
+     */
+    private static final Path REPO = Path.of("/repo").toAbsolutePath().normalize();
+
+    /** A root outside {@link #REPO}, in the same absolute form. */
+    private static final Path ELSEWHERE = Path.of("/somewhere/else").toAbsolutePath().normalize();
+
     private static MavenProject project(String packaging) {
         var model = new Model();
         model.setPackaging(packaging);
@@ -61,13 +73,13 @@ class PomlessMojoTest {
         var rating = project("pom");
         var leaf = project(OpenLPackagings.OPENL_PACKAGING);
         var reactor = Map.of(
-                Path.of("/repo"), root,
-                Path.of("/repo/rating"), rating,
-                Path.of("/repo/rating/leaf"), leaf);
+                REPO, root,
+                REPO.resolve("rating"), rating,
+                REPO.resolve("rating/leaf"), leaf);
         var collapsed = new HashSet<Path>();
 
         var anchor = PomlessMojo.collapseAnchorOf(
-                Path.of("/repo/rating/leaf"), reactor, Set.of(), Path.of("/repo"), collapsed);
+                REPO.resolve("rating/leaf"), reactor, Set.of(), REPO, collapsed);
 
         assertSame(rating, anchor, "rating is non-pass-through (per the empty passThroughDirs) — anchor stops there");
         assertTrue(collapsed.isEmpty(), "nothing was collapsed");
@@ -78,11 +90,11 @@ class PomlessMojoTest {
         var root = project("pom");
         var leaf = project(OpenLPackagings.OPENL_PACKAGING);
         var reactor = Map.of(
-                Path.of("/repo"), root,
-                Path.of("/repo/leaf"), leaf);
+                REPO, root,
+                REPO.resolve("leaf"), leaf);
 
         assertSame(root, PomlessMojo.collapseAnchorOf(
-                Path.of("/repo/leaf"), reactor, Set.of(), Path.of("/repo"), new HashSet<>()));
+                REPO.resolve("leaf"), reactor, Set.of(), REPO, new HashSet<>()));
     }
 
     @Test
@@ -94,19 +106,19 @@ class PomlessMojoTest {
         var sbk = project("pom");
         var leaf = project(OpenLPackagings.OPENL_PACKAGING);
         var reactor = Map.of(
-                Path.of("/repo"), root,
-                Path.of("/repo/lookups"), lookups,
-                Path.of("/repo/lookups/colombia"), colombia,
-                Path.of("/repo/lookups/colombia/sbk"), sbk,
-                Path.of("/repo/lookups/colombia/sbk/leaf"), leaf);
+                REPO, root,
+                REPO.resolve("lookups"), lookups,
+                REPO.resolve("lookups/colombia"), colombia,
+                REPO.resolve("lookups/colombia/sbk"), sbk,
+                REPO.resolve("lookups/colombia/sbk/leaf"), leaf);
         var passThroughs = Set.of(
-                Path.of("/repo/lookups"),
-                Path.of("/repo/lookups/colombia"),
-                Path.of("/repo/lookups/colombia/sbk"));
+                REPO.resolve("lookups"),
+                REPO.resolve("lookups/colombia"),
+                REPO.resolve("lookups/colombia/sbk"));
         var collapsed = new HashSet<Path>();
 
         var anchor = PomlessMojo.collapseAnchorOf(
-                Path.of("/repo/lookups/colombia/sbk/leaf"), reactor, passThroughs, Path.of("/repo"), collapsed);
+                REPO.resolve("lookups/colombia/sbk/leaf"), reactor, passThroughs, REPO, collapsed);
 
         assertSame(root, anchor, "all intermediates are pass-through → anchor collapses to ${project}");
         assertTrue(collapsed.containsAll(passThroughs), "every pass-through walked through must be deletion-flagged");
@@ -120,18 +132,19 @@ class PomlessMojoTest {
         var sub = project("pom"); // pass-through
         var leaf = project(OpenLPackagings.OPENL_PACKAGING);
         var reactor = Map.of(
-                Path.of("/repo"), root,
-                Path.of("/repo/rating"), rating,
-                Path.of("/repo/rating/sub"), sub,
-                Path.of("/repo/rating/sub/leaf"), leaf);
-        var passThroughs = Set.of(Path.of("/repo/rating/sub"));
+                REPO, root,
+                REPO.resolve("rating"), rating,
+                REPO.resolve("rating/sub"), sub,
+                REPO.resolve("rating/sub/leaf"), leaf);
+        var passThroughs = Set.of(REPO.resolve("rating/sub"));
         var collapsed = new HashSet<Path>();
 
         var anchor = PomlessMojo.collapseAnchorOf(
-                Path.of("/repo/rating/sub/leaf"), reactor, passThroughs, Path.of("/repo"), collapsed);
+                REPO.resolve("rating/sub/leaf"), reactor, passThroughs, REPO, collapsed);
 
         assertSame(rating, anchor, "rating is non-pass-through — anchor stops there, not at ${project}");
-        assertTrue(collapsed.contains(Path.of("/repo/rating/sub")), "the pass-through between rating and leaf collapses");
+        assertTrue(collapsed.contains(REPO.resolve("rating/sub")),
+                "the pass-through between rating and leaf collapses");
     }
 
     @Test
@@ -140,20 +153,20 @@ class PomlessMojoTest {
         var root = project("pom");
         var leaf = project(OpenLPackagings.OPENL_PACKAGING);
         var reactor = Map.of(
-                Path.of("/repo"), root,
-                Path.of("/repo/leaf"), leaf);
+                REPO, root,
+                REPO.resolve("leaf"), leaf);
 
         assertSame(root, PomlessMojo.collapseAnchorOf(
-                Path.of("/repo/leaf"), reactor, Set.of(Path.of("/repo")), Path.of("/repo"), new HashSet<>()));
+                REPO.resolve("leaf"), reactor, Set.of(REPO), REPO, new HashSet<>()));
     }
 
     @Test
     void anchorIsNullWhenNoAncestorReactorPomExists() {
         var leaf = project(OpenLPackagings.OPENL_PACKAGING);
-        var reactor = Map.of(Path.of("/repo/leaf"), leaf);
+        var reactor = Map.of(REPO.resolve("leaf"), leaf);
 
         assertNull(PomlessMojo.collapseAnchorOf(
-                Path.of("/repo/leaf"), reactor, Set.of(), Path.of("/somewhere/else"), new HashSet<>()));
+                REPO.resolve("leaf"), reactor, Set.of(), ELSEWHERE, new HashSet<>()));
     }
 
     // ---- isPassThrough --------------------------------------------------------------------------
@@ -222,10 +235,10 @@ class PomlessMojoTest {
     @Test
     void flattenWhenAllLeavesShareTheAnchorGroupId() {
         // cidp-openl style: every leaf inherits the same corporate groupId; flat-derivation preserves it.
-        var anchor = anchorAt("com.cardif.openl", Path.of("/repo"));
+        var anchor = anchorAt("com.cardif.openl", REPO);
         var leaves = List.of(
-                leafPlan("com.cardif.openl", Path.of("/repo/lookups/colombia/sbk/leaf")),
-                leafPlan("com.cardif.openl", Path.of("/repo/lookups/mexico/coppel/leaf")));
+                leafPlan("com.cardif.openl", REPO.resolve("lookups/colombia/sbk/leaf")),
+                leafPlan("com.cardif.openl", REPO.resolve("lookups/mexico/coppel/leaf")));
 
         assertTrue(PomlessMojo.inferFlattenGroupId(anchor, leaves),
                 "all leaves match the anchor groupId verbatim → flattenGroupId preserves coordinates");
@@ -235,10 +248,10 @@ class PomlessMojoTest {
     void keepDefaultWhenLeavesUsePathDerivedGroupIds() {
         // A repo where each leaf has a path-encoded groupId — the Maven-default derivation already matches,
         // so the heuristic must NOT add flattenGroupId.
-        var anchor = anchorAt("com.example", Path.of("/repo"));
+        var anchor = anchorAt("com.example", REPO);
         var leaves = List.of(
-                leafPlan("com.example.lookups.colombia.sbk", Path.of("/repo/lookups/colombia/sbk/leaf")),
-                leafPlan("com.example.lookups.colombia.tuya", Path.of("/repo/lookups/colombia/tuya/leaf")));
+                leafPlan("com.example.lookups.colombia.sbk", REPO.resolve("lookups/colombia/sbk/leaf")),
+                leafPlan("com.example.lookups.colombia.tuya", REPO.resolve("lookups/colombia/tuya/leaf")));
 
         assertFalse(PomlessMojo.inferFlattenGroupId(anchor, leaves),
                 "path-derived groupIds already match the default — no need to flip the flag");
@@ -248,10 +261,10 @@ class PomlessMojoTest {
     void tieDefaultsToFalseWhenLeavesAreDirectChildren() {
         // For direct children the flat and path-derived forms are identical → tie → keep the default off
         // (no need to clutter the anchor config with redundant flattenGroupId).
-        var anchor = anchorAt("com.example", Path.of("/repo"));
+        var anchor = anchorAt("com.example", REPO);
         var leaves = List.of(
-                leafPlan("com.example", Path.of("/repo/leaf-a")),
-                leafPlan("com.example", Path.of("/repo/leaf-b")));
+                leafPlan("com.example", REPO.resolve("leaf-a")),
+                leafPlan("com.example", REPO.resolve("leaf-b")));
 
         assertFalse(PomlessMojo.inferFlattenGroupId(anchor, leaves));
     }
@@ -259,11 +272,11 @@ class PomlessMojoTest {
     @Test
     void majorityWins() {
         // 2 leaves match flat, 1 matches the path form → flat majority wins.
-        var anchor = anchorAt("com.example", Path.of("/repo"));
+        var anchor = anchorAt("com.example", REPO);
         var leaves = List.of(
-                leafPlan("com.example", Path.of("/repo/lookups/colombia/sbk/leaf")),
-                leafPlan("com.example", Path.of("/repo/lookups/mexico/coppel/leaf")),
-                leafPlan("com.example.lookups.poland.bp", Path.of("/repo/lookups/poland/bp/leaf")));
+                leafPlan("com.example", REPO.resolve("lookups/colombia/sbk/leaf")),
+                leafPlan("com.example", REPO.resolve("lookups/mexico/coppel/leaf")),
+                leafPlan("com.example.lookups.poland.bp", REPO.resolve("lookups/poland/bp/leaf")));
 
         assertTrue(PomlessMojo.inferFlattenGroupId(anchor, leaves));
     }
@@ -271,8 +284,8 @@ class PomlessMojoTest {
     @Test
     void noFlattenWhenAnchorHasNoGroupId() {
         var anchor = new MavenProject(new Model());
-        anchor.setFile(new File("/repo/pom.xml"));
-        var leaves = List.of(leafPlan("com.example", Path.of("/repo/leaf")));
+        anchor.setFile(REPO.resolve("pom.xml").toFile());
+        var leaves = List.of(leafPlan("com.example", REPO.resolve("leaf")));
 
         assertFalse(PomlessMojo.inferFlattenGroupId(anchor, leaves));
     }
@@ -343,7 +356,7 @@ class PomlessMojoTest {
                 openLDep("Other Domain", null));
 
         var match = PomlessMojo.findMatchingNameEntry(entries, "DocGen Mapping Common");
-        assertSame(entries.get(0), match,
+        assertSame(entries.getFirst(), match,
                 "the merge target is the entry whose <name> matches the sibling's logical name verbatim");
     }
 
@@ -418,13 +431,13 @@ class PomlessMojoTest {
 
     @Test
     void proposesSubAnchorWhenCollapseWouldShiftGroupId() {
-        var root = anchorAt("com.example", Path.of("/repo"));
-        var lookups = anchorAt("com.example.lookups", Path.of("/repo/lookups"));
-        var leaf = leafPlan("com.example.lookups", Path.of("/repo/lookups/colombia/leaf"));
-        var reactor = Map.of(Path.of("/repo"), root, Path.of("/repo/lookups"), lookups);
+        var root = anchorAt("com.example", REPO);
+        var lookups = anchorAt("com.example.lookups", REPO.resolve("lookups"));
+        var leaf = leafPlan("com.example.lookups", REPO.resolve("lookups/colombia/leaf"));
+        var reactor = Map.of(REPO, root, REPO.resolve("lookups"), lookups);
 
         var proposals = PomlessMojo.proposeSubAnchors(Map.of(leaf, root), reactor,
-                Set.of(Path.of("/repo/lookups")), Path.of("/repo"));
+                Set.of(REPO.resolve("lookups")), REPO);
 
         assertEquals(1, proposals.size());
         assertSame(lookups, proposals.keySet().iterator().next(),
@@ -435,37 +448,37 @@ class PomlessMojoTest {
     @Test
     void noProposalWhenCollapseAnchorAlreadyPreservesGroupId() {
         // The leaf's original groupId already equals the path-derived form the collapse anchor would install.
-        var root = anchorAt("com.example", Path.of("/repo"));
-        var lookups = anchorAt("com.example.lookups", Path.of("/repo/lookups"));
-        var leaf = leafPlan("com.example.lookups.colombia", Path.of("/repo/lookups/colombia/leaf"));
-        var reactor = Map.of(Path.of("/repo"), root, Path.of("/repo/lookups"), lookups);
+        var root = anchorAt("com.example", REPO);
+        var lookups = anchorAt("com.example.lookups", REPO.resolve("lookups"));
+        var leaf = leafPlan("com.example.lookups.colombia", REPO.resolve("lookups/colombia/leaf"));
+        var reactor = Map.of(REPO, root, REPO.resolve("lookups"), lookups);
 
         var proposals = PomlessMojo.proposeSubAnchors(Map.of(leaf, root), reactor,
-                Set.of(Path.of("/repo/lookups")), Path.of("/repo"));
+                Set.of(REPO.resolve("lookups")), REPO);
 
         assertTrue(proposals.isEmpty(), "no conflict — the collapse anchor already installs the original groupId");
     }
 
     @Test
     void noProposalWhenNoPassThroughPreservesGroupId() {
-        var root = anchorAt("com.example", Path.of("/repo"));
-        var lookups = anchorAt("com.example.lookups", Path.of("/repo/lookups"));
-        var leaf = leafPlan("com.unrelated.group", Path.of("/repo/lookups/colombia/leaf"));
-        var reactor = Map.of(Path.of("/repo"), root, Path.of("/repo/lookups"), lookups);
+        var root = anchorAt("com.example", REPO);
+        var lookups = anchorAt("com.example.lookups", REPO.resolve("lookups"));
+        var leaf = leafPlan("com.unrelated.group", REPO.resolve("lookups/colombia/leaf"));
+        var reactor = Map.of(REPO, root, REPO.resolve("lookups"), lookups);
 
         var proposals = PomlessMojo.proposeSubAnchors(Map.of(leaf, root), reactor,
-                Set.of(Path.of("/repo/lookups")), Path.of("/repo"));
+                Set.of(REPO.resolve("lookups")), REPO);
 
         assertTrue(proposals.isEmpty(), "no pass-through ancestor can preserve an unrelated groupId");
     }
 
     @Test
     void noProposalForLeafWithoutGroupId() {
-        var root = anchorAt("com.example", Path.of("/repo"));
-        var leaf = leafPlan(null, Path.of("/repo/leaf"));
+        var root = anchorAt("com.example", REPO);
+        var leaf = leafPlan(null, REPO.resolve("leaf"));
 
         var proposals = PomlessMojo.proposeSubAnchors(Map.of(leaf, root),
-                Map.of(Path.of("/repo"), root), Set.of(), Path.of("/repo"));
+                Map.of(REPO, root), Set.of(), REPO);
 
         assertTrue(proposals.isEmpty());
     }
@@ -473,30 +486,30 @@ class PomlessMojoTest {
     @Test
     void findPreservingSubAnchorReturnsHighestPreservingAncestor() {
         // Both pass-throughs share the leaf's groupId; the highest (nearest the collapse anchor) wins.
-        var root = anchorAt("com.example", Path.of("/repo"));
-        var outer = anchorAt("com.acme", Path.of("/repo/outer"));
-        var inner = anchorAt("com.acme", Path.of("/repo/outer/inner"));
-        var leaf = leafPlan("com.acme", Path.of("/repo/outer/inner/leaf"));
+        var root = anchorAt("com.example", REPO);
+        var outer = anchorAt("com.acme", REPO.resolve("outer"));
+        var inner = anchorAt("com.acme", REPO.resolve("outer/inner"));
+        var leaf = leafPlan("com.acme", REPO.resolve("outer/inner/leaf"));
         var reactor = Map.of(
-                Path.of("/repo"), root,
-                Path.of("/repo/outer"), outer,
-                Path.of("/repo/outer/inner"), inner);
-        var passThroughs = Set.of(Path.of("/repo/outer"), Path.of("/repo/outer/inner"));
+                REPO, root,
+                REPO.resolve("outer"), outer,
+                REPO.resolve("outer/inner"), inner);
+        var passThroughs = Set.of(REPO.resolve("outer"), REPO.resolve("outer/inner"));
 
-        var found = PomlessMojo.findPreservingSubAnchor(leaf, root, reactor, passThroughs, Path.of("/repo"));
+        var found = PomlessMojo.findPreservingSubAnchor(leaf, root, reactor, passThroughs, REPO);
 
         assertSame(outer, found, "the highest pass-through ancestor below the collapse anchor wins");
     }
 
     @Test
     void findPreservingSubAnchorReturnsNullWhenNoneArePassThroughs() {
-        var root = anchorAt("com.example", Path.of("/repo"));
-        var lookups = anchorAt("com.example.lookups", Path.of("/repo/lookups"));
-        var leaf = leafPlan("com.example.lookups", Path.of("/repo/lookups/colombia/leaf"));
-        var reactor = Map.of(Path.of("/repo"), root, Path.of("/repo/lookups"), lookups);
+        var root = anchorAt("com.example", REPO);
+        var lookups = anchorAt("com.example.lookups", REPO.resolve("lookups"));
+        var leaf = leafPlan("com.example.lookups", REPO.resolve("lookups/colombia/leaf"));
+        var reactor = Map.of(REPO, root, REPO.resolve("lookups"), lookups);
 
         // /repo/lookups would preserve, but it isn't flagged as a pass-through → not a candidate.
-        var found = PomlessMojo.findPreservingSubAnchor(leaf, root, reactor, Set.of(), Path.of("/repo"));
+        var found = PomlessMojo.findPreservingSubAnchor(leaf, root, reactor, Set.of(), REPO);
 
         assertNull(found);
     }
@@ -543,7 +556,7 @@ class PomlessMojoTest {
         model.addModule("leaf-a");
         model.addModule("leaf-b");
 
-        var changed = PomlessMojo.removeModules(model, Path.of("/repo"), Set.of(Path.of("/repo/leaf-a")));
+        var changed = PomlessMojo.removeModules(model, REPO, Set.of(REPO.resolve("leaf-a")));
 
         assertTrue(changed);
         assertEquals(List.of("leaf-b"), model.getModules());
@@ -554,13 +567,13 @@ class PomlessMojoTest {
         var model = new Model();
         model.addModule("leaf-a");
 
-        assertFalse(PomlessMojo.removeModules(model, Path.of("/repo"), Set.of(Path.of("/repo/other"))));
+        assertFalse(PomlessMojo.removeModules(model, REPO, Set.of(REPO.resolve("other"))));
         assertEquals(List.of("leaf-a"), model.getModules());
     }
 
     @Test
     void removeModulesReturnsFalseWhenNoModules() {
-        assertFalse(PomlessMojo.removeModules(new Model(), Path.of("/repo"), Set.of(Path.of("/repo/x"))));
+        assertFalse(PomlessMojo.removeModules(new Model(), REPO, Set.of(REPO.resolve("x"))));
     }
 
     // ---- unionHoistDependencies / renderDependencies --------------------------------------------
@@ -618,7 +631,7 @@ class PomlessMojoTest {
     }
 
     private static PomlessConverter.Plan planWithHoist(Dependency... hoist) {
-        return new PomlessConverter.Plan("p", "g", Path.of("/repo/p/pom.xml"), true,
+        return new PomlessConverter.Plan("p", "g", REPO.resolve("p/pom.xml"), true,
                 List.of(), List.of(hoist), List.of(), null);
     }
 

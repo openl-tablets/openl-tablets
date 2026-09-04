@@ -4,11 +4,14 @@ import java.math.BigInteger;
 import java.util.Objects;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import lombok.Getter;
+
 import org.openl.util.StringPool;
 
 @XmlRootElement
 public class NumericComparableString implements Comparable<NumericComparableString> {
 
+    @Getter
     private final String value;
 
     public static NumericComparableString valueOf(String value) {
@@ -32,10 +35,6 @@ public class NumericComparableString implements Comparable<NumericComparableStri
     @Override
     public int compareTo(NumericComparableString v) {
         return NumericStringComparator.INSTANCE.compare(value, v.value);
-    }
-
-    public String getValue() {
-        return value;
     }
 
     @Override
@@ -71,8 +70,8 @@ public class NumericComparableString implements Comparable<NumericComparableStri
             return "\u0000";
         }
         String result;
-        int i = value.length() - 1;
-        char lastChar = value.charAt(i);
+        var i = value.length() - 1;
+        var lastChar = value.charAt(i);
         while (i > 0 && Character.digit(lastChar, 10) == 9) {
             // searching the position where a trailing number can be increased
             i--;

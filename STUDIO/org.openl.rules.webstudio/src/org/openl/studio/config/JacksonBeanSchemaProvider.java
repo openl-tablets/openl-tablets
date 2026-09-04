@@ -1,19 +1,16 @@
 package org.openl.studio.config;
 
-import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.CustomDefinition;
 import com.github.victools.jsonschema.generator.CustomDefinitionProviderV2;
 import com.github.victools.jsonschema.generator.SchemaGenerationContext;
 import com.github.victools.jsonschema.generator.SchemaKeyword;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.calc.SpreadsheetResultBeanClass;
 
@@ -26,6 +23,7 @@ import org.openl.rules.calc.SpreadsheetResultBeanClass;
  * <p>
  * This approach mirrors how Swagger's ModelResolver uses Jackson introspection.
  */
+@RequiredArgsConstructor
 public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
 
     private final ObjectMapper objectMapper;
@@ -39,10 +37,6 @@ public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
      * by a single thread.
      */
     private final Set<Class<?>> inProgress = new HashSet<>();
-
-    public JacksonBeanSchemaProvider(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public void resetAfterSchemaGenerationFinished() {
@@ -74,8 +68,8 @@ public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
 
     private CustomDefinition buildDefinition(Class<?> erasedType, SchemaGenerationContext context) {
         // Use Jackson's introspection to discover properties
-        JavaType jacksonType = objectMapper.constructType(erasedType);
-        BeanDescription beanDescription = objectMapper.getSerializationConfig().introspect(jacksonType);
+        var jacksonType = objectMapper.constructType(erasedType);
+        var beanDescription = objectMapper.getSerializationConfig().introspect(jacksonType);
 
         var properties = beanDescription.findProperties();
         if (properties.isEmpty()) {
@@ -83,19 +77,19 @@ public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
         }
 
         // Build the schema
-        ObjectNode schema = context.getGeneratorConfig().createObjectNode();
+        var schema = context.getGeneratorConfig().createObjectNode();
         schema.put(context.getKeyword(SchemaKeyword.TAG_TYPE), context.getKeyword(SchemaKeyword.TAG_TYPE_OBJECT));
 
-        ObjectNode propertiesNode = schema.putObject(context.getKeyword(SchemaKeyword.TAG_PROPERTIES));
+        var propertiesNode = schema.putObject(context.getKeyword(SchemaKeyword.TAG_PROPERTIES));
 
         for (BeanPropertyDefinition property : properties) {
-            String propertyName = property.getName();
-            JavaType propertyType = property.getPrimaryType();
+            var propertyName = property.getName();
+            var propertyType = property.getPrimaryType();
 
             if (propertyType != null) {
                 // Recursively generate schema for property type using victools
-                Type rawType = propertyType.getRawClass();
-                ObjectNode propertySchema = context.createDefinitionReference(
+                var rawType = propertyType.getRawClass();
+                var propertySchema = context.createDefinitionReference(
                         context.getTypeContext().resolve(rawType));
                 propertiesNode.set(propertyName, propertySchema);
             }

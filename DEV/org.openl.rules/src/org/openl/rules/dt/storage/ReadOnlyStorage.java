@@ -1,12 +1,14 @@
 package org.openl.rules.dt.storage;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public abstract class ReadOnlyStorage<T> implements IStorage<T> {
 
+    @Getter
     private final StorageInfo info;
-
-    ReadOnlyStorage(StorageInfo info) {
-        this.info = info;
-    }
 
     @Override
     public void setValue(int index, Object o) {
@@ -28,11 +30,5 @@ public abstract class ReadOnlyStorage<T> implements IStorage<T> {
     @Override
     public void setFormula(int index, Object formula) {
         throw new UnsupportedOperationException();
-    }
-
-
-    @Override
-    public StorageInfo getInfo() {
-        return info;
     }
 }

@@ -4,14 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -39,25 +36,25 @@ class BinderTest {
 
         OpenL op = OpenL.getInstance();
 
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(testCode, null));
+        var pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(testCode, null));
 
-        int errnum = pc.getErrors().length;
+        var errnum = pc.getErrors().length;
 
-        for (int i = 0; i < errnum; i++) {
-            SyntaxNodeException err = pc.getErrors()[i];
+        for (var i = 0; i < errnum; i++) {
+            var err = pc.getErrors()[i];
             System.out.println(err);
         }
 
         assertEquals(0, errnum);
 
-        IOpenBinder b = op.getBinder();
+        var b = op.getBinder();
 
-        IBoundCode bc = b.bind(pc);
+        var bc = b.bind(pc);
 
         errnum = bc.getErrors().length;
 
-        for (int i = 0; i < errnum; i++) {
-            SyntaxNodeException err = bc.getErrors()[i];
+        for (var i = 0; i < errnum; i++) {
+            var err = bc.getErrors()[i];
             System.out.println(err);
         }
 

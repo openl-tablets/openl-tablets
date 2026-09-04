@@ -52,11 +52,10 @@ public class GoalGenerate extends GoalImpl {
      */
     @Override
     public Goal execute() throws Failure {
-        // Debug.on();Debug.print("Generate"+_intvars);Debug.off();
-        int index = -1;
-        int size = _intvars.size();
-        for (int i = 0; i < size; i++) {
-            IntVar vari = (IntVar) _intvars.elementAt(i);
+        var index = -1;
+        var size = _intvars.size();
+        for (var i = 0; i < size; i++) {
+            var vari = (IntVar) _intvars.elementAt(i);
             if (!vari.bound()) {
                 index = i;
                 break;
@@ -66,10 +65,7 @@ public class GoalGenerate extends GoalImpl {
             return null; // all vars are instantiated
         }
 
-        // IntVar var = (IntVar)_intvars.elementAt(index);
-        // Debug.on();Debug.print("Var Selected:"+var);Debug.off();
-
-        Goal search_goal = (Goal) _goals.elementAt(index);
+        var search_goal = (Goal) _goals.elementAt(index);
 
         return new GoalAnd(search_goal, this);
     }
@@ -78,10 +74,10 @@ public class GoalGenerate extends GoalImpl {
      * Initializes an array of instantiation goals for the variables.
      */
     void initGoals() {
-        int size = _intvars.size();
+        var size = _intvars.size();
         _goals = new FastVector(size);
-        for (int i = 0; i < size; i++) {
-            IntVar var = (IntVar) _intvars.elementAt(i);
+        for (var i = 0; i < size; i++) {
+            var var = (IntVar) _intvars.elementAt(i);
             Goal goal;
             goal = new GoalInstantiate(var);
             _goals.addElement(goal);

@@ -1,0 +1,30 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "series": [
+    {
+      "name": "$Value$CapitalDynamicScore",
+      "table": "BalanceDynamicIndexCalculation",
+      "tableUri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D54:G68",
+      "points": [
+        {
+          "instance": 0,
+          "label": "BalanceDynamicIndexCalculation #1",
+          "path": [
+            "BalanceDynamicIndexCalculation"
+          ],
+          "ref": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D54:G68#R1C1",
+          "value": {
+            "name": "$Value$CapitalDynamicScore",
+            "description": "Double",
+            "lazy": false,
+            "value": 0.9
+          }
+        }
+      ],
+      "total": 1
+    }
+  ],
+  "truncated": false
+}

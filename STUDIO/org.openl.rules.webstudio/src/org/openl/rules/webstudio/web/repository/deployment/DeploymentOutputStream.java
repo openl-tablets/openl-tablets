@@ -17,7 +17,7 @@ public class DeploymentOutputStream extends ZipOutputStream {
     public DeploymentOutputStream(OutputStream out, Manifest manifest) throws IOException {
         super(out);
         if (manifest != null) {
-            ZipEntry manEntry = new ZipEntry(JarFile.MANIFEST_NAME);
+            var manEntry = new ZipEntry(JarFile.MANIFEST_NAME);
             putNextEntry(manEntry);
             manifest.write(new BufferingOutputStream(this));
             closeEntry();

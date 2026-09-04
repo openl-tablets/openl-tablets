@@ -8,18 +8,17 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 
 import org.openl.domain.EnumDomain;
-import org.openl.domain.IDomain;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 class TypeToAliasCastTest {
     @Test
     void testSingle() {
-        IDomain<String> strDomain = new EnumDomain<>(new String[]{"Val1", "Val2"});
-        DomainOpenClass domain = new DomainOpenClass("TestDomain", JavaOpenClass.STRING, strDomain, null, null);
-        TypeToAliasCast cast = new TypeToAliasCast(domain);
+        var strDomain = new EnumDomain<String>(new String[]{"Val1", "Val2"});
+        var domain = new DomainOpenClass("TestDomain", JavaOpenClass.STRING, strDomain, null, null);
+        var cast = new TypeToAliasCast(domain);
 
-        Object value = cast.convert("Val1");
+        var value = cast.convert("Val1");
         assertNotNull(value);
         assertEquals("Val1", value);
 

@@ -133,7 +133,7 @@ mvn clean install -DskipTests
 
 | Flag | Effect |
 |------|--------|
-| `-DskipTests` | Skip all tests |
+| `-DskipTests` | Skip all tests, exclude ITEST and the archetypes from the reactor |
 | `-Dquick` | Skip heavy tests |
 | `-DnoPerf` | No memory limits on tests |
 | `-DnoDocker` | Skip Docker-based tests |

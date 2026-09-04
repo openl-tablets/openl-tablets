@@ -3,41 +3,20 @@ package org.openl.rules.maven.migration;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.util.CollectionUtils;
+import org.openl.rules.project.migration.RulesXmlMigrations;
 
 /**
  * {@code rules.xml} migration: drops the {@code <classpath>} block when every entry it contains is a
- * path the OpenL resolver already adds implicitly — {@code groovy/}, {@code groovy}, or
- * {@code lib/*.jar}. One or several of those entries (in any combination) is enough to trigger the
- * drop; any other entry keeps the whole block. Windows-style {@code \} separators are normalised to
- * {@code /} before matching, mirroring {@code ProjectDescriptor.processClasspathPathPatterns}.
+ * path the OpenL resolver already adds implicitly — {@code groovy/}, {@code groovy}, or {@code lib/*.jar}.
+ * The transform is shared with OpenL Studio in {@link RulesXmlMigrations#classpath}.
  * <p>
  * Migrator id: {@code config.project.classpath}.
  *
  * @author Yury Molchan
  */
 public final class ConfigProjectClasspathMigrator implements Migrator {
-
-    private static final Set<String> DEFAULT_CLASSPATH_PATHS = Set.of("groovy/", "groovy", "lib/*.jar");
-
-    /**
-     * Package-private for direct unit testing.
-     */
-    static void transform(ProjectDescriptor descriptor) {
-        var classpath = descriptor.getClasspath();
-        if (CollectionUtils.isEmpty(classpath)) {
-            return;
-        }
-        boolean allDefaults = classpath.stream()
-                .allMatch(e -> e != null && DEFAULT_CLASSPATH_PATHS.contains(e.replace('\\', '/')));
-        if (allDefaults) {
-            descriptor.setClasspath(null);
-        }
-    }
 
     @Override
     public String getId() {
@@ -61,6 +40,6 @@ public final class ConfigProjectClasspathMigrator implements Migrator {
 
     @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException {
-        return ConfigProjectIO.roundtrip(this, sourceFolder, ConfigProjectClasspathMigrator::transform);
+        return ConfigProjectIO.roundtrip(this, sourceFolder, RulesXmlMigrations::classpath);
     }
 }

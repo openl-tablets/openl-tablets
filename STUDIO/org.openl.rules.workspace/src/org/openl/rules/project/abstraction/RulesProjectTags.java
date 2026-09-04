@@ -25,7 +25,7 @@ public class RulesProjectTags extends ProjectTags {
                     project.deleteArtefact(TAGS_FILE_NAME);
                 }
             } else {
-                try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                try (var byteArrayOutputStream = new ByteArrayOutputStream()) {
                     PropertiesUtils.store(byteArrayOutputStream, tags.entrySet());
                     createOrUpdateResource(tags, byteArrayOutputStream);
                 } catch (IOException e) {
@@ -40,7 +40,7 @@ public class RulesProjectTags extends ProjectTags {
             if (!project.hasArtefact(TAGS_FILE_NAME)) {
                 project.addResource(TAGS_FILE_NAME, inputStream);
             } else {
-                AProjectResource artefact = (AProjectResource) project.getArtefact(TAGS_FILE_NAME);
+                var artefact = (AProjectResource) project.getArtefact(TAGS_FILE_NAME);
                 artefact.setContent(inputStream);
             }
             this.tags = Collections.unmodifiableMap(tags);

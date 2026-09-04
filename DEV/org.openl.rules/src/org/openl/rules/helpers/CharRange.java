@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.Objects;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
+import lombok.Getter;
+
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.range.Range;
 import org.openl.util.StringUtils;
@@ -13,8 +15,11 @@ import org.openl.util.StringUtils;
 public class CharRange extends Range<Character> {
 
     private static final int TO_CHAR_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
+    @Getter
     protected final Character min;
+    @Getter
     protected final Character max;
+    @Getter(onMethod_ = {@Transient})
     protected final Type type;
 
     public CharRange(char min, char max) {
@@ -59,26 +64,12 @@ public class CharRange extends Range<Character> {
     }
 
     @Override
-    @Transient
-    public Type getType() {
-        return type;
-    }
-
-    @Override
     protected Character getLeft() {
         return min;
     }
 
     @Override
     protected Character getRight() {
-        return max;
-    }
-
-    public Character getMin() {
-        return min;
-    }
-
-    public Character getMax() {
         return max;
     }
 
@@ -89,7 +80,7 @@ public class CharRange extends Range<Character> {
 
     @Override
     protected void format(StringBuilder sb, Character ch) {
-        boolean printable = !StringUtils.isSpaceOrControl(ch) && (ch < 255 || Character.isUnicodeIdentifierPart(ch));
+        var printable = !StringUtils.isSpaceOrControl(ch) && (ch < 255 || Character.isUnicodeIdentifierPart(ch));
 
         sb.append(printable ? String.valueOf(ch) : "\\u%04x".formatted((int) ch));
     }

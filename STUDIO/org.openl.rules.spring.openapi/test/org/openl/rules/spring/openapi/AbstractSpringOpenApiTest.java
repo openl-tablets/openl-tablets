@@ -87,7 +87,7 @@ public abstract class AbstractSpringOpenApiTest {
             failDiff(expectedJson, actualJson, path);
         } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
-            String regExp = expectedJson.asText()
+            var regExp = expectedJson.asText()
                     .replaceAll("\\[", "\\\\[")
                     .replaceAll("]", "\\\\]")
                     .replaceAll("#+", "[#\\\\d]+")
@@ -98,11 +98,11 @@ public abstract class AbstractSpringOpenApiTest {
                 failDiff(expectedJson, actualJson, path);
             }
         } else if (expectedJson.isArray() && actualJson.isArray()) {
-            for (int i = 0; i < expectedJson.size() || i < actualJson.size(); i++) {
+            for (var i = 0; i < expectedJson.size() || i < actualJson.size(); i++) {
                 compareJsonObjects(expectedJson.get(i), actualJson.get(i), path + "[" + i + "]");
             }
         } else if (expectedJson.isObject() && actualJson.isObject()) {
-            LinkedHashSet<String> names = new LinkedHashSet<>();
+            var names = new LinkedHashSet<String>();
             expectedJson.fieldNames().forEachRemaining(names::add);
             actualJson.fieldNames().forEachRemaining(names::add);
 

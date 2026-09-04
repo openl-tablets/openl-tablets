@@ -4,11 +4,15 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
+import lombok.Getter;
+
 /**
  * @author Yury Molchan
  */
 public class FileItem implements Closeable {
+    @Getter
     private final FileData data;
+    @Getter
     private final InputStream stream;
 
     /**
@@ -30,14 +34,6 @@ public class FileItem implements Closeable {
         assert data != null;
         this.data = data;
         this.stream = stream;
-    }
-
-    public FileData getData() {
-        return data;
-    }
-
-    public InputStream getStream() {
-        return stream;
     }
 
     @Override

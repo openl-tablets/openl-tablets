@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Repository;
 import org.openl.studio.projects.model.project.status.ChangeType;
 import org.openl.studio.projects.model.project.status.FileChange;
 import org.openl.studio.projects.model.project.status.PendingChanges;
@@ -105,9 +104,9 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
                 ? designRepository.listFiles(designPrefix, historyVersion)
                 : designRepository.list(designPrefix);
 
-        Map<String, FileData> designByPath = indexByProjectScopedPath(designFiles, designPrefix, projectPath);
-        Set<String> visitedDesign = new HashSet<>();
-        List<FileChange> result = new ArrayList<>();
+        var designByPath = indexByProjectScopedPath(designFiles, designPrefix, projectPath);
+        var visitedDesign = new HashSet<String>();
+        var result = new ArrayList<FileChange>();
 
         for (FileData local : localFiles) {
             var path = projectScopedPath(local.getName(), localPrefix, projectPath);
@@ -145,9 +144,9 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
                                                List<FileData> localFiles,
                                                String localPrefix,
                                                String projectPath) throws IOException {
-        Set<String> designPaths = readZippedDesignEntryPaths(project, projectPath);
-        Set<String> visitedDesign = new HashSet<>();
-        List<FileChange> result = new ArrayList<>();
+        var designPaths = readZippedDesignEntryPaths(project, projectPath);
+        var visitedDesign = new HashSet<String>();
+        var result = new ArrayList<FileChange>();
 
         for (FileData local : localFiles) {
             var path = projectScopedPath(local.getName(), localPrefix, projectPath);
@@ -176,10 +175,10 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
         if (fileItem == null) {
             return Set.of();
         }
-        Set<String> result = new HashSet<>();
+        var result = new HashSet<String>();
         try (var stream = fileItem.getStream(); var zip = new ZipInputStream(stream)) {
             ZipEntry entry;
-            int processed = 0;
+            var processed = 0;
             while ((entry = zip.getNextEntry()) != null) {
                 if (++processed > MAX_ZIP_ENTRIES) {
                     log.warn("Aborting pending-changes diff for project '{}': design archive exceeds {} entries",
@@ -193,9 +192,9 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
     }
 
     private static FileItem openDesignSnapshot(RulesProject project) throws IOException {
-        Repository designRepository = project.getDesignRepository();
-        String folderPath = project.getDesignFolderName();
-        String historyVersion = project.getHistoryVersion();
+        var designRepository = project.getDesignRepository();
+        var folderPath = project.getDesignFolderName();
+        var historyVersion = project.getHistoryVersion();
         return designRepository.supports().versions() && historyVersion != null
                 ? designRepository.readHistory(folderPath, historyVersion)
                 : designRepository.read(folderPath);
@@ -223,7 +222,7 @@ public class PendingChangesResolverImpl implements PendingChangesResolver {
     private static Map<String, FileData> indexByProjectScopedPath(List<FileData> files,
                                                                   String prefix,
                                                                   String projectPath) {
-        Map<String, FileData> index = new HashMap<>();
+        var index = new HashMap<String, FileData>();
         for (FileData file : files) {
             var path = projectScopedPath(file.getName(), prefix, projectPath);
             if (path != null) {

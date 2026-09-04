@@ -53,8 +53,9 @@ public class RepoFilesController extends AbstractFilesController {
     /**
      * Shared by every controller of the same OpenAPI tag, which merges by the tag name.
      */
-    static final String TAG_DESCRIPTION = "APIs for managing repository files. A modifying operation is "
-            + "rejected while an affected project is locked for editing by another user.";
+    static final String TAG_DESCRIPTION = """
+            APIs for managing repository files. A modifying operation is \
+            rejected while an affected project is locked for editing by another user.""";
 
     private final RepoFileRootFactory fileRootFactory;
 
@@ -138,7 +139,7 @@ public class RepoFilesController extends AbstractFilesController {
             HttpServletResponse response
     ) throws ProjectException, IOException {
         return handleGetFile(fileRootFactory.of(repository, branch), path, view, download, extensions, namePattern,
-                foldersOnly, recursive, viewMode, version, response);
+                foldersOnly, recursive, viewMode, version, response, null);
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

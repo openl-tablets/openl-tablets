@@ -24,13 +24,13 @@ public final class XlsWorkbooksMatcher {
      * @return matching result
      */
     public static Map<String, XlsMatch> match(Workbook baseWorkbook, Workbook workbook) {
-        Map<String, XlsMatch> sheetChangedResults = new HashMap<>();
+        var sheetChangedResults = new HashMap<String, XlsMatch>();
         for (Sheet baseSheet : baseWorkbook) {
-            Sheet sheet = workbook.getSheet(baseSheet.getSheetName());
+            var sheet = workbook.getSheet(baseSheet.getSheetName());
             if (sheet == null) {
                 sheetChangedResults.put(baseSheet.getSheetName(), XlsMatch.REMOVED);
             } else {
-                boolean changed = XlsSheetsMatcher.hasChanges(baseWorkbook, baseSheet, workbook, sheet);
+                var changed = XlsSheetsMatcher.hasChanges(baseWorkbook, baseSheet, workbook, sheet);
                 sheetChangedResults.put(baseSheet.getSheetName(), changed ? XlsMatch.UPDATED : XlsMatch.EQUAL);
             }
         }

@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousTypeException;
@@ -25,6 +27,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
 
     public static ExternalTypesRegistration externalTypesRegistration;
 
+    @Getter
     private final IDependencyManager dependencyManager;
 
     private final Set<String> loadedDependencies = new HashSet<>();
@@ -35,19 +38,15 @@ public class DependencyBindingContext extends BindingContextDelegator {
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
     }
 
-    public IDependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
-
     @Override
     public IOpenClass findType(String typeName) throws AmbiguousTypeException {
-        IOpenClass type = super.findType(typeName);
+        var type = super.findType(typeName);
         if (type != null) {
             return type;
         }
         if (typeName.contains(".") && !typeName.endsWith(".")) {
-            String dependencyName = typeName.substring(0, typeName.indexOf("."));
-            ResolvedDependency resolvedDependency = resolveDependency(dependencyName);
+            var dependencyName = typeName.substring(0, typeName.indexOf("."));
+            var resolvedDependency = resolveDependency(dependencyName);
             if (resolvedDependency == null) {
                 return null;
             }
@@ -65,8 +64,8 @@ public class DependencyBindingContext extends BindingContextDelegator {
                 }
                 return null;
             }
-            String tName = typeName.substring(typeName.indexOf(".") + 1);
-            IOpenClass t = buildDependencyVar(compiledDependency).getType().findType(tName);
+            var tName = typeName.substring(typeName.indexOf(".") + 1);
+            var t = buildDependencyVar(compiledDependency).getType().findType(tName);
             if (t != null) {
                 return t;
             }
@@ -79,7 +78,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
             }
             try {
                 t = JavaOpenClass.getOpenClass(compiledDependency.getClassLoader().loadClass(tName));
-                IOpenClass x = compiledDependency.getCompiledOpenClass()
+                var x = compiledDependency.getCompiledOpenClass()
                         .getOpenClassWithErrors()
                         .findType(t.getInstanceClass().getSimpleName());
                 if (x != null && x.getInstanceClass() == t.getInstanceClass()) {
@@ -95,7 +94,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
     }
 
     private DependencyVar buildDependencyVar(CompiledDependency compiledDependency) {
-        DependencyVar dependencyVar = dependencyVarsCache.get(compiledDependency);
+        var dependencyVar = dependencyVarsCache.get(compiledDependency);
         if (dependencyVar == null) {
             dependencyVar = new DependencyVar(compiledDependency.getDependency().getNode().getIdentifier(),
                     new DependencyOpenClass(compiledDependency.getDependency().getNode().getIdentifier(),
@@ -113,16 +112,16 @@ public class DependencyBindingContext extends BindingContextDelegator {
 
     @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField var = super.findVar(namespace, name, strictMatch);
+        var var = super.findVar(namespace, name, strictMatch);
         if (var != null) {
             return var;
         }
-        ResolvedDependency resolvedDependency = resolveDependency(name);
+        var resolvedDependency = resolveDependency(name);
         if (resolvedDependency == null) {
             return null;
         }
         try {
-            CompiledDependency compiledDependency = dependencyManager.loadDependency(resolvedDependency);
+            var compiledDependency = dependencyManager.loadDependency(resolvedDependency);
             if (!loadedDependencies.contains(name)) {
                 loadedDependencies.add(name);
                 addMessages(compiledDependency.getCompiledOpenClass().getMessages());

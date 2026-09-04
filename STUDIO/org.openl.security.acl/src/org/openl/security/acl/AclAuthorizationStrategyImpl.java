@@ -1,7 +1,5 @@
 package org.openl.security.acl;
 
-import java.util.List;
-
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.Sid;
@@ -36,7 +34,7 @@ public class AclAuthorizationStrategyImpl extends org.springframework.security.a
 
     @Override
     public void securityCheck(Acl acl, int changeType) {
-        List<Sid> sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
+        var sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
         for (Sid sid : sids) {
             if (sid instanceof GrantedAuthoritySid grantedAuthoritySid) {
                 if (getRequiredAuthority(changeType).getAuthority().equals(grantedAuthoritySid.getGrantedAuthority())) {

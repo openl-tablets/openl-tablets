@@ -3,9 +3,12 @@ package org.openl.studio.projects.service.tables.write;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -16,6 +19,7 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.CellKey.CellKeyFactory;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
@@ -54,6 +58,7 @@ public abstract class TableWriter<T extends TableView> {
     protected final IOpenLTable table;
     protected final IGridTable originalTable;
     private MetaInfoWriter metaInfoWriter;
+    private Map<String, Object> stamped = Map.of();
 
     public TableWriter(IOpenLTable table) {
         this.table = table;
@@ -72,12 +77,41 @@ public abstract class TableWriter<T extends TableView> {
         try {
             getGridTable().edit();
             updateBusinessBody(tableView);
-            updateTableProperties(tableView.properties);
+            updateTableProperties(recorded(tableView.properties));
             updateHeader(tableView);
             save();
         } finally {
             getGridTable().stopEditing();
         }
+    }
+
+    /**
+     * Records what OpenL Studio notes about a table it writes, such as its author and creation date.
+     *
+     * <p>The properties are written by the same pass that writes the table, so the workbook is saved once.
+     *
+     * @param properties the properties to record, in the order they are written
+     */
+    public void stampWith(Map<String, Object> properties) {
+        this.stamped = properties;
+    }
+
+    /**
+     * The properties to write: what OpenL Studio records about the table, then what the table itself declares.
+     *
+     * <p>What the table says wins — a property it declares is written as it stands, whether it declares it as one of
+     * its own properties or as a row of the body already written.
+     */
+    private Map<String, Object> recorded(Map<String, Object> declared) {
+        if (stamped.isEmpty()) {
+            return declared;
+        }
+        var region = originalTable.getRegion();
+        var grid = originalTable.getGrid();
+        var properties = new LinkedHashMap<>(stamped);
+        properties.keySet().removeIf(name -> GridTool.getPropertyRowIndex(region, grid, name) != -1);
+        properties.putAll(declared);
+        return properties;
     }
 
     /**
@@ -92,7 +126,9 @@ public abstract class TableWriter<T extends TableView> {
             gridTable.edit();
             clearMergedRegions(gridTable);
             clearCells(gridTable);
-            save();
+            // The table is meant to be gone, so the area it occupied is left blank on purpose — saved past the
+            // blank-line guard that every write goes through.
+            saveWorkbook((XlsSheetGridModel) gridTable.getGrid());
         } finally {
             gridTable.stopEditing();
         }
@@ -129,7 +165,7 @@ public abstract class TableWriter<T extends TableView> {
     protected void updateTableProperties(Map<String, Object> properties) {
         var originalRegion = originalTable.getRegion();
         var originalGrid = originalTable.getGrid();
-        for (var entry : properties.entrySet()) {
+        for (var entry : properties.entrySet().stream().toList().reversed()) {
             List<IUndoableGridTableAction> actions = new ArrayList<>();
             var propName = entry.getKey();
             boolean newProperty = GridTool.getPropertyRowIndex(originalRegion, originalGrid, propName) == -1;
@@ -257,10 +293,61 @@ public abstract class TableWriter<T extends TableView> {
         return metaInfoWriter;
     }
 
+    /** Persist the table that was written, refusing to leave it split by a blank line. */
     protected void save() {
+        requireNoBlankLine();
+        saveWorkbook((XlsSheetGridModel) getGridTable().getGrid());
+    }
+
+    /**
+     * Rejects a write that leaves a blank row or a blank column inside the table.
+     *
+     * <p>OpenL reads a table as the block of filled cells reachable from its top-left corner, so a blank line
+     * inside it ends the table there. Everything beyond that line stops being part of the table and never
+     * compiles, while the write itself reports success.
+     *
+     * <p>A cell a merge spans into counts as filled, so a line that a merge declared elsewhere legitimately
+     * crosses is not blank.
+     */
+    private void requireNoBlankLine() {
+        var view = getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+        var region = view.getRegion();
+        var grid = view.getGrid();
+        IntPredicate rowFilled = row -> IntStream.rangeClosed(region.getLeft(), region.getRight())
+                .anyMatch(column -> GridSplitter.containsCell(grid, column, row));
+        IntPredicate columnFilled = column -> IntStream.rangeClosed(region.getTop(), region.getBottom())
+                .anyMatch(row -> GridSplitter.containsCell(grid, column, row));
+        if (hasBlankLineInside(region.getTop(), region.getBottom(), rowFilled)
+                || hasBlankLineInside(region.getLeft(), region.getRight(), columnFilled)) {
+            throw new BadRequestException("table.action.line.all-empty.message");
+        }
+    }
+
+    /**
+     * Whether a blank line sits between two filled ones, which is what splits a table.
+     *
+     * <p>Only the block between the first and the last filled line counts. Blank lines around the table leave it
+     * smaller than the area it was written into, which loses nothing.
+     *
+     * <p>Shared with the writer that lays a table into a workbook of its own, which has no grid to scan and finds
+     * its filled lines over the sheet instead.
+     *
+     * @param filled tells whether the line at the given index carries content
+     */
+    public static boolean hasBlankLineInside(int from, int to, IntPredicate filled) {
+        var lines = IntStream.rangeClosed(from, to).filter(filled).summaryStatistics();
+        return lines.getCount() > 0 && lines.getMax() - lines.getMin() + 1 > lines.getCount();
+    }
+
+    /**
+     * Persist the workbook the grid belongs to, dropping the styles the write left unused.
+     *
+     * <p>Writes what the grid holds as it stands. A caller writing a table saves through {@link #save()} instead,
+     * which first refuses a table left split by a blank line.
+     */
+    public static void saveWorkbook(XlsSheetGridModel gridModel) {
         try {
-            var xlsgrid = (XlsSheetGridModel) getGridTable().getGrid();
-            var workbook = xlsgrid.getSheetSource().getWorkbookSource();
+            var workbook = gridModel.getSheetSource().getWorkbookSource();
             if (workbook.getWorkbook() instanceof XSSFWorkbook xssfWorkbook) {
                 XSSFOptimizer.removeUnusedStyles(xssfWorkbook);
             }

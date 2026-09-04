@@ -10,7 +10,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.source.IOpenSourceCodeModule;
 
 public class CompileContext {
     /***************************************************************************
@@ -56,7 +55,7 @@ public class CompileContext {
 
     public void registerNewLabel(String labelName, AlgorithmTreeNode sourceNode, IBindingContext bindingContext) {
         if (isLabelRegistered(labelName)) {
-            IOpenSourceCodeModule errorSource = sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule();
+            var errorSource = sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule();
             BindHelper.processError("Such label has been already declared : '" + labelName + "'.",
                     errorSource,
                     bindingContext);
@@ -69,7 +68,7 @@ public class CompileContext {
         if (isLabelRegistered(labelName)) {
             localLabelsRegister.put(labelName, labeledOperation);
         } else {
-            IOpenSourceCodeModule errorSource = labeledOperation.getSourceCode().getSourceModule();
+            var errorSource = labeledOperation.getSourceCode().getSourceModule();
             BindHelper.processError("Such lablel is not declared : '" + labelName + "'.", errorSource, bindingContext);
         }
     }

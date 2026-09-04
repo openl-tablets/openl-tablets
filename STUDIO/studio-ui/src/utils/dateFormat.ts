@@ -23,6 +23,20 @@ i18next.on('languageChanged', applyLanguage)
 export const formatDate = (value: string): string => dayjs(value).format('ll')
 
 /**
- * Formats a date with time, such as "Aug 16, 2018 8:02 PM", using the date format of the current language.
+ * Formats a date with time down to the second, such as "Aug 16, 2018 8:02:30 PM", using the date
+ * format of the current language.
+ *
+ * Seconds are shown because the things carrying a time here — revisions, deployments, locks, logins —
+ * are routinely made within the same minute, and two of them stripped to the minute read alike. The
+ * date and the full time are combined because the single localized token, 'lll', stops at the minute.
+ *
+ * Returns null for a missing value and the raw string when it cannot be parsed, so callers can apply
+ * their own fallback.
  */
-export const formatDateTime = (value: string): string => dayjs(value).format('lll')
+export const formatDateTime = (value?: string): string | null => {
+    if (!value) {
+        return null
+    }
+    const date = dayjs(value)
+    return date.isValid() ? date.format('ll LTS') : value
+}

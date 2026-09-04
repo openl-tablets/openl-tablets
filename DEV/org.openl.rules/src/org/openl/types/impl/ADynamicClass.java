@@ -5,13 +5,14 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import lombok.Getter;
 
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.types.IAggregateInfo;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -24,10 +25,12 @@ import org.openl.types.java.JavaOpenMethod;
  */
 public abstract class ADynamicClass extends AOpenClass {
 
+    @Getter
     private final String name;
 
     protected volatile Map<String, IOpenField> fieldMap;
 
+    @Getter
     protected Class<?> instanceClass;
 
     public ADynamicClass(String name, Class<?> instanceClass) {
@@ -39,7 +42,7 @@ public abstract class ADynamicClass extends AOpenClass {
     public void addField(IOpenField field) throws DuplicatedFieldException {
         Map<String, IOpenField> fields = fieldMap();
         if (fields.containsKey(field.getName())) {
-            IOpenField existedField = fields.get(field.getName());
+            var existedField = fields.get(field.getName());
             if (existedField != field) {
                 throw new DuplicatedFieldException("", field.getName());
             } else {
@@ -60,11 +63,11 @@ public abstract class ADynamicClass extends AOpenClass {
 
         if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass) && isPublic(instanceClass)) {
             try {
-                Method[] mm = instanceClass.getDeclaredMethods();
+                var mm = instanceClass.getDeclaredMethods();
                 for (Method method : mm) {
                     if (isPublic(method)) {
-                        JavaOpenMethod om = new JavaOpenMethod(method);
-                        MethodKey kom = new MethodKey(om);
+                        var om = new JavaOpenMethod(method);
+                        var kom = new MethodKey(om);
                         methodMap.put(kom, om);
                     }
                 }
@@ -81,14 +84,14 @@ public abstract class ADynamicClass extends AOpenClass {
     }
 
     public IOpenMethod getMethod(String name, IOpenClass[] classes, boolean strict) {
-        IOpenMethod method = super.getMethod(name, classes);
+        var method = super.getMethod(name, classes);
         return verifyMethodParameters(method, classes, strict);
     }
 
     private IOpenMethod verifyMethodParameters(IOpenMethod method, IOpenClass[] params, boolean strict) {
         if (method != null && strict) {
-            IMethodSignature signature = method.getSignature();
-            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+            var signature = method.getSignature();
+            for (var i = 0; i < signature.getNumberOfParameters(); i++) {
                 if (!signature.getParameterType(i).isAssignableFrom(params[i])) {
                     return null;
                 }
@@ -98,7 +101,7 @@ public abstract class ADynamicClass extends AOpenClass {
     }
 
     public IOpenMethod getConstructor(IOpenClass[] params, boolean strict) {
-        IOpenMethod openConstructor = super.getConstructor(params);
+        var openConstructor = super.getConstructor(params);
         return verifyMethodParameters(openConstructor, params, strict);
     }
 
@@ -108,11 +111,11 @@ public abstract class ADynamicClass extends AOpenClass {
         if (constructorMap == STUB) {
             constructorMap = new HashMap<>(1);
         }
-        Constructor<?>[] cc = getInstanceClass().getDeclaredConstructors();
+        var cc = getInstanceClass().getDeclaredConstructors();
         for (Constructor<?> constructor : cc) {
             if (isPublic(constructor)) {
-                IOpenMethod om = new JavaOpenConstructor(constructor);
-                MethodKey kom = new MethodKey(om);
+                var om = new JavaOpenConstructor(constructor);
+                var kom = new MethodKey(om);
                 constructorMap.put(kom, om);
             }
         }
@@ -141,11 +144,6 @@ public abstract class ADynamicClass extends AOpenClass {
         return name;
     }
 
-    @Override
-    public Class<?> getInstanceClass() {
-        return instanceClass;
-    }
-
     protected boolean isPublic(Class<?> declaringClass) {
         return Modifier.isPublic(declaringClass.getModifiers());
     }
@@ -157,11 +155,6 @@ public abstract class ADynamicClass extends AOpenClass {
     public void setInstanceClass(Class<?> instanceClass) {
         this.instanceClass = instanceClass;
         invalidateInternalData();
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -189,7 +182,7 @@ public abstract class ADynamicClass extends AOpenClass {
 
     @Override
     public Collection<IOpenClass> superClasses() {
-        return Collections.emptyList();
+        return List.of();
     }
 
 }

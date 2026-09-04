@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverterContextImpl;
-import io.swagger.v3.oas.models.media.Schema;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -30,7 +29,7 @@ final class OpenApiProjectValidatorMessagesUtils {
     }
 
     private static void addError(Context context, String summary) {
-        ValidatedCompiledOpenClass validatedCompiledOpenClass = context.getValidatedCompiledOpenClass();
+        var validatedCompiledOpenClass = context.getValidatedCompiledOpenClass();
         if (isNotExistingError(validatedCompiledOpenClass, summary)) {
             validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(summary));
         }
@@ -76,7 +75,7 @@ final class OpenApiProjectValidatorMessagesUtils {
                                 instanceClass = Object.class;
                             }
                             var openAPIContext = new ModelConverterContextImpl(OpenAPIConfiguration.getConverters(context.getObjectMapper()));
-                            Schema actualSchema = openAPIContext.resolve(new AnnotatedType().type(instanceClass));
+                            var actualSchema = openAPIContext.resolve(new AnnotatedType().type(instanceClass));
                             if (context.getIsIncompatibleTypesPredicate().test(actualSchema, openFieldInSpr)) {
                                 addMethodError(context, m, summary);
                             }
@@ -124,7 +123,7 @@ final class OpenApiProjectValidatorMessagesUtils {
                 }
             }
         } else {
-            IOpenMethod method = context.getSpreadsheetMethodResolver().resolve(type);
+            var method = context.getSpreadsheetMethodResolver().resolve(type);
             if (method != null) {
                 addMethodError(context, method, summary);
             } else {

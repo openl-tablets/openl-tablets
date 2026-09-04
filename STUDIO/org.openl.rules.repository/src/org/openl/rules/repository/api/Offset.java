@@ -2,6 +2,8 @@ package org.openl.rules.repository.api;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 /**
  * An implementation of pagination that requires {@code offset} and {@code size} parameters. Page number is
  * auto-calculated from {@code offset / size}. If vanilla pagination is required, {@link Page} implementation can be
@@ -12,6 +14,7 @@ import java.util.Objects;
  */
 public class Offset extends Pageable {
 
+    @Getter
     private final int offset;
 
     public Offset(int offset, int size) {
@@ -25,11 +28,6 @@ public class Offset extends Pageable {
     @Override
     public int getPageNumber() {
         return offset / getPageSize();
-    }
-
-    @Override
-    public int getOffset() {
-        return offset;
     }
 
     public static Offset of(int offset, int pageSize) {

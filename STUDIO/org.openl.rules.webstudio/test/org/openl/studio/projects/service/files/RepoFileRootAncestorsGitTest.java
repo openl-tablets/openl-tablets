@@ -11,11 +11,8 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -33,7 +30,6 @@ import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
-import org.openl.studio.projects.model.files.FsNode;
 import org.openl.util.IOUtils;
 
 /**
@@ -85,14 +81,14 @@ class RepoFileRootAncestorsGitTest {
         // From services/rating the search walks up, returning the same-named file at each level
         // (services, root), nearest first. It crosses the project boundary but does not descend into
         // config/.
-        List<FsNode> matches = root.searchAncestors("services/rating/AGENTS.md");
+        var matches = root.searchAncestors("services/rating/AGENTS.md");
 
         assertEquals(3, matches.size());
-        assertEquals("services/rating/AGENTS.md", matches.get(0).getPath());
+        assertEquals("services/rating/AGENTS.md", matches.getFirst().getPath());
         assertEquals("services/AGENTS.md", matches.get(1).getPath());
         assertEquals("AGENTS.md", matches.get(2).getPath());
-        assertEquals("AGENTS.md", matches.get(0).getName());
-        assertEquals("services/rating", matches.get(0).getBasePath());
+        assertEquals("AGENTS.md", matches.getFirst().getName());
+        assertEquals("services/rating", matches.getFirst().getBasePath());
     }
 
     @Test
@@ -101,8 +97,8 @@ class RepoFileRootAncestorsGitTest {
     }
 
     private void seedRemoteRepository() throws GitAPIException, IOException {
-        try (Git git = Git.init().setDirectory(remoteRoot).call()) {
-            File rootDir = git.getRepository().getDirectory().getParentFile();
+        try (var git = Git.init().setDirectory(remoteRoot).call()) {
+            var rootDir = git.getRepository().getDirectory().getParentFile();
             writeFile(new File(rootDir, "AGENTS.md"), "# root");
             writeFile(new File(rootDir, "services/AGENTS.md"), "# services");
             writeFile(new File(rootDir, "services/rating/AGENTS.md"), "# rating");
@@ -117,18 +113,17 @@ class RepoFileRootAncestorsGitTest {
             case "id" -> "design";
             case "uri" -> remoteRoot.toURI().toString();
             case "local-repositories-folder" -> localRepositoriesFolder.getAbsolutePath();
-            case "comment-template" -> "OpenL Studio: {commit-type}. {user-message}";
             default -> null;
         });
     }
 
     private static void writeFile(File file, String content) throws IOException {
-        Path path = file.toPath();
-        Path parent = path.getParent();
+        var path = file.toPath();
+        var parent = path.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }
-        Files.writeString(path, content, StandardCharsets.UTF_8,
+        Files.writeString(path, content,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

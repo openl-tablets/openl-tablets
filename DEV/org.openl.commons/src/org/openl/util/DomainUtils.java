@@ -12,11 +12,11 @@ public final class DomainUtils {
 
     @SuppressWarnings("unchecked")
     public static String toString(@SuppressWarnings("rawtypes") IDomain domain) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         Iterator<Object> itr = domain.iterator();
-        boolean f = false;
+        var f = false;
         while (itr.hasNext() && sb.length() < 200) {
-            Object v = itr.next();
+            var v = itr.next();
             if (f) {
                 sb.append(", ");
             } else {

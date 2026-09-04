@@ -1,0 +1,63 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:H18",
+  "source": [
+    [
+      {
+        "cell": "B17",
+        "value": 48,
+        "colspan": 7,
+        "rowspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ]
+  ],
+  "totalRows": 15
+}
+

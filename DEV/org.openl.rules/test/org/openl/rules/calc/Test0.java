@@ -11,14 +11,14 @@ class Test0 {
     void test1() {
 
         ITestCalc test = TestUtils.create("test/rules/calc0/calc0-1.xls", ITestCalc.class);
-        SpreadsheetResult result = test.calc();
+        var result = test.calc();
         assertEquals(2, result.getHeight());
         assertEquals(3, result.getWidth());
 
-        for (int y = 0; y < 2; y++) {
-            for (int x = 0; x < 3; x++) {
-                Integer a = y * 3 + x;
-                Object r = result.getValue(y, x);
+        for (var y = 0; y < 2; y++) {
+            for (var x = 0; x < 3; x++) {
+                var a = y * 3 + x;
+                var r = result.getValue(y, x);
                 assertEquals(a, r);
             }
         }
@@ -33,7 +33,7 @@ class Test0 {
     void test3() {
 
         ITestCalc test = TestUtils.create("test/rules/calc0/calc0-3.xls", ITestCalc.class);
-        SpreadsheetResult result = test.calc();
+        var result = test.calc();
         assertEquals(0, result.getHeight());
         assertEquals(0, result.getWidth());
     }

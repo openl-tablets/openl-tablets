@@ -19,7 +19,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     @Override
     public String[] getDisplayValue(Object sorterObject, int i) {
 
-        TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
+        var tsn = (TableSyntaxNode) sorterObject;
 
         return TableSyntaxNodeUtils.getTableDisplayValue(tsn, i, getOpenMethodGroupsDictionary(),
                 WebStudioFormats.getInstance());
@@ -31,7 +31,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     @Override
     public String getType(Object sorterObject) {
 
-        TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
+        var tsn = (TableSyntaxNode) sorterObject;
 
         return "%s.%s".formatted(IProjectTypes.PT_TABLE, tsn.getType()).intern();
     }
@@ -42,7 +42,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     @Override
     public String getUrl(Object sorterObject) {
 
-        TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
+        var tsn = (TableSyntaxNode) sorterObject;
 
         return tsn.getUri();
     }
@@ -70,14 +70,14 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     public Comparable<?> makeKey(TableSyntaxNode tableSyntaxNode) {
         if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
 
-            MethodKey methodKey = new MethodKey((IOpenMethod) tableSyntaxNode.getMember());
+            var methodKey = new MethodKey((IOpenMethod) tableSyntaxNode.getMember());
 
-            String keyString = methodKey.toString();
+            var keyString = methodKey.toString();
 
-            Object nodeObject = makeObject(tableSyntaxNode);
+            var nodeObject = makeObject(tableSyntaxNode);
 
-            String[] displayNames = getDisplayValue(tableSyntaxNode, 0);
-            for (int i = 0; i < displayNames.length; i++) {
+            var displayNames = getDisplayValue(tableSyntaxNode, 0);
+            for (var i = 0; i < displayNames.length; i++) {
                 displayNames[i] += keyString;
             }
             return new NodeKey(getWeight(nodeObject), displayNames);
@@ -88,8 +88,8 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
 
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
-        Object nodeObject = makeObject(tableSyntaxNode);
-        String[] displayNames = getDisplayValue(nodeObject, 0);
+        var nodeObject = makeObject(tableSyntaxNode);
+        var displayNames = getDisplayValue(nodeObject, 0);
         // it seems we need to process only those tables that have properties that are using for version sorting.
         // in other case return original tableSyntaxNode.
         // ???

@@ -58,7 +58,7 @@ public class PersonalAccessTokenController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public CreatedPersonalAccessTokenResponse createToken(@Valid @RequestBody CreatePersonalAccessTokenRequest request) {
-        String loginName = currentUserInfo.getUserName();
+        var loginName = currentUserInfo.getUserName();
 
         if (crudService.existsByLoginNameAndName(loginName, request.name())) {
             throw new BadRequestException("pat.duplicate.name.message");
@@ -71,7 +71,7 @@ public class PersonalAccessTokenController {
     @ApiResponse(responseCode = "200", description = "pat.list.200.desc")
     @GetMapping
     public List<PersonalAccessTokenResponse> listTokens() {
-        String loginName = currentUserInfo.getUserName();
+        var loginName = currentUserInfo.getUserName();
         return crudService.getTokensByUser(loginName);
     }
 
@@ -81,7 +81,7 @@ public class PersonalAccessTokenController {
     public PersonalAccessTokenResponse getToken(
             @Parameter(description = "pat.param.public-id.desc")
             @PathVariable String publicId) {
-        String loginName = currentUserInfo.getUserName();
+        var loginName = currentUserInfo.getUserName();
         var token = crudService.getTokenForUser(publicId, loginName);
         if (token == null) {
             throw new NotFoundException("pat.not.found.message");
@@ -95,7 +95,7 @@ public class PersonalAccessTokenController {
     public void deleteToken(
             @Parameter(description = "pat.param.public-id.desc")
             @PathVariable String publicId) {
-        String loginName = currentUserInfo.getUserName();
+        var loginName = currentUserInfo.getUserName();
         var token = crudService.getTokenForUser(publicId, loginName);
         if (token == null) {
             throw new NotFoundException("pat.not.found.message");

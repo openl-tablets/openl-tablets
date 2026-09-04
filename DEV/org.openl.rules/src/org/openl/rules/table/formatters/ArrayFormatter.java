@@ -3,6 +3,7 @@ package org.openl.rules.table.formatters;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.helpers.ArraySplitter;
@@ -20,6 +21,7 @@ import org.openl.util.formatters.IFormatter;
 public class ArrayFormatter implements IFormatter {
 
 
+    @Getter
     private final IFormatter elementFormat;
 
     private final Class<?> elementType;
@@ -53,8 +55,8 @@ public class ArrayFormatter implements IFormatter {
 
             String[] elementResults = new String[array.length];
 
-            for (int i = 0; i < array.length; i++) {
-                Object element = array[i];
+            for (var i = 0; i < array.length; i++) {
+                var element = array[i];
                 elementResults[i] = elementFormat.format(element);
                 result = String.join(",", elementResults);
             }
@@ -75,9 +77,5 @@ public class ArrayFormatter implements IFormatter {
                     .toArray(e -> (Object[]) Array.newInstance(elementType, e));
         }
         return null;
-    }
-
-    public IFormatter getElementFormat() {
-        return elementFormat;
     }
 }

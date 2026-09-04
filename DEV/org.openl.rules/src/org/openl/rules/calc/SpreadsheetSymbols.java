@@ -1,5 +1,9 @@
 package org.openl.rules.calc;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum SpreadsheetSymbols {
 
     /**
@@ -10,10 +14,6 @@ public enum SpreadsheetSymbols {
     ASTERISK("*");
 
     private final String symbols;
-
-    SpreadsheetSymbols(String symbols) {
-        this.symbols = symbols;
-    }
 
     @Override
     public String toString() {

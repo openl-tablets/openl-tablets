@@ -3,10 +3,12 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -21,8 +23,13 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.util.RuntimeExceptionWrapper;
 
 public class AProjectArtefact implements IProjectArtefact {
+    @Getter
     private final AProject project;
+    @Getter
+    @Setter
     private Repository repository;
+    @Getter
+    @Setter
     private FileData fileData;
 
     private final Date modifiedTime;
@@ -34,28 +41,8 @@ public class AProjectArtefact implements IProjectArtefact {
         this.modifiedTime = fileData == null ? null : fileData.getModifiedAt();
     }
 
-    public AProject getProject() {
-        return project;
-    }
-
-    public FileData getFileData() {
-        return fileData;
-    }
-
-    public void setFileData(FileData fileData) {
-        this.fileData = fileData;
-    }
-
-    public Repository getRepository() {
-        return repository;
-    }
-
-    public void setRepository(Repository repository) {
-        this.repository = repository;
-    }
-
     public void delete() throws ProjectException {
-        FileData data = getFileData();
+        var data = getFileData();
         try {
             getRepository().delete(data);
         } catch (IOException e) {
@@ -68,8 +55,8 @@ public class AProjectArtefact implements IProjectArtefact {
     }
 
     public String getInternalPath() {
-        String projectPath = getProject().getFileData().getName();
-        String path = getFileData().getName();
+        var projectPath = getProject().getFileData().getName();
+        var path = getFileData().getName();
         // A root artefact (e.g. a repository-rooted folder) has an empty project path; its relative
         // path is then the full name. Stripping projectPath.length() + 1 would drop the first character.
         return projectPath.isEmpty() ? path : path.substring(projectPath.length() + 1);
@@ -77,7 +64,7 @@ public class AProjectArtefact implements IProjectArtefact {
 
     @Override
     public String getName() {
-        String name = getFileData().getName();
+        var name = getFileData().getName();
         return name.substring(name.lastIndexOf('/') + 1);
     }
 
@@ -92,7 +79,7 @@ public class AProjectArtefact implements IProjectArtefact {
 
     public List<ProjectVersion> getVersions() {
         if (getFileData() == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         Collection<FileData> fileDatas;
         try {
@@ -100,7 +87,7 @@ public class AProjectArtefact implements IProjectArtefact {
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-        List<ProjectVersion> versions = new ArrayList<>();
+        var versions = new ArrayList<ProjectVersion>();
         for (FileData data : fileDatas) {
             versions.add(createProjectVersion(data));
         }
@@ -119,11 +106,11 @@ public class AProjectArtefact implements IProjectArtefact {
         if (fileData == null) {
             return new RepositoryProjectVersionImpl(true);
         }
-        RepositoryVersionInfoImpl rvii = Optional.ofNullable(fileData.getAuthor())
+        var rvii = Optional.ofNullable(fileData.getAuthor())
                 .map(author -> new RepositoryVersionInfoImpl(fileData.getModifiedAt(), author.getName(), author.getEmail()))
                 .orElse(new RepositoryVersionInfoImpl(fileData.getModifiedAt(), null, null));
-        String version = fileData.getVersion();
-        RepositoryProjectVersionImpl projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version,
+        var version = fileData.getVersion();
+        var projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version,
                 rvii,
                 fileData.isDeleted());
         projectVersion.setVersionComment(fileData.getComment());
@@ -174,7 +161,7 @@ public class AProjectArtefact implements IProjectArtefact {
 
     protected boolean isLockedByUser(LockInfo lockInfo, CommonUser user) {
         if (lockInfo.isLocked()) {
-            String lockedBy = lockInfo.getLockedBy();
+            var lockedBy = lockInfo.getLockedBy();
             return lockedBy.equals(user.getUserName());
 
         }
@@ -186,7 +173,7 @@ public class AProjectArtefact implements IProjectArtefact {
     }
 
     public boolean isModified() {
-        FileData data = getFileData();
+        var data = getFileData();
         return data != null && (modifiedTime == null || !modifiedTime.equals(data.getModifiedAt()));
     }
 

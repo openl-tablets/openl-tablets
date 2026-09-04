@@ -1,14 +1,19 @@
 package org.openl.rules.project;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -30,8 +35,8 @@ class ProjectDescriptorManagerTest {
     }
 
     private void assertIsCoveredByWildcardModule(ProjectDescriptor descriptor) {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        Module newModule = new Module();
+        var manager = new ProjectDescriptorManager();
+        var newModule = new Module();
         newModule.setName("New Module");
         newModule.setRulesRootPath("rules/New Module.xlsx");
         assertTrue(manager.isCoveredByWildcardModule(descriptor, newModule));
@@ -41,6 +46,158 @@ class ProjectDescriptorManagerTest {
 
         newModule.setRulesRootPath("New Module.xlsx");
         assertFalse(manager.isCoveredByWildcardModule(descriptor, newModule));
+    }
+
+    @Test
+    void emptyDescriptorIsCoveredByImplicitDefaults() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+
+        // A project with no declared modules relies on the implicit rules/** and tests/** defaults.
+        assertTrue(manager.isCoveredByWildcardModule(descriptor, module("rules/New Module.xlsx")));
+        assertTrue(manager.isCoveredByWildcardModule(descriptor, module("tests/New Module.xlsx")));
+        assertFalse(manager.isCoveredByWildcardModule(descriptor, module("New Module.xlsx")));
+    }
+
+    @Test
+    void registerModuleUnderRulesKeepsModulesImplicit() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+
+        manager.registerModule(descriptor, module("rules/New Module.xlsx"));
+
+        // The file is auto-discovered, so nothing is written and the other implicit modules survive.
+        assertTrue(descriptor.getModules().isEmpty());
+    }
+
+    @Test
+    void registerModuleInRootMaterializesImplicitDefaults() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+
+        manager.registerModule(descriptor, module("New Module.xlsx"));
+
+        // A root file is not auto-discovered, so the implicit defaults are materialized before appending it.
+        assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx", "New Module.xlsx"),
+                descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
+    }
+
+    @Test
+    void registerModuleCoveredByDeclaredWildcardAddsNothing() throws Exception {
+        var manager = new ProjectDescriptorManager();
+        ProjectDescriptor descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml"));
+
+        manager.registerModule(descriptor, module("rules/New Module.xlsx"));
+
+        assertEquals(2, descriptor.getModules().size());
+    }
+
+    @Test
+    void registerModuleAddsNothingForAPathTheDescriptorAlreadyDeclares() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+        descriptor.setModules(new ArrayList<>(List.of(module("Rules", "rules/Algorithms.xlsx"))));
+
+        // The path is declared already, whatever the entry calls it: a second one would bind the same
+        // workbook twice, and every table in it would be defined twice.
+        manager.registerModule(descriptor, module("Algorithms", "rules/Algorithms.xlsx"));
+
+        assertEquals(1, descriptor.getModules().size());
+        assertEquals("Rules", descriptor.getModules().getFirst().getName());
+    }
+
+    @Test
+    void registerModuleAddsNothingForAWildcardAWiderOneAlreadyCovers() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+        descriptor.setModules(new ArrayList<>(List.of(module(null, "rules/**/*.xlsx"))));
+
+        // A pattern under a pattern contributes nothing of its own, and it has no name to keep.
+        manager.registerModule(descriptor, module(null, "rules/sub/*.xlsx"));
+
+        assertEquals(1, descriptor.getModules().size());
+    }
+
+    @Test
+    void registerModuleAcceptsADescriptorHoldingAnImmutableModuleList() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+        descriptor.setModules(List.of(module("Rules", "rules/Rules.xlsx")));
+
+        manager.registerModule(descriptor, module("Models", "rules/Models.xlsx"));
+
+        assertEquals(List.of("Rules", "Models"), descriptor.getModules().stream().map(Module::getName).toList());
+    }
+
+    @Test
+    void declareModuleAppendsDespiteCoveringWildcard() throws Exception {
+        var manager = new ProjectDescriptorManager();
+        ProjectDescriptor descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules-wildcard.xml"));
+
+        // The wildcard would name the module after its workbook, so a caller wanting another name declares it.
+        manager.declareModule(descriptor, module("Renamed", "rules/New Module.xlsx"));
+
+        assertEquals(3, descriptor.getModules().size());
+        assertEquals("Renamed", descriptor.getModules().getLast().getName());
+    }
+
+    @Test
+    void declareModuleUnderRulesMaterializesImplicitDefaults() {
+        var manager = new ProjectDescriptorManager();
+        var descriptor = new ProjectDescriptor();
+
+        // The implicit defaults already match the file, so they are written out before the declaration hides them.
+        manager.declareModule(descriptor, module("Renamed", "rules/New Module.xlsx"));
+
+        assertEquals(List.of("rules/**/*.xlsx", "tests/**/*.xlsx", "rules/New Module.xlsx"),
+                descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
+    }
+
+    @Test
+    void addingFileUnderRulesKeepsAllModules(@TempDir Path projectFolder) throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules"));
+        Files.createFile(projectFolder.resolve("rules/BugReproducing.xlsx"));
+        Files.createFile(projectFolder.resolve("rules/generalProject.xlsx"));
+
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(projectFolder);
+
+        // Simulate adding a new Excel file under rules/ to a project that declares no modules.
+        Files.createFile(projectFolder.resolve("rules/context_bug.xlsx"));
+        new ProjectDescriptorManager().registerModule(descriptor, module("context_bug", "rules/context_bug.xlsx"));
+
+        assertEquals(List.of("BugReproducing", "context_bug", "generalProject"), resolvedModuleNames(descriptor));
+    }
+
+    @Test
+    void addingFileInRootKeepsImplicitModules(@TempDir Path projectFolder) throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules"));
+        Files.createFile(projectFolder.resolve("rules/BugReproducing.xlsx"));
+        Files.createFile(projectFolder.resolve("rules/generalProject.xlsx"));
+
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(projectFolder);
+
+        // Simulate adding a new Excel file in the project root, which the implicit defaults do not match.
+        Files.createFile(projectFolder.resolve("context_bug.xlsx"));
+        new ProjectDescriptorManager().registerModule(descriptor, module("context_bug", "context_bug.xlsx"));
+
+        assertEquals(List.of("BugReproducing", "context_bug", "generalProject"), resolvedModuleNames(descriptor));
+    }
+
+    private static List<String> resolvedModuleNames(ProjectDescriptor descriptor) throws IOException {
+        return descriptor.expand().getModules().stream().map(Module::getName).sorted().toList();
+    }
+
+    private static Module module(String rulesRootPath) {
+        return module("New Module", rulesRootPath);
+    }
+
+    private static Module module(String name, String rulesRootPath) {
+        var module = new Module();
+        module.setName(name);
+        module.setRulesRootPath(rulesRootPath);
+        return module;
     }
 
     private static FileSystem openZipFile(Path path) throws IOException {

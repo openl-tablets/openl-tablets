@@ -1,14 +1,19 @@
 package org.openl.studio.projects.service.trace;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
@@ -26,7 +31,7 @@ class TableInputParserServiceImplTest {
     private static IOpenMethod method(String[] names, Class<?>[] types) {
         var signature = mock(IMethodSignature.class);
         when(signature.getNumberOfParameters()).thenReturn(names.length);
-        for (int i = 0; i < names.length; i++) {
+        for (var i = 0; i < names.length; i++) {
             when(signature.getParameterName(i)).thenReturn(names[i]);
             when(signature.getParameterType(i)).thenReturn(JavaOpenClass.getOpenClass(types[i]));
         }
@@ -82,6 +87,74 @@ class TableInputParserServiceImplTest {
         var result = parser.parseInput("{\"params\":{\"policy\":{\"policyID\":\"F900\"}}}", method, mapper);
 
         assertEquals("F900", ((Policy) result.params()[0]).policyID);
+    }
+
+    @Test
+    void structuredFormatFillsParamsByPosition() {
+        var method = method(new String[]{"amount", "category"}, new Class<?>[]{int.class, String.class});
+
+        var result = parser.parseInput("{\"params\":[7,\"LOW\"]}", method, mapper);
+
+        assertEquals(7, result.params()[0]);
+        assertEquals("LOW", result.params()[1]);
+    }
+
+    @Test
+    void rawArrayFillsParamsByPosition() {
+        var method = method(new String[]{"amount"}, new Class<?>[]{int.class});
+
+        var result = parser.parseInput("[7]", method, mapper);
+
+        assertEquals(7, result.params()[0]);
+    }
+
+    @Test
+    void positionalInputAllowsMissingTrailingValues() {
+        var method = method(new String[]{"amount", "category"}, new Class<?>[]{int.class, String.class});
+
+        var result = parser.parseInput("[7]", method, mapper);
+
+        assertEquals(7, result.params()[0]);
+        assertNull(result.params()[1]);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"{\"params\":[\"invalid\",\"LOW\",true]}", "[\"invalid\",\"LOW\",true]"})
+    void positionalInputRejectsSurplusValues(String inputJson) {
+        var method = method(new String[]{"amount", "category"}, new Class<?>[]{int.class, String.class});
+
+        var error = assertThrows(BadRequestException.class, () -> parser.parseInput(inputJson, method, mapper));
+
+        assertEquals("openl.error.400.table.input.invalid.message", error.getErrorCode());
+        assertArrayEquals(new Object[]{"Expected at most 2 positional parameter values, but got 3."}, error.getArgs());
+    }
+
+    @Test
+    void rawArrayRemainsPlainValueForSingleArrayParameter() {
+        var method = method(new String[]{"amounts"}, new Class<?>[]{int[].class});
+
+        var result = parser.parseInput("[7,8]", method, mapper);
+
+        assertArrayEquals(new int[]{7, 8}, (int[]) result.params()[0]);
+    }
+
+    @Test
+    void plainValueFillsTheOnlyParameter() {
+        var method = method(new String[]{"amount"}, new Class<?>[]{int.class});
+
+        var result = parser.parseInput("7", method, mapper);
+
+        assertEquals(7, result.params()[0]);
+        assertNull(result.runtimeContext());
+    }
+
+    @Test
+    void inputThatDoesNotFitTheSignatureIsRejectedAsABadRequest() {
+        var method = method(new String[]{"amount"}, new Class<?>[]{int.class});
+
+        var error = assertThrows(BadRequestException.class, () -> parser.parseInput("\"abc\"", method, mapper));
+
+        assertEquals("openl.error.400.table.input.invalid.message", error.getErrorCode());
     }
 
     @Test

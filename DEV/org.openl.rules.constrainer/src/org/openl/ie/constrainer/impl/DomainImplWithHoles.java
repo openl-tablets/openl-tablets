@@ -33,8 +33,8 @@ public final class DomainImplWithHoles extends DomainImpl {
         if (value < _min || value > _max) {
             return false;
         }
-        for (int i = 0; i < _values.size(); i++) {
-            DomainInterval interval = (DomainInterval) _values.elementAt(i);
+        for (var i = 0; i < _values.size(); i++) {
+            var interval = (DomainInterval) _values.elementAt(i);
             if (value >= interval.from && value <= interval.to) {
                 return true;
             }
@@ -45,9 +45,9 @@ public final class DomainImplWithHoles extends DomainImpl {
     public void force(FastVector values) // throws Failure
     {
         _values = values;
-        DomainInterval first = (DomainInterval) _values.firstElement();
+        var first = (DomainInterval) _values.firstElement();
         _min = first.from;
-        DomainInterval last = (DomainInterval) _values.lastElement();
+        var last = (DomainInterval) _values.lastElement();
         _max = last.to;
     }
 
@@ -63,15 +63,11 @@ public final class DomainImplWithHoles extends DomainImpl {
 
     @Override
     public int max() {
-        // DomainInterval interval = (DomainInterval)_values.lastElement();
-        // return interval.to;
         return _max;
     }
 
     @Override
     public int min() {
-        // DomainInterval interval = (DomainInterval)_values.firstElement();
-        // return interval.from;
         return _min;
     }
 
@@ -84,11 +80,10 @@ public final class DomainImplWithHoles extends DomainImpl {
             return setMax(value - 1);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
-        for (int i = 0; i < _values.size(); i++) {
-            DomainInterval interval = (DomainInterval) _values.elementAt(i);
+        for (var i = 0; i < _values.size(); i++) {
+            var interval = (DomainInterval) _values.elementAt(i);
             if (value >= interval.from && value <= interval.to) {
                 if (interval.from == interval.to) {
                     if (_values.size() == 1) {
@@ -101,9 +96,9 @@ public final class DomainImplWithHoles extends DomainImpl {
                 } else if (value == interval.to) {
                     interval.to--;
                 } else {
-                    int to1 = value - 1;
-                    int from2 = value + 1;
-                    int to2 = interval.to;
+                    var to1 = value - 1;
+                    var from2 = value + 1;
+                    var to2 = interval.to;
                     interval.to = to1;
                     _values.insertElementAt(new DomainInterval(from2, to2), i + 1);
                 }
@@ -123,12 +118,11 @@ public final class DomainImplWithHoles extends DomainImpl {
             constrainer().fail("Max < Min for " + _variable);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         // remove a hole
         while (!_values.isEmpty()) {
-            DomainInterval interval = (DomainInterval) _values.lastElement();
+            var interval = (DomainInterval) _values.lastElement();
             if (M < interval.from) {
                 _values.removeLast();
                 continue;
@@ -143,7 +137,7 @@ public final class DomainImplWithHoles extends DomainImpl {
             break;
         }
 
-        DomainInterval interval = (DomainInterval) _values.lastElement();
+        var interval = (DomainInterval) _values.lastElement();
         _max = interval.to;
 
         return true;
@@ -159,12 +153,11 @@ public final class DomainImplWithHoles extends DomainImpl {
             constrainer().fail("Min > Max for " + _variable);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         // remove hole
         while (!_values.isEmpty()) {
-            DomainInterval interval = (DomainInterval) _values.firstElement();
+            var interval = (DomainInterval) _values.firstElement();
             if (m > interval.to) {
                 _values.removeElementAt(0);
                 continue;
@@ -179,16 +172,14 @@ public final class DomainImplWithHoles extends DomainImpl {
             break;
         }
 
-        DomainInterval interval = (DomainInterval) _values.firstElement();
+        var interval = (DomainInterval) _values.firstElement();
         _min = interval.from;
         return true;
     }
 
     @Override
     public boolean setValue(int value) throws Failure {
-        // Debug.print("setValue " + value);
         if (_min == value && _max == value) {
-            // constrainer().fail("Redundant value "+_variable);
             return false;
         }
 
@@ -196,7 +187,6 @@ public final class DomainImplWithHoles extends DomainImpl {
             constrainer().fail("attempt to set invalid value for " + _variable);
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
 
         _values.clear();
@@ -208,9 +198,9 @@ public final class DomainImplWithHoles extends DomainImpl {
 
     @Override
     public int size() {
-        int s = 0;
-        for (int i = 0; i < _values.size(); i++) {
-            DomainInterval interval = (DomainInterval) _values.elementAt(i);
+        var s = 0;
+        for (var i = 0; i < _values.size(); i++) {
+            var interval = (DomainInterval) _values.elementAt(i);
             s += interval.to - interval.from + 1;
         }
         return s;
@@ -218,8 +208,6 @@ public final class DomainImplWithHoles extends DomainImpl {
 
     @Override
     public String toString() {
-        // return "["+min()+((size()==1) ? "" : ";"+max())+"]"
-        // +((values().size()==1)?"":"-"+values().size()+"intervals");
         return _values.toString();
     }
 

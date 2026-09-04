@@ -2,7 +2,6 @@ package org.openl.rules.types;
 
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
@@ -39,14 +38,14 @@ public final class DuplicateMemberThrowExceptionHelper {
                 .getNumberOfParameters()) {
             throw new IllegalStateException("Method signatures are not the same");
         }
-        for (int i = 0; i < existedOpenMethod.getSignature().getNumberOfParameters(); i++) {
+        for (var i = 0; i < existedOpenMethod.getSignature().getNumberOfParameters(); i++) {
             if (!Objects.equals(existedOpenMethod.getSignature().getParameterType(i).getInstanceClass(),
                     newOpenMethod.getSignature().getParameterType(i).getInstanceClass())) {
                 throw new IllegalStateException("Method signatures are not the same");
             }
         }
         String message;// Modules to which methods belong to
-        Set<String> modules = new HashSet<>();
+        var modules = new HashSet<String>();
         if (extractModuleName(newOpenMethod) != null) {
             modules.add(extractModuleName(newOpenMethod));
         }
@@ -54,7 +53,7 @@ public final class DuplicateMemberThrowExceptionHelper {
             modules.add(extractModuleName(existedOpenMethod));
         }
 
-        boolean canBeDispatched = !(existedOpenMethod instanceof TestSuiteMethod) && !(newOpenMethod instanceof TestSuiteMethod);
+        var canBeDispatched = !(existedOpenMethod instanceof TestSuiteMethod) && !(newOpenMethod instanceof TestSuiteMethod);
 
         if (modules.isEmpty()) {
             // Case module names where not set to the methods
@@ -68,7 +67,7 @@ public final class DuplicateMemberThrowExceptionHelper {
         } else {
             // Case when the module names where set to the methods
             if (modules.size() > 1) {
-                String[] moduleNames = modules.stream().sorted().toArray(String[]::new);
+                var moduleNames = modules.stream().sorted().toArray(String[]::new);
                 if (canBeDispatched) {
                     message = "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.".formatted(
                             MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),

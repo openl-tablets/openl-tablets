@@ -2,6 +2,7 @@ package org.openl.rules.lang.xls.load;
 
 import java.lang.ref.WeakReference;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 
 import org.openl.rules.table.xls.PoiExcelHelper;
@@ -10,18 +11,13 @@ import org.openl.rules.table.xls.PoiExcelHelper;
  * Provides lazy access to the Cell. If corresponding workbook was garbage collected previously, it will bec loaded
  * again when {@link #getCell()} is invoked.
  */
+@RequiredArgsConstructor
 public class LazyCellLoader implements CellLoader {
     private final SheetLoader sheetLoader;
     private final int column;
     private final int row;
 
     private WeakReference<Cell> cellCache = new WeakReference<>(null);
-
-    public LazyCellLoader(SheetLoader sheetLoader, int column, int row) {
-        this.sheetLoader = sheetLoader;
-        this.column = column;
-        this.row = row;
-    }
 
     /**
      * Get the cell. When this method is repeatedly called, it can (but mustn't) return the different instances of Cell
@@ -34,7 +30,7 @@ public class LazyCellLoader implements CellLoader {
         if (cellCache == null) {
             return null;
         }
-        Cell cell = cellCache.get();
+        var cell = cellCache.get();
         if (cell == null) {
             cell = PoiExcelHelper.getCell(column, row, sheetLoader.getSheet());
             cellCache = cell == null ? null : new WeakReference<>(cell);

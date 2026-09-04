@@ -4,9 +4,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Getter;
+
 public class OpenAPIGeneratedClasses {
 
     private final GroovyScriptFile annotationGroovyScript;
+    @Getter
     private final Set<GroovyScriptFile> groovyCommonClasses;
 
     public OpenAPIGeneratedClasses(GroovyScriptFile annotationGroovyScript, Set<GroovyScriptFile> groovyScriptFiles) {
@@ -16,10 +19,6 @@ public class OpenAPIGeneratedClasses {
 
     public GroovyScriptFile getAnnotationTemplateGroovyFile() {
         return annotationGroovyScript;
-    }
-
-    public Set<GroovyScriptFile> getGroovyCommonClasses() {
-        return groovyCommonClasses;
     }
 
     public boolean hasAnnotationTemplateClass() {

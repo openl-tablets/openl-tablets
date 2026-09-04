@@ -1,0 +1,28 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "63b0b9422a946f587555c4d309d353c3",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Claim",
+  "fields": [
+    {
+      "name": "town",
+      "type": "String",
+      "defaultValue": "Lviv",
+      "mandatory": "false",
+      "description": "Renamed",
+      "example": "Odesa"
+    },
+    {
+      "name": "amount",
+      "type": "Double",
+      "defaultValue": "1.5",
+      "mandatory": "true",
+      "description": "How much",
+      "example": "2.5"
+    }
+  ]
+}
+

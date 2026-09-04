@@ -2,7 +2,6 @@ package org.openl.rules.serialization;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -10,12 +9,10 @@ import java.util.function.Consumer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import lombok.Getter;
+import lombok.Setter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.springframework.core.env.Environment;
@@ -53,26 +50,14 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     private final JacksonObjectMapperFactoryBean delegate = new JacksonObjectMapperFactoryBean();
 
+    @Setter
     private XlsModuleOpenClass xlsModuleOpenClass;
 
+    @Getter
+    @Setter
     private RulesDeploy rulesDeploy;
+    @Setter
     private Environment environment;
-
-    public RulesDeploy getRulesDeploy() {
-        return rulesDeploy;
-    }
-
-    public void setRulesDeploy(RulesDeploy rulesDeploy) {
-        this.rulesDeploy = rulesDeploy;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
-
-    public void setXlsModuleOpenClass(XlsModuleOpenClass xlsModuleOpenClass) {
-        this.xlsModuleOpenClass = xlsModuleOpenClass;
-    }
 
     private DefaultTypingMode toDefaultTypingMode(String defaultTypingMode) {
         if (DefaultTypingMode.DISABLED.name().equalsIgnoreCase(defaultTypingMode.trim())) {
@@ -262,7 +247,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             switch (defaultTypingMode) {
                 case DefaultTypingMode mode -> delegate.setDefaultTypingMode(mode);
                 case String string -> {
-                    DefaultTypingMode dtm = toDefaultTypingMode(string);
+                    var dtm = toDefaultTypingMode(string);
                     if (dtm != null) {
                         delegate.setDefaultTypingMode(dtm);
                     }
@@ -306,10 +291,10 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     private static String getRootName(ObjectMapper objectMapper, Class<?> cls) {
-        AnnotationIntrospector introspector = objectMapper.getSerializationConfig().getAnnotationIntrospector();
-        BeanDescription beanDesc = objectMapper.getSerializationConfig().introspectClassAnnotations(cls);
-        AnnotatedClass ac = beanDesc.getClassInfo();
-        PropertyName propertyName = introspector.findRootName(ac);
+        var introspector = objectMapper.getSerializationConfig().getAnnotationIntrospector();
+        var beanDesc = objectMapper.getSerializationConfig().introspectClassAnnotations(cls);
+        var ac = beanDesc.getClassInfo();
+        var propertyName = introspector.findRootName(ac);
         if (propertyName != null && propertyName.hasSimpleName()) {
             return propertyName.getSimpleName();
         } else {
@@ -333,7 +318,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                     .getCombinedSpreadsheetResultOpenClasses()) {
                 customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
             }
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
+            var customSpreadsheetResultOpenClass = xlsModuleOpenClass
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass();
             customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
@@ -341,13 +326,13 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     private void processTypesFromXlsModuleOpenClass(ObjectMapper objectMapper, XlsModuleOpenClass xlsModuleOpenClass) {
-        Map<Class<?>, String> clsToRootName = new HashMap<>();
+        var clsToRootName = new HashMap<Class<?>, String>();
 
         forEachType(xlsModuleOpenClass,
                 e -> clsToRootName.put(e.getInstanceClass(), getRootName(objectMapper, e.getInstanceClass())),
                 e -> clsToRootName.put(e.getBeanClass(), getRootName(objectMapper, e.getBeanClass())));
 
-        Map<Class<?>, String> conflictedRootNames = new HashMap<>();
+        var conflictedRootNames = new HashMap<Class<?>, String>();
         for (Class<?> cls : clsToRootName.keySet()) {
             if (clsToRootName.values().stream().filter(e -> Objects.equals(e, clsToRootName.get(cls))).count() > 1) {
                 conflictedRootNames.put(cls, cls.getName());
@@ -360,7 +345,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     protected ObjectMapper enhanceObjectMapper(ObjectMapper objectMapper) {
         if (xlsModuleOpenClass != null) {
-            PropertyNamingStrategy propertyNamingStrategy = extractPropertyNamingStrategy();
+            var propertyNamingStrategy = extractPropertyNamingStrategy();
             if (propertyNamingStrategy != null) {
                 objectMapper.setPropertyNamingStrategy(propertyNamingStrategy);
             }
@@ -379,11 +364,11 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                                                                        ClassLoader classLoader) {
         if (rulesDeploy != null) {
             if (rulesDeploy.getConfiguration() != null) {
-                Object propertyNamingStrategy = rulesDeploy.getConfiguration().get(JACKSON_PROPERTY_NAMING_STRATEGY);
+                var propertyNamingStrategy = rulesDeploy.getConfiguration().get(JACKSON_PROPERTY_NAMING_STRATEGY);
                 if (propertyNamingStrategy != null) {
                     if (propertyNamingStrategy instanceof String propertyNamingStrategyClassName) {
                         try {
-                            Class<?> propertyNamingStrategyClass = classLoader
+                            var propertyNamingStrategyClass = classLoader
                                     .loadClass(propertyNamingStrategyClassName);
                             if (!PropertyNamingStrategy.class.isAssignableFrom(propertyNamingStrategyClass)) {
                                 throw new ObjectMapperConfigurationParsingException("Failed to load property name strategy class '%s' for service '%s'. The class must be an implementation of interface '%s'.".formatted(
@@ -421,8 +406,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                                                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
                                                    String rootName) {
         Class<?> sprBeanClass = customSpreadsheetResultOpenClass.getBeanClass();
-        Class<?> originalMixInClass = objectMapper.findMixInClassFor(sprBeanClass);
-        Class<?> mixInClass = enhanceMixInClassForSprBeanClass(
+        var originalMixInClass = objectMapper.findMixInClassFor(sprBeanClass);
+        var mixInClass = enhanceMixInClassForSprBeanClass(
                 originalMixInClass != null ? originalMixInClass : NonNullMixIn.class,
                 rootName,
                 getClassLoader());
@@ -432,8 +417,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     private void addMixInAnnotationsToDatatype(ObjectMapper objectMapper,
                                                DatatypeOpenClass datatypeOpenClass,
                                                String rootName) {
-        Class<?> originalMixInClass = objectMapper.findMixInClassFor(datatypeOpenClass.getInstanceClass());
-        Class<?> mixInClass = enhanceMixInClassForDatatypeClass(
+        var originalMixInClass = objectMapper.findMixInClassFor(datatypeOpenClass.getInstanceClass());
+        var mixInClass = enhanceMixInClassForDatatypeClass(
                 originalMixInClass != null ? originalMixInClass : NonNullMixIn.class,
                 rootName,
                 getClassLoader());
@@ -443,10 +428,10 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     private Class<?> enhanceMixInClassForSprBeanClass(Class<?> originalMixInClass,
                                                       String rootName,
                                                       ClassLoader classLoader) {
-        String className = originalMixInClass.getName() + "$EnhancedMixInClassForSprBeanClass$" + incrementer
+        var className = originalMixInClass.getName() + "$EnhancedMixInClassForSprBeanClass$" + incrementer
                 .getAndIncrement();
-        ClassWriter classWriter = new ClassWriter(0);
-        ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
+        var classWriter = new ClassWriter(0);
+        var classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
                 className,
                 originalMixInClass,
                 rootName);
@@ -456,10 +441,10 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     private Class<?> enhanceMixInClassForDatatypeClass(Class<?> originalMixInClass,
                                                        String rootName,
                                                        ClassLoader classLoader) {
-        String className = originalMixInClass.getName() + "$EnhancedMixInClassForDatatypeClass$" + incrementer
+        var className = originalMixInClass.getName() + "$EnhancedMixInClassForDatatypeClass$" + incrementer
                 .getAndIncrement();
-        ClassWriter classWriter = new ClassWriter(0);
-        ClassVisitor classVisitor = new DatatypeOpenClassMixInAnnotationsWriter(classWriter,
+        var classWriter = new ClassWriter(0);
+        var classVisitor = new DatatypeOpenClassMixInAnnotationsWriter(classWriter,
                 className,
                 originalMixInClass,
                 rootName);
@@ -471,7 +456,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                                         String className,
                                         ClassWriter classWriter,
                                         ClassVisitor classVisitor) {
-        InterfaceTransformer transformer = new InterfaceTransformer(originalMixInClass, className);
+        var transformer = new InterfaceTransformer(originalMixInClass, className);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
         try {

@@ -1,5 +1,7 @@
 package org.openl.rules.ui.tree;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
 import org.openl.util.StringUtils;
@@ -7,13 +9,10 @@ import org.openl.util.StringUtils;
 /**
  * Builds tree node for table category.
  */
+@RequiredArgsConstructor
 public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
 
     private final int categoryLevel;
-
-    public CategoryNTreeNodeBuilder(int categoryLevel) {
-        this.categoryLevel = categoryLevel;
-    }
 
     /**
      * {@inheritDoc}
@@ -22,7 +21,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
     protected String getCategory(TableSyntaxNode tableSyntaxNode) {
 
         String result;
-        String category = super.getCategory(tableSyntaxNode);
+        var category = super.getCategory(tableSyntaxNode);
 
         String[] categories = StringUtils.split(category, '-');
 
@@ -48,7 +47,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
             return false;
         }
 
-        String category = super.getCategory(tableSyntaxNode);
+        var category = super.getCategory(tableSyntaxNode);
         String[] categories = StringUtils.split(category, '-');
 
         return categoryLevel < categories.length;

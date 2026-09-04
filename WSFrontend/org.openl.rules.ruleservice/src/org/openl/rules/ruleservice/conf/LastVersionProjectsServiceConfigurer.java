@@ -1,11 +1,11 @@
 package org.openl.rules.ruleservice.conf;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -18,16 +18,13 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.abstraction.IProject;
-import org.openl.rules.project.abstraction.IProjectArtefact;
 import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
-import org.openl.rules.ruleservice.core.ResourceLoader;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
@@ -48,7 +45,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     @Setter
     private String supportedGroups = null;
     private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
-    private Collection<String> defaultPublishers = Collections.emptyList();
+    private Collection<String> defaultPublishers = List.of();
 
     /**
      * {@inheritDoc}
@@ -59,19 +56,19 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
         Collection<IDeployment> deployments = ruleServiceLoader.getDeployments();
 
-        Collection<ServiceDescription> serviceDescriptions = new HashSet<>();
+        var serviceDescriptions = new HashSet<ServiceDescription>();
         for (IDeployment deployment : deployments) {
             if (!deploymentMatcher.hasMatches(deployment.getDeploymentName())) {
                 continue;
             }
-            String deploymentName = deployment.getDeploymentName();
-            CommonVersion deploymentVersion = deployment.getCommonVersion();
-            DeploymentDescription deploymentDescription = new DeploymentDescription(deploymentName, deploymentVersion);
+            var deploymentName = deployment.getDeploymentName();
+            var deploymentVersion = deployment.getCommonVersion();
+            var deploymentDescription = new DeploymentDescription(deploymentName, deploymentVersion);
             for (IProject project : deployment.getProjects()) {
                 if (project.isDeleted()) {
                     continue;
                 }
-                String projectName = project.getName();
+                var projectName = project.getName();
                 try {
                     var pd = ruleServiceLoader.resolveProject(deploymentName, deploymentVersion, projectName);
                     if (pd == null) {
@@ -79,20 +76,20 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                         continue;
                     }
                     Collection<Module> modulesOfProject = pd.getModules();
-                    ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
+                    var serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
                             .setProvideRuntimeContext(isProvideRuntimeContext())
                             .setPublishers(defaultPublishers)
                             .setDeployment(deploymentDescription);
 
                     serviceDescriptionBuilder.setModules(modulesOfProject);
                     serviceDescriptionBuilder.setProjectDescriptor(pd);
-                    ResourceLoader resourceLoader = new ResourceLoaderImpl(project);
+                    var resourceLoader = new ResourceLoaderImpl(project);
                     serviceDescriptionBuilder.setResourceLoader(resourceLoader);
                     RulesDeploy rulesDeploy = null;
                     try {
-                        IProjectArtefact artifact = project.getArtefact(RulesDeploy.FILE_NAME);
+                        var artifact = project.getArtefact(RulesDeploy.FILE_NAME);
                         if (artifact instanceof IProjectResource resource) {
-                            try (InputStream content = resource.getContent()) {
+                            try (var content = resource.getContent()) {
                                 rulesDeploy = RulesDeploy.read(content);
                                 serviceDescriptionBuilder.setRulesDeploy(rulesDeploy);
                                 if (rulesDeploy
@@ -105,7 +102,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                                             .setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
                                 }
                                 if (rulesDeploy.getPublishers() != null) {
-                                    Set<String> publishers = Arrays.stream(rulesDeploy.getPublishers())
+                                    var publishers = Arrays.stream(rulesDeploy.getPublishers())
                                             .map(Enum::toString)
                                             .collect(Collectors.toSet());
                                     serviceDescriptionBuilder.setPublishers(publishers);
@@ -136,7 +133,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                     serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
                     serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));
                     serviceDescriptionBuilder.setServicePath(ruleServiceLoader.getLogicalProjectFolder(project.getFolderPath()));
-                    ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
+                    var serviceDescription = serviceDescriptionBuilder.build();
 
                     if (!serviceDescriptions.contains(serviceDescription) && serviceGroupSupported(rulesDeploy)) {
                         serviceDescriptions.add(serviceDescription);
@@ -162,9 +159,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     private Manifest readManifestFile(IProject project) {
         try {
-            IProjectArtefact artifact = project.getArtefact(JarFile.MANIFEST_NAME);
+            var artifact = project.getArtefact(JarFile.MANIFEST_NAME);
             if (artifact instanceof IProjectResource resource) {
-                try (InputStream content = resource.getContent()) {
+                try (var content = resource.getContent()) {
                     return new Manifest(content);
                 }
             }
@@ -176,14 +173,14 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     private Set<String> getSupportedGroupsSet() {
         if (getSupportedGroups() != null && !getSupportedGroups().trim().isEmpty()) {
-            String[] groups = getSupportedGroups().split(",", -1);
-            Set<String> supportedGroupSet = new HashSet<>();
+            var groups = getSupportedGroups().split(",", -1);
+            var supportedGroupSet = new HashSet<String>();
             for (String group : groups) {
                 supportedGroupSet.add(group.trim());
             }
             return supportedGroupSet;
         }
-        return Collections.emptySet();
+        return Set.of();
     }
 
     private boolean serviceGroupSupported(RulesDeploy rulesDeploy) {
@@ -192,7 +189,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             if (rulesDeploy == null || rulesDeploy.getGroups() == null || rulesDeploy.getGroups().trim().isEmpty()) {
                 return false;
             }
-            String[] groups = rulesDeploy.getGroups().split(",", -1);
+            var groups = rulesDeploy.getGroups().split(",", -1);
             for (String group : groups) {
                 if (supportedGroupSet.contains(group)) {
                     return true;
@@ -251,7 +248,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
             this.defaultPublishers = new HashSet<>();
             Collections.addAll(this.defaultPublishers, defaultPublishers);
         } else {
-            this.defaultPublishers = Collections.emptyList();
+            this.defaultPublishers = List.of();
         }
     }
 

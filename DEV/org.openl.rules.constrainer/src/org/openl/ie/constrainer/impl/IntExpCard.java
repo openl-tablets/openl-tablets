@@ -37,9 +37,6 @@ public final class IntExpCard extends IntExpImpl {
 
         @Override
         public void update(Subject var, EventOfInterest interest) throws Failure {
-            // Debug.on();Debug.print("ObserverPossibleRequired
-            // "+interest);Debug.off();
-
             // any _possible event may produce only decrease in size
             _possible_required.setMax(_indexes.size() - 1);
 
@@ -53,12 +50,8 @@ public final class IntExpCard extends IntExpImpl {
     private final int _card_value;
 
     public IntExpCard(Constrainer constrainer, IntExpArray vars, int card_value) throws Failure {
-        // super(constrainer,0,vars.size(),"C" + card_value,
-        // IntVarImplTrace.TRACE_ALL);
         super(constrainer, "C" + card_value);
         _card_value = card_value;
-
-        // int trace = IntVarImplTrace.TRACE_ALL;
 
         int size = vars.size();
         _vars = vars;
@@ -86,12 +79,6 @@ public final class IntExpCard extends IntExpImpl {
         );
 
         _indexes.attachObserver(new ObserverIndexes());
-
-        // _possible_required.attachObserver(new ObserverPossibleRequired());
-        // constrainer().trace(_possible_required);
-        // constrainer().trace(this);
-
-        // this.attachObserver(new ObserverCardValue());
 
     }
 
@@ -123,14 +110,6 @@ public final class IntExpCard extends IntExpImpl {
         super.detachObserver(observer);
         _possible_required.detachObserver(observer);
     }
-
-    /*
-     * extending to 5.1.0 added by S. Vanskov
-     */
-    int get_cardinality_value() {
-        return _card_value;
-    }
-    /* EO additions */
 
     @Override
     public int max() {

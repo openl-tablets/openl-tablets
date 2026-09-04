@@ -2,21 +2,17 @@ package org.openl.types.impl;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 
+@RequiredArgsConstructor
 public class ArrayIndex implements IOpenIndex {
+    @Getter
     private final IOpenClass elementType;
-
-    public ArrayIndex(IOpenClass elementType) {
-        this.elementType = elementType;
-    }
-
-    @Override
-    public IOpenClass getElementType() {
-        return elementType;
-    }
 
     @Override
     public IOpenClass getIndexType() {
@@ -25,7 +21,7 @@ public class ArrayIndex implements IOpenIndex {
 
     @Override
     public Object getValue(Object container, Object index) {
-        Integer ind = (Integer) index;
+        var ind = (Integer) index;
         if (container == null || ind == null || ind < 0 || ind >= Array.getLength(container)) {
             return getElementType().nullObject();
         }

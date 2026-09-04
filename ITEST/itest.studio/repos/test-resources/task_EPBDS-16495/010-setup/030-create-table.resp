@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "Categorize",
+  "returnType": "String",
+  "signature": "Categorize(Integer x)",
+  "file": "*",
+  "pos": "B2:C4"
+}
+

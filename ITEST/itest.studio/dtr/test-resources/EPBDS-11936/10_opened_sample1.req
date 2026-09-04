@@ -1,0 +1,2 @@
+GET /web/projects/Sample1?fields=name,status,dependencies(name,status),usedBy(name,status) HTTP/1.1
+

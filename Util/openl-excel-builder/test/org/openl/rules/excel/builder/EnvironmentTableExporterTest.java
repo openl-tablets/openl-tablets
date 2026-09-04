@@ -9,12 +9,9 @@ import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
@@ -31,49 +28,49 @@ class EnvironmentTableExporterTest {
 
     @Test
     void testSpreadsheetExport() throws IOException {
-        EnvironmentModel environmentModel = new EnvironmentModel();
-        environmentModel.setDependencies(Collections.singletonList(MODEL));
-        environmentModel.setImports(Collections.singletonList(IMPORTED_VALUE));
+        var environmentModel = new EnvironmentModel();
+        environmentModel.setDependencies(List.of(MODEL));
+        environmentModel.setImports(List.of(IMPORTED_VALUE));
 
-        ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
+        var projectModel = new ProjectModel(TEST_PROJECT,
                 false,
-                Collections.emptySet(),
-                Collections.emptyList(),
-                Collections.emptyList(),
-                Collections.emptyList());
+                Set.of(),
+                List.of(),
+                List.of(),
+                List.of());
 
         byte[] bytes;
-        try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
+        try (var sos = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateAlgorithmsModule(projectModel.getSpreadsheetResultModels(),
-                    Collections.emptyList(),
+                    List.of(),
                     sos,
                     environmentModel);
             bytes = sos.toByteArray();
         }
         assertFalse(CollectionUtils.isEmpty(bytes));
-        try (InputStream spr = new ByteArrayInputStream(bytes); XSSFWorkbook wb = new XSSFWorkbook(spr)) {
-            XSSFSheet dtsSheet = wb.getSheet(ENV_SHEET);
+        try (var spr = new ByteArrayInputStream(bytes); var wb = new XSSFWorkbook(spr)) {
+            var dtsSheet = wb.getSheet(ENV_SHEET);
             assertNotNull(dtsSheet);
-            XSSFRow headerRow = dtsSheet.getRow(TOP_MARGIN);
+            var headerRow = dtsSheet.getRow(TOP_MARGIN);
             assertNotNull(headerRow);
-            String headerText = headerRow.getCell(1).getStringCellValue();
+            var headerText = headerRow.getCell(1).getStringCellValue();
             assertEquals(ENV_SHEET, headerText);
 
-            XSSFRow dependencyRow = dtsSheet.getRow(TOP_MARGIN + 1);
+            var dependencyRow = dtsSheet.getRow(TOP_MARGIN + 1);
             assertNotNull(dependencyRow);
-            XSSFCell dName = dependencyRow.getCell(1);
+            var dName = dependencyRow.getCell(1);
             assertNotNull(dName);
             assertEquals("dependency", dName.getStringCellValue());
-            XSSFCell dValue = dependencyRow.getCell(2);
+            var dValue = dependencyRow.getCell(2);
             assertNotNull(dValue);
             assertEquals(MODEL, dValue.getStringCellValue());
 
-            XSSFRow importRow = dtsSheet.getRow(TOP_MARGIN + 2);
+            var importRow = dtsSheet.getRow(TOP_MARGIN + 2);
             assertNotNull(importRow);
-            XSSFCell iName = importRow.getCell(1);
+            var iName = importRow.getCell(1);
             assertNotNull(iName);
             assertEquals("import", iName.getStringCellValue());
-            XSSFCell iValue = importRow.getCell(2);
+            var iValue = importRow.getCell(2);
             assertNotNull(iValue);
             assertEquals(IMPORTED_VALUE, iValue.getStringCellValue());
         }

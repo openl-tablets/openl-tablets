@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
@@ -68,16 +67,6 @@ class SecureDeploymentRepositoryServiceTest {
         var actualRepositories = deploymentRepositoryService.getManageableRepositories();
         assertEquals(1, actualRepositories.size());
         assertSame(repositoryConfiguration1, actualRepositories.getFirst());
-    }
-
-    @Test
-    void test_hasPermission() {
-        doReturn(List.of("prod1", "prod2")).when(deploymentManager).getRepositoryConfigNames();
-        var repositoryConfiguration1 = createRepositoryConfiguration("prod1");
-        when(repositoryConfigurationFactory.apply("prod1")).thenReturn(repositoryConfiguration1);
-        when(productionRepositoryAclService.isGranted(eq("prod1"), isNull(), eq(List.of(BasePermission.WRITE)))).thenReturn(true);
-
-        assertTrue(deploymentRepositoryService.hasPermission(BasePermission.WRITE));
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String id) {

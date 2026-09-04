@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodDetailsMethodCaller;
 import org.openl.binding.impl.cast.MethodSearchTuner;
 import org.openl.binding.impl.cast.VOID;
@@ -1275,7 +1274,7 @@ public final class RulesUtils {
      */
     @Deprecated
     public static String dateToString(Date date, String dateFormat) {
-        String stringDate = "Incorrect date format";
+        var stringDate = "Incorrect date format";
         try {
             stringDate = DateTool.dateToString(date, dateFormat);
         } catch (Exception e) {
@@ -1293,7 +1292,7 @@ public final class RulesUtils {
      */
     @Deprecated
     public static String dateToString(Date date) {
-        String stringDate = "Incorrect date format";
+        var stringDate = "Incorrect date format";
         try {
             stringDate = DateTool.dateToString(date);
         } catch (Exception e) {
@@ -1314,7 +1313,7 @@ public final class RulesUtils {
     }
 
     public static String format(double d, String fmt) {
-        DecimalFormat df = new DecimalFormat(fmt);
+        var df = new DecimalFormat(fmt);
         return df.format(d);
     }
 
@@ -1380,7 +1379,7 @@ public final class RulesUtils {
      */
     @Deprecated
     public static double parseFormattedDouble(String s, String fmt) throws ParseException {
-        DecimalFormat df = new DecimalFormat(fmt);
+        var df = new DecimalFormat(fmt);
         return df.parse(s).doubleValue();
     }
 
@@ -2977,15 +2976,15 @@ public final class RulesUtils {
     @MethodSearchTuner(wrapper = FlattenMethodCallerWrapper.class, methodFilter = FlattenMethodFilter.class)
     @IgnoreNonVarargsMatching
     public static Object[] flatten(Object... data) {
-        FlattenMethodDetails flattenMethodDetails = (FlattenMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
-        int[] dims = flattenMethodDetails.getDims();
-        List<Object> values = new ArrayList<>();
-        for (int i = 0; i < data.length; i++) {
-            IOpenCast openCast = flattenMethodDetails.getOpenCasts()[i];
+        var flattenMethodDetails = (FlattenMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
+        var dims = flattenMethodDetails.getDims();
+        var values = new ArrayList<Object>();
+        for (var i = 0; i < data.length; i++) {
+            var openCast = flattenMethodDetails.getOpenCasts()[i];
             values
                     .addAll(flattenInternal(dims[i], data[i]).stream().map(openCast::convert).collect(Collectors.toList()));
         }
-        Object[] result = (Object[]) Array
+        var result = (Object[]) Array
                 .newInstance(flattenMethodDetails.getType().getComponentClass().getInstanceClass(), 0);
         return values.toArray(result);
     }
@@ -2997,8 +2996,8 @@ public final class RulesUtils {
             if (v == null || Array.getLength(v) == 0) {
                 return Collections.emptyList();
             }
-            List<Object> values = new ArrayList<>();
-            for (int i = 0; i < Array.getLength(v); i++) {
+            var values = new ArrayList<Object>();
+            for (var i = 0; i < Array.getLength(v); i++) {
                 values.addAll(flattenInternal(dim - 1, Array.get(v, i)));
             }
             return values;
@@ -3034,9 +3033,9 @@ public final class RulesUtils {
         if (arrays == null || arrays.length == 0) {
             return null;
         }
-        AddAllMethodDetails addAllMethodDetails = (AddAllMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
-        int totalLength = 0;
-        for (int i = 0; i < arrays.length; i++) {
+        var addAllMethodDetails = (AddAllMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
+        var totalLength = 0;
+        for (var i = 0; i < arrays.length; i++) {
             if (!addAllMethodDetails.getParamsAsElement()[i]) {
                 if (arrays[i] != null) {
                     totalLength = totalLength + Array.getLength(arrays[i]);
@@ -3047,20 +3046,20 @@ public final class RulesUtils {
         }
         Object result = Array.newInstance(addAllMethodDetails.getType().getComponentClass().getInstanceClass(),
                 totalLength);
-        int p = 0;
-        for (int i = 0; i < arrays.length; i++) {
+        var p = 0;
+        for (var i = 0; i < arrays.length; i++) {
             if (!addAllMethodDetails.getParamsAsElement()[i]) {
                 if (arrays[i] != null) {
-                    int length = Array.getLength(arrays[i]);
-                    for (int j = 0; j < length; j++) {
-                        IOpenCast openCast = addAllMethodDetails.getOpenCasts()[i];
+                    var length = Array.getLength(arrays[i]);
+                    for (var j = 0; j < length; j++) {
+                        var openCast = addAllMethodDetails.getOpenCasts()[i];
                         Object v = Array.get(arrays[i], j);
                         Array.set(result, p, openCast != null ? openCast.convert(v) : v);
                         p++;
                     }
                 }
             } else {
-                IOpenCast openCast = addAllMethodDetails.getOpenCasts()[i];
+                var openCast = addAllMethodDetails.getOpenCasts()[i];
                 Array.set(result, p, openCast != null ? openCast.convert(arrays[i]) : arrays[i]);
                 p++;
             }
@@ -3077,14 +3076,14 @@ public final class RulesUtils {
     @MethodSearchTuner(wrapper = GetValuesMethodCallerWrapper.class)
     public static Object getValues(StaticDomainOpenClass staticDomainOpenClass) {
         IDomain<?> domain = staticDomainOpenClass.getDomain();
-        int size = 0;
+        var size = 0;
         for (Object item : domain) {
             size++;
         }
 
         Class<?> type = staticDomainOpenClass.getDelegate().getInstanceClass();
         Object result = Array.newInstance(type, size);
-        int i = 0;
+        var i = 0;
         for (Object item : domain) {
             Array.set(result, i, item);
             i++;
@@ -3106,7 +3105,7 @@ public final class RulesUtils {
         try {
             Class<?> aClass = instance != null ? instance.getClass() : null;
             while (aClass != null) {
-                Field[] declaredFields = aClass.getDeclaredFields();
+                var declaredFields = aClass.getDeclaredFields();
                 for (Field field : declaredFields) {
                     if (field.getName().equals(fieldName) && Modifier
                             .isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {

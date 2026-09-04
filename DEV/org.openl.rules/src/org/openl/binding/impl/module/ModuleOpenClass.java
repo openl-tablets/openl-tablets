@@ -13,6 +13,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedTypeException;
@@ -49,6 +51,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     // This field is used to refer to correct module name that is used in the system, the name of XlsModuleOpenClass can
     // be different if the module name is not matched to the java naming restrictions.
+    @Getter
     private final String moduleName;
 
     public ModuleOpenClass(String moduleName, OpenL openl) {
@@ -57,9 +60,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     private static String makeJavaIdentifier(String src) {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < src.length(); i++) {
-            char c = src.charAt(i);
+        var buf = new StringBuilder();
+        for (var i = 0; i < src.length(); i++) {
+            var c = src.charAt(i);
             if (i == 0) {
                 buf.append(Character.isJavaIdentifierStart(c) ? c : '_');
             } else {
@@ -68,10 +71,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
         }
 
         return buf.toString();
-    }
-
-    public String getModuleName() {
-        return moduleName;
     }
 
     protected boolean isDependencyMethodInheritable(IOpenMethod method) {
@@ -98,7 +97,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     public Set<CompiledDependency> getDependencies() {
         if (usingModules == null) {
-            return Collections.emptySet();
+            return Set.of();
         }
         return Collections.unmodifiableSet(usingModules);
     }
@@ -129,7 +128,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     protected void addType(String name, IOpenClass type, boolean overwrite) {
-        IOpenClass openClass = internalTypes.put(name, type);
+        var openClass = internalTypes.put(name, type);
         if (!overwrite && openClass != null && !openClass.equals(type)) {
             throw new DuplicatedTypeException(null, type.getName());
         }
@@ -148,8 +147,8 @@ public class ModuleOpenClass extends ComponentOpenClass {
     private static boolean isDependencyModuleRec(ModuleOpenClass module,
                                                  ModuleOpenClass inModule,
                                                  IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
-        IdentityHashMap<ModuleOpenClass, Boolean> c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
-        Boolean t = c.get(module);
+        var c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
+        var t = c.get(module);
         if (t != null) {
             return t;
         }

@@ -38,7 +38,7 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
 
       - name: Setup Java and cache
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: 25
@@ -69,19 +69,19 @@ jobs:
           version="org.opencontainers.image.version=x"
           revision="org.opencontainers.image.revision=${GITHUB_SHA}"
           echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-          docker buildx build -t $repo/ws:${{ env.TAG_VERSION }} -t $repo/ws:x . \
+          docker buildx build -t $repo/ws:${{ env.TAG_VERSION }} -t $repo/ws:latest . \
             --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws/target/webapp \
             --platform ${BUILD_PLATFORMS} --push \
             --label $created --label $version --label $revision \
             --label "org.opencontainers.image.title=OpenL RuleServices" \
             --label "org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"
-          docker buildx build -t $repo/ws:${{ env.TAG_VERSION }}-all -t $repo/ws:x-all . \
+          docker buildx build -t $repo/ws:${{ env.TAG_VERSION }}-all -t $repo/ws:latest-all . \
             --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp \
             --platform ${BUILD_PLATFORMS} --push \
             --label $created --label $version --label $revision \
             --label "org.opencontainers.image.title=OpenL RuleServices (All)" \
             --label "org.opencontainers.image.description=An OpenL web service with extra modules"
-          docker buildx build -t $repo/webstudio:${{ env.TAG_VERSION }} -t $repo/webstudio:x . \
+          docker buildx build -t $repo/webstudio:${{ env.TAG_VERSION }} -t $repo/webstudio:latest . \
             --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp \
             --platform ${BUILD_PLATFORMS} --push \
             --label $created --label $version --label $revision \

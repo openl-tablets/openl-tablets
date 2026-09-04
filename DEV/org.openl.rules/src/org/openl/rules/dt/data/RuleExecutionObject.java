@@ -1,5 +1,8 @@
 package org.openl.rules.dt.data;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DelegatedDynamicObject;
@@ -16,14 +19,11 @@ import org.openl.types.impl.DelegatedDynamicObject;
  */
 public class RuleExecutionObject extends DelegatedDynamicObject {
 
+    @Getter(AccessLevel.PACKAGE)
     private final int ruleNum; // the index of the current rule that is being executed
 
     public RuleExecutionObject(IOpenClass rulesType, IDynamicObject target, int ruleNum) {
         super(rulesType, target);
         this.ruleNum = ruleNum;
-    }
-
-    int getRuleNum() {
-        return ruleNum;
     }
 }

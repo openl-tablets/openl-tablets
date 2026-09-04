@@ -1,0 +1,45 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "design-file",
+    "type": "repo-file",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    }
+  },
+  {
+    "id": "design-flat",
+    "type": "repo-git",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    }
+  },
+  {
+    "id": "design-non-flat",
+    "type": "repo-git",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    }
+  },
+  {
+    "id": "design-protected-flat",
+    "type": "repo-git",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    }
+  },
+  {
+    "id": "design",
+    "type": "repo-jdbc",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    }
+  }
+]

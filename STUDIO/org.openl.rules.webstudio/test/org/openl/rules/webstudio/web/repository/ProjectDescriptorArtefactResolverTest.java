@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -38,14 +39,14 @@ class ProjectDescriptorArtefactResolverTest {
 
     @Test
     void usesDeclaredNameWhenPresent() throws Exception {
-        var resolver = new ProjectDescriptorArtefactResolver();
+        var resolver = new ProjectDescriptorArtefactResolver(new ConcurrentMapCacheManager());
         AProject project = mockProject("<project><name>Logical Name</name></project>", "DESIGN/physical-folder");
         assertEquals("Logical Name", resolver.getLogicalName(project));
     }
 
     @Test
     void fallsBackToFolderNameWhenNameIsAbsent() throws Exception {
-        var resolver = new ProjectDescriptorArtefactResolver();
+        var resolver = new ProjectDescriptorArtefactResolver(new ConcurrentMapCacheManager());
         AProject project = mockProject("<project/>", "DESIGN/some/path/physical-folder");
         assertEquals("physical-folder", resolver.getLogicalName(project));
     }

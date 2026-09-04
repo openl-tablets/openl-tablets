@@ -7,14 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +38,7 @@ import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
@@ -150,6 +149,88 @@ class RawTableWriterTest {
     }
 
     @Test
+    void insertsRowsAtEndWithRowspanAcrossBlock() {
+        apply(insertRows(4, List.of(
+                List.of(
+                        new RawCellInput("String", null, 2, null),
+                        new RawCellInput("group1", null, null, null),
+                        new RawCellInput("x1", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("group2", null, null, null),
+                        new RawCellInput("x2", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(2), source.get(4).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(5).getFirst().covered());
+        assertEquals("group2", value(source, 5, 1));
+    }
+
+    @Test
+    void insertsColumnsAtEndWithColspanAcrossBlock() {
+        apply(insertColumns(3, List.of(
+                List.of(
+                        new RawCellInput("group", 2, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("d", null, null, null),
+                        new RawCellInput("e", null, null, null),
+                        new RawCellInput("f", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals(Integer.valueOf(2), source.getFirst().get(3).colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(4).covered());
+        assertEquals("f", value(source, 3, 4));
+    }
+
+    @Test
+    void insertsRowsInsideTableWithoutLosingExistingRowsOrGrowingRowspan() {
+        apply(insertRows(2, List.of(
+                List.of(
+                        new RawCellInput("String", null, 2, null),
+                        new RawCellInput("group1", null, null, null),
+                        new RawCellInput("x1", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("group2", null, null, null),
+                        new RawCellInput("x2", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(2), source.get(2).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(3).getFirst().covered());
+        assertEquals("text", value(source, 4, 1));
+        assertEquals("hour", value(source, 5, 1));
+    }
+
+    @Test
+    void insertsColumnsInsideTableWithoutLosingExistingColumnsOrGrowingColspan() {
+        apply(insertColumns(1, List.of(
+                List.of(
+                        new RawCellInput("group", 2, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("d", null, null, null),
+                        new RawCellInput("e", null, null, null),
+                        new RawCellInput("f", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals(Integer.valueOf(2), source.getFirst().get(1).colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(2).covered());
+        assertEquals("code", value(source, 1, 3));
+        assertEquals("alpha", value(source, 1, 4));
+    }
+
+    @Test
     void rejectsRowBlockNotMatchingWidth() {
         // each row of the block must be as wide as the table
         assertBadRequest(insertRows(1, List.of(row("a", "b"), row("c", "d"))));
@@ -173,6 +254,139 @@ class RawTableWriterTest {
         assertEquals(5, width(source));
         assertEquals("a", value(source, 0, 3));
         assertEquals("e", value(source, 0, 4));
+    }
+
+    @Test
+    void appendsRowsWithRowspanAcrossBlock() {
+        apply(appendRows(List.of(
+                List.of(
+                        new RawCellInput("String", null, 2, null),
+                        new RawCellInput("group1", null, null, null),
+                        new RawCellInput("x1", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("group2", null, null, null),
+                        new RawCellInput("x2", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(2), source.get(4).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(5).getFirst().covered());
+        assertEquals("group2", value(source, 5, 1));
+    }
+
+    @Test
+    void appendsColumnsWithColspanAcrossBlock() {
+        apply(appendColumns(List.of(
+                List.of(
+                        new RawCellInput("group", 2, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                List.of(
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("d", null, null, null),
+                        new RawCellInput("e", null, null, null),
+                        new RawCellInput("f", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals(Integer.valueOf(2), source.getFirst().get(3).colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(4).covered());
+        assertEquals("f", value(source, 3, 4));
+    }
+
+    @Test
+    void appendsRowFullyCoveredByEarlierBatchSpans() {
+        var coveredRow = List.of(
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true));
+        apply(appendRows(List.of(
+                List.of(
+                        new RawCellInput("full block", 3, 2, null),
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput(null, null, null, true)),
+                coveredRow)));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals(Integer.valueOf(2), source.get(4).getFirst().rowspan());
+        assertEquals(Integer.valueOf(3), source.get(4).getFirst().colspan());
+        assertTrue(source.get(5).stream().allMatch(cell -> Boolean.TRUE.equals(cell.covered())));
+    }
+
+    @Test
+    void appendsColumnFullyCoveredByEarlierBatchSpans() {
+        var coveredColumn = List.of(
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true),
+                new RawCellInput(null, null, null, true));
+        apply(appendColumns(List.of(
+                List.of(
+                        new RawCellInput("full block", 2, 4, null),
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput(null, null, null, true)),
+                coveredColumn)));
+
+        var source = reload(mainProject);
+        assertEquals(5, width(source));
+        assertEquals(Integer.valueOf(2), source.getFirst().get(3).colspan());
+        assertEquals(Integer.valueOf(4), source.getFirst().get(3).rowspan());
+        assertTrue(source.stream().allMatch(row -> Boolean.TRUE.equals(row.get(4).covered())));
+    }
+
+    @Test
+    void rejectsOverlappingSpansDeclaredAcrossBatchRows() {
+        assertBadRequest(appendRows(List.of(
+                List.of(
+                        new RawCellInput("String", null, null, null),
+                        new RawCellInput("vertical", null, 2, null),
+                        new RawCellInput("x", null, null, null)),
+                List.of(
+                        new RawCellInput("horizontal", 2, null, null),
+                        new RawCellInput(null, null, null, true),
+                        new RawCellInput("y", null, null, null)))));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size(), "a rejected batch must not be saved");
+    }
+
+    @Test
+    void rejectsBatchSpansOutsideProjectedDimensionsWithoutSavingChanges() {
+        assertBadRequest(appendRows(List.of(
+                List.of(
+                        new RawCellInput("String", null, null, null),
+                        new RawCellInput("group1", null, 3, null),
+                        new RawCellInput("x1", null, null, null)),
+                row("String", "group2", "x2"))));
+        assertBadRequest(appendColumns(List.of(
+                List.of(
+                        new RawCellInput("group", 3, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                row("d", "e", "f", "g"))));
+        assertBadRequest(insertRows(4, List.of(
+                List.of(
+                        new RawCellInput("String", null, 3, null),
+                        new RawCellInput("group1", null, null, null),
+                        new RawCellInput("x1", null, null, null)),
+                row("String", "group2", "x2"))));
+        assertBadRequest(insertColumns(3, List.of(
+                List.of(
+                        new RawCellInput("group", 3, null, null),
+                        new RawCellInput("a", null, null, null),
+                        new RawCellInput("b", null, null, null),
+                        new RawCellInput("c", null, null, null)),
+                row("d", "e", "f", "g"))));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size());
+        assertEquals(3, width(source));
+        assertEquals("gamma", value(source, 3, 2));
     }
 
     @Test
@@ -202,8 +416,8 @@ class RawTableWriterTest {
 
         var source = reload(mainProject);
         assertEquals(2, source.size());
-        assertNull(source.get(1).get(0).rowspan(), "a fully-contained merge must be removed, not left stale");
-        assertNull(source.get(1).get(0).covered());
+        assertNull(source.get(1).getFirst().rowspan(), "a fully-contained merge must be removed, not left stale");
+        assertNull(source.get(1).getFirst().covered());
         assertEquals("int", value(source, 1, 0));
     }
 
@@ -297,8 +511,8 @@ class RawTableWriterTest {
         apply(updateRange(1, 0, List.of(row("p"), row("q"))));
 
         var source = reload(mainProject);
-        assertNull(source.get(1).get(0).rowspan(), "stale merge must be cleared on a range update");
-        assertNull(source.get(2).get(0).covered());
+        assertNull(source.get(1).getFirst().rowspan(), "stale merge must be cleared on a range update");
+        assertNull(source.get(2).getFirst().covered());
         assertEquals("p", value(source, 1, 0));
         assertEquals("q", value(source, 2, 0));
     }
@@ -311,9 +525,9 @@ class RawTableWriterTest {
                 new RawCellInput("tail", null, null, null))));
 
         var source = reload(mainProject);
-        int last = source.size() - 1;
+        var last = source.size() - 1;
         assertEquals("MERGED", value(source, last, 0));
-        assertEquals(Integer.valueOf(2), source.get(last).get(0).colspan());
+        assertEquals(Integer.valueOf(2), source.get(last).getFirst().colspan());
         assertEquals(Boolean.TRUE, source.get(last).get(1).covered());
         assertEquals("tail", value(source, last, 2));
     }
@@ -324,8 +538,8 @@ class RawTableWriterTest {
         apply(merge(0, 0, 1, 2));
 
         var source = reload(mainProject);
-        assertEquals(Integer.valueOf(2), source.get(0).get(0).colspan());
-        assertEquals(Boolean.TRUE, source.get(0).get(1).covered());
+        assertEquals(Integer.valueOf(2), source.getFirst().getFirst().colspan());
+        assertEquals(Boolean.TRUE, source.getFirst().get(1).covered());
     }
 
     @Test
@@ -348,8 +562,8 @@ class RawTableWriterTest {
         apply(merge(1, 0, 2, 1));
 
         var source = reload(mainProject);
-        assertEquals(Integer.valueOf(2), source.get(1).get(0).rowspan());
-        assertEquals(Boolean.TRUE, source.get(2).get(0).covered());
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().rowspan());
+        assertEquals(Boolean.TRUE, source.get(2).getFirst().covered());
     }
 
     @Test
@@ -360,7 +574,7 @@ class RawTableWriterTest {
 
         var source = reload(mainProject);
         assertEquals("String", value(source, 1, 0));
-        assertNull(source.get(2).get(0).value(), "the covered cell's orphan value must be cleared by the merge");
+        assertNull(source.get(2).getFirst().value(), "the covered cell's orphan value must be cleared by the merge");
     }
 
     @Test
@@ -370,8 +584,8 @@ class RawTableWriterTest {
         apply(unmerge(0, 1));
 
         var source = reload(mainProject);
-        assertNull(source.get(0).get(0).colspan());
-        assertNull(source.get(0).get(1).covered());
+        assertNull(source.getFirst().getFirst().colspan());
+        assertNull(source.getFirst().get(1).covered());
     }
 
     @Test
@@ -388,8 +602,8 @@ class RawTableWriterTest {
 
         var source = reload(mainProject);
         // the merge dropped from the new cells must not linger, and the row holds the new values
-        assertNull(source.get(0).get(0).colspan(), "stale merge must be cleared on update");
-        assertNull(source.get(0).get(1).covered());
+        assertNull(source.getFirst().getFirst().colspan(), "stale merge must be cleared on update");
+        assertNull(source.getFirst().get(1).covered());
         assertEquals("Datatype", value(source, 0, 0));
         assertEquals("q", value(source, 0, 1));
         assertEquals("r", value(source, 0, 2));
@@ -470,6 +684,67 @@ class RawTableWriterTest {
         // a null row inside a block is rejected with 400, not a NullPointerException (500)
         assertBadRequest(insertRows(1, Arrays.asList(row("a", "b", "c"), null)));
         assertBadRequest(updateRange(1, 1, Arrays.asList(row("a", "b"), null)));
+    }
+
+    @Test
+    void rejectsCellUpdatesThatBlankAWholeRow() {
+        // Clearing a row one cell at a time leaves it blank on the last one, which would end the table there and
+        // drop every row below it. The first two clears are legitimate; the last one is refused.
+        apply(updateCell(2, 0, null));
+        apply(updateCell(2, 1, null));
+        assertBadRequest(updateCell(2, 2, null));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size(), "the refused update must leave the table as it was");
+        assertEquals("beta", value(source, 2, 2));
+    }
+
+    @Test
+    void rejectsCellUpdatesThatBlankAWholeColumn() {
+        // The same, one column over: a blank column cuts the table off before the columns beyond it.
+        apply(updateCell(1, 1, null));
+        apply(updateCell(2, 1, null));
+        assertBadRequest(updateCell(3, 1, null));
+
+        var source = reload(mainProject);
+        assertEquals(3, width(source), "the refused update must leave the table as it was");
+        assertEquals("hour", value(source, 3, 1));
+    }
+
+    @Test
+    void rejectsRangeUpdateThatBlanksAWholeColumn() {
+        // Every row of the block keeps a value, so the block itself is not blank — the column it blanks is.
+        assertBadRequest(updateRange(1, 1, List.of(
+                row(null, "alpha"),
+                row(null, "beta"),
+                row(null, "gamma"))));
+    }
+
+    @Test
+    void rejectsFullUpdateWithABlankColumn() {
+        // A complete matrix whose middle column is blank in every row: the rows pass their own check, and the
+        // table would still be cut off before the third column.
+        var withBlankColumn = List.of(
+                List.of(cell("Datatype Greeting"), cell(null), cell(null)),
+                List.of(cell("String"), cell(null), cell("alpha")),
+                List.of(cell("String"), cell(null), cell("beta")));
+
+        assertThrows(BadRequestException.class, () -> write(mainProject, withBlankColumn));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size(), "the refused update must leave the table as it was");
+        assertEquals("code", value(source, 1, 1));
+    }
+
+    @Test
+    void rejectsCreateWithABlankColumn() throws IOException {
+        // The table is laid out into a sheet of its own, and the middle column of the matrix reaches it blank.
+        var project = writeProject("create-blank-column", new String[][]{{"Environment"}});
+        var withBlankColumn = List.of(
+                List.of(cell("Datatype BlankColumnCheck"), cell(null), cell(null)),
+                List.of(cell("String field1"), cell(null), cell("String field2")));
+
+        assertThrows(BadRequestException.class, () -> create(project, "BlankColumn", withBlankColumn));
     }
 
     @Test
@@ -571,6 +846,21 @@ class RawTableWriterTest {
         new RawTableWriter(load(project)).apply(action);
     }
 
+    private void write(Path project, List<List<RawTableCell>> source) {
+        new RawTableWriter(load(project)).write(RawTableView.builder().source(source).build());
+    }
+
+    /** Write the matrix into a sheet of its own, the way the create endpoint does. */
+    private static void create(Path project, String sheetName, List<List<RawTableCell>> source) {
+        var view = RawTableView.builder().source(source).build();
+        var grid = TableTestProjects.sheetGrid(project, sheetName);
+        ((RawTableWriter) new TableWritersFactory().getNewTableWriter(view, grid)).write(view);
+    }
+
+    private static RawTableCell cell(Object value) {
+        return RawTableCell.builder().value(value).build();
+    }
+
     private void assertBadRequest(RawTableSourceAction action) {
         assertThrows(BadRequestException.class, () -> apply(action));
     }
@@ -584,7 +874,7 @@ class RawTableWriterTest {
     }
 
     private static List<List<RawTableCell>> readSource(IOpenLTable table) {
-        RawTableView view = new RawTableReader().read(table);
+        var view = new RawTableReader().read(table);
         return view.source;
     }
 
@@ -681,67 +971,21 @@ class RawTableWriterTest {
      * Resolve the single-module project at {@code dir} and return its first table.
      */
     private static IOpenLTable load(Path dir) {
-        try {
-            var modules = ProjectResolver.getInstance().resolve(dir).getModules();
-            var projectModel = new ProjectModel(mock(WebStudio.class), null);
-            projectModel.setModuleInfo(modules.getFirst());
-            for (TableSyntaxNode tsn : projectModel.getAllTableSyntaxNodes()) {
-                IOpenLTable table = new TableSyntaxNodeAdapter(tsn);
-                if (table.getGridTable(IXlsTableNames.VIEW_DEVELOPER) != null) {
-                    return table;
-                }
+        for (TableSyntaxNode tsn : TableTestProjects.projectModel(dir).getAllTableSyntaxNodes()) {
+            var table = new TableSyntaxNodeAdapter(tsn);
+            if (table.getGridTable(IXlsTableNames.VIEW_DEVELOPER) != null) {
+                return table;
             }
-            throw new IllegalStateException("No table resolved in " + dir);
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to resolve project at " + dir, e);
         }
+        throw new IllegalStateException("No table resolved in " + dir);
     }
 
-    /**
-     * Write a single-sheet workbook holding one table that starts at cell B2. {@code null} cells are left blank.
-     */
     private Path writeProject(String name, String[][] grid) throws IOException {
-        var dir = tempDir.resolve(name);
-        Files.createDirectories(dir);
-        try (var workbook = new XSSFWorkbook()) {
-            var sheet = workbook.createSheet(name);
-            for (int r = 0; r < grid.length; r++) {
-                var sheetRow = sheet.createRow(r + 1);
-                for (int c = 0; c < grid[r].length; c++) {
-                    if (grid[r][c] != null) {
-                        sheetRow.createCell(c + 1).setCellValue(grid[r][c]);
-                    }
-                }
-            }
-            try (OutputStream out = Files.newOutputStream(dir.resolve(name + ".xlsx"))) {
-                workbook.write(out);
-            }
-        }
-        return dir;
+        return TableTestProjects.writeProject(tempDir.resolve(name), name, name, grid);
     }
 
-    /**
-     * Write a single-table workbook whose first row is one cell merged across every column.
-     */
     private Path writeProjectWithMergedHeader(String name, String[][] grid) throws IOException {
-        var dir = tempDir.resolve(name);
-        Files.createDirectories(dir);
-        try (var workbook = new XSSFWorkbook()) {
-            var sheet = workbook.createSheet(name);
-            for (int r = 0; r < grid.length; r++) {
-                var sheetRow = sheet.createRow(r + 1);
-                for (int c = 0; c < grid[r].length; c++) {
-                    if (grid[r][c] != null) {
-                        sheetRow.createCell(c + 1).setCellValue(grid[r][c]);
-                    }
-                }
-            }
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 1, grid[0].length));
-            try (OutputStream out = Files.newOutputStream(dir.resolve(name + ".xlsx"))) {
-                workbook.write(out);
-            }
-        }
-        return dir;
+        return TableTestProjects.writeProjectWithMergedHeader(tempDir.resolve(name), name, name, grid);
     }
 
     private static final Path FIXTURE = Path.of("test-resources/org/openl/rules/table/TableLogicTest.xlsx");
@@ -767,9 +1011,9 @@ class RawTableWriterTest {
      * Replaces every cell with a plain, span-free cell so the written source carries no merge information.
      */
     private static RawTableView flatten(RawTableView view) {
-        List<List<RawTableCell>> flat = new ArrayList<>();
+        var flat = new ArrayList<List<RawTableCell>>();
         for (var row : view.source) {
-            List<RawTableCell> flatRow = new ArrayList<>();
+            var flatRow = new ArrayList<RawTableCell>();
             for (var cell : row) {
                 Object value = cell.value() != null ? cell.value() : "";
                 flatRow.add(RawTableCell.builder().value(value).build());
@@ -784,8 +1028,8 @@ class RawTableWriterTest {
     }
 
     private static int mergesWithin(IGrid grid, IGridRegion region) {
-        int count = 0;
-        for (int i = 0; i < grid.getNumberOfMergedRegions(); i++) {
+        var count = 0;
+        for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
             var merged = grid.getMergedRegion(i);
             if (IGridRegion.Tool.contains(region, merged.getLeft(), merged.getTop())) {
                 count++;
@@ -817,7 +1061,7 @@ class RawTableWriterTest {
         var module = ProjectResolver.getInstance().resolve(projectDir).getModules().getFirst();
         var projectModel = new ProjectModel(mock(WebStudio.class), null);
         projectModel.setModuleInfo(module);
-        List<IOpenLTable> tables = new ArrayList<>();
+        var tables = new ArrayList<IOpenLTable>();
         for (TableSyntaxNode tsn : projectModel.getAllTableSyntaxNodes()) {
             tables.add(new TableSyntaxNodeAdapter(tsn));
         }

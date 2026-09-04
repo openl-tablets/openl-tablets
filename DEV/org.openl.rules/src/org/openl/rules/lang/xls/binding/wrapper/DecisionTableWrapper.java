@@ -3,6 +3,8 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.IdentityHashMap;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -14,13 +16,17 @@ import org.openl.vm.IRuntimeEnv;
 
 public final class DecisionTableWrapper extends AbstractDecisionTableWrapper implements IRulesMethodWrapper {
 
+    @Getter
     private final XlsModuleOpenClass xlsModuleOpenClass;
+    @Getter
     private final ContextPropertiesInjector contextPropertiesInjector;
+    @Getter
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
             this);
     private final boolean externalMethodCall;
+    @Getter
     private final CustomSpreadsheetResultOpenClass customSpreadsheetResultType;
 
     public DecisionTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
@@ -48,23 +54,8 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
     }
 
     @Override
-    public XlsModuleOpenClass getXlsModuleOpenClass() {
-        return xlsModuleOpenClass;
-    }
-
-    @Override
     public IMethodSignature getSignature() {
         return methodSignature;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
-    }
-
-    @Override
-    public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
-        return customSpreadsheetResultType;
     }
 
     @Override
@@ -73,17 +64,12 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
     }
 
     @Override
-    public ContextPropertiesInjector getContextPropertiesInjector() {
-        return contextPropertiesInjector;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        DecisionTableWrapper that = (DecisionTableWrapper) o;
+        var that = (DecisionTableWrapper) o;
         return delegate.equals(that.delegate);
     }
 

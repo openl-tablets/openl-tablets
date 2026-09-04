@@ -7,7 +7,7 @@
     <groupId>\${groupId}</groupId>
     <artifactId>\${artifactId}</artifactId>
     <version>\${version}</version>
-    <packaging>openl</packaging>
+    <packaging>pom</packaging>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>

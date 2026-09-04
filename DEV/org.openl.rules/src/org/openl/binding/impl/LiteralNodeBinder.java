@@ -18,7 +18,7 @@ public class LiteralNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
-        String s = node.getText();
+        var s = node.getText();
 
         if (s.equals("null")) {
             return new LiteralBoundNode(node, null, NullOpenClass.the);

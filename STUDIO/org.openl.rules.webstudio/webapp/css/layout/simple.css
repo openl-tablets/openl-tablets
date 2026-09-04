@@ -17,9 +17,3 @@ html, body {
     height: calc(100% - 83px);
     overflow: auto;
 }
-
-#footer {
-    border-top: 1px solid #ccc;
-    background: #fff;
-    color: #666;
-}

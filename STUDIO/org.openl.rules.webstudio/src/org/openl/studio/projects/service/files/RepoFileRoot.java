@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
@@ -134,14 +133,14 @@ public class RepoFileRoot implements FileRoot {
     private AProjectFolder buildTree(String version) {
         var source = new AProject(repository, ROOT_PATH, version);
         var root = new AProjectFolder(new HashMap<>(), source.getProject(), repository, ROOT_PATH);
-        Map<String, AProjectFolder> topFolders = new HashMap<>();
+        var topFolders = new HashMap<String, AProjectFolder>();
         for (AProjectArtefact artefact : listArtefacts(source, version)) {
-            String path = artefact.getFileData().getName();
-            int slash = path.indexOf('/');
+            var path = artefact.getFileData().getName();
+            var slash = path.indexOf('/');
             if (slash < 0) {
                 root.addArtefact(artefact);
             } else {
-                String top = path.substring(0, slash);
+                var top = path.substring(0, slash);
                 topFolders.computeIfAbsent(top,
                         name -> new AProjectFolder(new HashMap<>(), source.getProject(), repository, name))
                         .addArtefact(artefact);

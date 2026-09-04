@@ -13,6 +13,14 @@ public final class GenericView {
     public interface Full {
     }
 
+    /**
+     * A superset of {@link Full} for single-resource responses that also carry heavy, detail-only
+     * collections (e.g. the per-message compilation list). List responses use {@link Full} and omit
+     * those collections from both the payload and the OpenAPI schema.
+     */
+    public interface Detailed extends Full {
+    }
+
     public interface Short {
     }
 

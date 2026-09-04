@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openl.internal</groupId>
+    <artifactId>openl-positive</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>Positive tests</name>
+
+    <!-- Independent single-scenario builds merged into one reactor to pay the Maven fork cost
+         once; verify.groovy checks the reactor summary and the per-module outputs. -->
+    <modules>
+        <module>openl-custom-properties-file-name-processor</module>
+        <module>openl-data-in-dependent-module</module>
+        <module>openl-external-parameters</module>
+        <module>openl-lib-threshold-increased</module>
+        <module>openl-openapi-verify-positive</module>
+        <module>openl-project</module>
+        <module>openl-testedmethod-has-two-candidates</module>
+    </modules>
+</project>

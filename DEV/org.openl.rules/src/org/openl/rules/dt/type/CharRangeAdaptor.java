@@ -19,7 +19,7 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
             return null;
         }
 
-        Character max = range.getMax();
+        var max = range.getMax();
 
         if (max != Character.MAX_VALUE && range.getType().right == Range.Bound.CLOSED) {
             max++;
@@ -34,7 +34,7 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
             return null;
         }
 
-        Character min = range.getMin();
+        var min = range.getMin();
         if (range.getType().left == Range.Bound.OPEN) {
             min++;
         }

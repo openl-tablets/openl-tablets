@@ -38,6 +38,9 @@ public class ProjectStatusWebSocketPublisher {
             var status = projectStatusMapper.map(project, event.getProjectModel());
             var projectId = projectIdentifierMapper.map(project);
             notificationService.notifyProjectStatus(event.getUserName(), projectId, project.getBranch(), status);
+            // The same status also rides the user's workspace-wide stream, so the projects list holds
+            // one subscription for all its rows.
+            notificationService.notifyWorkspaceProjectStatus(event.getUserName(), status);
         } catch (RuntimeException e) {
             log.warn("Failed to publish project status update", e);
         }

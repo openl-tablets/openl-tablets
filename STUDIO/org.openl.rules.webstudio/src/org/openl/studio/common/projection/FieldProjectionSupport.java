@@ -87,8 +87,17 @@ public class FieldProjectionSupport {
         if (type.isEnum() || type.isPrimitive() || type.isArray() || type.isAnnotation()) {
             return false;
         }
+        if (isContainer(type)) {
+            // Container wrappers (PageResponse and its subclasses, collections, HttpEntity) are never
+            // projected directly -- only their elements are, so their metadata must be preserved.
+            return false;
+        }
         if (type.isAnnotationPresent(JsonFilter.class)) {
             // Respect explicitly declared filters instead of overriding them.
+            return false;
+        }
+        if (type.isAnnotationPresent(NoFieldProjection.class)) {
+            // Summary/metadata objects carried alongside content opt out of projection explicitly.
             return false;
         }
         var pkg = type.getPackage();
@@ -136,7 +145,15 @@ public class FieldProjectionSupport {
             return rawType;
         }
         if (type instanceof Class<?> clazz) {
-            return clazz.isArray() ? clazz.getComponentType() : clazz;
+            if (clazz.isArray()) {
+                return clazz.getComponentType();
+            }
+            if (isContainer(clazz)) {
+                // A concrete container subclass (e.g. ProjectsPageResponse extends PageResponse<ProjectViewModel>)
+                // carries the element type on its generic superclass, not as a type argument here.
+                return resolveTargetType(clazz.getGenericSuperclass());
+            }
+            return clazz;
         }
         return null;
     }
@@ -208,10 +225,10 @@ public class FieldProjectionSupport {
         parents.push(root);
         var nameBuffer = new StringBuilder();
         var nodeCount = new AtomicInteger();
-        int depth = 0;
+        var depth = 0;
 
         for (int i = 0, len = raw.length(); i < len; i++) {
-            char c = raw.charAt(i);
+            var c = raw.charAt(i);
             switch (c) {
                 case '(' -> {
                     if (++depth > MAX_DEPTH) {

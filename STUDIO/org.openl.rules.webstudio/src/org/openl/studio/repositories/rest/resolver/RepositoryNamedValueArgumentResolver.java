@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ValueConstants;
@@ -28,13 +29,10 @@ import org.openl.util.StringUtils;
  * @see DesignTimeRepository
  */
 @Component
+@RequiredArgsConstructor
 public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMethodArgumentResolver {
 
     private final DesignTimeRepository dtRepository;
-
-    public RepositoryNamedValueArgumentResolver(DesignTimeRepository dtRepository) {
-        this.dtRepository = dtRepository;
-    }
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -44,7 +42,7 @@ public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMeth
         if (!Repository.class.isAssignableFrom(parameter.getParameterType())) {
             return false;
         }
-        DesignRepository anno = parameter.getParameterAnnotation(DesignRepository.class);
+        var anno = parameter.getParameterAnnotation(DesignRepository.class);
         return anno != null && StringUtils.isNotBlank(anno.value());
     }
 
@@ -57,13 +55,13 @@ public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMeth
 
     @Override
     protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) {
-        Map<String, String> uriTemplateVars = resolverUriTemplateVars(request);
+        var uriTemplateVars = resolverUriTemplateVars(request);
         return Optional.ofNullable(uriTemplateVars.get(name)).map(dtRepository::getRepository).orElse(null);
     }
 
     @Override
     protected void handleMissingValue(String name, MethodParameter parameter, NativeWebRequest request) {
-        Map<String, String> uriTemplateVars = resolverUriTemplateVars(request);
+        var uriTemplateVars = resolverUriTemplateVars(request);
         throw new NotFoundException("design.repo.message", uriTemplateVars.get(name));
     }
 

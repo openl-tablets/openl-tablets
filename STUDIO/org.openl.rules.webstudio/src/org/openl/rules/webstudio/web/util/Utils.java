@@ -8,7 +8,6 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.common.VersionInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.Repository;
@@ -54,11 +53,11 @@ public class Utils {
     }
 
     public static String getDescriptiveVersion(ProjectVersion version, String dateTimeFormat) {
-        VersionInfo versionInfo = version.getVersionInfo();
+        var versionInfo = version.getVersionInfo();
         if (versionInfo == null || versionInfo.getCreatedAt() == null || versionInfo.getCreatedBy() == null) {
             return "Version not found";
         }
-        String modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(versionInfo.getCreatedAt());
+        var modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(versionInfo.getCreatedAt());
         return versionInfo.getCreatedBy() + ": " + modifiedOnStr;
     }
 
@@ -80,12 +79,5 @@ public class Utils {
             repository = artefact.getRepository();
         }
         return repository.supports().mappedFolders();
-    }
-
-    public String descriptiveProjectVersion(AProjectArtefact artefact) {
-        if (artefact == null || artefact.getVersion() == null) {
-            return "";
-        }
-        return getDescriptiveVersion(artefact.getVersion(), dateTimeFormat);
     }
 }

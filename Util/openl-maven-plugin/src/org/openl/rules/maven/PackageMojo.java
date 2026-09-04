@@ -206,29 +206,30 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
 
-        File openLSourceDir = new File(sourcePath);
+        var openLSourceDir = new File(sourcePath);
         if (CollectionUtils.isEmpty(openLSourceDir.list())) {
             info("No OpenL sources have been found at '", sourcePath, "' path");
             info("Skipping packaging of the empty OpenL project.");
             return;
         }
-        String[] types = getFormats();
+        var types = getFormats();
         if (CollectionUtils.isEmpty(types)) {
             throw new MojoFailureException("No formats have been defined in the plugin configuration.");
         }
-        File dependencyLib = project.getArtifact().getFile();
+        var dependencyLib = project.getArtifact().getFile();
 
-        boolean mainArtifactExists = dependencyLib != null && dependencyLib.isFile();
+        var mainArtifactExists = dependencyLib != null && dependencyLib.isFile();
         if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
             error(
-                    "You have to use classifier to attach supplemental artifacts " +
-                            "to the project instead of replacing them."
+                    """
+                    You have to use classifier to attach supplemental artifacts \
+                    to the project instead of replacing them."""
             );
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
         Set<Artifact> dependencies = getDependencies();
-        int dependenciesSize = dependencies.size();
+        var dependenciesSize = dependencies.size();
         if (dependenciesSize > dependenciesThreshold) {
             error("The quantity of dependencies (",
                     dependenciesSize,
@@ -240,7 +241,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             }
             throw new MojoFailureException("The quantity of dependencies exceeds the limit");
         }
-        final boolean openLJarPackaging = OpenLPackagings.OPENL_JAR_PACKAGING.equals(packaging);
+        final var openLJarPackaging = OpenLPackagings.OPENL_JAR_PACKAGING.equals(packaging);
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list()) && !openLJarPackaging) {
             // create a jar file with compiled Java sources for OpenL rules
             var classesJar = getOutputFile(outputDirectory, finalName, CLASSES_CLASSIFIER, OpenLPackagings.JAR_DEPENDENCY_TYPE);
@@ -258,11 +259,11 @@ public final class PackageMojo extends BaseOpenLMojo {
         final var includedFiles = scanFiles(openLSourceDir, includes, getExcludes());
 
         for (String type : types) {
-            File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
+            var outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
-            final boolean itselfLink = outputFile.equals(dependencyLib);
+            final var itselfLink = outputFile.equals(dependencyLib);
 
-            try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+            try (var arch = new ZipArchiver(outputFile.toPath())) {
                 writeManifest(arch);
 
                 if (openLJarPackaging && CollectionUtils.isNotEmpty(classesDirectory.list())) {
@@ -275,7 +276,7 @@ public final class PackageMojo extends BaseOpenLMojo {
                     arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
                 }
                 for (Artifact artifact : dependencies) {
-                    File file = artifact.getFile();
+                    var file = artifact.getFile();
                     arch.addFile(file, classpathFolder + file.getName());
                 }
             }
@@ -293,9 +294,10 @@ public final class PackageMojo extends BaseOpenLMojo {
         buildTestsArtifact(openLSourceDir, types);
 
         if (deploymentPackage != null) {
-            warn("Parameter 'deploymentPackage' is deprecated and has no effect. " +
-                    "Dependent OpenL projects always receive a stub 'rules-deploy.xml' with empty publishers " +
-                    "to suppress their publication.");
+            warn("""
+                    Parameter 'deploymentPackage' is deprecated and has no effect. \
+                    Dependent OpenL projects always receive a stub 'rules-deploy.xml' with empty publishers \
+                    to suppress their publication.""");
         }
 
         Set<Artifact> openLDependencies = getDependentOpenLProjects();
@@ -310,8 +312,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private void atachDeploymentArtifact(Set<Artifact> openLDependencies) throws IOException {
-        final String artifactType = getFormats()[0];
-        File outputFile = getOutputFile(outputDirectory,
+        final var artifactType = getFormats()[0];
+        var outputFile = getOutputFile(outputDirectory,
                 deploymentName,
                 DEPLOYMENT_CLASSIFIER,
                 artifactType);
@@ -319,7 +321,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         var deploymentYamlBytes = YamlMapperFactory.getYamlMapper()
                 .writeValueAsBytes(Map.of("name", deploymentName));
 
-        try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+        try (var arch = new ZipArchiver(outputFile.toPath())) {
             // deployment.yaml must be the first entry in the archive
             arch.addFile(deploymentYamlBytes, DEPLOYMENT_YAML);
             var mainArtifact = project.getArtifact();
@@ -402,7 +404,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         Objects.requireNonNull(basedir, "basedir is not allowed to be null.");
         Objects.requireNonNull(resultFinalName, "finalName is not allowed to be null.");
 
-        StringBuilder fileName = new StringBuilder(resultFinalName);
+        var fileName = new StringBuilder(resultFinalName);
 
         if (StringUtils.isNotBlank(classifier)) {
             fileName.append('-').append(classifier);
@@ -414,8 +416,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private Manifest createManifest() {
-        Manifest manifest = new Manifest();
-        Attributes attributes = manifest.getMainAttributes();
+        var manifest = new Manifest();
+        var attributes = manifest.getMainAttributes();
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         if (addDefaultManifest) {
             // initialize with default values
@@ -432,7 +434,7 @@ public final class PackageMojo extends BaseOpenLMojo {
 
         if (manifestEntries != null) {
             for (Map.Entry<String, String> entry : manifestEntries.entrySet()) {
-                String key = entry.getKey();
+                var key = entry.getKey();
                 // if value is empty, create an entry with empty string to prevent nulls in file
                 String value = StringUtils.trimToEmpty(entry.getValue());
                 attributes.putValue(key, value);
@@ -480,7 +482,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         var basePath = openLSourceDir.toPath();
         for (String type : types) {
             var outputFile = getOutputFile(outputDirectory, finalName, TESTS_CLASSIFIER, type);
-            try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+            try (var arch = new ZipArchiver(outputFile.toPath())) {
                 writeManifest(arch);
                 for (String file : testsFiles) {
                     arch.addFile(basePath.resolve(file), file);

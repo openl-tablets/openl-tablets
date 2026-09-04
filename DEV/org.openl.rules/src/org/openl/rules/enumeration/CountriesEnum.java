@@ -1,5 +1,9 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum CountriesEnum {
 
     AE("United Arab Emirates"),
@@ -105,10 +109,6 @@ public enum CountriesEnum {
     ZA("South Africa");
 
     private final String displayName;
-
-    CountriesEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

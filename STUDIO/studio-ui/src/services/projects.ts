@@ -1,20 +1,32 @@
 import { notification } from 'antd'
-import apiCall, { type ApiCallOptions } from './apiCall'
+import { errorMessage } from 'utils/errorMessage'
+import apiCall, { asArray, type ApiCallOptions } from './apiCall'
 import i18n from '../i18n'
+import { encodeProjectPath as encodePath, toUrlSafeId } from './projectId'
+import type { ProjectModule } from 'types/projects'
+import type { ProjectProperty } from 'types/tables'
 
 const PROJECT_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
-/**
- * Normalizes a project id to the URL-safe Base64 alphabet so it fits a URL path segment.
- * Legacy pages supply the id in the standard alphabet; the backend decodes both forms.
- */
-const toUrlSafeId = (projectId: string): string => projectId.replaceAll('+', '-').replaceAll('/', '_')
+const projectResource = async <T>(projectId: string, resource: string): Promise<T[]> => asArray(
+    await apiCall(`/projects/${toUrlSafeId(projectId)}/${resource}`, undefined, PROJECT_API_OPTIONS)
+)
+
+/** Modules the project declares, patterns already resolved to the files they matched. */
+export const getProjectModules = (projectId: string): Promise<ProjectModule[]> =>
+    projectResource(projectId, 'modules')
+
+/** Worksheets of one module's workbook. */
+export const getModuleSheets = (projectId: string, moduleName: string): Promise<string[]> =>
+    projectResource(projectId, `modules/${encodeURIComponent(moduleName)}/sheets`)
 
 /**
- * Encodes a project-relative path for the {*path} mapping. The path keeps '/' separators;
- * each segment is encoded so reserved characters such as '#' or '%' do not corrupt the URL.
+ * Properties applicable to one place in a workbook. Without a table kind, returns properties for the contents of a
+ * Properties table. With a kind, returns properties for the table's own properties section.
  */
-const encodePath = (path: string): string => path.split('/').map(encodeURIComponent).join('/')
+export const getProjectProperties = (projectId: string, tableType?: string): Promise<ProjectProperty[]> =>
+    projectResource(projectId, `properties${tableType ? `?tableType=${encodeURIComponent(tableType)}` : ''}`)
+
 
 /** A file to upload into a project, addressed by its project-relative '/'-separated path. */
 export interface ProjectUploadEntry {
@@ -40,7 +52,7 @@ async function uploadToProject(
     } catch (error) {
         notification.error({
             title: failureTitle,
-            description: error instanceof Error ? error.message : String(error),
+            description: errorMessage(error),
         })
         return false
     }
@@ -97,28 +109,6 @@ export async function updateProjectFromFiles(
     )
 }
 
-/**
- * Replace the content of a single project file, e.g. a module's rules file. The file must
- * already exist at the path; the change is staged in the working copy.
- *
- * @param projectId project identifier provided by the backend, in either Base64 alphabet
- * @param path      file path relative to the project root; may contain '/' separators
- * @param file      the new file content
- * @returns {@code true} when the file was updated, {@code false} otherwise
- */
-export async function updateModuleFile(projectId: string, path: string, file: Blob): Promise<boolean> {
-    const formData = new FormData()
-    formData.append('file', file)
-    return uploadToProject(
-        `/projects/${toUrlSafeId(projectId)}/files/${encodePath(path)}`,
-        { method: 'PUT', body: formData },
-        {
-            title: i18n.t('project:notifications.module_updated'),
-            description: i18n.t('project:notifications.module_updated_description', { file: path.split('/').pop() }),
-        },
-        i18n.t('project:notifications.module_update_failed')
-    )
-}
 
 /**
  * Delete a project from its repository.
@@ -144,7 +134,7 @@ export async function deleteProject(projectId: string, projectName: string, comm
     } catch (error) {
         notification.error({
             title: i18n.t('repository:notifications.project_delete_failed'),
-            description: error instanceof Error ? error.message : String(error),
+            description: errorMessage(error),
         })
         return false
     }
@@ -182,7 +172,7 @@ export async function deleteProjectFile(
     } catch (error) {
         notification.error({
             title: i18n.t(`repository:notifications.${kind}_delete_failed`),
-            description: error instanceof Error ? error.message : String(error),
+            description: errorMessage(error),
         })
         return false
     }

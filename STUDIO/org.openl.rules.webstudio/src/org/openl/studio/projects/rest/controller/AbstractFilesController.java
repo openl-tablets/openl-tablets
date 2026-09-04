@@ -8,6 +8,7 @@ import java.util.Set;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
@@ -59,8 +60,10 @@ public abstract class AbstractFilesController {
         try {
             if (isFolderPath(path)) {
                 filesService.uploadFiles(root, stripSlashes(path), toUploadedFiles(files), conflictPolicy);
+            } else if (files == null || files.isEmpty()) {
+                throw new BadRequestException("file.path.requires.content.message");
             } else {
-                filesService.createResource(root, stripLeadingSlash(path), files.get(0).getInputStream(), createFolders);
+                filesService.createResource(root, stripLeadingSlash(path), files.getFirst().getInputStream(), createFolders);
             }
         } finally {
             postWrite();
@@ -100,13 +103,12 @@ public abstract class AbstractFilesController {
     protected ResponseEntity<?> handleGetFile(FileRoot root, String path, String view, String download,
                                               Set<String> extensions, String namePattern, boolean foldersOnly,
                                               boolean recursive, FileViewMode viewMode, String version,
-                                              HttpServletResponse response)
+                                              HttpServletResponse response, @Nullable String rootArchiveName)
             throws ProjectException, IOException {
         if (isFolderPath(path)) {
             var basePath = stripSlashes(path);
             if (download != null) {
-                String zipName = (basePath.isEmpty()
-                        ? "files" : basePath.substring(basePath.lastIndexOf('/') + 1)) + ".zip";
+                String zipName = getArchiveName(basePath, rootArchiveName);
                 response.setContentType("application/zip");
                 response.setHeader(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(zipName));
                 filesService.writeFolderAsZip(root, basePath, response.getOutputStream(), version);
@@ -136,7 +138,7 @@ public abstract class AbstractFilesController {
         // the request thread streams without buffering the whole file in memory. Existence and
         // permissions are resolved first, so a missing or forbidden file fails before anything is written.
         var resource = filesService.getResource(root, filePath, version);
-        String fileName = resource.getName();
+        var fileName = resource.getName();
         response.setContentType(MediaTypeFactory.getMediaType(fileName)
                 .orElse(MediaType.APPLICATION_OCTET_STREAM).toString());
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName));
@@ -144,6 +146,13 @@ public abstract class AbstractFilesController {
             content.transferTo(response.getOutputStream());
         }
         return null;
+    }
+
+    private static String getArchiveName(String basePath, @Nullable String rootArchiveName) {
+        if (basePath.isEmpty()) {
+            return rootArchiveName == null || rootArchiveName.isBlank() ? "files.zip" : rootArchiveName;
+        }
+        return basePath.substring(basePath.lastIndexOf('/') + 1) + ".zip";
     }
 
     /**
@@ -194,7 +203,7 @@ public abstract class AbstractFilesController {
     }
 
     private static List<UploadedFile> toUploadedFiles(List<MultipartFile> files) throws IOException {
-        List<UploadedFile> uploaded = new ArrayList<>();
+        var uploaded = new ArrayList<UploadedFile>();
         for (MultipartFile file : files) {
             uploaded.add(new UploadedFile(file.getOriginalFilename(), file.getBytes()));
         }

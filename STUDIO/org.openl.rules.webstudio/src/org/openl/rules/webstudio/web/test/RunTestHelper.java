@@ -7,7 +7,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -31,7 +30,7 @@ public class RunTestHelper {
     private String tableUri;
 
     public void catchParams() {
-        InputArgsBean bean = (InputArgsBean) WebStudioUtils.getBackingBean("inputArgsBean");
+        var bean = (InputArgsBean) WebStudioUtils.getBackingBean("inputArgsBean");
         this.params = bean.getParams();
         this.runtimeContext = bean.getRuntimeContext();
         this.tableUri = bean.getUri();
@@ -48,7 +47,7 @@ public class RunTestHelper {
 
     public TestSuite getTestSuite() {
         String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-        boolean currentOpenedModule = Boolean.parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+        var currentOpenedModule = Boolean.parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
 
         ProjectModel model = WebStudioUtils.getProjectModel();
         if (id == null) {
@@ -60,11 +59,11 @@ public class RunTestHelper {
                 id = TableUtils.makeTableId(uri);
             }
         }
-        IOpenLTable table = model.getTableById(id);
+        var table = model.getTableById(id);
         if (table == null) {
             return null;
         }
-        String uri = table.getUri();
+        var uri = table.getUri();
         IOpenMethod method = currentOpenedModule || !model.isProjectCompilationCompleted()
                 ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
 
@@ -82,7 +81,7 @@ public class RunTestHelper {
                 testSuite = new TestSuite(testSuiteMethod);
             } else {
                 // Run only selected test cases of selected test suite
-                int[] indices = testSuiteMethod.getIndices(testRanges);
+                var indices = testSuiteMethod.getIndices(testRanges);
                 testSuite = new TestSuite(testSuiteMethod, indices);
             }
         } else {

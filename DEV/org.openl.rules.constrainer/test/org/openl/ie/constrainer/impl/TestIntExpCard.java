@@ -21,7 +21,7 @@ class TestIntExpCard {
     @Test
     void testAttachDetachObserver() {
         try {
-            IntExpCard expcard = new IntExpCard(C, new IntExpArray(C, 10, 0, 5, "array"), 4);
+            var expcard = new IntExpCard(C, new IntExpArray(C, 10, 0, 5, "array"), 4);
             class TestObserver extends Observer {
                 private int counter = 0;
 
@@ -76,8 +76,8 @@ class TestIntExpCard {
 
     @Test
     void testBindAll() {
-        final int cardValue = 5;
-        IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
+        final var cardValue = 5;
+        var array = new IntExpArray(C, 5, 0, 5, "array");
         IntExpCard card = null;
         try {
             card = new IntExpCard(C, array, cardValue);
@@ -90,7 +90,7 @@ class TestIntExpCard {
             fail("test of IntExpCard.bindAll() failed.");
         }
 
-        for (int i = 0; i < array.size(); i++) {
+        for (var i = 0; i < array.size(); i++) {
             try {
                 assertEquals(cardValue, array.get(i).value());
             } catch (Failure f) {
@@ -102,24 +102,24 @@ class TestIntExpCard {
     @Test
     void testIntExpCard() {
         try {
-            IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
+            var array = new IntExpArray(C, 5, 0, 5, "array");
 
-            IntExpCard card = new IntExpCard(C, array, array.max() + 1);
+            var card = new IntExpCard(C, array, array.max() + 1);
             // there could not be elements with value greater then array.max()
             assertEquals(0, card.value());
 
-            IntExpCard card1 = new IntExpCard(C, array, array.min() - 1);
+            var card1 = new IntExpCard(C, array, array.min() - 1);
             assertEquals(0, card1.value());
 
-            IntExpCard card2 = new IntExpCard(C, array, 5);
-            int max_possible = array.size();
-            int min_possible = 0;
+            var card2 = new IntExpCard(C, array, 5);
+            var max_possible = array.size();
+            var min_possible = 0;
             assertEquals(max_possible, card2.max());
             assertEquals(min_possible, card2.min());
 
             array.get(1).setMax(3);
             C.propagate();
-            IntExpCard card3 = new IntExpCard(C, array, 5);
+            var card3 = new IntExpCard(C, array, 5);
             max_possible = max_possible - 1; // has to decrease by one
             // min_possible = min_possible; //don't has to change
             assertEquals(max_possible, card3.max());
@@ -127,7 +127,7 @@ class TestIntExpCard {
 
             array.get(2).setValue(5);
             C.propagate();
-            IntExpCard card4 = new IntExpCard(C, array, 5);
+            var card4 = new IntExpCard(C, array, 5);
             // max_possible = max_possible; //don't has to change
             min_possible = min_possible + 1; // has to increase by one
             assertEquals(max_possible, card4.max());
@@ -135,14 +135,14 @@ class TestIntExpCard {
 
             array.get(3).setMin(3);
             C.propagate();
-            IntExpCard card5 = new IntExpCard(C, array, 5);
+            var card5 = new IntExpCard(C, array, 5);
             // nothing has had to be changed!!!
             assertEquals(max_possible, card5.max());
             assertEquals(min_possible, card5.min());
 
             array.get(0).removeValue(5);
             C.propagate();
-            IntExpCard card6 = new IntExpCard(C, array, 5);
+            var card6 = new IntExpCard(C, array, 5);
             max_possible = max_possible - 1; // has to decrease by one
             // min_possible = min_possible; //don't has to change
             assertEquals(max_possible, card6.max());
@@ -155,9 +155,9 @@ class TestIntExpCard {
 
     @Test
     void testRemoveIndex() {
-        final int cardValue = 5;
+        final var cardValue = 5;
         final int[] indexToBeRemoved = {0, 1};
-        IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
+        var array = new IntExpArray(C, 5, 0, 5, "array");
         IntExpCard card = null;
         try {
             card = new IntExpCard(C, array, cardValue);
@@ -165,7 +165,7 @@ class TestIntExpCard {
             fail("test failed");
         }
 
-        int oldmax = card.max();
+        var oldmax = card.max();
         // remove index
         try {
             card.removeIndex(indexToBeRemoved[0]);
@@ -182,7 +182,7 @@ class TestIntExpCard {
             fail("test of IntExpCard.bindAll() failed.");
         }
 
-        for (int i = 0; i < array.size(); i++) {
+        for (var i = 0; i < array.size(); i++) {
             if (i != indexToBeRemoved[0] && i != indexToBeRemoved[1]) {
                 try {
                     assertEquals(cardValue, array.get(i).value());
@@ -197,9 +197,9 @@ class TestIntExpCard {
 
     @Test
     void testRemoveUnbounds() {
-        final int cardValue = 5;
+        final var cardValue = 5;
         final int[] indexToBeRemoved = {0, 1};
-        IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
+        var array = new IntExpArray(C, 5, 0, 5, "array");
         IntExpCard card = null;
         try {
             card = new IntExpCard(C, array, cardValue);
@@ -224,7 +224,7 @@ class TestIntExpCard {
         // all variables except those having been bounded does not have to
         // contain cardValue
         // in their domains
-        for (int i = 0; i < array.size(); i++) {
+        for (var i = 0; i < array.size(); i++) {
             if (i != indexToBeRemoved[0] && i != indexToBeRemoved[1]) {
                 assertFalse(array.get(i).contains(cardValue));
             } else {
@@ -253,7 +253,7 @@ class TestIntExpCard {
         }
         // all variables except those their indices has been removed does not
         // have to contain cardValue
-        for (int i = 0; i < array.size(); i++) {
+        for (var i = 0; i < array.size(); i++) {
             if (i != indexToBeRemoved[0] && i != indexToBeRemoved[1]) {
                 assertFalse(array.get(i).contains(cardValue));
             } else {
@@ -265,8 +265,8 @@ class TestIntExpCard {
 
     @Test
     void testSetValue() {
-        final int cardValue = 5;
-        IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
+        final var cardValue = 5;
+        var array = new IntExpArray(C, 5, 0, 5, "array");
         try {
             new IntExpCard(C, array, cardValue);
         } catch (Failure f) {

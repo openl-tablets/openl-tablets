@@ -8,7 +8,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 
@@ -46,10 +45,10 @@ public class ParameterConverterManager {
                                String operationParam,
                                IBindingContext bindingContext) {
 
-        ParameterConverter converter = parameterConverters.get(clazz);
+        var converter = parameterConverters.get(clazz);
 
         if (converter == null) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
+            var errorSource = nodesToCompile.getFirst()
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();
@@ -110,10 +109,10 @@ public class ParameterConverterManager {
 
             AlgorithmTreeNode executionNode = AlgorithmCompilerTool
                     .extractOperationNode(nodesToCompile, operationParam, bindingContext);
-            String methodName = "%s_row_%s"
+            var methodName = "%s_row_%s"
                     .formatted(operationParam.replace('.', '_'), executionNode.getAlgorithmRow().getRowNumber());
 
-            IOpenSourceCodeModule src = cellContent.getMetaInfo().getSource();
+            var src = cellContent.getMetaInfo().getSource();
             // return statements for the whole Algorithm(TBasic) should be casted to the return type of
             // whole Algorithm rule
             if (labelManager.isReturnInstruction(operationParam)) {

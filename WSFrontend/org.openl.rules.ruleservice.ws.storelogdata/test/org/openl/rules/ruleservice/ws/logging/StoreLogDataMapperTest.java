@@ -35,9 +35,9 @@ class StoreLogDataMapperTest {
 
     @Test
     void testPublisherFilteringMapping() {
-        StoreLogDataMapper mapper = new StoreLogDataMapper();
+        var mapper = new StoreLogDataMapper();
 
-        StoreLogData storeLogData = new StoreLogData();
+        var storeLogData = new StoreLogData();
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
 
@@ -45,10 +45,10 @@ class StoreLogDataMapperTest {
         customValues.put("customString1", customString1);
         customValues.put("customString2", customString2);
 
-        final PublisherType publisher1 = PublisherType.RESTFUL;
+        final var publisher1 = PublisherType.RESTFUL;
         storeLogData.setPublisherType(publisher1);
 
-        TestEntity testEntity1 = new TestEntity();
+        var testEntity1 = new TestEntity();
         mapper.map(storeLogData, testEntity1);
 
         // validation
@@ -59,18 +59,18 @@ class StoreLogDataMapperTest {
 
     @Test
     void testPublisherConvertorMapping() {
-        StoreLogDataMapper mapper = new StoreLogDataMapper();
+        var mapper = new StoreLogDataMapper();
 
-        StoreLogData storeLogData = new StoreLogData();
+        var storeLogData = new StoreLogData();
         final String customString1 = RandomStringUtils.random(10, true, true);
 
         Map<String, Object> customValues = storeLogData.getCustomValues();
         customValues.put("customString1", " " + customString1 + " ");
 
-        final PublisherType publisher1 = PublisherType.RESTFUL;
+        final var publisher1 = PublisherType.RESTFUL;
         storeLogData.setPublisherType(publisher1);
 
-        TestEntity testEntity = new TestEntity();
+        var testEntity = new TestEntity();
         mapper.map(storeLogData, testEntity);
 
         // validation
@@ -79,7 +79,7 @@ class StoreLogDataMapperTest {
 
     @Test
     void testSimpleMapping() throws Exception {
-        StoreLogData storeLogData = new StoreLogData();
+        var storeLogData = new StoreLogData();
 
         final String customString1 = RandomStringUtils.random(10, true, true);
         final String customString2 = RandomStringUtils.random(10, true, true);
@@ -94,28 +94,28 @@ class StoreLogDataMapperTest {
         final String response = RandomStringUtils.random(10);
         storeLogData.setServiceMethod(StoreLogDataMapperTest.class.getDeclaredMethod("testSimpleMapping"));
         final String url = RandomStringUtils.random(10);
-        final PublisherType publisher = PublisherType.RESTFUL;
+        final var publisher = PublisherType.RESTFUL;
         final String serviceName = RandomStringUtils.random(10);
 
         final ZonedDateTime incomingMessageTime = ZonedDateTime.now();
-        final ZonedDateTime outcomingMessageTime = ZonedDateTime.now().plus(1, ChronoUnit.MINUTES);
+        final var outcomingMessageTime = ZonedDateTime.now().plus(1, ChronoUnit.MINUTES);
 
         storeLogData.setIncomingMessageTime(incomingMessageTime);
         storeLogData.setOutcomingMessageTime(outcomingMessageTime);
         storeLogData.setServiceName(serviceName);
         storeLogData.setPublisherType(publisher);
-        LoggingMessage requestLoggingMessage = new LoggingMessage("", "");
+        var requestLoggingMessage = new LoggingMessage("", "");
         requestLoggingMessage.getPayload().append(request);
         requestLoggingMessage.getAddress().append(url);
         storeLogData.setRequestMessage(requestLoggingMessage);
 
-        LoggingMessage responseLoggingMessage = new LoggingMessage("", "");
+        var responseLoggingMessage = new LoggingMessage("", "");
         responseLoggingMessage.getPayload().append(response);
         responseLoggingMessage.getAddress().append(url);
         storeLogData.setResponseMessage(responseLoggingMessage);
 
-        StoreLogDataMapper mapper = new StoreLogDataMapper();
-        TestEntity testEntity = new TestEntity();
+        var mapper = new StoreLogDataMapper();
+        var testEntity = new TestEntity();
 
         mapper.map(storeLogData, testEntity);
 

@@ -10,11 +10,14 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.ConfigPrefixSettingsHolder;
 import org.openl.studio.settings.model.SettingValueWrapper;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class SettingValueWrapperSerializer extends JsonSerializer<Object> implements ContextualSerializer {
 
     private final Function<Object, Boolean> readOnlyLookup;
@@ -26,18 +29,13 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
         secret = false;
     }
 
-    private SettingValueWrapperSerializer(Function<Object, Boolean> readOnlyLookup, boolean secret) {
-        this.readOnlyLookup = readOnlyLookup;
-        this.secret = secret;
-    }
-
     @Override
     public void serialize(Object value, JsonGenerator generator, SerializerProvider serializer) throws IOException {
-        boolean isDisabled = Optional.ofNullable(readOnlyLookup)
+        var isDisabled = Optional.ofNullable(readOnlyLookup)
                 .map(f -> f.apply(generator.currentValue()))
                 .orElse(Boolean.FALSE);
-        boolean isSecret = secret && isNotEmpty(value);
-        boolean wrapped = isDisabled || isSecret;
+        var isSecret = secret && isNotEmpty(value);
+        var wrapped = isDisabled || isSecret;
         if (wrapped) {
             var wrapper = SettingValueWrapper.builder()
                     .secret(isSecret)

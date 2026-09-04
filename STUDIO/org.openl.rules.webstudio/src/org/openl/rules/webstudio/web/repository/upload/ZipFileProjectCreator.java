@@ -18,6 +18,7 @@ import java.util.zip.ZipInputStream;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromFile;
@@ -35,7 +36,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private final File uploadedFile;
     private final Charset charset;
     private final String comment;
-    private final String repositoryId;
+    private final Repository repository;
 
     public ZipFileProjectCreator(String repositoryId,
                                  String uploadedFileName,
@@ -47,8 +48,30 @@ public class ZipFileProjectCreator extends AProjectCreator {
                                  PathFilter zipFilter,
                                  ZipCharsetDetector zipCharsetDetector,
                                  Map<String, String> tags) throws IOException {
+        this(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
+                uploadedFileName,
+                uploadedFileStream,
+                projectName,
+                projectFolder,
+                userWorkspace,
+                comment,
+                zipFilter,
+                zipCharsetDetector,
+                tags);
+    }
+
+    public ZipFileProjectCreator(Repository repository,
+                                 String uploadedFileName,
+                                 InputStream uploadedFileStream,
+                                 String projectName,
+                                 String projectFolder,
+                                 UserWorkspace userWorkspace,
+                                 String comment,
+                                 PathFilter zipFilter,
+                                 ZipCharsetDetector zipCharsetDetector,
+                                 Map<String, String> tags) throws IOException {
         super(projectName, projectFolder, userWorkspace, tags);
-        this.repositoryId = repositoryId;
+        this.repository = repository;
         this.comment = comment;
 
         uploadedFile = FileTool.toTempFile(uploadedFileStream, uploadedFileName);
@@ -85,8 +108,8 @@ public class ZipFileProjectCreator extends AProjectCreator {
     }
 
     private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) {
-        RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
-        return new ZipRulesProjectBuilder(getUserWorkspace(), repositoryId, getProjectName(),
+        var folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
+        return new ZipRulesProjectBuilder(getUserWorkspace(), repository, getProjectName(),
                 getProjectFolder(),
                 zipFilter,
                 folderExtractor,
@@ -95,15 +118,15 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {
         // Sort zip entries names alphabetically
-        Set<String> sortedNames = new TreeSet<>();
+        var sortedNames = new TreeSet<String>();
         if (zipFile == null) {
             return sortedNames;
         }
 
-        boolean skipped = false;
+        var skipped = false;
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
-                ZipEntry item = items.nextElement();
+                var item = items.nextElement();
                 sortedNames.add(item.getName());
             } catch (Exception e) {
                 log.warn("Cannot extract zip entry.", e);
@@ -118,7 +141,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
-        Set<String> sortedNames = sortZipEntriesNames(zipFile);
+        var sortedNames = sortZipEntriesNames(zipFile);
         List<String> invalidNames = incorrectNames();
 
         if (!invalidNames.isEmpty()) {
@@ -128,18 +151,18 @@ public class ZipFileProjectCreator extends AProjectCreator {
             /*
              * Display first 20 files/folders with incorrect names
              */
-            for (int i = 0; i < Math.min(invalidNames.size(), 20); i++) {
+            for (var i = 0; i < Math.min(invalidNames.size(), 20); i++) {
                 WebStudioUtils.addErrorMessage(invalidNames.get(i));
             }
             throw new ProjectException(NameChecker.BAD_NAME_MSG);
         }
 
-        ZipRulesProjectBuilder projectBuilder = getZipProjectBuilder(sortedNames, zipFilter);
+        var projectBuilder = getZipProjectBuilder(sortedNames, zipFilter);
 
         for (String name : sortedNames) {
 
             try {
-                ZipEntry item = zipFile.getEntry(name);
+                var item = zipFile.getEntry(name);
 
                 if (item == null) {
                     throw new ProjectException("Cannot read zip entry '%s'. Possible broken zip.".formatted(name));
@@ -151,7 +174,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                     if (checkFileSize(item)) {
                         InputStream zipInputStream;
                         try {
-                            String fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
+                            var fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
                             zipInputStream = changeFileIfNeeded(fileName, zipFile.getInputStream(item));
                         } catch (IOException e) {
                             throw new ProjectException("Error extracting zip archive", e);
@@ -162,7 +185,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
             } catch (Exception e) {
                 projectBuilder.cancel();
                 log.warn("Bad zip entry name [{}].", name);
-                String message = e.getMessage();
+                var message = e.getMessage();
                 if (message == null) {
                     message = "Bad zip entry '%s'".formatted(name);
                 }
@@ -201,14 +224,14 @@ public class ZipFileProjectCreator extends AProjectCreator {
      * @return List of incorrect names of folders and files
      */
     private List<String> incorrectNames() {
-        List<String> invalidNames = new LinkedList<>();
+        var invalidNames = new LinkedList<String>();
         if (zipFile == null) {
             return invalidNames;
         }
 
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
-                ZipEntry item = items.nextElement();
+                var item = items.nextElement();
 
                 if (!item.isDirectory()) {
                     String name = FileUtils.getName(item.getName());
@@ -217,7 +240,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
                         invalidNames.add(name);
                     }
                 } else {
-                    String[] files = item.getName().split("/");
+                    var files = item.getName().split("/");
 
                     for (String folderName : files) {
                         if (!NameChecker.checkName(folderName)) {

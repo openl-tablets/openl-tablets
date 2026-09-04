@@ -1,15 +1,14 @@
 package org.openl.rules.table.ui.filters;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class GreyColorFilter implements IColorFilter {
 
     private final double brightness;
-
-    public GreyColorFilter(double brightness) {
-        this.brightness = brightness;
-    }
 
     @Override
     public short[] filterColor(short[] color) {
@@ -18,7 +17,7 @@ public class GreyColorFilter implements IColorFilter {
             color = BLACK;
         }
 
-        int avg = (color[0] + color[1] + color[2]) / 3;
+        var avg = (color[0] + color[1] + color[2]) / 3;
 
         avg = (int) (avg * brightness);
 

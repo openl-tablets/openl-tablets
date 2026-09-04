@@ -2,29 +2,21 @@ package org.openl.rules.rest.acl.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.security.acl.permission.AclRole;
 
+@RequiredArgsConstructor
 @Schema(description = "ACL Role Model")
 public class AclRoleModel {
 
+    @Getter
     @Parameter(description = "Code", required = true)
     private final AclRole code;
 
+    @Getter
     @Parameter(description = "Description", required = true)
     private final String description;
-
-    public AclRoleModel(AclRole code, String description) {
-        this.code = code;
-        this.description = description;
-    }
-
-    public AclRole getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 
 }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import org.openl.rules.webstudio.web.admin.RepositorySettings;
 import org.openl.rules.webstudio.web.admin.RepositoryType;
@@ -16,17 +17,21 @@ import org.openl.rules.webstudio.web.admin.RepositoryType;
 @JsonDeserialize(builder = CURepositoryConfigurationModel.Builder.class)
 public class CURepositoryConfigurationModel {
 
+    @Getter
     @Parameter(description = "Repository ID")
     private final String id;
 
+    @Getter
     @Parameter(description = "Repository name", required = true)
     @NotBlank
     private final String name;
 
+    @Getter
     @Parameter(description = "Repository type", required = true)
     @NotNull
     private final RepositoryType type;
 
+    @Getter
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, implementation = RepositorySettings.class)
     @NotNull
     private final JsonNode settings;
@@ -36,22 +41,6 @@ public class CURepositoryConfigurationModel {
         this.name = builder.name;
         this.type = builder.type;
         this.settings = builder.settings;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public RepositoryType getType() {
-        return type;
-    }
-
-    public JsonNode getSettings() {
-        return settings;
     }
 
     @JsonCreator

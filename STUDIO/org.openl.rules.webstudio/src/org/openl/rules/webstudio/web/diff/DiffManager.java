@@ -8,6 +8,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -34,7 +37,7 @@ public class DiffManager implements AutoCloseable {
 
     ShowDiffController get(String id) {
         synchronized (diffControllers) {
-            Comparison comparison = diffControllers.get(id);
+            var comparison = diffControllers.get(id);
             if (comparison == null) {
                 return null;
             }
@@ -76,10 +79,10 @@ public class DiffManager implements AutoCloseable {
 
     private void cleanUpInactive() {
         synchronized (diffControllers) {
-            long currentTime = System.currentTimeMillis();
+            var currentTime = System.currentTimeMillis();
             Iterator<Comparison> iterator = diffControllers.values().iterator();
             while (iterator.hasNext()) {
-                Comparison comparison = iterator.next();
+                var comparison = iterator.next();
                 if ((currentTime - comparison.getAccessTime()) / 1000 >= cleanUpPeriod) {
                     iterator.remove();
                     comparison.getController().close();
@@ -89,23 +92,14 @@ public class DiffManager implements AutoCloseable {
     }
 
     private static class Comparison {
+        @Getter(AccessLevel.PACKAGE)
         private final ShowDiffController controller;
+        @Getter(AccessLevel.PACKAGE)
+        @Setter(AccessLevel.PACKAGE)
         private long accessTime;
 
         private Comparison(ShowDiffController controller, long accessTime) {
             this.controller = controller;
-            this.accessTime = accessTime;
-        }
-
-        ShowDiffController getController() {
-            return controller;
-        }
-
-        long getAccessTime() {
-            return accessTime;
-        }
-
-        void setAccessTime(long accessTime) {
             this.accessTime = accessTime;
         }
     }

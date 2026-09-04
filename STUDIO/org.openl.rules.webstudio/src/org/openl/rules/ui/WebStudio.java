@@ -2,7 +2,6 @@ package org.openl.rules.ui;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -49,7 +48,6 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.Profile;
@@ -72,12 +70,11 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.merge.MergeConflictInfo;
+import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
-import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
-import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -130,11 +127,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private ProjectDescriptor currentProject;
     private Module currentModule;
 
-    private boolean collapseProperties = true;
-
     private final UserSettingManagementService userSettingsManager;
 
-    private boolean needRestart = false;
     private boolean forcedCompile = true;
     private boolean needCompile = true;
     private boolean manualCompile = false;
@@ -162,9 +156,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     @Getter
     private final ApplicationEventPublisher eventPublisher;
-    private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProtectedBranchBypassService bypassService;
     private final ProjectIdentifierMapper projectIdentifierMapper;
+    private final ProjectStateValidator projectStateValidator;
+    private final ProjectAccessService projectAccessService;
 
     public WebStudio(RulesUserSession rulesUserSession,
                      TestSuiteExecutor testSuiteExecutor,
@@ -175,9 +170,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      PropertyResolver propertyResolver,
                      DeploymentManager deploymentManager,
                      ApplicationEventPublisher eventPublisher,
-                     ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
                      ProtectedBranchBypassService bypassService,
-                     ProjectIdentifierMapper projectIdentifierMapper
+                     ProjectIdentifierMapper projectIdentifierMapper,
+                     ProjectStateValidator projectStateValidator,
+                     ProjectAccessService projectAccessService
 
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
@@ -189,9 +185,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.propertyResolver = propertyResolver;
         this.deploymentManager = deploymentManager;
         this.eventPublisher = eventPublisher;
-        this.conflictsSessionHolder = conflictsSessionHolder;
         this.bypassService = bypassService;
         this.projectIdentifierMapper = projectIdentifierMapper;
+        this.projectStateValidator = projectStateValidator;
+        this.projectAccessService = projectAccessService;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
         initUserSettings();
@@ -237,46 +234,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public RulesTreeView[] getTreeViews() {
         return Profile.TREE_VIEWS;
-    }
-
-    public void saveProject(HttpSession session) {
-        RulesProject project = null;
-        try {
-            project = getCurrentProject();
-            if (project == null) {
-                return;
-            }
-            saveProject(project);
-        } catch (Exception e) {
-            String msg;
-            Throwable cause = e.getCause();
-            if (cause instanceof FileNotFoundException) {
-                if (e.getMessage().contains(".xls")) {
-                    msg = "Failed to save the project. Close the module Excel file and try again.";
-                } else {
-                    msg = "Failed to save the project because some resources are used";
-                }
-                log.debug(msg, e);
-            } else if (cause instanceof MergeConflictException mergeConflictEx) {
-                var conflictInfo = MergeConflictInfo.builder()
-                        .details(mergeConflictEx.getDetails())
-                        .project(project)
-                        .build();
-                eventPublisher.publishEvent(new SaveMergeConflictEvent(project, conflictInfo));
-                msg = "Failed to save the project because of merge conflict.";
-                log.debug(msg, e);
-                return;
-            } else {
-                msg = "Failed to save the project. See logs for details.";
-                log.error(msg, e);
-            }
-
-            throw new Message(msg);
-        }
-    }
-
-    public boolean isMergeConflict() {
-        return conflictsSessionHolder.hasAnyConflictInfo();
     }
 
     public boolean isRenamed(RulesProject project) {
@@ -685,12 +642,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return needRedirect;
     }
 
+    /**
+     * The module of the project known by that name.
+     *
+     * <p>A module is matched by the name it is known by, which for a module that declares none in rules.xml is the
+     * base name of its path. The descriptor read from rules.xml as written and the one the engine resolved
+     * therefore answer the same name.
+     */
     public Module getModule(ProjectDescriptor project, final String moduleName) {
-        if (project == null) {
+        if (project == null || moduleName == null) {
             return null;
         }
-        return CollectionUtils.findFirst(project.getModules(),
-                module -> module.getName() != null && module.getName().equals(moduleName));
+        return CollectionUtils.findFirst(project.getModules(), module -> moduleName.equals(module.getResolvedName()));
     }
 
     public void storeProjectHistory() {
@@ -924,14 +887,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         userSettingsManager.setProperty(rulesUserSession.getUserName(), TEST_FAILURES_PERTEST, testsFailuresPerTest);
     }
 
-    public boolean isCollapseProperties() {
-        return collapseProperties;
-    }
-
-    public void setCollapseProperties(boolean collapseProperties) {
-        this.collapseProperties = collapseProperties;
-    }
-
     public boolean isShowComplexResult() {
         return showComplexResult;
     }
@@ -939,14 +894,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void setShowComplexResult(boolean showComplexResult) {
         this.showComplexResult = showComplexResult;
         userSettingsManager.setProperty(rulesUserSession.getUserName(), TEST_RESULT_COMPLEX_SHOW, showComplexResult);
-    }
-
-    public void setNeedRestart(boolean needRestart) {
-        this.needRestart = needRestart;
-    }
-
-    public boolean isNeedRestart() {
-        return needRestart;
     }
 
     public void destroy() {
@@ -1075,11 +1022,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 if (!branch.equals(previousBranch)) {
                     getModel().clearModuleInfo();
                     project.releaseMyLock();
-                    project.setBranch(branch);
+                    var workspace = rulesUserSession.getUserWorkspace();
+                    workspace.setProjectBranch(project, branch);
 
                     if (project.getLastHistoryVersion() == null) {
                         // move back to previous branch! Because the project is not present in new branch
-                        project.setBranch(previousBranch);
+                        workspace.setProjectBranch(project, previousBranch);
                         log.warn(
                                 "Current project does not exists in '{}' branch! Project branch was switched to the previous one",
                                 branch);
@@ -1111,11 +1059,35 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return Collections.emptyList();
             }
             RulesProject project = getCurrentProject();
-            return ((BranchRepository) getCurrentProject().getDesignRepository())
-                    .getBranches(project.getDesignFolderName());
+            return rulesUserSession.getUserWorkspace()
+                    .getDesignTimeRepository()
+                    .getBranchedProject(project.getDesignRepository().getId(), project.getDesignProjectName())
+                    .map(branchedProject -> List.copyOf(branchedProject.entries().keySet()))
+                    .orElseGet(Collections::emptyList);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Whether the editor offers Copy for the project it has open.
+     *
+     * <p>The question is answered by the service the REST capabilities are built from, so the button and the
+     * dialog are offered on one rule rather than on two that can drift apart — see EPBDS-16414.
+     */
+    public boolean getCanCopy() {
+        RulesProject project = getCurrentProject();
+        if (project == null) {
+            return false;
+        }
+        try {
+            return projectAccessService.canCopyOrBranch(project);
+        } catch (RuntimeException e) {
+            // A page renders this on every request, and an unreachable repository fails it every time, so the
+            // cause is logged once per render at a level that does not bury the errors worth reading.
+            log.warn("Cannot tell whether project '{}' can be copied: {}", project.getName(), e.getMessage());
+            return false;
         }
     }
 
@@ -1127,12 +1099,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         try {
-            if (project.isModified()) {
-                return false;
-            }
-            List<String> branches = ((BranchRepository) project.getDesignRepository())
-                    .getBranches(project.getDesignFolderName());
-            if (branches.size() < 2) {
+            // A merge target is any other branch of the repository, not only a branch that already holds the
+            // project: a project created in its own branch is merged into the base branch, which has never
+            // seen it. The server-side guard reads it the same way — see EPBDS-16410.
+            if (!projectStateValidator.canMerge(project)) {
                 return false;
             }
             // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
@@ -1143,7 +1113,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
             }
             return false;
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             return false;
         }
     }

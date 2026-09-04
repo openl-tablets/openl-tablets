@@ -35,10 +35,10 @@ public class ArrayConditionBuilder extends AConditionBuilder {
 
     @Override
     protected void writeParameterDeclaration(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
-        final IDecisionTableColumn condition = getCondition();
-        final int numberOfLocalParameters = condition.getNumberOfLocalParameters();
-        final String parameterDeclaration = condition.getParameterDeclaration();
-        for (int i = 1; i <= numberOfLocalParameters; i++) {
+        final var condition = getCondition();
+        final var numberOfLocalParameters = condition.getNumberOfLocalParameters();
+        final var parameterDeclaration = condition.getParameterDeclaration();
+        for (var i = 1; i <= numberOfLocalParameters; i++) {
             sheet.setCellValue(columnStartIndex,
                     rowStartIndex + DecisionTableBuilder.PARAMETER_DECLARATION_ROW_INDEX,
                     parameterDeclaration + i);
@@ -61,9 +61,9 @@ public class ArrayConditionBuilder extends AConditionBuilder {
 
     @Override
     protected void writeRuleValue(IWritableGrid sheet, int numberOfRules, int columnStartIndex, int rowStartIndex) {
-        int startCol = columnStartIndex;
-        for (int i = 0; i < numberOfRules; i++) {
-            for (int j = 0; j < getCondition().getNumberOfLocalParameters(); j++) {
+        var startCol = columnStartIndex;
+        for (var i = 0; i < numberOfRules; i++) {
+            for (var j = 0; j < getCondition().getNumberOfLocalParameters(); j++) {
                 sheet.setCellValue(columnStartIndex,
                         i + rowStartIndex + DecisionTableBuilder.DECISION_TABLE_HEADER_ROWS_NUMBER,
                         getCondition().getRuleValue(i, columnStartIndex - startCol));
@@ -76,7 +76,7 @@ public class ArrayConditionBuilder extends AConditionBuilder {
 
     private static void mergeArrayCells(IWritableGrid sheet, int rowIndex, int columnIndex, int numberOfValues) {
         // counting begins from 0
-        int lastMergedColumnIndex = columnIndex + numberOfValues - 1;
+        var lastMergedColumnIndex = columnIndex + numberOfValues - 1;
         sheet.addMergedRegion(new GridRegion(rowIndex, columnIndex, rowIndex, lastMergedColumnIndex));
     }
 

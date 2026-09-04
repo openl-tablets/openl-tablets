@@ -37,16 +37,16 @@ public class ArrayInitializationBinder extends ANodeBinder {
     @Override
     public IBoundNode bindType(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) throws Exception {
 
-        IOpenClass componentType = type.getAggregateInfo().getComponentType(type);
+        var componentType = type.getAggregateInfo().getComponentType(type);
         if (componentType == null) {
-            String message = "Cannot convert an array into '%s'".formatted(type.getDisplayName(INamedThing.SHORT));
+            var message = "Cannot convert an array into '%s'".formatted(type.getDisplayName(INamedThing.SHORT));
             return makeErrorNode(message, node, bindingContext);
         }
 
         IBoundNode[] nodes = bindTypeChildren(node, bindingContext, componentType);
         IOpenCast[] casts = new IOpenCast[nodes.length];
 
-        for (int i = 0; i < nodes.length; i++) {
+        for (var i = 0; i < nodes.length; i++) {
             casts[i] = getCast(nodes[i], componentType, bindingContext);
         }
 

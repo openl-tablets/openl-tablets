@@ -27,7 +27,7 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
                                                               IOpenClass[] types,
                                                               IBindingContext bindingContext) {
 
-        IMethodCaller methodCaller = bindingContext
+        var methodCaller = bindingContext
                 .findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, types);
 
         if (methodCaller != null) {
@@ -58,8 +58,8 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
             return makeErrorNode("Unary node should have 1 subnode", node, bindingContext);
         }
 
-        int index = node.getType().lastIndexOf('.');
-        String methodName = node.getType().substring(index + 1);
+        var index = node.getType().lastIndexOf('.');
+        var methodName = node.getType().substring(index + 1);
 
         IBoundNode[] children = bindChildren(node, bindingContext);
         IOpenClass[] types = getTypes(children);

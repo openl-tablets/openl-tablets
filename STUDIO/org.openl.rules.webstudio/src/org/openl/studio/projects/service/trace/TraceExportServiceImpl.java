@@ -25,11 +25,11 @@ public class TraceExportServiceImpl implements TraceExportService {
 
     @Override
     public void exportTrace(DebugSession session, Writer writer, boolean smartNumbers) throws IOException {
-        TraceReplay replay = session.getReplay();
+        var replay = session.getReplay();
         if (replay == null) {
             throw new NotFoundException("trace.execution.task.message");
         }
-        TraceExportHook hook = new TraceExportHook(new DefaultSourceClassifier(), smartNumbers, MAX_NODES);
+        var hook = new TraceExportHook(new DefaultSourceClassifier(), smartNumbers, MAX_NODES);
         replayUnderClassLoader(session.getClassLoader(), replay, hook);
         hook.writeTo(writer);
     }
@@ -40,7 +40,7 @@ public class TraceExportServiceImpl implements TraceExportService {
      */
     private void replayUnderClassLoader(ClassLoader classLoader, TraceReplay replay, TraceExportHook hook) {
         Thread current = Thread.currentThread();
-        ClassLoader previous = current.getContextClassLoader();
+        var previous = current.getContextClassLoader();
         if (classLoader != null) {
             current.setContextClassLoader(classLoader);
         }

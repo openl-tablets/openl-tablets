@@ -23,7 +23,7 @@ class DebugSessionTest {
 
     private static DebugSession session() {
         var projectId = ProjectIdModel.builder().repository("repo").projectName("A").build();
-        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null);
+        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, "session-1");
     }
 
     @Test
@@ -57,8 +57,8 @@ class DebugSessionTest {
     @Test
     void inLockSerialisesConcurrentAccess() throws InterruptedException {
         var session = session();
-        int threads = 8;
-        int iterations = 1_000;
+        var threads = 8;
+        var iterations = 1_000;
         var inside = new AtomicInteger();
         var maxObserved = new AtomicInteger();
         var overlapped = new AtomicBoolean();
@@ -66,13 +66,13 @@ class DebugSessionTest {
         ExecutorService pool = Executors.newFixedThreadPool(threads);
         var start = new CountDownLatch(1);
         var done = new CountDownLatch(threads);
-        for (int t = 0; t < threads; t++) {
+        for (var t = 0; t < threads; t++) {
             pool.execute(() -> {
                 try {
                     start.await();
-                    for (int i = 0; i < iterations; i++) {
+                    for (var i = 0; i < iterations; i++) {
                         session.inLock(() -> {
-                            int now = inside.incrementAndGet();
+                            var now = inside.incrementAndGet();
                             if (now != 1) {
                                 overlapped.set(true);
                             }

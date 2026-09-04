@@ -40,7 +40,7 @@ public abstract class ExcelReaderFactory {
     private static class SequentialExcelReaderFactory extends ExcelReaderFactory {
         @Override
         public ExcelReader create(String fileName, final InputStream is) {
-            boolean useFile = fileName != null;
+            var useFile = fileName != null;
 
             if (useFile && is != null) {
                 throw new IllegalArgumentException("Only one argument can be non-null.");

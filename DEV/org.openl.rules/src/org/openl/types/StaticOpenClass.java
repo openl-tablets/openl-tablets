@@ -1,10 +1,12 @@
 package org.openl.types;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import lombok.Getter;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -16,6 +18,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class StaticOpenClass implements IOpenClass {
 
+    @Getter
     private final IOpenClass delegate;
 
     public StaticOpenClass(IOpenClass delegate) {
@@ -35,10 +38,6 @@ public class StaticOpenClass implements IOpenClass {
     @Override
     public IDomain<?> getDomain() {
         return delegate.getDomain();
-    }
-
-    public IOpenClass getDelegate() {
-        return delegate;
     }
 
     @Override
@@ -65,7 +64,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField staticVar = delegate.getVar(name, strictMatch);
+        var staticVar = delegate.getVar(name, strictMatch);
         return staticVar != null && staticVar.isStatic() ? staticVar : null;
     }
 
@@ -141,7 +140,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
-        IOpenMethod method = delegate.getMethod(name, classes);
+        var method = delegate.getMethod(name, classes);
         return method != null && method.isStatic() ? method : null;
     }
 
@@ -197,7 +196,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public Collection<IOpenClass> superClasses() {
-        return Collections.singleton(JavaOpenClass.CLASS);
+        return Set.of(JavaOpenClass.CLASS);
     }
 
     @Override

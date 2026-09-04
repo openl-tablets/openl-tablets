@@ -167,7 +167,7 @@ class BaseOpenLMojoTest {
     }
 
     private static Plugin plugin(String groupId, String artifactId) {
-        Plugin p = new Plugin();
+        var p = new Plugin();
         p.setGroupId(groupId);
         p.setArtifactId(artifactId);
         return p;

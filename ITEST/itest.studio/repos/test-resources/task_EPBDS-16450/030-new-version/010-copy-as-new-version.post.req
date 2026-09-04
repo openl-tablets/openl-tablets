@@ -1,0 +1,15 @@
+POST /rest/projects/EPBDS-16450/tables/fcb6f51436e3a16192f51d2687473193/copy HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "BankLimits",
+  "sheetName": "Sheet1",
+  "name": "BankLimitIndexDated",
+  "properties": [
+    {"name": "effectiveDate", "value": "2009-01-01"},
+    {"name": "expirationDate", "value": "2009-12-31"},
+    {"name": "version", "value": "0.0.2"}
+  ]
+}
+

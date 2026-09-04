@@ -1,0 +1,22 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "cHJvZHVjdGlvbjrQotCw0YDQuNGE0L3Ri9C5INC_0LvQsNC9",
+    "name": "Тарифный план",
+    "repository": "production",
+    "items": [
+      {
+        "name": "Тарифный план",
+        "modifiedBy": "admin",
+        "modifiedAt": "*",
+        "designRevision": {
+          "revision": "*",
+          "modifiedBy": "admin",
+          "modifiedAt": "*"
+        }
+      }
+    ]
+  }
+]

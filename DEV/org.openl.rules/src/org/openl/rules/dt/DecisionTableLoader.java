@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -508,8 +509,10 @@ public class DecisionTableLoader {
     }
 
     private static class CompilationErrors {
+        @Getter
         private final List<SyntaxNodeException> bindingSyntaxNodeException;
         private final Collection<OpenLMessage> openLMessages;
+        @Getter
         private final Exception ex;
         private final DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
         private final List<DecisionTable.DeferredChange> deferredChanges;
@@ -539,14 +542,6 @@ public class DecisionTableLoader {
             }
             decisionTable.getDeferredChanges().clear();
             decisionTable.getDeferredChanges().addAll(deferredChanges);
-        }
-
-        public Exception getEx() {
-            return ex;
-        }
-
-        public List<SyntaxNodeException> getBindingSyntaxNodeException() {
-            return bindingSyntaxNodeException;
         }
     }
 

@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "bbc50931e5dc019793eb6c9300ab6c25",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "ReorderedType",
+  "fields": [
+    {
+      "name": "code",
+      "type": "String",
+      "description": "a description, not a default"
+    }
+  ]
+}
+

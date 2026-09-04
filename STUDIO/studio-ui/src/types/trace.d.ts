@@ -169,6 +169,8 @@ export interface DebugStackView {
     status: DebugStatus
     frames: DebugFrameView[]
     error?: DebugError | null
+    /** Identity of the debug session; WebSocket status events carry the same id. */
+    sessionId?: string | null
     /**
      * The whole executed call tree once the trace has finished (profiling mode); absent while it runs, or
      * when the caller asked to omit it (`includeTree=false`).
@@ -218,10 +220,21 @@ export interface ProfileHotspotView {
 export interface StepValueView {
     ref: string
     label?: string | null
+    /** A1 address of the step's source cell in the raw table (spreadsheet cells only), for highlighting. */
+    cell?: string | null
+    /** True for a plain value or constant cell: static table content that never executes. */
+    constant?: boolean | null
+    /**
+     * Decision-table breakdown row kind: a matched or unmatched condition, or the returned rule. Present
+     * only on the sub-steps of a decision-table node; absent on every other step.
+     */
+    decision?: 'matched' | 'unmatched' | 'returned' | null
     status: 'executed' | 'current' | 'pending'
     value?: TraceParameterValue | null
-    /** Tables this step called, retained in profiling mode so a returned branch can be browsed. */
+    /** Tables this step called. Absent in the lazily-loaded executed tree (fetched on expand); inline for a live frame. */
     children?: CallNodeView[] | null
+    /** Total tables this step called, so the step shows as expandable and a "+N more" count stays accurate. */
+    childrenTotal?: number | null
     /** Total execution time (ms) of an executed step: its own work plus called tables; absent if not run. */
     durationMillis?: number | null
     /** Own execution time (ms) of an executed step: total minus called tables; absent if not run. */
@@ -247,6 +260,16 @@ export interface CallNodeView {
     dispatch?: DispatchInfo | null
     /** For a `stepRef` node, the reference of the already-executed step it points at; absent otherwise. */
     refStep?: string | null
+    /** Sub-calls this node made that ran but were dropped once the tree hit its size limit; absent when all kept. */
+    notRetained?: number | null
+}
+
+/** One page of a step's executed sub-calls, fetched on demand so a large executed tree loads lazily. */
+export interface TreeChildrenView {
+    /** One level of the step's sub-calls from the requested offset; each shallow (its own steps, not its sub-calls). */
+    children: CallNodeView[]
+    /** The step's full sub-call count, so the client can page through the rest. */
+    total: number
 }
 
 /** One evaluated decision-table condition, for one rule. */
@@ -300,6 +323,22 @@ export interface TraceParameterValue {
 }
 
 /**
+ * A focused spreadsheet step, self-contained for the business view: the values its formula consumed, the
+ * step's own returned value, and the A1 address of its cell. Lets a step click render everything the step
+ * panel shows without also fetching the frame's full variables.
+ */
+export interface StepInputsView {
+    /** The values the step's formula read, named as the formula writes them. */
+    inputs: TraceParameterValue[]
+    /** The step's own returned value, or null for a formula cell that has not run yet. */
+    result?: TraceParameterValue | null
+    /** A1 address of the step's source cell in the raw table, or null. */
+    cell?: string | null
+    /** The errors this step raised, present only when this is the step the run failed on. */
+    errors?: MessageDescription[] | null
+}
+
+/**
  * Error/warning message description.
  */
 export interface MessageDescription {
@@ -319,6 +358,8 @@ export interface MessageDescription {
 export interface TraceProgressMessage {
     status: DebugStatus
     message?: string
+    /** Identity of the session the status belongs to; events of a session not being watched are dropped. */
+    sessionId?: string | null
 }
 
 /**

@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.fast.FastStringReader;
 
@@ -19,10 +22,13 @@ import org.openl.util.fast.FastStringReader;
 @Deprecated
 public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 
+    @Getter
     private final IOpenSourceCodeModule[] modules;
     private String source;
 
     private final int[] modulesCount;
+    @Getter
+    @Setter
     private Map<String, Object> params;
 
     public CompositeSourceCodeModule(IOpenSourceCodeModule[] modules, String separator) {
@@ -32,19 +38,15 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
         makeCode(separator);
     }
 
-    public IOpenSourceCodeModule[] getModules() {
-        return modules;
-    }
-
     private void makeCode(String separator) {
-        StringBuilder buf = new StringBuilder(100);
+        var buf = new StringBuilder(100);
 
-        for (int i = 0; i < modules.length; i++) {
+        for (var i = 0; i < modules.length; i++) {
             if (modules[i] == null) {
                 continue;
             }
 
-            String code = modules[i].getCode();
+            var code = modules[i].getCode();
             modulesCount[i] = code.length() + separator.length();
             buf.append(code);
             buf.append(separator);
@@ -75,21 +77,11 @@ public class CompositeSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getUri() {
-        for (int i = 0; i < modulesCount.length; i++) {
+        for (var i = 0; i < modulesCount.length; i++) {
             if (modulesCount[i] > 0) {
                 return modules[i].getUri();
             }
         }
         return null;
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 }

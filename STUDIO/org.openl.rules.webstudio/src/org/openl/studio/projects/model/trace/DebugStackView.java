@@ -21,8 +21,10 @@ import org.jspecify.annotations.Nullable;
  * @param profile a bounded overview of the finished profiled run (the slowest tables), so a large run can
  *                be understood without pulling the full {@code tree}; {@code null} outside profiling mode
  *                and while the trace is still running
+ * @param sessionId identity of the debug session this stack belongs to, matching the id carried by the
+ *                WebSocket status events — so a client can ignore events of a session it does not watch
  */
-@Builder
+@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "trace.type.debug-stack.desc")
 public record DebugStackView(
@@ -39,6 +41,9 @@ public record DebugStackView(
         @Nullable CallNodeView tree,
 
         @Parameter(description = "trace.field.stack.profile.desc")
-        @Nullable ProfileSummaryView profile
+        @Nullable ProfileSummaryView profile,
+
+        @Schema(description = "trace.field.stack.session-id.desc")
+        @Nullable String sessionId
 ) {
 }

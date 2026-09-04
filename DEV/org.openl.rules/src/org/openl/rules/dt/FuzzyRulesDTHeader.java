@@ -1,5 +1,7 @@
 package org.openl.rules.dt;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
@@ -7,21 +9,15 @@ import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
 public class FuzzyRulesDTHeader extends DTHeader {
     private static final int[] EMPTY_INDEXES = new int[]{};
 
+    @Getter(AccessLevel.PACKAGE)
     private final String title;
+    @Getter(AccessLevel.PACKAGE)
     private final FuzzyResult fuzzyResult;
 
     FuzzyRulesDTHeader(String title, int column, int row, int width, FuzzyResult fuzzyResult) {
         super(EMPTY_INDEXES, StringUtils.EMPTY, column, row, width, width, false);
         this.title = title;
         this.fuzzyResult = fuzzyResult;
-    }
-
-    String getTitle() {
-        return title;
-    }
-
-    FuzzyResult getFuzzyResult() {
-        return fuzzyResult;
     }
 
     @Override

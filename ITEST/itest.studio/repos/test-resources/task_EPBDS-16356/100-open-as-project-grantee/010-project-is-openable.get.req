@@ -1,0 +1,4 @@
+GET /rest/projects/{PROJECT}?fields=name,status,capabilities HTTP/1.1
+Authorization: ${GRANTEE_AUTH}
+Cookie: NO_JSESSIONID=noAuth
+

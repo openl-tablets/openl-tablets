@@ -2,21 +2,19 @@ package org.openl.binding.impl.module;
 
 import java.lang.reflect.Array;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class ArrayOpenField implements IOpenField {
 
     private final IOpenField field;
     private IOpenClass type;
     private final int dimension;
-
-    public ArrayOpenField(IOpenField field, int dimension) {
-        this.field = field;
-        this.dimension = dimension;
-    }
 
     @Override
     public String getDisplayName(int mode) {
@@ -34,10 +32,10 @@ public class ArrayOpenField implements IOpenField {
     }
 
     private Object processArray(Object target, IRuntimeEnv env, IOpenClass type) {
-        IOpenClass componentClass = type.getComponentClass();
-        int length = Array.getLength(target);
+        var componentClass = type.getComponentClass();
+        var length = Array.getLength(target);
         Object arrayResult = Array.newInstance(componentClass.getInstanceClass(), length);
-        for (int i = 0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             Object arrayElement = Array.get(target, i);
             if (componentClass.isArray()) {
                 arrayElement = processArray(arrayElement, env, componentClass);

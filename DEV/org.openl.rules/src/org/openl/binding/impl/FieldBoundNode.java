@@ -2,6 +2,8 @@ package org.openl.binding.impl;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenLRuntimeException;
@@ -25,7 +27,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class FieldBoundNode extends ATargetBoundNode {
 
+    @Getter
     private final IOpenField boundField;
+    @Getter
     private final int dims;
     private IOpenClass returnType;
 
@@ -46,9 +50,9 @@ public class FieldBoundNode extends ATargetBoundNode {
         if (dims > 0) {
             throw new UnsupportedOperationException("Multi-reference assignment is not supported.");
         }
-        Object target = getTarget(env);
+        var target = getTarget(env);
 
-        IBoundNode targetNode = getTargetNode();
+        var targetNode = getTargetNode();
         if (target == null && targetNode != null) {
             target = targetNode.getType().newInstance(env);
             targetNode.assign(target, env);
@@ -62,13 +66,9 @@ public class FieldBoundNode extends ATargetBoundNode {
         return boundField.getName();
     }
 
-    public IOpenField getBoundField() {
-        return boundField;
-    }
-
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object target = getTarget(env);
+        var target = getTarget(env);
 
         return evaluateDim(target, env, dims, null);
     }
@@ -79,20 +79,20 @@ public class FieldBoundNode extends ATargetBoundNode {
         } else if (target == null) {
             return null;
         } else {
-            int paramsLength = Array.getLength(target);
+            var paramsLength = Array.getLength(target);
 
             // create an array of results
             if (targetType == null) {
                 targetType = getType().getInstanceClass();
             }
             Class<?> componentType = targetType.getComponentType();
-            int nextDim = --dims;
+            var nextDim = --dims;
             Object results = Array.newInstance(componentType, paramsLength);
 
             // populate the results array by invoking method for single parameter
-            for (int i = 0; i < paramsLength; i++) {
+            for (var i = 0; i < paramsLength; i++) {
                 Object element = Array.get(target, i);
-                Object value = evaluateDim(element, env, nextDim, componentType);
+                var value = evaluateDim(element, env, nextDim, componentType);
                 // Do not try to set null value in primitive type.
                 // And no needs to set null values for a just initialized array.
                 if (value != null) {
@@ -107,7 +107,7 @@ public class FieldBoundNode extends ATargetBoundNode {
     public IOpenClass getType() {
         if (returnType == null) {
             returnType = boundField.getType();
-            for (int i = 0; i < dims; i++) {
+            for (var i = 0; i < dims; i++) {
                 returnType = returnType.getAggregateInfo().getIndexedAggregateType(returnType);
             }
         }
@@ -122,10 +122,5 @@ public class FieldBoundNode extends ATargetBoundNode {
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         dependencies.addFieldDependency(boundField, this);
-    }
-
-    @Override
-    public int getDims() {
-        return dims;
     }
 }

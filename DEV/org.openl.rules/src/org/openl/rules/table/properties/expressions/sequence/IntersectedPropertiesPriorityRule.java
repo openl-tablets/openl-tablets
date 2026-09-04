@@ -11,8 +11,8 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
 
     @Override
     public int compare(ITableProperties tableProperties1, ITableProperties tableProperties2) {
-        boolean nested = false;
-        boolean contains = false;
+        var nested = false;
+        var contains = false;
         propsLoop:
         for (String propName : PROPERTY_NAMES) {
 

@@ -1,0 +1,11 @@
+PATCH /rest/admin/settings/repos/design HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/merge-patch+json
+
+{
+  "name": "H2 History",
+  "type": "repo-jdbc",
+  "settings": {
+    "uri": "jdbc:h2:mem:design-db-history;DB_CLOSE_DELAY=-1"
+  }
+}

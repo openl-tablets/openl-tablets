@@ -3,6 +3,9 @@ package org.openl.ie.constrainer.impl;
 import java.util.Collection;
 import java.util.HashSet;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
@@ -34,7 +37,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         Observer _observer;
 
         static UndoAttachObserver getUndo(Subject subject, Observer observer) {
-            UndoAttachObserver undo = (UndoAttachObserver) _factory.getElement();
+            var undo = (UndoAttachObserver) _factory.getElement();
             undo.undoable(subject);
             undo._observer = observer;
             return undo;
@@ -52,7 +55,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
         @Override
         public void undo() {
-            Subject subject = (Subject) undoable();
+            var subject = (Subject) undoable();
             subject.forcedDetachObserver(_observer);
         }
 
@@ -74,7 +77,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         private Observer _observer;
 
         static UndoDetachObserver getUndo(Subject subject, Observer observer) {
-            UndoDetachObserver undo = (UndoDetachObserver) _factory.getElement();
+            var undo = (UndoDetachObserver) _factory.getElement();
             undo.undoable(subject);
             undo._observer = observer;
             return undo;
@@ -92,7 +95,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
         @Override
         public void undo() {
-            Subject subject = (Subject) undoable();
+            var subject = (Subject) undoable();
             subject.forcedAttachObserver(_observer);
         }
 
@@ -129,7 +132,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
         @Override
         public void undo() {
-            Subject subject = (Subject) undoable();
+            var subject = (Subject) undoable();
             subject.forcePublisherMask(_event_mask);
             super.undo();
         }
@@ -137,7 +140,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         @Override
         public void undoable(Undoable u) {
             super.undoable(u);
-            Subject subject = (Subject) u;
+            var subject = (Subject) u;
             _event_mask = subject.publisherMask();
         }
 
@@ -173,11 +176,11 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     @Override
     public Collection allDependents() {
-        HashSet dependendts = new HashSet();
+        var dependendts = new HashSet();
 
-        for (int i = 0; i < _observers.size(); ++i) {
-            Observer obs = (Observer) _observers.elementAt(i);
-            Object master = obs.master();
+        for (var i = 0; i < _observers.size(); ++i) {
+            var obs = (Observer) _observers.elementAt(i);
+            var master = obs.master();
 
             if (master == null) {
                 continue;
@@ -200,7 +203,6 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     @Override
     public void attachObserver(Observer observer) {
-        // Debug.on(); Debug.print(this + " Attach: " + observer); Debug.off();
         _observers.addElement(observer);
         publisherMask(_publisher_mask | observer.subscriberMask());
         constrainer().addUndo(UndoAttachObserver.getUndo(this, observer));
@@ -214,22 +216,17 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     @Override
     public void detachObserver(Observer observer) {
 
-        // Debug.on(); Debug.print(this + " Detach: " + observer); Debug.off();
         _observers.removeElement(observer);
         constrainer().addUndo(UndoDetachObserver.getUndo(this, observer));
     }
 
     @Override
     public void forcedAttachObserver(Observer observer) {
-        // Debug.on(); Debug.print(this + " AttachForced: " + observer);
-        // Debug.off();
         _observers.addElement(observer);
     }
 
     @Override
     public void forcedDetachObserver(Observer observer) {
-        // Debug.on(); Debug.print(this + " DetachForced: " + observer);
-        // Debug.off();
         _observers.removeElement(observer);
     }
 
@@ -245,16 +242,12 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     @Override
     final public void notifyObservers(EventOfInterest interest) throws Failure {
-        // Debug.on(); Debug.print("* "+interest); Debug.off();
-        // FastVector observers = (FastVector)_observers.clone();
-        FastVector observers = _observers;
+        var observers = _observers;
         _constrainer.incrementNumberOfNotifications();
-        int size = observers.size();
-        for (int i = 0; i < size; ++i) {
-            Observer observer = (Observer) observers.elementAt(i);
+        var size = observers.size();
+        for (var i = 0; i < size; ++i) {
+            var observer = (Observer) observers.elementAt(i);
             if (observer.interestedIn(interest)) {
-                // Debug.on(); Debug.print("Observer "+i+":
-                // "+observer);Debug.off();
                 observer.update(this, interest);
             }
         }
@@ -281,8 +274,6 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     public void publisherMask(int mask) {
 
         if (mask != _publisher_mask) {
-            // System.out.println("Pub Mask: " + mask + " for: " + this + "
-            // old:" + _publisher_mask);
             _publisher_mask = mask;
             onMaskChange();
             addUndo();
@@ -319,24 +310,15 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     @Override
     public void trace(int event_type) {
+        @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
         class ObserverTrace extends Observer {
             private final int _event_type;
-
-            ObserverTrace(int event_type) {
-                _event_type = event_type;
-            }
 
             @Override
             public Object master() {
                 return null;
             }
 
-            /*
-             * public boolean interestedIn(EventOfInterest event) { switch(_event_type) { case EventOfInterest.MAX:
-             * return event.isMaxEvent(); case EventOfInterest.MIN: return event.isMinEvent(); case
-             * EventOfInterest.VALUE: return event.isValueEvent(); case EventOfInterest.REMOVE: return
-             * event.isRemoveEvent(); } return true; }
-             */
             @Override
             public int subscriberMask() {
                 return _event_type;

@@ -4,10 +4,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
-import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.repository.api.Pageable;
@@ -16,10 +18,9 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
-import org.openl.studio.config.SafeSchemaGenerator;
+import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
 
-@RequiredArgsConstructor
 public class TestsExecutionSummaryResponseMapper {
 
     private static final double NANOS_IN_MILLISECOND = 1_000_000.0;
@@ -29,7 +30,14 @@ public class TestsExecutionSummaryResponseMapper {
                     .thenComparing(TestUnitsResults::getName));
 
     private final ObjectMapper objectMapper;
-    private final SchemaGenerator schemaGenerator;
+    private final ExecutionValueMapper valueMapper;
+
+    public TestsExecutionSummaryResponseMapper(ObjectMapper objectMapper,
+                                               SchemaGenerator schemaGenerator,
+                                               SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy) {
+        this.objectMapper = objectMapper;
+        this.valueMapper = new ExecutionValueMapper(objectMapper, schemaGenerator, sprNamingStrategy);
+    }
 
     public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {
         var builder = TestsExecutionSummary.builder().page(page);
@@ -44,9 +52,9 @@ public class TestsExecutionSummaryResponseMapper {
     }
 
     public void calculateSummaryStats(List<TestUnitsResults> testUnitsResults, TestsExecutionSummary.Builder builder) {
-        double executionTimeMs = 0;
-        int numberOfTests = 0;
-        int numberOfFailures = 0;
+        var executionTimeMs = 0D;
+        var numberOfTests = 0;
+        var numberOfFailures = 0;
         for (TestUnitsResults testCase : testUnitsResults) {
             executionTimeMs += testCase.getExecutionTime() / NANOS_IN_MILLISECOND;
             numberOfTests += testCase.getNumberOfTestUnits();
@@ -99,15 +107,9 @@ public class TestsExecutionSummaryResponseMapper {
         // Map execution parameters
         var executionParams = testUnit.getTest().getExecutionParams();
         var executionParamNames = testCase.getTestDataColumnDisplayNames();
-        IntStream.range(0, executionParams.length).mapToObj(i -> {
-            var executionParam = executionParams[i];
-            return ParameterValue.builder()
-                    .name(executionParam.getName())
-                    .value(objectMapper.valueToTree(executionParam.getValue()))
-                    .schema(SafeSchemaGenerator.generate(schemaGenerator, executionParam.getType().getInstanceClass()))
-                    .description(executionParamNames[i])
-                    .build();
-        }).forEach(builder::parameter);
+        IntStream.range(0, executionParams.length)
+                .mapToObj(i -> valueMapper.writeParameter(executionParams[i], executionParamNames[i]))
+                .forEach(builder::parameter);
 
         // Map context parameters
         var contextParams = testUnit.getContextParams(testCase);
@@ -129,11 +131,21 @@ public class TestsExecutionSummaryResponseMapper {
         return builder.build();
     }
 
+    /**
+     * Writes a compared value in the shape it is published in.
+     *
+     * <p>A test that states no expectation reports it as an explicit {@code null}, which tells the reader that the
+     * assertion has no expected value rather than that the field is missing.
+     */
+    private JsonNode writeAssertionValue(@Nullable Object value) {
+        return objectMapper.valueToTree(valueMapper.convert(value));
+    }
+
     private TestAssertionExecutionResult mapToTestAssertionResult(ComparedResult assertion, String description) {
         return TestAssertionExecutionResult.builder()
                 .status(assertion.getStatus())
-                .actualValue(objectMapper.valueToTree(assertion.getActualValue()))
-                .expectedValue(objectMapper.valueToTree(assertion.getExpectedValue()))
+                .actualValue(writeAssertionValue(assertion.getActualValue()))
+                .expectedValue(writeAssertionValue(assertion.getExpectedValue()))
                 .description(description)
                 .build();
     }

@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenConstructor;
@@ -12,6 +14,7 @@ import org.openl.types.IOpenMethod;
  */
 public class ConstructorUsage extends MethodUsage {
 
+    @Getter
     private final ConstructorNode constructorNode;
 
     /**
@@ -22,13 +25,9 @@ public class ConstructorUsage extends MethodUsage {
         this.constructorNode = constructorNode;
     }
 
-    public ConstructorNode getConstructorNode() {
-        return constructorNode;
-    }
-
     @Override
     public String getDescription() {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
         if (isDatatype()) {
             var metaInfo = getMethod().getDeclaringClass().getMetaInfo();
             buf.append(metaInfo.getDisplayName(IMetaInfo.REGULAR)).append('\n');

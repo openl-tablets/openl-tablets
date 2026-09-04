@@ -2,8 +2,6 @@ package org.openl.rules.webstudio.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -265,23 +263,23 @@ class GroupManagementTest {
                 mappedGroups.get("Administrators").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Analysts").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Deployers").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Developers").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Testers").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
-        assertCollectionEquals(Collections.emptyList(),
+        assertCollectionEquals(List.of(),
                 mappedGroups.get("Viewers").getPrivileges(),
                 GrantedAuthority::getAuthority);
 
@@ -342,7 +340,7 @@ class GroupManagementTest {
     @Test
     void testSaveLongGroupName() {
         initOneUser();
-        externalGroupService.mergeAllForUser("jdoe", Collections.singleton(new SimpleGrantedAuthority("foo-bar".repeat(9))));
+        externalGroupService.mergeAllForUser("jdoe", Set.of(new SimpleGrantedAuthority("foo-bar".repeat(9))));
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getInsert());
         assertEquals(2, queryCount.getDelete());
@@ -437,29 +435,8 @@ class GroupManagementTest {
         userManagementService.updateAuthorities("jdoe", Set.of("Analysts"));
         assertEquals(1, userDao.getGroupsForUser("jdoe").size());
 
-        userManagementService.updateAuthorities("jdoe", Collections.emptySet());
+        userManagementService.updateAuthorities("jdoe", Set.of());
         assertTrue(userDao.getGroupsForUser("jdoe").isEmpty());
-    }
-
-    @Test
-    void testGetUserWithoutGroups() {
-        initOneUser();
-        userManagementService.updateAuthorities("jdoe", Set.of("Analysts", "Developers"));
-
-        User userWithGroups = userManagementService.getUser("jdoe");
-        assertNotNull(userWithGroups);
-        assertFalse(userWithGroups.getAuthorities().isEmpty());
-        assertEquals(2, userWithGroups.getAuthorities().size());
-
-        User userWithoutGroups = userManagementService.getUserWithoutGroups("jdoe");
-        assertNotNull(userWithoutGroups);
-        assertTrue(userWithoutGroups.getAuthorities().isEmpty());
-        assertEquals("jdoe", userWithoutGroups.getUsername());
-    }
-
-    @Test
-    void testGetUserWithoutGroups_unknownUser() {
-        assertNull(userManagementService.getUserWithoutGroups("unknown"));
     }
 
     private static <T, R> void assertCollectionEquals(Collection<R> expected,

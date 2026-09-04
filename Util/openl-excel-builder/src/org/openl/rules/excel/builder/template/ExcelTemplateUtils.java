@@ -17,18 +17,14 @@ import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.openl.rules.excel.builder.CellRangeSettings;
-import org.openl.rules.excel.builder.template.row.DataTypeRowStyle;
 import org.openl.rules.excel.builder.template.row.DataTypeTableRowStyleImpl;
 import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
 import org.openl.rules.excel.builder.template.row.NameValueRowStyleImpl;
@@ -52,23 +48,23 @@ public class ExcelTemplateUtils {
     }
 
     public static SXSSFWorkbook getTemplate() throws IOException {
-        ClassLoader classLoader = ExcelTemplateUtils.class.getClassLoader();
-        XSSFWorkbook template = new XSSFWorkbook(classLoader.getResourceAsStream("template.xlsx"));
-        int sheets = template.getNumberOfSheets();
-        for (int i = 0; i < sheets; i++) {
+        var classLoader = ExcelTemplateUtils.class.getClassLoader();
+        var template = new XSSFWorkbook(classLoader.getResourceAsStream("template.xlsx"));
+        var sheets = template.getNumberOfSheets();
+        for (var i = 0; i < sheets; i++) {
             template.removeSheetAt(0);
         }
         return new SXSSFWorkbook(template);
     }
 
     public static Map<String, TableStyle> extractTemplateInfo(Workbook targetWorkbook) {
-        Map<String, TableStyle> templateStyles = new HashMap<>();
-        ClassLoader classLoader = ExcelTemplateUtils.class.getClassLoader();
+        var templateStyles = new HashMap<String, TableStyle>();
+        var classLoader = ExcelTemplateUtils.class.getClassLoader();
         try (OPCPackage fs = OPCPackage
                 .open(Objects.requireNonNull(classLoader.getResourceAsStream("template.xlsx"), "Template wasn't found."))) {
-            XSSFWorkbook wb = new XSSFWorkbook(fs);
+            var wb = new XSSFWorkbook(fs);
 
-            Sheet dataTypeSheet = wb.getSheet(DATATYPES_SHEET);
+            var dataTypeSheet = wb.getSheet(DATATYPES_SHEET);
             if (dataTypeSheet == null) {
                 log.error("Datatype sheet template wasn't found.");
             }
@@ -76,7 +72,7 @@ public class ExcelTemplateUtils {
             TableStyle dataTypeStyle = extractDatatypeStyle(dataTypeSheet, targetWorkbook);
             templateStyles.put(DATATYPES_SHEET, dataTypeStyle);
 
-            Sheet sprResultSheet = wb.getSheet(SPR_RESULT_SHEET);
+            var sprResultSheet = wb.getSheet(SPR_RESULT_SHEET);
             if (sprResultSheet == null) {
                 log.error("SpreadSheetResults sheet template wasn't found.");
             }
@@ -84,14 +80,14 @@ public class ExcelTemplateUtils {
             TableStyle spreadSheetStyle = extractSpreadSheetResultStyle(sprResultSheet, targetWorkbook);
             templateStyles.put(SPR_RESULT_SHEET, spreadSheetStyle);
 
-            Sheet environmentSheet = wb.getSheet(ENV_SHEET);
+            var environmentSheet = wb.getSheet(ENV_SHEET);
             if (environmentSheet == null) {
                 log.error("Environment sheet template wasn't found.");
             }
             TableStyle envStyle = extractEnvStyle(environmentSheet, targetWorkbook);
             templateStyles.put(ENV_SHEET, envStyle);
 
-            Sheet dataSheet = wb.getSheet(DATA_SHEET);
+            var dataSheet = wb.getSheet(DATA_SHEET);
             if (dataSheet == null) {
                 log.error("Data table template wasn't found.");
             }
@@ -111,33 +107,33 @@ public class ExcelTemplateUtils {
         Cell sprResultHeader = extractTableHeader(sprResultSheet);
         CellStyle targetTableHeaderStyle = copyCellStyle(targetWorkbook, sprResultHeader);
 
-        RichTextString sprTableHeaderText = sprResultHeader.getRichStringCellValue();
+        var sprTableHeaderText = sprResultHeader.getRichStringCellValue();
 
-        CellRangeAddress headerRegion = sprResultSheet.getMergedRegion(0);
-        CellRangeSettings headerSettings = new CellRangeSettings(headerRegion);
+        var headerRegion = sprResultSheet.getMergedRegion(0);
+        var headerSettings = new CellRangeSettings(headerRegion);
 
-        Row sprColumnHeaders = sprResultSheet.getRow(TOP_MARGIN + 1);
-        Cell sprStepHeader = sprColumnHeaders.getCell(LEFT_MARGIN);
-        Cell sprValueHeader = sprColumnHeaders.getCell(LEFT_MARGIN + 1);
+        var sprColumnHeaders = sprResultSheet.getRow(TOP_MARGIN + 1);
+        var sprStepHeader = sprColumnHeaders.getCell(LEFT_MARGIN);
+        var sprValueHeader = sprColumnHeaders.getCell(LEFT_MARGIN + 1);
 
         CellStyle targetStepHeaderStyle = copyCellStyle(targetWorkbook, sprStepHeader);
 
         CellStyle targetValueHeaderStyle = copyCellStyle(targetWorkbook, sprValueHeader);
 
-        String stepHeader = sprStepHeader.getStringCellValue();
-        String valueHeader = sprValueHeader.getStringCellValue();
+        var stepHeader = sprStepHeader.getStringCellValue();
+        var valueHeader = sprValueHeader.getStringCellValue();
 
-        NameValueRowStyle headerRowStyle = new SpreadsheetTableRowStyleImpl(targetStepHeaderStyle,
+        var headerRowStyle = new SpreadsheetTableRowStyleImpl(targetStepHeaderStyle,
                 targetValueHeaderStyle);
 
-        Row sprFieldRow = sprResultSheet.getRow(TOP_MARGIN + 2);
+        var sprFieldRow = sprResultSheet.getRow(TOP_MARGIN + 2);
 
-        Cell sprFieldName = sprFieldRow.getCell(LEFT_MARGIN);
+        var sprFieldName = sprFieldRow.getCell(LEFT_MARGIN);
         CellStyle targetFieldStyle = copyCellStyle(targetWorkbook, sprFieldName);
 
-        Cell sprFieldValue = sprFieldRow.getCell(LEFT_MARGIN + 1);
+        var sprFieldValue = sprFieldRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetValueStyle = copyCellStyle(targetWorkbook, sprFieldValue);
-        NameValueRowStyle rowStyle = new SpreadsheetTableRowStyleImpl(targetFieldStyle, targetValueStyle);
+        var rowStyle = new SpreadsheetTableRowStyleImpl(targetFieldStyle, targetValueStyle);
 
         CellStyle dateStyle = copyCellStyle(targetWorkbook, sprFieldValue);
         dateStyle.setDataFormat(DATE_FORMAT);
@@ -145,14 +141,14 @@ public class ExcelTemplateUtils {
         CellStyle dateTimeStyle = copyCellStyle(targetWorkbook, sprFieldValue);
         dateTimeStyle.setDataFormat(DATE_TIME_FORMAT);
 
-        Row lastSprRow = sprResultSheet.getRow(TOP_MARGIN + 3);
+        var lastSprRow = sprResultSheet.getRow(TOP_MARGIN + 3);
 
-        Cell lastFieldName = lastSprRow.getCell(LEFT_MARGIN);
+        var lastFieldName = lastSprRow.getCell(LEFT_MARGIN);
         CellStyle targetLastFieldStyle = copyCellStyle(targetWorkbook, lastFieldName);
 
-        Cell lastFieldValue = lastSprRow.getCell(LEFT_MARGIN + 1);
+        var lastFieldValue = lastSprRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetLastValueStyle = copyCellStyle(targetWorkbook, lastFieldValue);
-        NameValueRowStyle lastRowStyle = new SpreadsheetTableRowStyleImpl(targetLastFieldStyle, targetLastValueStyle);
+        var lastRowStyle = new SpreadsheetTableRowStyleImpl(targetLastFieldStyle, targetLastValueStyle);
 
         return new SpreadsheetTableStyleImpl(sprTableHeaderText,
                 targetTableHeaderStyle,
@@ -169,28 +165,28 @@ public class ExcelTemplateUtils {
     private static TableStyle extractDatatypeStyle(Sheet dataTypeSheet, Workbook targetWorkbook) {
         Cell datatypeHeaderCell = extractTableHeader(dataTypeSheet);
 
-        CellRangeAddress headerRegion = dataTypeSheet.getMergedRegion(0);
-        CellRangeSettings headerSettings = new CellRangeSettings(headerRegion);
+        var headerRegion = dataTypeSheet.getMergedRegion(0);
+        var headerSettings = new CellRangeSettings(headerRegion);
 
         CellStyle targetHeaderStyle = copyCellStyle(targetWorkbook, datatypeHeaderCell);
 
-        RichTextString headerValueString = datatypeHeaderCell.getRichStringCellValue();
-        String headerText = headerValueString.getString();
-        int start = headerText.indexOf(DATATYPE_DEFINITION);
-        XSSFFont datatypeFont = ((XSSFRichTextString) headerValueString).getFontAtIndex(start);
+        var headerValueString = datatypeHeaderCell.getRichStringCellValue();
+        var headerText = headerValueString.getString();
+        var start = headerText.indexOf(DATATYPE_DEFINITION);
+        var datatypeFont = ((XSSFRichTextString) headerValueString).getFontAtIndex(start);
 
         Font targetFont = copyFont(targetWorkbook, datatypeFont);
 
-        Row datatypeFieldRow = dataTypeSheet.getRow(TOP_MARGIN + 1);
+        var datatypeFieldRow = dataTypeSheet.getRow(TOP_MARGIN + 1);
 
-        Cell dtFieldClass = datatypeFieldRow.getCell(LEFT_MARGIN);
+        var dtFieldClass = datatypeFieldRow.getCell(LEFT_MARGIN);
         CellStyle targetClassStyle = copyCellStyle(targetWorkbook, dtFieldClass);
 
-        Cell dtFieldName = datatypeFieldRow.getCell(LEFT_MARGIN + 1);
+        var dtFieldName = datatypeFieldRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetNameStyle = copyCellStyle(targetWorkbook, dtFieldName);
 
-        Cell datatypeDefaultValueCell = datatypeFieldRow.getCell(LEFT_MARGIN + 2);
-        CellStyle dvStyle = datatypeDefaultValueCell.getCellStyle();
+        var datatypeDefaultValueCell = datatypeFieldRow.getCell(LEFT_MARGIN + 2);
+        var dvStyle = datatypeDefaultValueCell.getCellStyle();
         CellStyle targetDefaultValueStyle = copyStyle(targetWorkbook, dvStyle);
         CellStyle dateStyle = copyStyle(targetWorkbook, dvStyle);
         dateStyle.setDataFormat(DATE_FORMAT);
@@ -198,21 +194,21 @@ public class ExcelTemplateUtils {
         CellStyle dateTimeStyle = copyStyle(targetWorkbook, dvStyle);
         dateTimeStyle.setDataFormat(DATE_TIME_FORMAT);
 
-        DataTypeRowStyle rowStyle = new DataTypeTableRowStyleImpl(targetClassStyle,
+        var rowStyle = new DataTypeTableRowStyleImpl(targetClassStyle,
                 targetNameStyle,
                 targetDefaultValueStyle);
 
-        Row lastDataTypeRow = dataTypeSheet.getRow(TOP_MARGIN + 2);
+        var lastDataTypeRow = dataTypeSheet.getRow(TOP_MARGIN + 2);
 
-        Cell dtLastFieldClassStyle = lastDataTypeRow.getCell(LEFT_MARGIN);
+        var dtLastFieldClassStyle = lastDataTypeRow.getCell(LEFT_MARGIN);
         CellStyle targetLastClassStyle = copyCellStyle(targetWorkbook, dtLastFieldClassStyle);
 
-        Cell dtLastFieldNameStyle = lastDataTypeRow.getCell(LEFT_MARGIN + 1);
+        var dtLastFieldNameStyle = lastDataTypeRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetLastFieldNameStyle = copyCellStyle(targetWorkbook, dtLastFieldNameStyle);
 
-        Cell dtLastDefaultValueCell = lastDataTypeRow.getCell(LEFT_MARGIN + 2);
+        var dtLastDefaultValueCell = lastDataTypeRow.getCell(LEFT_MARGIN + 2);
         CellStyle targetLastDefaultValueStyle = copyCellStyle(targetWorkbook, dtLastDefaultValueCell);
-        DataTypeRowStyle lastRowStyle = new DataTypeTableRowStyleImpl(targetLastClassStyle,
+        var lastRowStyle = new DataTypeTableRowStyleImpl(targetLastClassStyle,
                 targetLastFieldNameStyle,
                 targetLastDefaultValueStyle);
 
@@ -228,7 +224,7 @@ public class ExcelTemplateUtils {
     }
 
     private static Font copyFont(Workbook targetWorkbook, Font sourceFont) {
-        Font targetFont = targetWorkbook.createFont();
+        var targetFont = targetWorkbook.createFont();
         targetFont.setBold(sourceFont.getBold());
         targetFont.setFontHeight(sourceFont.getFontHeight());
         targetFont.setColor(sourceFont.getColor());
@@ -241,16 +237,16 @@ public class ExcelTemplateUtils {
         Cell envHeaderCell = extractTableHeader(envSheet);
         CellStyle targetTableHeaderStyle = copyCellStyle(targetWorkbook, envHeaderCell);
 
-        RichTextString envHeaderText = envHeaderCell.getRichStringCellValue();
+        var envHeaderText = envHeaderCell.getRichStringCellValue();
 
-        CellRangeAddress headerRegion = envSheet.getMergedRegion(0);
-        CellRangeSettings headerSettings = new CellRangeSettings(headerRegion);
+        var headerRegion = envSheet.getMergedRegion(0);
+        var headerSettings = new CellRangeSettings(headerRegion);
 
-        Row regularRow = envSheet.getRow(TOP_MARGIN + 1);
+        var regularRow = envSheet.getRow(TOP_MARGIN + 1);
 
         NameValueRowStyle regularRowStyle = extractRowStyle(targetWorkbook, regularRow);
 
-        Row lastRow = envSheet.getRow(TOP_MARGIN + 2);
+        var lastRow = envSheet.getRow(TOP_MARGIN + 2);
 
         NameValueRowStyle lastRowStyle = extractRowStyle(targetWorkbook, lastRow);
 
@@ -265,27 +261,27 @@ public class ExcelTemplateUtils {
         Cell dataTableHeader = extractTableHeader(dataSheet);
         CellStyle targetHeaderStyle = copyCellStyle(targetWorkbook, dataTableHeader);
 
-        CellRangeAddress headerRegion = dataSheet.getMergedRegion(0);
-        CellRangeSettings headerSettings = new CellRangeSettings(headerRegion);
+        var headerRegion = dataSheet.getMergedRegion(0);
+        var headerSettings = new CellRangeSettings(headerRegion);
 
-        XSSFRichTextString headerText = (XSSFRichTextString) dataTableHeader.getRichStringCellValue();
-        String headerTextString = headerText.getString();
-        Font sourceTypeFont = headerText.getFontAtIndex(headerTextString.indexOf(DATA_TABLE_TYPE));
-        Font sourceTableNameFont = headerText.getFontAtIndex(headerTextString.indexOf(DATA_TABLE_NAME));
+        var headerText = (XSSFRichTextString) dataTableHeader.getRichStringCellValue();
+        var headerTextString = headerText.getString();
+        var sourceTypeFont = headerText.getFontAtIndex(headerTextString.indexOf(DATA_TABLE_TYPE));
+        var sourceTableNameFont = headerText.getFontAtIndex(headerTextString.indexOf(DATA_TABLE_NAME));
 
         Font typeFont = copyFont(targetWorkbook, sourceTypeFont);
         Font tableNameFont = copyFont(targetWorkbook, sourceTableNameFont);
 
-        Row subheaderRow = dataSheet.getRow(TOP_MARGIN + 1);
-        Cell subheaderCell = subheaderRow.getCell(LEFT_MARGIN);
+        var subheaderRow = dataSheet.getRow(TOP_MARGIN + 1);
+        var subheaderCell = subheaderRow.getCell(LEFT_MARGIN);
         CellStyle targetSubheaderStyle = copyCellStyle(targetWorkbook, subheaderCell);
 
-        Row columnHeaderRow = dataSheet.getRow(TOP_MARGIN + 2);
-        Cell columnHeaderCell = columnHeaderRow.getCell(LEFT_MARGIN);
+        var columnHeaderRow = dataSheet.getRow(TOP_MARGIN + 2);
+        var columnHeaderCell = columnHeaderRow.getCell(LEFT_MARGIN);
         CellStyle columnHeaderStyle = copyCellStyle(targetWorkbook, columnHeaderCell);
 
-        Row valueRow = dataSheet.getRow(TOP_MARGIN + 3);
-        Cell valueCell = valueRow.getCell(LEFT_MARGIN);
+        var valueRow = dataSheet.getRow(TOP_MARGIN + 3);
+        var valueCell = valueRow.getCell(LEFT_MARGIN);
         CellStyle valueCellStyle = copyCellStyle(targetWorkbook, valueCell);
 
         CellStyle dateFieldStyle = copyStyle(targetWorkbook, valueCellStyle);
@@ -306,22 +302,22 @@ public class ExcelTemplateUtils {
     }
 
     private static NameValueRowStyle extractRowStyle(Workbook targetWorkbook, Row regularRow) {
-        Cell regularNameCell = regularRow.getCell(LEFT_MARGIN);
+        var regularNameCell = regularRow.getCell(LEFT_MARGIN);
         CellStyle targetNameStyle = copyCellStyle(targetWorkbook, regularNameCell);
 
-        Cell regularValueCell = regularRow.getCell(LEFT_MARGIN + 1);
+        var regularValueCell = regularRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetValueStyle = copyCellStyle(targetWorkbook, regularValueCell);
 
         return new NameValueRowStyleImpl(targetNameStyle, targetValueStyle);
     }
 
     private static CellStyle copyCellStyle(Workbook targetWorkbook, Cell sourceCell) {
-        CellStyle classStyle = sourceCell.getCellStyle();
+        var classStyle = sourceCell.getCellStyle();
         return copyStyle(targetWorkbook, classStyle);
     }
 
     private static Cell extractTableHeader(Sheet dataTypeSheet) {
-        Row datatypeHeaderRow = dataTypeSheet.getRow(TOP_MARGIN);
+        var datatypeHeaderRow = dataTypeSheet.getRow(TOP_MARGIN);
         return datatypeHeaderRow.getCell(LEFT_MARGIN);
     }
 

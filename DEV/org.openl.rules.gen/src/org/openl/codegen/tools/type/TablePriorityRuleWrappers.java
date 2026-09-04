@@ -1,26 +1,24 @@
 package org.openl.codegen.tools.type;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.codegen.tools.type.TablePriorityRuleWrapper.JavaClassPriorityRuleWrapper;
 import org.openl.codegen.tools.type.TablePriorityRuleWrapper.SimplePriorityRuleWrapper;
 
+@RequiredArgsConstructor
 public class TablePriorityRuleWrappers {
 
     private static final String PREFIX = "javaclass:";
     private static final String MIN_OPERATION_NAME = "MIN";
     private static final String MAX_OPERATION_NAME = "MAX";
+    @Getter
     private final SimplePriorityRuleWrapper[] simplePriorityRuleWrappers;
+    @Getter
     private final JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers;
-
-    public TablePriorityRuleWrappers(SimplePriorityRuleWrapper[] simplePriorityRuleWrappers,
-                                     JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers) {
-        this.simplePriorityRuleWrappers = simplePriorityRuleWrappers;
-        this.javaClassPriorityRuleWrappers = javaClassPriorityRuleWrappers;
-    }
 
     public TablePriorityRuleWrappers(String[] priorityRules) {
         this(constructSimplePriorityRuleWrappers(priorityRules), constructJavaClassPriorityRuleWrappers(priorityRules));
@@ -29,13 +27,13 @@ public class TablePriorityRuleWrappers {
     private static final Pattern SIMPLE_PRIORITY_RULE_PATTERN = Pattern.compile("([a-zA-Z]+)\\(([a-zA-Z]+)\\)");
 
     private static SimplePriorityRuleWrapper[] constructSimplePriorityRuleWrappers(String[] priorityRules) {
-        List<SimplePriorityRuleWrapper> wrappers = new ArrayList<>();
+        var wrappers = new ArrayList<SimplePriorityRuleWrapper>();
         for (String priorityRule : priorityRules) {
             try {
-                Matcher matcher = SIMPLE_PRIORITY_RULE_PATTERN.matcher(priorityRule);
+                var matcher = SIMPLE_PRIORITY_RULE_PATTERN.matcher(priorityRule);
                 if (matcher.matches()) {
-                    String operationName = matcher.group(1);
-                    String propertyName = matcher.group(2);
+                    var operationName = matcher.group(1);
+                    var propertyName = matcher.group(2);
 
                     if (operationName.equalsIgnoreCase(MIN_OPERATION_NAME)) {
                         wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
@@ -58,7 +56,7 @@ public class TablePriorityRuleWrappers {
     }
 
     private static JavaClassPriorityRuleWrapper[] constructJavaClassPriorityRuleWrappers(String[] priorityRules) {
-        List<JavaClassPriorityRuleWrapper> wrappers = new ArrayList<>();
+        var wrappers = new ArrayList<JavaClassPriorityRuleWrapper>();
         for (String priorityRule : priorityRules) {
             try {
                 if (priorityRule.startsWith(PREFIX)) {
@@ -70,13 +68,5 @@ public class TablePriorityRuleWrappers {
             }
         }
         return wrappers.toArray(new JavaClassPriorityRuleWrapper[0]);
-    }
-
-    public SimplePriorityRuleWrapper[] getSimplePriorityRuleWrappers() {
-        return simplePriorityRuleWrappers;
-    }
-
-    public JavaClassPriorityRuleWrapper[] getJavaClassPriorityRuleWrappers() {
-        return javaClassPriorityRuleWrappers;
     }
 }

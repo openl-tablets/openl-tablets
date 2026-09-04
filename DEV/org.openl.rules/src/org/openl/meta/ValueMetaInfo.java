@@ -1,11 +1,20 @@
 package org.openl.meta;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.source.IOpenSourceCodeModule;
 
 public class ValueMetaInfo implements IMetaInfo {
 
+    @Getter
+    @Setter
     private String shortName;
+    @Getter
+    @Setter
     private String fullName;
+    @Getter
+    @Setter
     private IOpenSourceCodeModule source;
 
     public ValueMetaInfo() {
@@ -35,14 +44,6 @@ public class ValueMetaInfo implements IMetaInfo {
         }
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
     @Override
     public String getSourceUrl() {
         if (source != null) {
@@ -50,21 +51,5 @@ public class ValueMetaInfo implements IMetaInfo {
         } else {
             return null;
         }
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
-    }
-
-    public void setSource(IOpenSourceCodeModule source) {
-        this.source = source;
-    }
-
-    public IOpenSourceCodeModule getSource() {
-        return source;
     }
 }

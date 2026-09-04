@@ -7,6 +7,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -18,8 +21,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.aws.S3Repository;
-import org.openl.studio.common.model.PageResponse;
-import org.openl.studio.repositories.model.ProjectRevision;
 
 class HistoryRepositoryMapperTest {
 
@@ -30,19 +31,50 @@ class HistoryRepositoryMapperTest {
 
         Repository repository = mock(S3Repository.class);
         when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
-        List<FileData> history = List.of(fileData);
+        var history = List.of(fileData);
         when(repository.listHistory(anyString())).thenReturn(history);
 
         PropertyResolver propertyResolver = mock(PropertyResolver.class);
         when(propertyResolver.getProperty("data.format.datetime")).thenReturn("mock.data.format");
 
-        Comments comments = new Comments(propertyResolver, "id");
+        var comments = new Comments(propertyResolver, "id");
 
-        HistoryRepositoryMapper historyRepositoryMapper = new HistoryRepositoryMapper(repository, comments);
+        var historyRepositoryMapper = new HistoryRepositoryMapper(repository, comments);
 
-        PageResponse<ProjectRevision> revisionHistory = historyRepositoryMapper.getProjectHistory("name", "filter", false, Pageable.unpaged());
+        var revisionHistory = historyRepositoryMapper.getProjectHistory("name",
+                "filter",
+                false,
+                Pageable.unpaged());
         assertEquals(history.size(), revisionHistory.getContent().size());
         assertNull(revisionHistory.getTotal());
+    }
+
+    @Test
+    void shouldExposeCreatedAtWithSystemZone() throws IOException {
+        var modifiedAt = Date.from(Instant.parse("2024-01-02T03:04:05Z"));
+        FileData fileData = mock(FileData.class);
+        when(fileData.getAuthor()).thenReturn(null);
+        when(fileData.getModifiedAt()).thenReturn(modifiedAt);
+
+        Repository repository = mock(S3Repository.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
+        when(repository.listHistory(anyString())).thenReturn(List.of(fileData));
+
+        PropertyResolver propertyResolver = mock(PropertyResolver.class);
+        when(propertyResolver.getProperty("data.format.datetime")).thenReturn("mock.data.format");
+
+        var comments = new Comments(propertyResolver, "id");
+
+        var historyRepositoryMapper = new HistoryRepositoryMapper(repository, comments);
+
+        var revisionHistory = historyRepositoryMapper.getProjectHistory("name",
+                "filter",
+                false,
+                Pageable.unpaged());
+        var createdAt = revisionHistory.getContent().iterator().next().createdAt();
+
+        assertEquals(modifiedAt.toInstant(), createdAt.toInstant());
+        assertEquals(ZoneId.systemDefault(), createdAt.getZone());
     }
 
 }

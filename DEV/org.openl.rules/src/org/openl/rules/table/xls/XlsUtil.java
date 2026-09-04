@@ -6,12 +6,12 @@ public final class XlsUtil {
     }
 
     public static String xlsCellPresentation(int x, int y) {
-        StringBuilder buf = new StringBuilder();
-        int div = 'Z' - 'A' + 1;
+        var buf = new StringBuilder();
+        var div = 'Z' - 'A' + 1;
 
-        int xx = x;
+        var xx = x;
         while (xx >= div) {
-            int dd = xx / div;
+            var dd = xx / div;
             buf.append((char) ('A' + dd - 1));
             xx -= dd * div;
         }

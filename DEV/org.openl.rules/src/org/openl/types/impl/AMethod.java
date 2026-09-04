@@ -5,6 +5,9 @@
  */
 package org.openl.types.impl;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.MethodUtil;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
@@ -15,13 +18,11 @@ import org.openl.types.IOpenMethodHeader;
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public abstract class AMethod implements IOpenMethod {
 
+    @Getter
     private final IOpenMethodHeader header;
-
-    public AMethod(IOpenMethodHeader header) {
-        this.header = header;
-    }
 
     @Override
     public IOpenClass getDeclaringClass() {
@@ -31,10 +32,6 @@ public abstract class AMethod implements IOpenMethod {
     @Override
     public String getDisplayName(int mode) {
         return MethodUtil.printSignature(this, mode);
-    }
-
-    public IOpenMethodHeader getHeader() {
-        return header;
     }
 
     @Override

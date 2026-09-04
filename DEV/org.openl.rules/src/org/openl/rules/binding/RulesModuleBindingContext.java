@@ -3,7 +3,6 @@ package org.openl.rules.binding;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -12,6 +11,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.LoggerFactory;
 
 import org.openl.binding.IBindingContext;
@@ -71,6 +73,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     private final PreBinderMethods preBinderMethods = new PreBinderMethods();
 
+    @Getter(AccessLevel.PRIVATE)
+    @Setter
     private boolean ignoreCustomSpreadsheetResultCompilation = false;
 
     public RulesModuleBindingContext(IBindingContext delegate, XlsModuleOpenClass module) {
@@ -83,10 +87,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new ModifyRuntimeContextMethod());
         internalMethods.add(new MessageSourceResourceMethod());
 
-        TablePropertiesOpenField tablePropertiesOpenField = new TablePropertiesOpenField();
+        var tablePropertiesOpenField = new TablePropertiesOpenField();
         internalVariables.put(tablePropertiesOpenField.getName(), tablePropertiesOpenField);
         noStrictInternalVariables.put(tablePropertiesOpenField.getName().toLowerCase(), tablePropertiesOpenField);
-        DispatchingTablePropertiesOpenField dispatchingTablePropertiesOpenField = new DispatchingTablePropertiesOpenField();
+        var dispatchingTablePropertiesOpenField = new DispatchingTablePropertiesOpenField();
         internalVariables.put(dispatchingTablePropertiesOpenField.getName(), dispatchingTablePropertiesOpenField);
         noStrictInternalVariables.put(dispatchingTablePropertiesOpenField.getName().toLowerCase(),
                 dispatchingTablePropertiesOpenField);
@@ -115,7 +119,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField openField = super.findVar(namespace, name, strictMatch);
+        var openField = super.findVar(namespace, name, strictMatch);
         if (openField != null) {
             return openField;
         }
@@ -131,14 +135,14 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IMethodCaller findMethodCaller(String namespace, final String methodName, IOpenClass[] parTypes) {
-        Iterable<IOpenMethod> select = CollectionUtils.findAll(
+        var select = CollectionUtils.findAll(
                 preBinderMethods.values().stream().map(IOpenMethod.class::cast).collect(Collectors.toList()),
                 e -> Objects.equals(methodName, e.getName()));
         IMethodCaller method;
         try {
             method = MethodSearch.findMethod(methodName, parTypes, this, select, true);
             if (method != null) {
-                RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
+                var openMethodBinder = extractOpenMethodPrebinder(method);
                 if (openMethodBinder.isPreBindStarted()) {
                     if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
                         throw new RecursiveSpreadsheetMethodPreBindingException(
@@ -147,7 +151,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     }
                     method = super.findMethodCaller(namespace, methodName, parTypes);
                     if (method == null) {
-                        Iterable<IOpenMethod> internalSelect = CollectionUtils.findAll(internalMethods,
+                        var internalSelect = CollectionUtils.findAll(internalMethods,
                                 e -> Objects.equals(methodName, e.getName()));
                         method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect, false);
                     }
@@ -168,7 +172,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
         method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
-            Iterable<IOpenMethod> internalSelect = CollectionUtils.findAll(internalMethods,
+            var internalSelect = CollectionUtils.findAll(internalMethods,
                     e -> Objects.equals(methodName, e.getName()));
             method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect, false);
         }
@@ -193,16 +197,16 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IOpenClass addType(IOpenClass type) throws DuplicatedTypeException {
-        final String typeName = type.getName();
+        final var typeName = type.getName();
         if (type instanceof ModuleSpecificType moduleRelatedType) {
-            IOpenClass openClass = super.findType(typeName);
+            var openClass = super.findType(typeName);
             if (openClass == moduleRelatedType) {
                 return openClass;
             }
             if (openClass == null) {
                 return moduleRelatedType.convertToModuleTypeAndRegister(getModule());
             } else {
-                ModuleSpecificType existingModuleRelatedOpenClass = (ModuleSpecificType) openClass;
+                var existingModuleRelatedOpenClass = (ModuleSpecificType) openClass;
                 existingModuleRelatedOpenClass.updateWithType(type);
                 return openClass;
             }
@@ -213,7 +217,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     @Override
     public IOpenClass findType(String typeName) {
-        IOpenClass openClass = super.findType(typeName);
+        var openClass = super.findType(typeName);
         // We found some type which can be CSR
         // So there additional action is required for CSR
         if (openClass instanceof SpreadsheetResultOpenClass class1 && class1
@@ -223,7 +227,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             if (!csrOpenClass.isIgnoreCompilation()) {
                 // CSR class name is a conjunction of "SpreadsheetResult" and "MethodName"
                 // If a class is CSR, then extract a method from the class name and process the Spreadsheet method
-                final String methodName = csrOpenClass.getName()
+                final var methodName = csrOpenClass.getName()
                         .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                 preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
                     if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
@@ -240,7 +244,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (openClasses == null || Arrays.stream(openClasses).anyMatch(Objects::isNull)) {
             throw new IllegalArgumentException("openClass cannot be null");
         }
-        CustomSpreadsheetResultOpenClass[] customSpreadsheetResultOpenClasses = Arrays.stream(openClasses)
+        var customSpreadsheetResultOpenClasses = Arrays.stream(openClasses)
                 .filter(e -> e instanceof CustomSpreadsheetResultOpenClass)
                 .map(CustomSpreadsheetResultOpenClass.class::cast)
                 .toArray(CustomSpreadsheetResultOpenClass[]::new);
@@ -255,8 +259,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {
         if (!isExecutionMode() && method.isSpreadsheetWithCustomSpreadsheetResult()) {
-            final String sprTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + method.getName();
-            IOpenClass openClass = findType(sprTypeName);
+            final var sprTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + method.getName();
+            var openClass = findType(sprTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
                 customSpreadsheetResultOpenClass.setMetaInfo(
                         new TableMetaInfo("Spreadsheet", method.getName(), method.getTableSyntaxNode().getUri()));
@@ -271,7 +275,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (openMethodHeader == null) {
             return;
         }
-        RecursiveOpenMethodPreBinder openMethodBinder = preBinderMethods.get(openMethodHeader);
+        var openMethodBinder = preBinderMethods.get(openMethodHeader);
         if (openMethodBinder == null) {
             // No need to compile, because it is already compiled.
             return;
@@ -287,16 +291,16 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             openMethodBinders = openMethodBinders.stream()
                     .filter(RecursiveOpenMethodPreBinder::isSpreadsheetWithCustomSpreadsheetResult)
                     .collect(Collectors.toList());
-            final String customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
+            final var customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
                     .getName();
-            IOpenClass openClass = super.findType(customSpreadsheetResultTypeName);
+            var openClass = super.findType(customSpreadsheetResultTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass csroc) {
                 csroc.setIgnoreCompilation(true);
             } else {
                 throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(customSpreadsheetResultTypeName));
             }
         } else {
-            IOpenClass t = openMethodBinder.getType();
+            var t = openMethodBinder.getType();
             if (t != null) {
                 while (t.isArray()) {
                     t = t.getComponentClass();
@@ -306,7 +310,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     findType(t.getName());
                 }
             }
-            openMethodBinders = Collections.singletonList(openMethodBinder);
+            openMethodBinders = List.of(openMethodBinder);
         }
         Optional<RecursiveOpenMethodPreBinder> prebindingOpenMethodPreBinder = openMethodBinders.stream()
                 .filter(RecursiveOpenMethodPreBinder::isPreBindStarted)
@@ -333,12 +337,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         @Override
         public Object get(Object target, IRuntimeEnv env) {
             if (env instanceof SimpleRuntimeEnv simpleRuntimeEnv) {
-                IOpenMethod method = simpleRuntimeEnv.getMethodWrapper()
+                var method = simpleRuntimeEnv.getMethodWrapper()
                         .getTopOpenClassMethod(simpleRuntimeEnv.getTopClass());
                 if (method instanceof ExecutableRulesMethod executableRulesMethod) {
                     return new TableProperties[]{new TableProperties(executableRulesMethod.getMethodProperties())};
                 } else if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
-                    List<TableProperties> tableProperties = new ArrayList<>();
+                    var tableProperties = new ArrayList<TableProperties>();
                     for (IOpenMethod method1 : openMethodDispatcher.getCandidates()) {
                         if (method1 instanceof ExecutableRulesMethod rulesMethod) {
                             tableProperties
@@ -422,15 +426,15 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public Object get(Object target, IRuntimeEnv env) {
             if (env instanceof SimpleRuntimeEnv simpleRuntimeEnv) {
                 if (simpleRuntimeEnv.getMethodWrapper().getDelegate() instanceof ExecutableRulesMethod) {
-                    ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) simpleRuntimeEnv
+                    var executableRulesMethod = (ExecutableRulesMethod) simpleRuntimeEnv
                             .getMethodWrapper()
                             .getDelegate();
                     return new TableProperties(executableRulesMethod.getMethodProperties());
                 } else if (simpleRuntimeEnv.getMethodWrapper().getDelegate() instanceof OpenMethodDispatcher) {
-                    OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) simpleRuntimeEnv
+                    var openMethodDispatcher = (OpenMethodDispatcher) simpleRuntimeEnv
                             .getMethodWrapper()
                             .getDelegate();
-                    IOpenMethod method = openMethodDispatcher.findMatchingMethod(env);
+                    var method = openMethodDispatcher.findMatchingMethod(env);
                     if (method instanceof ExecutableRulesMethod executableRulesMethod) {
                         return new TableProperties(executableRulesMethod.getMethodProperties());
                     }
@@ -509,7 +513,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            IRulesRuntimeContext context = (IRulesRuntimeContext) env.getContext();
+            var context = (IRulesRuntimeContext) env.getContext();
             try {
                 return context.clone();
             } catch (CloneNotSupportedException e) {
@@ -685,7 +689,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
-                IRulesRuntimeContext runtimeContext = (IRulesRuntimeContext) params[0];
+                var runtimeContext = (IRulesRuntimeContext) params[0];
                 env.pushContext(runtimeContext);
             } else {
                 LoggerFactory.getLogger(RulesModuleBindingContext.class)
@@ -749,7 +753,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             if (env.isContextManagingSupported()) {
                 try {
-                    IRulesRuntimeContext runtimeContext = ((IRulesRuntimeContext) env.getContext()).clone();
+                    var runtimeContext = ((IRulesRuntimeContext) env.getContext()).clone();
                     runtimeContext.setValue((String) params[0], params[1]);
                     env.pushContext(runtimeContext);
                 } catch (CloneNotSupportedException ignored) {
@@ -806,14 +810,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         public boolean isConstructor() {
             return false;
         }
-    }
-
-    private boolean isIgnoreCustomSpreadsheetResultCompilation() {
-        return ignoreCustomSpreadsheetResultCompilation;
-    }
-
-    public void setIgnoreCustomSpreadsheetResultCompilation(boolean ignoreCustomSpreadsheetResultCompilation) {
-        this.ignoreCustomSpreadsheetResultCompilation = ignoreCustomSpreadsheetResultCompilation;
     }
 
     private final IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();

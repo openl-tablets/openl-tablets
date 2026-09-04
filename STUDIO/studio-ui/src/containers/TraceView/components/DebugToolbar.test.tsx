@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useTraceStore } from 'store/traceStore'
 import DebugToolbar from 'containers/TraceView/components/DebugToolbar'
@@ -37,7 +37,6 @@ const stubActions = () => {
         stepOut: vi.fn().mockResolvedValue(undefined),
         resume: vi.fn().mockResolvedValue(undefined),
         pause: vi.fn().mockResolvedValue(undefined),
-        terminate: vi.fn().mockResolvedValue(undefined),
         rerun: vi.fn().mockResolvedValue(undefined),
         setProfiling: vi.fn().mockResolvedValue(undefined),
     }
@@ -60,21 +59,46 @@ describe('DebugToolbar', () => {
         expect(screen.getByTestId('debug-step-into')).toBeEnabled()
         expect(screen.getByTestId('debug-step-over')).toBeEnabled()
         expect(screen.getByTestId('debug-step-out')).toBeEnabled()
-        expect(screen.getByTestId('debug-stop')).toBeEnabled()
-        // Pause only makes sense while the worker is actually running.
-        expect(screen.getByTestId('debug-pause')).toBeDisabled()
+        // Resume and pause share one slot; pause only appears while the worker is actually running.
+        expect(screen.queryByTestId('debug-pause')).not.toBeInTheDocument()
     })
 
-    it('while running, offers pause and stop but disables resume and stepping', () => {
+    it('while running, swaps resume for pause and disables stepping', () => {
         useTraceStore.setState({ status: 'running', loading: false })
         render(<DebugToolbar />)
 
         expect(screen.getByTestId('debug-pause')).toBeEnabled()
-        expect(screen.getByTestId('debug-stop')).toBeEnabled()
-        expect(screen.getByTestId('debug-resume')).toBeDisabled()
+        expect(screen.queryByTestId('debug-resume')).not.toBeInTheDocument()
         expect(screen.getByTestId('debug-step-into')).toBeDisabled()
         expect(screen.getByTestId('debug-step-over')).toBeDisabled()
         expect(screen.getByTestId('debug-step-out')).toBeDisabled()
+    })
+
+    it('shows pause disabled while the run is still starting (pending)', () => {
+        useTraceStore.setState({ status: 'pending', loading: false })
+        render(<DebugToolbar />)
+
+        // The pause slot is present during start-up, but nothing is running yet, so it cannot be clicked.
+        expect(screen.getByTestId('debug-pause')).toBeDisabled()
+        expect(screen.queryByTestId('debug-resume')).not.toBeInTheDocument()
+    })
+
+    it('ignores a second pause click while the first request is still in flight', async () => {
+        const actions = stubActions()
+        // Hold the pause request open so the second click lands before the first settles.
+        let releasePause: () => void = () => {}
+        actions.pause.mockReturnValue(new Promise<void>((resolve) => { releasePause = resolve }))
+        useTraceStore.setState({ status: 'running', loading: false })
+        render(<DebugToolbar />)
+
+        const pauseButton = screen.getByTestId('debug-pause')
+        await userEvent.click(pauseButton)
+        // The button disables on the first click, so the second click is a no-op.
+        await userEvent.click(pauseButton)
+        expect(actions.pause).toHaveBeenCalledTimes(1)
+
+        releasePause()
+        await waitFor(() => expect(pauseButton).toBeEnabled())
     })
 
     it('disables every control on a terminal (completed) session, except rerun', () => {
@@ -82,9 +106,10 @@ describe('DebugToolbar', () => {
         render(<DebugToolbar />)
 
         expect(screen.getByTestId('debug-resume')).toBeDisabled()
-        expect(screen.getByTestId('debug-pause')).toBeDisabled()
+        expect(screen.queryByTestId('debug-pause')).not.toBeInTheDocument()
         expect(screen.getByTestId('debug-step-into')).toBeDisabled()
-        expect(screen.getByTestId('debug-stop')).toBeDisabled()
+        // There is no stop button — closing the window terminates the session.
+        expect(screen.queryByTestId('debug-stop')).not.toBeInTheDocument()
         // Rerun stays available so the user can start over from a finished run.
         expect(screen.getByTestId('debug-rerun')).toBeEnabled()
     })
@@ -115,9 +140,6 @@ describe('DebugToolbar', () => {
         await userEvent.click(screen.getByTestId('debug-step-out'))
         expect(actions.stepOut).toHaveBeenCalledTimes(1)
 
-        await userEvent.click(screen.getByTestId('debug-stop'))
-        expect(actions.terminate).toHaveBeenCalledTimes(1)
-
         await userEvent.click(screen.getByTestId('debug-rerun'))
         expect(actions.rerun).toHaveBeenCalledTimes(1)
     })
@@ -129,17 +151,5 @@ describe('DebugToolbar', () => {
 
         await userEvent.click(screen.getByTestId('debug-pause'))
         expect(actions.pause).toHaveBeenCalledTimes(1)
-    })
-
-    it('reflects profiling state and toggles it through the store', async () => {
-        const actions = stubActions()
-        useTraceStore.setState({ status: 'suspended', loading: false, profiling: false })
-        render(<DebugToolbar />)
-
-        const toggle = screen.getByTestId('debug-profiling')
-        expect(toggle).not.toBeChecked()
-
-        await userEvent.click(toggle)
-        expect(actions.setProfiling).toHaveBeenCalledWith(true)
     })
 })

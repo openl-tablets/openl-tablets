@@ -1,10 +1,21 @@
 package org.openl.rules.table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class GridRegion implements IGridRegion {
 
+    @Getter
+    @Setter
     private int top;
+    @Getter
+    @Setter
     private int left;
+    @Getter
+    @Setter
     private int bottom;
+    @Getter
+    @Setter
     private int right;
 
     public GridRegion(IGridRegion g) {
@@ -22,49 +33,13 @@ public class GridRegion implements IGridRegion {
     }
 
     @Override
-    public int getBottom() {
-        return bottom;
-    }
-
-    @Override
-    public int getLeft() {
-        return left;
-    }
-
-    @Override
-    public int getRight() {
-        return right;
-    }
-
-    @Override
-    public int getTop() {
-        return top;
-    }
-
-    public void setBottom(int bottom) {
-        this.bottom = bottom;
-    }
-
-    public void setLeft(int left) {
-        this.left = left;
-    }
-
-    public void setRight(int right) {
-        this.right = right;
-    }
-
-    public void setTop(int top) {
-        this.top = top;
-    }
-
-    @Override
     public String toString() {
         return "[" + getTop() + "," + getLeft() + "," + getBottom() + "," + getRight() + "]";
     }
 
     @Override
     public int hashCode() {
-        int result = bottom;
+        var result = bottom;
         result = 31 * result + left;
         result = 31 * result + right;
         result = 31 * result + top;
@@ -82,7 +57,7 @@ public class GridRegion implements IGridRegion {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        GridRegion other = (GridRegion) obj;
+        var other = (GridRegion) obj;
         if (bottom != other.bottom) {
             return false;
         }

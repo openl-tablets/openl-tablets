@@ -5,27 +5,33 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
+import java.util.function.Predicate;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.xml.sax.InputSource;
 
 import org.openl.rules.project.abstraction.ArtefactProperties;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.BranchStatus;
+import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
@@ -47,12 +53,23 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class MappedRepository implements BranchRepository, Closeable, FolderMapper {
     private static final String SEPARATOR = ":";
+    private static final int TREE_REVISION_CACHE_CAPACITY = 2_048;
+    private static final int DESCRIPTOR_REVISION_CACHE_CAPACITY = 65_536;
+    private static final int FOLDER_HASH_CACHE_CAPACITY = 4_096;
 
+    @Getter
+    @Setter
     private Repository delegate;
 
     private final AtomicReference<ProjectIndexCache> indexCache = new AtomicReference<>();
     private final ReadWriteLock indexLock = new ReentrantReadWriteLock();
+    private BoundedCache<String, ProjectIndex> indexesByTreeRevision =
+            new BoundedCache<>(TREE_REVISION_CACHE_CAPACITY);
+    private BoundedCache<String, Optional<String>> projectNamesByDescriptorRevision =
+            new BoundedCache<>(DESCRIPTOR_REVISION_CACHE_CAPACITY);
+    private Map<String, String> hashesByPath = new ConcurrentHashMap<>();
 
+    @Setter(AccessLevel.PRIVATE)
     private String baseFolder;
 
     public static Repository create(Repository delegate,
@@ -75,23 +92,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private MappedRepository() {
-    }
-
-    @Override
-    public Repository getDelegate() {
-        return delegate;
-    }
-
-    public void setDelegate(Repository delegate) {
-        this.delegate = delegate;
-    }
-
-    private void setBaseFolder(String baseFolder) {
-        this.baseFolder = baseFolder;
-    }
-
-    private void setProjectIndex(ProjectIndex projectIndex, long lastUpdateTime) {
-        this.indexCache.set(new ProjectIndexCache(projectIndex, lastUpdateTime));
     }
 
     @Override
@@ -126,11 +126,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
 
-        List<FileData> internal = new ArrayList<>();
+        var internal = new ArrayList<FileData>();
         for (ProjectInfo project : mapping.getProjects()) {
-            String external = baseFolder + getMappedName(project);
+            var external = baseFolder + getMappedName(project);
             if (external.startsWith(path)) {
                 internal.addAll(delegate.list(project.getPath() + "/"));
             } else if (path.startsWith(external + "/")) {
@@ -143,40 +143,39 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public FileData check(String name) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
-        FileData check = delegate.check(toInternal(mapping, name));
-        FileData external = toExternal(mapping, check);
-        return external == null || external.isDeleted() ? null : external;
+        var mapping = getUpToDateMapping(true);
+        var check = delegate.check(toInternal(mapping, name));
+        return toExternal(mapping, check);
     }
 
     @Override
     public FileItem read(String name) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
         return toExternal(mapping, delegate.read(toInternal(mapping, name)));
     }
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
         return toExternal(mapping, delegate.save(toInternal(mapping, data), stream));
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
-        List<FileItem> fileItemsInternal = new ArrayList<>(fileItems.size());
+        var mapping = getUpToDateMapping(true);
+        var fileItemsInternal = new ArrayList<FileItem>(fileItems.size());
         for (FileItem fi : fileItems) {
             fileItemsInternal.add(new FileItem(toInternal(mapping, fi.getData()), fi.getStream()));
         }
-        List<FileData> result = delegate.save(fileItemsInternal);
+        var result = delegate.save(fileItemsInternal);
 
         return toExternal(mapping, result);
     }
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
-        boolean deleted = delegate.delete(toInternal(mapping, data));
+        var mapping = getUpToDateMapping(true);
+        var deleted = delegate.delete(toInternal(mapping, data));
         if (deleted) {
             removeMapping(data.getName());
         }
@@ -198,11 +197,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             delegate.setListener(() -> {
                 indexLock.writeLock().lock();
                 try {
-                    ProjectIndex working = getUpToDateMapping(false);
-                    boolean modified = syncProjectIndex(delegate, working);
-                    if (modified) {
-                        indexCache.set(new ProjectIndexCache(working));
-                    }
+                    var updatedIndex = readExternalToInternalMap(delegate);
+                    indexCache.set(new ProjectIndexCache(updatedIndex));
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
                 } finally {
@@ -216,7 +212,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public List<FileData> listHistory(String name) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
         return toExternal(mapping, delegate.listHistory(toInternal(mapping, name)));
     }
 
@@ -225,7 +221,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                                       String globalFilter,
                                       boolean techRevs,
                                       Pageable pageable) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
         return toExternal(mapping,
                 ((SearchableRepository) delegate)
                         .listHistory(toInternal(mapping, name), globalFilter, techRevs, pageable));
@@ -233,13 +229,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
         return toExternal(mapping, delegate.checkHistory(toInternal(mapping, name), version));
     }
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
         return toExternal(mapping, delegate.readHistory(toInternal(mapping, name), version));
     }
 
@@ -266,15 +262,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public List<FileData> listFolders(String path) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
 
-        List<FileData> internal = new ArrayList<>();
+        var internal = new ArrayList<FileData>();
         for (ProjectInfo project : mapping.getProjects()) {
-            String external = baseFolder + getMappedName(project);
+            var external = baseFolder + getMappedName(project);
             if (external.startsWith(path) && !external.substring(path.length()).contains("/")) {
                 // "external" is direct child of "path"
-                FileData data = delegate.check(project.getPath());
-                if (data == null || data.isDeleted()) {
+                var data = delegate.check(project.getPath());
+                if (data == null) {
                     // It can be intermediate state: project is added to index, but not still committed.
                     // Or project could be removed from repository, but index is not updated. Will be updated later.
                     log.debug("Project {} is not found.", project.getPath());
@@ -289,7 +285,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
         return toExternal(mapping, delegate.listFiles(toInternal(mapping, path), version));
     }
 
@@ -330,6 +326,21 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
+    public Map<String, BranchStatus> getBranchStatuses(Collection<String> branches) throws IOException {
+        return ((BranchRepository) delegate).getBranchStatuses(branches);
+    }
+
+    @Override
+    public Map<String, BranchTreeRevision> getBranchTreeRevisions(Collection<String> branches,
+                                                                  String path) throws IOException {
+        var internalPath = path;
+        if (!path.isEmpty()) {
+            internalPath = toInternal(getUpToDateMapping(true), path);
+        }
+        return ((BranchRepository) delegate).getBranchTreeRevisions(branches, internalPath);
+    }
+
+    @Override
     public void pull(UserInfo author) throws IOException {
         ((BranchRepository) delegate).pull(author);
     }
@@ -345,64 +356,33 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
-    public void createBranch(String projectPath, String branch) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
-        ((BranchRepository) delegate).createBranch(toInternal(mapping, projectPath), branch);
+    public void createRepositoryBranch(String branch, @Nullable String startPoint) throws IOException {
+        ((BranchRepository) delegate).createRepositoryBranch(branch, startPoint);
     }
 
     @Override
-    public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
-        ((BranchRepository) delegate).createBranch(toInternal(mapping, projectPath), branch, startPoint);
+    public void deleteRepositoryBranch(String branch) throws IOException {
+        ((BranchRepository) delegate).deleteRepositoryBranch(branch);
     }
 
     @Override
-    public void deleteBranch(String projectPath, String branch) throws IOException {
-        ProjectIndex mapping = getUpToDateMapping(true);
-        ((BranchRepository) delegate).deleteBranch(toInternal(mapping, projectPath), branch);
-    }
-
-    @Override
-    public List<String> getBranches(String projectPath) throws IOException {
-        String internalPath = null;
-        if (projectPath != null) {
-            ProjectIndex mapping = getUpToDateMapping(true);
-            internalPath = toInternal(mapping, projectPath);
-        }
-        return ((BranchRepository) delegate).getBranches(internalPath);
+    public List<String> listBranches() throws IOException {
+        return ((BranchRepository) delegate).listBranches();
     }
 
     @Override
     public BranchRepository forBranch(String branch) throws IOException {
-        BranchRepository delegateForBranch = ((BranchRepository) delegate).forBranch(branch);
+        var delegateForBranch = ((BranchRepository) delegate).forBranch(branch);
 
-        MappedRepository mappedRepository = null;
-        try {
-            mappedRepository = new MappedRepository();
-            mappedRepository.setDelegate(delegateForBranch);
-            mappedRepository.setBaseFolder(baseFolder);
-            indexLock.readLock().lock();
-            try {
-                var projectIndex = indexCache.get();
-                if (projectIndex != null) {
-                    mappedRepository.setProjectIndex(projectIndex.getCopy(), projectIndex.lastUpdateTime());
-                }
-            } finally {
-                indexLock.readLock().unlock();
-            }
-            mappedRepository.initialize();
-        } catch (Exception e) {
-            // If exception is thrown, we must close repository in this method and rethrow exception.
-            // If no exception, repository will be closed later.
-            if (mappedRepository != null) {
-                // We don't close delegate in forBranch() method for now, because it can break main branch repository
-                // (for delegate).
-                mappedRepository.setDelegate(null);
-                IOUtils.closeQuietly(mappedRepository);
-            }
-            throw e;
-        }
-
+        var mappedRepository = new MappedRepository();
+        mappedRepository.setDelegate(delegateForBranch);
+        mappedRepository.setBaseFolder(baseFolder);
+        // Share the caches so a lazy refresh can reuse a mapping already built for the same tree.
+        mappedRepository.indexesByTreeRevision = indexesByTreeRevision;
+        mappedRepository.projectNamesByDescriptorRevision = projectNamesByDescriptorRevision;
+        mappedRepository.hashesByPath = hashesByPath;
+        // The project mapping is built lazily on first access (see getUpToDateMapping), so selecting a branch
+        // stays cheap. Eagerly scanning every branch on startup froze repositories that hold many branches.
         return mappedRepository;
     }
 
@@ -414,18 +394,18 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                 internal = internal.substring(0, internal.length() - 1);
             }
 
-            String fullName = internal + "/rules.xml";
-            FileData fileData = delegate.check(fullName);
+            var fullName = internal + "/rules.xml";
+            var fileData = delegate.check(fullName);
             ProjectInfo project;
             if (fileData != null) {
-                FileItem descriptorItem = delegate.read(fullName);
-                try (InputStream is = descriptorItem.getStream()) {
+                var descriptorItem = delegate.read(fullName);
+                try (var is = descriptorItem.getStream()) {
                     project = new ProjectInfo(getProjectName(is, internal), internal);
                 }
             } else {
                 project = new ProjectInfo(internal.substring(internal.lastIndexOf('/') + 1), internal);
             }
-            ProjectIndex externalToInternal = getUpToDateMapping(false);
+            var externalToInternal = getUpToDateMapping(false);
             List<ProjectInfo> projectsWithSameName = externalToInternal.getProjects()
                     .stream()
                     .filter(p -> p.getName().equals(project.getName()))
@@ -447,9 +427,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     public void removeMapping(String external) throws IOException {
         indexLock.writeLock().lock();
         try {
-            ProjectIndex externalToInternal = getUpToDateMapping(false);
-            externalToInternal.getProjects()
-                    .removeIf(projectInfo -> external.equals(baseFolder + getMappedName(projectInfo)));
+            var externalToInternal = getUpToDateMapping(false);
+            Predicate<ProjectInfo> mapped = projectInfo -> external.equals(baseFolder + getMappedName(projectInfo));
+            var projects = externalToInternal.getProjects();
+            var discardedFolders = projects.stream().filter(mapped).map(ProjectInfo::getPath).toList();
+            projects.removeIf(mapped);
+            // Last, because naming the projects that stay is what tells them apart, and that names this one too.
+            discardedFolders.forEach(hashesByPath::remove);
 
             indexCache.set(new ProjectIndexCache(externalToInternal));
         } finally {
@@ -458,9 +442,9 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private Optional<ProjectInfo> findProject(ProjectIndex projectIndex, FileData data) {
-        FileMappingData mappingData = data.getAdditionalData(FileMappingData.class);
+        var mappingData = data.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
-            String internalPath = mappingData.getInternalPath();
+            var internalPath = mappingData.getInternalPath();
             return projectIndex.getProjects().stream().filter(p -> internalPath.equals(p.getPath())).findFirst();
         } else {
             String name = data.getName().startsWith(baseFolder) ? data.getName().substring(baseFolder.length())
@@ -479,34 +463,44 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * @return a copy of the current project index
      */
     private ProjectIndex getUpToDateMapping(boolean withLock) {
-        var projectIndex = indexCache.get();
-        if (projectIndex == null || projectIndex.isExpired()) {
-            if (withLock) {
-                indexLock.writeLock().lock();
-                try {
-                    projectIndex = indexCache.get();
-                    if (projectIndex == null || projectIndex.isExpired()) {
-                        refreshMapping();
-                    }
-                } finally {
-                    indexLock.writeLock().unlock();
-                }
-            } else {
+        if (!withLock) {
+            var projectIndex = indexCache.get();
+            if (projectIndex == null || projectIndex.isExpired()) {
                 refreshMapping();
             }
-        }
-
-        // Use read lock for reading the current index
-        if (withLock) {
-            indexLock.readLock().lock();
-            try {
-                return indexCache.get().getCopy();
-            } finally {
-                indexLock.readLock().unlock();
-            }
-        } else {
             return indexCache.get().getCopy();
         }
+
+        refreshExpiredMapping();
+        // Use read lock for reading the current index
+        indexLock.readLock().lock();
+        try {
+            return indexCache.get().getCopy();
+        } finally {
+            indexLock.readLock().unlock();
+        }
+    }
+
+    /** Rebuilds the mapping when it has expired. */
+    private void refreshExpiredMapping() {
+        var projectIndex = indexCache.get();
+        if (projectIndex == null || projectIndex.isExpired()) {
+            indexLock.writeLock().lock();
+            try {
+                projectIndex = indexCache.get();
+                if (projectIndex == null || projectIndex.isExpired()) {
+                    refreshMapping();
+                }
+            } finally {
+                indexLock.writeLock().unlock();
+            }
+        }
+    }
+
+    /** The mapping in use, shared with the caller, which must not change it. */
+    private ProjectIndex currentMapping() {
+        refreshExpiredMapping();
+        return indexCache.get().index();
     }
 
     private Iterable<FileItem> toInternal(final ProjectIndex mapping,
@@ -522,13 +516,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
             @Override
             public FileItem next() {
-                FileItem external = delegate.next();
-                FileData data = external.getData();
+                var external = delegate.next();
+                var data = external.getData();
                 String name;
                 if (folderData != null && folderData.getAdditionalData(FileMappingData.class) != null) {
-                    String path = data.getName();
+                    var path = data.getName();
                     if (path.startsWith(folderData.getName())) {
-                        String folderPath = folderData.getAdditionalData(FileMappingData.class).getInternalPath();
+                        var folderPath = folderData.getAdditionalData(FileMappingData.class).getInternalPath();
                         path = folderPath + path.substring(folderData.getName().length());
                     }
                     name = path;
@@ -547,7 +541,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private FileData toInternal(final ProjectIndex externalToInternal, FileData data) {
-        FileData copy = new FileData();
+        var copy = new FileData();
         copy.setVersion(data.getVersion());
         copy.setAuthor(data.getAuthor());
         copy.setComment(data.getComment());
@@ -567,7 +561,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             return null;
         }
         for (ProjectInfo project : externalToInternal.getProjects()) {
-            String externalBase = baseFolder + getMappedName(project);
+            var externalBase = baseFolder + getMappedName(project);
             if (externalPath.equals(externalBase) || externalPath.startsWith(externalBase + "/")) {
                 return project.getPath() + externalPath.substring(externalBase.length());
             }
@@ -578,7 +572,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private String toInternalPath(ProjectIndex externalToInternal, FileData data) {
-        FileMappingData mappingData = data.getAdditionalData(FileMappingData.class);
+        var mappingData = data.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
             return mappingData.getInternalPath();
         }
@@ -587,7 +581,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private List<FileData> toExternal(ProjectIndex externalToInternal, List<FileData> internal) {
-        List<FileData> external = new ArrayList<>(internal.size());
+        var external = new ArrayList<FileData>(internal.size());
 
         for (FileData data : internal) {
             external.add(toExternal(externalToInternal, data));
@@ -608,7 +602,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             return null;
         }
 
-        String name = toExternal(externalToInternal, data.getName());
+        var name = toExternal(externalToInternal, data.getName());
         data.addAdditionalData(new FileMappingData(name, data.getName()));
         data.setName(name);
 
@@ -617,7 +611,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     private String toExternal(ProjectIndex externalToInternal, String internalPath) {
         for (ProjectInfo project : externalToInternal.getProjects()) {
-            String internalBase = project.getPath();
+            var internalBase = project.getPath();
             if (internalBase.endsWith("/")) {
                 internalBase = internalBase.substring(0, internalBase.length() - 1);
             }
@@ -646,122 +640,60 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * Generate project index by scanning the repository.
      * The index is maintained only in memory and regenerated when needed.
      *
-     * @param delegate   original repository
-     * @param baseFolder virtual base folder. OpenL Studio will think that projects can be found in this folder.
+     * @param delegate original repository
      * @return generated mapping
      * @throws IOException if it was any error during operation
      */
-    private ProjectIndex readExternalToInternalMap(Repository delegate,
-                                                   String baseFolder) throws IOException {
-        baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
-        return generateExternalToInternalMap(delegate, baseFolder);
-    }
-
-    private boolean syncProjectIndex(Repository delegate, ProjectIndex projectIndex) throws IOException {
-        boolean modified = false;
-        for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext(); ) {
-            ProjectInfo project = iterator.next();
-
-            FileData projectData = delegate.check(project.getPath());
-            if (projectData == null || projectData.isDeleted()) {
-                // Folder was removed.
-                iterator.remove();
-                modified = true;
-                log.info("Sync project index: remove project '{}' with path '{}'",
-                        project.getName(),
-                        project.getPath());
-            } else {
-                Date modifiedAt = project.getModifiedAt();
-                String fullName = project.getPath() + "/rules.xml";
-                FileData fileData = delegate.check(fullName);
-
-                if (fileData != null) {
-                    if (modifiedAt == null || !modifiedAt.equals(fileData.getModifiedAt())) {
-                        // rules.xml was modified. Need to update modification date and project name.
-                        project.setModifiedAt(fileData.getModifiedAt());
-
-                        FileItem descriptorItem = delegate.read(fullName);
-                        try (InputStream is = descriptorItem.getStream()) {
-                            project.setName(getProjectName(is, project.getPath()));
-                        }
-                        log.info("Sync project index: update name to '{}' the project in path '{}'",
-                                project.getName(),
-                                project.getPath());
-                        modified = true;
-                    }
-                } else {
-                    // If we don't have rules.xml, the project name will be folder name.
-                    String path = project.getPath();
-                    String folderName = path.substring(path.lastIndexOf('/') + 1);
-                    if (modifiedAt != null) {
-                        // rules.xml was exist before but now it's removed
-                        project.setModifiedAt(null);
-                        project.setName(folderName);
-                        modified = true;
-                        log.info("Sync project index: update name to '{}' the project in path '{}'",
-                                project.getName(),
-                                project.getPath());
-                    } else {
-                        if (!project.getName().equals(folderName)) {
-                            project.setName(folderName);
-                            modified = true;
-                            log.info("Sync project index: update name to '{}' the project in path {}",
-                                    project.getName(),
-                                    project.getPath());
-                        }
-                    }
-                }
+    private ProjectIndex readExternalToInternalMap(Repository delegate) throws IOException {
+        var treeRevisionBefore = getRootTreeRevision(delegate);
+        if (treeRevisionBefore != null) {
+            var cached = indexesByTreeRevision.get(treeRevisionBefore);
+            if (cached != null) {
+                return cached.copy();
             }
         }
-        return modified;
+
+        var index = generateExternalToInternalMap(delegate);
+        var treeRevisionAfter = getRootTreeRevision(delegate);
+        if (treeRevisionBefore != null && treeRevisionBefore.equals(treeRevisionAfter)) {
+            indexesByTreeRevision.putIfAbsent(treeRevisionBefore, index.copy());
+        }
+        return index;
     }
 
-    private String createUniquePath(ProjectIndex externalToInternal, String externalPath) {
-        // If occasionally such project name exists already, add some suffix to it.
-        String projectName = externalPath.substring(baseFolder.length());
-        List<ProjectInfo> projects = externalToInternal.getProjects();
-        if (projects.stream().anyMatch(p -> projectName.equals(p.getName()))) {
-            int i = 1;
-            String copy = externalPath + "." + i;
-            boolean found = false;
-            do {
-                for (ProjectInfo p : projects) {
-                    if (p.getName().equals(copy.substring(baseFolder.length()))) {
-                        found = true;
-                        break;
-                    }
-                }
-                copy = externalPath + "." + (++i);
-            } while (found);
-            externalPath = copy;
+    private static @Nullable String getRootTreeRevision(Repository repository) throws IOException {
+        if (!(repository instanceof BranchRepository branchRepository) || !repository.supports().branches()) {
+            return null;
         }
-
-        return externalPath;
+        var branch = branchRepository.getBranch();
+        if (StringUtils.isBlank(branch)) {
+            return null;
+        }
+        var revision = branchRepository.getBranchTreeRevisions(List.of(branch), "").get(branch);
+        return revision == null ? null : revision.treeRevision();
     }
 
     /**
      * Detect existing projects and Deploy Configurations based on rules.xml and
-     * {@link ArtefactProperties#DESCRIPTORS_FILE}. If there are several projects with same name, suffix will be added
-     * to them
+     * {@link ArtefactProperties#DESCRIPTORS_FILE}.
      *
-     * @param delegate   repository to detect projects {@link ArtefactProperties#DESCRIPTORS_FILE}
-     * @param baseFolder virtual base folder. OpenL Studio will think that projects can be found in this folder.
+     * <p>Every project keeps the name its descriptor declares. Several folders may declare the same name; they stay
+     * separate projects, told apart by the folder they live in.
+     *
+     * @param delegate repository to detect projects {@link ArtefactProperties#DESCRIPTORS_FILE}
      * @return generated mapping
      */
-    private ProjectIndex generateExternalToInternalMap(Repository delegate, String baseFolder) throws IOException {
-        ProjectIndex externalToInternal = new ProjectIndex();
-        Queue<FileData> folderQueue = new ArrayDeque<>(delegate.listFolders(""));
+    private ProjectIndex generateExternalToInternalMap(Repository delegate) throws IOException {
+        var externalToInternal = new ProjectIndex();
+        var folderQueue = new ArrayDeque<FileData>(delegate.listFolders(""));
 
         while (!folderQueue.isEmpty()) {
-            FileData folderData = folderQueue.poll();
-            if (folderData.isDeleted()) {
-                continue;
-            }
-            String folderPath = folderData.getName();
+            var folderData = folderQueue.poll();
+            var folderPath = folderData.getName();
 
-            ProjectInfo projectInfo = tryResolveProjectFromDescriptor(externalToInternal, folderPath, delegate, baseFolder);
+            var projectInfo = tryResolveProjectFromDescriptor(folderPath, delegate);
             if (projectInfo == null) {
-                projectInfo = tryResolveProjectFromExcelFiles(externalToInternal, folderPath, delegate, baseFolder);
+                projectInfo = tryResolveProjectFromExcelFiles(folderPath, delegate);
             }
 
             if (projectInfo == null) {
@@ -780,32 +712,33 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      *
      * @param folderPath the folder path to check
      * @param delegate   the repository
-     * @param baseFolder the base folder for external paths
      * @return the resolved ProjectInfo, or null if no project was resolved
      * @throws IOException if an error occurs while reading the descriptor
      */
-    private ProjectInfo tryResolveProjectFromDescriptor(ProjectIndex externalToInternal,
-                                                        String folderPath,
-                                                        Repository delegate,
-                                                        String baseFolder) throws IOException {
-        String descriptorPath = folderPath + "/rules.xml";
-        FileData rulesDescriptor = delegate.check(descriptorPath);
+    private ProjectInfo tryResolveProjectFromDescriptor(String folderPath, Repository delegate) throws IOException {
+        var descriptorPath = folderPath + "/rules.xml";
+        var rulesDescriptor = delegate.check(descriptorPath);
 
         if (rulesDescriptor == null) {
             return null;
         }
 
-        FileItem fileItem = delegate.read(descriptorPath);
-        try (InputStream stream = fileItem.getStream()) {
-            String projectName = getProjectName(stream, folderPath);
-            String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
-            ProjectInfo projectInfo = new ProjectInfo(
-                    externalPath.substring(baseFolder.length()),
-                    folderPath
-            );
-            projectInfo.setModifiedAt(fileItem.getData().getModifiedAt());
-            return projectInfo;
+        var descriptorRevision = rulesDescriptor.getUniqueId();
+        var descriptorName = descriptorRevision == null ? null
+                : projectNamesByDescriptorRevision.get(descriptorRevision);
+        if (descriptorName == null) {
+            var fileItem = delegate.read(descriptorPath);
+            try (var stream = fileItem.getStream()) {
+                // The name is cached even when absent, so a nameless descriptor is not read and parsed again.
+                descriptorName = Optional.ofNullable(getProjectName(stream));
+            }
+            if (descriptorRevision != null) {
+                projectNamesByDescriptorRevision.putIfAbsent(descriptorRevision, descriptorName);
+            }
         }
+
+        var projectName = ProjectDescriptor.resolveName(descriptorName.orElse(null), FileUtils.getName(folderPath));
+        return new ProjectInfo(projectName, folderPath);
     }
 
     /**
@@ -814,26 +747,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      *
      * @param folderPath the folder path to check
      * @param delegate   the repository
-     * @param baseFolder the base folder for external paths
      * @return the resolved ProjectInfo, or null if no project was resolved
      * @throws IOException if an error occurs while listing or reading files
      */
-    private ProjectInfo tryResolveProjectFromExcelFiles(ProjectIndex externalToInternal,
-                                                        String folderPath,
-                                                        Repository delegate,
-                                                        String baseFolder) throws IOException {
-        List<FileData> allFiles = delegate.list(folderPath + "/");
+    private ProjectInfo tryResolveProjectFromExcelFiles(String folderPath, Repository delegate) throws IOException {
+        var allFiles = delegate.list(folderPath + "/");
 
         for (FileData fileData : allFiles) {
             if (isExcelFileInFolderRoot(fileData, folderPath)) {
-                String projectName = FileUtils.getName(folderPath);
-                String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
-                ProjectInfo projectInfo = new ProjectInfo(
-                        externalPath.substring(baseFolder.length()),
-                        folderPath
-                );
-                projectInfo.setModifiedAt(fileData.getModifiedAt());
-                return projectInfo;
+                return new ProjectInfo(FileUtils.getName(folderPath), folderPath);
             }
         }
 
@@ -848,13 +770,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * @return true if the file is an Excel file in the folder root, false otherwise
      */
     private boolean isExcelFileInFolderRoot(FileData fileData, String folderPath) {
-        String filePath = fileData.getName();
+        var filePath = fileData.getName();
         // Ensure the file is directly in folderPath, not in a subfolder
-        int idx = filePath.lastIndexOf('/');
+        var idx = filePath.lastIndexOf('/');
         if (idx < 0) {
             return false;
         }
-        String parentPath = filePath.substring(0, idx);
+        var parentPath = filePath.substring(0, idx);
         if (!Objects.equals(parentPath, folderPath)) {
             return false;
         }
@@ -873,7 +795,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     private void refreshMapping() {
         try {
-            ProjectIndex updatedIndex = readExternalToInternalMap(delegate, baseFolder);
+            var updatedIndex = readExternalToInternalMap(delegate);
             indexCache.set(new ProjectIndexCache(updatedIndex));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -882,7 +804,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private ProjectIndex updateConfigFile(FileData folderData) {
-        FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
+        var mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData == null) {
             log.warn("Unexpected behavior: FileMappingData is absent.");
             return getUpToDateMapping(true);
@@ -891,17 +813,17 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         indexLock.writeLock().lock();
         try {
             // We must ensure that our externalToInternal.getProjects() is up to date.
-            ProjectIndex projectIndex = getUpToDateMapping(false);
+            var projectIndex = getUpToDateMapping(false);
             List<ProjectInfo> projects = projectIndex.getProjects();
 
-            Optional<ProjectInfo> project = findProject(projectIndex, folderData);
-            String externalPath = mappingData.getExternalPath();
+            var project = findProject(projectIndex, folderData);
+            var externalPath = mappingData.getExternalPath();
             String projectName = externalPath.startsWith(baseFolder) ? externalPath.substring(baseFolder.length())
                     : externalPath;
             if (project.isPresent()) {
                 project.get().setName(projectName);
             } else {
-                ProjectInfo info = new ProjectInfo(projectName, mappingData.getInternalPath());
+                var info = new ProjectInfo(projectName, mappingData.getInternalPath());
                 projects.add(info);
             }
 
@@ -916,10 +838,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     private String getProjectName(InputStream inputStream) {
         try {
-            InputSource inputSource = new InputSource(inputStream);
+            var inputSource = new InputSource(inputStream);
             XPathFactory factory = XPathFactory.newInstance();
-            XPath xPath = factory.newXPath();
-            XPathExpression xPathExpression = xPath.compile("/project/name");
+            var xPath = factory.newXPath();
+            var xPathExpression = xPath.compile("/project/name");
             return xPathExpression.evaluate(inputSource);
         } catch (XPathExpressionException e) {
             return null;
@@ -938,17 +860,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         return ProjectDescriptor.resolveName(getProjectName(inputStream), FileUtils.getName(folderPath));
     }
 
-    private boolean isUpdateConfigNeeded(FileData folderData) throws IOException {
-        if (supports().branches()) {
-            if (!getBranch().equals(getBaseBranch())) {
-                // Update project name only on base branch.
-                return false;
-            }
-        }
-        FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
+    private boolean isUpdateConfigNeeded(FileData folderData) {
+        var mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
-            String internalPath = mappingData.getInternalPath();
-            String externalPath = baseFolder + getUpToDateMapping(true).getProjects()
+            var internalPath = mappingData.getInternalPath();
+            var externalPath = baseFolder + getUpToDateMapping(true).getProjects()
                     .stream()
                     .filter(p -> p.getPath().equals(internalPath))
                     .findFirst()
@@ -974,16 +890,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public String getRealPath(String externalPath) {
-        ProjectIndex mapping = getUpToDateMapping(true);
-        return toInternal(mapping, externalPath);
+        return toInternal(currentMapping(), externalPath);
     }
 
     @Override
     public String getBusinessName(String mappedName) {
-        int separatorIndex = mappedName.lastIndexOf(SEPARATOR);
+        var separatorIndex = mappedName.lastIndexOf(SEPARATOR);
         if (separatorIndex >= 0) {
-            String projectName = mappedName.substring(0, separatorIndex);
-            int subFolderIndex = mappedName.indexOf('/', separatorIndex + 1);
+            var projectName = mappedName.substring(0, separatorIndex);
+            var subFolderIndex = mappedName.indexOf('/', separatorIndex + 1);
             return subFolderIndex >= 0 ? projectName + mappedName.substring(subFolderIndex) : projectName;
         }
         return mappedName;
@@ -1000,13 +915,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public String findMappedName(String internalPath) {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        var mapping = getUpToDateMapping(true);
         Optional<ProjectInfo> projectInfo = mapping.getProjects()
                 .stream()
                 .filter(p -> internalPath.equals(p.getPath()) || internalPath.startsWith(p.getPath() + "/"))
                 .findFirst();
         return projectInfo.map(p -> {
-            String mappedProjectName = baseFolder + getMappedName(p);
+            var mappedProjectName = baseFolder + getMappedName(p);
             if (internalPath.equals(p.getPath())) {
                 return mappedProjectName;
             } else {
@@ -1015,11 +930,25 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         }).orElse(null);
     }
 
-    private String getHash(String s) {
-        if (StringUtils.isEmpty(s)) {
+    /**
+     * The hash a folder is named by, computed once per folder.
+     *
+     * <p>A repository holds far fewer folders than the cache admits. Beyond that the memo is starting to hold
+     * folders nobody asks about any more, so it is dropped and filled again.
+     */
+    private String getHash(String path) {
+        if (StringUtils.isEmpty(path)) {
             return "";
         }
-        return HashingUtils.sha256Hex(s);
+        var hash = hashesByPath.get(path);
+        if (hash == null) {
+            hash = HashingUtils.sha256Hex(path);
+            if (hashesByPath.size() >= FOLDER_HASH_CACHE_CAPACITY) {
+                hashesByPath.clear();
+            }
+            hashesByPath.put(path, hash);
+        }
+        return hash;
     }
 
     @Override

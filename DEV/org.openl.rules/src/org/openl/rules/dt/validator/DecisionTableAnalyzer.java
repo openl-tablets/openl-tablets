@@ -3,16 +3,15 @@ package org.openl.rules.dt.validator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import org.openl.binding.BindingDependencies;
+import lombok.Getter;
+
 import org.openl.binding.ILocalVar;
 import org.openl.domain.IDomain;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.rules.dt.IDecisionTable;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
@@ -22,6 +21,7 @@ import org.openl.types.impl.ParameterDeclaration;
 
 public class DecisionTableAnalyzer {
 
+    @Getter
     private final IDecisionTable decisionTable;
 
     private final Map<IBaseDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<>();
@@ -34,17 +34,17 @@ public class DecisionTableAnalyzer {
     }
 
     private void init(IDecisionTable decisionTable) {
-        int n = decisionTable.getNumberOfConditions();
+        var n = decisionTable.getNumberOfConditions();
 
-        for (int i = 0; i < n; ++i) {
+        for (var i = 0; i < n; ++i) {
             conditionAnalyzers.put(decisionTable.getConditionRows()[i],
                     new ConditionAnalyzer(decisionTable.getConditionRows()[i]));
         }
     }
 
     public boolean containsFormula(IBaseDecisionRow row) {
-        int len = row.getNumberOfRules();
-        for (int ruleN = 0; ruleN < len; ruleN++) {
+        var len = row.getNumberOfRules();
+        for (var ruleN = 0; ruleN < len; ruleN++) {
             if (row.hasFormula(ruleN)) {
                 return true;
             }
@@ -55,10 +55,6 @@ public class DecisionTableAnalyzer {
 
     public Iterator<DecisionTableParamDescription> tableParams() {
         return usedParamsFromSignature.values().iterator();
-    }
-
-    public IDecisionTable getDecisionTable() {
-        return decisionTable;
     }
 
     public IDomain<?> getParameterDomain(String parameterName, IBaseDecisionRow condition) {
@@ -79,14 +75,14 @@ public class DecisionTableAnalyzer {
      */
     public IParameterDeclaration[] referencedSignatureParams(IBaseDecisionRow row) {
 
-        CompositeMethod method = (CompositeMethod) row.getMethod();
+        var method = (CompositeMethod) row.getMethod();
 
-        BindingDependencies bindingDependecies = new RulesBindingDependencies();
+        var bindingDependecies = new RulesBindingDependencies();
         method.updateDependency(bindingDependecies);
 
-        IMethodSignature methodSignature = decisionTable.getSignature();
+        var methodSignature = decisionTable.getSignature();
 
-        List<IParameterDeclaration> paramDeclarations = new ArrayList<>();
+        var paramDeclarations = new ArrayList<IParameterDeclaration>();
 
         for (IOpenField openField : bindingDependecies.getFieldsMap().values()) {
 
@@ -94,10 +90,10 @@ public class DecisionTableAnalyzer {
 
             if (anotherOpenField instanceof ILocalVar) {
 
-                for (int i = 0; i < methodSignature.getNumberOfParameters(); i++) {
+                for (var i = 0; i < methodSignature.getNumberOfParameters(); i++) {
 
                     if (methodSignature.getParameterName(i).equals(anotherOpenField.getName())) {
-                        ParameterDeclaration parameterDeclaration = new ParameterDeclaration(
+                        var parameterDeclaration = new ParameterDeclaration(
                                 methodSignature.getParameterTypes()[i],
                                 methodSignature.getParameterName(i));
                         if (!paramDeclarations.contains(parameterDeclaration)) {
@@ -124,11 +120,11 @@ public class DecisionTableAnalyzer {
     public IOpenClass transformSignatureType(IParameterDeclaration paramDeclarationFromSignature,
                                              IDecisionTableValidatedObject decisionTableToValidate) {
 
-        DecisionTableParamDescription paramDescription = usedParamsFromSignature
+        var paramDescription = usedParamsFromSignature
                 .get(paramDeclarationFromSignature.getName());
 
         if (paramDescription == null) {
-            IOpenClass newType = decisionTableToValidate.getTransformer()
+            var newType = decisionTableToValidate.getTransformer()
                     .transformSignatureType(paramDeclarationFromSignature);
             paramDescription = new DecisionTableParamDescription(paramDeclarationFromSignature, newType);
 

@@ -54,7 +54,7 @@ class OpenLProjectScannerTest {
 
         var found = OpenLPomlessParticipant.scan(root);
         assertEquals(1, found.size());
-        assertTrue(found.get(0).endsWith("parent"));
+        assertTrue(found.getFirst().endsWith("parent"));
     }
 
     private static Path makeRulesProject(Path folder) throws IOException {

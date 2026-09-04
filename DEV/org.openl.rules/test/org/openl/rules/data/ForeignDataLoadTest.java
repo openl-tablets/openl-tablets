@@ -13,7 +13,7 @@ class ForeignDataLoadTest {
     void testForeignDataLoad() {
         ITestI instance = TestUtils.create("test/rules/data/ForeignDataLoadTest.xls", ITestI.class);
 
-        Type2[] data = instance.getData2();
+        var data = instance.getData2();
         assertEquals(4, data.length);
 
         assertEquals(1, data[0].getTypes().length);

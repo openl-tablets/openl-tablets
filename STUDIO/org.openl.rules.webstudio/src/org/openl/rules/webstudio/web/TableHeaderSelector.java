@@ -2,16 +2,16 @@ package org.openl.rules.webstudio.web;
 
 import java.util.function.Predicate;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 class TableHeaderSelector implements Predicate<TableSyntaxNode> {
 
     private final String value;
-
-    TableHeaderSelector(String value) {
-        this.value = value;
-    }
 
     @Override
     public boolean test(TableSyntaxNode node) {
@@ -19,7 +19,7 @@ class TableHeaderSelector implements Predicate<TableSyntaxNode> {
             return true;
         }
 
-        String header = node.getHeaderLineValue().getValue();
+        var header = node.getHeaderLineValue().getValue();
 
         return StringUtils.containsIgnoreCase(header, value);
     }

@@ -1,5 +1,9 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum LanguagesEnum {
 
     ALB("Albanian"),
@@ -43,10 +47,6 @@ public enum LanguagesEnum {
     VIE("Vietnamese");
 
     private final String displayName;
-
-    LanguagesEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

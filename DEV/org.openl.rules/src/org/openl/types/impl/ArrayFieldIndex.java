@@ -8,24 +8,19 @@ package org.openl.types.impl;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.util.IntegerValuesUtils;
 
+@RequiredArgsConstructor
 public class ArrayFieldIndex implements IOpenIndex {
+    @Getter
     private final IOpenClass elementType;
     private final IOpenField indexField;
-
-    public ArrayFieldIndex(IOpenClass elementType, IOpenField indexField) {
-        this.elementType = elementType;
-        this.indexField = indexField;
-    }
-
-    @Override
-    public IOpenClass getElementType() {
-        return elementType;
-    }
 
     @Override
     public IOpenClass getIndexType() {
@@ -35,12 +30,12 @@ public class ArrayFieldIndex implements IOpenIndex {
     @Override
     public Object getValue(Object container, Object index) {
         if (index != null) {
-            int len = Array.getLength(container);
+            var len = Array.getLength(container);
 
-            for (int i = 0; i < len; i++) {
+            for (var i = 0; i < len; i++) {
                 Object obj = Array.get(container, i);
 
-                Object fieldValue = indexField.get(obj, null);
+                var fieldValue = indexField.get(obj, null);
 
                 // handles the case when index field of Datatype is of type int, and we try to get String index
                 // e.g. person["12"], so we need to try cast String index value to Integer, and then compare them.

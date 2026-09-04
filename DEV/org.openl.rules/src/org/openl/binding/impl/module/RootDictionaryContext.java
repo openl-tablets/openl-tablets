@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousFieldException;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.vm.IRuntimeEnv;
@@ -132,13 +131,13 @@ public class RootDictionaryContext implements VariableInContextFinder {
         }
         add(new ContextField(parent, field));
         if (level + 1 <= maxDepthLevel) {
-            IOpenClass fieldType = field.getType();
+            var fieldType = field.getType();
             if (fieldType.isSimple()) {
                 return;
             }
             if (fieldType.isArray()) {
-                int dimension = 0;
-                IOpenClass type = field.getType();
+                var dimension = 0;
+                var type = field.getType();
                 while (type.isArray()) {
                     type = type.getComponentClass();
                     dimension++;

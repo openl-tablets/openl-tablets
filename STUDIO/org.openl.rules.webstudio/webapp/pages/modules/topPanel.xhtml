@@ -11,34 +11,14 @@
     <c:set var="project" value="#{studio.currentProjectDescriptor}" />
     <c:set var="module" value="#{studio.currentModule}" />
 
-    <h:panelGroup rendered="#{!empty rProject and empty module}">
-        <ui:include src="/pages/modules/exportProject.xhtml" />
-    </h:panelGroup>
-
-    <h:panelGroup rendered="#{!empty module}">
-        <ui:include src="/pages/modules/exportModule.xhtml" />
-    </h:panelGroup>
-
     <h:panelGroup rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}">
-        <ui:param name="artefact" value="#{rProject}"/>
-        <ui:include src="/pages/modules/saveRevision.xhtml" />
         <ui:include src="/pages/modules/compareTextFiles.xhtml" />
     </h:panelGroup>
     <ui:include src="/pages/modules/compareRevisions.xhtml" />
 
-    <h:panelGroup rendered="#{!empty rProject and copyBean.getCanCopy(rProject)}">
-        <ui:include src="/pages/modules/copyProject.xhtml"/>
-        <ui:include src="/pages/modules/tags/createProjectTags.xhtml"/>
-        <ui:include src="/pages/modules/repository/modal/selectFolder.xhtml"/>
-    </h:panelGroup>
-
     <h:panelGroup rendered="#{studio.canMerge}">
-        <ui:include src="/pages/modules/repository/modal/mergeBranches.xhtml">
-            <ui:param name="menu" value="rules" />
-        </ui:include>
+        <ui:include src="/pages/modules/mergeBranches.xhtml"/>
     </h:panelGroup>
-
-    <ui:include src="/pages/modules/configureCommitInfo.xhtml" />
 
     <h:form id="headerForm" prependId="false" styleClass="navbar">
         <input type="hidden" id="tableRunState" value="CAN_RUN" />
@@ -52,7 +32,7 @@
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <li class="nav-header">Current Project</li>
-                    <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name)}">#{project.name}</a></li>
+                    <li><a href="#{utils.toUrl(rProject.repository.id, project.name)}">#{project.name}</a></li>
                     <h:panelGroup rendered="#{studio.allProjects.size() > 1}">
                         <li class="divider"></li>
                         <li class="nav-header">All Projects</li>
@@ -95,13 +75,13 @@
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <li class="nav-header">Current Module</li>
-                    <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name, module.name)}">#{module.name}</a></li>
+                    <li><a href="#{utils.toUrl(rProject.repository.id, project.name, module.name)}">#{module.name}</a></li>
                     <h:panelGroup rendered="#{studio.currentProjectDescriptor.modules.size() > 1}">
                     <li class="divider"></li>
                     <li class="nav-header">All Modules</li>
                     <ui:repeat value="#{studio.currentProjectDescriptor.modules}" var="m">
                         <h:panelGroup rendered="#{m.name != module.name}">
-                        <li><a href="#{utils.toUrl(rProject.repository.id, rProject.name, m.name)}">#{m.name}</a></li>
+                        <li><a href="#{utils.toUrl(rProject.repository.id, project.name, m.name)}">#{m.name}</a></li>
                         </h:panelGroup>
                     </ui:repeat>
                     </h:panelGroup>
@@ -118,7 +98,7 @@
                                title="Verify" value="Verify"
                                rendered="#{!empty module and studio.manualCompileNeeded}" />
                 <h:commandLink styleClass="changes-listener"
-                               onclick="openSaveDialog('#{studio.currentRepositoryType}'); return false;" value="Save"
+                               onclick="openSaveProjectDialog(); return false;" value="Save"
                                id="saveProjectButton"
                                title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
                                rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editableProject and studio.model.canSave}"/>
@@ -132,16 +112,16 @@
                                rendered="#{studio.canRedeploy}">
                 </h:commandLink>
                 <h:commandLink styleClass="changes-listener"
-                               onclick="openCopyProjectDialog('#{rProject.repository.id}', '#{studio.currentRepositoryType}', '#{rProject.name}'); return false;"
+                               onclick="openCopyProjectDialog(); return false;"
                                id="copyProjectButton"
                                value="Copy" title="Copy project"
-                               rendered="#{!empty rProject and copyBean.getCanCopy(rProject)}"/>
+                               rendered="#{studio.canCopy}"/>
                 <h:commandLink
                         onclick="if (!canOverwriteRevision()) return false; openUpdateProjectDialog();return false;"
                         id="updateProjectButton"
                         title="Update project" value="Update"
                         rendered="#{!empty rProject and studio.model.canUpdate and empty module}"/>
-                <h:commandLink styleClass="changes-listener" onclick="openExportProjectDialog('#{rProject.repository.id}', '#{rProject.name}'); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openExportDialog(); return false;"
                                id="exportProjectButton"
                                title="Download the project as a zip archive" value="Export"
                                rendered="#{!empty rProject and empty module}" />
@@ -149,7 +129,7 @@
                                id="updateModuleButton"
                                title="Update module" value="Update"
                                rendered="#{!empty module and studio.model.editable}" />
-                <h:commandLink styleClass="changes-listener" onclick="openExportModuleDialog('#{rProject.repository.id}', '#{rProject.name}', '#{studio.currentModule.rulesRootPath}'); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openExportDialog('#{utils.toJSText(studio.currentModulePath)}'); return false;"
                                id="exportModuleButton"
                                title="Export module" value="Export"
                                rendered="#{!empty module}" />
@@ -220,9 +200,14 @@
             <span class="delimeter test-section"></span>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{!empty module and studio.model.editable}">
-                <a href="#{studio.url('create/index')}" title="Create new table" class="primary"
-                   onclick="return canOverwriteRevision();">Create Table</a>
+            <!-- canSave rather than editable: with no module open, editable stops short of checking write access to
+                 the project, so a project the user may only read would offer the dialog and refuse the table. -->
+            <h:panelGroup rendered="#{!empty rProject and studio.model.canSave}">
+                <a href="#" title="Create new table" class="primary"
+                   data-project-id="#{studio.currentProjectId}"
+                   data-module-name="#{empty module ? '' : module.name}"
+                   data-project-url="#{utils.toUrl(rProject.repository.id, rProject.name)}"
+                   onclick="return ws.ui.openTableModal(this, 'openCreateTableModal', canOverwriteRevision);">Create Table</a>
                 <span class="delimeter"></span>
             </h:panelGroup>
 
@@ -247,7 +232,7 @@
                     </h:panelGroup>
                     <h:panelGroup rendered="#{!empty module and studio.model.compiledSuccessfully}">
                     <li><a tabindex="-1" href="#"
-                           onclick="window.dispatchEvent(new CustomEvent('openTableGraphModal', {detail: {projectId: '#{studio.currentProjectId}', projectName: '#{project.name}', module: '#{module.name}'}})); return false;">Table Dependencies</a></li>
+                           onclick="window.dispatchEvent(new CustomEvent('openTableGraphModal', {detail: {projectId: '#{studio.currentProjectId}', projectName: '#{utils.toJSText(project.name)}', module: '#{utils.toJSText(module.name)}'}})); return false;">Table Dependencies</a></li>
                     </h:panelGroup>
                     <li><a tabindex="-1" target="_blank"
                         onclick="topPanelCompareWindowOpen(); return false;"
@@ -384,13 +369,24 @@
         }
 
         function openProjectRedeployDialog(repositoryId, projectName) {
-            const projectId = btoa(repositoryId + ":" + projectName);
+            const projectId = globalThis.openl.encodeProjectId(repositoryId, projectName);
             const projectDataRequest = $j.get("#{contextPath}/web/projects/" + projectId);
             $j.when(projectDataRequest).done((projectDataRes) => {
                 window.dispatchEvent(new CustomEvent('openDeployModal', {detail: projectDataRes}))
             }).fail(() => {
                 alert("Failed to load project information.");
             });
+        }
+
+        // Opens the React copy-project modal, the same one the Projects tab uses. Only the project id
+        // travels: the modal reads the project and the repositories it may copy into by itself.
+        function openCopyProjectDialog() {
+            globalThis.dispatchEvent(new CustomEvent('openCopyProjectModal', {
+                detail: {
+                    projectId: '#{studio.currentProjectId}',
+                    onSuccess: () => ws.nav.reload(true)
+                }
+            }));
         }
 
         // Opens the React update-project modal (mounted by studio-ui in #appRoot). The projectId
@@ -405,13 +401,54 @@
             }));
         }
 
+        // Opens the React save-project modal, the same one the Projects tab uses. It suggests the commit
+        // comment, completes the commit identity when the profile misses it, and hands a save-time merge
+        // conflict to the merge dialog.
+        function openSaveProjectDialog() {
+            globalThis.dispatchEvent(new CustomEvent('openSaveProjectModal', {
+                detail: {
+                    projectId: '#{studio.currentProjectId}',
+                    onSuccess: goToSavedProject
+                }
+            }));
+        }
+
+        // Saving a project renamed in rules.xml commits it under the logical name, so the page moves to
+        // the saved project rather than reloading an address that no longer resolves. Whatever the hash
+        // held below the project — a module and a table — is kept.
+        function goToSavedProject() {
+            var hash = $location.getHash(true);
+            var index = hash.indexOf('/');
+            if (index > 0) {
+                // First '/' is for repository id. We search the second one (url part for module/table)
+                index = hash.indexOf('/', index + 1);
+            }
+            var newUrl = '#{utils.toUrl(rProject.repository.id, studio.getLogicalName(rProject))}';
+            if (index > 0) {
+                newUrl += hash.substring(index);
+            }
+            ws.nav.go(newUrl, true);
+        }
+
+        // Opens the React export modal: the workspace copy or an earlier revision. Without a file path it
+        // exports the whole project, with one — the rules file path relative to the project root — the open
+        // module alone.
+        function openExportDialog(filePath) {
+            globalThis.dispatchEvent(new CustomEvent('openExportProjectModal', {
+                detail: {
+                    projectId: '#{studio.currentProjectId}',
+                    filePath: filePath
+                }
+            }));
+        }
+
         // Opens the React update-module modal. The module path is the rules file path relative
         // to the project root; the page reloads after a successful upload.
         function openUpdateModuleDialog() {
             globalThis.dispatchEvent(new CustomEvent('openUpdateModuleModal', {
                 detail: {
                     projectId: '#{studio.currentProjectId}',
-                    modulePath: '#{studio.currentModulePath}',
+                    modulePath: '#{utils.toJSText(studio.currentModulePath)}',
                     onSuccess: () => ws.nav.reload(true)
                 }
             }));

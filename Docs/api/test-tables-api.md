@@ -158,6 +158,18 @@ Test tables reuse Data tables models:
 - **DataRowView** - Row with list of values
 - **TestAppend** - Request model for appending rows
 
+### Column Titles Are Required
+
+The row between the field names and the test cases holds the column titles, and OpenL reads it as such whether or
+not the table titles its columns. A table that supplies no `displayName` at all is refused with `400` and
+`openl.error.400.table.column-title.required.message`: writing it would leave that row blank, which ends the table
+there and leaves every test case below it out of it. A title is a business label, so the server asks for one rather
+than inventing it from the field name.
+
+A single column left untitled among titled ones is accepted, because the row still carries the other titles and so
+is not blank. That is also what reading such a table reports, so whatever a `GET` returns can be written back
+unchanged. The same rule applies to Data tables — see [Data Tables API](data-tables-api.md).
+
 ---
 
 ## Implementation Details

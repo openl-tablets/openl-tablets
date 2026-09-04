@@ -167,7 +167,7 @@ mvn clean verify -Dquick -DnoPerf
 
 ### Build Options
 
-- `-DskipTests` - Skip all tests
+- `-DskipTests` - Skip all tests and exclude the integration-test modules (ITEST, the archetypes) from the reactor
 - `-Dquick` - Skip heavy/non-critical tests
 - `-DnoPerf` - Run tests without extreme memory limitations
 - `-DnoDocker` - Skip Docker-based integration tests

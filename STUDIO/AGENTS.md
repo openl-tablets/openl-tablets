@@ -5,10 +5,17 @@ Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy
 ## Key Conventions
 
 - **JSF pages** (`org.openl.rules.webstudio/src/main/webapp/`): Explicit bug fixes only. Do NOT improve legacy code or possible bugs. New features must go in React frontend.
+- **The rules editor shell** (`pages/modules/index.xhtml`) is a **transient** (`<f:view transient="true">`) view and
+  must stay one. It is the page the user keeps open for the whole session, while its panels and its content are
+  loaded as views of their own; those views share one bounded per-session cache, so a shell kept among them is
+  dropped after a dozen or so panel loads and every later request of its own is answered as expired
+  ([EPBDS-16275](https://jira.eisgroup.com/browse/EPBDS-16275)). Keep the shell free of state to carry between
+  requests, and guard it with `ITEST/itest.studio/simple` → `ShellViewTest`.
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `org.openl.security.standalone/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
-- **API documentation**: Use OpenAPI annotations on REST controllers
+- **REST API / OpenAPI**: Externalized descriptions, `@Parameter` vs `@Schema`, enum wire codes, and request
+  validation follow strict rules — see [`org.openl.rules.webstudio/AGENTS.md`](org.openl.rules.webstudio/AGENTS.md)
 - **Response field projection**: Clients add `?fields=id,name,modules(id,name)` to reduce JSON to selected fields, including nested objects and arrays (hierarchical, GraphQL-like). Applied globally during serialization (`org.openl.studio.common.projection`) — no controller-side parameter, no configuration. Any DTO under `org.openl.rules.*` or `org.openl.studio.*` is projectable, except framework infrastructure in `org.openl.studio.common.model` (errors, pagination wrappers). Errors, binary and non-JSON responses are never touched. OpenAPI integration lives separately in `org.openl.studio.openapi` and registers itself when the projection feature is present.
 
 ## Submodules
@@ -16,7 +23,6 @@ Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy
 **Core application**:
 - **org.openl.rules.webstudio** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`)
 - **org.openl.rules.webstudio.web** — Web layer components
-- **org.openl.rules.webstudio.ai** — AI integration features
 - **studio-ui/** — React/TypeScript frontend (see `studio-ui/AGENTS.md`)
 
 **Repository & storage**:

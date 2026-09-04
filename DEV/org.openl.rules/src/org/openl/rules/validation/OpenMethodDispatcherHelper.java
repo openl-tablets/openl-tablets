@@ -23,7 +23,7 @@ class OpenMethodDispatcherHelper {
      */
 
     static List<IOpenMethod> extractMethods(IOpenClass openClass) {
-        List<IOpenMethod> result = new ArrayList<>();
+        var result = new ArrayList<IOpenMethod>();
         extractMethods(openClass.getMethods(), result);
         return result;
     }

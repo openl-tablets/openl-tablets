@@ -7,12 +7,9 @@ import java.util.Iterator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
-import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.DataTypeTableStyle;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -31,25 +28,25 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
     @Override
     protected void exportTables(Collection<DatatypeModel> models, Sheet sheet) {
         Cursor endPosition = null;
-        TableStyle style = getTableStyle();
+        var style = getTableStyle();
         for (DatatypeModel model : models) {
             log.debug("Writing data type with name {}", model.getName());
-            Cursor startPosition = nextFreePosition(endPosition);
+            var startPosition = nextFreePosition(endPosition);
             endPosition = exportTable(model, startPosition, style, sheet);
         }
     }
 
     @Override
     protected Cursor exportTable(DatatypeModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
-        DataTypeTableStyle style = (DataTypeTableStyle) defaultStyle;
-        RichTextString headerTemplate = style.getHeaderTemplate();
-        CellRangeSettings headerSettings = style.getHeaderSizeSettings();
-        CellStyle headerStyle = style.getHeaderStyle();
+        var style = (DataTypeTableStyle) defaultStyle;
+        var headerTemplate = style.getHeaderTemplate();
+        var headerSettings = style.getHeaderSizeSettings();
+        var headerStyle = style.getHeaderStyle();
 
-        CellStyle dateStyle = style.getDateStyle();
-        CellStyle dateTimeStyle = style.getDateTimeStyle();
+        var dateStyle = style.getDateStyle();
+        var dateTimeStyle = style.getDateTimeStyle();
 
-        String dtHeaderText = headerTemplate.getString().replaceAll(DATATYPE_NAME, model.getName());
+        var dtHeaderText = headerTemplate.getString().replaceAll(DATATYPE_NAME, model.getName());
         if (StringUtils.isNotBlank(model.getParent())) {
             dtHeaderText += " extends " + model.getParent();
         }
@@ -57,23 +54,23 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         addMergedHeader(sheet, startPosition, headerStyle, headerSettings);
 
         Cell topLeftCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
-        RichTextString dtHeader = new XSSFRichTextString(dtHeaderText);
+        var dtHeader = new XSSFRichTextString(dtHeaderText);
         dtHeader.applyFont(style.getHeaderFont());
         topLeftCell.setCellValue(dtHeader);
         startPosition = startPosition.moveDown(headerSettings.getHeight());
 
-        Cursor endPosition = startPosition;
+        var endPosition = startPosition;
 
         Iterator<FieldModel> iterator = model.getFields().iterator();
         while (iterator.hasNext()) {
-            boolean lastRow = false;
-            FieldModel field = iterator.next();
+            var lastRow = false;
+            var field = iterator.next();
             if (!iterator.hasNext()) {
                 lastRow = true;
             }
-            Cursor next = endPosition.moveDown(1);
+            var next = endPosition.moveDown(1);
             Cell typeCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            String type = field.getType();
+            var type = field.getType();
             typeCell.setCellValue(type);
             typeCell
                     .setCellStyle(lastRow ? style.getLastRowStyle().getTypeStyle() : style.getRowStyle().getTypeStyle());
@@ -87,7 +84,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
 
             Cell valueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             writeDefaultValueToCell(model, field, valueCell, dateStyle, dateTimeStyle);
-            CellStyle styleAfterWrite = valueCell.getCellStyle();
+            var styleAfterWrite = valueCell.getCellStyle();
             if (styleAfterWrite.getDataFormat() == 0) {
                 valueCell.setCellStyle(
                         lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());

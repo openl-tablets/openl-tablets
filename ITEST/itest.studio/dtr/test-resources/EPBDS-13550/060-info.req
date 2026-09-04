@@ -1,0 +1,2 @@
+GET /web/projects/EPBDS-13550%20Main%20Project?fields=name,status,dependencies(name,status),usedBy(name,status) HTTP/1.1
+

@@ -3,7 +3,6 @@
         #set($symbol_escape='\' )
         package ${package};
 
-import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
 /**
@@ -13,22 +12,24 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimplePr
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        if (System.getProperty("openl-cmd") != null) {
-            run("openl");
-        } else {
-            run("src/main/openl");
+        if (args.length != 1) {
+            System.err.println("Usage: Main <hour>");
+            System.exit(1);
         }
+        var hour = Integer.parseInt(args[0]);
+        var result = run(hour);
+        System.out.println(result);
     }
 
-    public static void run(String pathToOpenL) throws Exception {
+    public static String run(int hour) throws Exception {
         // Service - is generated interface from TemplateRules.xls using maven openl:generate goal.
-        SimpleProjectEngineFactoryBuilder<Service> factoryBuilder = new SimpleProjectEngineFactoryBuilder<Service>();
-        SimpleProjectEngineFactory<Service> factory = factoryBuilder.setProject(pathToOpenL)
+        var factoryBuilder = new SimpleProjectEngineFactoryBuilder<Service>();
+        var factory = factoryBuilder.setProject("openl")
                 .setInterfaceClass(Service.class)
                 .build();
 
-        Service instance = factory.newInstance();
-        String result = instance.hello(10);
-        System.out.println(result);
+        var instance = factory.newInstance();
+        return instance.hello(hour);
+
     }
 }

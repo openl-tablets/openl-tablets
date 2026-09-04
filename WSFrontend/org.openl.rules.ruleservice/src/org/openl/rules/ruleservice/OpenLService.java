@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.openl.binding.MethodUtil;
@@ -97,7 +99,7 @@ public class OpenLService {
         }
         var instance = service.getServiceBean();
 
-        ArrayList<Method> methods = new ArrayList<>(2);
+        var methods = new ArrayList<Method>(2);
         for (Method method : instance.getClass().getMethods()) {
             if (method.getName().equals(ruleName)) {
                 methods.add(method);
@@ -122,7 +124,7 @@ public class OpenLService {
                 args[0] = type.isAssignableFrom(String.class) ? json : mapper.readValue(json, type);
             } else {
                 var tree = mapper.readTree(json);
-                for (int i = 0; i < caller.getParameterCount(); i++) {
+                for (var i = 0; i < caller.getParameterCount(); i++) {
                     var parameter = caller.getParameters()[i];
                     var name = parameter.getName();
                     var type = parameter.getType();
@@ -134,18 +136,12 @@ public class OpenLService {
         return new Invoker(instance, caller, args, mapper);
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class Invoker {
         private final Object instance;
         private final Method caller;
         private final Object[] args;
         private final ObjectMapper mapper;
-
-        private Invoker(Object instance, Method caller, Object[] args, ObjectMapper mapper) {
-            this.instance = instance;
-            this.caller = caller;
-            this.args = args;
-            this.mapper = mapper;
-        }
 
         Object invoke() throws Exception {
             return caller.invoke(instance, args);
@@ -202,7 +198,7 @@ public class OpenLService {
         var instance = service.getServiceBean();
 
         int argsCount = json == null ? 0 : json.length;
-        ArrayList<Method> methods = new ArrayList<>(2);
+        var methods = new ArrayList<Method>(2);
         for (Method method : instance.getClass().getMethods()) {
             if (method.getName().equals(ruleName) && method.getParameterCount() == argsCount) {
                 methods.add(method);
@@ -221,7 +217,7 @@ public class OpenLService {
         var args = new Object[argsCount];
 
         var mapper = service.getServiceContext().getBean(ServiceInvocationAdvice.OBJECT_MAPPER_ID, ObjectMapper.class);
-        for (int i = 0; i < argsCount; i++) {
+        for (var i = 0; i < argsCount; i++) {
             Class<?> type = caller.getParameterTypes()[i];
             args[i] = json[i] == null || String.class.isAssignableFrom(type) ? json[i] : mapper.readValue(json[i], type);
         }
@@ -237,7 +233,7 @@ public class OpenLService {
      * @return the OpenL rules proxy instance
      */
     public static <T> T proxy(String serviceName, Class<T> proxyInterface) throws Exception {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        var cl = Thread.currentThread().getContextClassLoader();
         return ASMProxyFactory.newProxyInstance(cl,
                 (method, args) -> execute(serviceName, method.getName(), method.getParameterTypes(), args),
                 proxyInterface

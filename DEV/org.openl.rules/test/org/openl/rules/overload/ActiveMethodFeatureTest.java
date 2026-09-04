@@ -24,13 +24,13 @@ class ActiveMethodFeatureTest {
 
         context.setCurrentDate(calendar.getTime());
 
-        Double res1 = instance.driverRiskScoreOverloadTest1(context, "High Risk Driver");
+        var res1 = instance.driverRiskScoreOverloadTest1(context, "High Risk Driver");
         assertEquals(120.0, res1, 1e-8);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
-        Double res2 = instance.driverRiskScoreOverloadTest1(context, "High Risk Driver");
+        var res2 = instance.driverRiskScoreOverloadTest1(context, "High Risk Driver");
         assertEquals(100.0, res2, 1e-8);
     }
 

@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.IOUtils;
 
 class GitRepositoryLockTest {
@@ -94,11 +92,6 @@ class GitRepositoryLockTest {
         newRepo.setUri(uri);
         String localRepositoriesFolderString = this.localRepositoriesFolder.toFile().getAbsolutePath();
         newRepo.setLocalRepositoriesFolder(localRepositoriesFolderString);
-        FileSystemRepository settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(local.getParent() + "/git-settings");
-        String locksRoot = root.resolve("locks").toAbsolutePath().toString();
-        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local.toFile(), localRepositoriesFolderString, false, true));
 

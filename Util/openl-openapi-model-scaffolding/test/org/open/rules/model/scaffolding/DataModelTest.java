@@ -16,34 +16,34 @@ class DataModelTest {
 
     @Test
     void testDataModelCreation() {
-        PathInfo pi = new PathInfo("a/b/c", "abc", PathInfo.Operation.GET,
+        var pi = new PathInfo("a/b/c", "abc", PathInfo.Operation.GET,
                 new TypeInfo("Bank", "Bank", TypeInfo.Type.DATATYPE),
                 APPLICATION_JSON,
                 APPLICATION_JSON);
-        PathInfo qualityInfo = new PathInfo("/qualityI",
+        var qualityInfo = new PathInfo("/qualityI",
                 "/qI",
                 PathInfo.Operation.GET,
                 new TypeInfo("QualityIndicators", "QualityIndicators", TypeInfo.Type.DATATYPE),
                 APPLICATION_JSON,
                 APPLICATION_JSON);
-        DatatypeModel dtm = new DatatypeModel("test");
-        DataModel dm = new DataModel("bankData", "Bank", pi, dtm);
-        DataModel theSameDm = new DataModel("bankData", "Bank", pi, dtm);
+        var dtm = new DatatypeModel("test");
+        var dm = new DataModel("bankData", "Bank", pi, dtm);
+        var theSameDm = new DataModel("bankData", "Bank", pi, dtm);
         assertEquals(dm, dm);
         assertEquals(dm.hashCode(), dm.hashCode());
         assertNotEquals(dm, null);
         assertEquals(dm, theSameDm);
         assertEquals(dm.hashCode(), theSameDm.hashCode());
 
-        DataModel qualityIndicators = new DataModel("qualityIndicators", "Bank", pi, dtm);
+        var qualityIndicators = new DataModel("qualityIndicators", "Bank", pi, dtm);
         assertNotEquals(dm, qualityIndicators);
         assertNotEquals(dm.hashCode(), qualityIndicators.hashCode());
 
-        DataModel qualityIndicatorsCorrectType = new DataModel("qualityIndicators", "QualityIndicator", pi, dtm);
+        var qualityIndicatorsCorrectType = new DataModel("qualityIndicators", "QualityIndicator", pi, dtm);
         assertNotEquals(qualityIndicators, qualityIndicatorsCorrectType);
         assertNotEquals(qualityIndicators.hashCode(), qualityIndicatorsCorrectType.hashCode());
 
-        DataModel qualityIndicatorsCorrectPathInfo = new DataModel("qualityIndicators",
+        var qualityIndicatorsCorrectPathInfo = new DataModel("qualityIndicators",
                 "QualityIndicator",
                 qualityInfo,
                 dtm);

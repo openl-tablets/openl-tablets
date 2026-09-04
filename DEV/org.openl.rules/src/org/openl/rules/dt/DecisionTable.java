@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -15,7 +18,6 @@ import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.dt.algorithm.DecisionTableAlgorithmBuilder;
-import org.openl.rules.dt.algorithm.IAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.dt.element.FunctionalRow;
@@ -25,7 +27,6 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
@@ -39,15 +40,23 @@ import org.openl.vm.IRuntimeEnv;
 @Executable
 public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable {
 
+    @Getter
+    @Setter
     private IBaseCondition[] conditionRows;
+    @Getter
     private IBaseAction[] actionRows;
     /**
      * Optional non-functional row with rule indexes.
      */
+    @Getter
+    @Setter
     private RuleRow ruleRow;
 
+    @Getter
+    @Setter
     private int columns;
 
+    @Getter
     private IDecisionTableAlgorithm algorithm;
 
     /**
@@ -55,19 +64,29 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
      */
     private Invokable invoker;
 
+    @Getter
+    @Setter
     private DTInfo dtInfo;
 
+    @Getter
     private ModuleOpenClass module;
 
     /**
      * Custom return type of the spreadsheet method. Is a public type of the spreadsheet
      */
+    @Getter
+    @Setter
     private CustomSpreadsheetResultOpenClass customSpreadsheetResultType;
 
+    @Getter
+    @Setter
     private int dim = 0;
 
+    @Getter
     private final List<DeferredChange> deferredChanges = new ArrayList<>();
 
+    @Getter
+    @Setter
     private boolean typeCustomSpreadsheetResult;
 
     public DecisionTable() {
@@ -78,30 +97,6 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
         this.typeCustomSpreadsheetResult = typeCustomSpreadsheetResult;
-    }
-
-    public boolean isTypeCustomSpreadsheetResult() {
-        return typeCustomSpreadsheetResult;
-    }
-
-    public void setTypeCustomSpreadsheetResult(boolean typeCustomSpreadsheetResult) {
-        this.typeCustomSpreadsheetResult = typeCustomSpreadsheetResult;
-    }
-
-    public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
-        return customSpreadsheetResultType;
-    }
-
-    public void setCustomSpreadsheetResultType(CustomSpreadsheetResultOpenClass customSpreadsheetResultType) {
-        this.customSpreadsheetResultType = customSpreadsheetResultType;
-    }
-
-    public void setDim(int dim) {
-        this.dim = dim;
-    }
-
-    public int getDim() {
-        return dim;
     }
 
     @Override
@@ -119,43 +114,13 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         }
     }
 
-    public ModuleOpenClass getModule() {
-        return module;
-    }
-
-    @Override
-    public IBaseAction[] getActionRows() {
-        return actionRows;
-    }
-
     public void setActionRows(IAction[] actionRows) {
         this.actionRows = actionRows;
     }
 
-    public IDecisionTableAlgorithm getAlgorithm() {
-        return algorithm;
-    }
-
-    public int getColumns() {
-        return columns;
-    }
-
-    public void setColumns(int columns) {
-        this.columns = columns;
-    }
-
-    @Override
-    public IBaseCondition[] getConditionRows() {
-        return conditionRows;
-    }
-
-    public void setConditionRows(IBaseCondition[] conditionRows) {
-        this.conditionRows = conditionRows;
-    }
-
     @Override
     public String getDisplayName(int mode) {
-        IMemberMetaInfo metaInfo = getHeader().getInfo();
+        var metaInfo = getHeader().getInfo();
         if (metaInfo != null) {
             return metaInfo.getDisplayName(mode);
         }
@@ -182,14 +147,6 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         return ruleRow == null ? ("R" + (col + 1)) : ruleRow.getRuleName(col);
     }
 
-    public RuleRow getRuleRow() {
-        return ruleRow;
-    }
-
-    public void setRuleRow(RuleRow ruleRow) {
-        this.ruleRow = ruleRow;
-    }
-
     /**
      * Returns logical table that contains rule column. The column will contain all return, action and condition cells
      * for rule specified by index.
@@ -199,8 +156,8 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
      */
     @Override
     public ILogicalTable getRuleTable(int ruleIndex) {
-        ILogicalTable dt = actionRows[0].getDecisionTable();
-        int starColumn = dt.getWidth() - columns;
+        var dt = actionRows[0].getDecisionTable();
+        var starColumn = dt.getWidth() - columns;
 
         return dt.getColumn(starColumn + ruleIndex);
     }
@@ -230,7 +187,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     @Override
     public BindingDependencies getDependencies() {
 
-        BindingDependencies bindingDependencies = new RulesBindingDependencies();
+        var bindingDependencies = new RulesBindingDependencies();
         updateDependency(bindingDependencies);
 
         return bindingDependencies;
@@ -256,7 +213,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     }
 
     private void prepare(IOpenMethodHeader header, OpenL openl, IBindingContext bindingContext) throws Exception {
-        IAlgorithmBuilder algorithmBuilder = new DecisionTableAlgorithmBuilder(this, header, openl);
+        var algorithmBuilder = new DecisionTableAlgorithmBuilder(this, header, openl);
         algorithm = algorithmBuilder.prepareAndBuildAlgorithm(bindingContext);
     }
 
@@ -269,7 +226,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     public void updateDependency(BindingDependencies dependencies) {
         if (conditionRows != null) {
             for (IBaseCondition condition : conditionRows) {
-                CompositeMethod method = (CompositeMethod) condition.getMethod();
+                var method = (CompositeMethod) condition.getMethod();
                 if (method != null) {
                     method.updateDependency(dependencies);
                 }
@@ -287,7 +244,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
         if (actionRows != null) {
             for (IBaseAction action : actionRows) {
-                CompositeMethod method = (CompositeMethod) action.getMethod();
+                var method = (CompositeMethod) action.getMethod();
                 if (method != null) {
                     method.updateDependency(dependencies);
                 }
@@ -299,16 +256,16 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     protected void updateValueDependency(FunctionalRow frow, BindingDependencies dependencies) {
 
-        int len = frow.getNumberOfRules();
-        int np = frow.getNumberOfParams();
-        for (int ruleN = 0; ruleN < len; ruleN++) {
+        var len = frow.getNumberOfRules();
+        var np = frow.getNumberOfParams();
+        for (var ruleN = 0; ruleN < len; ruleN++) {
 
             if (frow.isEmpty(ruleN)) {
                 continue;
             }
 
-            for (int paramIndex = 0; paramIndex < np; paramIndex++) {
-                Object value = frow.getParamValue(paramIndex, ruleN);
+            for (var paramIndex = 0; paramIndex < np; paramIndex++) {
+                var value = frow.getParamValue(paramIndex, ruleN);
 
                 if (value instanceof CompositeMethod method) {
                     method.updateDependency(dependencies);
@@ -326,14 +283,6 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     public IAction getAction(int n) {
         return (IAction) actionRows[n];
-    }
-
-    public DTInfo getDtInfo() {
-        return dtInfo;
-    }
-
-    public void setDtInfo(DTInfo dtInfo) {
-        this.dtInfo = dtInfo;
     }
 
     @Override
@@ -359,10 +308,6 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
                 .orElseGet(Stream::empty);
         Stream.concat(toStream.apply(actionRows), toStream.apply(conditionRows))
                 .forEach(IBaseDecisionRow::removeDebugInformation);
-    }
-
-    public List<DeferredChange> getDeferredChanges() {
-        return deferredChanges;
     }
 
     public interface DeferredChange {

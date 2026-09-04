@@ -77,8 +77,8 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
 
     private void initializeMethodSignature(SummaryTableView.Builder builder, HeaderSyntaxNode header) {
         var headerSource = header.getSourceString();
-        int pos = ExecutableTableReader.rollWhitespaces(headerSource, 0);
-        int start = pos;
+        var pos = ExecutableTableReader.rollWhitespaces(headerSource, 0);
+        var start = pos;
         pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
         if (start < pos) {
             // it is probably table type

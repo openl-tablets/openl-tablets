@@ -28,15 +28,15 @@ final class SwaggerSchemaSprBeanByteCodeDecorator {
     }
 
     public byte[] decorate(byte[] classBytes) {
-        ClassReader classReader = new ClassReader(classBytes);
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        var classReader = new ClassReader(classBytes);
+        var classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
-        ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM5, classWriter) {
+        var classVisitor = new ClassVisitor(Opcodes.ASM5, classWriter) {
             @Override
             public void visitEnd() {
-                AnnotationVisitor av = cv.visitAnnotation(SCHEMA_TYPE, true);
+                var av = cv.visitAnnotation(SCHEMA_TYPE, true);
 
-                AnnotationVisitor allOfVisitor = av.visitArray(allOf ? "allOf" : "oneOf");
+                var allOfVisitor = av.visitArray(allOf ? "allOf" : "oneOf");
                 for (var combinedOpenClass : targetClasses) {
                     allOfVisitor.visit(null, Type.getType(ByteCodeUtils.toTypeDescriptor(combinedOpenClass.getBeanClassName())));
                 }
@@ -49,11 +49,11 @@ final class SwaggerSchemaSprBeanByteCodeDecorator {
 
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-                MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
+                var mv = super.visitMethod(access, name, descriptor, signature, exceptions);
 
                 // hide getter from swagger as they duplicate properties from allOf and oneOf classes
-                boolean isPublic = (access & Opcodes.ACC_PUBLIC) != 0;
-                boolean isGetter = (name.startsWith("get") || name.startsWith("is"))
+                var isPublic = (access & Opcodes.ACC_PUBLIC) != 0;
+                var isGetter = (name.startsWith("get") || name.startsWith("is"))
                         && descriptor.startsWith("()") // no parameters
                         && !Type.getReturnType(descriptor).equals(Type.VOID_TYPE);
                 if (!isPublic || !isGetter) {
@@ -74,7 +74,7 @@ final class SwaggerSchemaSprBeanByteCodeDecorator {
                     @Override
                     public void visitEnd() {
                         // Add (or rewrite) single @Schema(hidden = true)
-                        AnnotationVisitor av = super.visitAnnotation(SCHEMA_TYPE, true);
+                        var av = super.visitAnnotation(SCHEMA_TYPE, true);
                         av.visit("hidden", true);
                         av.visitEnd();
                         super.visitEnd();

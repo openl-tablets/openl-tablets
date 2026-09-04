@@ -3,9 +3,6 @@ package org.openl.rules.webstudio.service;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -74,18 +71,18 @@ public class DBTestConfiguration {
     @Bean
     public Flyway flywayDBReset(DataSource dataSource) throws SQLException, IOException {
         String databaseCode;
-        try (Connection connection = dataSource.getConnection()) {
-            DatabaseMetaData metaData = connection.getMetaData();
+        try (var connection = dataSource.getConnection()) {
+            var metaData = connection.getMetaData();
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
         }
 
         String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};
 
-        TreeMap<String, String> placeholders = new TreeMap<>();
+        var placeholders = new TreeMap<String, String>();
         for (String location : locations) {
             fillQueries(placeholders, location + "/placeholders.properties");
         }
-        Flyway flyway = new Flyway();
+        var flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setBaselineVersionAsString("0");
         flyway.setBaselineOnMigrate(true);
@@ -97,7 +94,7 @@ public class DBTestConfiguration {
     }
 
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
-        URL resource = getClass().getResource(propertiesFileName);
+        var resource = getClass().getResource(propertiesFileName);
         if (resource == null) {
             return;
         }

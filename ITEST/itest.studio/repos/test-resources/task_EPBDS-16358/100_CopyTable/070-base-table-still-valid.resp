@@ -1,0 +1,37 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+    "id": "eb371809463ad5de586563bd08dbdef9",
+    "tableType": "RawSource",
+    "kind": "Rules",
+    "name": "BankLimitIndex",
+    "pos": "B22:H30",
+    "source": [
+        [
+            {
+                "cell": "B22",
+                "value": "Rules Double BankLimitIndex (String bank, String bankRatingGroup)"
+            },
+            {
+                "cell": "C22"
+            },
+            {
+                "cell": "D22"
+            },
+            {
+                "cell": "E22"
+            },
+            {
+                "cell": "F22"
+            },
+            {
+                "cell": "G22"
+            },
+            {
+                "cell": "H22"
+            }
+        ]
+    ],
+    "totalRows": 9
+}

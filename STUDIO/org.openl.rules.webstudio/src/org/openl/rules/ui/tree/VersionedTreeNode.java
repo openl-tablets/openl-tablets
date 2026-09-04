@@ -46,7 +46,7 @@ public class VersionedTreeNode extends ProjectTreeNode {
     @Override
     public void addChild(Object key, ProjectTreeNode child) {
         super.addChild(key, child);
-        TableSyntaxNode childTableSyntaxNode = child.getTableSyntaxNode();
+        var childTableSyntaxNode = child.getTableSyntaxNode();
         if (linkedChild == null) {
             linkedChild = childTableSyntaxNode;
         } else {

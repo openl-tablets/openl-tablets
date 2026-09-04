@@ -26,7 +26,7 @@ public class PropertiesOpenField extends AOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        Object data = ((IDynamicObject) target).getFieldValue(getName());
+        var data = ((IDynamicObject) target).getFieldValue(getName());
 
         if (data == null) {
             data = propertiesInstance;

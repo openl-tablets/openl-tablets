@@ -1,0 +1,37 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUwOTM6NTEzOWQ4MjQ2Yjg1MGExM2QwMDM0NmVhMDIzNGE4MzcxMWJhOGM5YjExZmI2ZTdkNGJhNTk5ZDRmNTdjMDBiNA==",
+  "name": "EPBDS-15093",
+  "modifiedBy": "John Doe",
+  "branch": "master",
+  "status": "CLOSED",
+  "repository": "design-flat",
+  "modifiedAt": "*",
+  "revision": "*",
+  "path": "EPBDS-15093",
+  "comment": "Project EPBDS-15093 is created.",
+  "branchDefault": true,
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  "capabilities": {
+    "canOpen": true,
+    "canDelete": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canManageBranches": true,
+    "canExport": true
+  }
+}

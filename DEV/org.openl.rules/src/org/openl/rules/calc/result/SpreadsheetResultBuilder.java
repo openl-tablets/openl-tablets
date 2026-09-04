@@ -1,9 +1,7 @@
 package org.openl.rules.calc.result;
 
-import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * Builder is used when return type of the spreadsheet table is {@link SpreadsheetResult}.
@@ -13,17 +11,17 @@ public class SpreadsheetResultBuilder implements IResultBuilder {
     @Override
     public Object buildResult(SpreadsheetResultCalculator result) {
 
-        Object[][] resultValues = result.getValues();
-        final Spreadsheet spreadsheet = result.getSpreadsheet();
+        var resultValues = result.getValues();
+        final var spreadsheet = result.getSpreadsheet();
 
-        SpreadsheetResult spreadsheetResult = new SpreadsheetResult(resultValues,
+        var spreadsheetResult = new SpreadsheetResult(resultValues,
                 spreadsheet.getRowNames(),
                 spreadsheet.getColumnNames(),
                 spreadsheet.getRowNamesForResultModel(),
                 spreadsheet.getColumnNamesForResultModel(),
                 spreadsheet.getFieldsCoordinates());
 
-        TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
+        var tsn = spreadsheet.getSyntaxNode();
         if (tsn != null) {
             spreadsheetResult.setLogicalTable(tsn.getTableBody());
         }

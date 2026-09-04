@@ -1,8 +1,10 @@
 package org.openl.rules.model.scaffolding.data;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
@@ -11,10 +13,16 @@ import org.openl.rules.model.scaffolding.PathInfo;
 
 public class DataModel implements MethodModel {
 
+    @Getter
     private final String name;
+    @Getter
     private final String type;
+    @Getter
     private final PathInfo pathInfo;
+    @Getter
     private final DatatypeModel datatypeModel;
+    @Getter
+    @Setter
     private boolean include;
 
     public DataModel(String name, String type, PathInfo info, DatatypeModel dataType) {
@@ -25,37 +33,8 @@ public class DataModel implements MethodModel {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public PathInfo getPathInfo() {
-        return pathInfo;
-    }
-
-    public DatatypeModel getDatatypeModel() {
-        return datatypeModel;
-    }
-
-    @Override
     public List<InputParameter> getParameters() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public boolean isInclude() {
-        return include;
-    }
-
-    @Override
-    public void setInclude(boolean include) {
-        this.include = include;
+        return List.of();
     }
 
     @Override

@@ -5,6 +5,7 @@
  */
 package org.openl.syntax.impl;
 
+import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.openl.source.IOpenSourceCodeModule;
@@ -16,6 +17,7 @@ import org.openl.util.text.ILocation;
  */
 public class NaryNode extends ASyntaxNode {
 
+    @Getter
     private ISyntaxNode[] nodes;
 
     public NaryNode(String type, ILocation pos, ISyntaxNode[] nodes, IOpenSourceCodeModule module) {
@@ -29,10 +31,6 @@ public class NaryNode extends ASyntaxNode {
                 node.setParent(this);
             }
         }
-    }
-
-    public ISyntaxNode[] getNodes() {
-        return nodes;
     }
 
     /*

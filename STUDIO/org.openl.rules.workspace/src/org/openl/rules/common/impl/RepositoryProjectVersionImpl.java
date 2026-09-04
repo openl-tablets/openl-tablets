@@ -2,6 +2,9 @@ package org.openl.rules.common.impl;
 
 import java.io.Serial;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -10,28 +13,21 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     @Serial
     private static final long serialVersionUID = -5156747482692477220L;
 
+    @Getter
     private int major = MAX_MM_INT;
+    @Getter
     private int minor = MAX_MM_INT;
+    @Getter
     private final String revision;
     private transient String versionName;
+    @Getter
     private final VersionInfo versionInfo;
 
+    @Getter
+    @Setter
     private String versionComment;
+    @Getter
     private boolean deleted = false;
-
-    @Override
-    public String getVersionComment() {
-        return versionComment;
-    }
-
-    @Override
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setVersionComment(String versionComment) {
-        this.versionComment = versionComment;
-    }
 
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo) {
         major = version.getMajor();
@@ -82,26 +78,6 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     }
 
     @Override
-    public int getMajor() {
-        return major;
-    }
-
-    @Override
-    public int getMinor() {
-        return minor;
-    }
-
-    @Override
-    public String getRevision() {
-        return revision;
-    }
-
-    @Override
-    public VersionInfo getVersionInfo() {
-        return versionInfo;
-    }
-
-    @Override
     public String getVersionName() {
         if (versionName == null) {
             if (major != MAX_MM_INT && minor != MAX_MM_INT && major != -1 && minor != -1) {
@@ -116,7 +92,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     @Override
     public String getShortVersion() {
-        String version = getVersionName();
+        var version = getVersionName();
         return version == null || version.length() < 6 ? version : version.substring(0, 6);
     }
 

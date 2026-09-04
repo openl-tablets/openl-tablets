@@ -6,19 +6,16 @@
 
 package org.openl.binding.impl;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class ControlSignalReturn extends ControlSignal {
 
+    @Getter
     private final Object returnValue;
-
-    public ControlSignalReturn(Object returnValue) {
-        this.returnValue = returnValue;
-    }
-
-    public Object getReturnValue() {
-        return returnValue;
-    }
 
 }

@@ -61,8 +61,8 @@ public class SyntaxNodeExceptionUtils {
     }
 
     private static String formatErrorMessage(Throwable ex) {
-        String formattedMessage = ex.getMessage();
-        ExceptionMessageFormatter filter = formatters.get(ex.getClass());
+        var formattedMessage = ex.getMessage();
+        var filter = formatters.get(ex.getClass());
         if (filter != null) {
             formattedMessage = filter.format(ex);
         }

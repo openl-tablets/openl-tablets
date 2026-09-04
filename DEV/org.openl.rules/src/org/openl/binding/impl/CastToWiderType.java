@@ -2,6 +2,9 @@ package org.openl.binding.impl;
 
 import java.util.Collection;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -12,16 +15,11 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * Contains information needed to cast two types to wider type
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CastToWiderType {
     private final IOpenClass widerType;
     private final IOpenCast cast1;
     private final IOpenCast cast2;
-
-    private CastToWiderType(IOpenClass widerType, IOpenCast cast1, IOpenCast cast2) {
-        this.widerType = widerType;
-        this.cast1 = cast1;
-        this.cast2 = cast2;
-    }
 
     public IOpenClass getWiderType() {
         return widerType;
@@ -54,9 +52,9 @@ public final class CastToWiderType {
      * @return cast information
      */
     public static CastToWiderType create(ICastFactory castFactory, IOpenClass type1, IOpenClass type2) {
-        IOpenClass widerType = castFactory.findClosestClass(type1, type2);
-        IOpenCast castToParent1 = castFactory.getCast(type1, widerType);
-        IOpenCast castToParent2 = castFactory.getCast(type2, widerType);
+        var widerType = castFactory.findClosestClass(type1, type2);
+        var castToParent1 = castFactory.getCast(type1, widerType);
+        var castToParent2 = castFactory.getCast(type2, widerType);
         return new CastToWiderType(widerType, castToParent1, castToParent2);
     }
 

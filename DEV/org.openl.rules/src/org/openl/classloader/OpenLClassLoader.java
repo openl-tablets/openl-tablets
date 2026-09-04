@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import groovy.lang.GroovyClassLoader;
+import lombok.RequiredArgsConstructor;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 import org.openl.util.IOUtils;
@@ -371,13 +372,10 @@ public class OpenLClassLoader extends GroovyClassLoader {
     /*
      * A utility class that will enumerate over an enumerations queue.
      */
+    @RequiredArgsConstructor
     private static final class CompoundEnumeration implements Enumeration<URL> {
         private final Queue<Enumeration<URL>> queue;
         private Enumeration<URL> cursor;
-
-        public CompoundEnumeration(Queue<Enumeration<URL>> queue) {
-            this.queue = queue;
-        }
 
         private boolean next() {
             if (cursor != null && cursor.hasMoreElements()) {

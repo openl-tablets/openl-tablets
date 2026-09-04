@@ -18,20 +18,24 @@ class RawTableSourceActionTest {
 
     @Test
     void deserializesAppendRowsWithInlineMerge() throws Exception {
-        var action = read("{\"operation\":\"append\",\"target\":{\"type\":\"rows\","
-                + "\"cells\":[[{\"value\":\"x\"},{\"value\":2,\"colspan\":2}]]}}");
+        var action = read("""
+                {"operation":"append","target":{"type":"rows",\
+                "cells":[[{"value":"x"},{"value":2,"colspan":2}]]}}\
+                """);
         var append = assertInstanceOf(RawTableSourceAction.Append.class, action);
         var rows = assertInstanceOf(AppendTarget.Rows.class, append.target());
         assertEquals(1, rows.cells().size());
-        assertEquals(2, rows.cells().get(0).size());
-        assertEquals("x", rows.cells().get(0).get(0).value());
-        assertEquals(2, rows.cells().get(0).get(1).colspan());
+        assertEquals(2, rows.cells().getFirst().size());
+        assertEquals("x", rows.cells().getFirst().getFirst().value());
+        assertEquals(2, rows.cells().getFirst().get(1).colspan());
     }
 
     @Test
     void deserializesInsertColumns() throws Exception {
-        var action = read("{\"operation\":\"insert\",\"target\":"
-                + "{\"type\":\"columns\",\"position\":3,\"cells\":[[{\"value\":\"a\"}]]}}");
+        var action = read("""
+                {"operation":"insert","target":\
+                {"type":"columns","position":3,"cells":[[{"value":"a"}]]}}\
+                """);
         var insert = assertInstanceOf(RawTableSourceAction.Insert.class, action);
         var columns = assertInstanceOf(InsertTarget.Columns.class, insert.target());
         assertEquals(3, columns.position());
@@ -40,19 +44,23 @@ class RawTableSourceActionTest {
 
     @Test
     void deserializesInsertRowsBlock() throws Exception {
-        var action = read("{\"operation\":\"insert\",\"target\":{\"type\":\"rows\",\"position\":2,"
-                + "\"cells\":[[{\"value\":\"a\"},{\"value\":\"b\"}],[{\"value\":\"c\"},{\"value\":\"d\"}]]}}");
+        var action = read("""
+                {"operation":"insert","target":{"type":"rows","position":2,\
+                "cells":[[{"value":"a"},{"value":"b"}],[{"value":"c"},{"value":"d"}]]}}\
+                """);
         var insert = assertInstanceOf(RawTableSourceAction.Insert.class, action);
         var rows = assertInstanceOf(InsertTarget.Rows.class, insert.target());
         assertEquals(2, rows.position());
         assertEquals(2, rows.cells().size());
-        assertEquals("a", rows.cells().get(0).get(0).value());
+        assertEquals("a", rows.cells().getFirst().getFirst().value());
     }
 
     @Test
     void deserializesAppendRowsBlock() throws Exception {
-        var action = read("{\"operation\":\"append\",\"target\":{\"type\":\"rows\","
-                + "\"cells\":[[{\"value\":\"a\"}],[{\"value\":\"b\"}]]}}");
+        var action = read("""
+                {"operation":"append","target":{"type":"rows",\
+                "cells":[[{"value":"a"}],[{"value":"b"}]]}}\
+                """);
         var append = assertInstanceOf(RawTableSourceAction.Append.class, action);
         var rows = assertInstanceOf(AppendTarget.Rows.class, append.target());
         assertEquals(2, rows.cells().size());
@@ -69,8 +77,10 @@ class RawTableSourceActionTest {
 
     @Test
     void deserializesUpdateCellIncludingNullValue() throws Exception {
-        var action = read("{\"operation\":\"update\",\"target\":"
-                + "{\"type\":\"cell\",\"row\":1,\"column\":2,\"value\":\"v\"}}");
+        var action = read("""
+                {"operation":"update","target":\
+                {"type":"cell","row":1,"column":2,"value":"v"}}\
+                """);
         var update = assertInstanceOf(RawTableSourceAction.Update.class, action);
         var cell = assertInstanceOf(UpdateTarget.Cell.class, update.target());
         assertEquals(1, cell.row());
@@ -84,21 +94,25 @@ class RawTableSourceActionTest {
 
     @Test
     void deserializesUpdateRange() throws Exception {
-        var action = read("{\"operation\":\"update\",\"target\":{\"type\":\"range\",\"row\":1,\"column\":2,"
-                + "\"cells\":[[{\"value\":\"a\"},{\"value\":\"b\"}],[{\"value\":\"c\"},{\"value\":\"d\"}]]}}");
+        var action = read("""
+                {"operation":"update","target":{"type":"range","row":1,"column":2,\
+                "cells":[[{"value":"a"},{"value":"b"}],[{"value":"c"},{"value":"d"}]]}}\
+                """);
         var update = assertInstanceOf(RawTableSourceAction.Update.class, action);
         var range = assertInstanceOf(UpdateTarget.Range.class, update.target());
         assertEquals(1, range.row());
         assertEquals(2, range.column());
         assertEquals(2, range.cells().size());
-        assertEquals("a", range.cells().get(0).get(0).value());
+        assertEquals("a", range.cells().getFirst().getFirst().value());
         assertEquals("d", range.cells().get(1).get(1).value());
     }
 
     @Test
     void deserializesMerge() throws Exception {
-        var action = read("{\"operation\":\"merge\",\"target\":"
-                + "{\"type\":\"cells\",\"row\":1,\"column\":2,\"rowspan\":2,\"colspan\":3}}");
+        var action = read("""
+                {"operation":"merge","target":\
+                {"type":"cells","row":1,"column":2,"rowspan":2,"colspan":3}}\
+                """);
         var merge = assertInstanceOf(RawTableSourceAction.Merge.class, action);
         var cells = assertInstanceOf(MergeTarget.Cells.class, merge.target());
         assertEquals(1, cells.row());

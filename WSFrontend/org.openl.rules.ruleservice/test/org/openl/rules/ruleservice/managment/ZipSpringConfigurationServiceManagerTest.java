@@ -26,7 +26,7 @@ class ZipSpringConfigurationServiceManagerTest {
 
     @Test
     void testServiceManager() throws MethodInvocationException {
-        Object object = frontend.execute("org.openl.tablets_org.openl.tablets",
+        var object = frontend.execute("org.openl.tablets_org.openl.tablets",
                 "vehicleEligibilityScore",
                 "Provisional");
         assertTrue(object instanceof Double);

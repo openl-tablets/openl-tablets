@@ -15,6 +15,22 @@ const cyMocks = vi.hoisted(() => {
     chain.not.mockReturnValue(chain)
     const node = { empty: () => false, hasClass: () => false, addClass: nodeAddClass, removeClass: nodeRemoveClass, closedNeighborhood: () => ({}) }
     nodeRemoveClass.mockReturnValue(node)
+    // An empty node collection that answers everything the band layout asks of one.
+    const collection: Record<string, unknown> = {}
+    Object.assign(collection, {
+        not: () => collection,
+        union: () => collection,
+        edgesWith: () => collection,
+        filter: () => collection,
+        children: () => collection,
+        map: () => [],
+        forEach: () => undefined,
+        nonempty: () => false,
+        empty: () => true,
+        layout: () => ({ run: vi.fn() }),
+        boundingBox: () => ({ x1: 0, y1: 0, x2: 0, y2: 0, w: 0, h: 0 }),
+        shift: vi.fn(),
+    })
     return {
         nodeAddClass,
         getElementById: vi.fn(() => node),
@@ -27,7 +43,7 @@ const cyMocks = vi.hoisted(() => {
         height: vi.fn(() => 600),
         fit: vi.fn(),
         layout: vi.fn(() => ({ run: vi.fn() })),
-        nodes: vi.fn(() => ({ forEach: vi.fn() })),
+        nodes: vi.fn(() => collection),
         elements: vi.fn(() => chain),
         add: vi.fn(),
         remove: vi.fn(),
@@ -268,6 +284,95 @@ describe('TableGraphModal', () => {
         expect(screen.getByText('rules/Main.xlsx')).toBeInTheDocument()
         expect(screen.getByText('state: AZ')).toBeInTheDocument()
         expect(screen.getByText('State: AR')).toBeInTheDocument()
+    })
+
+    it('shows the data model of the selected datatype and follows a field to its datatype', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            {
+                id: 'policy',
+                name: 'Policy',
+                kind: 'Datatype',
+                dependencies: ['vehicle', 'driver'],
+                extends: 'vehicle',
+                fields: [
+                    { name: 'drivers', type: 'Driver[]', ref: 'driver', collection: true },
+                    { name: 'number', type: 'String' },
+                ],
+            },
+            { id: 'vehicle', name: 'Vehicle', kind: 'Datatype' },
+            { id: 'driver', name: 'Driver', kind: 'Datatype' },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Policy')
+
+        expect(screen.getByText('graph:panel.extends')).toBeInTheDocument()
+        expect(screen.getByText('drivers')).toBeInTheDocument()
+        // a field of a simple type is listed too, but is not a link to another table
+        expect(screen.getByText('String')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('Driver[]'))
+
+        expect(cyMocks.getElementById).toHaveBeenCalledWith('driver')
+    })
+
+    it('shows the values of the selected vocabulary, and where the ones it leaves out are', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            {
+                id: 'score',
+                name: 'Score',
+                kind: 'Datatype',
+                tableType: 'Vocabulary',
+                vocabulary: { valueType: 'Integer', valueCount: 8, valuesPreview: [100, 200, 300, 600, 700, 800], truncated: true },
+            },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        // the node is drawn as an entity box listing the values, not as a bare name
+        const label = mockCytoscape.mock.calls[0]?.[0]?.elements?.[0]?.data as unknown as { label: string }
+        expect(label.label.split('\n')).toEqual(['Score: Integer', '──────────────', '100', '200', '300', '… +2 more', '600', '700', '800'])
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Score')
+
+        expect(screen.getByText('graph:panel.values')).toBeInTheDocument()
+        expect(screen.getByTestId('graph-vocabulary-values')).toHaveTextContent('100200300…600700800')
+        // the whole vocabulary does not travel with the graph, so the panel points at the table for the rest
+        expect(screen.getByText('graph:panel.values_truncated')).toBeInTheDocument()
+        // a vocabulary lists values instead of fields
+        expect(screen.queryByText('graph:panel.fields')).not.toBeInTheDocument()
+    })
+
+    it('leaves the exploration when a field points to a datatype outside it', async () => {
+        mockApiCall.mockResolvedValueOnce([
+            {
+                id: 'policy',
+                name: 'Policy',
+                kind: 'Datatype',
+                dependencies: ['driver'],
+                fields: [{ name: 'drivers', type: 'Driver[]', ref: 'driver', collection: true }],
+            },
+            { id: 'driver', name: 'Driver', kind: 'Datatype' },
+        ] as never)
+
+        render(<TableGraphModal />)
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Policy')
+        // nothing uses Policy, so this exploration shows Policy alone — Driver is filtered out of the graph
+        await userEvent.click(screen.getByText('graph:panel.focus_used_by'))
+        expect(screen.getByText('graph:panel.back')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('Driver[]'))
+
+        // the exploration is dropped, so the datatype the field points to is drawn instead of silently missing
+        expect(screen.queryByText('graph:panel.back')).not.toBeInTheDocument()
     })
 
     it('preselects the table open in the editor from the URL fragment', async () => {

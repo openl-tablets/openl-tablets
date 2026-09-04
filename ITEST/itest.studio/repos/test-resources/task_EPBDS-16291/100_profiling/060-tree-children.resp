@@ -1,0 +1,94 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "children": [
+    {
+      "durationMillis": "*",
+      "instance": 0,
+      "kind": "stepRef",
+      "name": "$Items",
+      "refStep": "R0C0",
+      "selfMillis": "*",
+      "steps": [],
+      "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A1:B4"
+    },
+    {
+      "durationMillis": "*",
+      "instance": 0,
+      "kind": "spreadsheet",
+      "name": "SubCalc",
+      "selfMillis": "*",
+      "steps": [
+        {
+          "durationMillis": "*",
+          "label": "$Doubled",
+          "ref": "R0C0",
+          "selfMillis": "*",
+          "status": "executed"
+        },
+        {
+          "childrenTotal": 1,
+          "durationMillis": "*",
+          "label": "$Plus",
+          "ref": "R1C0",
+          "selfMillis": "*",
+          "status": "executed"
+        }
+      ],
+      "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A6:B9"
+    },
+    {
+      "durationMillis": "*",
+      "instance": 1,
+      "kind": "spreadsheet",
+      "name": "SubCalc",
+      "selfMillis": "*",
+      "steps": [
+        {
+          "durationMillis": "*",
+          "label": "$Doubled",
+          "ref": "R0C0",
+          "selfMillis": "*",
+          "status": "executed"
+        },
+        {
+          "childrenTotal": 1,
+          "durationMillis": "*",
+          "label": "$Plus",
+          "ref": "R1C0",
+          "selfMillis": "*",
+          "status": "executed"
+        }
+      ],
+      "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A6:B9"
+    },
+    {
+      "durationMillis": "*",
+      "instance": 2,
+      "kind": "spreadsheet",
+      "name": "SubCalc",
+      "selfMillis": "*",
+      "steps": [
+        {
+          "durationMillis": "*",
+          "label": "$Doubled",
+          "ref": "R0C0",
+          "selfMillis": "*",
+          "status": "executed"
+        },
+        {
+          "childrenTotal": 1,
+          "durationMillis": "*",
+          "label": "$Plus",
+          "ref": "R1C0",
+          "selfMillis": "*",
+          "status": "executed"
+        }
+      ],
+      "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A6:B9"
+    }
+  ],
+  "total": 4
+}
+

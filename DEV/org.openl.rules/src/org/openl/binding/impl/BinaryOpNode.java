@@ -31,8 +31,8 @@ public class BinaryOpNode extends MethodBoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object leftValue = left.evaluate(env);
-        Object rightValue = right.evaluate(env);
+        var leftValue = left.evaluate(env);
+        var rightValue = right.evaluate(env);
 
         if (useBinaryMethod) {
             return boundMethod.invoke(null, new Object[]{leftValue, rightValue}, env);

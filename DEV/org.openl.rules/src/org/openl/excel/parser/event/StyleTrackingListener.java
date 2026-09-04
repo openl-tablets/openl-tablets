@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.record.CellValueRecordInterface;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
@@ -13,15 +16,15 @@ import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.record.Record;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class StyleTrackingListener implements HSSFListener {
     private final HSSFListener delegate;
+    @Getter(AccessLevel.PACKAGE)
     private final Map<Integer, FormatRecord> customFormats = new HashMap<>();
+    @Getter(AccessLevel.PACKAGE)
     private final List<ExtendedFormatRecord> extendedFormats = new ArrayList<>();
+    @Getter(AccessLevel.PACKAGE)
     private final List<FontRecord> fonts = new ArrayList<>();
-
-    StyleTrackingListener(HSSFListener delegate) {
-        this.delegate = delegate;
-    }
 
     @Override
     public void processRecord(Record record) {
@@ -60,7 +63,7 @@ public class StyleTrackingListener implements HSSFListener {
      * @return the index of the format string
      */
     public int getFormatIndex(CellValueRecordInterface cell) {
-        ExtendedFormatRecord xfr = extendedFormats.get(cell.getXFIndex());
+        var xfr = extendedFormats.get(cell.getXFIndex());
         if (xfr == null) {
             return -1;
         }
@@ -68,19 +71,7 @@ public class StyleTrackingListener implements HSSFListener {
     }
 
     public short getIndent(CellValueRecordInterface cell) {
-        ExtendedFormatRecord xfr = extendedFormats.get(cell.getXFIndex());
+        var xfr = extendedFormats.get(cell.getXFIndex());
         return xfr == null ? 0 : xfr.getIndent();
-    }
-
-    List<ExtendedFormatRecord> getExtendedFormats() {
-        return extendedFormats;
-    }
-
-    Map<Integer, FormatRecord> getCustomFormats() {
-        return customFormats;
-    }
-
-    List<FontRecord> getFonts() {
-        return fonts;
     }
 }

@@ -61,7 +61,7 @@ public final class GoalStack implements Serializable {
      * Constructor with given main goal and undo stack.
      */
     public GoalStack(Goal mainGoal, UndoStack undoStack) {
-        FastStack initialGoals = new FastStack();
+        var initialGoals = new FastStack();
         initialGoals.push(mainGoal);
         init(initialGoals, undoStack);
     }
@@ -84,7 +84,7 @@ public final class GoalStack implements Serializable {
      * the goal stack was created - false is returned
      */
     public boolean backtrack(ChoicePointLabel label) {
-        ChoicePoint cp = backtrackStack(label);
+        var cp = backtrackStack(label);
         if (cp != null) {
             _undoStack.backtrack(cp.undoStackSize());
             pushGoal(cp.goal());
@@ -103,7 +103,7 @@ public final class GoalStack implements Serializable {
      */
     public ChoicePoint backtrackStack(ChoicePointLabel label) {
         while (!_choicePointStack.empty()) {
-            ChoicePoint cp = (ChoicePoint) _choicePointStack.pop();
+            var cp = (ChoicePoint) _choicePointStack.pop();
             // the condition "the required label found"
             if (label == null || label.equals(cp.label())) {
                 _exeStack = cp.exeStack();
@@ -115,17 +115,6 @@ public final class GoalStack implements Serializable {
         _exeStack.clear();
 
         return null;
-    }
-
-    /**
-     * Returns the current choice point.
-     */
-    public ChoicePoint currentChoicePoint() {
-        if (_choicePointStack.empty()) {
-            throw new RuntimeException("No current choice point");
-        }
-
-        return (ChoicePoint) _choicePointStack.peek();
     }
 
     /**
@@ -163,7 +152,7 @@ public final class GoalStack implements Serializable {
      * Sets a labeled choice point between two goals.
      */
     public void setChoicePoint(Goal g1, Goal g2, ChoicePointLabel label) {
-        ChoicePoint cp = new ChoicePoint(g2, label, _exeStack, _undoStack.size());
+        var cp = new ChoicePoint(g2, label, _exeStack, _undoStack.size());
         _choicePointStack.push(cp);
         pushGoal(g1);
     }

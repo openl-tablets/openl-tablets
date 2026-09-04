@@ -31,7 +31,7 @@ public final class JsonUtils {
     }
 
     public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, DefaultTypingMode defaultTypingMode) {
-        JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
+        var jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setDefaultTypingMode(defaultTypingMode);
         jacksonObjectMapperFactoryBean.setOverrideClasses(new HashSet<>(Arrays.asList(types)));
         try {
@@ -42,7 +42,7 @@ public final class JsonUtils {
     }
 
     static ObjectMapper getDefaultJacksonObjectMapper() {
-        JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
+        var jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setDefaultDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
             return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
@@ -59,18 +59,18 @@ public final class JsonUtils {
      * @return objectMapper
      */
     public static ObjectMapper getCachedObjectMapper(Object key, Class<?>[] classes) {
-        ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
+        var readLock = lock.readLock();
         readLock.lock();
         try {
-            ObjectMapper objectMapper = cache.get(key);
+            var objectMapper = cache.get(key);
             if (objectMapper != null) return objectMapper;
         } finally {
             readLock.unlock();
         }
-        ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+        var writeLock = lock.writeLock();
         writeLock.lock();
         try {
-            ObjectMapper objectMapper = cache.get(key);
+            var objectMapper = cache.get(key);
             if (objectMapper == null) {
                 objectMapper = JsonUtils.createJacksonObjectMapper(classes, false);
                 cache.put(key, objectMapper);
@@ -125,8 +125,8 @@ public final class JsonUtils {
     }
 
     public static Map<String, String> splitJSON(String jsonString, ObjectMapper objectMapper) throws IOException {
-        JsonNode rootNode = objectMapper.readTree(jsonString);
-        Map<String, String> splitMap = new HashMap<>();
+        var rootNode = objectMapper.readTree(jsonString);
+        var splitMap = new HashMap<String, String>();
         Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
         while (fieldsIterator.hasNext()) {
             Map.Entry<String, JsonNode> field = fieldsIterator.next();

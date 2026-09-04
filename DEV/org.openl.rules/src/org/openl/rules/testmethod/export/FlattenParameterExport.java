@@ -32,9 +32,9 @@ public class FlattenParameterExport extends BaseParameterExport {
                 Boolean skipEmptyParameters) {
         var descriptions = test.getTestSuite().getTests();
         sheet.trackAllColumnsForAutoSizing();
-        int rowNum = createAndWriteRowIds(sheet, start, descriptions);
+        var rowNum = createAndWriteRowIds(sheet, start, descriptions);
         var params = test.getTestSuite().getTest(0).getExecutionParams();
-        for (int pNum = 0; pNum < params.length; pNum++) {
+        for (var pNum = 0; pNum < params.length; pNum++) {
             final var paramN = pNum;
             Function<Object, Optional<Object>> getFieldValueChain = description -> Optional.ofNullable(((TestDescription) description).getExecutionParams())
                     .filter(execParams -> paramN < execParams.length)
@@ -43,8 +43,8 @@ public class FlattenParameterExport extends BaseParameterExport {
             var fields = nonEmptyFields.get(pNum);
             if (maxArraySize > 0) {
                 // parameter is most likely an array
-                for (int i = 0; i < maxArraySize; i++) {
-                    final int idx = i;
+                for (var i = 0; i < maxArraySize; i++) {
+                    final var idx = i;
                     rowNum = createAndWriteRowValues(sheet,
                             new Cursor(rowNum, start.getColNum()),
                             params[paramN].getName() + "[" + i + "]",
@@ -64,7 +64,7 @@ public class FlattenParameterExport extends BaseParameterExport {
                         skipEmptyParameters);
             }
         }
-        for (int col = 1; col < descriptions.length + 2; col++) {
+        for (var col = 1; col < descriptions.length + 2; col++) {
             sheet.autoSizeColumn(col);
         }
         return rowNum;
@@ -95,7 +95,7 @@ public class FlattenParameterExport extends BaseParameterExport {
             var tasks = new TreeSet<WriteTask>();
             var colNum = start.getColNum();
             tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), namePrefix, styles.header));
-            boolean emptyRow = true;
+            var emptyRow = true;
             for (var description : descriptions) {
                 var fieldValue = getFieldValueChain.apply(description).orElse(null);
                 if (fieldValue != null && !(fieldValue.getClass().isArray() && Array.getLength(fieldValue) == 0)) {
@@ -113,12 +113,12 @@ public class FlattenParameterExport extends BaseParameterExport {
         fields.sort(FIELD_ORDER);
         for (var field : fields) {
             var fieldChainName = namePrefix + "." + field.getField().getName();
-            Function<Object, Optional<Object>> nextValueChain = getFieldValueChain.andThen(opt -> opt.map(obj -> ExportUtils.fieldValue(obj, field.getField())));
+            var nextValueChain = getFieldValueChain.andThen(opt -> opt.map(obj -> ExportUtils.fieldValue(obj, field.getField())));
             var children = field.getChildren();
             if (field.isArray()) {
-                int maxSize = getMaxArraySize(descriptions, nextValueChain);
-                for (int i = 0; i < maxSize; i++) {
-                    final int idx = i;
+                var maxSize = getMaxArraySize(descriptions, nextValueChain);
+                for (var i = 0; i < maxSize; i++) {
+                    final var idx = i;
                     rowNum = createAndWriteRowValues(sheet,
                             new Cursor(rowNum, start.getColNum()),
                             fieldChainName + "[" + i + "]",

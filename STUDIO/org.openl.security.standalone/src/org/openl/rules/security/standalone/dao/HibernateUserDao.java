@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.persistence.criteria.AbstractQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
@@ -29,9 +28,9 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     @Override
     @Transactional
     public User getUserByName(final String name) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<User> criteria = builder.createQuery(User.class);
-        Root<User> u = criteria.from(User.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(User.class);
+        var u = criteria.from(User.class);
         criteria.select(u).where(builder.equal(u.get("loginName"), name)).distinct(true);
         List<User> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.getFirst();
@@ -40,9 +39,9 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     @Override
     @Transactional
     public boolean existsByName(String name) {
-        CriteriaBuilder cb = getSession().getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Root<User> u = query.from(User.class);
+        var cb = getSession().getCriteriaBuilder();
+        var query = cb.createQuery(Long.class);
+        var u = query.from(User.class);
 
         query.select(cb.count(u)).where(cb.equal(u.get("loginName"), name)).distinct(true);
 
@@ -75,9 +74,9 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     @Override
     @Transactional
     public List<User> getAllUsers() {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<User> criteria = builder.createQuery(User.class);
-        Root<User> root = criteria.from(User.class);
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(User.class);
+        var root = criteria.from(User.class);
         criteria.select(root).orderBy(builder.asc(builder.upper(root.get("loginName"))));
         return getSession().createQuery(criteria).getResultList();
     }
@@ -130,6 +129,20 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<String> findUserNames(String searchTerm, int limit) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(String.class);
+        var root = criteria.from(User.class);
+        criteria.select(root.get("loginName"))
+                .where(builder.like(builder.lower(root.get("loginName")),
+                        "%" + escape(searchTerm) + "%",
+                        builder.literal(ESCAPE_CHAR)))
+                .orderBy(builder.asc(builder.upper(root.get("loginName"))));
+        return getSession().createQuery(criteria).setMaxResults(limit).getResultList();
+    }
+
+    @Override
     public Set<String> getUserNames() {
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(String.class);
@@ -176,4 +189,5 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
             }
         }
     }
+
 }

@@ -2,18 +2,16 @@ package org.openl.rules.diff.xls2;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.table.ICell;
 
+@RequiredArgsConstructor
 public class DiffPair {
     private final XlsTable table1;
     private final XlsTable table2;
     private List<ICell> diffCells1;
     private List<ICell> diffCells2;
-
-    public DiffPair(XlsTable table1, XlsTable table2) {
-        this.table1 = table1;
-        this.table2 = table2;
-    }
 
     public XlsTable getTable1() {
         return table1;

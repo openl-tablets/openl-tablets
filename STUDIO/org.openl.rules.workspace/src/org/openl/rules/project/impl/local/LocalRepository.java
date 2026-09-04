@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -48,28 +50,28 @@ public class LocalRepository extends FileSystemRepository {
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        List<FileData> list = super.list(path);
+        var list = super.list(path);
         list.removeIf(fileData -> fileData.getName().startsWith("."));
         return list;
     }
 
     @Override
     public List<FileData> listFolders(String path) {
-        List<FileData> list = super.listFolders(path);
+        var list = super.listFolders(path);
         list.removeIf(fileData -> fileData.getName().startsWith("."));
         return list;
     }
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        FileData fileData = super.save(data, stream);
+        var fileData = super.save(data, stream);
         return afterFileWrite(fileData);
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        List<FileData> result = super.save(fileItems);
-        for (int i = 0; i < result.size(); i++) {
+        var result = super.save(fileItems);
+        for (var i = 0; i < result.size(); i++) {
             result.set(i, afterFileWrite(result.get(i)));
         }
         return result;
@@ -79,15 +81,15 @@ public class LocalRepository extends FileSystemRepository {
     public FileData save(FileData folderData,
                          final Iterable<FileItem> files,
                          ChangesetType changesetType) throws IOException {
-        FileData fileData = super.save(folderData, files, changesetType);
+        var fileData = super.save(folderData, files, changesetType);
         registry.markDirty(projectNameOf(folderData.getName()));
         return fileData;
     }
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        boolean deleted = super.delete(data);
-        String name = data.getName();
+        var deleted = super.delete(data);
+        var name = data.getName();
         if (name.contains("/")) {
             registry.markDirty(projectNameOf(name));
         } else if (deleted || check(name) == null) {
@@ -108,9 +110,9 @@ public class LocalRepository extends FileSystemRepository {
 
     @Override
     protected FileData getFileData(Path file) throws IOException {
-        FileData fileData = super.getFileData(file);
-        String name = fileData.getName();
-        int slash = name.indexOf('/');
+        var fileData = super.getFileData(file);
+        var name = fileData.getName();
+        var slash = name.indexOf('/');
         if (slash > 0 && Files.isRegularFile(file)) {
             fileData.setUniqueId(registry.uniqueId(name.substring(0, slash),
                     name.substring(slash),
@@ -132,14 +134,14 @@ public class LocalRepository extends FileSystemRepository {
      * revision after a restart.
      */
     private FileData afterFileWrite(FileData fileData) throws IOException {
-        String name = fileData.getName();
-        String projectName = projectNameOf(name);
+        var name = fileData.getName();
+        var projectName = projectNameOf(name);
         registry.markDirty(projectName);
         if (name.length() > projectName.length()) {
             var baseline = registry.baseline(projectName, name.substring(projectName.length()));
             if (baseline != null && baseline.size() == fileData.getSize()
                     && baseline.modifiedAt() == fileData.getModifiedAt().getTime()) {
-                long bumped = Math.max(System.currentTimeMillis(), baseline.modifiedAt() + 1);
+                var bumped = Math.max(System.currentTimeMillis(), baseline.modifiedAt() + 1);
                 Files.setLastModifiedTime(getRoot().resolve(name), FileTime.fromMillis(bumped));
                 fileData.setModifiedAt(new Date(bumped));
             }
@@ -152,11 +154,11 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     private String projectNameOf(String path) {
-        String relative = path.replace('\\', '/');
+        var relative = path.replace('\\', '/');
         if (new File(path).isAbsolute()) {
             relative = relativize(path);
         }
-        int slash = relative.indexOf('/');
+        var slash = relative.indexOf('/');
         return slash < 0 ? relative : relative.substring(0, slash);
     }
 
@@ -178,12 +180,9 @@ public class LocalRepository extends FileSystemRepository {
         return base.relativize(pathAbsolute).toString().replace('\\', '/');
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private final class RegistryProjectState implements ProjectState {
         private final String projectName;
-
-        private RegistryProjectState(String projectName) {
-            this.projectName = projectName;
-        }
 
         @Override
         public void notifyModified() {
@@ -198,13 +197,13 @@ public class LocalRepository extends FileSystemRepository {
 
         @Override
         public String getProjectVersion() {
-            ProjectMetainfo metainfo = registry.get(projectName);
+            var metainfo = registry.get(projectName);
             return metainfo == null ? null : metainfo.version();
         }
 
         @Override
         public String getRepositoryId() {
-            ProjectMetainfo metainfo = registry.get(projectName);
+            var metainfo = registry.get(projectName);
             return metainfo == null ? null : metainfo.repositoryId();
         }
 
@@ -226,13 +225,13 @@ public class LocalRepository extends FileSystemRepository {
 
         @Override
         public FileData getFileData() {
-            ProjectMetainfo metainfo = registry.get(projectName);
+            var metainfo = registry.get(projectName);
             if (metainfo == null || !metainfo.hasRevision()) {
                 // Only partial information is available. Cannot fill FileData. Must request from repository.
                 return null;
             }
 
-            FileData fileData = new FileData();
+            var fileData = new FileData();
             fileData.setName(projectName);
             fileData.setVersion(metainfo.version());
             fileData.setBranch(metainfo.branch());
@@ -253,8 +252,8 @@ public class LocalRepository extends FileSystemRepository {
         private ProjectMetainfo toMetainfo(String repositoryId,
                                            FileData fileData,
                                            Map<String, ProjectMetainfo.FileBaseline> baselines) {
-            FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
-            String author = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
+            var mappingData = fileData.getAdditionalData(FileMappingData.class);
+            var author = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
             return new ProjectMetainfo(repositoryId,
                     mappingData == null ? null : mappingData.getInternalPath(),
                     fileData.getBranch(),

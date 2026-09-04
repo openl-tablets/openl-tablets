@@ -34,7 +34,7 @@ public final class ZipUtils {
      * @param outputFolder the output folder for extracted files
      */
     public static void extractAll(File zipFile, File outputFolder) throws IOException {
-        final FileInputStream zippedStream = new FileInputStream(zipFile);
+        final var zippedStream = new FileInputStream(zipFile);
         extractAll(zippedStream, outputFolder);
     }
 
@@ -48,14 +48,14 @@ public final class ZipUtils {
 
         byte[] buffer = new byte[BUFFER_SIZE];
 
-        try (ZipInputStream zis = new ZipInputStream(zippedStream)) {
+        try (var zis = new ZipInputStream(zippedStream)) {
             // get the zipped file list entry
-            ZipEntry ze = zis.getNextEntry();
+            var ze = zis.getNextEntry();
             while (ze != null) {
 
                 if (!ze.isDirectory()) {
-                    String fileName = ze.getName();
-                    File unzipped = new File(outputFolder, fileName);
+                    var fileName = ze.getName();
+                    var unzipped = new File(outputFolder, fileName);
                     extractOneFile(zis, unzipped, buffer);
                 }
                 ze = zis.getNextEntry();
@@ -66,7 +66,7 @@ public final class ZipUtils {
     private static void extractOneFile(ZipInputStream zis, File targetFile, byte[] buffer) throws IOException {
         // create all non exists folders
         new File(targetFile.getParent()).mkdirs();
-        try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+        try (var fos = new FileOutputStream(targetFile)) {
             IOUtils.copy(zis, fos, buffer);
         }
     }
@@ -80,22 +80,22 @@ public final class ZipUtils {
                     "File '%s' is not exist.".formatted(sourceDirectory.getAbsolutePath()));
         }
         if (sourceDirectory.isDirectory()) {
-            String[] list = sourceDirectory.list();
+            var list = sourceDirectory.list();
             if (list == null || list.length == 0) {
                 throw new FileNotFoundException(
                         "Directory '%s' is empty.".formatted(sourceDirectory.getAbsolutePath()));
             }
         }
-        try (ZipArchiver arch = new ZipArchiver(targetFile.toPath())) {
+        try (var arch = new ZipArchiver(targetFile.toPath())) {
             ProjectPackager.addOpenLProject(sourceDirectory, arch);
         }
     }
 
     public static boolean contains(File zipFile, Predicate<String> names) {
-        try (ZipFile zip = new ZipFile(zipFile)) {
+        try (var zip = new ZipFile(zipFile)) {
             Enumeration<? extends ZipEntry> entries = zip.entries();
             while (entries.hasMoreElements()) {
-                ZipEntry zipEntry = entries.nextElement();
+                var zipEntry = entries.nextElement();
                 if (names.test(zipEntry.getName())) {
                     return true;
                 }
@@ -107,7 +107,7 @@ public final class ZipUtils {
     }
 
     public static URI toJarURI(Path pathToZip) {
-        URI rootURI = pathToZip.toUri();
+        var rootURI = pathToZip.toUri();
         try {
             return new URI("jar:" + rootURI.getScheme(), rootURI.getPath(), null);
         } catch (URISyntaxException e) {

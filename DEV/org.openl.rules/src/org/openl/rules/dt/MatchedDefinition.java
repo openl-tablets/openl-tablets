@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
@@ -15,13 +16,16 @@ import org.openl.util.text.TextInfo;
 class MatchedDefinition {
     final List<ExpressionIdentifier> identifiers;
     final String statement;
+    @Getter
     final int[] usedMethodParameterIndexes;
     final MatchType matchType;
     Map<String, String> parametersToRename;
     Map<String, String> externalParametersToRename;
     final Map<String, String> methodParametersToRename;
+    @Getter
     final DTColumnsDefinition dtColumnsDefinition;
     boolean parametersRenamingIsUsed = false;
+    @Getter
     final boolean mayHaveCompilationErrors;
 
     public MatchedDefinition(DTColumnsDefinition dtColumnsDefinition,
@@ -66,21 +70,8 @@ class MatchedDefinition {
         if (parametersToRename == null || name == null) {
             return name;
         }
-        String newName = parametersToRename.get(name.toLowerCase());
+        var newName = parametersToRename.get(name.toLowerCase());
         return newName != null ? newName : name;
-    }
-
-    public String getExternalParameter(String name) {
-        if (externalParametersToRename == null || name == null) {
-            return name;
-        }
-        // External parameter is case-sensitive
-        String newName = externalParametersToRename.get(name);
-        return newName != null ? newName : name;
-    }
-
-    public DTColumnsDefinition getDtColumnsDefinition() {
-        return dtColumnsDefinition;
     }
 
     public String getStatementWithReplacedIdentifiers() {
@@ -89,10 +80,6 @@ class MatchedDefinition {
                 Pair.of(methodParametersToRename, true),
                 Pair.of(externalParametersToRename, false),
                 Pair.of(parametersToRename, true));
-    }
-
-    public int[] getUsedMethodParameterIndexes() {
-        return usedMethodParameterIndexes;
     }
 
     public MatchType getMatchType() {
@@ -105,23 +92,19 @@ class MatchedDefinition {
         };
     }
 
-    public boolean isMayHaveCompilationErrors() {
-        return mayHaveCompilationErrors;
-    }
-
     @SafeVarargs
     static String replaceIdentifierNodeNamesInCode(String code,
                                                    List<ExpressionIdentifier> identifiers,
                                                    Pair<Map<String, String>, Boolean>... namesMaps) {
         identifiers = new ArrayList<>(identifiers); // identifiers is unmodifiable
-        final TextInfo textInfo = new TextInfo(code);
+        final var textInfo = new TextInfo(code);
         identifiers.sort(Comparator
                 .<ExpressionIdentifier>comparingInt(e -> e.getLocation().getStart().getAbsolutePosition(textInfo))
                 .reversed());
-        StringBuilder sb = new StringBuilder(code);
+        var sb = new StringBuilder(code);
         for (ExpressionIdentifier identifier : identifiers) {
-            int start = identifier.getLocation().getStart().getAbsolutePosition(textInfo);
-            int end = identifier.getLocation().getEnd().getAbsolutePosition(textInfo);
+            var start = identifier.getLocation().getStart().getAbsolutePosition(textInfo);
+            var end = identifier.getLocation().getEnd().getAbsolutePosition(textInfo);
             for (Pair<Map<String, String>, Boolean> m : namesMaps) {
                 if (m != null && m.getKey() != null && m.getKey()
                         .containsKey(

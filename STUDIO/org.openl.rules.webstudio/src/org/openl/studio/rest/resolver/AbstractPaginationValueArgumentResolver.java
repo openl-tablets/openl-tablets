@@ -1,7 +1,5 @@
 package org.openl.studio.rest.resolver;
 
-import java.lang.reflect.Method;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -42,7 +40,7 @@ public abstract class AbstractPaginationValueArgumentResolver implements Handler
     }
 
     private boolean isUnpagedRequest(NativeWebRequest webRequest) {
-        String unpaged = webRequest.getParameter(UNPAGED_QUERY_PARAM);
+        var unpaged = webRequest.getParameter(UNPAGED_QUERY_PARAM);
         return "true".equalsIgnoreCase(unpaged);
     }
 
@@ -57,13 +55,13 @@ public abstract class AbstractPaginationValueArgumentResolver implements Handler
     protected abstract Pageable handleValue(MethodParameter parameter, NativeWebRequest webRequest);
 
     protected Integer parseParameter(NativeWebRequest webRequest, String parameterName, int min) {
-        String value = webRequest.getParameter(parameterName);
+        var value = webRequest.getParameter(parameterName);
         if (value == null || value.isBlank()) {
             return null;
         }
         value = value.trim();
         try {
-            int parsed = Integer.parseInt(value);
+            var parsed = Integer.parseInt(value);
             if (parsed < min) {
                 throw new BadRequestException("pageable.min.query.message", new Object[]{parameterName, min});
             }
@@ -74,9 +72,9 @@ public abstract class AbstractPaginationValueArgumentResolver implements Handler
     }
 
     protected int getDefaultPageSize(MethodParameter parameter, PaginationDefault defaults) {
-        int size = defaults.size();
+        var size = defaults.size();
         if (size < 1) {
-            Method annotatedMethod = parameter.getMethod();
+            var annotatedMethod = parameter.getMethod();
             throw new IllegalStateException(
                     "Invalid default page size configured for method '%s'. Must not be less than one.".formatted(
                             annotatedMethod));

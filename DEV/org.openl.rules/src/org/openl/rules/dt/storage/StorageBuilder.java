@@ -6,8 +6,11 @@ import static org.openl.rules.dt.storage.StorageUtils.isFormula;
 
 import java.util.Map;
 
+import lombok.Getter;
+
 public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 
+    @Getter
     final StorageInfo info = new StorageInfo();
 
     public abstract void writeValue(T value, int index);
@@ -37,18 +40,14 @@ public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 
             Map<Object, Integer> diffValues = info.getUniqueIndex();
 
-            Integer index1 = diffValues.get(loadedValue);
+            var index1 = diffValues.get(loadedValue);
             if (index1 == null) {
-                int size = diffValues.size();
+                var size = diffValues.size();
                 diffValues.put(loadedValue, size);
             }
 
             writeValue((T) loadedValue, index);
         }
-    }
-
-    public StorageInfo getInfo() {
-        return info;
     }
 
 }

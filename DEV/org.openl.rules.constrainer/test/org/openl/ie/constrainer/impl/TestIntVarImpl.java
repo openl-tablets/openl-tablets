@@ -32,7 +32,6 @@ import org.openl.ie.constrainer.Undo;
 
 class TestIntVarImpl {
     private final Constrainer C = new Constrainer("TestIntVarImpl");
-    private final int size = 21;
     private final int min = -10;
     private final int max = 10;
     private final IntVar bit_fast = new IntVarImpl(C, min, max, "intvar1", IntVar.DOMAIN_BIT_FAST);
@@ -76,8 +75,8 @@ class TestIntVarImpl {
     void testRemoveValue() {
         Undo[] bit_fastUndo = new Undo[bit_fast.size() / 2 + 1], bit_smallUndo = new Undo[bit_fast.size() / 2 + 1],
                 plainUndo = new Undo[bit_fast.size() / 2 + 1];
-        int counter = 0;
-        for (int i = -10; i <= -1; i++) {
+        var counter = 0;
+        for (var i = -10; i <= -1; i++) {
             bit_fastUndo[counter] = bit_fast.createUndo();
             bit_fastUndo[counter].undoable(bit_fast);
             try {
@@ -119,19 +118,19 @@ class TestIntVarImpl {
             assertEquals(curSize, bit_fast.size(), "IntVarImpl.Domain_BIT_FAST: wrong size");
             assertEquals(curSize, bit_small.size(), "IntVarImpl.Domain_BIT_SMALL: wrong size");
             assertEquals(curSize, plain.size(), "IntVarImpl.Domain_PLAIN: wrong size");
-            for (int j = newMin; j <= newMax; j++) {
+            for (var j = newMin; j <= newMax; j++) {
                 assertTrue(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertTrue(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertTrue(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
             }
 
-            for (int j = min; j < newMin; j++) {
+            for (var j = min; j < newMin; j++) {
                 assertFalse(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertFalse(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertFalse(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
             }
 
-            for (int j = newMax + 1; j <= max; j++) {
+            for (var j = newMax + 1; j <= max; j++) {
                 assertFalse(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertFalse(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertFalse(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
@@ -178,13 +177,13 @@ class TestIntVarImpl {
         /** **************************************************************************************************** */
         // restoration from undos effected in postorder
         counter = 0;
-        for (int i = -1; i > -10; i--) {
+        for (var i = -1; i > -10; i--) {
             bit_fastUndo[counter].undo();
             bit_smallUndo[counter].undo();
             plainUndo[counter].undo();
-            int curMin = min + counter;
-            int curMax = max - counter;
-            int curSize = curMax - curMin + 1;
+            var curMin = min + counter;
+            var curMax = max - counter;
+            var curSize = curMax - curMin + 1;
 
             assertEquals(curMin, bit_fast.min(), "IntVarImpl.Domain_BIT_FAST: wrong work of removeValue(int)");
             assertEquals(curMin, bit_small.min(), "IntVarImpl.Domain_BIT_SMALL: wrong work of removeValue(int)");
@@ -197,13 +196,13 @@ class TestIntVarImpl {
             assertEquals(curSize, bit_fast.size(), "IntVarImpl.Domain_BIT_FAST: wrong size");
             assertEquals(curSize, bit_small.size(), "IntVarImpl.Domain_BIT_SMALL: wrong size");
             assertEquals(curSize, plain.size(), "IntVarImpl.Domain_PLAIN: wrong size");
-            for (int j = curMin; j <= curMax; j++) {
+            for (var j = curMin; j <= curMax; j++) {
                 assertTrue(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertTrue(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertTrue(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
             }
 
-            for (int j = min; j < curMin; j++) {
+            for (var j = min; j < curMin; j++) {
                 assertFalse(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertFalse(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertFalse(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
@@ -217,7 +216,7 @@ class TestIntVarImpl {
         Undo[] bit_fastUndo = new Undo[bit_fast.size()], bit_smallUndo = new Undo[bit_fast.size()],
                 plainUndo = new Undo[bit_fast.size()];
 
-        for (int i = 10; i >= -10; i--) {
+        for (var i = 10; i >= -10; i--) {
             bit_fastUndo[max - i] = bit_fast.createUndo();
             bit_fastUndo[max - i].undoable(bit_fast);
             try {
@@ -248,13 +247,13 @@ class TestIntVarImpl {
             assertEquals(21 - (max - i), bit_fast.size(), "IntVarImpl.Domain_BIT_FAST: wrong size");
             assertEquals(21 - (max - i), bit_small.size(), "IntVarImpl.Domain_BIT_SMALL: wrong size");
             assertEquals(21 - (max - i), plain.size(), "IntVarImpl.Domain_PLAIN: wrong size");
-            for (int j = max; j > i; j--) {
+            for (var j = max; j > i; j--) {
                 assertFalse(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertFalse(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertFalse(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
             }
 
-            for (int j = i; j >= min; j--) {
+            for (var j = i; j >= min; j--) {
                 assertTrue(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertTrue(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertTrue(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
@@ -281,7 +280,7 @@ class TestIntVarImpl {
         }
         /** **************************************************************************************************** */
         // restoration from undos
-        for (int i = -10; i < 10; i++) {
+        for (var i = -10; i < 10; i++) {
             bit_fastUndo[max - i].undo();
             bit_smallUndo[max - i].undo();
             plainUndo[max - i].undo();
@@ -292,13 +291,13 @@ class TestIntVarImpl {
             assertEquals(21 - (max - i - 1), bit_fast.size(), "IntVarImpl.Domain_BIT_FAST: wrong size");
             assertEquals(21 - (max - i - 1), bit_small.size(), "IntVarImpl.Domain_BIT_SMALL: wrong size");
             assertEquals(21 - (max - i - 1), plain.size(), "IntVarImpl.Domain_PLAIN: wrong size");
-            for (int j = min; j <= i + 1; j++) {
+            for (var j = min; j <= i + 1; j++) {
                 assertTrue(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertTrue(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertTrue(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
             }
 
-            for (int j = i + 2; j <= max; j++) {
+            for (var j = i + 2; j <= max; j++) {
                 assertFalse(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertFalse(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertFalse(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
@@ -311,7 +310,7 @@ class TestIntVarImpl {
         Undo[] bit_fastUndo = new Undo[bit_fast.size()], bit_smallUndo = new Undo[bit_fast.size()],
                 plainUndo = new Undo[bit_fast.size()];
 
-        for (int i = -10; i <= 10; i++) {
+        for (var i = -10; i <= 10; i++) {
             bit_fastUndo[i - min] = bit_fast.createUndo();
             bit_fastUndo[i - min].undoable(bit_fast);
             try {
@@ -342,13 +341,13 @@ class TestIntVarImpl {
             assertEquals(21 - (i - min), bit_fast.size(), "IntVarImpl.Domain_BIT_FAST: wrong size");
             assertEquals(21 - (i - min), bit_small.size(), "IntVarImpl.Domain_BIT_SMALL: wrong size");
             assertEquals(21 - (i - min), plain.size(), "IntVarImpl.Domain_PLAIN: wrong size");
-            for (int j = min; j < i; j++) {
+            for (var j = min; j < i; j++) {
                 assertFalse(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertFalse(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertFalse(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
             }
 
-            for (int j = i; j <= max; j++) {
+            for (var j = i; j <= max; j++) {
                 assertTrue(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertTrue(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertTrue(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
@@ -374,7 +373,7 @@ class TestIntVarImpl {
         }
         /** **************************************************************************************************** */
         // restoration from undos
-        for (int i = 10; i > -10; i--) {
+        for (var i = 10; i > -10; i--) {
             bit_fastUndo[i - min].undo();
             bit_smallUndo[i - min].undo();
             plainUndo[i - min].undo();
@@ -385,13 +384,13 @@ class TestIntVarImpl {
             assertEquals(21 - (i - 1 - min), bit_fast.size(), "IntVarImpl.Domain_BIT_FAST: wrong size");
             assertEquals(21 - (i - 1 - min), bit_small.size(), "IntVarImpl.Domain_BIT_SMALL: wrong size");
             assertEquals(21 - (i - 1 - min), plain.size(), "IntVarImpl.Domain_PLAIN: wrong size");
-            for (int j = min; j < i - 1; j++) {
+            for (var j = min; j < i - 1; j++) {
                 assertFalse(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertFalse(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertFalse(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");
             }
 
-            for (int j = i - 1; j <= max; j++) {
+            for (var j = i - 1; j <= max; j++) {
                 assertTrue(bit_fast.contains(j), "IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)");
                 assertTrue(bit_small.contains(j), "IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)");
                 assertTrue(plain.contains(j), "IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)");

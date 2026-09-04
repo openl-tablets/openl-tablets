@@ -68,8 +68,8 @@ public final class VelocityTool {
 
         info = Introspector.getBeanInfo(bean.getClass());
 
-        PropertyDescriptor[] pdd = info.getPropertyDescriptors();
-        List<PropertyDescriptor> pdlist = new ArrayList<>();
+        var pdd = info.getPropertyDescriptors();
+        var pdlist = new ArrayList<PropertyDescriptor>();
 
         for (PropertyDescriptor pd : pdd) {
             if (pd.getWriteMethod() == null || pd.getReadMethod() == null) {
@@ -98,11 +98,11 @@ public final class VelocityTool {
         Class<?> c = value.getClass();
 
         if (c.isArray()) {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.append("new ").append(c.getSimpleName()).append(" { ");
 
-            int len = Array.getLength(value);
-            for (int i = 0; i < len; i++) {
+            var len = Array.getLength(value);
+            for (var i = 0; i < len; i++) {
                 if (i > 0) {
                     sb.append(", ");
                 }

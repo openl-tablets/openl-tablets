@@ -3,14 +3,10 @@ package org.openl.rules.webstudio.web.repository.upload;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -20,7 +16,6 @@ import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.GroovyScriptFile;
-import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.model.ExposedMethods;
@@ -28,6 +23,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -43,13 +39,12 @@ import org.openl.util.formatters.FileNameFormatter;
  * Project creator from OpenAPI files, generates models, spreadsheets, rules.xml, rules-deploy and compiled annotation
  * template files.
  */
-@Slf4j
 public class OpenAPIProjectCreator extends AProjectCreator {
 
     private final ProjectFile uploadedOpenAPIFile;
     private final String comment;
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
-    private final String repositoryId;
+    private final Repository repository;
     private final String projectName;
     private final String modelsPath;
     private final String algorithmsPath;
@@ -67,8 +62,39 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                                  String modelsModuleName,
                                  String algorithmsModuleName,
                                  Map<String, String> tags) throws ProjectException {
+        this(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
+                projectFile,
+                projectName,
+                projectFolder,
+                userWorkspace,
+                comment,
+                modelsPath,
+                algorithmsPath,
+                modelsModuleName,
+                algorithmsModuleName,
+                tags);
+    }
+
+    public OpenAPIProjectCreator(Repository repository,
+                                 ProjectFile projectFile,
+                                 String projectName,
+                                 String projectFolder,
+                                 UserWorkspace userWorkspace,
+                                 String comment,
+                                 String modelsPath,
+                                 String algorithmsPath,
+                                 String modelsModuleName,
+                                 String algorithmsModuleName,
+                                 Map<String, String> tags) throws ProjectException {
         super(projectName, projectFolder, userWorkspace, tags);
-        this.repositoryId = repositoryId;
+        this.repository = repository;
+        // Save a streamed upload to disk first, so the size check below sees the real size and the spec
+        // can be parsed from a file path later.
+        try {
+            projectFile.getTempFile();
+        } catch (IOException e) {
+            throw new OpenAPIProjectException("Cannot read the OpenAPI file " + projectFile.getName() + ".", e);
+        }
         if (!checkFileSize(projectFile)) {
             throw new OpenAPIProjectException("Size of the file " + projectFile.getName() + " is more then 100MB.");
         }
@@ -134,28 +160,28 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
-        RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
-                repositoryId,
+        var projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
+                repository,
                 getProjectName(),
                 getProjectFolder(),
                 comment);
 
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        var converter = new OpenAPIScaffoldingConverter();
         try {
-            ProjectModel projectModel = getProjectModel(projectBuilder, converter);
+            var projectModel = getProjectModel(projectBuilder, converter);
             Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
             List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
             List<DataModel> dataModels = projectModel.getDataModels();
             EnvironmentModel environmentModel;
-            boolean dataTypesArePresented = CollectionUtils.isNotEmpty(datatypeModels);
-            boolean spreadsheetsArePresented = CollectionUtils.isNotEmpty(spreadsheetModels);
+            var dataTypesArePresented = CollectionUtils.isNotEmpty(datatypeModels);
+            var spreadsheetsArePresented = CollectionUtils.isNotEmpty(spreadsheetModels);
 
             if (!dataTypesArePresented && !spreadsheetsArePresented) {
                 throw new OpenAPIProjectException("Uploaded file has invalid structure.");
             }
 
             environmentModel = new EnvironmentModel();
-            environmentModel.setDependencies(Collections.singletonList(modelsModuleName));
+            environmentModel.setDependencies(List.of(modelsModuleName));
 
             addFile(projectBuilder,
                     openAPIHelper.generateDataTypesFile(datatypeModels),
@@ -172,8 +198,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                     uploadedOpenAPIFile.getName(),
                     "Error uploading openAPI file.");
 
-            OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-            boolean hasAnnotationTemplateClass = generated.hasAnnotationTemplateClass();
+            var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+            var hasAnnotationTemplateClass = generated.hasAnnotationTemplateClass();
             if (hasAnnotationTemplateClass) {
                 addGroovyScriptFile(projectBuilder, generated.getAnnotationTemplateGroovyFile());
             }
@@ -201,7 +227,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     private void addGroovyScriptFile(RulesProjectBuilder projectBuilder,
                                      GroovyScriptFile groovyScriptFile) throws ProjectException {
-        String path = openAPIHelper.makePathToTheGeneratedFile(groovyScriptFile.getPath());
+        var path = openAPIHelper.makePathToTheGeneratedFile(groovyScriptFile.getPath());
         addFile(projectBuilder,
                 IOUtils.toInputStream(groovyScriptFile.getScriptText()),
                 path,
@@ -212,7 +238,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                          InputStream inputStream,
                          String fileName,
                          String errorMessage) throws ProjectException {
-        try (InputStream file = inputStream) {
+        try (var file = inputStream) {
             projectBuilder.addFile(fileName, file);
         } catch (IOException e) {
             throw new ProjectException(errorMessage, e);
@@ -232,23 +258,23 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     }
 
     private ProjectDescriptor defineDescriptor(boolean genJavaClasses, Set<String> algorithmsInclude) {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
-        OpenAPI openAPI = new OpenAPI();
+        var descriptor = new ProjectDescriptor();
+        var openAPI = new OpenAPI();
         openAPI.setAlgorithmModuleName(algorithmsModuleName);
         openAPI.setModelModuleName(modelsModuleName);
         openAPI.setMode(OpenAPI.Mode.GENERATION);
 
         descriptor.setName(projectName);
-        List<Module> modules = new ArrayList<>();
-        Module rulesModule = new Module();
+        var modules = new ArrayList<Module>();
+        var rulesModule = new Module();
         rulesModule.setRulesRootPath(algorithmsPath);
         rulesModule.setName(algorithmsModuleName);
-        ExposedMethods filter = new ExposedMethods();
+        var filter = new ExposedMethods();
         filter.setIncludes(algorithmsInclude);
         descriptor.setExposedMethods(filter);
         modules.add(rulesModule);
 
-        Module modelsModule = new Module();
+        var modelsModule = new Module();
         modelsModule.setName(modelsModuleName);
         modelsModule.setRulesRootPath(modelsPath);
         modules.add(modelsModule);
@@ -257,7 +283,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         descriptor.setOpenapi(openAPI);
         descriptor.setModules(modules);
 
-        List<String> classpath = new ArrayList<>();
+        var classpath = new ArrayList<String>();
         if (genJavaClasses) {
             classpath.add(OpenAPIHelper.DEF_JAVA_CLASS_PATH);
         }
@@ -267,17 +293,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     @Override
     public void destroy() {
-        try {
-            if (!Files.deleteIfExists(uploadedOpenAPIFile.getTempFile().toPath())) {
-                log.warn("Cannot delete the file {}", uploadedOpenAPIFile.getName());
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
+        uploadedOpenAPIFile.destroy();
     }
 
     private boolean checkFileSize(ProjectFile file) {
-        return file.getSize() <= 1000 * 1024 * 1024;
+        return file.getSize() <= ProjectFile.MAX_UPLOAD_SIZE;
     }
 
 }

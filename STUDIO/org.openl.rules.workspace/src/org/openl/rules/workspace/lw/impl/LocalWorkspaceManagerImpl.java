@@ -2,11 +2,13 @@ package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
 
@@ -28,7 +30,9 @@ import org.openl.util.FileUtils;
 @Slf4j
 public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWorkspaceListener {
 
+    @Setter
     private String workspaceHome;
+    @Setter
     private boolean enableLocks = true;
 
     // User name -> user workspace
@@ -60,7 +64,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             log.warn("workspaceHome is not initialized. Default value is used.");
             workspaceHome = FileUtils.getTempDirectoryPath() + "/rules-workspaces/";
         }
-        File location = new File(workspaceHome);
+        var location = new File(workspaceHome);
         if (!location.mkdirs() && !location.exists()) {
             final String message = MessageFormat.format("Cannot create workspace location ''{0}''", workspaceHome);
             throw new FileNotFoundException(message);
@@ -69,19 +73,55 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     }
 
     private LocalWorkspaceImpl createWorkspace(String userId) {
-        File workspaceRoot = new File(workspaceHome);
-        File userWorkspace = new File(workspaceRoot, userId);
+        var userWorkspace = userDir(userId).toFile();
         log.debug("Workspace for user ''{}'' will be located at ''{}''", userId, userWorkspace.getAbsolutePath());
-        MetainfoRegistry registry = metainfoRegistries.computeIfAbsent(userId,
-                id -> MetainfoRegistry.open(userWorkspace.toPath()));
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(userId, userWorkspace, designTimeRepository, registry);
+        var workspace = new LocalWorkspaceImpl(userId,
+                userWorkspace,
+                designTimeRepository,
+                registryOf(userId));
         workspace.addWorkspaceListener(this);
         return workspace;
     }
 
+    private MetainfoRegistry registryOf(String userId) {
+        return metainfoRegistries.computeIfAbsent(userId, id -> MetainfoRegistry.open(userDir(id)));
+    }
+
+    /**
+     * Resolves the workspace directory of the user.
+     *
+     * <p>The user id comes from the authentication and is used as a folder name, so it must stay
+     * a single path component right under the workspace root. Otherwise the workspace operations,
+     * including the registry reconciliation, could read or delete files outside the root.
+     */
+    private Path userDir(String userId) {
+        var root = getWorkspaceHome();
+        var userDir = root.resolve(userId).toAbsolutePath().normalize();
+        if (!FolderHelper.isSafeFolderName(userId) || !root.equals(userDir.getParent())) {
+            throw new IllegalArgumentException("The user id is not a valid workspace folder name.");
+        }
+        return userDir;
+    }
+
+    @Override
+    public Path getWorkspaceHome() {
+        return Path.of(workspaceHome).toAbsolutePath().normalize();
+    }
+
+    @Override
+    public void refreshMetainfoRegistry(String userId) {
+        var registry = metainfoRegistries.get(userId);
+        if (registry == null) {
+            // The first load performs the same reconciliation, so loading now is enough.
+            registryOf(userId);
+        } else {
+            registry.refresh();
+        }
+    }
+
     @Override
     public LocalWorkspace getWorkspace(String userId) {
-        LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
+        var lwi = localWorkspaces.get(userId);
         if (lwi == null) {
             lwi = createWorkspace(userId);
             localWorkspaces.put(userId, lwi);
@@ -95,7 +135,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             return new DummyLockEngine();
         }
         synchronized (lockEngines) {
-            LockEngine lockEngine = lockEngines.get(type);
+            var lockEngine = lockEngines.get(type);
             if (lockEngine == null) {
                 lockEngine = LockEngineImpl.create(new File(workspaceHome), type);
                 lockEngines.put(type, lockEngine);
@@ -103,14 +143,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
 
             return lockEngine;
         }
-    }
-
-    public void setWorkspaceHome(String workspaceHome) {
-        this.workspaceHome = workspaceHome;
-    }
-
-    public void setEnableLocks(boolean enableLocks) {
-        this.enableLocks = enableLocks;
     }
 
     @Override

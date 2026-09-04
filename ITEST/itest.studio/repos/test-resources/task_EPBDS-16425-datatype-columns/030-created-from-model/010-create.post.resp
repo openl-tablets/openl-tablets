@@ -1,0 +1,12 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "465f789513bd549f19c60a1327adbcd5",
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Policy",
+  "file": "EPBDS-16425-Columns/Main.xlsx",
+  "pos": "B2:E4"
+}
+

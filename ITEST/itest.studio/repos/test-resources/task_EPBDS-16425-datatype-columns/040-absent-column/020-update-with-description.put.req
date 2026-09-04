@@ -1,0 +1,18 @@
+PUT /rest/projects/EPBDS-16425-Columns/tables/5f742658453772e447fa335f60edb8ce HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "LegacyType",
+  "fields": [
+    {
+      "name": "city",
+      "type": "String",
+      "defaultValue": "Kyiv",
+      "description": "nowhere to put this"
+    }
+  ]
+}
+

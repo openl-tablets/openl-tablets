@@ -1,0 +1,110 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduOkVQQkRTLTEyOTcz",
+      "name": "EPBDS-12973",
+      "status": "CLOSED",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project EPBDS-12973 is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    },
+    {
+      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "name": "Project",
+      "branch": "admin/feature-1",
+      "status": "OPENED",
+      "repository": "design-flat",
+      "modifiedBy": "OpenL Admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "Project",
+      "comment": "Admin saved the project",
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
+      "capabilities": {
+        "canWrite": true,
+        "canDelete": true,
+        "canClose": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canManageBranches": true,
+        "canDeleteBranch": true,
+        "canExport": true
+      }
+    },
+    {
+      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
+      "name": "ProjectUser1",
+      "branch": "master",
+      "status": "CLOSED",
+      "repository": "design-flat",
+      "modifiedBy": "User User1",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "ProjectUser1",
+      "comment": "Project ProjectUser1 is created.",
+      "branchDefault": true,
+      "repositoryInfo": {
+        "id": "design-flat",
+        "name": "Git Flat",
+        "type": "repo-git",
+        "features": {
+          "branches": true,
+          "searchable": true,
+          "mappedFolders": true
+        }
+      },
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canManageBranches": true,
+        "canExport": true
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 3,
+  "total": 3
+}

@@ -10,6 +10,10 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.fast.FastStringReader;
 
@@ -21,18 +25,18 @@ import org.openl.util.fast.FastStringReader;
  * negative it is the relative position from the end of the base code
  */
 @Deprecated
+@RequiredArgsConstructor
 public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
 
+    @Getter
     private final IOpenSourceCodeModule baseModule;
+    @Getter
     private final int startPosition;
-    private int endPosition = 0;
+    private int endPosition;
 
+    @Getter
+    @Setter
     private Map<String, Object> params;
-
-    public SubTextSourceCodeModule(IOpenSourceCodeModule baseModule, int startPosition) {
-        this.baseModule = baseModule;
-        this.startPosition = startPosition;
-    }
 
     public SubTextSourceCodeModule(IOpenSourceCodeModule baseModule, int startPosition, int endPosition) {
         this.baseModule = baseModule;
@@ -52,34 +56,15 @@ public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getCode() {
-        String code = baseModule.getCode();
+        var code = baseModule.getCode();
 
         int end = endPosition <= 0 ? code.length() + endPosition : endPosition;
         return code.substring(startPosition, end);
     }
 
     @Override
-    public int getStartPosition() {
-        return startPosition;
-    }
-
-    public IOpenSourceCodeModule getBaseModule() {
-        return baseModule;
-    }
-
-    @Override
     public String getUri() {
         return baseModule.getUri();
-    }
-
-    @Override
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
     }
 
 }

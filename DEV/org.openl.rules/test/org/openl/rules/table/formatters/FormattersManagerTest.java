@@ -25,7 +25,7 @@ class FormattersManagerTest {
 
     @Test
     void testDouble() {
-        Double dd = 12.345;
+        var dd = 12.345;
         IFormatter formatter = FormattersManager.getFormatter(dd);
         assertTrue(formatter instanceof SmartNumberFormatter);
     }

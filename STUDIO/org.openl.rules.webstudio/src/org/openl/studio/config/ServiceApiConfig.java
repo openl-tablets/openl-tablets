@@ -1,5 +1,7 @@
 package org.openl.studio.config;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -19,13 +21,15 @@ import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
-import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.service.HistoryRepositoryMapper;
 import org.openl.studio.security.CurrentUserInfo;
 
@@ -63,15 +67,17 @@ public class ServiceApiConfig {
                                              PropertyResolver propertyResolver,
                                              DeploymentManager deploymentManager,
                                              ApplicationEventPublisher eventPublisher,
-                                             ProjectsMergeConflictsSessionHolder conflictsSessionHolder,
                                              ProtectedBranchBypassService bypassService,
-                                             ProjectIdentifierMapper projectIdentifierMapper) {
+                                             ProjectIdentifierMapper projectIdentifierMapper,
+                                             ProjectStateValidator projectStateValidator,
+                                             ProjectAccessService projectAccessService,
+                                             HttpSession httpSession) {
         var rulesUserSession = new RulesUserSession();
         rulesUserSession.setUserName(currentUserInfo.getUserName());
         rulesUserSession.setWorkspaceManager(workspaceManager);
         rulesUserSession.setUserManagementService(userManagementService);
 
-        WebStudio webStudio = new WebStudio(rulesUserSession,
+        var webStudio = new WebStudio(rulesUserSession,
                 testSuiteExecutor,
                 userSettingManagementService,
                 designRepositoryAclService,
@@ -80,10 +86,12 @@ public class ServiceApiConfig {
                 propertyResolver,
                 deploymentManager,
                 eventPublisher,
-                conflictsSessionHolder,
                 bypassService,
-                projectIdentifierMapper);
+                projectIdentifierMapper,
+                projectStateValidator,
+                projectAccessService);
         rulesUserSession.setWebStudio(webStudio);
+        WebStudioUtils.registerRulesUserSession(httpSession, rulesUserSession);
         return rulesUserSession;
     }
 

@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.StringUtils;
@@ -50,7 +49,7 @@ public final class AclPathUtils {
         var parts = path.split("/", -1);
         var normalizedPath = new StringBuilder(repoId);
 
-        int i = 0;
+        var i = 0;
         for (var part : parts) {
             if (!StringUtils.isBlank(part)) {
                 if (i == 0) {
@@ -72,8 +71,8 @@ public final class AclPathUtils {
      */
     public static String extractInternalPath(AProjectArtefact projectArtefact) {
         if (projectArtefact.getRepository() instanceof LocalRepository) {
-            LocalRepository localRepository = (LocalRepository) projectArtefact.getRepository();
-            ProjectState projectState = localRepository
+            var localRepository = (LocalRepository) projectArtefact.getRepository();
+            var projectState = localRepository
                     .getProjectState(projectArtefact.getProject().getFileData().getName());
             if (projectState.getFileData() != null) {
                 return getRepoPath(projectState.getFileData()) + "/" + projectArtefact.getInternalPath();
@@ -99,7 +98,7 @@ public final class AclPathUtils {
     }
 
     private static String getRepoPath(FileData fileData) {
-        FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
+        var fileMappingData = fileData.getAdditionalData(FileMappingData.class);
         if (fileMappingData != null) {
             return fileMappingData.getInternalPath();
         } else {

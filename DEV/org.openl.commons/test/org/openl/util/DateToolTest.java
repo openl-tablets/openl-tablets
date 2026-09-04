@@ -43,8 +43,8 @@ class DateToolTest {
         assertNull(DateTool.yearDiff(new Date(), null));
         assertNull(DateTool.yearDiff(null, new Date()));
 
-        Date startDate = createCalendar(5, 11, 2013).getTime();
-        Date endDate = createCalendar(6, 12, 2015).getTime();
+        var startDate = createCalendar(5, 11, 2013).getTime();
+        var endDate = createCalendar(6, 12, 2015).getTime();
 
         assertEquals(Integer.valueOf(2), DateTool.yearDiff(endDate, startDate));
     }
@@ -57,8 +57,8 @@ class DateToolTest {
 
     @Test
     void test_absMonth() {
-        Date date = createCalendar(24, 9, 2015).getTime();
-        int actual = DateTool.absMonth(date);
+        var date = createCalendar(24, 9, 2015).getTime();
+        var actual = DateTool.absMonth(date);
         assertEquals(24188, actual);
     }
 
@@ -167,9 +167,9 @@ class DateToolTest {
     @Test
     void test_second_shouldReturnSeconds() {
         Calendar calendar = createCalendar(15, 6, 2018);
-        for (int seconds = 0; seconds < 60; seconds++) {
+        for (var seconds = 0; seconds < 60; seconds++) {
             calendar.set(Calendar.SECOND, seconds);
-            int actual = DateTool.second(calendar.getTime());
+            var actual = DateTool.second(calendar.getTime());
             assertEquals(seconds, actual);
         }
     }
@@ -183,9 +183,9 @@ class DateToolTest {
     @Test
     void test_minute_shouldReturnMinutes() {
         Calendar calendar = createCalendar(15, 6, 2018);
-        for (int minutes = 0; minutes < 60; minutes++) {
+        for (var minutes = 0; minutes < 60; minutes++) {
             calendar.set(Calendar.MINUTE, minutes);
-            int actual = DateTool.minute(calendar.getTime());
+            var actual = DateTool.minute(calendar.getTime());
             assertEquals(minutes, actual);
         }
     }
@@ -199,9 +199,9 @@ class DateToolTest {
     @Test
     void test_hour_shouldReturnHourBetween0and11_whenTimeBetween0and11() {
         Calendar calendar = createCalendar(15, 6, 2018);
-        for (int hour = 0; hour < 12; hour++) {
+        for (var hour = 0; hour < 12; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
-            int actual = DateTool.hour(calendar.getTime());
+            var actual = DateTool.hour(calendar.getTime());
             assertEquals(hour, actual);
         }
     }
@@ -209,10 +209,10 @@ class DateToolTest {
     @Test
     void test_hour_shouldReturnHourBetween0and11_whenTimeBetween12and23() {
         Calendar calendar = createCalendar(15, 6, 2018);
-        for (int hour = 12; hour < 23; hour++) {
+        for (var hour = 12; hour < 23; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
-            int actual = DateTool.hour(calendar.getTime());
-            int expected = hour - 12;
+            var actual = DateTool.hour(calendar.getTime());
+            var expected = hour - 12;
             assertEquals(expected, actual);
         }
     }
@@ -226,9 +226,9 @@ class DateToolTest {
     @Test
     void test_hourOfDay_shouldReturnHourBetween0and11_whenTimeBetween0and11() {
         Calendar calendar = createCalendar(15, 6, 2018);
-        for (int hour = 0; hour < 12; hour++) {
+        for (var hour = 0; hour < 12; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
-            int actual = DateTool.hourOfDay(calendar.getTime());
+            var actual = DateTool.hourOfDay(calendar.getTime());
             assertEquals(hour, actual);
         }
     }
@@ -236,9 +236,9 @@ class DateToolTest {
     @Test
     void test_hourOfDay_shouldReturnHourBetween0and11_whenTimeBetween12and23() {
         Calendar calendar = createCalendar(15, 6, 2018);
-        for (int hour = 12; hour < 23; hour++) {
+        for (var hour = 12; hour < 23; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
-            int actual = DateTool.hourOfDay(calendar.getTime());
+            var actual = DateTool.hourOfDay(calendar.getTime());
             assertEquals(hour, actual);
         }
     }
@@ -264,7 +264,7 @@ class DateToolTest {
     @Test
     void test_amPm_shouldReturnAM_whenTimeBetween0and11() {
         Calendar calendar = createCalendar(15, 6, 2018);
-        for (int hour = 0; hour < 12; hour++) {
+        for (var hour = 0; hour < 12; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             String actual = DateTool.amPm(calendar.getTime());
             assertEquals("AM", actual);
@@ -274,7 +274,7 @@ class DateToolTest {
     @Test
     void test_amPm_shouldReturnPM_whenTimeBetween12and23() {
         Calendar calendar = createCalendar(15, 6, 2018);
-        for (int hour = 12; hour < 24; hour++) {
+        for (var hour = 12; hour < 24; hour++) {
             calendar.set(Calendar.HOUR_OF_DAY, hour);
             String actual = DateTool.amPm(calendar.getTime());
             assertEquals("PM", actual);
@@ -289,7 +289,7 @@ class DateToolTest {
 
     @Test
     void test_dateToString_shouldFormatUsingCustomDatePattern() {
-        Date date = createCalendar(11, 12, 2013).getTime();
+        var date = createCalendar(11, 12, 2013).getTime();
         String actual = DateTool.dateToString(date, "dd MMM yyyy");
         assertEquals("11 Dec 2013", actual);
     }
@@ -302,7 +302,7 @@ class DateToolTest {
 
     @Test
     void test_dateToString_shouldFormatUsingShortDatePattern() {
-        Date date = createCalendar(11, 12, 2013).getTime();
+        var date = createCalendar(11, 12, 2013).getTime();
         String actual = DateTool.dateToString(date);
         assertEquals("12/11/13", actual);
     }
@@ -317,7 +317,7 @@ class DateToolTest {
     @ParameterizedTest(name = "{index}: DateTool.year({0})={1}")
     void test_year(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.year(inputDate);
+        var actual = DateTool.year(inputDate);
         assertEquals(expected, actual);
     }
 
@@ -331,7 +331,7 @@ class DateToolTest {
     @ParameterizedTest(name = "{index}: DateTool.month({0})={1}")
     void test_month(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.month(inputDate);
+        var actual = DateTool.month(inputDate);
         assertEquals(expected, actual);
     }
 
@@ -339,7 +339,7 @@ class DateToolTest {
     @ParameterizedTest(name = "{index}: DateTool.dayOfMonth({0})={1}")
     void test_dayOfMonth(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.dayOfMonth(inputDate);
+        var actual = DateTool.dayOfMonth(inputDate);
         assertEquals(expected, actual);
     }
 
@@ -356,7 +356,7 @@ class DateToolTest {
     @ParameterizedTest(name = "{index}: DateTool.dayOfYear({0})={1}")
     void test_dayOfYear(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.dayOfYear(inputDate);
+        var actual = DateTool.dayOfYear(inputDate);
         assertEquals(expected, actual);
     }
 
@@ -371,7 +371,7 @@ class DateToolTest {
     @ParameterizedTest(name = "{index}: DateTool.quarter({0})={1}")
     void test_quarter(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.quarter(inputDate);
+        var actual = DateTool.quarter(inputDate);
         assertEquals(expected, actual);
     }
 
@@ -386,7 +386,7 @@ class DateToolTest {
     @ParameterizedTest(name = "{index}: DateTool.dayOfWeek({0})={1}")
     void test_dayOfWeek2(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.dayOfWeek(inputDate);
+        var actual = DateTool.dayOfWeek(inputDate);
         assertEquals(expected, actual);
     }
 
@@ -400,7 +400,7 @@ class DateToolTest {
     @ParameterizedTest(name = "{index}: DateTool.weekOfYear({0})={1}")
     void test_weekOfYear(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.weekOfYear(inputDate);
+        var actual = DateTool.weekOfYear(inputDate);
         assertEquals(expected, actual);
     }
 
@@ -408,7 +408,7 @@ class DateToolTest {
     @ParameterizedTest(name = "{index}: DateTool.weekOfYear({0})={1}")
     void test_weekOfMonth(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.weekOfMonth(inputDate);
+        var actual = DateTool.weekOfMonth(inputDate);
         assertEquals(expected, actual);
     }
 
@@ -430,7 +430,7 @@ class DateToolTest {
     @CsvSource({"1900-01-02,31", "2015-05-14,31", "2015-12-30,31", "2015-02-28,28", "2000-12-4,31", "2015-04-30,30"})
     void test_dayOfWeek(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
-        int actual = DateTool.lastDayOfMonth(inputDate);
+        var actual = DateTool.lastDayOfMonth(inputDate);
         assertEquals(expected, actual);
     }
 }

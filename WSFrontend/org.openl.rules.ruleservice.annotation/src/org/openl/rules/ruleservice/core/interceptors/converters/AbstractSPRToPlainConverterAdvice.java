@@ -4,6 +4,9 @@ import java.lang.reflect.Array;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
@@ -23,32 +26,18 @@ import org.openl.types.IOpenMember;
 
 public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServiceMethodAfterReturningAdvice<T> implements IOpenClassAware, IOpenMemberAware, RulesDeployAware, ServiceClassLoaderAware {
 
+    @Getter(AccessLevel.PROTECTED)
     private XlsModuleOpenClass module;
+    @Getter(AccessLevel.PROTECTED)
     private IOpenMember openMember;
     private volatile Pair<Class<?>, IOpenClass> convertToType;
 
+    @Setter
     private RulesDeploy rulesDeploy;
+    @Setter
     private ClassLoader serviceClassLoader;
     private SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy;
     private volatile boolean initialized = false;
-
-    protected XlsModuleOpenClass getModule() {
-        return module;
-    }
-
-    protected IOpenMember getOpenMember() {
-        return openMember;
-    }
-
-    @Override
-    public void setRulesDeploy(RulesDeploy rulesDeploy) {
-        this.rulesDeploy = rulesDeploy;
-    }
-
-    @Override
-    public void setServiceClassLoader(ClassLoader serviceClassLoader) {
-        this.serviceClassLoader = serviceClassLoader;
-    }
 
     protected SpreadsheetResultBeanPropertyNamingStrategy getSpreadsheetResultBeanPropertyNamingStrategy() {
         if (!initialized) {
@@ -81,9 +70,9 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
         if (convertToType == null) {
             synchronized (this) {
                 if (convertToType == null) {
-                    Pair<Class<?>, IOpenClass> convertToType1 = Pair.of(null, null);
-                    IOpenClass openClass = openMember.getType();
-                    int dim = 0;
+                    var convertToType1 = Pair.<Class<?>, IOpenClass>of(null, null);
+                    var openClass = openMember.getType();
+                    var dim = 0;
                     while (openClass.isArray()) {
                         openClass = openClass.getComponentClass();
                         dim++;

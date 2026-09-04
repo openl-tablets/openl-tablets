@@ -9,7 +9,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import jakarta.xml.bind.annotation.XmlElement;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -57,7 +56,10 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private SpreadsheetResultBeanByteCodeGenerator(String beanNameWithPackage, List<FieldDescription> beanFields) {
-        fixDuplicates(beanFields, (field, name) -> field.fieldName = name, field -> field.fieldName);
+        fixDuplicates(beanFields, (field, name) -> {
+            field.suffix = name.substring(field.fieldName.length());
+            field.fieldName = name;
+        }, field -> field.fieldName);
         fixDuplicates(beanFields, (field, name) -> field.xmlName = name, field -> field.xmlName);
         this.fields = beanFields;
         this.beanType = Type.getType(ByteCodeUtils.toTypeDescriptor(beanNameWithPackage));
@@ -67,7 +69,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
 
         var str = new StringBuilder(beanNameWithPackage.length());
         str.append("https://");
-        for (int i = parts.length - 2; i >= 0; i--) {
+        for (var i = parts.length - 2; i >= 0; i--) {
             str.append(parts[i]);
             if (i != 0) {
                 str.append('.');
@@ -79,7 +81,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private byte[] getBytes() {
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        var classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         visitClassDescription(classWriter);
         visitClassAnnotations(classWriter);
         visitConstructor(classWriter);
@@ -98,11 +100,11 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         }
         for (var field : duplicates) {
             var name = get.apply(field);
-            int i = 1;
+            var i = 1;
             while (names.contains(name + i)) {
                 i++;
             }
-            String newName = name + i;
+            var newName = name + i;
             set.accept(field, newName);
             names.add(newName);
         }
@@ -133,7 +135,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlType;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
-        AnnotationVisitor av1 = av.visitArray("propOrder");
+        var av1 = av.visitArray("propOrder");
         for (var e : fields) {
             av1.visit(null, e.fieldName);
         }
@@ -171,7 +173,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void generateGetter(ClassWriter classWriter, String fieldName, FieldDescription fieldDescription) {
-        String getterMethod = fieldDescription.className + " " + ClassUtils.getter(fieldName) + "()";
+        var getterMethod = fieldDescription.className + " " + ClassUtils.getter(fieldName) + "()";
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(getterMethod), null, null, classWriter);
         mg.loadThis();
         mg.getField(beanType, "values", VALUES_TYPE);
@@ -188,6 +190,9 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         }
         if (fieldDescription.row != null) {
             av.visit("row", fieldDescription.row);
+        }
+        if (!fieldDescription.suffix.isEmpty()) {
+            av.visit("suffix", fieldDescription.suffix);
         }
         av.visitEnd();
 
@@ -212,7 +217,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void generateSetter(ClassWriter classWriter, String fieldName, FieldDescription fieldDescription) {
-        String setterMethod = "void " + ClassUtils.setter(fieldName) + "(" + fieldDescription.className + ")";
+        var setterMethod = "void " + ClassUtils.setter(fieldName) + "(" + fieldDescription.className + ")";
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(setterMethod), null, null, classWriter);
 
         mg.loadThis();
@@ -341,6 +346,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         final String description;
         String fieldName;
         String xmlName;
+        private String suffix = "";
 
         FieldDescription(String canonicalClassName, String row, String column, String description) {
             this.className = canonicalClassName;

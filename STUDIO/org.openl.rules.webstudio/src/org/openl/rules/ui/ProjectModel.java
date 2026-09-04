@@ -165,8 +165,6 @@ public class ProjectModel {
 
     private final WebStudio studio;
 
-    private final ColorFilterHolder filterHolder = new ColorFilterHolder();
-
     private TreeNode projectRoot = null;
 
     @Getter
@@ -284,10 +282,6 @@ public class ProjectModel {
         return null;
     }
 
-    public synchronized List<OpenLMessage> getWarnsByUri(String uri) {
-        return getMessagesByTsn(uri, Severity.WARN);
-    }
-
     private List<OpenLMessage> getMessagesByTsn(TableSyntaxNode tableSyntaxNode,
                                                 Severity severity,
                                                 Collection<OpenLMessage> openLMessages) {
@@ -315,10 +309,6 @@ public class ProjectModel {
 
     public synchronized List<OpenLMessage> getErrorsByUri(String uri) {
         return getMessagesByTsn(uri, Severity.ERROR);
-    }
-
-    public synchronized ColorFilterHolder getFilterHolder() {
-        return filterHolder;
     }
 
     public synchronized IOpenMethod getMethod(String tableUri) {
@@ -789,10 +779,6 @@ public class ProjectModel {
         return false;
     }
 
-    public boolean isReady() {
-        return compiledOpenClass != null;
-    }
-
     public boolean isTestable(String uri) {
         IOpenMethod m = getMethod(uri);
         if (m == null) {
@@ -965,9 +951,8 @@ public class ProjectModel {
                 continue;
             }
             TreeNode rfChild = build(child);
-            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
-                    .equals(rfChild.getType())) {
-                // skip workbook or worksheet node if it has no children nodes
+            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType())) {
+                // skip worksheet node if it has no children nodes
                 if (!rfChild.getChildrenKeysIterator().hasNext()) {
                     continue;
                 }

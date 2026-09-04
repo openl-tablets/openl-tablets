@@ -18,7 +18,7 @@ public interface IIntSelector {
 
         private void findNext() {
             while (it.hasNext()) {
-                int x = it.nextInt();
+                var x = it.nextInt();
                 if (selector.select(x)) {
                     next = x;
                     hasNext = true;

@@ -3,33 +3,23 @@
  */
 package org.openl.rules.dt.validator;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.consistencyChecking.Overlapping;
 import org.openl.util.ArrayOfNamedValues;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class DecisionTableOverlapping {
 
+    @Getter
     private final int[] rulesIndexes;
     private final ArrayOfNamedValues value;
+    @Getter
     private final Overlapping.OverlappingStatus status;
-
-    public Overlapping.OverlappingStatus getStatus() {
-        return status;
-    }
-
-    public DecisionTableOverlapping(int[] rulesIndexes,
-                                    ArrayOfNamedValues value,
-                                    Overlapping.OverlappingStatus status) {
-        this.rulesIndexes = rulesIndexes;
-        this.value = value;
-        this.status = status;
-    }
-
-    public int[] getRulesIndexes() {
-        return rulesIndexes;
-    }
 
     public ArrayOfNamedValues getValues() {
         return value;
@@ -52,25 +42,6 @@ public class DecisionTableOverlapping {
                         rulesIndexes[0],
                         value.toString());
         };
-    }
-
-    private String asString(int[] ary) {
-        StringBuilder buf = new StringBuilder(100);
-
-        if (ary == null) {
-            buf.append("null");
-        } else {
-
-            buf.append('[');
-            for (int i = 0; i < ary.length; ++i) {
-                if (i > 0) {
-                    buf.append(", ");
-                }
-                buf.append(ary[i]);
-            }
-            buf.append(']');
-        }
-        return buf.toString();
     }
 
 }

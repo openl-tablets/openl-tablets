@@ -33,6 +33,8 @@ public class JettyServer {
     private JettyServer() throws IOException {
         var webAppContext = new WebAppContext();
         webAppContext.setWar(System.getProperty("webservice-webapp"));
+        // Fail the suite with the real deploy exception instead of serving HTTP 503 to every request
+        webAppContext.setThrowUnavailableOnStartupException(true);
         webAppContext.setExtraClasspath(getExtraClasspath(webAppContext));
         // Solve issue with different slf4j implementations comes from dependencies
         webAppContext.addProtectedClassMatcher(new ClassMatcher("org.slf4j."));
@@ -91,11 +93,44 @@ public class JettyServer {
         return withInitParam("spring.profiles.active", profile);
     }
 
+    /**
+     * Deploys the webapp under a context path instead of the server root.
+     *
+     * <p>A request for the context path itself, without the trailing slash, is handed to the webapp as it is. That
+     * is what a container does when the webapp maps a servlet to {@code /*}: the servlet is called with no path
+     * info instead of the container answering a redirect of its own.
+     */
+    public JettyServer withContextPath(String contextPath) {
+        webAppContext.setContextPath(contextPath);
+        webAppContext.setAllowNullPathInContext(true);
+        return this;
+    }
+
     public void test() throws Exception {
         var profile = this.webAppContext.getInitParams().get("spring.profiles.active");
         try (var client = start()) {
             client.test(profile == null ? "test-resources" : ("test-resources-" + profile));
         }
+    }
+
+    /**
+     * Requires log4j-core in the webapp's {@code WEB-INF/lib}.
+     *
+     * <p>An incremental or {@code -Dquick} build can drop it, leaving a webapp that deploys with no logging
+     * and, in OpenL Studio, fails with a cryptic RichFaces NPE. Checking here turns that into one clear
+     * error before the server starts.
+     */
+    private void requireLog4jCore() {
+        var lib = Path.of(webAppContext.getWar(), "WEB-INF", "lib");
+        try (var jars = Files.list(lib)) {
+            if (jars.anyMatch(jar -> jar.getFileName().toString().startsWith("log4j-core-"))) {
+                return;
+            }
+        } catch (IOException ignored) {
+            // A missing or unreadable WEB-INF/lib means log4j-core is absent too.
+        }
+        throw new IllegalStateException(
+                "The webapp under test has no log4j-core in " + lib + ". Rebuild the webapp module without -Dquick.");
     }
 
     void stop() throws Exception {
@@ -109,13 +144,19 @@ public class JettyServer {
     }
 
     public HttpClient start() {
+        requireLog4jCore();
         Locale.setDefault(Locale.US);
         // set -10 as default
         TimeZone.setDefault(TimeZone.getTimeZone("America/Adak"));
         try {
             this.server.start();
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            try {
+                stop();
+            } catch (Exception suppressed) {
+                e.addSuppressed(suppressed);
+            }
+            throw new IllegalStateException("The webapp failed to deploy.", e);
         }
         int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
         var httpClient = new HttpClient(this, URI.create("http://localhost:" + port));

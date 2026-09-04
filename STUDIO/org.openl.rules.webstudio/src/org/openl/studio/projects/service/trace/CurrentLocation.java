@@ -47,6 +47,22 @@ public record CurrentLocation(LocationKind kind, int row, int column, @Nullable 
     }
 
     /**
+     * The row and column of a {@code RnCm} cell reference — the inverse of {@link #cellRef} — or {@code null}
+     * when the string is not a cell reference, so a caller can index the grid directly without scanning it.
+     */
+    public static int @Nullable [] parseCellRef(String ref) {
+        int c = ref.indexOf('C');
+        if (ref.isEmpty() || ref.charAt(0) != 'R' || c < 0) {
+            return null;
+        }
+        try {
+            return new int[]{Integer.parseInt(ref.substring(1, c)), Integer.parseInt(ref.substring(c + 1))};
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
      * A decision-table fired-rule location.
      *
      * <p>It matches a breakpoint on any rule firing ({@link #RULE_FIRED_REF}) as well as one on any of
@@ -55,7 +71,7 @@ public record CurrentLocation(LocationKind kind, int row, int column, @Nullable 
      * @param ruleNames the names of the rules that fired (one for a single match, several for a collect)
      */
     public static CurrentLocation dtRule(List<String> ruleNames) {
-        List<String> refs = new ArrayList<>(ruleNames.size() + 1);
+        var refs = new ArrayList<String>(ruleNames.size() + 1);
         refs.add(RULE_FIRED_REF);
         refs.addAll(ruleNames);
         return new CurrentLocation(LocationKind.DT_RULE, -1, -1, dtRuleRef(ruleNames), ruleLabel(ruleNames), refs);
@@ -68,7 +84,7 @@ public record CurrentLocation(LocationKind kind, int row, int column, @Nullable 
         }
         // A single rule is its own breakpoint key; a collect that fired many rules uses the any-rule key so
         // the step stays a single valid target (uri#rule) instead of an un-targetable comma-joined list.
-        return ruleNames.size() == 1 ? ruleNames.get(0) : RULE_FIRED_REF;
+        return ruleNames.size() == 1 ? ruleNames.getFirst() : RULE_FIRED_REF;
     }
 
     /** Compact label for the fired rules: the names, or the first few with a {@code +N more} for a big collect. */

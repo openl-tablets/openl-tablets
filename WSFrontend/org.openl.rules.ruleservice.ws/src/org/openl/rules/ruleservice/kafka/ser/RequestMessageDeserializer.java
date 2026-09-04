@@ -8,12 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 
@@ -52,7 +50,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
-        Object encodingValue = configs.get("value.deserializer.encoding");
+        var encodingValue = configs.get("value.deserializer.encoding");
         if (encodingValue == null) {
             encodingValue = configs.get("deserializer.encoding");
         }
@@ -73,7 +71,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     }
 
     private String getStringFromHeaders(Headers headers, String key) throws UnsupportedEncodingException {
-        Header header = headers.lastHeader(key);
+        var header = headers.lastHeader(key);
         if (header != null) {
             return new String(header.value(), StandardCharsets.UTF_8);
         }
@@ -91,9 +89,9 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
         } else {
             Method m = null;
             try {
-                final String methodName = getStringFromHeaders(headers, KafkaHeaders.METHOD_NAME);
-                final String methodParameters = getStringFromHeaders(headers, KafkaHeaders.METHOD_PARAMETERS);
-                Entry entry = getCachedMethodParametersWrapperClassInfo(methodName, methodParameters);
+                final var methodName = getStringFromHeaders(headers, KafkaHeaders.METHOD_NAME);
+                final var methodParameters = getStringFromHeaders(headers, KafkaHeaders.METHOD_PARAMETERS);
+                var entry = getCachedMethodParametersWrapperClassInfo(methodName, methodParameters);
                 if (entry == null) {
                     m = KafkaHelpers.findMethodInService(service, methodName, methodParameters);
                     entry = generateWrapperClass(m);
@@ -109,12 +107,12 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     }
 
     protected RequestMessage buildRequestMessage(Entry entry, byte[] rawData) throws IOException {
-        final Method method = entry.method;
-        final int numOfParameters = method.getParameterCount();
+        final var method = entry.method;
+        final var numOfParameters = method.getParameterCount();
         if (numOfParameters == 0) {
             return new RequestMessage(method, new Object[]{}, rawData, encoding);
         } else if (numOfParameters == 1) {
-            Object arg = objectMapper.readValue(new String(rawData, encoding), method.getParameterTypes()[0]);
+            var arg = objectMapper.readValue(new String(rawData, encoding), method.getParameterTypes()[0]);
             return new RequestMessage(method, new Object[]{arg}, rawData, encoding);
         } else {
             Object[] parameters = new Object[numOfParameters];
@@ -123,7 +121,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
             if (!tree.isObject()) {
                 throw new IllegalArgumentException("Expecting a JSON object");
             }
-            for (int i = 0; i < method.getParameterCount(); i++) {
+            for (var i = 0; i < method.getParameterCount(); i++) {
                 var name = entry.paramNames[i];
                 var type = method.getParameterTypes()[i];
                 var node = tree.get(name);
@@ -134,10 +132,10 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     }
 
     private void putCachedMethodParametersWrapperClassInfo(String methodName, String methodParameters, Entry entry) {
-        Lock writeLock = readWriteLock.writeLock();
+        var writeLock = readWriteLock.writeLock();
         writeLock.lock();
         try {
-            Map<String, Entry> t = methodMap.computeIfAbsent(methodName, e -> new HashMap<>());
+            var t = methodMap.computeIfAbsent(methodName, e -> new HashMap<>());
             t.put(methodParameters, entry);
         } finally {
             writeLock.unlock();
@@ -146,7 +144,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     }
 
     private Entry getCachedMethodParametersWrapperClassInfo(String methodName, String methodParameters) {
-        Lock readLock = readWriteLock.readLock();
+        var readLock = readWriteLock.readLock();
         readLock.lock();
         try {
             Map<String, Entry> t = methodMap.get(methodName);

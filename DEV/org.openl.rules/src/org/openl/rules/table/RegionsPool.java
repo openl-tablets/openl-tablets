@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Regions pool that gives region containing some cell quickly.
  *
@@ -14,14 +16,10 @@ public class RegionsPool {
     /**
      * Two intervals that intersects are equal.
      */
+    @RequiredArgsConstructor
     private static class DisjointInterval implements Comparable<DisjointInterval> {
         private final int left;
         private final int right;
-
-        public DisjointInterval(int left, int right) {
-            this.left = left;
-            this.right = right;
-        }
 
         @Override
         public int compareTo(DisjointInterval o) {
@@ -61,7 +59,7 @@ public class RegionsPool {
      * @param region Region to register in the pool
      */
     public void add(IGridRegion region) {
-        for (int row = region.getTop(); row <= region.getBottom(); row++) {
+        for (var row = region.getTop(); row <= region.getBottom(); row++) {
             Map<DisjointInterval, IGridRegion> regionsMap = pool.computeIfAbsent(row, k -> new TreeMap<>());
             regionsMap.put(new DisjointInterval(region.getLeft(), region.getRight()), region);
         }
@@ -69,7 +67,7 @@ public class RegionsPool {
 
     public void remove(IGridRegion region) {
         if (region != null) {
-            for (int row = region.getTop(); row <= region.getBottom(); row++) {
+            for (var row = region.getTop(); row <= region.getBottom(); row++) {
                 Map<DisjointInterval, IGridRegion> regionsMap = pool.get(row);
                 regionsMap.remove(new DisjointInterval(region.getLeft(), region.getRight()));
                 if (regionsMap.isEmpty()) {
@@ -83,7 +81,7 @@ public class RegionsPool {
      * removes registered region containing specified coordinates.
      */
     public void remove(int column, int row) {
-        IGridRegion region = getRegionContaining(column, row);
+        var region = getRegionContaining(column, row);
         remove(region);
     }
 

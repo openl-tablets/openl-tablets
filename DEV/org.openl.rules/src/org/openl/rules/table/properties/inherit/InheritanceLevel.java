@@ -1,5 +1,10 @@
 package org.openl.rules.table.properties.inherit;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum InheritanceLevel {
     GLOBAL("Global"),
     PROJECT("Project"),
@@ -10,15 +15,8 @@ public enum InheritanceLevel {
     CATEGORY("Category"),
     TABLE("Table");
 
+    @Getter
     private final String displayName;
-
-    InheritanceLevel(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
 
     @Override
     public String toString() {

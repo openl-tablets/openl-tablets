@@ -2,9 +2,10 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
@@ -13,13 +14,14 @@ import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
 @Slf4j
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final String COMPLEX_TYPE = "complex";
     private final String valueKey;
+    @Getter
+    @Setter
     private IOpenClass typeToCreate;
     private final ParameterRenderConfig config;
 
@@ -30,7 +32,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
 
         Object key = null;
         if (config.getValue() != null) {
-            IOpenField keyField = config.getKeyField();
+            var keyField = config.getKeyField();
             if (keyField != null) {
                 key = keyField.get(config.getValue(), null);
             }
@@ -39,14 +41,14 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
         if (key == null) {
             this.valueKey = null;
         } else {
-            ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(config.getType(), key).build();
+            var childConfig = new ParameterRenderConfig.Builder(config.getType(), key).build();
             this.valueKey = ParameterTreeBuilder.createSimpleNode(childConfig).getDisplayedValue();
         }
     }
 
     @Override
     public String getDisplayedValue() {
-        String typeName = getType().getDisplayName(INamedThing.SHORT);
+        var typeName = getType().getDisplayName(INamedThing.SHORT);
         return valueKey == null ? typeName : (typeName + " (" + valueKey + ")");
     }
 
@@ -60,8 +62,8 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
         if (isValueNull()) {
             return new LinkedHashMap<>();
         } else {
-            LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<>();
-            SortedMap<String, IOpenField> fieldMap = new TreeMap<>(NumericStringComparator.INSTANCE);
+            var fields = new LinkedHashMap<Object, ParameterDeclarationTreeNode>();
+            var fieldMap = new TreeMap<String, IOpenField>(NumericStringComparator.INSTANCE);
             try {
                 for (IOpenField field : getType().getFields()) {
                     fieldMap.put(field.getName(), field);
@@ -70,13 +72,13 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 log.debug("Ignored error: ", e);
                 return fields;
             }
-            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            var env = new SimpleRulesVM().getRuntimeEnv();
             for (Entry<String, IOpenField> fieldEntry : fieldMap.entrySet()) {
-                IOpenField field = fieldEntry.getValue();
+                var field = fieldEntry.getValue();
                 if (!field.isConst() && field.isReadable()) {
-                    String fieldName = fieldEntry.getKey();
+                    var fieldName = fieldEntry.getKey();
                     Object fieldValue;
-                    IOpenClass fieldType = field.getType();
+                    var fieldType = field.getType();
                     try {
                         fieldValue = field.get(getValue(), env);
                     } catch (RuntimeException e) {
@@ -99,7 +101,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                         fieldValue = reference;
                     }
 
-                    ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(fieldType, fieldValue)
+                    var childConfig = new ParameterRenderConfig.Builder(fieldType, fieldValue)
                             .fieldNameInParent(fieldName)
                             .parent(this)
                             .requestId(config.getRequestId())
@@ -138,13 +140,13 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
 
     @Override
     protected Object constructValueInternal() {
-        Object value = getValue();
+        var value = getValue();
 
-        IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
+        var env = new SimpleVM().getRuntimeEnv();
         for (Entry<Object, ParameterDeclarationTreeNode> fieldEntry : getChildrenMap().entrySet()) {
             if (!(fieldEntry.getValue() instanceof UnmodifiableParameterTreeNode)) {
-                String fieldName = (String) fieldEntry.getKey();
-                IOpenField field = getType().getField(fieldName);
+                var fieldName = (String) fieldEntry.getKey();
+                var field = getType().getField(fieldName);
                 if (field.isWritable()) {
                     try {
                         field.set(value, fieldEntry.getValue().getValueForced(), env);
@@ -162,7 +164,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     public void replaceChild(ParameterDeclarationTreeNode oldNode, ParameterDeclarationTreeNode newNode) {
         super.replaceChild(oldNode, newNode);
 
-        IOpenField field = getType().getField(newNode.getName());
+        var field = getType().getField(newNode.getName());
         if (!field.isConst() && field.isWritable()) {
             try {
                 field.set(getValue(), newNode.getValue(), new SimpleVM().getRuntimeEnv());
@@ -174,16 +176,8 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     }
 
     public boolean isBaseType() {
-        IOpenClass type = getType();
+        var type = getType();
         return type == JavaOpenClass.OBJECT || type.isAbstract();
-    }
-
-    public IOpenClass getTypeToCreate() {
-        return typeToCreate;
-    }
-
-    public void setTypeToCreate(IOpenClass typeToCreate) {
-        this.typeToCreate = typeToCreate;
     }
 
     public boolean isDisposeRestricted() {

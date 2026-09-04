@@ -23,8 +23,8 @@ public final class PropertiesHelper {
             return null;
         }
 
-        ILogicalTable propTable = table.getRows(1, 1);
-        String header = propTable.getSource().getCell(0, 0).getStringValue();
+        var propTable = table.getRows(1, 1);
+        var header = propTable.getSource().getCell(0, 0).getStringValue();
 
         if (!PROPERTIES_HEADER.equals(header)) {
             return null;
@@ -47,7 +47,7 @@ public final class PropertiesHelper {
         if (method instanceof ITablePropertiesMethod propertiesMethod) {
             return propertiesMethod.getMethodProperties();
         } else if (method.getInfo() != null) {
-            TableProperties properties = new TableProperties();
+            var properties = new TableProperties();
             Map<String, Object> definedInTable = method.getInfo().getProperties();
             if (definedInTable != null) {
                 for (Entry<String, Object> property : definedInTable.entrySet()) {

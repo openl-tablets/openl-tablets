@@ -13,10 +13,10 @@ public class ForNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode[] children = bindChildren(node, bindingContext);
-        IBoundNode initNode = children[0];
-        IBoundNode conditionNode = children[1];
-        IBoundNode afterNode = children[2];
-        IBoundNode blockCodeNode = children[3];
+        var initNode = children[0];
+        var conditionNode = children[1];
+        var afterNode = children[2];
+        var blockCodeNode = children[3];
 
         IBoundNode checkConditionNode = BindHelper.checkConditionBoundNode(conditionNode, bindingContext);
 

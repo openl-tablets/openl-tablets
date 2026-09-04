@@ -31,7 +31,7 @@ public class ChangePasswordConstraintValidator implements ConstraintValidator<Ch
         context.disableDefaultConstraintViolation();
         if (StringUtils.isNotEmpty(value.getNewPassword()) || StringUtils
                 .isNotEmpty(value.getCurrentPassword()) || StringUtils.isNotEmpty(value.getConfirmPassword())) {
-            String userPasswordHash = userManagementService.getUser(currentUserInfo.getUserName()).getPassword();
+            var userPasswordHash = userManagementService.getUser(currentUserInfo.getUserName()).getPassword();
 
             if (StringUtils.isEmpty(value.getCurrentPassword())) {
                 context.buildConstraintViolationWithTemplate("{openl.constraints.password.empty.message}")

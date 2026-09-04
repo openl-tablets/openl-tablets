@@ -3,8 +3,8 @@ package org.openl.rules.spring.openapi.service;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +28,14 @@ import io.swagger.v3.oas.models.media.Encoding;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ValueConstants;
 
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
@@ -47,16 +49,11 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  */
 @Component
+@RequiredArgsConstructor
 public class OpenApiRequestServiceImpl implements OpenApiRequestService {
 
     private final OpenApiParameterService apiParameterService;
     private final OpenApiPropertyResolver propertyResolver;
-
-    public OpenApiRequestServiceImpl(OpenApiParameterService apiParameterService,
-                                     OpenApiPropertyResolver propertyResolver) {
-        this.apiParameterService = apiParameterService;
-        this.propertyResolver = propertyResolver;
-    }
 
     @Override
     public RequestBody generateRequestBody(OpenApiContext apiContext,
@@ -108,7 +105,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                                              MethodInfo methodInfo,
                                              Components components) {
         var objectSchema = new ObjectSchema();
-        Map<String, Encoding> encodingMap = new LinkedHashMap<>();
+        var encodingMap = new LinkedHashMap<String, Encoding>();
 
         for (var paramInfo : formParamInfos) {
             // Check if this is a ModelAttribute - if so, expand its fields
@@ -158,9 +155,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 if (StringUtils.isNotBlank(apiParameter.description())) {
                     schema.setDescription(propertyResolver.resolve(apiParameter.description()));
                 }
-                if (apiParameter.schema() != null && StringUtils.isNotBlank(apiParameter.schema().defaultValue())) {
-                    schema.setDefault(apiParameter.schema().defaultValue());
-                }
+                applyParameterSchema(schema, apiParameter.schema());
                 for (var content : apiParameter.content()) {
                     Stream.of(content.encoding()).map(apiEncoding -> {
                         var encoding = new Encoding();
@@ -181,6 +176,13 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                         return encoding;
                     }).forEach(encoding -> encodingMap.put(nameRef.name, encoding));
                 }
+            }
+            // The binding default (a @RequestParam defaultValue) applies unless the @Parameter/@Schema
+            // already set one — form-data properties otherwise dropped it, unlike query parameters.
+            if (schema.getDefault() == null && requestParam != null
+                    && StringUtils.isNotBlank(requestParam.defaultValue())
+                    && !ValueConstants.DEFAULT_NONE.equals(requestParam.defaultValue())) {
+                schema.setDefault(requestParam.defaultValue());
             }
             apiParameterService.applyValidationAnnotations(paramInfo, schema);
             objectSchema.addProperty(nameRef.name, schema);
@@ -231,12 +233,12 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 parameterType = ((ParameterizedType) parameterType).getActualTypeArguments()[0];
             }
         }
-        String[] consumes = resolveConsumes(methodInfo,
+        var consumes = resolveConsumes(methodInfo,
                 (Class<?>) (parameterType instanceof ParameterizedType pt ? pt.getRawType()
                         : parameterType));
         var parameter = ParameterProcessor.applyAnnotations(null,
                 parameterType,
-                apiParameter != null ? List.of(apiParameter) : Collections.emptyList(),
+                apiParameter != null ? List.of(apiParameter) : List.of(),
                 components,
                 new String[0],
                 consumes,
@@ -256,9 +258,9 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     }
 
     private String[] resolveConsumes(MethodInfo methodInfo, Class<?> cl) {
-        String[] consumes = methodInfo.getConsumes();
+        var consumes = methodInfo.getConsumes();
         if (consumes == MethodInfo.ALL_MEDIA_TYPES) {
-            String[] possibleConsumes = apiParameterService.getMediaTypesForType(cl);
+            var possibleConsumes = apiParameterService.getMediaTypesForType(cl);
             if (possibleConsumes.length > 0) {
                 consumes = possibleConsumes;
             }
@@ -272,8 +274,8 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
         if (apiRequestBody == null) {
             return null;
         }
-        RequestBody requestBody = new RequestBody();
-        boolean empty = true;
+        var requestBody = new RequestBody();
+        var empty = true;
 
         if (StringUtils.isNotBlank(apiRequestBody.ref())) {
             requestBody.set$ref(apiRequestBody.ref());
@@ -369,7 +371,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     private void expandModelAttributeFields(ParameterInfo paramInfo,
                                             ObjectSchema objectSchema,
                                             Components components) {
-        Type paramType = paramInfo.getType();
+        var paramType = paramInfo.getType();
         Class<?> modelClass = paramType instanceof Class<?> c ? c :
                 paramType instanceof ParameterizedType pt ?
                         (Class<?>) pt.getRawType() : null;
@@ -385,8 +387,8 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                 continue;
             }
 
-            String fieldName = field.getName();
-            Type fieldType = field.getGenericType();
+            var fieldName = field.getName();
+            var fieldType = field.getGenericType();
 
             // Check for @Schema annotation on field
             var schemaAnnotation = field.getAnnotation(Schema.class);
@@ -406,26 +408,14 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
                     addRequiredItemIfAbsent(objectSchema, fieldName);
                 }
                 // Apply parameter schema properties
-                if (parameterAnnotation.schema() != null) {
-                    if (StringUtils.isNotBlank(parameterAnnotation.schema().defaultValue())) {
-                        schema.setDefault(parameterAnnotation.schema().defaultValue());
-                    }
-                    if (StringUtils.isNotBlank(parameterAnnotation.schema().example())) {
-                        schema.setExample(parameterAnnotation.schema().example());
-                    }
-                }
+                applyParameterSchema(schema, parameterAnnotation.schema());
             }
             // Apply @Schema annotation properties if present (if @Parameter wasn't used)
             else if (schemaAnnotation != null) {
                 if (StringUtils.isNotBlank(schemaAnnotation.description())) {
                     schema.setDescription(propertyResolver.resolve(schemaAnnotation.description()));
                 }
-                if (StringUtils.isNotBlank(schemaAnnotation.example())) {
-                    schema.setExample(schemaAnnotation.example());
-                }
-                if (StringUtils.isNotBlank(schemaAnnotation.defaultValue())) {
-                    schema.setDefault(schemaAnnotation.defaultValue());
-                }
+                applyParameterSchema(schema, schemaAnnotation);
 
                 // Handle required mode
                 if (schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED) {
@@ -445,6 +435,28 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
         List<String> required = objectSchema.getRequired();
         if (required == null || !required.contains(fieldName)) {
             objectSchema.addRequiredItem(fieldName);
+        }
+    }
+
+    /**
+     * Applies the swagger {@code @Schema} attributes a form-data property supports onto its resolved
+     * schema: the allowable values, a default and an example. Allowable values replace the ones derived
+     * from the Java type, so a wire vocabulary that differs from the enum constants — for example a
+     * request parameter converted from its wire code — is documented as it is sent, not as it is stored.
+     */
+    @SuppressWarnings("unchecked")
+    private static void applyParameterSchema(io.swagger.v3.oas.models.media.Schema<?> schema, Schema annotation) {
+        if (annotation == null) {
+            return;
+        }
+        if (annotation.allowableValues().length > 0) {
+            ((io.swagger.v3.oas.models.media.Schema<Object>) schema).setEnum(Arrays.asList(annotation.allowableValues()));
+        }
+        if (StringUtils.isNotBlank(annotation.defaultValue())) {
+            schema.setDefault(annotation.defaultValue());
+        }
+        if (StringUtils.isNotBlank(annotation.example())) {
+            schema.setExample(annotation.example());
         }
     }
 

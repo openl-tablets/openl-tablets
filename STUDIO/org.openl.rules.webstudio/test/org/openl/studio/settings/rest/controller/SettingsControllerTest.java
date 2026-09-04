@@ -8,8 +8,6 @@ import java.util.function.BooleanSupplier;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
-import org.openl.studio.settings.model.SettingsModel;
-
 /**
  * Unit tests for {@link SettingsController}.
  *
@@ -24,7 +22,7 @@ class SettingsControllerTest {
         if (userMode != null) {
             environment.setProperty("user.mode", userMode);
         }
-        SettingsModel settings = new SettingsController(environment, MAIL_DISABLED).getSettings();
+        var settings = new SettingsController(environment, MAIL_DISABLED).getSettings();
         return settings.getSupportedFeatures().getPersonalAccessToken();
     }
 

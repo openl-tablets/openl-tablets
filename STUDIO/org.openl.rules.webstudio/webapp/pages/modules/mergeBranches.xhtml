@@ -1,0 +1,39 @@
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <script>
+        //<![CDATA[
+
+        function openMergeBranchesDialog(repositoryId, repositoryType, projectName) {
+            const projectId = globalThis.openl.encodeProjectId(repositoryId, projectName);
+            $j.get("#{contextPath}/web/projects/" + projectId).then(function(project) {
+                return $j.get("#{contextPath}/web/projects/" + projectId + "/branches").then(function(branches) {
+                    window.dispatchEvent(new CustomEvent('openMergeModal', {
+                        detail: {
+                            projectId: project.id,
+                            projectName: project.name,
+                            repositoryId: repositoryId,
+                            repositoryType: repositoryType,
+                            currentBranch: project.branch,
+                            branches: branches,
+                            onSuccess: forceReload,
+                            onCompare: function(filePath) { openMergeCompareDialog(project.id, filePath); }
+                        }
+                    }));
+                });
+            }).catch(function() {
+                alert("Failed to load project information.");
+            });
+        }
+
+        function openMergeCompareDialog(projectId, filePath) {
+            const isExcel = /\.(xlsx?|xlsm|xlsb)$/i.test(filePath);
+            if (isExcel) {
+                openCompareRevisionsDialog(projectId, filePath);
+            } else {
+                openCompareTextFilesDialog(projectId, filePath);
+            }
+        }
+        //]]>
+    </script>
+</ui:composition>

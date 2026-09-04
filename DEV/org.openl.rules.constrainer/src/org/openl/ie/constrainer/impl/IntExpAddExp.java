@@ -17,7 +17,6 @@ import org.openl.ie.constrainer.Subject;
 public final class IntExpAddExp extends IntExpImpl {
     class ExpAddExpObserver extends Observer {
         ExpAddExpObserver() {
-            // super(event_map);
         }
 
         @Override
@@ -37,13 +36,8 @@ public final class IntExpAddExp extends IntExpImpl {
 
         @Override
         public void update(Subject exp, EventOfInterest event) throws Failure {
-            // IntEvent e = (IntEvent) event;
-
-            // int type = e.type();
-            // if ((type & MIN) != 0)
             _sum.setMin(calc_min());
 
-            // if ((type & MAX) != 0)
             _sum.setMax(calc_max());
 
         }
@@ -53,11 +47,6 @@ public final class IntExpAddExp extends IntExpImpl {
     private final IntExp _exp1;
 
     private final IntExp _exp2;
-
-    // static final private int[] event_map = { MIN, MIN,
-    // MAX, MAX,
-    // MIN | MAX | VALUE, VALUE
-    // };
 
     private final Observer _observer;
 
@@ -73,7 +62,6 @@ public final class IntExpAddExp extends IntExpImpl {
         _exp1 = exp1;
         _exp2 = exp2;
 
-        // int trace = IntVarImplTrace.TRACE_ALL;
         _sum = constrainer().addIntVarTraceInternal(calc_min(), calc_max(), _name, IntVar.DOMAIN_PLAIN);
 
         _observer = new ExpAddExpObserver();
@@ -118,8 +106,6 @@ public final class IntExpAddExp extends IntExpImpl {
 
     @Override
     public void onMaskChange() {
-        // _observer.publish(publisherMask(), _exp1);
-        // _observer.publish(publisherMask(), _exp2);
     }
 
     @Override
@@ -130,11 +116,11 @@ public final class IntExpAddExp extends IntExpImpl {
 
     @Override
     public void removeValue(int value) throws Failure {
-        int Max = max();
+        var Max = max();
         if (value > Max) {
             return;
         }
-        int Min = min();
+        var Min = min();
         if (value < Min) {
             return;
         }
@@ -155,11 +141,11 @@ public final class IntExpAddExp extends IntExpImpl {
             return;
         }
 
-        int max1 = max - _exp2.min();
+        var max1 = max - _exp2.min();
         if (max1 < _exp1.max()) {
             _exp1.setMax(max1);
         }
-        int max2 = max - _exp1.min();
+        var max2 = max - _exp1.min();
         if (max2 < _exp2.max()) {
             _exp2.setMax(max2);
         }
@@ -172,11 +158,11 @@ public final class IntExpAddExp extends IntExpImpl {
             return;
         }
 
-        int min1 = min - _exp2.max();
+        var min1 = min - _exp2.max();
         if (min1 > _exp1.min()) {
             _exp1.setMin(min1);
         }
-        int min2 = min - _exp1.max();
+        var min2 = min - _exp1.max();
         if (min2 > _exp2.min()) {
             _exp2.setMin(min2);
         }

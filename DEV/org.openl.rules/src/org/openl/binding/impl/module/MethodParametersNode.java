@@ -1,7 +1,6 @@
 package org.openl.binding.impl.module;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -32,11 +31,11 @@ public class MethodParametersNode extends ABoundNode {
     }
 
     public IMethodSignature getSignature(IBindingContext bindingContext) {
-        int len = children.length;
+        var len = children.length;
 
         ParameterDeclaration[] params = new ParameterDeclaration[len];
-        Map<String, Integer> checkConflicts = new HashMap<>();
-        for (int i = 0; i < len; i++) {
+        var checkConflicts = new HashMap<String, Integer>();
+        for (var i = 0; i < len; i++) {
             if (children[i] instanceof ParameterNode parameterNode) {
                 params[i] = new ParameterDeclaration(parameterNode.getType(),
                         parameterNode.getName(),
@@ -59,7 +58,7 @@ public class MethodParametersNode extends ABoundNode {
 
     public ILocation getParamTypeLocation(int paramNum) {
         // 0-th child is param type, 1-st child is param name. See ParameterDeclarationNodeBinder
-        ISyntaxNode typeNode = children[paramNum].getSyntaxNode().getChild(0);
+        var typeNode = children[paramNum].getSyntaxNode().getChild(0);
 
         while (typeNode.getNumberOfChildren() == 1 && !(typeNode instanceof IdentifierNode)) {
             // Get type node for array

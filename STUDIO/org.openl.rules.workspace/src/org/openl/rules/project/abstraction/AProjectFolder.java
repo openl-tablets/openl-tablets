@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ArtefactPath;
@@ -29,8 +29,13 @@ import org.openl.util.IOUtils;
 public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     private Map<String, AProjectArtefact> artefacts;
+    @Getter
     private ResourceTransformer resourceTransformer;
+    @Getter
+    @Setter
     private String folderPath;
+    @Getter
+    @Setter
     private String historyVersion;
 
     public AProjectFolder(AProject project, Repository repository, String folderPath, String historyVersion) {
@@ -62,7 +67,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     @Override
     public AProjectArtefact getArtefact(String name) throws ProjectException {
-        AProjectArtefact artefact = getArtefactsInternal().get(name);
+        var artefact = getArtefactsInternal().get(name);
         if (artefact == null) {
             throw new ProjectException("Cannot find project artefact ''{0}''", null, name);
         }
@@ -79,7 +84,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     public void deleteArtefactsInFolder(String folderName) throws ProjectException {
         getProject().tryLockOrThrow();
-        Set<AProjectArtefact> artefactsToDelete = getArtefactsInternal().entrySet()
+        var artefactsToDelete = getArtefactsInternal().entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(folderName))
                 .map(Map.Entry::getValue)
@@ -97,7 +102,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
     public AProjectFolder addFolder(String name) throws ProjectException {
         getProject().tryLockOrThrow();
 
-        AProjectFolder createdFolder = new AProjectFolder(getProject(), getRepository(), folderPath + "/" + name, null);
+        var createdFolder = new AProjectFolder(getProject(), getRepository(), folderPath + "/" + name, null);
         getArtefactsInternal().put(name, createdFolder);
         createdFolder.setResourceTransformer(resourceTransformer);
         return createdFolder;
@@ -107,16 +112,16 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         try {
             getProject().tryLockOrThrow();
 
-            FileData fileData = new FileData();
-            String fullName = folderPath + "/" + name;
+            var fileData = new FileData();
+            var fullName = folderPath + "/" + name;
             fileData.setName(fullName);
-            Repository repository = getRepository();
+            var repository = getRepository();
             if (repository.check(fullName) != null) {
                 throw new ProjectException("The file '%s' exists in the folder.".formatted(name),
                         new IOException());
             }
             fileData = repository.save(fileData, content);
-            AProjectResource createdResource = new AProjectResource(getProject(), repository, fileData);
+            var createdResource = new AProjectResource(getProject(), repository, fileData);
             getArtefactsInternal().put(name, createdResource);
             return createdResource;
         } catch (IOException ex) {
@@ -139,15 +144,15 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
             return;
         }
 
-        String path = getFolderPath();
-        String artefactPath = artefact.getFileData().getName();
+        var path = getFolderPath();
+        var artefactPath = artefact.getFileData().getName();
 
-        int subFolderNameStart = path.length() + 1;
-        int subFolderNameEnd = artefactPath.indexOf('/', subFolderNameStart);
+        var subFolderNameStart = path.length() + 1;
+        var subFolderNameEnd = artefactPath.indexOf('/', subFolderNameStart);
         if (subFolderNameEnd > -1) {
             // Has subfolder
-            String name = artefactPath.substring(subFolderNameStart, subFolderNameEnd);
-            AProjectFolder folder = (AProjectFolder) artefactsInternal.get(name);
+            var name = artefactPath.substring(subFolderNameStart, subFolderNameEnd);
+            var folder = (AProjectFolder) artefactsInternal.get(name);
             if (folder == null) {
                 folder = new AProjectFolder(new HashMap<>(),
                         artefact.getProject(),
@@ -174,28 +179,28 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
     public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
         super.update(newFolder, user);
         if (this.isFolder()) {
-            AProjectFolder from = (AProjectFolder) newFolder;
+            var from = (AProjectFolder) newFolder;
 
             List<FileItem> changes = new ArrayList<>();
             try {
                 ChangesetType changesetType;
                 String fromProjectVersion = null;
 
-                Repository fromRepository = from.getRepository();
-                Repository toRepository = getRepository();
+                var fromRepository = from.getRepository();
+                var toRepository = getRepository();
                 if (fromRepository.supports().uniqueFileId() && toRepository.supports().uniqueFileId()) {
                     changesetType = ChangesetType.DIFF;
 
-                    String fromFilePath = from.getFolderPath() + "/";
+                    var fromFilePath = from.getFolderPath() + "/";
                     List<FileData> fromList;
                     if (fromRepository.supports().versions()) {
                         if (from.isHistoric()) {
                             fromProjectVersion = from.getHistoryVersion();
                             fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
                         } else {
-                            FileData fileData = fromRepository.check(from.getFolderPath());
+                            var fileData = fromRepository.check(from.getFolderPath());
                             if (fileData == null) {
-                                fromList = Collections.emptyList();
+                                fromList = List.of();
                             } else {
                                 fromProjectVersion = fileData.getVersion();
                                 fromList = fromRepository.listFiles(fromFilePath, fromProjectVersion);
@@ -205,18 +210,18 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                         fromList = fromRepository.list(fromFilePath);
                     }
 
-                    String toFilePath = getFolderPath() + "/";
+                    var toFilePath = getFolderPath() + "/";
                     List<FileData> toList = isHistoric() ? toRepository.listFiles(toFilePath, getHistoryVersion())
                             : toRepository.list(toFilePath);
 
-                    ResourceTransformer transformer = getResourceTransformer();
+                    var transformer = getResourceTransformer();
 
                     // Search added and modified files
                     for (FileData fromData : fromList) {
-                        String nameFrom = fromData.getName();
-                        String nameTo = getFolderPath() + nameFrom.substring(from.getFolderPath().length());
+                        var nameFrom = fromData.getName();
+                        var nameTo = getFolderPath() + nameFrom.substring(from.getFolderPath().length());
 
-                        String fromUniqueId = fromData.getUniqueId();
+                        var fromUniqueId = fromData.getUniqueId();
                         if (fromUniqueId == null) {
                             // The file was modified or added
                             FileItem read = fromRepository.supports().versions()
@@ -229,7 +234,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                             if (toData == null || !fromUniqueId.equals(toData.getUniqueId())) {
                                 // The file is absent in destination. Add it.
                                 // Or different revision of a file.
-                                FileData data = copyAndChangeName(fromData, nameTo);
+                                var data = copyAndChangeName(fromData, nameTo);
                                 InputStream content;
                                 if (transformer != null) {
                                     FileData fileData = fromRepository.supports().versions() ? fromRepository
@@ -249,8 +254,8 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
                     // Search deleted files
                     for (FileData toData : toList) {
-                        String nameTo = toData.getName();
-                        String nameFrom = from.getFolderPath() + nameTo.substring(getFolderPath().length());
+                        var nameTo = toData.getName();
+                        var nameFrom = from.getFolderPath() + nameTo.substring(getFolderPath().length());
 
                         FileData fromData = find(fromList, nameFrom);
                         if (fromData == null) {
@@ -266,7 +271,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                     changes = getResourceTransformer().transformChangedFiles(getFolderPath(), changes);
                 }
 
-                FileData fileData = getFileData();
+                var fileData = getFileData();
                 fileData.setAuthor(user == null ? null : user.getUserInfo());
                 if (fromProjectVersion != null) {
                     fileData.setVersion(fromProjectVersion);
@@ -285,7 +290,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
     private FileData copyAndChangeName(FileData data, String newName) {
         // Keep only required fields. The fields uniqueId and name are required. Fields like author, modifiedAt
         // aren't required for file saving, but retrieving that fields can be slow for a big amount of files.
-        FileData copy = new FileData();
+        var copy = new FileData();
         copy.setName(newName);
         copy.setUniqueId(data.getUniqueId());
 
@@ -303,8 +308,8 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
     }
 
     private void findChanges(AProjectFolder from, List<FileItem> files) throws ProjectException {
-        ResourceTransformer transformer = getResourceTransformer();
-        String path = getFolderPath();
+        var transformer = getResourceTransformer();
+        var path = getFolderPath();
 
         for (AProjectArtefact artefact : from.getArtefacts()) {
             if (artefact instanceof AProjectResource resource) {
@@ -328,16 +333,16 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
     }
 
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
-        HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<>();
+        var internalArtefacts = new HashMap<String, AProjectArtefact>();
         Collection<FileData> fileDatas = new ArrayList<>();
-        String path = getFolderPath();
+        var path = getFolderPath();
         if (!path.isEmpty() && !path.endsWith("/")) {
             path += "/";
         }
         try {
             if (isHistoric()) {
                 if (getRepository().supports().folders()) {
-                    FileData fileData = getFileData();
+                    var fileData = getFileData();
                     if (fileData != null) {
                         fileDatas = getRepository().listFiles(path, fileData.getVersion());
                     }
@@ -350,7 +355,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
             }
             for (FileData fileData : fileDatas) {
                 if (!fileData.getName().equals(path) && !fileData.isDeleted()) {
-                    String artefactName = fileData.getName().substring(path.length());
+                    var artefactName = fileData.getName().substring(path.length());
                     internalArtefacts.put(artefactName, new AProjectResource(getProject(), getRepository(), fileData));
                 }
             }
@@ -382,18 +387,13 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         }
     }
 
-    @Override
-    public String getFolderPath() {
-        return folderPath;
-    }
-
     public String getRealPath() {
-        String path = getFolderPath();
-        Repository repository = getRepository();
+        var path = getFolderPath();
+        var repository = getRepository();
         if (repository.supports().mappedFolders()) {
-            final FileData fileData = getFileData();
+            final var fileData = getFileData();
             if (fileData != null) {
-                FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+                var mappingData = fileData.getAdditionalData(FileMappingData.class);
 
                 if (mappingData != null && path.equals(mappingData.getExternalPath())) {
                     return mappingData.getInternalPath();
@@ -406,10 +406,6 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         }
     }
 
-    public void setFolderPath(String folderPath) {
-        this.folderPath = folderPath;
-    }
-
     @Override
     public boolean isHistoric() {
         return historyVersion != null && isRepositoryVersionable();
@@ -419,20 +415,24 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         return getRepository().supports().versions();
     }
 
-    public String getHistoryVersion() {
-        return historyVersion;
-    }
-
-    public void setHistoryVersion(String historyVersion) {
-        this.historyVersion = historyVersion;
-    }
-
     @Override
     public void setFileData(FileData fileData) {
+        setFileData(fileData, true);
+    }
+
+    /**
+     * Associates repository data with this folder.
+     *
+     * <p>Callers that publish current repository listings can defer version metadata. The metadata is resolved when
+     * the project version is requested.
+     */
+    protected final void setFileData(FileData fileData, boolean resolveHistoryVersion) {
         super.setFileData(fileData);
         if (fileData != null) {
             setFolderPath(fileData.getName());
-            setHistoryVersion(fileData.getVersion());
+            if (resolveHistoryVersion) {
+                setHistoryVersion(fileData.getVersion());
+            }
         }
     }
 
@@ -443,7 +443,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     @Override
     public String getInternalPath() {
-        String projectPath = getProject().getFileData().getName();
+        var projectPath = getProject().getFileData().getName();
         return folderPath.startsWith(projectPath + "/") ? folderPath.substring(projectPath.length() + 1) : folderPath;
     }
 
@@ -457,9 +457,5 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     public boolean hasArtefacts() {
         return !getArtefacts().isEmpty();
-    }
-
-    public ResourceTransformer getResourceTransformer() {
-        return resourceTransformer;
     }
 }

@@ -37,7 +37,7 @@ public class MessageSourceResourceMethod implements IOpenMethod {
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        Locale locale = Optional.ofNullable(((IRulesRuntimeContext) env.getContext()).getLocale()).orElse(Locale.US);
+        var locale = Optional.ofNullable(((IRulesRuntimeContext) env.getContext()).getLocale()).orElse(Locale.US);
         var messageBundle = ((XlsModuleOpenClass) ((SimpleRuntimeEnv) env).getTopClass()).getMessageSource()
                 .getMessageBundle(locale);
         return messageBundle.msg((String) params[0], (Object[]) params[1]);

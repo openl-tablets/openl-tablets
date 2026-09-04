@@ -18,6 +18,7 @@ import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.util.ReferenceTypeUtils;
 import io.swagger.v3.oas.models.media.Schema;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -68,15 +69,12 @@ class InheritanceFixConverter implements ModelConverter {
      *
      * @see io.swagger.v3.core.converter.ModelConverterContextImpl (v2.2.22)
      */
+    @RequiredArgsConstructor
     static class ModelConverterContextImpl implements ModelConverterContext {
         private final List<ModelConverter> converters;
         private final Map<String, Schema<?>> modelByName = new TreeMap<>();
         private final HashMap<AnnotatedType, Schema<?>> modelByType = new HashMap<>();
         private final Set<AnnotatedType> processedTypes = new HashSet<>();
-
-        public ModelConverterContextImpl(List<ModelConverter> converters) {
-            this.converters = converters;
-        }
 
         @Override
         public Iterator<ModelConverter> getConverters() {

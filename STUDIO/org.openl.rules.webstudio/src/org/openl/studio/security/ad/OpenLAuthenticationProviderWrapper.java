@@ -1,14 +1,12 @@
 package org.openl.studio.security.ad;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 
+@RequiredArgsConstructor
 public class OpenLAuthenticationProviderWrapper implements AuthenticationProvider {
     private final AuthenticationProvider delegate;
-
-    public OpenLAuthenticationProviderWrapper(AuthenticationProvider delegate) {
-        this.delegate = delegate;
-    }
 
     @Override
     public Authentication authenticate(Authentication authentication) {

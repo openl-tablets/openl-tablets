@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>6.3.1-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     <packaging>war</packaging>
@@ -56,21 +56,18 @@
             <groupId>org.openl</groupId>
             <artifactId>x-forwarded-filter</artifactId>
         </dependency>
+        <!-- Packaged into the war through the log4j-libs web resource, because the war plugin
+             neither packages optional dependencies nor keeps foreign jars copied into WEB-INF/lib;
+             optional, so that consumers of the assembly jar do not inherit the log4j runtime -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- The test classpath has log4j-api (via Apache POI) but no log4j-core: route log4j calls into
-             slf4j-simple, so logging reaches the Maven output and no log files are created. -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-to-slf4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -83,11 +80,6 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
-        </dependency>
-        <!-- STUDIO -->
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.repository</artifactId>
         </dependency>
         <!-- RulesService -->
         <dependency>
@@ -195,35 +187,27 @@
                     <execution>
                         <id>copy-dependencies</id>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <phase>prepare-package</phase>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/webapp/WEB-INF/lib</outputDirectory>
-                            <artifactItems>
-                                <!-- Logging -->
-                                <artifactItem>
-                                    <groupId>org.apache.logging.log4j</groupId>
-                                    <artifactId>log4j-slf4j2-impl</artifactId>
-                                    <version>${log4j.version}</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.logging.log4j</groupId>
-                                    <artifactId>log4j-core</artifactId>
-                                    <version>${log4j.version}</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.logging.log4j</groupId>
-                                    <artifactId>log4j-api</artifactId>
-                                    <version>${log4j.version}</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/log4j-libs</outputDirectory>
+                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j2-impl</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.directory}/log4j-libs</directory>
+                            <targetPath>WEB-INF/lib</targetPath>
+                        </resource>
+                    </webResources>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

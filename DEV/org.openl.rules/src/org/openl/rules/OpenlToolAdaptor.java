@@ -1,5 +1,9 @@
 package org.openl.rules;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
@@ -15,38 +19,18 @@ import org.openl.types.impl.CompositeMethod;
  *
  * @author snshor
  */
+@RequiredArgsConstructor
 public class OpenlToolAdaptor {
 
+    @Getter
     private final OpenL openl;
+    @Getter
+    @Setter
     private IOpenMethodHeader header;
+    @Getter
     private final IBindingContext bindingContext;
+    @Getter
     private final TableSyntaxNode tableSyntaxNode;
-
-    public OpenlToolAdaptor(OpenL openl, IBindingContext bindingContext, TableSyntaxNode tableSyntaxNode) {
-        this.openl = openl;
-        this.bindingContext = bindingContext;
-        this.tableSyntaxNode = tableSyntaxNode;
-    }
-
-    public IBindingContext getBindingContext() {
-        return bindingContext;
-    }
-
-    public IOpenMethodHeader getHeader() {
-        return header;
-    }
-
-    public OpenL getOpenl() {
-        return openl;
-    }
-
-    public void setHeader(IOpenMethodHeader header) {
-        this.header = header;
-    }
-
-    public TableSyntaxNode getTableSyntaxNode() {
-        return tableSyntaxNode;
-    }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src) {
         return OpenLManager.makeMethod(openl, src, header, bindingContext);

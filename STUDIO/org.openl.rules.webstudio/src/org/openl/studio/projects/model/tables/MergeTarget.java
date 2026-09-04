@@ -18,8 +18,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 })
 public sealed interface MergeTarget permits MergeTarget.Cells {
 
-    @Schema(name = "MergeCells", description = "Merges a rectangular range of cells into one, keeping the value of the "
-            + "top-left cell. The range must cover more than one cell and stay within the table.")
+    @Schema(name = "MergeCells", description = """
+            Merges a rectangular range of cells into one, keeping the value of the \
+            top-left cell. The range must cover more than one cell and stay within the table.""")
     record Cells(
             @Schema(description = "0-based row index of the top-left cell (0..height-1).")
             @NotNull

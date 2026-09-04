@@ -27,8 +27,6 @@ public class DomainImpl implements Domain {
         _variable = var;
         _initial_min = min;
         _initial_max = max;
-        // int size = max-min+1;
-        // if (size<1) throw new Failure("max < min?");
         _min = min;
         _max = max;
     }
@@ -47,16 +45,9 @@ public class DomainImpl implements Domain {
     public void forceInsert(int val) {
     }
 
-    /*
-     * public Set set() { Set elements = new HashSet(); for(int i=0; i<_values.size(); i++) { DomainInterval interval =
-     * (DomainInterval)_values.elementAt(i); for(int v=interval.from; v<=interval.to; ++v) { elements.add(new
-     * Integer(v)); } } return elements; }
-     */
-
     @Override
     public void forceMax(int max) {
         _max = max;
-        // check("forceMax(" + max + ")");
     }
 
     @Override
@@ -70,7 +61,7 @@ public class DomainImpl implements Domain {
 
     @Override
     public void iterateDomain(IntExp.IntDomainIterator it) throws Failure {
-        for (int i = _min; i <= _max; ++i) {
+        for (var i = _min; i <= _max; ++i) {
             if (!it.doSomethingOrStop(i)) {
                 return;
             }
@@ -94,7 +85,7 @@ public class DomainImpl implements Domain {
      */
     @Override
     public boolean removeRange(int min, int max) throws Failure {
-        boolean is_removed = false;
+        var is_removed = false;
         if (min <= _min && max >= _max) {
             constrainer().fail("Empty domain");
         }
@@ -110,14 +101,11 @@ public class DomainImpl implements Domain {
     // Prohibited in this implementation!
     @Override
     public boolean removeValue(int value) throws Failure {
-        // Debug.print(this+".removeValue("+value+")");
         if (value == min()) {
             return setMin(value + 1);
         } else if (value == max()) {
             return setMax(value - 1);
         }
-        // System.out.println("Method removeValue is prohibited for this
-        // implementation");
         return false;
     }
 
@@ -127,16 +115,10 @@ public class DomainImpl implements Domain {
             return false;
         }
         if (M < _min) {
-            // Debug.print("Attempt to set max to "+M+" for "+_variable);
-            // if (constrainer().showFailures())
-            // constrainer().fail("Attempt to set max to "+M+" for "+_variable);
-            // else
             constrainer().fail("DomainImpl setMax");
         }
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
         _max = M;
-        // check("setMax(" + M + ")");
         return true;
     }
 
@@ -146,40 +128,26 @@ public class DomainImpl implements Domain {
             return false;
         }
         if (m > _max) {
-            // Debug.print("Attempt to set min to "+m+" for "+_variable);
-            // if (constrainer().showFailures())
-            // constrainer().fail("Attempt to set min to "+m+" for "+_variable);
-            // else
             constrainer().fail("DomainImpl setMin");
         }
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
         _min = m;
-        // check("setMin(" + m + ")");
         return true;
     }
 
     @Override
     public boolean setValue(int value) throws Failure {
-        // Debug.print("setValue " + value);
         if (_min == value && _max == value) {
-            // constrainer().fail("Redundant value "+_variable);
             return false;
         }
 
         if (!contains(value)) {
-            // if (constrainer().showFailures())
-            // constrainer().fail("Attempt to set value to "+value+" for
-            // "+_variable);
-            // else
             constrainer().fail("DomainImpl setValue");
         }
 
-        // constrainer().addUndo(_variable);
         _variable.addUndo();
         _min = value;
         _max = value;
-        // check("setValue(" + value + ")");
         return true;
     }
 

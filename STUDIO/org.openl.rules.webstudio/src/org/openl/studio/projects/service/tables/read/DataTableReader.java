@@ -53,7 +53,7 @@ public class DataTableReader extends AbstractDataTableReader<DataView, DataView.
             return null;
         }
 
-        String[] tokens = headerSource.trim().split("\\s+");
+        var tokens = headerSource.trim().split("\\s+");
         // Expected format: Data <TypeName> <tableName>
         if (tokens.length >= 2) {
             return StringUtils.trimToNull(tokens[1]);

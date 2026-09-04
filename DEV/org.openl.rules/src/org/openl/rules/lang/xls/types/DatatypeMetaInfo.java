@@ -2,6 +2,9 @@ package org.openl.rules.lang.xls.types;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.meta.IMetaInfo;
 
 /**
@@ -10,15 +13,12 @@ import org.openl.meta.IMetaInfo;
  *
  * @author DLiauchuk TODO: Replace with org.openl.meta.TableMetaInfo
  */
+@RequiredArgsConstructor
 public class DatatypeMetaInfo implements IMetaInfo {
 
     private final String displayName;
+    @Getter
     private final String sourceUrl;
-
-    public DatatypeMetaInfo(String displayName, String sourceUrl) {
-        this.displayName = displayName;
-        this.sourceUrl = sourceUrl;
-    }
 
     @Override
     public String getDisplayName(int mode) {
@@ -32,11 +32,6 @@ public class DatatypeMetaInfo implements IMetaInfo {
 
     public String getDisplayName() {
         return getDisplayName(0);
-    }
-
-    @Override
-    public String getSourceUrl() {
-        return sourceUrl;
     }
 
     @Override
@@ -55,7 +50,7 @@ public class DatatypeMetaInfo implements IMetaInfo {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        DatatypeMetaInfo other = (DatatypeMetaInfo) obj;
+        var other = (DatatypeMetaInfo) obj;
 
         return Objects.equals(displayName, other.getDisplayName()) && Objects.equals(sourceUrl, other.getSourceUrl());
     }

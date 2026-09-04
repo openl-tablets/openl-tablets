@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.openl.OpenL;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
@@ -35,6 +37,7 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * @author User
  */
+@RequiredArgsConstructor
 public class AlgorithmCompiler {
     /***************************************************************************
      * Initial data
@@ -48,11 +51,13 @@ public class AlgorithmCompiler {
      **************************************************************************/
     private CompileContext mainCompileContext;
     private final List<AlgorithmFunctionCompiler> functions = new ArrayList<>();
+    @Getter
     private LabelManager labelManager;
 
     /***************************************************************************
      * Compiler output
      **************************************************************************/
+    @Getter
     private AlgorithmOpenClass thisTargetClass;
 
     private IBindingContext thisContext;
@@ -68,14 +73,6 @@ public class AlgorithmCompiler {
                 new DeclareArrayElementPreprocessor());
         operationPreprocessors.put(OperationType.SUBROUTINE.toString(), new DeclareSubroutinePreprocessor());
         operationPreprocessors.put(OperationType.FUNCTION.toString(), new DeclareFunctionPreprocessor());
-    }
-
-    public AlgorithmCompiler(IBindingContext context,
-                             IOpenMethodHeader header,
-                             List<AlgorithmTreeNode> nodesToCompile) {
-        this.context = context;
-        this.header = header;
-        this.nodesToCompile = nodesToCompile;
     }
 
     /***************************************************************************
@@ -102,23 +99,23 @@ public class AlgorithmCompiler {
                                                IBindingContext bindingContext) {
         // method name will be at every label
         for (StringValue label : nodesToCompile.getFirst().getLabels()) {
-            String methodName = label.getValue();
-            IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName,
+            var methodName = label.getValue();
+            var methodHeader = new OpenMethodHeader(methodName,
                     returnType,
                     IMethodSignature.VOID,
                     thisTargetClass);
 
-            AlgorithmSubroutineMethod method = new AlgorithmSubroutineMethod(methodHeader);
+            var method = new AlgorithmSubroutineMethod(methodHeader);
 
             thisTargetClass.addMethod(method);
 
             // to support parameters free call
-            NoParamMethodField methodAlternative = new NoParamMethodField(methodName, method);
+            var methodAlternative = new NoParamMethodField(methodName, method);
             thisTargetClass.addField(methodAlternative);
 
             functions.add(new AlgorithmFunctionCompiler(nodesToCompile, methodContext, method, this));
         }
-        Map<String, AlgorithmTreeNode> internalLablesOfMethod = AlgorithmCompilerTool
+        var internalLablesOfMethod = AlgorithmCompilerTool
                 .getAllDeclaredLables(nodesToCompile);
         methodContext.registerGroupOfLabels(internalLablesOfMethod, bindingContext);
     }
@@ -133,7 +130,7 @@ public class AlgorithmCompiler {
     private void declareFunction(List<AlgorithmTreeNode> nodesToCompile,
                                  ConversionRuleStep convertionStep,
                                  IBindingContext bindingContext) {
-        String returnValueInstruction = convertionStep.getOperationParam1();
+        var returnValueInstruction = convertionStep.getOperationParam1();
 
         IOpenClass returnType;
         if (AlgorithmCompilerTool.isOperationFieldInstruction(returnValueInstruction)) {
@@ -149,7 +146,7 @@ public class AlgorithmCompiler {
     }
 
     private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile, IBindingContext bindingContext) {
-        CompileContext subroutineContext = new CompileContext();
+        var subroutineContext = new CompileContext();
         // add all labels from main
         subroutineContext.registerGroupOfLabels(mainCompileContext.getExistingLables(), bindingContext);
 
@@ -159,11 +156,11 @@ public class AlgorithmCompiler {
     private void declareVariable(List<AlgorithmTreeNode> nodesToCompile,
                                  ConversionRuleStep conversionStep,
                                  IBindingContext bindingContext) {
-        String variableNameParameter = conversionStep.getOperationParam1();
-        String variableAssignmentParameter = conversionStep.getOperationParam2();
+        var variableNameParameter = conversionStep.getOperationParam1();
+        var variableAssignmentParameter = conversionStep.getOperationParam2();
         StringValue variableName = AlgorithmCompilerTool
                 .getCellContent(nodesToCompile, variableNameParameter, bindingContext);
-        IOpenClass variableType = getTypeOfField(
+        var variableType = getTypeOfField(
                 AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter, bindingContext),
                 bindingContext);
         initNewInternalVariable(variableName.getValue(), variableType);
@@ -177,12 +174,12 @@ public class AlgorithmCompiler {
                                      IBindingContext bindingContext) {
         // Points to the location of the elementName in the TBasic table
         //
-        String elementNameParameter = conversionStep.getOperationParam1();
+        var elementNameParameter = conversionStep.getOperationParam1();
 
         // Points to the location of the iterable array parameter in the Tbasic
         // table
         //
-        String iterableArrayParameter = conversionStep.getOperationParam2();
+        var iterableArrayParameter = conversionStep.getOperationParam2();
 
         // Extract the element name
         //
@@ -191,33 +188,33 @@ public class AlgorithmCompiler {
 
         // Extract the type of the iterable array
         //
-        IOpenClass iterableArrayType = getTypeOfField(
+        var iterableArrayType = getTypeOfField(
                 AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext),
                 bindingContext);
         if (!iterableArrayType.isArray()) {
-            IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
+            var errorSource = nodesToCompile.getFirst()
                     .getAlgorithmRow()
                     .getAction()
                     .asSourceCodeModule();
             BindHelper
                     .processError("Compilation failure. The cell should be of the array type", errorSource, bindingContext);
         }
-        IOpenClass elementType = iterableArrayType.getComponentClass();
+        var elementType = iterableArrayType.getComponentClass();
         initNewInternalVariable(elementName.getValue(), elementType);
     }
 
     private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children, IBindingContext bindingContext) {
         // find first RETURN operation
-        List<AlgorithmTreeNode> returnNodes = findFirstReturn(children);
+        var returnNodes = findFirstReturn(children);
 
         if (returnNodes == null || returnNodes.isEmpty()) {
-            StringValue lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children)
+            var lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children)
                     .getAlgorithmRow()
                     .getAction();
             return getTypeOfField(lastAction, bindingContext);
         } else {
             // get RETURN.condition part of instruction
-            String fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
+            var fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
             return getTypeOfField(
                     AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement, bindingContext),
                     bindingContext);
@@ -227,7 +224,7 @@ public class AlgorithmCompiler {
     private static List<AlgorithmTreeNode> findFirstReturn(List<AlgorithmTreeNode> nodes) {
         // FIXME delete this method at all
         List<AlgorithmTreeNode> returnNodeSubList = null;
-        for (int i = 0; i < nodes.size() && returnNodeSubList == null; i++) {
+        for (var i = 0; i < nodes.size() && returnNodeSubList == null; i++) {
             if (TBasicSpecificationKey.RETURN.toString().equals(nodes.get(i).getSpecificationKeyword())) {
                 returnNodeSubList = nodes.subList(i, i + 1);
             } else if (nodes.get(i).getChildren() != null) {
@@ -241,16 +238,12 @@ public class AlgorithmCompiler {
         return header.getName();
     }
 
-    public LabelManager getLabelManager() {
-        return labelManager;
-    }
-
     /***************************************************************************
      * Helper methods
      **************************************************************************/
 
     private List<AlgorithmTreeNode> getMainFunctionBody() {
-        int currentOperationIndex = 0;
+        var currentOperationIndex = 0;
         while (currentOperationIndex < nodesToCompile.size() && !TBasicSpecificationKey.FUNCTION.toString()
                 .equals(nodesToCompile.get(currentOperationIndex).getSpecificationKeyword()) && !TBasicSpecificationKey.SUB
                 .toString()
@@ -260,16 +253,12 @@ public class AlgorithmCompiler {
         return nodesToCompile.subList(0, currentOperationIndex);
     }
 
-    public AlgorithmOpenClass getThisTargetClass() {
-        return thisTargetClass;
-    }
-
     public IOpenClass getTypeOfField(StringValue fieldContent, IBindingContext bindingContext) {
         // TODO: make rational type detecting(without creating of
         // CompositeMethod)
-        IOpenSourceCodeModule src = fieldContent.asSourceCodeModule();
-        OpenL openl = context.getOpenL();
-        IMethodSignature signature = header.getSignature();
+        var src = fieldContent.asSourceCodeModule();
+        var openl = context.getOpenL();
+        var signature = header.getSignature();
 
         return OpenLManager
                 .makeMethodWithUnknownType(openl,
@@ -298,26 +287,26 @@ public class AlgorithmCompiler {
     }
 
     private void initNewInternalVariable(String variableName, IOpenClass variableType) {
-        IOpenField field = new DynamicObjectField(thisTargetClass, variableName, variableType);
+        var field = new DynamicObjectField(thisTargetClass, variableName, variableType);
         getThisTargetClass().addField(field);
         variablesStack.peek().add(field);
     }
 
     public IMethodCaller makeMethod(IOpenSourceCodeModule src, String methodName) {
-        OpenL openl = context.getOpenL();
-        IMethodSignature signature = header.getSignature();
-        IBindingContext cxt = getAlgorithmBindingContext();
+        var openl = context.getOpenL();
+        var signature = header.getSignature();
+        var cxt = getAlgorithmBindingContext();
 
         return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
     }
 
     public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) {
-        OpenL openl = context.getOpenL();
-        IMethodSignature signature = header.getSignature();
+        var openl = context.getOpenL();
+        var signature = header.getSignature();
         // create method header for newly created method
-        OpenMethodHeader header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
+        var header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
 
-        IBindingContext cxt = getAlgorithmBindingContext();
+        var cxt = getAlgorithmBindingContext();
         RulesModuleBindingContextHelper.compileAllTypesInSignature(header.getSignature(), context);
         return OpenLManager.makeMethod(openl, src, header, cxt);
 
@@ -349,7 +338,7 @@ public class AlgorithmCompiler {
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
-            List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
+            var nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
 
             precompileLinkedNodesGroup(nodesToCompile, bindingContext);
         }
@@ -361,11 +350,11 @@ public class AlgorithmCompiler {
         assert !nodesToCompile.isEmpty();
         assert conversionStep != null;
 
-        String operationType = conversionStep.getOperationType();
+        var operationType = conversionStep.getOperationType();
         if (operationType.startsWith("!") && !operationType.equals(OperationType.CHECK_LABEL.toString())) {
-            OperationPreprocessor preprocessor = operationPreprocessors.get(operationType);
+            var preprocessor = operationPreprocessors.get(operationType);
             if (preprocessor == null) {
-                IOpenSourceCodeModule errorSource = nodesToCompile.getFirst()
+                var errorSource = nodesToCompile.getFirst()
                         .getAlgorithmRow()
                         .getOperation()
                         .asSourceCodeModule();
@@ -390,7 +379,7 @@ public class AlgorithmCompiler {
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
                                ConversionRuleStep conversionStep,
                                IBindingContext bindingContext) {
-            List<AlgorithmTreeNode> nodesToProcess = AlgorithmCompilerTool
+            var nodesToProcess = AlgorithmCompilerTool
                     .getNestedInstructionsBlock(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
             try {
                 variablesStack.push(new ArrayList<>());

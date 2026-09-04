@@ -42,18 +42,60 @@ export const useStyles = createStyles(({ css, token }) => ({
         vertical-align: top;
         white-space: pre-wrap;
     `,
-    /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend. */
+    // Everything that is NOT part of the highlighted calculation, muted to grey (like the legacy trace),
+    // so the highlighted cells are the only colour on the table and the eye lands on them instantly.
+    dimmed: css`
+        filter: grayscale(1);
+        opacity: 0.6;
+    `,
+    /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend.
+       Matches the legacy trace: a matched condition and the returned result are green, an unmatched
+       condition is red. The result stands apart from a plain matched condition by a bold green border. */
     current: css`
         background: ${token.colorWarningBg};
     `,
     result: css`
         background: ${token.colorSuccessBg};
+        box-shadow: inset 0 0 0 1px ${token.colorSuccess};
         font-weight: 600;
     `,
     conditionTrue: css`
-        background: ${token.colorInfoBg};
+        background: ${token.colorSuccessBg};
     `,
     conditionFalse: css`
+        background: ${token.colorErrorBg};
+    `,
+    // The colour key, shown under the table — but only for the states this table actually paints.
+    legend: css`
+        display: flex;
+        flex-wrap: wrap;
+        gap: ${token.marginSM}px;
+        margin-top: ${token.marginXS}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextTertiary};
+    `,
+    legendItem: css`
+        display: inline-flex;
+        align-items: center;
+        gap: ${token.marginXXS}px;
+    `,
+    swatch: css`
+        width: 12px;
+        height: 12px;
+        border-radius: ${token.borderRadiusSM}px;
+        border: 1px solid ${token.colorBorderSecondary};
+    `,
+    swatchCurrent: css`
+        background: ${token.colorWarningBg};
+    `,
+    swatchResult: css`
+        background: ${token.colorSuccessBg};
+        box-shadow: inset 0 0 0 1px ${token.colorSuccess};
+    `,
+    swatchMet: css`
+        background: ${token.colorSuccessBg};
+    `,
+    swatchNotMet: css`
         background: ${token.colorErrorBg};
     `,
     truncated: css`

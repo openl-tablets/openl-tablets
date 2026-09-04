@@ -1,5 +1,9 @@
 package org.openl.rules.data;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -14,8 +18,12 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
 
+    @Getter
     private DataOpenField field;
+    @Getter(AccessLevel.PROTECTED)
     private final XlsModuleOpenClass module;
+    @Getter
+    @Setter
     private ITable table;
 
     public DataTableBoundNode(TableSyntaxNode tableSyntaxNode, XlsModuleOpenClass module) {
@@ -23,25 +31,9 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
         this.module = module;
     }
 
-    protected XlsModuleOpenClass getModule() {
-        return module;
-    }
-
-    public DataOpenField getField() {
-        return field;
-    }
-
-    public ITable getTable() {
-        return table;
-    }
-
     @Override
     public IOpenClass getType() {
         return field.getType();
-    }
-
-    public void setTable(ITable table) {
-        this.table = table;
     }
 
     @Override
@@ -52,7 +44,7 @@ public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundN
     @Override
     public void addTo(ModuleOpenClass openClass) {
 
-        TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
+        var tableSyntaxNode = getTableSyntaxNode();
 
         field = new DataOpenField(table, openClass);
         openClass.addField(field);

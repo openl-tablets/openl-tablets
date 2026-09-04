@@ -1,8 +1,10 @@
 package org.openl.studio.projects.model.tables;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,31 +31,15 @@ public abstract class TableView {
     @Schema(description = "Type of the table (e.g., 'Datatype', 'Vocabulary', 'Spreadsheet', etc.)")
     public final String tableType;
 
-    @Schema(description = "Kind of the table object",
-            allowableValues = {
-                    "Rules",
-                    "Spreadsheet",
-                    "Datatype",
-                    "Data",
-                    "Test",
-                    "TBasic",
-                    "Column Match",
-                    "Method",
-                    "Run",
-                    "Constants",
-                    "Conditions",
-                    "Actions",
-                    "Returns",
-                    "Environment",
-                    "Properties",
-                    "Other"
-            })
-    public final String kind;
+    @Schema(description = "Kind of the table object")
+    public final TableKind kind;
 
     @Schema(description = "Name of the table")
     public final String name;
 
-    @Schema(description = "Custom properties associated with the table")
+    @Schema(
+            description = "Custom properties associated with the table. New tables write them to workbook rows "
+                    + "in request order")
     public final Map<String, Object> properties;
 
     @Parameter(description = "List of messages (errors, warnings, info) related to the table")
@@ -65,7 +51,13 @@ public abstract class TableView {
         this.tableType = builder.tableType;
         this.name = builder.name;
         this.kind = builder.kind;
-        this.properties = Optional.ofNullable(builder.properties).map(Map::copyOf).orElse(Map.of());
+        this.properties = builder.properties == null ? Map.of() : immutableProperties(builder.properties);
+    }
+
+    private static Map<String, Object> immutableProperties(Map<String, Object> properties) {
+        var copy = new LinkedHashMap<String, Object>(properties.size());
+        properties.forEach((name, value) -> copy.put(Objects.requireNonNull(name), Objects.requireNonNull(value)));
+        return Collections.unmodifiableMap(copy);
     }
 
     @JsonIgnore
@@ -87,7 +79,7 @@ public abstract class TableView {
     public static abstract class Builder<T extends Builder<T>> {
         private String id;
         private String tableType;
-        private String kind;
+        private TableKind kind;
         private String name;
         private Map<String, Object> properties;
 
@@ -106,7 +98,7 @@ public abstract class TableView {
             return self();
         }
 
-        public T kind(String kind) {
+        public T kind(TableKind kind) {
             this.kind = kind;
             return self();
         }

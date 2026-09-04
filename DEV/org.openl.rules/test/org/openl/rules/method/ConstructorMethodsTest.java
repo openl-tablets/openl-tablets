@@ -30,7 +30,7 @@ class ConstructorMethodsTest {
         assertTrue(itr.hasNext());
         assertTrue(itr.next().isConstructor());
 
-        Iterable<IOpenMethod> methods = engineFactory.getCompiledOpenClass().getOpenClass().methods("Main");
+        var methods = engineFactory.getCompiledOpenClass().getOpenClass().methods("Main");
         Iterator<IOpenMethod> itr2 = methods.iterator();
         assertTrue(itr2.hasNext());
         assertFalse(itr2.next().isConstructor());

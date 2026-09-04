@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 class ZippedFileInputStream extends InputStream {
 
     private final ZipInputStream source;
     private boolean isClosed = false;
-
-    public ZippedFileInputStream(ZipInputStream source) {
-        this.source = source;
-    }
 
     @Override
     public int read() throws IOException {

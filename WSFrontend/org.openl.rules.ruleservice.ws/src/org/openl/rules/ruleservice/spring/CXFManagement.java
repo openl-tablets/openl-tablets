@@ -20,14 +20,14 @@ public class CXFManagement {
 
     @Bean
     CounterRepository counters(Bus cxf) {
-        CounterRepository counterRepository = new CounterRepository();
+        var counterRepository = new CounterRepository();
         counterRepository.setBus(cxf);
         return counterRepository;
     }
 
     @Bean
     InstrumentationManagerImpl manager(Bus cxf) {
-        InstrumentationManagerImpl manager = new InstrumentationManagerImpl();
+        var manager = new InstrumentationManagerImpl();
         manager.setBus(cxf);
         manager.setEnabled(true);
         manager.setUsePlatformMBeanServer(true);

@@ -17,22 +17,15 @@ import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IllegalTodoFileModification;
 import org.eclipse.jgit.lib.ConfigConstants;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.RebaseTodoLine;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.RefSpec;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 
 class GitRepositoryForcePullTest {
@@ -43,7 +36,7 @@ class GitRepositoryForcePullTest {
     @TempDir
     private static File template;
 
-    @TempDir(cleanup = CleanupMode.NEVER)
+    @TempDir
     private File root;
     @AutoClose
     private GitRepository repo;
@@ -53,13 +46,13 @@ class GitRepositoryForcePullTest {
     @BeforeAll
     static void initialize() throws IOException, GitAPIException {
         // Initialize remote repository
-        try (Git git = Git.init().setDirectory(template).call()) {
-            Repository repository = git.getRepository();
-            StoredConfig config = repository.getConfig();
+        try (var git = Git.init().setDirectory(template).call()) {
+            var repository = git.getRepository();
+            var config = repository.getConfig();
             config.setBoolean(ConfigConstants.CONFIG_GC_SECTION, null, ConfigConstants.CONFIG_KEY_AUTODETACH, false);
             config.save();
 
-            File parent = repository.getDirectory().getParentFile();
+            var parent = repository.getDirectory().getParentFile();
 
             // create initial commit in master
             createNewFile(parent, "README.md", "# openl-merge-template");
@@ -72,9 +65,9 @@ class GitRepositoryForcePullTest {
 
     @BeforeEach
     void setUp() throws IOException, GitAPIException {
-        File remote = new File(root, "remote");
-        File repositoriesFolder = new File(root, "repositories");
-        File local = new File(repositoriesFolder, "local");
+        var remote = new File(root, "remote");
+        var repositoriesFolder = new File(root, "repositories");
+        var local = new File(repositoriesFolder, "local");
 
         FileUtils.copy(template, remote);
         repo = createRepository(remote, local, repositoriesFolder.getAbsolutePath());
@@ -86,18 +79,12 @@ class GitRepositoryForcePullTest {
     }
 
     private GitRepository createRepository(File remote, File local, String repositoriesFolder) throws IOException {
-        GitRepository newRepo = new GitRepository();
+        var newRepo = new GitRepository();
         newRepo.setId(REPO_ID);
-        String uri = remote.toURI().toString();
+        var uri = remote.toURI().toString();
         newRepo.setUri(uri);
         newRepo.setLocalRepositoriesFolder(repositoriesFolder);
         newRepo.setBranch("master");
-        newRepo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
-        String settingsPath = local.getParent() + "/git-settings";
-        FileSystemRepository settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(settingsPath);
-        String locksRoot = new File(local.getParent(), "locks").getAbsolutePath();
-        newRepo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         newRepo.setGcAutoDetach(false);
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, repositoriesFolder, true, true));
 
@@ -114,7 +101,7 @@ class GitRepositoryForcePullTest {
         var originalCommitId = originalCommit.getVersion();
 
         // ─── Step 2: Amend commit and force push ────────────────────────────
-        File workDir = local2.getRepository().getDirectory().getParentFile();
+        var workDir = local2.getRepository().getDirectory().getParentFile();
         createNewFile(workDir, "test.txt", "Lorem ipsum dolor sit amet");
 
         local2.add().addFilepattern(".").call();
@@ -123,7 +110,7 @@ class GitRepositoryForcePullTest {
                 .setMessage("New amended commit message")
                 .call();
 
-        ObjectId amendedCommitId = local2.getRepository().resolve("HEAD");
+        var amendedCommitId = local2.getRepository().resolve("HEAD");
 
         local2.push()
                 .setForce(true)
@@ -149,7 +136,7 @@ class GitRepositoryForcePullTest {
     @Test
     void when_commits_squashed_and_force_pushed_then_history_is_rewritten() throws Exception {
         // ─── Step 1: Create initial commit in local2 ────────────────────────
-        File repoDir = local2.getRepository().getDirectory().getParentFile();
+        var repoDir = local2.getRepository().getDirectory().getParentFile();
         createNewFile(repoDir, "test.txt", "First file");
         local2.add().addFilepattern("test.txt").call();
         local2.commit().setMessage("First commit").call();
@@ -167,10 +154,10 @@ class GitRepositoryForcePullTest {
 
         var fullHistoryBeforeSquash = repo.listHistory("test.txt");
         assertEquals(2, fullHistoryBeforeSquash.size(), "Expected 2 commits before squash");
-        String originalSecondCommitId = fullHistoryBeforeSquash.getFirst().getVersion();
+        var originalSecondCommitId = fullHistoryBeforeSquash.getFirst().getVersion();
 
         // ─── Step 5: Squash commits in local2 ───────────────────────────────
-        ObjectId firstCommitId = local2.getRepository().resolve("HEAD~2");
+        var firstCommitId = local2.getRepository().resolve("HEAD~2");
 
         local2.rebase()
                 .setUpstream(firstCommitId)
@@ -178,7 +165,7 @@ class GitRepositoryForcePullTest {
                     @Override
                     public void prepareSteps(List<RebaseTodoLine> steps) {
                         assertEquals(2, steps.size(), "Expected two commits to rebase");
-                        for (int i = 1; i < steps.size(); i++) {
+                        for (var i = 1; i < steps.size(); i++) {
                             try {
                                 steps.get(i).setAction(RebaseTodoLine.Action.SQUASH);
                             } catch (IllegalTodoFileModification e) {
@@ -199,7 +186,7 @@ class GitRepositoryForcePullTest {
                 .setForce(true)
                 .call();
 
-        ObjectId squashedCommitId = local2.getRepository().resolve("HEAD");
+        var squashedCommitId = local2.getRepository().resolve("HEAD");
 
         // ─── Step 7: Pull again into repo ───────────────────────────────────
         repo.pull(USER_INFO);
@@ -212,28 +199,28 @@ class GitRepositoryForcePullTest {
         assertNotEquals(originalSecondCommitId, historyAfterSquash.getFirst().getVersion(), "Commit ID should have changed");
 
         // ─── Step 9: Validate file content ──────────────────────────────────
-        String firstContent = new String(repo.read("test.txt").getStream().readAllBytes(), StandardCharsets.UTF_8);
+        var firstContent = new String(repo.read("test.txt").getStream().readAllBytes(), StandardCharsets.UTF_8);
         assertEquals("Second update", firstContent);
     }
 
     @Test
     void when_commits_removed_and_force_pushed_then_history_is_rewritten() throws Exception {
         // ─── Step 1: Create 3 commits in local2 ─────────────────────────────
-        File workDir = local2.getRepository().getDirectory().getParentFile();
+        var workDir = local2.getRepository().getDirectory().getParentFile();
 
         var subDir = new File(workDir, "subdir");
         subDir.mkdir();
         createNewFile(subDir, "a.txt", "A");
         local2.add().addFilepattern("subdir/a.txt").call();
-        RevCommit commitA = local2.commit().setMessage("Commit A").call();
+        var commitA = local2.commit().setMessage("Commit A").call();
 
         createNewFile(subDir, "b.txt", "B");
         local2.add().addFilepattern("subdir/b.txt").call();
-        RevCommit commitB = local2.commit().setMessage("Commit B").call();
+        var commitB = local2.commit().setMessage("Commit B").call();
 
         createNewFile(subDir, "c.txt", "C");
         local2.add().addFilepattern("subdir/c.txt").call();
-        RevCommit commitC = local2.commit().setMessage("Commit C").call();
+        var commitC = local2.commit().setMessage("Commit C").call();
 
         // ─── Step 2: Push all commits ───────────────────────────────────────
         local2.push().call();
@@ -268,7 +255,7 @@ class GitRepositoryForcePullTest {
         assertNotEquals(commitC.getName(), historyAfter.getFirst().getVersion(), "Commit C should be gone");
 
         // ─── Step 9: Validate content of a.txt only ─────────────────────────
-        String contentA = new String(repo.read("subdir/a.txt").getStream().readAllBytes(), StandardCharsets.UTF_8);
+        var contentA = new String(repo.read("subdir/a.txt").getStream().readAllBytes(), StandardCharsets.UTF_8);
         assertEquals("A", contentA);
     }
 

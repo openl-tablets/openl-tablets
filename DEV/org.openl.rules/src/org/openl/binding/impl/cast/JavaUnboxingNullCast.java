@@ -4,15 +4,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class JavaUnboxingNullCast implements IOpenCast {
 
     private static final Map<Class<?>, JavaUnboxingNullCast> FACTORY;
 
     static {
-        Map<Class<?>, JavaUnboxingNullCast> factory = new HashMap<>();
+        var factory = new HashMap<Class<?>, JavaUnboxingNullCast>();
         factory.put(void.class, new JavaUnboxingNullCast(JavaOpenClass.getOpenClass(void.class)));
         factory.put(boolean.class, new JavaUnboxingNullCast(JavaOpenClass.getOpenClass(boolean.class)));
         factory.put(byte.class, new JavaUnboxingNullCast(JavaOpenClass.getOpenClass(byte.class)));
@@ -26,10 +30,6 @@ public class JavaUnboxingNullCast implements IOpenCast {
     }
 
     private final IOpenClass primitiveOpenType;
-
-    private JavaUnboxingNullCast(IOpenClass primitiveOpenType) {
-        this.primitiveOpenType = primitiveOpenType;
-    }
 
     static JavaUnboxingNullCast getInstance(Class<?> toClass) {
         return FACTORY.get(toClass);

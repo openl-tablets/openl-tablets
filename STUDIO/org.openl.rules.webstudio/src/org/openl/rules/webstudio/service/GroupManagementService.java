@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,19 +16,15 @@ import org.openl.security.acl.JdbcMutableAclService;
 /**
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 public class GroupManagementService {
 
     private final GroupDao groupDao;
     private final JdbcMutableAclService aclService;
 
-    public GroupManagementService(GroupDao groupDao, JdbcMutableAclService aclService) {
-        this.groupDao = groupDao;
-        this.aclService = aclService;
-    }
-
     public List<org.openl.rules.security.Group> getGroups() {
         List<Group> groups = groupDao.getAllGroups();
-        List<org.openl.rules.security.Group> resultGroups = new ArrayList<>();
+        var resultGroups = new ArrayList<org.openl.rules.security.Group>();
 
         for (Group group : groups) {
             resultGroups.add(PrivilegesEvaluator.wrap(group));
@@ -36,8 +33,13 @@ public class GroupManagementService {
         return resultGroups;
     }
 
+    @Transactional(readOnly = true)
+    public List<String> findGroupNames(String searchTerm, int limit) {
+        return groupDao.findGroupNames(searchTerm, limit);
+    }
+
     public org.openl.rules.security.Group getGroupByName(String name) {
-        Group group = groupDao.getGroupByName(name);
+        var group = groupDao.getGroupByName(name);
         if (group != null) {
             return PrivilegesEvaluator.wrap(group);
         }
@@ -45,7 +47,7 @@ public class GroupManagementService {
     }
 
     public void addGroup(String name, String description) {
-        Group persistGroup = new Group();
+        var persistGroup = new Group();
         persistGroup.setName(name);
         persistGroup.setDescription(description);
         groupDao.save(persistGroup);
@@ -53,7 +55,7 @@ public class GroupManagementService {
 
     @Transactional
     public void updateGroup(String name, String newName, String description) {
-        Group persistGroup = groupDao.getGroupByName(name);
+        var persistGroup = groupDao.getGroupByName(name);
         persistGroup.setName(newName);
         persistGroup.setDescription(description);
         groupDao.update(persistGroup);
@@ -61,7 +63,7 @@ public class GroupManagementService {
     }
 
     public void updateGroup(String name, Set<String> privileges) {
-        Group persistGroup = groupDao.getGroupByName(name);
+        var persistGroup = groupDao.getGroupByName(name);
         persistGroup.setPrivileges(new HashSet<>(privileges));
         groupDao.update(persistGroup);
     }

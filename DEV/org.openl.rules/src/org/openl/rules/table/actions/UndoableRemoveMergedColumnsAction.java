@@ -17,8 +17,8 @@ public class UndoableRemoveMergedColumnsAction extends UndoableRemoveColumnsActi
 
     @Override
     protected int getNumberToRemove(IGridTable table) {
-        int cellWidth = getOriginalTable(table).getCell(startCol, row).getWidth();
-        int numberToInsert = nCols;
+        var cellWidth = getOriginalTable(table).getCell(startCol, row).getWidth();
+        var numberToInsert = nCols;
         if (cellWidth > 1) { // merged cell
             numberToInsert += cellWidth - 1;
         }

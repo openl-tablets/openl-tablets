@@ -1,5 +1,7 @@
 package org.openl.rules.dt.data;
 
+import lombok.Getter;
+
 import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -8,7 +10,9 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ConditionOrActionParameterField implements IOpenField {
 
+    @Getter
     private final IBaseDecisionRow conditionOrAction;
+    @Getter
     private final int paramNum;
 
     ConditionOrActionParameterField(IBaseDecisionRow conditionOrAction, int paramNum) {
@@ -22,17 +26,9 @@ public class ConditionOrActionParameterField implements IOpenField {
         if (target == null) {
             return getType().nullObject();
         }
-        Object[] params = (Object[]) target;
+        var params = (Object[]) target;
 
         return params[paramNum];
-    }
-
-    public IBaseDecisionRow getConditionOrAction() {
-        return conditionOrAction;
-    }
-
-    public int getParamNum() {
-        return paramNum;
     }
 
     @Override

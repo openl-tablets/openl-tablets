@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -194,7 +193,7 @@ class ConfigProjectMethodFilterMigratorTest {
         ConfigProjectMethodFilterMigrator.transform(descriptor, () -> PrefixOnlyInterface.class);
 
         assertEquals(Set.of("_api_*"), descriptor.getExposedMethods().getIncludes());
-        assertNull(descriptor.getModules().get(0).getMethodFilter());
+        assertNull(descriptor.getModules().getFirst().getMethodFilter());
         assertNull(descriptor.getModules().get(1).getMethodFilter());
     }
 
@@ -319,7 +318,7 @@ class ConfigProjectMethodFilterMigratorTest {
                         </module>
                     </modules>
                 </project>
-                """, StandardCharsets.UTF_8);
+                """);
 
         new ConfigProjectMethodFilterMigrator().migrate(projectFolder, supplier);
 
@@ -338,7 +337,7 @@ class ConfigProjectMethodFilterMigratorTest {
                         <include>greet</include>
                     </exposed-methods>
                 </project>
-                """, Files.readString(file, StandardCharsets.UTF_8));
+                """, Files.readString(file));
     }
 
     @Test
@@ -362,7 +361,7 @@ class ConfigProjectMethodFilterMigratorTest {
                         </module>
                     </modules>
                 </project>
-                """, StandardCharsets.UTF_8);
+                """);
 
         new ConfigProjectMethodFilterMigrator().migrate(projectFolder, () -> ApiInterface.class);
 
@@ -381,7 +380,7 @@ class ConfigProjectMethodFilterMigratorTest {
                         <include>premium</include>
                     </exposed-methods>
                 </project>
-                """, Files.readString(file, StandardCharsets.UTF_8));
+                """, Files.readString(file));
     }
 
     @Test

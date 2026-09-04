@@ -5,14 +5,13 @@ import java.util.concurrent.locks.Lock;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.web.WebAttributes;
 
@@ -26,14 +25,19 @@ public class SecurityFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
-        ServletContext sc = servletRequest.getServletContext();
+        if (isHealthCheck(servletRequest)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
+        var sc = servletRequest.getServletContext();
         /*has been moved ahead as there is the case when step3 in wizard has a user mode choosen
           and new filterChainProxy object required but context still have an old one, see comment in the EPBDS-10752*/
         SpringInitializer.refresh(sc);
         Lock readLock = SpringInitializer.getLock(sc);
         readLock.lock();
         try {
-            Filter filterChainProxy = SpringInitializer.getApplicationContext(sc)
+            var filterChainProxy = SpringInitializer.getApplicationContext(sc)
                     .getBean("filterChainProxy", Filter.class);
             filterChainProxy.doFilter(servletRequest, servletResponse, filterChain);
         } catch (RuntimeException e) {
@@ -43,15 +47,23 @@ public class SecurityFilter implements Filter {
             readLock.unlock();
         }
         if (servletRequest instanceof HttpServletRequest request) {
-            HttpSession session = request.getSession(false);
+            var session = request.getSession(false);
             if (session != null) {
                 // Log authentication errors if a backend authentication repository is unavailable, for example
-                Throwable ex = (Throwable) session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+                var ex = (Throwable) session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
                 if (ex instanceof AuthenticationServiceException) {
                     log.error("Authentication error.", ex);
                 }
             }
         }
+    }
+
+    private static boolean isHealthCheck(@NonNull ServletRequest servletRequest) {
+        if (servletRequest instanceof HttpServletRequest request) {
+            var path = request.getServletPath();
+            return "/healthcheck/startup".equals(path) || "/healthcheck/readiness".equals(path);
+        }
+        return false;
     }
 
     @Override

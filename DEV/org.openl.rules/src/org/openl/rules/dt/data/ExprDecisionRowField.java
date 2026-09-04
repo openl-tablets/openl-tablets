@@ -1,5 +1,7 @@
 package org.openl.rules.dt.data;
 
+import lombok.Getter;
+
 import org.openl.OpenL;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -8,6 +10,7 @@ import org.openl.vm.IRuntimeEnv;
 
 class ExprDecisionRowField implements IOpenField {
     private final ExprDecisionRowFieldDataType type;
+    @Getter
     private final String name;
 
     ExprDecisionRowField(DecisionRowField decisionRowField, OpenL openl) {
@@ -58,11 +61,6 @@ class ExprDecisionRowField implements IOpenField {
     @Override
     public String getDisplayName(int mode) {
         return null;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override

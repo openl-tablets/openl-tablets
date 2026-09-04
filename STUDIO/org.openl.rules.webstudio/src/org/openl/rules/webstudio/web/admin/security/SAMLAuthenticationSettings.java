@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
@@ -24,26 +26,36 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
     private static final String LOCAL_KEY = "security.saml.local-key";
     private static final String LOCAL_CERTIFICATE = "security.saml.local-certificate";
 
+    @Getter
     @Parameter(description = "SAML Entity ID. Must match the client ID or SP entity ID in the IdP.")
+    @Setter
     @SettingPropertyName(ENTITY_ID)
     @NotBlank
     private String entityId;
 
+    @Getter
     @Parameter(description = "SAML server metadata URL (XML format) used for autoconfiguration.")
+    @Setter
     @SettingPropertyName(METADATA_URL)
     @NotBlank
     private String metadataUrl;
 
     @Parameter(description = "Base64-encoded public key of the SAML IdP server.")
+    @Setter
     @SettingPropertyName(SERVER_CERTIFICATE)
     @CertificateConstraint
+    @Getter
     private String serverCertificate;
 
+    @Getter
     @Parameter(description = "If true, IdP forces the user to reauthenticate.")
+    @Setter
     @SettingPropertyName(FORCE_AUTHN)
     private boolean forceAuthN;
 
+    @Getter
     @Parameter(description = "SAML attributes settings.")
+    @Setter
     @Valid
     @NotNull
     @JsonMerge
@@ -95,45 +107,5 @@ public class SAMLAuthenticationSettings extends InheritedAuthenticationSettings 
         );
         attributes.revert(properties);
         super.revert(properties);
-    }
-
-    public String getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(String entityId) {
-        this.entityId = entityId;
-    }
-
-    public String getMetadataUrl() {
-        return metadataUrl;
-    }
-
-    public void setMetadataUrl(String metadataUrl) {
-        this.metadataUrl = metadataUrl;
-    }
-
-    public String getServerCertificate() {
-        return serverCertificate;
-    }
-
-    public void setServerCertificate(String serverCertificate) {
-        this.serverCertificate = serverCertificate;
-    }
-
-    public boolean isForceAuthN() {
-        return forceAuthN;
-    }
-
-    public void setForceAuthN(boolean forceAuthN) {
-        this.forceAuthN = forceAuthN;
-    }
-
-    public SAMLAttributesSettings getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(SAMLAttributesSettings attributes) {
-        this.attributes = attributes;
     }
 }

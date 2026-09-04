@@ -2,11 +2,15 @@ package org.openl.rules.dt;
 
 import java.util.BitSet;
 
+import lombok.Getter;
+
 import org.openl.rules.dt.index.IRuleIndex;
 
 public class EqualsIndexDecisionTableRuleNode extends DecisionTableRuleNode implements IDecisionTableRuleNodeV2 {
 
+    @Getter
     private final int[] rules;
+    @Getter
     private final IRuleIndex nextIndex;
 
     public EqualsIndexDecisionTableRuleNode(int[] rules, IRuleIndex nextIndex) {
@@ -16,23 +20,13 @@ public class EqualsIndexDecisionTableRuleNode extends DecisionTableRuleNode impl
     }
 
     @Override
-    public int[] getRules() {
-        return rules;
-    }
-
-    @Override
-    public IRuleIndex getNextIndex() {
-        return nextIndex;
-    }
-
-    @Override
     public boolean hasIndex() {
         return nextIndex != null;
     }
 
     @Override
     public BitSet getRuleSet() {
-        BitSet result = new BitSet();
+        var result = new BitSet();
         for (int ruleN : rules) {
             result.set(ruleN);
         }

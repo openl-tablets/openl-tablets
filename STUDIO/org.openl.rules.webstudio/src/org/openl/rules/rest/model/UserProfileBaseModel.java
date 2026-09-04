@@ -1,51 +1,45 @@
 package org.openl.rules.rest.model;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 public class UserProfileBaseModel extends UserInfoModel {
 
+    @Getter
     @Parameter(description = "Show table headers")
     private boolean showHeader;
 
+    @Getter
     @Parameter(description = "Show formulas")
     private boolean showFormulas;
 
+    @Getter
     @Parameter(description = "Test results per page")
     private int testsPerPage;
 
+    @Getter
     @Parameter(description = "Test failures only")
     private boolean testsFailuresOnly;
 
+    @Getter
     @Parameter(description = "Number of failures per test")
     private int testsFailuresPerTest;
 
+    @Getter
     @Parameter(description = "Show complex result")
     private boolean showComplexResult;
 
+    @Getter
     @Parameter(description = "trace.field.showRealNumbers")
     private boolean showRealNumbers;
 
+    @Getter
     @Parameter(description = "Default order")
     private String treeView;
 
     @Override
-    public String getFirstName() {
-        return super.getFirstName();
-    }
-
-    @Override
-    public String getEmail() {
-        return super.getEmail();
-    }
-
-    @Override
     public UserProfileBaseModel setEmail(String email) {
         return (UserProfileBaseModel) super.setEmail(email);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return super.getDisplayName();
     }
 
     @Override
@@ -59,17 +53,8 @@ public class UserProfileBaseModel extends UserInfoModel {
     }
 
     @Override
-    public String getLastName() {
-        return super.getLastName();
-    }
-
-    @Override
     public UserProfileBaseModel setLastName(String lastName) {
         return (UserProfileBaseModel) super.setLastName(lastName);
-    }
-
-    public boolean isShowHeader() {
-        return showHeader;
     }
 
     public UserProfileBaseModel setShowHeader(boolean showHeader) {
@@ -77,17 +62,9 @@ public class UserProfileBaseModel extends UserInfoModel {
         return this;
     }
 
-    public boolean isShowFormulas() {
-        return showFormulas;
-    }
-
     public UserProfileBaseModel setShowFormulas(boolean showFormulas) {
         this.showFormulas = showFormulas;
         return this;
-    }
-
-    public int getTestsPerPage() {
-        return testsPerPage;
     }
 
     public UserProfileBaseModel setTestsPerPage(int testsPerPage) {
@@ -95,17 +72,9 @@ public class UserProfileBaseModel extends UserInfoModel {
         return this;
     }
 
-    public boolean isTestsFailuresOnly() {
-        return testsFailuresOnly;
-    }
-
     public UserProfileBaseModel setTestsFailuresOnly(boolean testsFailuresOnly) {
         this.testsFailuresOnly = testsFailuresOnly;
         return this;
-    }
-
-    public int getTestsFailuresPerTest() {
-        return testsFailuresPerTest;
     }
 
     public UserProfileBaseModel setTestsFailuresPerTest(int testsFailuresPerTest) {
@@ -113,26 +82,14 @@ public class UserProfileBaseModel extends UserInfoModel {
         return this;
     }
 
-    public boolean isShowComplexResult() {
-        return showComplexResult;
-    }
-
     public UserProfileBaseModel setShowComplexResult(boolean showComplexResult) {
         this.showComplexResult = showComplexResult;
         return this;
     }
 
-    public boolean isShowRealNumbers() {
-        return showRealNumbers;
-    }
-
     public UserProfileBaseModel setShowRealNumbers(boolean showRealNumbers) {
         this.showRealNumbers = showRealNumbers;
         return this;
-    }
-
-    public String getTreeView() {
-        return treeView;
     }
 
     public UserProfileBaseModel setTreeView(String treeView) {

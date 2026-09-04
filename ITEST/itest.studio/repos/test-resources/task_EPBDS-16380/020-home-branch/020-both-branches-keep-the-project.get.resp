@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "EPBDS-16380-fix"
+  },
+  {
+    "name": "release-EPBDS-16380",
+    "protected": true
+  }
+]

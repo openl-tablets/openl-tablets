@@ -1,6 +1,5 @@
 package org.openl.rules.table.constraints;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DataEnumConstraint extends AbstractConstraint {
@@ -33,13 +32,13 @@ public class DataEnumConstraint extends AbstractConstraint {
 
         // Compile and use regular expression
         Pattern pattern = Pattern.compile(CONSTRAINT_MATCH);
-        Matcher matcher = pattern.matcher(getValue());
+        var matcher = pattern.matcher(getValue());
 
-        boolean matchFound = matcher.find();
+        var matchFound = matcher.find();
 
         if (matchFound) {
             // Get enumeration name group for this match
-            String enumerationName = matcher.group(1);
+            var enumerationName = matcher.group(1);
 
             return new String[]{enumerationName};
         }

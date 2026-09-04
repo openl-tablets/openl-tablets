@@ -10,7 +10,7 @@ class TestAutoType0 {
     @Test
     void test1() {
         ITestCalc test = TestUtils.create("test/rules/calc/autotype/autotype-0.xls", ITestCalc.class);
-        SpreadsheetResult result = test.calc3();
+        var result = test.calc3();
 
         assertEquals(4, result.getHeight());
         assertEquals(4, result.getWidth());

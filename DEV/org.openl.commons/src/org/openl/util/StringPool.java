@@ -33,7 +33,7 @@ public final class StringPool {
         WeakReference<String> ref = STRING_POOL.get(value);
         // Return from the pool if the value exists.
         if (ref != null) {
-            String cached = ref.get();
+            var cached = ref.get();
             if (cached != null) {
                 return cached;
             }
@@ -45,7 +45,7 @@ public final class StringPool {
             if (ref == null) {
                 return value;
             }
-            String cached = ref.get();
+            var cached = ref.get();
             if (cached == null) {
                 return value;
             }

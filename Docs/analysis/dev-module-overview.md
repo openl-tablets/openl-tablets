@@ -1125,8 +1125,6 @@ In `org.openl.rules.constrainer/pom.xml`:
 3. Context caching
 4. Rule indexing
 
-**Profiling**: Use `org.openl.rules.profiler` module
-
 ---
 
 ## Testing Strategy

@@ -1,5 +1,6 @@
 package org.openl.rules.excel.builder.template;
 
+import lombok.Getter;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -9,10 +10,15 @@ import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
 
 public class DataTableStyleImpl extends DefaultTableStyleImpl implements DataTableStyle {
 
+    @Getter
     private final Font typeFont;
+    @Getter
     private final Font tableNameFont;
+    @Getter
     private final CellStyle subheaderStyle;
+    @Getter
     private final CellStyle columnHeaderStyle;
+    @Getter
     private final NameValueRowStyle rowStyle;
     private final CellStyle dateFieldStyle;
     private final CellStyle dateTimeFieldStyle;
@@ -35,31 +41,6 @@ public class DataTableStyleImpl extends DefaultTableStyleImpl implements DataTab
         this.rowStyle = rowStyle;
         this.dateFieldStyle = dateFieldStyle;
         this.dateTimeFieldStyle = dateTimeFieldStyle;
-    }
-
-    @Override
-    public Font getTypeFont() {
-        return typeFont;
-    }
-
-    @Override
-    public Font getTableNameFont() {
-        return tableNameFont;
-    }
-
-    @Override
-    public CellStyle getSubheaderStyle() {
-        return subheaderStyle;
-    }
-
-    @Override
-    public CellStyle getColumnHeaderStyle() {
-        return columnHeaderStyle;
-    }
-
-    @Override
-    public NameValueRowStyle getRowStyle() {
-        return rowStyle;
     }
 
     @Override

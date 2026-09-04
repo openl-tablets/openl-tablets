@@ -1,13 +1,17 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,9 +22,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 
@@ -32,6 +36,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private ProjectVersionH2CacheDB projectVersionCacheDB;
     private ProjectVersionCacheManager projectVersionCacheManager;
     private DesignTimeRepository designRepository;
+    @Setter
     private boolean enabled;
 
     private final Authentication relevantSystemWideGrantedAuthority;
@@ -39,9 +44,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private final static int PERIOD = 10;
 
     public ProjectVersionCacheMonitor(GrantedAuthority relevantSystemWideGrantedAuthority) {
-        SimpleGroup group = new SimpleGroup();
+        var group = new SimpleGroup();
         group.setName(relevantSystemWideGrantedAuthority.getAuthority());
-        SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group)).build();
+        var principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group)).build();
         this.relevantSystemWideGrantedAuthority = new UsernamePasswordAuthenticationToken(principal,
                 "",
                 principal.getAuthorities());
@@ -52,7 +57,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         if (!enabled) {
             return;
         }
-        Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        var oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
         try {
             SecurityContextHolder.getContext().setAuthentication(relevantSystemWideGrantedAuthority);
             try {
@@ -80,46 +85,69 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     }
 
     private void cacheDesignProject(AProject project) throws IOException, InterruptedException {
-        Repository repository = designRepository.getRepository(project.getRepository().getId());
-        List<ProjectVersion> versions = project.getVersions();
+        var repositoryId = project.getRepository().getId();
+        var repository = designRepository.getRepository(repositoryId);
+        var versions = new ArrayList<ProjectVersionSource>();
         if (repository.supports().branches()) {
-            for (String branch : ((BranchRepository) repository).getBranches(project.getFolderPath())) {
-                versions.addAll(new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath())
-                        .getVersions());
-            }
+            designRepository.getBranchedProject(repositoryId, project.getName())
+                    .stream()
+                    .flatMap(branchedProject -> branchedProject.entries().values().stream())
+                    .map(BranchEntry::project)
+                    .forEach(branchProject -> readVersions(branchProject)
+                            .forEach(version -> versions.add(new ProjectVersionSource(branchProject, version))));
         } else {
-            versions.addAll(project.getVersions());
+            readVersions(project).forEach(version -> versions.add(new ProjectVersionSource(project, version)));
         }
-        versions.sort(Comparator.comparing(p -> p.getVersionInfo().getCreatedAt(), Comparator.reverseOrder()));
-        for (ProjectVersion projectVersion : versions) {
+        versions.sort(Comparator.comparing(source -> source.version().getVersionInfo().getCreatedAt(),
+                Comparator.reverseOrder()));
+        // Most files survive a revision untouched, so the versions of one project share their file hashes.
+        var fileHashCache = new HashMap<String, String>();
+        for (ProjectVersionSource source : versions) {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException("Project monitor cache task is interrupted.");
             }
-            if (projectVersion.isDeleted()) {
-                continue;
-            }
-
-            String hash = projectVersionCacheDB.getHash(project.getBusinessName(),
-                    projectVersion.getVersionName(),
-                    projectVersion.getVersionInfo().getCreatedAt(),
-                    ProjectVersionH2CacheDB.RepoType.DESIGN);
-            if (StringUtils.isEmpty(hash)) {
-                Repository repo = project.getRepository();
-                String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
-                AProject designProject = designRepository.getProjectByPath(project.getRepository().getId(),
-                        branch,
-                        project.getRealPath(),
-                        projectVersion.getVersionName());
-                if (designProject.isDeleted()) {
-                    continue;
-                }
-                cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
-            }
+            cacheVersionIfAbsent(source, fileHashCache);
         }
     }
 
-    void cacheProjectVersion(AProject project, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
-        String md5 = projectVersionCacheManager.computeMD5(project);
+    private void cacheVersionIfAbsent(ProjectVersionSource source,
+                                      Map<String, String> fileHashCache) throws IOException {
+        var branchProject = source.project();
+        var projectVersion = source.version();
+        if (projectVersion.isDeleted()) {
+            return;
+        }
+        var hash = projectVersionCacheDB.getHash(branchProject.getBusinessName(),
+                projectVersion.getVersionName(),
+                projectVersion.getVersionInfo().getCreatedAt(),
+                ProjectVersionH2CacheDB.RepoType.DESIGN);
+        if (StringUtils.isEmpty(hash)) {
+            var repo = branchProject.getRepository();
+            String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
+            var designProject = designRepository.getProjectByPath(repo.getId(),
+                    branch,
+                    branchProject.getRealPath(),
+                    projectVersion.getVersionName());
+            if (designProject == null || designProject.isDeleted()) {
+                return;
+            }
+            cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN, fileHashCache);
+        }
+    }
+
+    private List<ProjectVersion> readVersions(AProject project) {
+        // Snapshot projects are long-lived. Read through a disposable view so a complete Git history is not retained
+        // by every project/branch membership after the cache has been calculated.
+        return new AProject(project.getRepository(), project.getFolderPath()).getVersions();
+    }
+
+    private record ProjectVersionSource(AProject project, ProjectVersion version) {
+    }
+
+    void cacheProjectVersion(AProject project,
+                             ProjectVersionH2CacheDB.RepoType repoType,
+                             Map<String, String> fileHashCache) throws IOException {
+        var md5 = projectVersionCacheManager.computeMD5(project, fileHashCache);
         projectVersionCacheDB.insertProject(project.getBusinessName(), project.getVersion(), md5, repoType);
     }
 
@@ -142,7 +170,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     public void afterPropertiesSet() {
         if (projectVersionCacheDB != null && projectVersionCacheManager != null && designRepository != null) {
             scheduledPool = Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = Executors.defaultThreadFactory().newThread(r);
+                var t = Executors.defaultThreadFactory().newThread(r);
                 t.setDaemon(true);
                 return t;
             });
@@ -175,9 +203,5 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             Thread.currentThread().interrupt();
         }
         scheduledPool = null;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

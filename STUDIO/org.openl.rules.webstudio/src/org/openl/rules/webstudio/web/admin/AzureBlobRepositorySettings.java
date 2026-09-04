@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
@@ -21,23 +23,31 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
     private static final String ACCOUNT_KEY_PROPERTY_SUFFIX = ".account-key";
     private static final String LISTENER_TIMER_PERIOD_PROPERTY_SUFFIX = ".listener-timer-period";
 
+    @Getter
     @Parameter(description = "URL")
+    @Setter
     @SettingPropertyName(suffix = URI_PROPERTY_SUFFIX)
     @NotBlank
     @JsonView(Views.Base.class)
     private String uri;
 
+    @Getter
     @Parameter(description = "Account name")
+    @Setter
     @SettingPropertyName(suffix = ACCOUNT_NAME_PROPERTY_SUFFIX)
     @JsonView(Views.Base.class)
     private String accountName;
 
+    @Getter
     @Parameter(description = "Account key")
+    @Setter
     @SettingPropertyName(suffix = ACCOUNT_KEY_PROPERTY_SUFFIX, secret = true)
     @JsonView(Views.Base.class)
     private String accountKey;
 
+    @Getter
     @Parameter(description = "Repository changes check interval. Must be greater than 0.")
+    @Setter
     @SettingPropertyName(suffix = LISTENER_TIMER_PERIOD_PROPERTY_SUFFIX)
     @JsonView(Views.Base.class)
     @Min(1)
@@ -66,38 +76,6 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
         listenerTimerPeriod = Optional.ofNullable(properties.getProperty(listenerTimerPeriodProperty))
                 .map(Integer::parseInt)
                 .orElse(null);
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public String getAccountName() {
-        return accountName;
-    }
-
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
-    }
-
-    public String getAccountKey() {
-        return accountKey;
-    }
-
-    public void setAccountKey(String accountKey) {
-        this.accountKey = accountKey;
-    }
-
-    public Integer getListenerTimerPeriod() {
-        return listenerTimerPeriod;
-    }
-
-    public void setListenerTimerPeriod(Integer listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
     @Override

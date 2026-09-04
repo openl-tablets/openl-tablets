@@ -24,7 +24,7 @@ public class PerformOperation extends OpenLEvaluationOperation {
 
     @Override
     public Result execute(TBasicContextHolderEnv environment, Object param) {
-        Object returnValue = evaluateStatement(environment);
+        var returnValue = evaluateStatement(environment);
         return new Result(ReturnType.NEXT, returnValue);
     }
 

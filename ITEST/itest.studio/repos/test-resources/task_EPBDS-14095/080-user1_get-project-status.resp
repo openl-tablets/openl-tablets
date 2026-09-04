@@ -1,0 +1,97 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
+      "name": "EPBDS-14095",
+      "status": "EDITING",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project EPBDS-14095 is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
+      "capabilities": {
+        "canWrite": true,
+        "canClose": true,
+        "canSave": true,
+        "canDelete": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    },
+    {
+      "id": "ZGVzaWduOlByb2plY3Q=",
+      "name": "Project",
+      "status": "CLOSED",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    },
+    {
+      "id": "ZGVzaWduOlByb2plY3Qy",
+      "name": "Project2",
+      "status": "CLOSED",
+      "repository": "design",
+      "modifiedBy": "admin",
+      "modifiedAt": "*",
+      "revision": "*",
+      "comment": "Project is created.",
+      "repositoryInfo": {
+        "id": "design",
+        "name": "H2",
+        "type": "repo-jdbc",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": false
+        }
+      },
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 3,
+  "total": 3
+}

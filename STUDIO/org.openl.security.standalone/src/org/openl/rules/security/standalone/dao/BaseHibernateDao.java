@@ -1,5 +1,8 @@
 package org.openl.rules.security.standalone.dao;
 
+import java.util.Locale;
+
+import lombok.Setter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +18,12 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
 
     private static final int BATCH_SIZE = 50;
 
-    private SessionFactory sessionFactory;
+    /** Escape char for SQL LIKE wildcards, exposed for subclasses that build LIKE predicates. */
+    protected static final char ESCAPE_CHAR = '\\';
 
-    @Autowired
+    @Setter(onMethod_ = @Autowired)
     @Qualifier("openlSessionFactory")
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+    private SessionFactory sessionFactory;
 
     public Session getSession() {
         return sessionFactory.getCurrentSession();
@@ -51,8 +53,8 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
     @Transactional
     @Override
     public void save(Iterable<T> objs) {
-        Session session = getSession();
-        int i = 0;
+        var session = getSession();
+        var i = 0;
         for (T obj : objs) {
             if (i > 0 && i % BATCH_SIZE == 0) {
                 //flush a batch of inserts and release memory:
@@ -62,5 +64,14 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
             session.persist(obj);
             i++;
         }
+    }
+
+    /** Lower-cases a search term and escapes the SQL LIKE wildcards {@code \ [ _ %}. */
+    protected static String escape(String searchTerm) {
+        return searchTerm.toLowerCase(Locale.ROOT)
+                .replace("\\", ESCAPE_CHAR + "\\")
+                .replace("[", ESCAPE_CHAR + "[")
+                .replace("_", ESCAPE_CHAR + "_")
+                .replace("%", ESCAPE_CHAR + "%");
     }
 }

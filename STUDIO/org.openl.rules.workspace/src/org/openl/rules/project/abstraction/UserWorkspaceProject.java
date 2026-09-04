@@ -1,6 +1,10 @@
 package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
+import java.util.Objects;
+
+import lombok.AccessLevel;
+import lombok.Getter;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -11,6 +15,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 
 public abstract class UserWorkspaceProject extends AProject {
+    @Getter(AccessLevel.PROTECTED)
     private final WorkspaceUser user;
 
     public UserWorkspaceProject(WorkspaceUser user, Repository repository, String folderPath, String version) {
@@ -21,10 +26,6 @@ public abstract class UserWorkspaceProject extends AProject {
     public UserWorkspaceProject(WorkspaceUser user, Repository repository, FileData fileData) {
         super(repository, fileData);
         this.user = user;
-    }
-
-    protected WorkspaceUser getUser() {
-        return user;
     }
 
     @Override
@@ -126,8 +127,8 @@ public abstract class UserWorkspaceProject extends AProject {
         if (isLocalOnly()) {
             return;
         }
-        BranchRepository branchRepository = (BranchRepository) getDesignRepository();
-        String currentBranch = branchRepository.getBranch();
+        var branchRepository = (BranchRepository) getDesignRepository();
+        var currentBranch = branchRepository.getBranch();
         if (!newBranch.equals(currentBranch)) {
             try {
                 setDesignRepository(branchRepository.forBranch(newBranch));
@@ -151,6 +152,18 @@ public abstract class UserWorkspaceProject extends AProject {
     public boolean isBranchProtected() {
         if (!isLocalOnly() && isSupportsBranches()) {
             return ((BranchRepository) getDesignRepository()).isBranchProtected(getBranch());
+        }
+        return false;
+    }
+
+    /**
+     * Whether the project sits on the repository main branch, the branch changes are committed to by default.
+     *
+     * <p>A project in a repository without branches is never on a main branch.
+     */
+    public boolean isBranchDefault() {
+        if (isSupportsBranches()) {
+            return Objects.equals(getBranch(), ((BranchRepository) getDesignRepository()).getBaseBranch());
         }
         return false;
     }

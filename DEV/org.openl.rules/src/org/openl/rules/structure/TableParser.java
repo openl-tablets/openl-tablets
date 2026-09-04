@@ -8,7 +8,7 @@ public final class TableParser {
     }
 
     public static void parseTable(ILogicalTable table, ITableParserElement[] pElements, ITableObject tobj) {
-        ILogicalTable unparsedTable = table;
+        var unparsedTable = table;
 
         for (ITableParserElement pElement : pElements) {
             unparsedTable = pElement.parse(unparsedTable, tobj);

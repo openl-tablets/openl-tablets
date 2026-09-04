@@ -24,9 +24,9 @@ class MultiModuleDispatchingTest {
     @Test
     void testMultiModuleService2() throws Exception {
         assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         var cxt = new SomeContext();
 
         cxt.setLob("lob1_1");

@@ -145,6 +145,15 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 - Use the `apiCall` wrapper, never raw `fetch`.
 - Guard screens with `PermissionContext` and `SystemContext` flags.
 - Add translations from day one — no hardcoded user-facing strings.
+- **Form field labels** use the shared `FieldRow` component (right-aligned `Label :` with the required
+  asterisk to the left), matching the create-project modal and the administration screens.
+- **Label casing.** A label of **at most three words** (not counting the articles `a`/`an`/`the`) is written in
+  Title Case — capitalise every word except `a`/`an`/`the` when it is not first (e.g. `Project Name`, `Service
+  Class`, `Provide Runtime Context`). Longer labels stay in sentence case (e.g. `Path for Module with Data
+  Types`). Never append `(optional)` to a label — mark required fields instead.
+- **Names in titles.** When a form or dialog title includes the name of a concrete thing (a project, file,
+  user, repository…), wrap that name in double quotes — e.g. `Copy project "{{name}}"`, `Revoke access for
+  "{{subject}}"?`.
 - Prefer Zustand selectors over full-store subscriptions.
 - Unsubscribe WebSocket listeners or use `cleanupWebSocket` to prevent duplicates.
 - Use `data-testid` for elements that tests need to target. Generated CSS-in-JS class names are unstable, and

@@ -17,7 +17,6 @@ import java.util.zip.ZipInputStream;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
@@ -63,17 +62,17 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 }
 
                 if (descriptorIndex < descriptors.size()) {
-                    ProjectDescriptor pd = descriptors.get(descriptorIndex++);
-                    String repositoryId = pd.repositoryId();
+                    var pd = descriptors.get(descriptorIndex++);
+                    var repositoryId = pd.repositoryId();
                     if (repositoryId == null) {
                         repositoryId = designRepo.getRepositories().getFirst().getId();
                     }
-                    Repository repository = designRepo.getRepository(repositoryId);
-                    String version = pd.projectVersion().getVersionName();
-                    String projectName = pd.projectName();
-                    String projectPath = pd.path();
-                    String branch = pd.branch();
-                    DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
+                    var repository = designRepo.getRepository(repositoryId);
+                    var version = pd.projectVersion().getVersionName();
+                    var projectName = pd.projectName();
+                    var projectPath = pd.path();
+                    var branch = pd.branch();
+                    var manifestBuilder = new DeploymentManifestBuilder()
                             .setBuiltBy(username)
                             .setBuildNumber(pd.projectVersion().getRevision())
                             .setImplementationTitle(projectName)
@@ -81,9 +80,9 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     if (branch != null) {
                         manifestBuilder.setBuildBranch(branch);
                     }
-                    String technicalName = projectName;
+                    var technicalName = projectName;
                     try {
-                        AProject designProject = designRepo.getProjectByPath(repositoryId,
+                        var designProject = designRepo.getProjectByPath(repositoryId,
                                 branch,
                                 projectPath,
                                 version);
@@ -124,22 +123,22 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 try {
                     if (baseRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
-                        String srcProjectPath = rulesPath + projectName;
+                        var srcProjectPath = rulesPath + projectName;
                         Repository repository = RepositoryUtils
-                                .getRepositoryForVersion(baseRepo, rulesPath, projectName, version);
+                                .getRepositoryForVersion(designRepo, baseRepo, rulesPath, projectName, version);
                         if (repository.supports().mappedFolders()) {
                             srcProjectPath = ((FolderMapper) repository).getRealPath(srcProjectPath);
                         }
                         srcProjectPath += "/";
-                        List<FileData> files = repository.listFiles(srcProjectPath, version);
+                        var files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
                             log.warn("Cannot find files in project {}", projectName);
                         }
                         //find and remove old manifest file from deployment
-                        String srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
+                        var srcManFileName = srcProjectPath + JarFile.MANIFEST_NAME;
                         Iterator<FileData> it = files.iterator();
                         while (it.hasNext()) {
-                            FileData f = it.next();
+                            var f = it.next();
                             if (srcManFileName.equals(f.getName())) {
                                 it.remove();
                                 break;
@@ -148,13 +147,13 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         return new FolderIterator(repository, files, projectName, manifestBuilder.build());
                     } else {
                         // Project in design repository is stored as a zip file
-                        FileItem srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
+                        var srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
                         if (srcPrj == null) {
                             throw new FileNotFoundException("File '%s' for version %s is not found."
                                     .formatted(rulesPath + projectName, version));
                         }
                         IOUtils.closeQuietly(openedStream);
-                        ZipInputStream stream = new ZipInputStream(addManifestIntoArchive(srcPrj.getStream(), manifestBuilder.build()));
+                        var stream = new ZipInputStream(addManifestIntoArchive(srcPrj.getStream(), manifestBuilder.build()));
                         openedStream = stream;
                         return new FileChangesFromZip(stream, deploymentPath + projectName).iterator();
                     }
@@ -177,7 +176,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     }
 
     private InputStream addManifestIntoArchive(InputStream in, Manifest manifest) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        var out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
             return new ByteArrayInputStream(out.toByteArray());
@@ -206,7 +205,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
             this.baseRepo = baseRepo;
             this.files = files;
             if (manifest != null) {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                var out = new ByteArrayOutputStream();
                 manifest.write(out);
                 this.manifest = new FileItem(deploymentPath + getBusinessName(projectName) + "/" + JarFile.MANIFEST_NAME,
                         new ByteArrayInputStream(out.toByteArray()));
@@ -228,13 +227,13 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                 writeManifest = false;
                 return manifest;
             }
-            FileData file = files.get(fileIndex++);
-            String srcFileName = getBusinessName(file.getName());
-            String fileTo = deploymentPath + srcFileName.substring(rulesPath.length());
+            var file = files.get(fileIndex++);
+            var srcFileName = getBusinessName(file.getName());
+            var fileTo = deploymentPath + srcFileName.substring(rulesPath.length());
             FileItem fileItem;
             try {
-                FileMappingData fileMappingData = file.getAdditionalData(FileMappingData.class);
-                String name = file.getName();
+                var fileMappingData = file.getAdditionalData(FileMappingData.class);
+                var name = file.getName();
                 if (fileMappingData != null) {
                     name = fileMappingData.getInternalPath();
                 }

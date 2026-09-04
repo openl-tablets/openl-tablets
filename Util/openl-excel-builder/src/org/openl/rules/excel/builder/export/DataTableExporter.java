@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
@@ -37,32 +34,32 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
     @Override
     protected void exportTables(Collection<DataModel> models, Sheet sheet) {
         Cursor endPosition = null;
-        TableStyle style = getTableStyle();
+        var style = getTableStyle();
         for (DataModel model : models) {
             log.debug("exporting data table with name {}", model.getName());
-            Cursor startPosition = nextFreePosition(endPosition);
+            var startPosition = nextFreePosition(endPosition);
             endPosition = exportTable(model, startPosition, style, sheet);
         }
     }
 
     @Override
     protected Cursor exportTable(DataModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
-        DataTableStyle style = (DataTableStyle) defaultStyle;
+        var style = (DataTableStyle) defaultStyle;
 
-        RichTextString dataTableHeaderTemplate = style.getHeaderTemplate();
-        CellRangeSettings headerSettings = style.getHeaderSizeSettings();
+        var dataTableHeaderTemplate = style.getHeaderTemplate();
+        var headerSettings = style.getHeaderSizeSettings();
 
-        CellStyle subheaderStyle = style.getSubheaderStyle();
+        var subheaderStyle = style.getSubheaderStyle();
 
-        Font tableNameFont = style.getTableNameFont();
-        Font typeFont = style.getTypeFont();
+        var tableNameFont = style.getTableNameFont();
+        var typeFont = style.getTypeFont();
 
-        CellStyle headerStyle = style.getHeaderStyle();
-        CellStyle dateStyle = style.getDateStyle();
-        CellStyle dateTimeStyle = style.getDateTimeStyle();
+        var headerStyle = style.getHeaderStyle();
+        var dateStyle = style.getDateStyle();
+        var dateTimeStyle = style.getDateTimeStyle();
 
-        String type = model.getType();
-        String dataHeaderText = dataTableHeaderTemplate.getString().replace(DATA_TYPE_NAME, type);
+        var type = model.getType();
+        var dataHeaderText = dataTableHeaderTemplate.getString().replace(DATA_TYPE_NAME, type);
         dataHeaderText = dataHeaderText.replace(DATA_TABLE_NAME, model.getName());
 
         List<FieldModel> fields = model.getDatatypeModel().getFields();
@@ -70,19 +67,19 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
         addMergedHeader(sheet, startPosition, headerStyle, new CellRangeSettings(headerSettings.getHeight(), width));
 
         Cell topLeftCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
-        RichTextString dtHeader = new XSSFRichTextString(dataHeaderText);
-        int typeStart = dataHeaderText.indexOf(type);
-        int typeEnd = typeStart + type.length();
+        var dtHeader = new XSSFRichTextString(dataHeaderText);
+        var typeStart = dataHeaderText.indexOf(type);
+        var typeEnd = typeStart + type.length();
         dtHeader.applyFont(typeStart, typeEnd, typeFont);
         dtHeader.applyFont(typeEnd + 1, dataHeaderText.length() - 1, tableNameFont);
         topLeftCell.setCellValue(dtHeader);
         startPosition = startPosition.moveDown(headerSettings.getHeight());
 
-        Cursor endPosition = startPosition;
+        var endPosition = startPosition;
 
         if (CollectionUtils.isNotEmpty(fields)) {
             for (FieldModel fm : fields) {
-                String fieldName = fm.getName();
+                var fieldName = fm.getName();
                 String formattedName;
                 if (fieldName.equals(KEYWORD)) {
                     formattedName = "result";
@@ -91,7 +88,7 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
 
                 }
 
-                Cursor next = endPosition.moveDown(1);
+                var next = endPosition.moveDown(1);
                 Cell subheaderCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
                 subheaderCell.setCellValue(fieldName);
                 subheaderCell.setCellStyle(subheaderStyle);
@@ -104,7 +101,7 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
                 next = next.moveDown(1);
                 Cell rowCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
                 writeDefaultValueToCell(model, fm, rowCell, dateStyle, dateTimeStyle);
-                CellStyle styleAfterWrite = rowCell.getCellStyle();
+                var styleAfterWrite = rowCell.getCellStyle();
                 if (styleAfterWrite.getDataFormat() == 0) {
                     rowCell.setCellStyle(style.getRowStyle().getValueStyle());
                 }

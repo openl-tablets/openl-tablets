@@ -18,7 +18,7 @@ public class RowIdField extends AOpenField {
     @Override
     public Object get(Object target, IRuntimeEnv env) {
 
-        Integer row = table.getRowIndex(target);
+        var row = table.getRowIndex(target);
         if (row == null) {
             return null;
         }
@@ -34,7 +34,7 @@ public class RowIdField extends AOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
 
-        int row = table.getRowIndex(target);
+        var row = table.getRowIndex(target);
         table.setPrimaryIndexKey(row, (String) value);
     }
 

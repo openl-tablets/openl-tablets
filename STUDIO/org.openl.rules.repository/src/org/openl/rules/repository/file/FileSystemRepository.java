@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -43,39 +45,24 @@ import org.openl.util.FileUtils;
 @Slf4j
 public class FileSystemRepository implements Repository, Closeable {
 
+    @Getter
+    @Setter
     private Path root;
     private ChangesMonitor monitor;
+    @Getter
+    @Setter
     private String id;
+    @Setter
     private int listenerTimerPeriod = 10;
+    @Getter
+    @Setter
     private String name;
-
-    public void setRoot(Path root) {
-        this.root = root;
-    }
 
     public void setUri(String path) {
         this.root = Path.of(path);
     }
 
     public void initialize() {
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     /**
@@ -166,7 +153,7 @@ public class FileSystemRepository implements Repository, Closeable {
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         var result = new ArrayList<FileData>();
         for (FileItem fileItem : fileItems) {
-            FileData saved = write(fileItem.getData(), fileItem.getStream());
+            var saved = write(fileItem.getData(), fileItem.getStream());
             result.add(saved);
         }
         invokeListener();
@@ -190,7 +177,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public boolean delete(List<FileData> data) throws IOException {
-        boolean deleted = false;
+        var deleted = false;
         for (var fd : data) {
             var f = resolveInRoot(fd.getName());
             try {
@@ -246,7 +233,7 @@ public class FileSystemRepository implements Repository, Closeable {
         var file = resolveInRoot(name);
         try {
             if (Files.exists(file)) {
-                FileData data = getFileData(file);
+                var data = getFileData(file);
                 return Collections.singletonList(data);
             }
         } catch (Exception ex) {
@@ -312,10 +299,6 @@ public class FileSystemRepository implements Repository, Closeable {
             // File system does not support owner attribute
         }
         return data;
-    }
-
-    public Path getRoot() {
-        return root;
     }
 
     @Override
@@ -439,10 +422,6 @@ public class FileSystemRepository implements Repository, Closeable {
                 return FileVisitResult.CONTINUE;
             }
         });
-    }
-
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
 }

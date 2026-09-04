@@ -3,6 +3,8 @@ package org.openl.binding.impl.module;
 import java.util.Arrays;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
@@ -14,16 +16,12 @@ import org.openl.types.NullOpenClass;
 
 public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
 
+    @Getter
     private final IOpenClass type;
 
     public ModuleSpecificOpenMethod(IOpenMethod delegate, IOpenClass type) {
         super(delegate);
         this.type = Objects.requireNonNull(type, "type cannot be null");
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     public static IMethodCaller findMethodCaller(IOpenClass type,
@@ -49,7 +47,7 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
                 .findMethod(methodName, types, bindingContext, type, true);
         if (type instanceof WrapModuleSpecificTypes && methodCaller == null) {
             IOpenClass[] nullModuleSpecificTypes = Arrays.copyOf(types, types.length);
-            for (int i = 0; i < nullModuleSpecificTypes.length; i++) {
+            for (var i = 0; i < nullModuleSpecificTypes.length; i++) {
                 if (nullModuleSpecificTypes[i] instanceof ModuleSpecificType) {
                     nullModuleSpecificTypes[i] = NullOpenClass.the;
                 }
@@ -73,7 +71,7 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
 
         if (type instanceof WrapModuleSpecificTypes && methodCaller instanceof IOpenMethod method && methodCaller.getMethod()
                 .getType() instanceof ModuleSpecificType) {
-            IOpenClass t = bindingContext.findType(
+            var t = bindingContext.findType(
                     methodCaller.getMethod().getType().getName());
             if (t != null) {
                 methodCaller = new ModuleSpecificOpenMethod(method, t);
@@ -83,8 +81,8 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
     }
 
     private static boolean isMatchToParamsModuleSpecificTypesByNames(IOpenMethod method, IOpenClass[] types) {
-        for (int i = 0; i < method.getSignature().getNumberOfParameters(); i++) {
-            IOpenClass paramType = method.getSignature().getParameterType(i);
+        for (var i = 0; i < method.getSignature().getNumberOfParameters(); i++) {
+            var paramType = method.getSignature().getParameterType(i);
             if (paramType instanceof ModuleSpecificType && !Objects.equals(paramType.getName(), types[i].getName())) {
                 return false;
             }

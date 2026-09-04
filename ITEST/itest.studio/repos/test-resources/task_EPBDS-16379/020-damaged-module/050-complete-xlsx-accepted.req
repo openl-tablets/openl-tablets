@@ -1,0 +1,6 @@
+POST /rest/projects/EPBDS-16379/files/rules/Complete.xlsx?createFolders=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+&../Rating.xlsx
+

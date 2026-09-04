@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -532,16 +531,16 @@ public final class Strings {
         if (isEmpty0(str) || isEmpty0(searchString) || replacement == null || max == 0) {
             return str;
         }
-        int start = 0;
-        int end = str.indexOf(searchString, start);
+        var start = 0;
+        var end = str.indexOf(searchString, start);
         if (end == -1) {
             return str;
         }
-        final int replLength = searchString.length();
-        int increase = replacement.length() - replLength;
+        final var replLength = searchString.length();
+        var increase = replacement.length() - replLength;
         increase = increase < 0 ? 0 : increase;
         increase *= max < 0 ? 16 : max > 64 ? 64 : max;
-        final StringBuilder buf = new StringBuilder(str.length() + increase);
+        final var buf = new StringBuilder(str.length() + increase);
         while (end != -1) {
             buf.append(str, start, end).append(replacement);
             start = end + replLength;
@@ -584,8 +583,8 @@ public final class Strings {
         if (isEmpty(str)) {
             return null;
         }
-        ParsePosition parsePosition = new ParsePosition(0);
-        Number parsed = NumberFormat.getInstance(Locale.US).parse(str, parsePosition);
+        var parsePosition = new ParsePosition(0);
+        var parsed = NumberFormat.getInstance(Locale.US).parse(str, parsePosition);
         if (parsePosition.getIndex() != str.length()) {
             return null;
         }
@@ -664,15 +663,15 @@ public final class Strings {
     }
 
     private static String parseLikePattern(String pattern) {
-        final int size = pattern.length();
-        StringBuilder regex = new StringBuilder(size * 2);
+        final var size = pattern.length();
+        var regex = new StringBuilder(size * 2);
 
-        int i = 0;
-        char prevCh = 0;
-        char nextCh = pattern.charAt(i);
-        boolean inSet = false;
+        var i = 0;
+        var prevCh = 0;
+        var nextCh = pattern.charAt(i);
+        var inSet = false;
         while (i < size) {
-            final char ch = nextCh;
+            final var ch = nextCh;
             i++;
             nextCh = i < size ? pattern.charAt(i) : 0;
             switch (ch) {
@@ -743,9 +742,9 @@ public final class Strings {
         if (values.length == 0) {
             return "";
         }
-        boolean hasDelimiter = !isEmpty0(delimiter);
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
+        var hasDelimiter = !isEmpty0(delimiter);
+        var sb = new StringBuilder();
+        var i = 0;
         for (Object o : values) {
             if (o == null) {
                 continue;
@@ -787,14 +786,14 @@ public final class Strings {
         if (isEmpty0(str) || isEmpty0(delimiter)) {
             return new String[]{str};
         }
-        List<String> list = new ArrayList<>();
-        final int len = str.length();
-        final int lenDelim = delimiter.length();
+        var list = new ArrayList<String>();
+        final var len = str.length();
+        final var lenDelim = delimiter.length();
         int start = 0, pos = 0;
         while (pos < len) {
-            int posDelim = 0;
-            boolean matched = true;
-            int end = pos;
+            var posDelim = 0;
+            var matched = true;
+            var end = pos;
             while (posDelim < lenDelim && pos < len) {
                 if (delimiter.charAt(posDelim++) != str.charAt(pos++)) {
                     matched = false;
@@ -835,7 +834,7 @@ public final class Strings {
         if (pattern == null || isEmpty0(pattern)) {
             return pattern;
         }
-        MessageFormat msg = new MessageFormat(pattern, Locale.US);
+        var msg = new MessageFormat(pattern, Locale.US);
         return msg.format(args);
     }
 

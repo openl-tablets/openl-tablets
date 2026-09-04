@@ -3,12 +3,14 @@ package org.openl.studio.projects.validator;
 import java.io.IOException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 
 /**
@@ -16,13 +18,15 @@ import org.openl.studio.projects.service.protection.ProtectedBranchBypassService
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     private final ProtectedBranchBypassService bypassService;
 
     @Override
     public boolean canSave(UserWorkspaceProject project) {
-        return project != null && project.isModified() && isEditableProject(project);
+        return project != null && !project.isLocalOnly() && project.isModified() && project.isOpenedForEditing()
+                && !isCurrentBranchProtectionEnforced(project);
     }
 
     private boolean isEditableProject(UserWorkspaceProject project) {
@@ -34,7 +38,7 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     private boolean isCurrentBranchProtectionEnforced(UserWorkspaceProject project) {
         if (project != null && !project.isLocalOnly()) {
-            Repository repo = project.getDesignRepository();
+            var repo = project.getDesignRepository();
             if (repo != null && repo.supports().branches()) {
                 return bypassService.isProtectionEnforced(
                         (BranchRepository) repo, project.getBranch(), project);
@@ -81,11 +85,22 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
             // any user can delete own local project
             return true;
         }
-        if (project.getDesignRepository().supports().branches() && project.getVersion() == null) {
+        if (!canDeleteFromBranch(project)) {
             return false;
         }
         // An opened project is closed for all users during deletion, so only a lock held by another user blocks it.
         return !project.isLocked() || project.isLockedByMe();
+    }
+
+    private boolean canDeleteFromBranch(UserWorkspaceProject project) {
+        var repo = project.getDesignRepository();
+        if (!repo.supports().branches()) {
+            return true;
+        }
+        if (isCurrentBranchProtectionEnforced(project)) {
+            return false;
+        }
+        return project.getVersion() != null;
     }
 
     @Override
@@ -94,14 +109,37 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
             return false;
         }
 
-        try {
-            if (project.isModified()) {
-                return false;
-            }
-            var branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getDesignFolderName());
-            return branches.size() >= 2;
-        } catch (IOException e) {
+        return !project.isModified() && hasMergeTarget(project);
+    }
+
+    @Override
+    public boolean canDeleteBranch(RulesProject project) {
+        if (project == null || project.isDeleted() || project.isLocalOnly() || !project.isSupportsBranches()) {
             return false;
         }
+        var branch = project.getBranch();
+        var repository = (BranchRepository) project.getDesignRepository();
+        if (branch == null || branch.equalsIgnoreCase(repository.getBaseBranch())) {
+            return false;
+        }
+        return !isCurrentBranchProtectionEnforced(project);
+    }
+
+    private boolean hasMergeTarget(RulesProject project) {
+        var repository = unwrap((BranchRepository) project.getDesignRepository());
+        try {
+            return repository.listBranches().stream().anyMatch(branch -> !branch.equals(project.getBranch()));
+        } catch (IOException e) {
+            log.debug("Cannot list merge targets for project '{}'.", project.getName(), e);
+            return false;
+        }
+    }
+
+    private static BranchRepository unwrap(BranchRepository repository) {
+        Repository current = repository;
+        while (current instanceof RepositoryDelegate delegate) {
+            current = delegate.getOriginal();
+        }
+        return (BranchRepository) current;
     }
 }

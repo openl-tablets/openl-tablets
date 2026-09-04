@@ -51,7 +51,7 @@ public final class Statistics {
         if (x == null || x.length == 0 || y == null || y.length == 0 || x.length != y.length) {
             return null;
         }
-        for (int i = 0; i < y.length; i++) {
+        for (var i = 0; i < y.length; i++) {
             processor.process(y[i], x[i]);
         }
         return processor.result();

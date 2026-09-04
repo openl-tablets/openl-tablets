@@ -1,0 +1,80 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "aclId": "REVTSUdOOmRlc2lnbi1maWxl",
+    "id": "design-file",
+    "name": "Design File",
+    "type": "repo-file",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": true
+    }
+  },
+  {
+    "aclId": "REVTSUdOOmRlc2lnbi1mbGF0",
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  {
+    "aclId": "REVTSUdOOmRlc2lnbi1ub24tZmxhdA==",
+    "id": "design-non-flat",
+    "name": "Git Non Flat",
+    "type": "repo-git",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  {
+    "aclId": "REVTSUdOOmRlc2lnbi1wcm90ZWN0ZWQtZmxhdA==",
+    "id": "design-protected-flat",
+    "name": "Git Protected Branch Flat",
+    "type": "repo-git",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  {
+    "aclId": "REVTSUdOOmRlc2lnbg==",
+    "id": "design",
+    "name": "H2",
+    "type": "repo-jdbc",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false
+    }
+  }
+]

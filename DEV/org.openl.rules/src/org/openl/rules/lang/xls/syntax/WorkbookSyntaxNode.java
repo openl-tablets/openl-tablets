@@ -2,7 +2,6 @@ package org.openl.rules.lang.xls.syntax;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -25,7 +24,7 @@ public class WorkbookSyntaxNode extends NaryNode {
         if (tableSyntaxNodes == null) {
             buildTableSyntaxNodes();
         } else {
-            int expectedSize = 0;
+            var expectedSize = 0;
             for (WorksheetSyntaxNode sheetNode : getWorksheetSyntaxNodes()) {
                 expectedSize = expectedSize + sheetNode.getTableSyntaxNodes().length;
             }
@@ -38,11 +37,11 @@ public class WorkbookSyntaxNode extends NaryNode {
     }
 
     private void buildTableSyntaxNodes() {
-        List<TableSyntaxNode> tnodes = new ArrayList<>();
-        WorksheetSyntaxNode[] sheetNodes = getWorksheetSyntaxNodes();
+        var tnodes = new ArrayList<TableSyntaxNode>();
+        var sheetNodes = getWorksheetSyntaxNodes();
 
         for (WorksheetSyntaxNode sheetNode : sheetNodes) {
-            TableSyntaxNode[] tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
+            var tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
             tnodes.addAll(Arrays.asList(tableSyntaxNodes));
         }
 

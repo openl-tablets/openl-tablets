@@ -2,8 +2,9 @@ package org.openl.binding.impl;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.binding.MethodUtil;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenConstructor;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -13,6 +14,7 @@ import org.openl.types.IOpenMethod;
 public class MethodUsage implements NodeUsage {
     private final int startPos;
     private final int endPos;
+    @Getter
     private final IOpenMethod method;
 
     /**
@@ -40,10 +42,6 @@ public class MethodUsage implements NodeUsage {
         return endPos;
     }
 
-    public IOpenMethod getMethod() {
-        return method;
-    }
-
     private static String getTableUri(IOpenMethod method) {
         try {
             if (method instanceof ExecutableRulesMethod rulesMethod) {
@@ -56,7 +54,7 @@ public class MethodUsage implements NodeUsage {
                 }
             } else if (method instanceof DatatypeOpenConstructor && method
                     .getDeclaringClass() instanceof DatatypeOpenClass) {
-                IMetaInfo metaInfo = method.getDeclaringClass().getMetaInfo();
+                var metaInfo = method.getDeclaringClass().getMetaInfo();
                 return metaInfo == null ? null : metaInfo.getSourceUrl();
             } else if (method.getInfo() != null) {
                 return method.getInfo().getSourceUrl();
@@ -87,7 +85,7 @@ public class MethodUsage implements NodeUsage {
      */
     @Override
     public String getDescription() {
-        StringBuilder buff = new StringBuilder();
+        var buff = new StringBuilder();
         MethodUtil.printMethod(method, buff);
         return buff.toString();
     }
@@ -100,7 +98,7 @@ public class MethodUsage implements NodeUsage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MethodUsage that = (MethodUsage) o;
+        var that = (MethodUsage) o;
         return startPos == that.startPos && endPos == that.endPos && Objects.equals(method, that.method);
     }
 

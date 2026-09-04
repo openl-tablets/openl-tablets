@@ -3,7 +3,6 @@ package org.openl.util;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
 public final class ArrayTool {
@@ -44,8 +43,8 @@ public final class ArrayTool {
         if (array == null) {
             return false;
         }
-        int size = Array.getLength(array);
-        for (int i = 0; i < size; ++i) {
+        var size = Array.getLength(array);
+        for (var i = 0; i < size; ++i) {
             Object obj = Array.get(array, i);
             if (Objects.equals(test, obj)) {
                 return true;
@@ -63,7 +62,7 @@ public final class ArrayTool {
         if (container == null || testArray == null) {
             return false;
         }
-        Iterator<T> it = new ArrayIterator<>(testArray);
+        var it = new ArrayIterator<T>(testArray);
         while (it.hasNext()) {
             if (!contains(container, it.next())) {
                 return false;
@@ -204,7 +203,7 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return null;
         }
-        List<String> v = new ArrayList<>();
+        var v = new ArrayList<String>();
         for (String s : ary2) {
             if (contains(ary1, s)) {
                 v.add(s);
@@ -233,8 +232,8 @@ public final class ArrayTool {
         final Class<?> componentType = clazz.isPrimitive() ? ClassUtils.primitiveToWrapper(clazz) : clazz;
 
         int size = !object.getClass().isArray() ? 1 : Array.getLength(object);
-        final Object[] newArray = (Object[]) Array.newInstance(componentType, size);
-        for (int i = 0; i < size; i++) {
+        final var newArray = (Object[]) Array.newInstance(componentType, size);
+        for (var i = 0; i < size; i++) {
             newArray[i] = Array.get(object, i);
         }
         return newArray;
@@ -244,7 +243,7 @@ public final class ArrayTool {
         if (CollectionUtils.isEmpty(values)) {
             return 0;
         }
-        int count = values.length;
+        var count = values.length;
         for (Object value : values) {
             if (value == null) {
                 count--;
@@ -257,12 +256,12 @@ public final class ArrayTool {
     public static <T> T[] removeNulls(T[] array) {
         T[] result;
 
-        int valuableSize = getNotNullValuesCount(array);
+        var valuableSize = getNotNullValuesCount(array);
         if (array == null || valuableSize == array.length) {
             result = array;
         } else {
             result = (T[]) Array.newInstance(array.getClass().getComponentType(), valuableSize);
-            int i = 0;
+            var i = 0;
             for (T value : array) {
                 if (value != null) {
                     result[i] = value;

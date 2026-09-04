@@ -48,12 +48,12 @@ public final class ArrayUtils {
             return null;
         }
         Class<?> returnType = o.getClass();
-        int dim1 = 0;
+        var dim1 = 0;
         while (returnType.isArray()) {
             returnType = returnType.getComponentType();
             dim1++;
         }
-        int dim2 = 0;
+        var dim2 = 0;
         Class<?> expectedType = expectedClass;
         while (expectedType.isArray()) {
             expectedType = expectedType.getComponentType();
@@ -71,10 +71,10 @@ public final class ArrayUtils {
         if (o == null || !o.getClass().isArray()) {
             return converter.apply(o);
         }
-        int size = Array.getLength(o);
+        var size = Array.getLength(o);
         var cache = new Object[size];
         Class<?> componentType = null;
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
             var element = Array.get(o, i);
             element = convert(element, converter);
             cache[i] = element;
@@ -89,14 +89,14 @@ public final class ArrayUtils {
     }
 
     private static Object convert(Object o, Class<?> newType, int dimension) {
-        int size = Array.getLength(o);
+        var size = Array.getLength(o);
         Object result = Array.newInstance(newType, size);
         if (dimension == 1) {
-            for (int i = 0; i < size; i++) {
+            for (var i = 0; i < size; i++) {
                 Array.set(result, i, Array.get(o, i));
             }
         } else {
-            for (int i = 0; i < size; i++) {
+            for (var i = 0; i < size; i++) {
                 Array.set(result, i, convert(Array.get(o, i), newType.getComponentType(), dimension - 1));
             }
         }

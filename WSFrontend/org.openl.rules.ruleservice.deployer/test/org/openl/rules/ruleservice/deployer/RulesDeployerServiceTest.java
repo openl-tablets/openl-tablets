@@ -19,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,14 +67,14 @@ class RulesDeployerServiceTest {
     private <T extends Repository> void init(Class<T> repo, boolean local) throws IOException {
         mockedDeployRepo = mock(repo);
         when(mockedDeployRepo.supports()).thenReturn(new FeaturesBuilder(mockedDeployRepo).setLocal(local).build());
-        when(mockedDeployRepo.list(anyString())).thenReturn(Collections.emptyList());
+        when(mockedDeployRepo.list(anyString())).thenReturn(List.of());
         deployer = new RulesDeployerService(mockedDeployRepo, DEPLOY_PATH);
     }
 
     @Test
     void test_deploy_singleDeployment() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
+        try (var is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
         assertSingleDeployment(DEPLOY_PATH + "project2/project2");
@@ -84,7 +83,7 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_singleDeployment_whenFoldersSupports() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
+        try (var is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
         verify(mockedDeployRepo, never()).save(any(FileData.class), any(InputStream.class));
@@ -97,7 +96,7 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_singleDeployment_with_custom_name() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
+        try (var is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy("customName", is, true);
         }
         assertSingleDeployment(DEPLOY_PATH + "project2/project2");
@@ -106,22 +105,22 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_without_description() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream(NO_NAME_DEPLOYMENT)) {
+        try (var is = getResourceAsStream(NO_NAME_DEPLOYMENT)) {
             deployer.deploy("customName", is, true);
         }
         verify(mockedDeployRepo, times(1)).save(fileDataCaptor.capture(), any(InputStream.class));
-        final FileData actualFileData = fileDataCaptor.getValue();
+        final var actualFileData = fileDataCaptor.getValue();
         assertEquals("deploy/customName/customName", actualFileData.getName());
     }
 
     @Test
     void test_multideploy_without_name() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
+        try (var is = getResourceAsStream("noname-multiple-deployment.zip")) {
             deployer.deploy("customName-deployment", is, true);
         }
         List<FileItem> actualFileItems = catchDeployFileItems();
-        final String baseDeploymentPath = DEPLOY_PATH + "customName-deployment/";
+        final var baseDeploymentPath = DEPLOY_PATH + "customName-deployment/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
                 actualFileItems);
     }
@@ -129,7 +128,7 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_singleDeployment_whenNotOverridable() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
+        try (var is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, false);
         }
         assertSingleDeployment(DEPLOY_PATH + "project2/project2");
@@ -138,8 +137,8 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_singleDeployment_whenNotOverridableAndDeployedAlready() throws Exception {
         init(Repository.class, false);
-        when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(Collections.singletonList(new FileData()));
-        try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
+        when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(List.of(new FileData()));
+        try (var is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, false);
         }
         verify(mockedDeployRepo, never()).save(any(FileData.class), any(InputStream.class));
@@ -148,8 +147,8 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_singleDeployment_whenOverridableAndDeployedAlready() throws Exception {
         init(Repository.class, false);
-        when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(Collections.singletonList(new FileData()));
-        try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
+        when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(List.of(new FileData()));
+        try (var is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
         assertSingleDeployment(DEPLOY_PATH + "project2/project2");
@@ -157,7 +156,7 @@ class RulesDeployerServiceTest {
 
     private void assertSingleDeployment(String expectedName) throws IOException {
         verify(mockedDeployRepo, times(1)).save(fileDataCaptor.capture(), streamCaptor.capture());
-        final FileData actualFileData = fileDataCaptor.getValue();
+        final var actualFileData = fileDataCaptor.getValue();
         assertNotNull(actualFileData);
         assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor().getUsername());
         assertTrue(actualFileData.getSize() > 0, "Content size must be greater thar 0");
@@ -167,11 +166,11 @@ class RulesDeployerServiceTest {
     @Test
     void test_deploy_multipleDeployment() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream(MULTIPLE_DEPLOYMENT)) {
+        try (var is = getResourceAsStream(MULTIPLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
         List<FileItem> actualFileItems = catchDeployFileItems();
-        final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
+        final var baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
                 actualFileItems);
     }
@@ -179,12 +178,12 @@ class RulesDeployerServiceTest {
     @Test
     void testRead() throws IOException {
         init(Repository.class, false);
-        final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
+        final var baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         when(mockedDeployRepo.read(baseDeploymentPath + "project1"))
                 .thenReturn(createFileItem(baseDeploymentPath + "project1", "single-deployment.zip"));
         when(mockedDeployRepo.read(baseDeploymentPath + "project2"))
                 .thenReturn(createFileItem(baseDeploymentPath + "project2", "no-name-deployment.zip"));
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        var output = new ByteArrayOutputStream();
         deployer.read("yaml_project", toSet("yaml_project/project1", "yaml_project/project2"), output);
         Map<String, byte[]> entries = unzip(new ByteArrayInputStream(output.toByteArray()));
         assertEquals(4, entries.size());
@@ -199,18 +198,18 @@ class RulesDeployerServiceTest {
         init(Repository.class, false);
         when(mockedDeployRepo.read(DEPLOY_PATH + "project2/project2"))
                 .thenReturn(createFileItem(DEPLOY_PATH + "project2/project2", "single-deployment.zip"));
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        var output = new ByteArrayOutputStream();
         deployer.read("project2", toSet("project2/project2"), output);
-        final byte[] actualBytes = output.toByteArray();
+        final var actualBytes = output.toByteArray();
         final byte[] expectedBytes = toByteArray(getResourceAsStream("single-deployment.zip"));
         assertEquals(expectedBytes.length, actualBytes.length);
-        for (int i = 0; i < expectedBytes.length; i++) {
+        for (var i = 0; i < expectedBytes.length; i++) {
             assertEquals(expectedBytes[i], actualBytes[i]);
         }
     }
 
     private FileItem createFileItem(String projectName, String pathToArchive) {
-        FileData data = new FileData();
+        var data = new FileData();
         data.setName(projectName);
         return new FileItem(data, getResourceAsStream(pathToArchive));
     }
@@ -218,7 +217,7 @@ class RulesDeployerServiceTest {
     @Test
     void test_EPBDS_10894() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
+        try (var is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy(is, true);
         }
         assertEPBDS_10894();
@@ -227,7 +226,7 @@ class RulesDeployerServiceTest {
     @Test
     void test_EPBDS_10894_CustomName_mustNotApplied() throws Exception {
         init(Repository.class, false);
-        try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
+        try (var is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
         }
         assertEPBDS_10894();
@@ -236,10 +235,10 @@ class RulesDeployerServiceTest {
     @Test
     void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws Exception {
         init(Repository.class, true);
-        try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
+        try (var is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
         }
-        FileData folderData = catchDeployFolders();
+        var folderData = catchDeployFolders();
         assertEquals("EPBDS-10894_yaml_project", folderData.getName());
         assertEquals(13251, folderData.getSize());
     }
@@ -247,10 +246,10 @@ class RulesDeployerServiceTest {
     @Test
     void testMultiDeploymentFolderSupport_NoDeploymentName() throws Exception {
         init(Repository.class, true);
-        try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
+        try (var is = getResourceAsStream("noname-multiple-deployment.zip")) {
             deployer.deploy("customName-deployment", is, true);
         }
-        FileData folderData = catchDeployFolders();
+        var folderData = catchDeployFolders();
         assertEquals("customName-deployment", folderData.getName());
         assertEquals(13770, folderData.getSize());
     }
@@ -265,7 +264,7 @@ class RulesDeployerServiceTest {
             assertEquals("Provided file is not an archive!", e.getMessage());
         }
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            var baos = new ByteArrayOutputStream();
             IOUtils.closeQuietly(new ZipOutputStream(baos)); // make it empty
             deployer.deploy("customName-deployment", new ByteArrayInputStream(baos.toByteArray()), true);
             fail("Everything went different before...");
@@ -276,14 +275,14 @@ class RulesDeployerServiceTest {
 
     private void assertEPBDS_10894() throws IOException {
         List<FileItem> actualFileItems = catchDeployFileItems();
-        final String baseDeploymentPath = DEPLOY_PATH + "EPBDS-10894_yaml_project/";
+        final var baseDeploymentPath = DEPLOY_PATH + "EPBDS-10894_yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
                 actualFileItems);
     }
 
     private List<FileItem> catchDeployFileItems() throws IOException {
         Class<List<FileItem>> listClass = (Class) List.class;
-        ArgumentCaptor<List<FileItem>> captor = forClass(listClass);
+        var captor = forClass(listClass);
 
         verify(mockedDeployRepo, times(1)).save(captor.capture());
         return captor.getValue();
@@ -292,8 +291,8 @@ class RulesDeployerServiceTest {
     private FileData catchDeployFolders() throws IOException {
         Class<FileData> fileDataClass = FileData.class;
         Class<List<FileItem>> listClass = (Class) List.class;
-        ArgumentCaptor<FileData> captor1 = forClass(fileDataClass);
-        ArgumentCaptor<List<FileItem>> captor2 = forClass(listClass);
+        var captor1 = forClass(fileDataClass);
+        var captor2 = forClass(listClass);
 
         verify((Repository) mockedDeployRepo, times(1)).save(captor1.capture(), captor2.capture(), eq(ChangesetType.FULL));
         return captor1.getValue();
@@ -301,10 +300,10 @@ class RulesDeployerServiceTest {
 
     private void assertMultipleDeployment(Set<String> expectedNames, List<FileItem> actualFileDatas) {
         assertFalse(actualFileDatas.isEmpty());
-        Set<String> namesToVerify = new HashSet<>(expectedNames);
-        Set<String> unexpectedNames = new HashSet<>();
+        var namesToVerify = new HashSet<String>(expectedNames);
+        var unexpectedNames = new HashSet<String>();
         for (FileItem actualFileItem : actualFileDatas) {
-            final FileData actualFileData = actualFileItem.getData();
+            final var actualFileData = actualFileItem.getData();
             assertNotNull(actualFileData);
             assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor().getUsername());
             assertTrue(actualFileData.getSize() > 0, "Content size must be greater than 0");
@@ -331,15 +330,15 @@ class RulesDeployerServiceTest {
     }
 
     static Map<String, byte[]> unzip(InputStream in) throws IOException {
-        Map<String, byte[]> entries = new HashMap<>();
-        try (ZipInputStream zipStream = new ZipInputStream(in)) {
+        var entries = new HashMap<String, byte[]>();
+        try (var zipStream = new ZipInputStream(in)) {
             ZipEntry zipEntry;
             while ((zipEntry = zipStream.getNextEntry()) != null) {
                 if (zipEntry.isDirectory()) {
                     continue;
                 }
-                String name = zipEntry.getName();
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                var name = zipEntry.getName();
+                var outputStream = new ByteArrayOutputStream();
                 IOUtils.copyAndClose(new ZippedFileInputStream(zipStream), outputStream);
                 entries.put(name, outputStream.toByteArray());
             }
@@ -348,7 +347,7 @@ class RulesDeployerServiceTest {
     }
 
     private static byte[] toByteArray(InputStream source) throws IOException {
-        ByteArrayOutputStream target = new ByteArrayOutputStream();
+        var target = new ByteArrayOutputStream();
         IOUtils.copyAndClose(source, target);
         return target.toByteArray();
     }

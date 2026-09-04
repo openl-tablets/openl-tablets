@@ -1,6 +1,6 @@
 ## Working with Arrays
 
-An **array** is a collection of values of the same type. Separate values of an array are called **array elements**. An **array element** is a value of any data type available in the system, such as Integer, Double, Boolean, and String. For more information on OpenL Tablets Data Types, see [Working with Data Types](working-with-data-types.md#working-with-data-types).
+An **array** is a collection of values of the same type. Separate values of an array are called **array elements**. An **array element** is a value of any data type available in the system, such as Integer, Double, Boolean, and String. For more information on OpenL Tablets Data Types, see [Working with Data Types](02-working-with-data-types.md#working-with-data-types).
 
 Square brackets in the name of the data type indicate that there is an array of values in the user's rule to be dealt with. For example, the `String[]` expression can be used to represent an array of text elements of the **String** data type, such as US state names, for example, CA, NJ, and VA. Users use arrays for different purposes, such as calculating statistics and representing multiple rates.
 
@@ -19,9 +19,9 @@ Data type arrays can be used in rules as follows:
 | Method                                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 |----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | By numeric index, <br/>starting from 0            | In this case, by calling `drivers[5]`, a user gets the sixth element of the data type array.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| By user defined index                        | This case is a little more complicated. The first field of data type is considered to be the user defined index. <br/><br/>For example, if there is a **Driver** data type with the first String field name, a data table can be created, initializing two instances <br/>of **Driver** with the following names: John and David. Then in rules, the required instance can be called by `drivers["David"]`. <br/><br/>All Java types, including primitives, and data types can be used for user specific indexes. <br/>When the first field of data type is of `int` type called `id,` to call the instance from array, wrap it with quotes as in <br/>`drivers["7"]`. In this case, a user does not get the eighth element in the array, but the **Driver** with ID=7. <br/>For more information on data tables, see [Data Table](../../02-working-with-openl-tables/03-table-types/07-data-table/01-using-simple-data-tables.md#data-table). |
+| By user defined index                        | This case is a little more complicated. The first field of data type is considered to be the user defined index. <br/><br/>For example, if there is a **Driver** data type with the first String field name, a data table can be created, initializing two instances <br/>of **Driver** with the following names: John and David. Then in rules, the required instance can be called by `drivers["David"]`. <br/><br/>All Java types, including primitives, and data types can be used for user specific indexes. <br/>When the first field of data type is of `int` type called `id,` to call the instance from array, wrap it with quotes as in <br/>`drivers["7"]`. In this case, a user does not get the eighth element in the array, but the **Driver** with ID=7. <br/>For more information on data tables, see [Data Table](../02-working-with-openl-tables/03-table-types/07-data-table/01-using-simple-data-tables.md#data-table). |
 | By conditional index                         | Another case is to use conditions that consider which elements must be selected. <br/>For this purpose, SELECT operators are used, which specify conditions for selection. <br/>For more information on how to use SELECT operators, see [Array Index Operators](#array-index-operators).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| By other array index <br/>operators and functions | Any index operator listed in [Array Index Operators](#array-index-operators) or a function designed to work with arrays can be applied to an array in user rules. <br/>The full list of OpenL Tablets array functions is provided in [Array Functions](../../05-appendices/02-array-functions.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| By other array index <br/>operators and functions | Any index operator listed in [Array Index Operators](#array-index-operators) or a function designed to work with arrays can be applied to an array in user rules. <br/>The full list of OpenL Tablets array functions is provided in [Array Functions](../05-appendices/02-array-functions.md).                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 When referencing the non-existing element by array[index], for primitive types, the default value is returned, and for other types, null is returned.
 
@@ -99,13 +99,13 @@ Array index operators can be used with arrays which elements are of SpreadsheetR
 
 Consider an example with select operator. There is a rule which selects and returns spreadsheet result with value **2** in the \$Formula\$EmployeeClassId cell.
 
-![](../ref-guide-images/indexOperatorAppliedArraySpreadsheetresults.png)
+![Index operator applied on array of SpreadsheetResults](../ref-guide-images/indexOperatorAppliedArraySpreadsheetresults.png)
 
 *Index operator applied on array of SpreadsheetResults*
 
 where the spreadsheet result element of allEmployeeClassPremiums array is calculated from the following spreadsheet table:
 
-![](../ref-guide-images/spreadsheetAllemployeeclasspremiumsArrayResultCalculation.png)
+![Spreadsheet for allEmployeeClassPremiums array result calculation](../ref-guide-images/spreadsheetAllemployeeclasspremiumsArrayResultCalculation.png)
 
 *Spreadsheet for allEmployeeClassPremiums array result calculation*
 
@@ -127,25 +127,25 @@ This section describes operators and functions used in work with arrays and incl
 -   [Length Function](#length-function)
 -   [Comparison Operators](#comparison-operators)
 
-For more information on array functions, see [Array Functions](../../05-appendices/02-array-functions.md).
+For more information on array functions, see [Array Functions](../05-appendices/02-array-functions.md).
 
 #### Length Function
 
 The **Length** array function returns the number of elements in the array as a result value. An example is as follows.
 
-![](../ref-guide-images/ruleTableLengthFunction.png)
+![Rule table with the length function](../ref-guide-images/ruleTableLengthFunction.png)
 
 *Rule table with the length function*
 
 In this example, the **Insurance** procedure depends on the number of vehicles. The policy includes vehicles field represented as array.
 
-![](../ref-guide-images/testTableRuleTableLengthFunction.png)
+![Test table for rule table with length function](../ref-guide-images/testTableRuleTableLengthFunction.png)
 
 *Test table for rule table with length function*
 
 Policy2 contains two vehicles as illustrated in the following data table.
 
-![](../ref-guide-images/dataTableTestTable.png)
+![Data table for a test table](../ref-guide-images/dataTableTestTable.png)
 
 *Data table for a test table*
 
@@ -153,13 +153,13 @@ Policy2 contains two vehicles as illustrated in the following data table.
 
 #### Comparison Operators
 
-== and != comparison operators can be applied to arrays. Array elements are compared one-by-one, and for each element pair, if comparison result is true, all array comparison result is true. For more information on operators, see [Operators Used in OpenL Tablets](../../05-appendices/01-bex-language-overview.md#operators-used-in-openl-tablets).
+== and != comparison operators can be applied to arrays. Array elements are compared one-by-one, and for each element pair, if comparison result is true, all array comparison result is true. For more information on operators, see [Operators Used in OpenL Tablets](../05-appendices/01-bex-language-overview.md#operators-used-in-openl-tablets).
 
 ### Rules Applied to Array
 
 OpenL Tablets allows applying a rule intended for work with one value to an array of values. The following example demonstrates this feature in a very simple way.
 
-![](../ref-guide-images/applyingRuleArrayValues.png)
+![Applying a rule to an array of values](../ref-guide-images/applyingRuleArrayValues.png)
 
 *Applying a rule to an array of values*
 

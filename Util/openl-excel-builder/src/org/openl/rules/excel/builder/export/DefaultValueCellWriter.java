@@ -44,12 +44,12 @@ public class DefaultValueCellWriter {
                                         Cell valueCell,
                                         CellStyle dateStyle,
                                         CellStyle dateTimeStyle) throws ParseException {
-        Object defaultValue = model.getDefaultValue();
-        String valueAsString = defaultValue.toString();
+        var defaultValue = model.getDefaultValue();
+        var valueAsString = defaultValue.toString();
         switch (model.getType()) {
             case "Integer",
                  "BigInteger" -> {
-                Number casted = NumberFormat.getInstance().parse(valueAsString);
+                var casted = NumberFormat.getInstance().parse(valueAsString);
                 if (casted.longValue() <= Integer.MAX_VALUE) {
                     valueCell.setCellValue(Integer.parseInt(valueAsString));
                 } else {
@@ -73,7 +73,7 @@ public class DefaultValueCellWriter {
                     valueCell.setCellValue(dateValue);
                     valueCell.setCellStyle(dateStyle);
                 } else {
-                    OffsetDateTime dateValue = (OffsetDateTime) defaultValue;
+                    var dateValue = (OffsetDateTime) defaultValue;
                     valueCell.setCellValue(new Date(dateValue.toInstant().toEpochMilli()));
                     valueCell.setCellStyle(dateTimeStyle);
                 }

@@ -2,7 +2,7 @@ package org.openl.rules.dt.index;
 
 
 import java.util.BitSet;
-import java.util.Collections;
+import java.util.List;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
@@ -51,7 +51,7 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
 
     @Override
     public Iterable<? extends DecisionTableRuleNode> nodes() {
-        return Collections.singletonList(nextNode);
+        return List.of(nextNode);
     }
 
     @Override

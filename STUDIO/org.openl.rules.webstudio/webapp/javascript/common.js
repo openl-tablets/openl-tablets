@@ -142,36 +142,6 @@ function showAnimatedPanel(loadingPanel) {
     setTimeout(function() {loadingPanel.html(loadingPanel.html());}, 1);
 }
 
-/**
- * Fix the bug related to not updating input when enter too big number and then lose the focus.
- *
- * @param id the id of inputNumberSpinner element
- */
-function fixInputNumberSpinner(id) {
-    var component = RichFaces.$(id);
-    if (!component) {
-        return;
-    }
-
-    component.__setValue = function (value, event, skipOnchange) {
-        if (!isNaN(value)) {
-            if (value > component.maxValue) {
-                value = component.maxValue;
-            } else if (value < component.minValue) {
-                value = component.minValue;
-            }
-            // !!! The line below was changed. See inputNumberSpinner.js for comparison.
-            if (Number(value) !== Number(component.input.val()) || event && event.type === 'change') {
-                component.input.val(value);
-                component.value = value;
-                if (component.onchange && !skipOnchange) {
-                    component.onchange.call(component.element[0], event);
-                }
-            }
-        }
-    };
-}
-
 function initExpandableLinks() {
     if (!$j) {
         return;
@@ -276,15 +246,4 @@ function is4xxStatus(code) {
 // () => - necessary so that the second part of the replace() is not interpreted as a regex.
 String.prototype.replaceString = function (regex, string) {
     return this.replace(regex, () => string);
-}
-
-String.prototype.replaceAllString = function (regex, string) {
-    return this.replaceAll(regex, () => string);
-}
-
-String.prototype.unescapeHTML = function() {
-    return this.replace(/&amp;/g,'&')
-        .replace(/&lt;/g,'<')
-        .replace(/&gt;/g,'>')
-        .replace(/&nbsp;/g,' ');
 }

@@ -2,10 +2,21 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class StepModel {
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private String type;
+    @Getter
+    @Setter
     private String description;
+    @Getter
+    @Setter
     private String value;
 
     public StepModel() {
@@ -21,38 +32,6 @@ public class StepModel {
         this.name = name;
         this.type = type;
         this.description = description;
-        this.value = value;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
         this.value = value;
     }
 

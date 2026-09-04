@@ -25,14 +25,14 @@ public class AlgorithmInvoker extends RulesMethodInvoker<Algorithm> {
 
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
-        DelegatedDynamicObject thisInstance = new DelegatedDynamicObject(getInvokableMethod().getThisClass(),
+        var thisInstance = new DelegatedDynamicObject(getInvokableMethod().getThisClass(),
                 (IDynamicObject) target);
 
-        TBasicVM algorithmVM = new TBasicVM(getInvokableMethod().getType(),
+        var algorithmVM = new TBasicVM(getInvokableMethod().getType(),
                 getInvokableMethod().getAlgorithmSteps(),
                 getInvokableMethod().getLabels());
 
-        TBasicContextHolderEnv runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
+        var runtimeEnvironment = new TBasicContextHolderEnv(env, thisInstance, params, algorithmVM);
 
         return algorithmVM.run(runtimeEnvironment);
     }

@@ -56,6 +56,9 @@ public interface ProjectsMergeService {
      *   <li>{@link CheckMergeStatus#UP2DATE}: Target already contains all source changes</li>
      * </ul>
      *
+     * <p>The answer also says whether this user may perform the merge. A protected or locked target
+     * branch does not hide where the branches stand: the difference is reported either way.
+     *
      * <p><b>Implementation Note:</b>
      * <p>This method uses Git's merge-base and diff algorithms to determine merge feasibility
      * without actually performing the merge.
@@ -63,15 +66,32 @@ public interface ProjectsMergeService {
      * @param project the project containing the branches to check
      * @param otherBranch the other branch name (interpretation depends on mode)
      * @param mode merge operation mode (RECEIVE or SEND)
-     * @return merge check result with source branch, target branch, and merge status
+     * @return merge check result with source branch, target branch, merge status and what blocks the merge
      * @throws IOException if Git operation fails or repository is inaccessible
      * @throws IllegalArgumentException if branch does not exist
      */
     @NotNull
     CheckMergeResult checkMerge(@NotNull RulesProject project,
                                 @NotBlank String otherBranch,
-                                @NotNull MergeOpMode mode,
-                                boolean force) throws IOException;
+                                @NotNull MergeOpMode mode) throws IOException;
+
+    /**
+     * Refuses a merge that must not be performed, and returns quietly when it may be.
+     *
+     * <p>Refused when the user may not write to the project, when the target branch is protected and the
+     * bypass is not confirmed, when the target branch is locked by another operation, or when there is
+     * nothing to merge.
+     *
+     * @param project the project containing the branches to merge
+     * @param otherBranch the other branch name (interpretation depends on mode)
+     * @param mode merge operation mode (RECEIVE or SEND)
+     * @param force confirms the bypass of the target branch protection
+     * @throws IOException if Git operation fails or repository is inaccessible
+     */
+    void validateMergeAllowed(@NotNull RulesProject project,
+                              @NotBlank String otherBranch,
+                              @NotNull MergeOpMode mode,
+                              boolean force) throws IOException;
 
     /**
      * Performs an actual Git merge operation between two branches.

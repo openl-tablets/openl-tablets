@@ -2,18 +2,19 @@ package org.openl.rules.lang.xls;
 
 import java.util.Stack;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 class BracketMatcher {
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     enum Brackets {
         ROUND("()"),
         CURLY("{}"),
         SQUARE("[]");
 
         private final String brackets;
-
-        Brackets(String brackets) {
-            this.brackets = brackets;
-        }
 
         boolean isOpen(char c) {
             return c == brackets.charAt(0);
@@ -24,9 +25,9 @@ class BracketMatcher {
         }
 
         static Brackets isBracket(char c) {
-            for (int i = 0; i < values().length; i++) {
+            for (var i = 0; i < values().length; i++) {
 
-                Brackets test = values()[i];
+                var test = values()[i];
                 if (test.isClosed(c) || test.isOpen(c)) {
                     return test;
                 }
@@ -40,16 +41,10 @@ class BracketMatcher {
 
     public static class BracketsStackObject {
 
-        public Object getId() {
-            return id;
-        }
-
-        ErrorType getErrorCode() {
-            return errorCode;
-        }
-
         final Brackets bracket;
+        @Getter
         final Object id;
+        @Getter(AccessLevel.PACKAGE)
         ErrorType errorCode;
 
         BracketsStackObject(Brackets bracket, Object id, ErrorType errorCode) {
@@ -70,7 +65,7 @@ class BracketMatcher {
 
     BracketsStackObject addToken(String image, Object id) {
 
-        char c = image.charAt(0);
+        var c = image.charAt(0);
         Brackets b = Brackets.isBracket(c);
 
         if (b == null) {
@@ -87,7 +82,7 @@ class BracketMatcher {
                 return new BracketsStackObject(b, id, ErrorType.UNEXPECTED);
             }
 
-            BracketsStackObject bso = stack.pop();
+            var bso = stack.pop();
             if (bso.bracket.isClosed(c)) {
                 return null;
             }
@@ -104,7 +99,7 @@ class BracketMatcher {
             return null;
         }
 
-        BracketsStackObject bso = stack.pop();
+        var bso = stack.pop();
         bso.errorCode = ErrorType.UNMATCHED;
         return bso;
     }

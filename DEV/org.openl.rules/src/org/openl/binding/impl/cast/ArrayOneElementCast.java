@@ -3,12 +3,15 @@ package org.openl.binding.impl.cast;
 import java.lang.reflect.Array;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.types.IOpenClass;
 
 final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
 
     private final IOpenClass to;
     private final IOpenCast openCast;
+    @Getter
     private final int distance;
 
     ArrayOneElementCast(IOpenClass to, IOpenCast openCast) {
@@ -27,9 +30,9 @@ final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
             if (Array.getLength(from) == 1) {
                 return openCast.convert(Array.get(from, 0));
             } else {
-                throw new ClassCastException(String.format(
-                        "Cannot convert '%s' to '%s'. " +
-                                "The number of elements in the array is '%s' instead of only one element that is expected.",
+                throw new ClassCastException("""
+                        Cannot convert '%s' to '%s'. \
+                        The number of elements in the array is '%s' instead of only one element that is expected.""".formatted(
                         from.getClass().getTypeName(),
                         to.getName(),
                         Array.getLength(from)));
@@ -37,11 +40,6 @@ final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
         }
         throw new ClassCastException(
                 "Cannot convert from '%s' to '%s'.".formatted(from.getClass().getTypeName(), to.getName()));
-    }
-
-    @Override
-    public int getDistance() {
-        return distance;
     }
 
     @Override

@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.lang.reflect.Method;
-
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -32,7 +30,7 @@ class DependencyMethodDispatchingTest {
                 .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
-        Method method = interfaceClass.getMethod("hello1", int.class);
+        var method = interfaceClass.getMethod("hello1", int.class);
 
         try {
             method.invoke(factory.newInstance(), 10);

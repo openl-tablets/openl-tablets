@@ -2,22 +2,21 @@ package org.openl.rules.convertor;
 
 import java.text.DecimalFormat;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 abstract class String2IntegersConvertor<T extends Number> extends String2NumberConverter<T> {
 
     private final long min;
     private final long max;
-
-    String2IntegersConvertor(long min, long max) {
-        this.min = min;
-        this.max = max;
-    }
 
     @Override
     final T convert(Number number, String data) {
         if (!(number instanceof Long)) {
             throwException(number);
         }
-        long dValue = number.longValue();
+        var dValue = number.longValue();
         if (dValue > max || dValue < min) {
             throwException(number);
         }
@@ -33,7 +32,7 @@ abstract class String2IntegersConvertor<T extends Number> extends String2NumberC
 
     @Override
     final DecimalFormat getFormatter(String format) {
-        DecimalFormat formatter = super.getFormatter(format);
+        var formatter = super.getFormatter(format);
         formatter.setParseIntegerOnly(true);
         return formatter;
     }

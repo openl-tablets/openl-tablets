@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -48,50 +50,30 @@ public class S3Repository implements Repository, Closeable {
 
     private static final Comparator<FileData> FILE_DATA_COMPARATOR = Comparator.comparing(FileData::getModifiedAt);
 
+    @Setter
     private String serviceEndpoint;
+    @Setter
     private String bucketName;
+    @Setter
     private String regionName;
+    @Setter
     private String accessKey;
+    @Setter
     private String secretKey;
+    @Getter
+    @Setter
     private String sseAlgorithm;
+    @Setter
     private int listenerTimerPeriod = 10;
 
     private S3Client s3;
     private ChangesMonitor monitor;
+    @Getter
+    @Setter
     private String id;
+    @Getter
+    @Setter
     private String name;
-
-    public void setServiceEndpoint(String serviceEndpoint) {
-        this.serviceEndpoint = serviceEndpoint;
-    }
-
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    public String getSseAlgorithm() {
-        return sseAlgorithm;
-    }
-
-    public void setSseAlgorithm(String sseAlgorithm) {
-        this.sseAlgorithm = sseAlgorithm;
-    }
-
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
-    }
-
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
-
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
-
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
-    }
 
     @Override
     public void close() {
@@ -170,24 +152,6 @@ public class S3Repository implements Repository, Closeable {
             // Possibly don't have permission
             log.warn("Cannot detect bucket versioning configuration.", e);
         }
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override

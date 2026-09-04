@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.util;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,10 +13,8 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.builder.DatatypeAliasTableBuilder;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.writers.XlsCellDateWriter;
-import org.openl.rules.ui.tablewizard.util.CellStyleCreator;
 import org.openl.source.impl.URLSourceCodeModule;
 
 /**
@@ -37,7 +36,7 @@ class CellStylesCountTest {
 
     @Test
     void testXlsSheetGridModel() {
-        XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
+        var grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
 
         grid.setCellStyle(0, 0, grid.getCell(1, 1).getStyle());
         assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
@@ -46,12 +45,11 @@ class CellStylesCountTest {
 
     @Test
     void testTableBuilder() throws Exception {
-        DatatypeAliasTableBuilder builder = new DatatypeAliasTableBuilder(
-                new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
+        var builder = new TableBuilder(new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
 
-        builder.beginTable(DatatypeAliasTableBuilder.MIN_WIDTH, TableBuilder.HEADER_HEIGHT);
-        builder.writeHeader("a1", "a2");
-        builder.writeValue("value");
+        builder.beginTable(TableBuilder.PROPERTIES_MIN_WIDTH, TableBuilder.HEADER_HEIGHT + 1);
+        builder.writeHeader("Datatype a1 <a2>", null);
+        builder.writeProperties(Map.of("name", "value"), null);
         builder.endTable();
 
         assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
@@ -69,10 +67,10 @@ class CellStylesCountTest {
 
     @Test
     void testXlsCellDateWriter() {
-        XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(0, wbSrc);
-        XlsSheetGridModel grid = new XlsSheetGridModel(sheetSource);
+        var sheetSource = new XlsSheetSourceCodeModule(0, wbSrc);
+        var grid = new XlsSheetGridModel(sheetSource);
 
-        XlsCellDateWriter writer = new XlsCellDateWriter(grid);
+        var writer = new XlsCellDateWriter(grid);
         writer.setCellToWrite(PoiExcelHelper.getOrCreateCell(0, 0, sheetSource.getSheet()));
         writer.setValueToWrite(new Date());
         writer.writeCellValue();
@@ -80,12 +78,4 @@ class CellStylesCountTest {
                 "Styles count should be less than " + MAX_STYLES);
     }
 
-    @Test
-    void testCellStyleCreator() {
-        XlsSheetGridModel grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc));
-
-        new CellStyleCreator(grid).getCellStyle(null);
-        assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
-                "Styles count should be less than " + MAX_STYLES);
-    }
 }

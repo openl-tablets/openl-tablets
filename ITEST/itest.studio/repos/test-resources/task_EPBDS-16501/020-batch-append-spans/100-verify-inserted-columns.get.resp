@@ -1,0 +1,43 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:H16",
+  "source": [
+    [
+      {
+        "cell": "B4",
+        "value": "Rules String Greeting1 (Integer hour)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "E4",
+        "value": "Batch group",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "G4",
+        "value": "Inserted columns",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ]
+  ],
+  "totalRows": 13
+}
+

@@ -1,0 +1,32 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "file": "EPBDS-16291-profiling/arrayCallProject.xlsx",
+      "id": "58f193216942cdb10cbdcf60f9a3e7ba",
+      "kind": "Spreadsheet",
+      "name": "Root",
+      "pos": "A1:B4",
+      "returnType": "SpreadsheetResult",
+      "signature": "Root ( )",
+      "tableType": "SimpleSpreadsheet"
+    },
+    {
+      "file": "EPBDS-16291-profiling/arrayCallProject.xlsx",
+      "id": "f7a101f25f9ffcd2e25d17acb1f3325a",
+      "kind": "Spreadsheet",
+      "name": "SubCalc",
+      "pos": "A6:B9",
+      "returnType": "SpreadsheetResult",
+      "signature": "SubCalc ( Integer x )",
+      "tableType": "SimpleSpreadsheet"
+    }
+  ],
+  "numberOfElements": 2,
+  "pageNumber": 0,
+  "pageSize": 50,
+  "total": 2
+}
+

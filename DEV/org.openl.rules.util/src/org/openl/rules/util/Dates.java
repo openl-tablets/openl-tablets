@@ -228,7 +228,7 @@ public final class Dates {
     }
 
     private static DateFormat getDateFormat(String pattern) {
-        DateFormat df = new SimpleDateFormat(isEmpty(pattern) ? "MM/dd/yyyy" : pattern, Locale.US);
+        var df = new SimpleDateFormat(isEmpty(pattern) ? "MM/dd/yyyy" : pattern, Locale.US);
         df.setLenient(false); // Strict matching
         df.getCalendar().set(0, 0, 0, 0, 0, 0); // at
         df.getCalendar().set(Calendar.MILLISECOND, 0);

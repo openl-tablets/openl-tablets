@@ -13,7 +13,7 @@ abstract class AbstractContextPropertyInjector implements IContextPropertyInject
                                        SimpleRuntimeEnv simpleRuntimeEnv,
                                        IRulesRuntimeContext rulesRuntimeContext) {
         if (isProcessable(params)) {
-            Object value = getValue(params, env);
+            var value = getValue(params, env);
             if (value == null && "locale".equals(getContextProperty())) {
                 // Do not reset locale to null, because of default locale should always present.
                 // See: org.openl.rules.context.RulesRuntimeContextFactory
@@ -22,7 +22,7 @@ abstract class AbstractContextPropertyInjector implements IContextPropertyInject
                 return rulesRuntimeContext;
             }
             if (rulesRuntimeContext == null) {
-                IRulesRuntimeContext currentRuntimeContext = (IRulesRuntimeContext) simpleRuntimeEnv.getContext();
+                var currentRuntimeContext = (IRulesRuntimeContext) simpleRuntimeEnv.getContext();
                 try {
                     rulesRuntimeContext = currentRuntimeContext.clone();
                     rulesRuntimeContext.setValue(getContextProperty(), value);

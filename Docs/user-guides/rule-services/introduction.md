@@ -4,7 +4,7 @@ The majority of OpenL Tablets customers need to expose business rules as REST we
 
 Overall architecture of OpenL Rule Services is expandable and customizable. All functionality is divided into pieces; each of them is responsible for a small part of functionality and can be replaced by another implementation if it is required. Usually, default implementation is enough to cover all requirements of most customers.
 
-![](../../assets/images/rule-services/0c77b8ae9a8b78daab816ca0b6add357.jpg)
+![Overall OpenL Rule Services architecture](../../assets/images/rule-services/0c77b8ae9a8b78daab816ca0b6add357.jpg)
 
 *Overall OpenL Rule Services architecture*
 
@@ -20,6 +20,6 @@ OpenL Rule Services is based on Rule Services Core and supports all features pro
 
 The following diagram identifies all components to be configured and customized.
 
-![](../../assets/images/rule-services/5d0d09ff58045febcb4f99f179e5050b.jpeg)
+![Configurable and customizable components of Rule Services Core](../../assets/images/rule-services/5d0d09ff58045febcb4f99f179e5050b.jpeg)
 
 *Configurable and customizable components of Rule Services Core*

@@ -1,0 +1,7 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6U2FtcGxlMjpiMjMxZTU4Y2VhODNjZDdhN2NkYjdhNGUxY2ZiMWFhMDgyNTI3MDY1MDNkNzk1MzhlMDg4MDhhYjA3ZTZjZDkz/branches HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "branch": "feature"
+}

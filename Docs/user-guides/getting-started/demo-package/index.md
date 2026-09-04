@@ -6,23 +6,23 @@ This preface is an introduction to the *OpenL Tablets Demo Package Guide*.
 
 This guide describes a complete OpenL Tablets Demo package which contains configured and ready to demonstrate infrastructure for the OpenL Tablets product. The Demo package enables a user to develop business rules and manage business rule sets in OpenL Studio, and then execute these rules as web services ready to be used by solution applications.
 
-# Getting Started with the OpenL Tablets Demo
+## Getting Started with the OpenL Tablets Demo
 
-Welcome\! The OpenL Tablets Demo is the quickest way to explore the features of OpenL Tablets. It comes with pre-loaded example projects, so you can start working immediately without any complex setup.
+Welcome! The OpenL Tablets Demo is the quickest way to explore the features of OpenL Tablets. It comes with pre-loaded example projects, so you can start working immediately without any complex setup.
 
 You can use the included examples as a template, learn from them, or create your own projects from scratch. The Demo also includes a **Rule Services Demo Client**, allowing you to see how your business rules can be executed by other applications.
 
------
+---
 
 ## 1. Download and Install
 
 First, download the **Demo (ZIP)** file from the official site:
 
-➡️ [https://openl-tablets.org/downloads](https://openl-tablets.org/downloads)
+[https://openl-tablets.org/downloads](https://openl-tablets.org/downloads)
 
 Once downloaded, **unzip the package** into a folder on your computer.
 
-### What's Inside the Package? 📦
+### What's Inside the Package?
 
 The unzipped folder contains everything you need to run the OpenL Tablets Demo:
 
@@ -33,7 +33,7 @@ The unzipped folder contains everything you need to run the OpenL Tablets Demo:
 * **Application Folder (`webapps/`)**: This folder holds the core files that make the application run. It is best not to modify its contents.
 * **Version File (`openl.version`)**: A text file that shows the version number of the Demo.
 
------
+---
 
 ## 2. The First Launch: Automatic Setup
 
@@ -46,9 +46,9 @@ The script will create several new folders inside your Demo directory and downlo
 * `webapps/` → The **OpenL Studio** and **Rule Services** applications themselves.
 * `jetty-home/lib/ext/` → **JDBC drivers** to enable connectivity with popular databases like MSSQL Server, Oracle, MariaDB, and PostgreSQL.
 
------
+---
 
-## 3. What's Pre-configured for You? ✨
+## 3. What's Pre-configured for You?
 
 The Demo is designed to work out-of-the-box with a smart default configuration.
 
@@ -65,17 +65,17 @@ The Demo is designed to work out-of-the-box with a smart default configuration.
 * Is already connected to OpenL Studio.
 * Allows all **CORS requests**, which makes it easier for developers to integrate and test rules from other web applications.
 
------
+---
 
-## 4. Launching the Demo Application 🚀
+## 4. Launching the Demo Application
 
 To start the application, navigate into the unzipped Demo folder and run the startup file for your operating system.
 
-### On Windows 🪟
+### On Windows
 
 Find the **`start.cmd`** file and double-click it.
 
-### On MacOS & Linux 🍏🐧
+### On MacOS & Linux
 
 Find the **`start`** file and double-click it.
 
@@ -87,15 +87,16 @@ bash start
 
 *(Note: On some systems, you may need to grant execute permissions to the file first with the command `chmod +x start`)*
 
------
+---
 
-## 5. Optional: Use a Shared Folder for Your Projects 📂
+## 5. Optional: Use a Shared Folder for Your Projects
 
 By default, all your projects and settings are saved inside the `openl-demo/` folder within the main Demo package. To preserve your work when you upgrade to a new version of the Demo, you can configure it to use a permanent, external folder.
 
-ℹ️ **Note:** When using this external folder mode, the initial set of **Examples and Tutorials** will not be created automatically. This mode is best for users who want to manage their own projects.
+> [!Note]
+> When using this external folder mode, the initial set of **Examples and Tutorials** will not be created automatically. This mode is best for users who want to manage their own projects.
 
------
+---
 
 ### Simple Method: The `OpenL_Home` Folder
 
@@ -112,7 +113,7 @@ mkdir "$HOME/Desktop/OpenL_Home"
 
 The next time you launch the Demo, it will use this new folder to store all your data.
 
------
+---
 
 ### Advanced Method: Using an Environment Variable
 
@@ -122,15 +123,15 @@ For advanced users who want to specify a custom folder location (e.g., on a diff
 2.  Create a system environment variable named **`OPENL_HOME`**.
 3.  Set the value of this variable to the full path of your chosen folder.
 
-⚠️ **Important:** The folder you specify **must exist** before you launch the Demo, and the application must have permission to write files into it.
+**Important:** The folder you specify **must exist** before you launch the Demo, and the application must have permission to write files into it.
 
------
+---
 
-### Learn More 📚
+### Learn More
 
 For more advanced topics, such as deploying OpenL Tablets to your own application server, please see the official documentation:
 
-* [OpenL Tablets Installation Guide > Deploying OpenL Studio](https://openldocs.readthedocs.io/en/latest/documentation/guides/installation_guide/#deploying-openl-tablets-webstudio)
+* [OpenL Tablets Installation Guide > Deploying OpenL Studio](../../installation-guide/quick-start.md#3-deploy-openl-studio)
 
 ## 6. Accessing the Welcome Page
 
@@ -152,7 +153,7 @@ The following sections provide more details on Demo package work:
 
 ### OpenL Studio in a Demo Package
 
-OpenL Studio is preconfigured in a single user mode. A user is automatically signed in and sees the welcome start page.
+OpenL Studio is pre-configured in single-user mode. A user is automatically signed in and sees the welcome start page.
 
 The following topics are included:
 
@@ -162,21 +163,21 @@ The following topics are included:
 
 #### Rules Editor
 
-Several examples and tutorials are already in the **No Changes** status, therefore available in **Rules Editor** by default. For more information on how to manage rules in Rules Editor, see [OpenL Studio Guide > Using Rules Editor](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#using-rules-editor).
+Several examples and tutorials are already in the **No Changes** status, therefore available in **Rules Editor** by default. For more information on how to manage rules in Rules Editor, see [OpenL Studio Guide > Using Rules Editor](../../openl-studio/rules-editor.md#using-rules-editor).
 
-![](demo_studio_editor.png)
+![Projects in Rules Editor available for editing](demo_studio_editor.png)
 
 *Projects in Rules Editor available for editing*
 
 #### Repository Editor
 
-Users can work with projects loaded in Repository in the Demo package and create their own new projects. For more information on how to manage projects in Repository, see [OpenL Studio Guide > Using Repository Editor](https://openldocs.readthedocs.io/en/latest/documentation/guides/webstudio_user_guide/#using-repository-editor).
+Users can work with projects loaded in Repository in the Demo package and create their own new projects. For more information on how to manage projects in Repository, see [OpenL Studio Guide > Using Repository Editor](../../openl-studio/repository-editor.md#using-repository-editor).
 
-The “Example 3 – Auto Policy Calculation” project is already deployed and can be used via OpenL Tablets Rule Services as described in [OpenL Tablets Rule Services in a Demo Project](#openl-rule-services-in-a-demo-project) in OpenL Tablets Web Services Demo Client as described in [OpenL Tablets Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package).
+The “Example 3 – Auto Policy Calculation” project is already deployed and can be used in two ways: directly via OpenL Tablets Rule Services, as described in [OpenL Tablets Rule Services in a Demo Project](#openl-rule-services-in-a-demo-project), or through the Rule Services Demo Client, as described in [OpenL Tablets Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package).
 
-As OpenL Studio is preconfigured in a single user mode, and all projects in Repository are created and modified by the “DEFAULT” user.
+OpenL Studio is pre-configured in single-user mode, so all projects in the Repository are created and modified by the “DEFAULT” user.
 
-![](demo_studio_projects.png)
+![The whole list of rules projects in Repository of the Demo package](demo_studio_projects.png)
 
 *The whole list of rules projects in Repository of the Demo package*
 
@@ -184,15 +185,15 @@ As OpenL Studio is preconfigured in a single user mode, and all projects in Repo
 
 By default, a project from the “Example 3 – Auto Policy Calculation” template is deployed to Deployment Repository from OpenL Studio by a startup script.
 
-To use this project as an example of project deployments as described in [OpenL Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package), several settings are defined in Rules Configuration of the project. It is set up that only \*DriverRisk\*, \*DriverAgeType\*, \*AccidentPremium\* are wildcards, and rules are included and can be used from the OpenL Tablets Rule Services Demo Client application.
+The [OpenL Tablets Rule Services Demo Client](#openl-rule-services-demo-client-in-a-demo-package) demonstrates three methods of this project — `DriverRisk`, `DriverAgeType`, and `AccidentPremium` — which are wired into the client page.
 
-![](demo_ruleservices_ui.png)
+![OpenL Rule Services main page and the project deployed on it](demo_ruleservices_ui.png)
 
 *OpenL Rule Services main page and the project deployed on it*
 
 The demo does not restrict any deployments of other projects nor has any other limitations so the users can deploy their own projects in Demo setup. If a user deploys anything else, a full list of deployed projects appears on this page including user’s projects.
 
-**Swagger UI** is a third party tool used for testing services. For more information on Swagger UI and its usage in OpenL, see [OpenL Tablets Rule Services Usage and Customization Guide > Appendix D: OpenAPI Support](https://openldocs.readthedocs.io/en/latest/documentation/guides/rule_services_usage_and_customization_guide/#appendix-d-openapi-support).
+**Swagger UI** is a third-party tool used for testing services. For more information on Swagger UI and its usage in OpenL, see [OpenL Tablets Rule Services Usage and Customization Guide > Appendix D: OpenAPI Support](../../rule-services/appendices/openapi-support.md#appendix-d-openapi-support).
 
 ### OpenL Rule Services Demo Client in a Demo Package
 
@@ -202,7 +203,7 @@ OpenL Rule Services Demo Client application is an application specially created 
 
 OpenL Rule Services Demo Client application allows to define a driver type by age and gender, get premium per accident, or determine how risky a driver is according to business rules specified in the “Example 3 – Auto Policy Calculation” project.
 
-![](demo_client_ui.png)
+![Executing DriverAgeType rule and getting results via OpenL Rule Services Demo Client](demo_client_ui.png)
 
 *Executing DriverAgeType rule and getting results via OpenL Rule Services Demo Client*
 
@@ -210,11 +211,11 @@ A user can change the values of input parameters in the fields and click the **E
 
 In OpenL Rule Services Demo Client application, a simple HTTP client is used. It is an example of how to create a simple client with zero dependencies.
 
-## Using the Demo as a Deployment Blueprint 🗺️
+## Using the Demo as a Deployment Blueprint
 
 The **OpenL Demo** package is more than just a trial version; it’s a practical template for a common real-world setup. You can use its configuration as a guide for deploying OpenL Tablets in your own environment.
 
-***
+---
 
 ### A Typical Deployment Pattern
 
@@ -225,8 +226,6 @@ A standard setup for using OpenL Tablets involves two main steps:
 
 The most critical step is ensuring the **`deployment` repository** is configured identically in both applications. You can inspect the configuration files inside the Demo package as a working example of how to do this correctly.
 
-
 ```
-Release 6.0
-OpenL Tablets Documentation is licensed under a Creative Commons Attribution 3.0 United States License.
+OpenL Tablets Documentation is licensed under a Creative Commons Attribution 4.0 International License.
 ```

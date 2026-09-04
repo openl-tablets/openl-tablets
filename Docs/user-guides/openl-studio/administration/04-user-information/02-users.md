@@ -77,9 +77,7 @@ To create a new user, proceed as follows:
    *Creating a user*
 
 2. In the **Username** field, specify the user login name.
-3. Optionally, enter the user email.
-
-   The email value is mandatory for committing to the Git repository.
+3. In the **Email** field, enter the user email. This field is required.
 
 4. In the **Password** field, enter a password.
 
@@ -87,11 +85,11 @@ To create a new user, proceed as follows:
 
 5. Optionally, enter the user’s first and last name.
 
-   The display name is mandatory for committing to the Git repository.
-
 6. To change the display name pattern, in the appropriate field, select either **First Last** or **Last First**.
 
    If the **Custom** option is selected, the field becomes editable and any display name can be entered.
+
+   The **Display Name** field is required regardless of the selected pattern.
 
 7. In the **Access Rights** section, configure the user’s access to repositories and projects:
 
@@ -122,6 +120,8 @@ To edit a user, proceed as follows:
 2. In the **Edit User** form, modify user data or access management settings as required.
 
    The username and the administrator accounts defined in the `security.administrators` property cannot be changed.
+   **Email** and **Display Name** cannot be empty.
+
    For external users synchronized with Active Directory or an SSO provider, only fields not provided by the external
    system are editable.
 

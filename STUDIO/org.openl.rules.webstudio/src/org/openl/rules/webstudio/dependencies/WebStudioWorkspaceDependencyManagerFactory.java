@@ -5,24 +5,22 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
 
+@RequiredArgsConstructor
 @Slf4j
 public class WebStudioWorkspaceDependencyManagerFactory {
 
     private final WebStudio studio;
 
-    public WebStudioWorkspaceDependencyManagerFactory(WebStudio studio) {
-        this.studio = studio;
-    }
-
     public WebStudioWorkspaceRelatedDependencyManager buildDependencyManager(ProjectDescriptor project) {
-        Set<ProjectDescriptor> workspaceProjectsToResolveDependencies = resolveWorkspace(project);
-        ClassLoader rootClassLoader = WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader();
+        var workspaceProjectsToResolveDependencies = resolveWorkspace(project);
+        var rootClassLoader = WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader();
         return new WebStudioWorkspaceRelatedDependencyManager(workspaceProjectsToResolveDependencies,
                 rootClassLoader,
                 false,
@@ -30,8 +28,8 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     }
 
     public Set<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
-        Set<ProjectDescriptor> workspace = new LinkedHashSet<>();
-        Set<ProjectDescriptor> breadcrumbs = new HashSet<>();
+        var workspace = new LinkedHashSet<ProjectDescriptor>();
+        var breadcrumbs = new HashSet<ProjectDescriptor>();
         workspace.add(project);
         breadcrumbs.add(project);
         resolveWorkspaceRec(project, workspace, breadcrumbs);
@@ -40,7 +38,7 @@ public class WebStudioWorkspaceDependencyManagerFactory {
 
     private void resolveWorkspaceRec(ProjectDescriptor p, Set<ProjectDescriptor> workspace, Set<ProjectDescriptor> breadcrumbs) {
         if (p.getDependencies() != null && !p.getDependencies().isEmpty()) {
-            Set<String> projectDependencyNames = p.getDependencies()
+            var projectDependencyNames = p.getDependencies()
                     .stream()
                     .map(ProjectDependencyDescriptor::getName)
                     .collect(Collectors.toSet());

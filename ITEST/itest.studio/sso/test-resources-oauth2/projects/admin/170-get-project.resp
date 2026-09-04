@@ -1,0 +1,38 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "Project",
+  "modifiedBy": "OpenL Admin",
+  "modifiedAt": "*",
+  "branch": "admin/feature-1",
+  "revision": "*",
+  "path": "Project",
+  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+  "status": "OPENED",
+  "comment": "Admin saved the project",
+  "repository": "design-flat",
+  "repositoryInfo": {
+    "id": "design-flat",
+    "name": "Git Flat",
+    "type": "repo-git",
+    "features": {
+      "branches": true,
+      "searchable": true,
+      "mappedFolders": true
+    }
+  },
+  "capabilities": {
+    "canWrite": true,
+    "canDelete": true,
+    "canClose": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canManageBranches": true,
+    "canDeleteBranch": true,
+    "canExport": true
+  }
+}

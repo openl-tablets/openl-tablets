@@ -14,17 +14,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class URLSourceCodeModule extends ASourceCodeModule {
+    @Getter
     private final URL url;
-
-    public URLSourceCodeModule(URL url) {
-        this.url = url;
-    }
 
     public URLSourceCodeModule(String file) {
         this(toUrl(new File(file)));
@@ -36,10 +37,6 @@ public class URLSourceCodeModule extends ASourceCodeModule {
         } catch (MalformedURLException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
-    }
-
-    public URL getUrl() {
-        return url;
     }
 
     @Override
@@ -71,7 +68,7 @@ public class URLSourceCodeModule extends ASourceCodeModule {
             return false;
         }
 
-        URLSourceCodeModule urlSource = (URLSourceCodeModule) obj;
+        var urlSource = (URLSourceCodeModule) obj;
 
         return Objects.equals(url, urlSource.url);
     }

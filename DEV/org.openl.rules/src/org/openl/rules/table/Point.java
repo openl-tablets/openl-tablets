@@ -1,5 +1,9 @@
 package org.openl.rules.table;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Handles two coordinates: column number and row number.
  */
@@ -82,23 +86,10 @@ public abstract class Point {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class BigPoint extends Point {
+        @Getter
         final int column, row;
-
-        private BigPoint(int column, int row) {
-            this.column = column;
-            this.row = row;
-        }
-
-        @Override
-        public int getColumn() {
-            return column;
-        }
-
-        @Override
-        public int getRow() {
-            return row;
-        }
 
         @Override
         public boolean equals(Object o) {
@@ -108,7 +99,7 @@ public abstract class Point {
                 return false;
             }
 
-            BigPoint bigPoint = (BigPoint) o;
+            var bigPoint = (BigPoint) o;
 
             return column == bigPoint.column && row == bigPoint.row;
         }

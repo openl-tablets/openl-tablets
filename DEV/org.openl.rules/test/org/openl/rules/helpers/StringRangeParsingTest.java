@@ -217,16 +217,18 @@ class StringRangeParsingTest {
     void testSpecialCases() {
         assertEquals("[.aaa....bbb.]", new StringRange(".aaa.-.bbb.").toString());
         assertEquals("[\\aaa\\..\\bbb\\]", new StringRange("\\aaa\\-\\bbb\\").toString());
-        assertEquals("[a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words" +
-                        " becomes truncated when it defines in the String range..should work correctly]",
-                new StringRange("a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words" +
-                        " becomes truncated when it defines in the String range - should work correctly").toString());
+        assertEquals("""
+                        [a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words\
+                         becomes truncated when it defines in the String range..should work correctly]""",
+                new StringRange("""
+                        a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words\
+                         becomes truncated when it defines in the String range - should work correctly""").toString());
 
     }
 
     @Test
     void testSimpleRangeFormat() {
-        StringRange range = new StringRange("B");
+        var range = new StringRange("B");
         assertInclude(range, "B");
         assertExclude(range, "b", "A", "C");
 
@@ -237,7 +239,7 @@ class StringRangeParsingTest {
 
     @Test
     void testMinMaxRangeFormat() {
-        StringRange range = new StringRange("AA-ZZ");
+        var range = new StringRange("AA-ZZ");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z");
         assertExclude(range, "A", "ZZZ", "aa", "zz");
 
@@ -256,7 +258,7 @@ class StringRangeParsingTest {
 
     @Test
     void testBracketsFormat() {
-        StringRange range = new StringRange("[AA; ZZ]");
+        var range = new StringRange("[AA; ZZ]");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z");
         assertExclude(range, "A", "ZZZ", "aa", "zz");
 
@@ -275,7 +277,7 @@ class StringRangeParsingTest {
 
     @Test
     void testVerbal() {
-        StringRange range = new StringRange("AA and more");
+        var range = new StringRange("AA and more");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z", "ZZZ", "aa", "zz");
         assertExclude(range, "A");
 
@@ -294,7 +296,7 @@ class StringRangeParsingTest {
 
     @Test
     void testMoreLessFormat() {
-        StringRange range = new StringRange(">= AA");
+        var range = new StringRange(">= AA");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z", "ZZZ", "aa", "zz");
         assertExclude(range, "A");
 
@@ -317,7 +319,7 @@ class StringRangeParsingTest {
 
     @Test
     void testMoreLessFormatBothBounds() {
-        StringRange range = new StringRange(">=AA <=ZZ");
+        var range = new StringRange(">=AA <=ZZ");
         assertInclude(range, "AA", "AAa", "B", "BBBBBB", "ZZ", "Z");
         assertExclude(range, "A", "ZZZ", "aa", "zz");
 
@@ -352,14 +354,14 @@ class StringRangeParsingTest {
 
     @Test
     void testNulls() {
-        StringRange range = new StringRange(">=AA <=ZZ");
+        var range = new StringRange(">=AA <=ZZ");
         assertFalse(range.contains((Range<CharSequence>) null));
         assertFalse(range.contains((CharSequence) null));
     }
 
     @Test
     void testNegative() {
-        StringRange range = new StringRange("00F-00Z");
+        var range = new StringRange("00F-00Z");
         assertFalse(range.contains("Z"));
     }
 

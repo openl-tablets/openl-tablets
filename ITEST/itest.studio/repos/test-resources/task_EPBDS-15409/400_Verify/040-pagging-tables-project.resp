@@ -1,0 +1,45 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "be271364faadb34a625a7711c8900b6f",
+      "tableType": "Data",
+      "kind": "Data",
+      "name": "states",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B25:C86"
+    },
+    {
+      "id": "fc832505fba8bba61221f9eb03ffeb5c",
+      "tableType": "Spreadsheet",
+      "kind": "Spreadsheet",
+      "name": "TotalAssets",
+      "returnType": "SpreadsheetResult",
+      "signature": "TotalAssets()",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B41:E48"
+    },
+    {
+      "id": "bd6e2fc6c529efca81b4b0a7bb736e3a",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "USState",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B95:D97"
+    },
+    {
+      "id": "843b84e0f05307a211ad426793632bb2",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "ZipCode",
+      "file": "EPBDS-15409/Main.xlsx",
+      "pos": "B107:D109"
+    }
+  ],
+  "pageNumber": 2,
+  "pageSize": 10,
+  "numberOfElements": 4,
+  "total": 24
+}

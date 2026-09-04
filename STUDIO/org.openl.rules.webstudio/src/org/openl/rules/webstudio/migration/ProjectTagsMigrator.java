@@ -8,19 +8,20 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.PropertiesUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class ProjectTagsMigrator {
     public static final String MIGRATION_COMMENT = "Tags in project %s were moved to tags.properties file";
@@ -28,22 +29,16 @@ public class ProjectTagsMigrator {
     private final DesignTimeRepository designTimeRepository;
 
 
-
-    public ProjectTagsMigrator(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
-
-
     public void migrate(String repositoryId, String projectPath, Map<String, String> projectTags,
                         UserInfo migrationUserInfo) throws IOException, ProjectException {
-        Repository repository = designTimeRepository.getRepository(repositoryId);
+        var repository = designTimeRepository.getRepository(repositoryId);
 
         if (repository != null && ! projectTags.isEmpty()) {
             if (repository instanceof RepositoryDelegate repositoryDelegate) {
                 repository = repositoryDelegate.getOriginal();
             }
             if (repository.check(projectPath) != null) {
-                try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                try (var byteArrayOutputStream = new ByteArrayOutputStream()) {
                     PropertiesUtils.store(byteArrayOutputStream, projectTags.entrySet());
                     try (var inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
                         if (repository.supports().folders()) {
@@ -70,8 +65,8 @@ public class ProjectTagsMigrator {
         if (! projectPath.endsWith(PATH_SEPARATOR)) {
             projectPath = projectPath + PATH_SEPARATOR;
         }
-        String fullTagsFileName = projectPath + ProjectTags.TAGS_FILE_NAME;
-        FileData tagsFileData = repository.check(fullTagsFileName);
+        var fullTagsFileName = projectPath + ProjectTags.TAGS_FILE_NAME;
+        var tagsFileData = repository.check(fullTagsFileName);
 
         //If file already exists, it means migration has already been done.
         if (tagsFileData == null) {
@@ -88,11 +83,11 @@ public class ProjectTagsMigrator {
 
     private void saveTagsInArchive(String projectPath, Repository repository, ByteArrayInputStream tagsStream, UserInfo migrationUserInfo) throws IOException, ProjectException {
 
-        try(FileItem projectFileItem = repository.read(projectPath)) {
-            FileData projectFileData = projectFileItem.getData();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try (ZipInputStream zis = new ZipInputStream(projectFileItem.getStream());
-                 ZipOutputStream zos = new ZipOutputStream(out)) {
+        try(var projectFileItem = repository.read(projectPath)) {
+            var projectFileData = projectFileItem.getData();
+            var out = new ByteArrayOutputStream();
+            try (var zis = new ZipInputStream(projectFileItem.getStream());
+                 var zos = new ZipOutputStream(out)) {
 
                 ZipEntry entry;
                 while ((entry = zis.getNextEntry()) != null) {
@@ -105,7 +100,7 @@ public class ProjectTagsMigrator {
                     zos.closeEntry();
                     zis.closeEntry();
                 }
-                ZipEntry tagsEntry = new ZipEntry(ProjectTags.TAGS_FILE_NAME);
+                var tagsEntry = new ZipEntry(ProjectTags.TAGS_FILE_NAME);
                 zos.putNextEntry(tagsEntry);
                 IOUtils.copy(tagsStream, zos);
                 zos.closeEntry();

@@ -5,8 +5,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.openl.rules.project.model.RulesDeploy;
-import org.openl.util.StringUtils;
+import org.openl.rules.project.migration.RulesDeployMigrations;
 
 /**
  * {@code rules-deploy.xml} migration: normalises the
@@ -15,26 +14,14 @@ import org.openl.util.StringUtils;
  * (the annotation slot already had a value).
  * <p>
  * Blank inputs are left alone — emptying out the slots is the responsibility of
- * {@link ConfigEmptyTagMigrator}.
+ * {@link ConfigEmptyTagMigrator}. The transform is shared with OpenL Studio via
+ * {@link RulesDeployMigrations#templateClass}.
  * <p>
  * Migrator id: {@code config.deploy.template-class}.
  *
  * @author Yury Molchan
  */
 public final class ConfigDeployTemplateClassMigrator implements Migrator {
-
-    /**
-     * Package-private for direct unit testing.
-     */
-    static void transform(RulesDeploy rulesDeploy) {
-        if (StringUtils.isBlank(rulesDeploy.getInterceptingTemplateClassName())) {
-            return;
-        }
-        if (StringUtils.isBlank(rulesDeploy.getAnnotationTemplateClassName())) {
-            rulesDeploy.setAnnotationTemplateClassName(rulesDeploy.getInterceptingTemplateClassName());
-        }
-        rulesDeploy.setInterceptingTemplateClassName(null);
-    }
 
     @Override
     public String getId() {
@@ -59,6 +46,6 @@ public final class ConfigDeployTemplateClassMigrator implements Migrator {
     @Override
     public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface)
             throws IOException {
-        return ConfigDeployIO.roundtrip(this, sourceFolder, ConfigDeployTemplateClassMigrator::transform);
+        return ConfigDeployIO.roundtrip(this, sourceFolder, RulesDeployMigrations::templateClass);
     }
 }

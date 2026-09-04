@@ -1,5 +1,6 @@
 package org.openl.rules.excel.builder.template;
 
+import lombok.Getter;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -12,6 +13,7 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
     private final DataTypeRowStyle dataTypeRowStyle;
     private final CellStyle dateFieldStyle;
     private final CellStyle dateTimeFieldStyle;
+    @Getter
     private final DataTypeRowStyle lastRowStyle;
     private final Font datatypeFont;
 
@@ -44,11 +46,6 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
     @Override
     public Font getHeaderFont() {
         return datatypeFont;
-    }
-
-    @Override
-    public DataTypeRowStyle getLastRowStyle() {
-        return lastRowStyle;
     }
 
     @Override

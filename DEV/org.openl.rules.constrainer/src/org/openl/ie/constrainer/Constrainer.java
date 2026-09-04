@@ -159,9 +159,9 @@ public final class Constrainer implements Serializable {
      * Helper to print the vector of obects.
      */
     static void printObjects(PrintStream out, String prefix, FastVector objects) {
-        int size = objects.size();
-        Object[] data = objects.data();
-        for (int i = 0; i < size; i++) {
+        var size = objects.size();
+        var data = objects.data();
+        for (var i = 0; i < size; i++) {
             out.print(prefix);
             out.println(data[i]);
         }
@@ -202,12 +202,9 @@ public final class Constrainer implements Serializable {
         _backtrack_objects = new FastVector();
         _trace_goals = false;
 
-        // _failure = new Failure();
         _trace_failure_stack = false;
 
         _print_information = false;
-
-        // _undo_subject_factory = new UndoSubjectFactory();
 
         _expressionFactory = new ExpressionFactoryImpl(this);
 
@@ -222,7 +219,6 @@ public final class Constrainer implements Serializable {
     IntBoolVar addIntBoolVar(IntBoolVar var) {
         _intvars.add(var);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        // addObjectToSymbolicContext(var.name(),var);
         return var;
     }
 
@@ -233,7 +229,7 @@ public final class Constrainer implements Serializable {
      * @return The added variable.
      */
     public IntBoolVar addIntBoolVar(String name) {
-        IntBoolVar var = new IntBoolVarImpl(this, name);
+        var var = new IntBoolVarImpl(this, name);
         return addIntBoolVar(var);
     }
 
@@ -282,7 +278,7 @@ public final class Constrainer implements Serializable {
      * @return The added variable.
      */
     public IntVar addIntVar(int min, int max, String name, int type) {
-        IntVar var = new IntVarImpl(this, min, max, name, type);
+        var var = new IntVarImpl(this, min, max, name, type);
         return addIntVar(var);
     }
 
@@ -295,7 +291,6 @@ public final class Constrainer implements Serializable {
     IntVar addIntVar(IntVar var) {
         _intvars.addElement(var);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        // addObjectToSymbolicContext(var.name(),var);
         return var;
     }
 
@@ -305,7 +300,6 @@ public final class Constrainer implements Serializable {
     IntVar addIntVarInternal(IntVar var) {
         _intvars.addElement(var);
         addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        // addInternalObjectToSymbolicContext(var);
         return var;
     }
 
@@ -315,7 +309,7 @@ public final class Constrainer implements Serializable {
      * <b>Note:</b>Constrainer's users should not use this method.
      */
     public IntVar addIntVarTraceInternal(int min, int max, String name, int type) {
-        IntVar var = new IntVarImpl(this, min, max, name, type);
+        var var = new IntVarImpl(this, min, max, name, type);
         return addIntVarInternal(var);
     }
 
@@ -344,7 +338,6 @@ public final class Constrainer implements Serializable {
      */
     public void addUndo(Undo undo_object) {
         _number_of_undos++;
-        // Debug.on();Debug.print("add " + undo_object);Debug.off();
         _reversibility_stack.pushUndo(undo_object);
     }
 
@@ -393,7 +386,7 @@ public final class Constrainer implements Serializable {
      * Backtracks to the most recent labeled choice point.
      */
     boolean backtrack(ChoicePointLabel label) {
-        boolean success = _goal_stack.backtrack(label);
+        var success = _goal_stack.backtrack(label);
 
         allowUndos();
 
@@ -419,9 +412,8 @@ public final class Constrainer implements Serializable {
      */
     void clearPropagationQueue() {
         while (!_propagation_queue.isEmpty()) {
-            Subject var = (Subject) _propagation_queue.remove();
+            var var = (Subject) _propagation_queue.remove();
             var.inProcess(false);
-            // var.clearPropagationEvents();
         }
     }
 
@@ -464,12 +456,12 @@ public final class Constrainer implements Serializable {
      * @return true if success
      */
     synchronized public boolean execute(Goal main_goal, boolean restore_flag) {
-        long execution_start = System.currentTimeMillis();
+        var execution_start = System.currentTimeMillis();
 
-        boolean success = true;
+        var success = true;
 
         // save current _goal_stack
-        GoalStack old_goal_stack = _goal_stack;
+        var old_goal_stack = _goal_stack;
 
         _goal_stack = new GoalStack(main_goal, _reversibility_stack);
 
@@ -477,7 +469,7 @@ public final class Constrainer implements Serializable {
 
         while (!_goal_stack.empty()) {
             try {
-                Goal goal = _goal_stack.popGoal();
+                var goal = _goal_stack.popGoal();
 
                 if (_trace_goals) {
                     _out.println("Execute: " + goal);
@@ -487,7 +479,7 @@ public final class Constrainer implements Serializable {
                 propagate();
 
                 if (_print_information) {
-                    long occupied_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+                    var occupied_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                     if (_max_occupied_memory < occupied_memory) {
                         _max_occupied_memory = occupied_memory;
                     }
@@ -503,7 +495,7 @@ public final class Constrainer implements Serializable {
                 }
 
                 if (_print_information) {
-                    long occupied_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+                    var occupied_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                     if (_max_occupied_memory < occupied_memory) {
                         _max_occupied_memory = occupied_memory;
                     }
@@ -524,7 +516,7 @@ public final class Constrainer implements Serializable {
 
         } // ~while
 
-        boolean restoreAnyway = restore_flag || !success;
+        var restoreAnyway = restore_flag || !success;
         if (restoreAnyway) {
             backtrackStack(_goal_stack.undoStackSize());
         }
@@ -567,14 +559,11 @@ public final class Constrainer implements Serializable {
         }
 
         if (_failure_display_frequency == 0 || _number_of_failures % _failure_display_frequency == 0) {
-            for (int i = 0; i < _failure_objects.size(); i++) {
+            for (var i = 0; i < _failure_objects.size(); i++) {
                 _out.println("Failure: " + s + " " + _failure_objects.elementAt(i));
             }
         }
 
-        /*
-         * if (showInternalNames()) _failure.message(s); else _failure.message("");
-         */
         throw new Failure(s);// _failure; //
     }
 
@@ -602,7 +591,7 @@ public final class Constrainer implements Serializable {
      */
     public void propagate() throws Failure {
         while (!_propagation_queue.isEmpty()) {
-            Subject var = (Subject) _propagation_queue.remove();
+            var var = (Subject) _propagation_queue.remove();
             var.inProcess(false);
             var.propagate(); // may fail
         }

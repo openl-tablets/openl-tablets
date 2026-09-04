@@ -3,6 +3,7 @@ import { Divider, Form, Space, Button, notification, Row, Col, Input as AntInput
 import { Input, Select, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
+import { formatDisplayName } from '../../utils/displayName'
 import { UserExternalFlags, UserProfile, UserDetails } from '../../types/user'
 import { SystemContext } from '../../contexts'
 import { apiCall } from '../../services'
@@ -17,9 +18,20 @@ interface UserDetailsTabProps {
     resendLoading?: boolean | undefined
     cooldown?: number | undefined
     onResendVerification?: (() => void) | undefined
+    requireEmailAndDisplayName?: boolean | undefined
 }
 
-export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFlags, displayPasswordField = true, showResendVerification = false, userProfile, resendLoading, cooldown, onResendVerification }) => {
+export const UserDetailsTab: FC<UserDetailsTabProps> = ({
+    isNewUser,
+    externalFlags,
+    displayPasswordField = true,
+    showResendVerification = false,
+    userProfile,
+    resendLoading,
+    cooldown,
+    onResendVerification,
+    requireEmailAndDisplayName = false,
+}) => {
     const { t } = useTranslation()
     const { styles } = useStyles()
     const form = Form.useFormInstance()
@@ -95,14 +107,9 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
     }, [showResendVerification, userProfile, systemSettings])
 
     useEffect(() => {
-        if (form.getFieldValue('displayNameSelect') === DisplayUserName.FirstLast) {
-            form.setFieldsValue({
-                displayName: (firstName + ' ' + lastName).trim()
-            })
-        } else if (form.getFieldValue('displayNameSelect') === DisplayUserName.LastFirst) {
-            form.setFieldsValue({
-                displayName: (lastName + ' ' + firstName).trim()
-            })
+        const formatted = formatDisplayName(form.getFieldValue('displayNameSelect'), firstName, lastName)
+        if (formatted !== null) {
+            form.setFieldsValue({ displayName: formatted })
         }
         form.validateFields(['displayName'])
     }, [firstName, lastName])
@@ -128,6 +135,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
             />
             <Form.Item
                 label={t('users:edit_modal.email')}
+                required={requireEmailAndDisplayName}
                 style={displayPasswordField ? { marginBottom: 24 } : {}}
             >
                 <Row align="top" className={styles.emailRow} gutter={8} style={{ width: '100%', height: 32 }}>
@@ -135,13 +143,21 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                         <Form.Item
                             noStyle
                             name="email"
-                            rules={[{
-                                type: 'email',
-                                message: t('users:edit_modal.email_invalid')
-                            }, {
-                                max: 254,
-                                message: t('users:edit_modal.email_max_length')
-                            }]}
+                            rules={[
+                                {
+                                    required: requireEmailAndDisplayName,
+                                    whitespace: requireEmailAndDisplayName,
+                                    message: t('users:edit_modal.email_required'),
+                                },
+                                {
+                                    type: 'email',
+                                    message: t('users:edit_modal.email_invalid')
+                                },
+                                {
+                                    max: 254,
+                                    message: t('users:edit_modal.email_max_length')
+                                },
+                            ]}
                         >
                             <AntInput
                                 {...(isNewUser && { autoComplete: 'off' })}
@@ -201,7 +217,10 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                     message: t('users:edit_modal.last_name_max_length')
                 }]}
             />
-            <Form.Item label={t('users:edit_modal.display_name')}>
+            <Form.Item
+                label={t('users:edit_modal.display_name')}
+                required={requireEmailAndDisplayName}
+            >
                 <Space.Compact>
                     <Select
                         disabled={!!externalFlags?.displayNameExternal}
@@ -216,6 +235,11 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                         style={{ width: 248 }}
                         rules={[
                             {
+                                required: requireEmailAndDisplayName,
+                                whitespace: requireEmailAndDisplayName,
+                                message: t('users:edit_modal.display_name_required'),
+                            },
+                            {
                                 max: 64,
                                 message: t('users:edit_modal.display_name_max_length')
                             },
@@ -228,10 +252,13 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({ isNewUser, externalFla
                                     } else {
                                         setIsDisplayNameFieldDisabled(true)
                                     }
-                                    if (getFieldValue('displayNameSelect') === DisplayUserName.FirstLast) {
-                                        setFieldValue('displayName', (getFieldValue('firstName') + ' ' + getFieldValue('lastName')).trim())
-                                    } else if (getFieldValue('displayNameSelect') === DisplayUserName.LastFirst) {
-                                        setFieldValue('displayName', (getFieldValue('lastName') + ' ' + getFieldValue('firstName')).trim())
+                                    const formatted = formatDisplayName(
+                                        getFieldValue('displayNameSelect'),
+                                        getFieldValue('firstName'),
+                                        getFieldValue('lastName')
+                                    )
+                                    if (formatted !== null) {
+                                        setFieldValue('displayName', formatted)
                                     }
                                 }
 

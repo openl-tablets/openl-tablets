@@ -93,10 +93,10 @@ The project configurations are as follows:
 
 | Tag                            | Required | Description                                                                                                                                     |
 |--------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| name                           | yes      | Project name. It is a string value which defines a user-friendly project name.                                                                  |
+| name                           | no       | Project name. It is a string value which defines a user-friendly project name. <br/>If omitted, the project folder name is used. |
 | comment                        | no       | Comment for project.                                                                                                                            |
 | dependency                     | no       | Dependencies to projects.                                                                                                                       |
-| modules                        | yes      | Project modules. A project can have one or several modules.                                                                                     |
+| modules                        | no       | Project modules. A project can have one or several modules. <br/>If omitted, the `rules/**/*.xlsx` and `tests/**/*.xlsx` workbooks are used. |
 | classpath                      | no       | Project relative classpath.                                                                                                                     |
 | exposed-methods                | no       | The ant-style pattern (* and ?) filters of the allowed methods in the generated interface.                                                      |
 | properties-file-name-pattern   | no       | File name pattern to be used by the file name processor. <br/>The file name processor adds extracted module properties from a module file name. |

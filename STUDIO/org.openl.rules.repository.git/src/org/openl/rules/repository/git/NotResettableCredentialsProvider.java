@@ -59,7 +59,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
     }
 
     void validateAuthorizationState(GitActionType actionType) throws InvalidCredentialsException {
-        long attemptTime = nextAttempt.get();
+        var attemptTime = nextAttempt.get();
         if (attemptTime == 0) {
             // The last login attempt was successful, or this is the first attempt.
             authTaken(actionType);
@@ -85,8 +85,8 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
     }
 
     private String getNextAttemptTime() {
-        int nextAttemptTimeInSeconds = (int) (nextAttempt.get() - System.currentTimeMillis()) / 1000;
-        int minutes = nextAttemptTimeInSeconds / 60;
+        var nextAttemptTimeInSeconds = (int) (nextAttempt.get() - System.currentTimeMillis()) / 1000;
+        var minutes = nextAttemptTimeInSeconds / 60;
         if (minutes != 0) {
             return minutes + " minute(s).";
         } else {
@@ -110,11 +110,6 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
             failedAttempts = new AtomicInteger(0);
         }
     }
-
-    boolean isHasAuthorizationFailure() {
-        return !failedActions.isEmpty();
-    }
-
 
     @Override
     public void clear() {

@@ -1,0 +1,6 @@
+PUT /rest/projects/ZGVzaWduOkVQQkRTX1RhZ3M=/files/tags.properties HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: text/plain
+
+Ghost=Anything
+region=eu

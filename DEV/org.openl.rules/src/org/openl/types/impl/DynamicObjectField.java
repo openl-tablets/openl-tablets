@@ -6,6 +6,9 @@
 
 package org.openl.types.impl;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -15,6 +18,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DynamicObjectField extends AOpenField {
 
+    @Getter
+    @Setter
     private IOpenClass declaringClass;
 
     public DynamicObjectField(IOpenClass declaringClass, String name, IOpenClass type) {
@@ -31,14 +36,9 @@ public class DynamicObjectField extends AOpenField {
         if (target == null) {
             return getType().nullObject();
         }
-        Object res = ((IDynamicObject) target).getFieldValue(getName());
+        var res = ((IDynamicObject) target).getFieldValue(getName());
 
         return res != null ? res : getType().nullObject();
-    }
-
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
     }
 
     @Override
@@ -51,9 +51,5 @@ public class DynamicObjectField extends AOpenField {
         if (target != null) {
             ((IDynamicObject) target).setFieldValue(getName(), value);
         }
-    }
-
-    public void setDeclaringClass(IOpenClass declaringClass) {
-        this.declaringClass = declaringClass;
     }
 }

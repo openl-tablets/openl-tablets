@@ -9,7 +9,11 @@ import org.jspecify.annotations.Nullable;
 /**
  * Breakpoint set sent by the UI.
  *
- * @param uris table source URIs that should suspend execution on entry
+ * <p>A key addresses a table by its source URI or by its name, optionally narrowed to one sub-step
+ * ({@code #ref}) or to one execution of the table ({@code @N}), and optionally prefixed with
+ * {@code after:} to suspend right after the target ran instead of before it.
+ *
+ * @param uris breakpoint keys that should suspend execution
  */
 @Schema(description = "trace.type.breakpoints.desc")
 public record BreakpointsRequest(

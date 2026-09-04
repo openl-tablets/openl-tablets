@@ -2,9 +2,10 @@ package org.openl.ie.constrainer.impl;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Expression;
@@ -39,6 +40,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         Class clazz();
     }
 
+    @RequiredArgsConstructor
     static class ExpressionKeyImpl implements ExpressionKey {
         private final Class _clazz;
         private final Object[] _args;
@@ -77,18 +79,13 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
                 return false;
             }
 
-            for (int i = 0; i < size; i++) {
+            for (var i = 0; i < size; i++) {
                 if (!equalArgs(arg1[i], arg2[i])) {
                     return false;
                 }
             }
 
             return true;
-        }
-
-        public ExpressionKeyImpl(Class clazz, Object[] args) {
-            _clazz = clazz;
-            _args = args;
         }
 
         @Override
@@ -118,7 +115,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
                 return false;
             }
 
-            for (int i = 0; i < _args.length; i++) {
+            for (var i = 0; i < _args.length; i++) {
                 if (!equalArgs(_args[i], key.args()[i])) {
                     return false;
                 }
@@ -139,9 +136,9 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
          */
         @Override
         public String toString() {
-            StringBuilder s = new StringBuilder();
+            var s = new StringBuilder();
             s.append("class: ").append(_clazz.getName()).append(", args:(");
-            for (int i = 0; i < _args.length; i++) {
+            for (var i = 0; i < _args.length; i++) {
                 if (i != 0) {
                     s.append(",");
                 }
@@ -183,7 +180,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
 
         @Override
         public void undo() {
-            ExpressionFactoryImpl expFactory = (ExpressionFactoryImpl) undoable();
+            var expFactory = (ExpressionFactoryImpl) undoable();
             expFactory._expressions = _expressions;
             super.undo();
         }
@@ -191,7 +188,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         @Override
         public void undoable(Undoable u) {
             super.undoable(u);
-            ExpressionFactoryImpl expFactory = (ExpressionFactoryImpl) u;
+            var expFactory = (ExpressionFactoryImpl) u;
             _expressions = (HashMap) expFactory._expressions.clone();
         }
 
@@ -216,9 +213,9 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
      * Returns a constructor with the given parameter types for a given parameter values.
      */
     static Class[] args2types(Object[] args) {
-        int size = args.length;
+        var size = args.length;
         Class[] types = new Class[size];
-        for (int i = 0; i < size; i++) {
+        for (var i = 0; i < size; i++) {
             types[i] = args[i].getClass();
         }
 
@@ -237,13 +234,13 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
      */
     Expression createExpression(Class c, Object[] args, Class[] types) {
         try {
-            Constructor constr = c.getConstructor(types);
+            var constr = c.getConstructor(types);
             constr.setAccessible(true); // to create not public implementations
             return (Expression) constr.newInstance(args);
         } catch (RuntimeException re) {
             throw re;
         } catch (Exception e) {
-            String msg = "Error creating expression: " + e.getClass().getName() + ": " + e.getMessage() + ": " + c
+            var msg = "Error creating expression: " + e.getClass().getName() + ": " + e.getMessage() + ": " + c
                     .getName();
 
             throw new RuntimeException(msg, e);
@@ -274,7 +271,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
 
         if (exp == null) {
             exp = createExpression(clazz, args, types);
-            // System.out.println("Creating new expression: " + exp.name());
             if (_putInCache) {
                 addUndo();
                 _expressions.put(key, exp);
@@ -291,17 +287,17 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
      */
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder();
+        var s = new StringBuilder();
         for (Object entry : _expressions.entrySet()) {
-            Map.Entry<?, ?> mapEntry = (Map.Entry<?, ?>) entry;
-            ExpressionKey key = (ExpressionKey) mapEntry.getKey();
-            Expression exp = (Expression) mapEntry.getValue();
+            var mapEntry = (Map.Entry<?, ?>) entry;
+            var key = (ExpressionKey) mapEntry.getKey();
+            var exp = (Expression) mapEntry.getValue();
             s.append(exp.getClass().getName()).append(", ").append(System.identityHashCode(exp)).append(", ");
-            for (int i = 0; i < key.args().length; i++) {
+            for (var i = 0; i < key.args().length; i++) {
                 if (i != 0) {
                     s.append(", ");
                 }
-                Object o = key.args()[i];
+                var o = key.args()[i];
                 if (o instanceof Number) {
                     s.append(o.getClass().getName()).append(", ").append(o);
                 } else {

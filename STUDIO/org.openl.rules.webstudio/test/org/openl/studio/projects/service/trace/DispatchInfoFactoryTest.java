@@ -30,7 +30,7 @@ class DispatchInfoFactoryTest {
 
         assertEquals(List.of("effectiveDate: 01/01/2020", "effectiveDate: 01/01/2021"),
                 info.candidates().stream().map(DispatchInfo.Candidate::label).toList());
-        assertFalse(info.candidates().get(0).chosen());
+        assertFalse(info.candidates().getFirst().chosen());
         assertTrue(info.candidates().get(1).chosen(), "the selected version is flagged");
     }
 
@@ -43,8 +43,8 @@ class DispatchInfoFactoryTest {
 
         DispatchInfo info = DispatchInfoFactory.of(dispatcher, null);
 
-        assertEquals("Rate", info.candidates().get(0).label());
-        assertFalse(info.candidates().get(0).chosen());
+        assertEquals("Rate", info.candidates().getFirst().label());
+        assertFalse(info.candidates().getFirst().chosen());
     }
 
     /** A candidate that carries dimension properties, like a table overloaded by {@code effectiveDate}. */

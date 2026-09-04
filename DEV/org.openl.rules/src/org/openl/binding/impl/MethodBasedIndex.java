@@ -1,18 +1,16 @@
 package org.openl.binding.impl;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 
+@RequiredArgsConstructor
 public class MethodBasedIndex implements IOpenIndex {
 
     private final IMethodCaller reader;
     private final IMethodCaller writer;
-
-    public MethodBasedIndex(IMethodCaller reader, IMethodCaller writer) {
-        this.reader = reader;
-        this.writer = writer;
-    }
 
     /*
      * (non-Javadoc)
@@ -31,7 +29,7 @@ public class MethodBasedIndex implements IOpenIndex {
      */
     @Override
     public IOpenClass getIndexType() {
-        int n = writer.getMethod().getSignature().getParameterTypes().length;
+        var n = writer.getMethod().getSignature().getParameterTypes().length;
 
         return reader.getMethod().getSignature().getParameterTypes()[n - 1];
     }
@@ -45,7 +43,7 @@ public class MethodBasedIndex implements IOpenIndex {
     @SuppressWarnings("unchecked")
     public Object getValue(Object container, Object index) {
 
-        int n = reader.getMethod().getSignature().getParameterTypes().length;
+        var n = reader.getMethod().getSignature().getParameterTypes().length;
 
         if (n == 2) {
             return reader.invoke(null, new Object[]{container, index}, null);
@@ -68,7 +66,7 @@ public class MethodBasedIndex implements IOpenIndex {
     @SuppressWarnings("unchecked")
     public void setValue(Object container, Object index, Object value) {
 
-        int n = writer.getMethod().getSignature().getParameterTypes().length;
+        var n = writer.getMethod().getSignature().getParameterTypes().length;
 
         if (n == 3) {
             writer.invoke(null, new Object[]{container, index, value}, null);

@@ -22,7 +22,7 @@ public class NullVarArgsOpenMethod extends AOpenMethodDelegator {
     }
 
     private Object[] modifyParameters(Object[] methodParameters) {
-        int parametersCount = getSignature().getNumberOfParameters();
+        var parametersCount = getSignature().getNumberOfParameters();
         Object[] modifiedParameters = new Object[parametersCount];
         System.arraycopy(methodParameters, 0, modifiedParameters, 0, methodParameters.length);
         return modifiedParameters;

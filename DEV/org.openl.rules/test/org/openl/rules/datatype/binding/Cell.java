@@ -2,7 +2,6 @@ package org.openl.rules.datatype.binding;
 
 import java.util.Date;
 
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
@@ -33,8 +32,6 @@ public class Cell implements ICell {
 
     private String uri;
 
-    private CellMetaInfo metaInfo;
-
     private ICellComment comment;
 
     public Cell() {
@@ -52,7 +49,7 @@ public class Cell implements ICell {
 
     @Override
     public IGridRegion getAbsoluteRegion() {
-        IGridRegion absoluteRegion = getRegion();
+        var absoluteRegion = getRegion();
         if (absoluteRegion == null) {
             absoluteRegion = new GridRegion(row, column, row, column);
         }

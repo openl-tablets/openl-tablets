@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -361,15 +360,15 @@ class RunTest {
                 new String[]{"bb2", "ddd3", "aaa3"});
         // Transform String array to array of List
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) transform to Arrays.asList(s)]",
-                new List[]{Collections.singletonList("bb"),
-                        Collections.singletonList("ddd"),
-                        Collections.singletonList("aaa")});
+                new List[]{List.of("bb"),
+                        List.of("ddd"),
+                        List.of("aaa")});
         // Transform List to List of Lists
         assertToExpected(
                 "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to Arrays.asList(s)]",
-                new List[]{Collections.singletonList("bb"),
-                        Collections.singletonList("ddd"),
-                        Collections.singletonList("aaa")});
+                new List[]{List.of("bb"),
+                        List.of("ddd"),
+                        List.of("aaa")});
     }
 
     @Test
@@ -382,7 +381,7 @@ class RunTest {
         // Split By when list contains Lists
         assertToExpected(
                 "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()]",
-                new List[][]{{Collections.singletonList(1), Collections.singletonList(4)}, {Arrays.asList(2, 3)}});
+                new List[][]{{List.of(1), List.of(4)}, {Arrays.asList(2, 3)}});
         // Check array element type. It must be List, not Object (Object does not contain method size()).
         assertToExpected(
                 "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()][0][1].size()",
@@ -393,10 +392,10 @@ class RunTest {
     void testArrayOfList() {
         // When array has the type List[] then inside of aggregate function array element type must be List, not Object.
         assertToExpected("List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split by size()]",
-                new List[][]{{Collections.singletonList(1), Collections.singletonList(4)}, {Arrays.asList(2, 3)}});
+                new List[][]{{List.of(1), List.of(4)}, {Arrays.asList(2, 3)}});
         assertToExpected(
                 "List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split \n    by size()]",
-                new List[][]{{Collections.singletonList(1), Collections.singletonList(4)}, {Arrays.asList(2, 3)}});
+                new List[][]{{List.of(1), List.of(4)}, {Arrays.asList(2, 3)}});
     }
 
     @Test

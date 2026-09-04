@@ -18,10 +18,10 @@ public class EqualsIndexedEvaluatorV2 extends AEqualsIndexedEvaluator {
             return null;
         }
 
-        EqualsIndexV2.Builder builder = new EqualsIndexV2.Builder();
+        var builder = new EqualsIndexV2.Builder();
         builder.setConditionCasts(conditionCasts);
         while (it.hasNext()) {
-            int ruleN = it.nextInt();
+            var ruleN = it.nextInt();
             builder.addRule(ruleN);
 
             if (condition.isEmpty(ruleN)) {
@@ -29,7 +29,7 @@ public class EqualsIndexedEvaluatorV2 extends AEqualsIndexedEvaluator {
                 continue;
             }
 
-            Object value = conditionCasts.castToInputType(condition.getParamValue(0, ruleN));
+            var value = conditionCasts.castToInputType(condition.getParamValue(0, ruleN));
             builder.putValueToRule(value, ruleN);
         }
 

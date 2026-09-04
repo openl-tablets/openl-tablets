@@ -5,9 +5,12 @@ i18next.addResourceBundle('en', 'trace', {
 
     watch: {
         title: 'Watch',
+        titleHint: 'Capture the value of chosen cells on every run of their table, to see how an intermediate value changes.',
         add: 'Add',
+        addHint: 'Add this cell to the watch list.',
         addPlaceholder: 'Cell name ($Factor) or ref (R2C3)',
         collect: 'Collect',
+        collectHint: 'Run the trace to the end and record the value of each watched cell on every run of its table.',
         empty: 'No values captured — run a table that computes these cells.',
         truncated: 'Too many values — the series is capped and may miss late executions.',
         showing: 'Showing the first {{shown}} of {{total}} executions.',
@@ -17,8 +20,11 @@ i18next.addResourceBundle('en', 'trace', {
 
     tree: {
         title: 'Call tree',
+        showDetailed: 'Show detailed trace',
+        expand: 'Expand',
+        collapse: 'Collapse',
         modeSimple: 'Tree',
-        modeCallStack: 'Call Stack',
+        modeCallStack: 'Execution Path',
         runToHint: 'Run execution to here',
         resultHint: 'View result',
         replayHint: 'Replay — restart and run to this table to inspect it live',
@@ -30,6 +36,9 @@ i18next.addResourceBundle('en', 'trace', {
         referenceHint: 'Uses a step that already executed — click to jump to it',
         passHint: 'Execution #{{n}} of this table in the run',
         more: '+{{count}} more executions',
+        loading: 'Loading…',
+        truncated: 'This tree is truncated for size — some branches are dropped. Hot Spots still count every call.',
+        notRetained: '+{{count}} sub-calls not retained — tree too large. Hot Spots still count them.',
     },
 
     hotspots: {
@@ -41,7 +50,7 @@ i18next.addResourceBundle('en', 'trace', {
         colSelf: 'Self',
         colTotal: 'Total',
         replayHint: 'Replay — restart and run to this table to inspect it live',
-        truncated: 'Showing the slowest of {{count}} tables that ran.',
+        more: 'Showing the {{shown}} slowest of {{total}} tables — every call is counted.',
         empty: 'Hot spots appear after a profiling run finishes. Turn on Profiling and run to the end.',
     },
 
@@ -51,14 +60,16 @@ i18next.addResourceBundle('en', 'trace', {
         stepInto: 'Step into — go inside the next called rule',
         stepOver: 'Step over — run the next line without going inside',
         stepOut: 'Step out — finish this rule and return to its caller',
-        stop: 'Stop debugging',
         rerun: 'Rerun — restart the trace from the beginning',
+        settings: 'Settings — profiling and detailed view',
         profiling: 'Profiling',
         profilingHint: 'Keep the executed call tree (timings + replay). It uses more memory and runs slower, and switching restarts the trace.',
         profilingNotice: 'Profiling keeps the whole executed tree — it uses more memory and runs slower. Turn it off when you do not need the executed branches.',
-        callStack: 'Call stack',
-        notSuspended: 'Execution is not suspended',
+        callStack: 'Execution Path',
+        notSuspended: 'The calculation is not paused',
+        runningNotice: 'Calculating… A large request can take a while. Use Pause to interrupt.',
         breakpoints: 'Breakpoints',
+        breakpointsHint: 'A breakpoint pauses the run when a chosen table is about to execute, so you can inspect it. Add one by name below.',
         noBreakpoints: 'No breakpoints. Add one from a table below.',
         addBreakpoint: 'Add breakpoint',
         addBreakpointPlaceholder: 'Find a table by name…',
@@ -69,12 +80,19 @@ i18next.addResourceBundle('en', 'trace', {
         pending: 'pending',
         status: {
             pending: 'Starting…',
-            running: 'Running',
-            suspended: 'Suspended',
-            completed: 'Completed',
-            error: 'Error',
-            terminated: 'Terminated',
+            running: 'Calculating',
+            suspended: 'Paused',
+            completed: 'Finished',
+            error: 'Failed',
+            terminated: 'Stopped',
         },
+    },
+
+    simple: {
+        preparing: 'Preparing the calculation…',
+        calculating: 'Calculating…',
+        failed: 'The calculation could not be completed.',
+        retry: 'Try again',
     },
 
     error: {
@@ -118,7 +136,7 @@ i18next.addResourceBundle('en', 'trace', {
         errors: 'Errors',
         table: 'Traced table',
         decision: 'Decision',
-        noSelection: 'Select a stack frame to view its variables',
+        noSelection: 'Select a step to view its details',
         noParameters: 'No parameters',
         noResult: 'No result',
     },

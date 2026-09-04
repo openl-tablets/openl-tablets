@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -40,7 +39,7 @@ public final class TablePropertyDefinitionUtils {
     private static final Map<String, Object> GLOBAL_PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT;
 
     static {
-        List<TablePropertyDefinition> propertiesToBeSetByDefault = new ArrayList<>();
+        var propertiesToBeSetByDefault = new ArrayList<TablePropertyDefinition>();
         for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (propDefinition.getDefaultValue() != null) {
                 propertiesToBeSetByDefault.add(propDefinition);
@@ -48,23 +47,23 @@ public final class TablePropertyDefinitionUtils {
         }
         PROPERTIES_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableList(propertiesToBeSetByDefault);
 
-        Map<String, Object> propertiesMapToBeSetByDefault = new HashMap<>();
+        var propertiesMapToBeSetByDefault = new HashMap<String, Object>();
 
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesToBeSetByDefault) {
-            String defaultPropertyName = propertyWithDefaultValue.getName();
+            var defaultPropertyName = propertyWithDefaultValue.getName();
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
                     .getPropertyByName(defaultPropertyName);
             Class<?> defaultPropertyValueType = propertyDefinition.getType().getInstanceClass();
 
             IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
-            Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
+            var defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
                     propertyWithDefaultValue.getFormat());
 
             propertiesMapToBeSetByDefault.put(defaultPropertyName, defaultValue);
         }
 
         PROPERTIES_MAP_TO_BE_SET_BY_DEFAULT = Collections.unmodifiableMap(propertiesMapToBeSetByDefault);
-        List<TablePropertyDefinition> globalDefaultProperties = new ArrayList<>();
+        var globalDefaultProperties = new ArrayList<TablePropertyDefinition>();
         TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         for (TablePropertyDefinition definition : definitions) {
             if (definition.getInheritanceLevel() != null && Arrays.asList(definition.getInheritanceLevel())
@@ -72,9 +71,9 @@ public final class TablePropertyDefinitionUtils {
                 globalDefaultProperties.add(definition);
             }
         }
-        Map<String, Object> defaultGlobalProperties = new HashMap<>();
+        var defaultGlobalProperties = new HashMap<String, Object>();
         for (TablePropertyDefinition tablePropertyDefinition : globalDefaultProperties) {
-            Object v = TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault()
+            var v = TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault()
                     .get(tablePropertyDefinition.getName());
             if (v != null) {
                 defaultGlobalProperties.put(tablePropertyDefinition.getName(), v);
@@ -92,7 +91,7 @@ public final class TablePropertyDefinitionUtils {
      */
     public static String[] getDimensionalTablePropertiesNames() {
         if (dimensionalTablePropertiesNames == null) {
-            List<String> names = new ArrayList<>();
+            var names = new ArrayList<String>();
             List<TablePropertyDefinition> dimensionalProperties = getDimensionalTableProperties();
 
             for (TablePropertyDefinition definition : dimensionalProperties) {
@@ -113,7 +112,7 @@ public final class TablePropertyDefinitionUtils {
      */
     public static List<TablePropertyDefinition> getDimensionalTableProperties() {
         if (dimensionalTableProperties == null) {
-            List<TablePropertyDefinition> dimensionalProperties = new ArrayList<>();
+            var dimensionalProperties = new ArrayList<TablePropertyDefinition>();
             TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
 
             for (TablePropertyDefinition definition : definitions) {
@@ -220,7 +219,7 @@ public final class TablePropertyDefinitionUtils {
      * @return list of properties.
      */
     public static List<TablePropertyDefinition> getSystemProperties() {
-        List<TablePropertyDefinition> result = new ArrayList<>();
+        var result = new ArrayList<TablePropertyDefinition>();
         for (TablePropertyDefinition propDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (propDefinition.isSystem()) {
                 result.add(propDefinition);
@@ -230,7 +229,7 @@ public final class TablePropertyDefinitionUtils {
     }
 
     public static TablePropertyDefinition[] getDefaultDefinitionsByInheritanceLevel(InheritanceLevel inheritanceLevel) {
-        List<TablePropertyDefinition> resultDefinitions = new ArrayList<>();
+        var resultDefinitions = new ArrayList<TablePropertyDefinition>();
         for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (ArrayUtils.contains(propertyDefinition.getInheritanceLevel(), inheritanceLevel)) {
                 resultDefinitions.add(propertyDefinition);
@@ -246,10 +245,10 @@ public final class TablePropertyDefinitionUtils {
     public static TablePropertyDefinition[] getDefaultDefinitionsForTable(String tableType,
                                                                           InheritanceLevel inheritanceLevel,
                                                                           boolean ignoreSystem) {
-        List<TablePropertyDefinition> resultDefinitions = new ArrayList<>();
+        var resultDefinitions = new ArrayList<TablePropertyDefinition>();
 
         for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
-            String name = propertyDefinition.getName();
+            var name = propertyDefinition.getName();
             if (PropertiesChecker.isPropertySuitableForTableType(name, tableType) && (inheritanceLevel == null // any
                     // level
                     || ArrayUtils.contains(propertyDefinition.getInheritanceLevel(),
@@ -262,11 +261,11 @@ public final class TablePropertyDefinitionUtils {
     }
 
     public static Map<String, List<TablePropertyDefinition>> groupProperties(TablePropertyDefinition[] properties) {
-        Map<String, List<TablePropertyDefinition>> groups = new LinkedHashMap<>();
+        var groups = new LinkedHashMap<String, List<TablePropertyDefinition>>();
 
         for (TablePropertyDefinition property : properties) {
-            String groupName = property.getGroup();
-            List<TablePropertyDefinition> group = groups.computeIfAbsent(groupName, e -> new ArrayList<>());
+            var groupName = property.getGroup();
+            var group = groups.computeIfAbsent(groupName, e -> new ArrayList<>());
             group.add(property);
         }
 
@@ -304,12 +303,12 @@ public final class TablePropertyDefinitionUtils {
         if (properties2 == null) {
             return properties1;
         }
-        Map<String, Object> mergedGlobalProperties = new HashMap<>(properties1);
-        Set<String> keys = new HashSet<>(properties1.keySet());
+        var mergedGlobalProperties = new HashMap<String, Object>(properties1);
+        var keys = new HashSet<String>(properties1.keySet());
         keys.addAll(properties2.keySet());
         for (String key : keys) {
-            Object v1 = properties1.get(key);
-            Object v2 = properties2.get(key);
+            var v1 = properties1.get(key);
+            var v2 = properties2.get(key);
             if (v1 == null) {
                 if (properties2.containsKey(key)) {
                     mergedGlobalProperties.put(key, v2);
@@ -344,7 +343,7 @@ public final class TablePropertyDefinitionUtils {
     }
 
     public static ITableProperties buildGlobalTableProperties(Map<String, Object> globalProperties) {
-        TableProperties globalTableProperties = new TableProperties();
+        var globalTableProperties = new TableProperties();
         if (globalProperties != null) {
             globalTableProperties.setGlobalProperties(globalProperties);
         }

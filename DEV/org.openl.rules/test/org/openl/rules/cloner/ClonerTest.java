@@ -48,6 +48,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.Test;
 
 class ClonerTest {
@@ -88,7 +90,7 @@ class ClonerTest {
 
     @Test
     void testCloneEnumMap() {
-        EnumMap<DayOfWeek, String> enumMap = new EnumMap<>(DayOfWeek.class);
+        var enumMap = new EnumMap<DayOfWeek, String>(DayOfWeek.class);
         enumMap.put(DayOfWeek.MONDAY, "Monday");
         assertCloned(enumMap);
     }
@@ -272,13 +274,13 @@ class ClonerTest {
 
     @Test
     void testCloneWithCycles() {
-        List<Object> list1 = new ArrayList<>();
-        List<Object> list2 = new ArrayList<>();
+        var list1 = new ArrayList<Object>();
+        var list2 = new ArrayList<Object>();
         list1.add(list2);
         list2.add(list1);
 
-        List<Object> clonedList1 = Cloner.clone(list1);
-        List<Object> clonedList2 = (List<Object>) clonedList1.getFirst();
+        var clonedList1 = Cloner.clone(list1);
+        var clonedList2 = (List<Object>) clonedList1.getFirst();
 
         assertNotSame(list1, clonedList1);
         assertNotSame(list2, clonedList2);
@@ -353,13 +355,13 @@ class ClonerTest {
     }
 
     private static void assertCloned(List<?> obj) {
-        Collection<?> cloned = Cloner.clone(obj);
+        var cloned = Cloner.clone(obj);
         assertNotSame(obj, cloned);
         assertIterableEquals(obj, cloned);
     }
 
     private static void assertCloned(Collection<?> obj) {
-        Collection<?> cloned = Cloner.clone(obj);
+        var cloned = Cloner.clone(obj);
         assertNotSame(obj, cloned);
         if (obj.equals(cloned) || obj.containsAll(cloned) && cloned.containsAll(obj)) {
             return;
@@ -389,41 +391,17 @@ class ClonerTest {
     }
 
     public static class Beans {
+        @Getter
+        @Setter
         private String str;
+        @Getter
+        @Setter
         private Date date;
+        @Getter
+        @Setter
         private int age;
+        @Getter
+        @Setter
         private Beans bean;
-
-        public String getStr() {
-            return str;
-        }
-
-        public void setStr(String str) {
-            this.str = str;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
-
-        public int getAge() {
-            return age;
-        }
-
-        public void setAge(int age) {
-            this.age = age;
-        }
-
-        public Beans getBean() {
-            return bean;
-        }
-
-        public void setBean(Beans bean) {
-            this.bean = bean;
-        }
     }
 }

@@ -1,8 +1,12 @@
 package org.openl.rules.tbasic;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Created by dl on 9/16/14.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum TBasicSpecificationKey {
     BREAK("BREAK"),
     CONTINUE("CONTINUE"),
@@ -14,10 +18,6 @@ public enum TBasicSpecificationKey {
     ELSE("ELSE");
 
     private final String name;
-
-    TBasicSpecificationKey(String name) {
-        this.name = name;
-    }
 
     @Override
     public String toString() {

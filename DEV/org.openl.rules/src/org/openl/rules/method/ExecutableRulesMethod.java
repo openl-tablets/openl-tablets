@@ -2,7 +2,6 @@ package org.openl.rules.method;
 
 import java.util.Map;
 
-import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -44,8 +43,8 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         this.boundNode = boundNode;
         hasAliasTypeParams = false;
         if (header != null) {
-            int i = 0;
-            ICastFactory castFactory = new CastFactory();
+            var i = 0;
+            var castFactory = new CastFactory();
             for (IOpenClass param : header.getSignature().getParameterTypes()) {
                 if (param instanceof DomainOpenClass) {
                     hasAliasTypeParams = true;
@@ -62,8 +61,6 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         }
     }
 
-    private Boolean cacheble = null;
-
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return env.getTracer().invoke(invoke2, target, params, env, this);
@@ -73,7 +70,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     private Object invoke2(Object target, Object[] params, IRuntimeEnv env) {
         if (hasAliasTypeParams) {
-            for (int i = 0; i < getSignature().getNumberOfParameters(); i++) {
+            for (var i = 0; i < getSignature().getNumberOfParameters(); i++) {
                 if (aliasDatatypeCasts[i] != null) {
                     aliasDatatypeCasts[i].convert(params[i]); // Validate alias
                     // datatypes
@@ -91,7 +88,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     public void clearForExecutionMode() {
         setBoundNode(null);
-        ITableProperties methodProperties = getMethodProperties();
+        var methodProperties = getMethodProperties();
         if (methodProperties != null) {
             methodProperties.setModulePropertiesTableSyntaxNode(null);
             methodProperties.setCategoryPropertiesTableSyntaxNode(null);

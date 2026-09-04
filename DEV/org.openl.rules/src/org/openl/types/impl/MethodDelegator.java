@@ -1,5 +1,7 @@
 package org.openl.types.impl;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -7,13 +9,10 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class MethodDelegator implements IOpenMethod {
 
     protected final IMethodCaller methodCaller;
-
-    public MethodDelegator(IMethodCaller methodCaller) {
-        this.methodCaller = methodCaller;
-    }
 
     @Override
     public IMethodSignature getSignature() {

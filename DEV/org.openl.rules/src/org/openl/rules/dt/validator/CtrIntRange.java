@@ -17,7 +17,7 @@ public class CtrIntRange extends IntRange {
     @Override
     public long getMax() {
 
-        long max = super.getMax();
+        var max = super.getMax();
 
         if (max >= Integer.MAX_VALUE) {
             return Integer.MAX_VALUE - 1;
@@ -29,7 +29,7 @@ public class CtrIntRange extends IntRange {
     @Override
     public long getMin() {
 
-        long min = super.getMin();
+        var min = super.getMin();
 
         if (min <= Integer.MIN_VALUE) {
             return Integer.MIN_VALUE + 1;

@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.dependencies;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
@@ -42,7 +42,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final Set<ProjectDescriptor> projects;
+    @Getter
     private final AtomicLong version = new AtomicLong(0);
+    @Getter
     private final ThreadLocal<Long> threadVersion = new ThreadLocal<>();
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
@@ -50,6 +52,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private volatile boolean paused = false;
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onCompilationCompleteListeners = new CopyOnWriteArrayList<>();
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onResetCompleteListeners = new CopyOnWriteArrayList<>();
+    @Getter
     private final boolean canUnload;
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
@@ -63,14 +66,14 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     private DependencyType resolveDependencyType(ResolvedDependency dependency) {
-        IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
+        var dependencyLoader = findDependencyLoader(dependency);
         return dependencyLoader != null && dependencyLoader.isProjectLoader() ? DependencyType.PROJECT
                 : DependencyType.MODULE;
     }
 
     @Override
     public CompiledDependency loadDependency(ResolvedDependency dependency) throws OpenLCompilationException {
-        ThreadPriority priority = threadPriority.get();
+        var priority = threadPriority.get();
         if (priority == null) {
             threadPriority.set(ThreadPriority.HIGH);
         }
@@ -89,7 +92,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         throw new OpenLCompilationException("Compilation is interrupted", e);
                     }
                 }
-                Long currentThreadVersion = threadVersion.get();
+                var currentThreadVersion = threadVersion.get();
                 if (currentThreadVersion == null) {
                     threadVersion.set(version.get());
                     try {
@@ -101,7 +104,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         } else {
                             return new CompiledDependency(dependency,
                                     new CompiledOpenClass(NullOpenClass.the,
-                                            Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())),
+                                            List.of(new CompilationInterruptedOpenLErrorMessage())),
                                     resolveDependencyType(dependency));
                         }
                     } finally {
@@ -116,7 +119,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     } else {
                         return new CompiledDependency(dependency,
                                 new CompiledOpenClass(NullOpenClass.the,
-                                        Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())),
+                                        List.of(new CompilationInterruptedOpenLErrorMessage())),
                                 resolveDependencyType(dependency));
                     }
                 }
@@ -157,14 +160,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         paused = false;
     }
 
-    public ThreadLocal<Long> getThreadVersion() {
-        return threadVersion;
-    }
-
-    public AtomicLong getVersion() {
-        return version;
-    }
-
     public void loadDependencyAsync(ResolvedDependency dependency, Consumer<CompiledDependency> consumer) {
         executorService.submit(() -> {
             try {
@@ -174,7 +169,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     compiledDependency = this.loadDependency(dependency);
                 } catch (OpenLCompilationException e) {
                     compiledDependency = new CompiledDependency(dependency,
-                            new CompiledOpenClass(NullOpenClass.the, Collections.singletonList(new OpenLErrorMessage(e))),
+                            new CompiledOpenClass(NullOpenClass.the, List.of(new OpenLErrorMessage(e))),
                             resolveDependencyType(dependency));
                 }
                 if (compiledDependency.getCompiledOpenClass()
@@ -198,20 +193,20 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     private Set<IDependencyLoader> buildDependencyLoaders(Set<ProjectDescriptor> projects) {
-        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
+        var dependencyLoaders = new HashSet<IDependencyLoader>();
         for (ProjectDescriptor project : projects) {
             try {
                 Collection<Module> modulesOfProject = project.getModules();
                 if (!modulesOfProject.isEmpty()) {
                     for (final Module m : modulesOfProject) {
-                        WebStudioDependencyLoader moduleDependencyLoader = new WebStudioDependencyLoader(project,
+                        var moduleDependencyLoader = new WebStudioDependencyLoader(project,
                                 m,
                                 this);
                         dependencyLoaders.add(moduleDependencyLoader);
                     }
                 }
 
-                WebStudioDependencyLoader projectDependencyLoader = new WebStudioDependencyLoader(project, null, this);
+                var projectDependencyLoader = new WebStudioDependencyLoader(project, null, this);
                 dependencyLoaders.add(projectDependencyLoader);
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
@@ -259,7 +254,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     public void expand(Set<ProjectDescriptor> projects) {
-        Set<IDependencyLoader> dependencyLoaders = buildDependencyLoaders(projects);
+        var dependencyLoaders = buildDependencyLoaders(projects);
         addDependencyLoaders(dependencyLoaders);
     }
 
@@ -299,9 +294,5 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 }
             }
         }
-    }
-
-    public boolean isCanUnload() {
-        return canUnload;
     }
 }

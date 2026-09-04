@@ -2,10 +2,12 @@ package org.openl.types.impl;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
+import lombok.Getter;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.types.IAggregateInfo;
@@ -17,11 +19,13 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ComponentTypeArrayOpenClass extends AOpenClass {
 
+    @Getter
     protected final IOpenClass componentClass;
     protected final HashMap<String, IOpenField> fieldMap;
     protected IOpenIndex index;
+    @Getter
     private final String javaName;
-    private static final Collection<IOpenClass> OBJECT_CLASS = Collections.singleton(JavaOpenClass.OBJECT);
+    private static final Collection<IOpenClass> OBJECT_CLASS = Set.of(JavaOpenClass.OBJECT);
     private Class<?> instanceClass;
 
     public static ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass, int dim) {
@@ -29,14 +33,14 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         if (dim > 0) {
             componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentClass);
         }
-        for (int i = 0; i < dim - 1; i++) {
+        for (var i = 0; i < dim - 1; i++) {
             componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentTypeArrayOpenClass);
         }
         return componentTypeArrayOpenClass;
     }
 
     public ComponentTypeArrayOpenClass(IOpenClass componentClass) {
-        IOpenField lengthOpenField = new ComponentTypeArrayLengthOpenField();
+        var lengthOpenField = new ComponentTypeArrayLengthOpenField();
         this.componentClass = componentClass;
         this.fieldMap = new HashMap<>(1);
         this.fieldMap.put(lengthOpenField.getName(), lengthOpenField);
@@ -61,11 +65,6 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     @Override
     protected Map<String, IOpenField> fieldMap() {
         return fieldMap;
-    }
-
-    @Override
-    public IOpenClass getComponentClass() {
-        return componentClass;
     }
 
     @Override
@@ -106,13 +105,8 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         return componentClass.getName() + "[]";
     }
 
-    @Override
-    public String getJavaName() {
-        return javaName;
-    }
-
     private static String createJavaName(IOpenClass componentClass) {
-        String componentName = componentClass.getJavaName();
+        var componentName = componentClass.getJavaName();
         if (componentName.charAt(0) == '[') {
             return '[' + componentName;
         } else {
@@ -155,7 +149,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
             return false;
         }
 
-        ComponentTypeArrayOpenClass that = (ComponentTypeArrayOpenClass) o;
+        var that = (ComponentTypeArrayOpenClass) o;
         return Objects.equals(componentClass, that.componentClass);
     }
 

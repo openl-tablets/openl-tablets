@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -29,12 +28,12 @@ public class ModulePageBean {
         String key;
         String value;
         // Getting nodes from Model
-        TableSyntaxNode[] nodes = studio.getModel().getTableSyntaxNodes();
+        var nodes = studio.getModel().getTableSyntaxNodes();
 
         // Creating a list of environment tables. If tables more than 1
-        List<TableSyntaxNode> envNodesTables = new LinkedList<>();
+        var envNodesTables = new LinkedList<TableSyntaxNode>();
 
-        Map<String, Set<String>> ret = new HashMap<>();
+        var ret = new HashMap<String, Set<String>>();
 
         // Filling the envNodesTables List by TableSyntaxNodes
         for (TableSyntaxNode node : nodes) {
@@ -44,7 +43,7 @@ public class ModulePageBean {
         }
 
         for (TableSyntaxNode node : envNodesTables) {
-            for (int row = 1; row < node.getGridTable().getHeight(); row++) {
+            for (var row = 1; row < node.getGridTable().getHeight(); row++) {
                 key = node.getGridTable().getCell(0, row).getStringValue();
                 value = node.getGridTable().getCell(1, row).getStringValue();
 
@@ -69,7 +68,7 @@ public class ModulePageBean {
         if (imports != null) {
             return new ArrayList<>(imports);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     /**
@@ -82,7 +81,7 @@ public class ModulePageBean {
             return removeXLSExtention(includes);
         }
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     public List<String> getDependencies() {
@@ -91,7 +90,7 @@ public class ModulePageBean {
         if (dependencies != null) {
             return new ArrayList<>(dependencies);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     /**
@@ -99,7 +98,7 @@ public class ModulePageBean {
      */
     private List<String> removeXLSExtention(Collection<String> lists) {
         String[] dependencyFiles;
-        List<String> dependencyFilesList = new ArrayList<>();
+        var dependencyFilesList = new ArrayList<String>();
 
         for (String dependency : lists) {
             if (dependency != null) {

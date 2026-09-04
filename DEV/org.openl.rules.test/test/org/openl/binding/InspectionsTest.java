@@ -8,11 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.CompositeMethod;
 
 class InspectionsTest {
     private static final String ALWAYS_TRUE = "Condition is always true.";
@@ -83,15 +81,15 @@ class InspectionsTest {
 
     @SuppressWarnings("unchecked")
     private <T> T checkWarning(String expression, String expectedMessage) throws OpenLCompilationException {
-        StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
+        var source = new StringSourceCodeModule(expression, null);
         OpenL openl = OpenL.getInstance();
-        IBindingContext bindingContext = openl.getBinder().makeBindingContext();
+        var bindingContext = openl.getBinder().makeBindingContext();
         IOpenMethodHeader header = OpenLManager
                 .makeMethodHeader(openl, new StringSourceCodeModule("Object main()", null), bindingContext);
-        CompositeMethod compositeMethod = OpenLManager.makeMethod(openl, source, header, bindingContext);
+        OpenLManager.makeMethod(openl, source, header, bindingContext);
 
         assertEquals(1, bindingContext.getMessages().size());
-        OpenLMessage message = bindingContext.getMessages().iterator().next();
+        var message = bindingContext.getMessages().iterator().next();
         assertEquals(Severity.WARN, message.getSeverity());
         assertEquals(expectedMessage, message.getSummary());
 
@@ -100,12 +98,12 @@ class InspectionsTest {
 
     @SuppressWarnings("unchecked")
     private <T> T checkNoMessage(String expression) throws OpenLCompilationException {
-        StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
+        var source = new StringSourceCodeModule(expression, null);
         OpenL openl = OpenL.getInstance();
-        IBindingContext bindingContext = openl.getBinder().makeBindingContext();
+        var bindingContext = openl.getBinder().makeBindingContext();
         IOpenMethodHeader header = OpenLManager
                 .makeMethodHeader(openl, new StringSourceCodeModule("Object main()", null), bindingContext);
-        CompositeMethod compositeMethod = OpenLManager.makeMethod(openl, source, header, bindingContext);
+        OpenLManager.makeMethod(openl, source, header, bindingContext);
 
         assertTrue(bindingContext.getMessages().isEmpty());
 

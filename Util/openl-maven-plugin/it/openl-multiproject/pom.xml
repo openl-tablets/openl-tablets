@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openl.internal</groupId>
+    <artifactId>openl-multiproject</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>Multiproject tests</name>
+
+    <!-- Independent multi-module dependency scenarios merged into one reactor to pay the Maven
+         fork cost once; verify.groovy checks the reactor summary and the per-module outputs. -->
+    <modules>
+        <module>openl-data-tables-separate-modules</module>
+        <module>openl-flat-multimodule</module>
+        <module>openl-maven-plugin-transitive-dependencies</module>
+        <module>openl-multimodule</module>
+        <module>openl-multimodule-datatype-classpath</module>
+        <module>openl-multiple-deployment</module>
+    </modules>
+</project>

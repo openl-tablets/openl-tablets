@@ -18,6 +18,19 @@ public final class FolderHelper {
     }
 
     /**
+     * Checks that the name is usable as a top-level folder name in a user workspace.
+     *
+     * <p>A blank name or a path separator would escape or split the workspace folder. A leading dot
+     * would turn the folder into a hidden service folder, like {@code .history} or {@code .metainfo}.
+     */
+    public static boolean isSafeFolderName(String name) {
+        return !name.isBlank()
+                && !name.startsWith(".")
+                && !name.contains("/")
+                && !name.contains("\\");
+    }
+
+    /**
      * Returns the module edit-history folder relative to the user workspace directory.
      *
      * <p>The history lives outside the project folder: {@code .history/<project>/<module root>}.

@@ -7,7 +7,6 @@ import java.util.function.Function;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import org.openl.base.INamedThing;
-import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -36,12 +35,12 @@ public final class MethodUtil {
     }
 
     public static String printConstructorWithNamedParameters(IOpenMethodHeader method, Map<String, IOpenClass> params) {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
         if (method.getDeclaringClass() instanceof JavaOpenClass) {
             buf.append(method.getDeclaringClass().getPackageName()).append('\n');
         }
         buf.append(DEFAULT_TYPE_CONVERTER.apply(method.getType())).append(' ');
-        String prefix = "";
+        var prefix = "";
         buf.append('(');
         for (Map.Entry<String, IOpenClass> name : params.entrySet()) {
             buf.append(prefix);
@@ -53,7 +52,7 @@ public final class MethodUtil {
     }
 
     public static String printConstructor(IOpenMethodHeader method) {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
         if (method.getDeclaringClass() instanceof JavaOpenClass) {
             buf.append(method.getDeclaringClass().getPackageName()).append('\n');
         }
@@ -65,7 +64,7 @@ public final class MethodUtil {
     }
 
     public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
         Function<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
         printMethod(methodHeader, buf, typeConverter);
         return buf.toString();
@@ -85,10 +84,10 @@ public final class MethodUtil {
     }
 
     private static void printParameters(IOpenMethodHeader methodHeader, StringBuilder buf, Function<IOpenClass, String> typeConverter) {
-        IMethodSignature signature = methodHeader.getSignature();
-        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            String type = typeConverter.apply(signature.getParameterType(i));
-            String name = signature.getParameterName(i);
+        var signature = methodHeader.getSignature();
+        for (var i = 0; i < signature.getNumberOfParameters(); i++) {
+            var type = typeConverter.apply(signature.getParameterType(i));
+            var name = signature.getParameterName(i);
             if (i != 0) {
                 buf.append(", ");
             }
@@ -121,7 +120,7 @@ public final class MethodUtil {
                                             StringBuilder buf) {
         startPrintingMethodName(name, buf);
 
-        for (int i = 0; i < params.length; i++) {
+        for (var i = 0; i < params.length; i++) {
             String type = shortClassNames ? params[i].getSimpleName() : params[i].getTypeName();
             if (i != 0) {
                 buf.append(", ");
@@ -140,8 +139,8 @@ public final class MethodUtil {
     public static StringBuilder printMethod(String name, IOpenClass[] params, StringBuilder buf) {
         startPrintingMethodName(name, buf);
 
-        for (int i = 0; params != null && i < params.length; i++) {
-            String type = params[i].getName();
+        for (var i = 0; params != null && i < params.length; i++) {
+            var type = params[i].getName();
             if (i != 0) {
                 buf.append(", ");
             }
@@ -155,12 +154,12 @@ public final class MethodUtil {
     }
 
     public static String printMethodWithParameterValues(IOpenMethodHeader method, Object[] params) {
-        StringBuilder buf = new StringBuilder();
+        var buf = new StringBuilder();
         startPrintingMethodName(method.getName(), buf);
 
-        IMethodSignature signature = method.getSignature();
-        for (int i = 0; params != null && i < params.length; i++) {
-            String name = signature.getParameterName(i);
+        var signature = method.getSignature();
+        for (var i = 0; params != null && i < params.length; i++) {
+            var name = signature.getParameterName(i);
             if (i != 0) {
                 buf.append(", ");
             }
@@ -190,9 +189,9 @@ public final class MethodUtil {
 
     public static Method getMatchingAccessibleMethod(Class<?> methodOwner, String methodName, Class<?>[] argTypes) {
         Method resultMethod = null;
-        Method[] methods = methodOwner.getMethods();
+        var methods = methodOwner.getMethods();
         for (Method method : methods) {
-            Class<?>[] signatureParams = method.getParameterTypes();
+            var signatureParams = method.getParameterTypes();
             if (methodName.equals(method.getName()) && signatureParams.length == argTypes.length) {
                 if (isAssignable(argTypes, signatureParams)) {
                     method = MethodUtils.getAccessibleMethod(method);// kills inherited methods
@@ -210,7 +209,7 @@ public final class MethodUtil {
     }
 
     private static boolean isAssignable(Class<?>[] classArray, Class<?>[] toClassArray) {
-        for (int i = 0; i < classArray.length; i++) {
+        for (var i = 0; i < classArray.length; i++) {
             Class<?> from = classArray[i];
             Class<?> to = toClassArray[i];
             if (!ClassUtils.isAssignable(from, to)) {
@@ -221,11 +220,11 @@ public final class MethodUtil {
     }
 
     private static Method getCloserMethod(Method firstMethod, Method secondMethod, Class<?>[] argTypes) {
-        int firstTransfCount = getTransformationsCount(firstMethod.getParameterTypes(), argTypes);
+        var firstTransfCount = getTransformationsCount(firstMethod.getParameterTypes(), argTypes);
         if (firstTransfCount < 0) {
             return secondMethod;
         }
-        int secondTransfCount = getTransformationsCount(secondMethod.getParameterTypes(), argTypes);
+        var secondTransfCount = getTransformationsCount(secondMethod.getParameterTypes(), argTypes);
         if (secondTransfCount < 0 || secondTransfCount >= firstTransfCount) {
             return firstMethod;
         }
@@ -244,8 +243,8 @@ public final class MethodUtil {
         if (!isAssignable(argTypes, signatureToCheck)) {
             return -1;
         }
-        int transformationsCount = 0;
-        for (int i = 0; i < argTypes.length; i++) {
+        var transformationsCount = 0;
+        for (var i = 0; i < argTypes.length; i++) {
             if (!signatureToCheck[i].equals(argTypes[i])) {
                 transformationsCount++;
             }

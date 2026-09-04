@@ -10,7 +10,7 @@ name: "DEMO package test"
 on:
   schedule:
     # Every week at 03:00 UTC on Wednesday
-    - cron: '0 3 * * 3'
+    - cron: '0 3 * * 1,4'
   workflow_dispatch:
     inputs:
       branch:
@@ -43,7 +43,7 @@ jobs:
           ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Setup Java 25
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: 25
@@ -81,7 +81,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: demo
-          path: DEMO
+          path: "DEMO package"
 
       # 1. Start on Linux/macOS
       - name: Start DEMO (Linux/macOS)
@@ -89,7 +89,7 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
-          cd DEMO
+          cd "DEMO package"
           chmod +x start
           nohup ./start > demo-${{ runner.os }}.log.txt 2>&1 &
           echo "DEMO_PID=$!" >> "$GITHUB_ENV"
@@ -101,7 +101,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Continue'
-          Set-Location DEMO
+          Set-Location 'DEMO package'
 
           # Use -Command instead of -File, and add *> demo.log to combine streams
           $proc = Start-Process -FilePath 'pwsh' `
@@ -114,7 +114,7 @@ jobs:
       # 3. Common URL Check (Runs on all OS)
       - name: Check URLs
         shell: bash
-        timeout-minutes: 3
+        timeout-minutes: 6
         run: |
           set -uo pipefail
 
@@ -127,9 +127,14 @@ jobs:
             fi
           }
 
+          # One deadline for the whole check, not one per URL: a webapp that failed to deploy answers 503 to
+          # every request for good, and a budget per URL lets the first such URL eat the step timeout, killing
+          # the step before it reports what happened.
+          DEADLINE=$((SECONDS + 240))
+
           wait_for() {
-            local url="$1" code="000" deadline=$((SECONDS + 120))
-            while [ "$SECONDS" -lt "$deadline" ]; do
+            local url="$1" code="000"
+            while [ "$SECONDS" -lt "$DEADLINE" ]; do
               code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url")
               code="${code:-XXX}"
               [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
@@ -144,7 +149,7 @@ jobs:
             "webstudio"
             "webservice"
             "webservice/Example3-AutoPolicyCalculation/AccidentPremium"
-            "webstudio/faces/pages/modules/repository/index.xhtml"
+            "webstudio/faces/pages/public/showDiff.xhtml"
           )
 
           fail=0
@@ -152,7 +157,7 @@ jobs:
 
           if [ "$fail" -ne 0 ]; then
             echo "::group::demo logs (tail)"
-            tail -n 200 DEMO/demo-${{ runner.os }}.log.txt || true
+            tail -n 200 "DEMO package/demo-${{ runner.os }}.log.txt" || true
             echo "::endgroup::"
             exit 1
           fi
@@ -183,7 +188,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: |
-            DEMO/demo-${{ runner.os }}.log.txt
+            DEMO package/demo-${{ runner.os }}.log.txt
           if-no-files-found: ignore
           archive: false
-          retention-days: 3
+          retention-days: 10

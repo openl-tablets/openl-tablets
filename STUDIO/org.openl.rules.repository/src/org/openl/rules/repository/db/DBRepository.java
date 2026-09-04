@@ -6,7 +6,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,6 +15,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -34,35 +35,18 @@ import org.openl.util.db.SqlDBUtils;
 @Slf4j
 abstract class DBRepository implements Repository, Closeable {
 
+    @Getter
+    @Setter
     private String id;
+    @Getter
+    @Setter
     private String name;
     private volatile Settings settings;
     private ChangesMonitor monitor;
+    @Setter
     private int listenerTimerPeriod = 10;
 
     private volatile boolean initialized = false;
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
-    }
 
     @Override
     public List<FileData> list(String path) throws IOException {
@@ -75,9 +59,9 @@ abstract class DBRepository implements Repository, Closeable {
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
-            List<FileData> filesData = new ArrayList<>();
+            var filesData = new ArrayList<FileData>();
             while (rs.next()) {
-                FileData fileData = createFileData(rs);
+                var fileData = createFileData(rs);
                 filesData.add(fileData);
             }
 
@@ -130,20 +114,20 @@ abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        FileData result = insertFile(data, stream);
+        var result = insertFile(data, stream);
         invokeListener();
         return result;
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        List<FileData> result = new ArrayList<>();
+        var result = new ArrayList<FileData>();
         Connection connection = null;
         try {
             connection = getConnection();
             connection.setAutoCommit(false);
             for (FileItem fileItem : fileItems) {
-                FileData data = fileItem.getData();
+                var data = fileItem.getData();
                 PreparedStatement statement = null;
                 try {
                     statement = createInsertFileStatement(connection, data, fileItem.getStream());
@@ -166,7 +150,7 @@ abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public boolean delete(FileData path) throws IOException {
-        FileData data = getLatestVersionFileData(path.getName());
+        var data = getLatestVersionFileData(path.getName());
         if (data != null) {
             insertFile(data, null);
             invokeListener();
@@ -181,13 +165,13 @@ abstract class DBRepository implements Repository, Closeable {
         if (data.isEmpty()) {
             return false;
         }
-        boolean deleted = false;
-        try (Connection connection = getConnection()) {
+        var deleted = false;
+        try (var connection = getConnection()) {
             connection.setAutoCommit(false);
             for (FileData f : data) {
-                FileData lastVersion = getLatestVersionFileData(connection, f.getName());
+                var lastVersion = getLatestVersionFileData(connection, f.getName());
                 if (lastVersion != null) {
-                    try (PreparedStatement statement = createInsertFileStatement(connection, lastVersion, null)) {
+                    try (var statement = createInsertFileStatement(connection, lastVersion, null)) {
                         statement.executeUpdate();
                         deleted = true;
                     } catch (SQLException e) {
@@ -210,7 +194,7 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         try {
             connection = getConnection();
-            String username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
+            var username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
             statement = connection.prepareStatement(settings.copyFile);
             statement.setString(1, destData.getName());
             statement.setString(2, username);
@@ -245,9 +229,9 @@ abstract class DBRepository implements Repository, Closeable {
             statement.setString(1, name);
             rs = statement.executeQuery();
 
-            List<FileData> filesData = new ArrayList<>();
+            var filesData = new ArrayList<FileData>();
             while (rs.next()) {
-                FileData fileData = createFileData(rs);
+                var fileData = createFileData(rs);
                 filesData.add(fileData);
             }
 
@@ -301,8 +285,8 @@ abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        String dataName = data.getName();
-        String version = data.getVersion();
+        var dataName = data.getName();
+        var version = data.getVersion();
 
         Connection connection = null;
         PreparedStatement statement = null;
@@ -311,7 +295,7 @@ abstract class DBRepository implements Repository, Closeable {
                 connection = getConnection();
                 statement = connection.prepareStatement(settings.deleteAllHistory);
                 statement.setString(1, dataName);
-                int rows = statement.executeUpdate();
+                var rows = statement.executeUpdate();
 
                 if (rows > 0) {
                     invokeListener();
@@ -331,7 +315,7 @@ abstract class DBRepository implements Repository, Closeable {
                 statement = connection.prepareStatement(settings.deleteVersion);
                 statement.setLong(1, Long.parseLong(version));
                 statement.setString(2, dataName);
-                int rows = statement.executeUpdate();
+                var rows = statement.executeUpdate();
 
                 if (rows > 0) {
                     invokeListener();
@@ -358,7 +342,7 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         try {
             connection = getConnection();
-            String username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
+            var username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
             statement = connection.prepareStatement(settings.copyHistory);
             statement.setString(1, destData.getName());
             statement.setString(2, username);
@@ -400,7 +384,7 @@ abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public void validateConnection() throws IOException {
-        try (Connection ignored = getConnection()) {
+        try (var ignored = getConnection()) {
             log.info("Repository '{}' is successfully connected to the database.", name);
         } catch (Exception e) {
             throw new IOException(e);
@@ -477,15 +461,15 @@ abstract class DBRepository implements Repository, Closeable {
     }
 
     private FileItem createFileItem(ResultSet rs) throws SQLException {
-        FileData fileData = createFileData(rs);
-        InputStream data = rs.getBinaryStream("file_data");
+        var fileData = createFileData(rs);
+        var data = rs.getBinaryStream("file_data");
         if (data == null) {
             return null;
         }
 
         // ResultSet will be closed, so InputStream can be closed too, that's
         // why copy it to byte array before.
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        var out = new ByteArrayOutputStream();
         try {
             data.transferTo(out);
         } catch (IOException e) {
@@ -495,7 +479,7 @@ abstract class DBRepository implements Repository, Closeable {
     }
 
     private FileData createFileData(ResultSet rs) throws SQLException {
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(rs.getString("file_name"));
         fileData.setSize(rs.getLong("file_size"));
         fileData.setAuthor(new UserInfo(rs.getString("author")));
@@ -551,7 +535,7 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(settings.insertFile);
-            String username = Optional.ofNullable(data.getAuthor()).map(UserInfo::getUsername).orElse(null);
+            var username = Optional.ofNullable(data.getAuthor()).map(UserInfo::getUsername).orElse(null);
             statement.setString(1, data.getName());
             statement.setString(2, username);
             statement.setString(3, data.getComment());
@@ -590,10 +574,10 @@ abstract class DBRepository implements Repository, Closeable {
         Connection connection = null;
         try {
             connection = createConnection();
-            DatabaseMetaData metaData = connection.getMetaData();
-            String databaseCode = metaData.getDatabaseProductName().toLowerCase(Locale.ROOT).replace(" ", "_");
-            int majorVersion = metaData.getDatabaseMajorVersion();
-            int minorVersion = metaData.getDatabaseMinorVersion();
+            var metaData = connection.getMetaData();
+            var databaseCode = metaData.getDatabaseProductName().toLowerCase(Locale.ROOT).replace(" ", "_");
+            var majorVersion = metaData.getDatabaseMajorVersion();
+            var minorVersion = metaData.getDatabaseMinorVersion();
 
             log.info("Driver name      : {}", metaData.getDriverName());
             log.info("Driver version   : {}", metaData.getDriverVersion());
@@ -621,7 +605,7 @@ abstract class DBRepository implements Repository, Closeable {
                 loadDBSettings();
             }
 
-            Object revision = checkRepository();
+            var revision = checkRepository();
             if (!(revision instanceof Throwable throwable)) {
                 log.info("SQL result: {}. The repository is already initialized.", revision);
                 initialized = true;
@@ -670,7 +654,7 @@ abstract class DBRepository implements Repository, Closeable {
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
             }
-            Object revision = checkRepository();
+            var revision = checkRepository();
             if (revision instanceof Throwable throwable) {
                 log.warn("Cannot check revision of the repository.", throwable);
                 return null;

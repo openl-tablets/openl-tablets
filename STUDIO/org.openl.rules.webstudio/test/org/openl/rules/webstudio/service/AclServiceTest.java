@@ -16,8 +16,6 @@ import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.Sid;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -43,7 +41,7 @@ class AclServiceTest {
     @Transactional
     void grantAndReadPermission() {
         // Prepare the information we'd like in our access control entry (ACE)
-        ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "44");
+        var oi = new ObjectIdentityImpl(Foo.class, "44");
 
         // Create or update the relevant ACL
         MutableAcl acl;
@@ -54,13 +52,13 @@ class AclServiceTest {
         }
 
         // Now grant some permissions via an access control entry (ACE)
-        Sid sid = new PrincipalSid("Samantha");
+        var sid = new PrincipalSid("Samantha");
         acl.insertAce(acl.getEntries().size(), BasePermission.WRITE, sid, true);
         acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
         acl.insertAce(acl.getEntries().size(), BasePermission.DELETE, sid, false);
 
         // Authority Permissions
-        Sid sid1 = new GrantedAuthoritySid("Samantha");
+        var sid1 = new GrantedAuthoritySid("Samantha");
         acl.insertAce(acl.getEntries().size(), BasePermission.WRITE, sid1, false);
         aclService.updateAcl(acl);
 

@@ -1,5 +1,9 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum CurrenciesEnum {
 
     ALL("Albania, Leke"),
@@ -75,10 +79,6 @@ public enum CurrenciesEnum {
     YER("Yemen, Rials");
 
     private final String displayName;
-
-    CurrenciesEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

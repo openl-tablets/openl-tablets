@@ -25,6 +25,7 @@ import org.jspecify.annotations.Nullable;
  * @param steps          the executed sub-steps, each of which may carry its own executed sub-calls
  * @param dispatch       set when this table was selected by a dispatcher (overloaded by dimensions), otherwise {@code null}
  * @param refStep        for a step-reference node, the reference of the step it points at, otherwise {@code null}
+ * @param notRetained    sub-calls this node made that ran but were dropped because the tree hit its size limit, else {@code null}
  */
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -55,6 +56,9 @@ public record CallNodeView(
         @Nullable DispatchInfo dispatch,
 
         @Schema(description = "trace.field.call-node.ref-step.desc")
-        @Nullable String refStep
+        @Nullable String refStep,
+
+        @Schema(description = "trace.field.call-node.not-retained.desc")
+        @Nullable Long notRetained
 ) {
 }

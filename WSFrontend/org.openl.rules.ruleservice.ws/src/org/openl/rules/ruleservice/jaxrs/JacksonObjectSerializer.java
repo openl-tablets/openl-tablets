@@ -2,17 +2,15 @@ package org.openl.rules.ruleservice.jaxrs;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.ProcessingException;
 
+@RequiredArgsConstructor
 public class JacksonObjectSerializer implements ObjectSerializer {
 
     private final ObjectMapper objectMapper;
-
-    public JacksonObjectSerializer(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public <T> T readValue(String content, Class<T> type) throws ProcessingException {

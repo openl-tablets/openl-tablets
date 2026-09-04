@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.util.db.SqlDBUtils;
 
 public class ProjectVersionH2CacheDB extends H2CacheDB {
@@ -32,9 +30,8 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     private static final String REPOSITORY = "repository";
 
     private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(1000)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(32), " + REPOSITORY + " varchar(6))";
-    private static final String SELECT_VERSION_QUERY = "SELECT " + VERSION + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=?) AND " + HASH + "=?";
+    private static final String SELECT_VERSION_QUERY = "SELECT " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + " FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=? ORDER BY " + CREATED_AT + " DESC FETCH FIRST 1 ROW ONLY";
     private static final String SELECT_HASH_QUERY = "SELECT " + HASH + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=? AND " + PROJECT_NAME + "=? AND " + REPOSITORY + "=? AND " + VERSION + "=?";
-    private static final String SELECT_DESIGN_VERSION_QUERY = "select " + CREATED_AT + ", " + CREATED_BY + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=(SELECT MAX(" + CREATED_AT + ") FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=?)";
     private static final String INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + PROJECT_NAME + ", " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + ", " + HASH + ", " + REPOSITORY + ") values" + "(?,?,?,?,?,?)";
     private static final String SELECT_COUNT_QUERY = "SELECT COUNT(*) FROM " + TABLE_NAME;
     private static final String DROP_QUERY = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -82,7 +79,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     }
 
     public boolean isCacheEmpty() throws IOException {
-        int count = 0;
+        var count = 0;
         Connection connection = null;
         PreparedStatement selectPreparedStatement = null;
         ResultSet rs = null;
@@ -104,41 +101,6 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             SqlDBUtils.safeClose(connection);
         }
         return count == 0;
-    }
-
-    public String getDesignBusinessVersion(String name, String hash, RepoType repoType) throws IOException {
-        Connection connection = null;
-        ResultSet rs = null;
-        PreparedStatement selectPreparedStatement = null;
-        try {
-            connection = getDBConnection();
-            connection.setAutoCommit(false);
-            ensureCacheExist(connection);
-            selectPreparedStatement = connection.prepareStatement(SELECT_DESIGN_VERSION_QUERY);
-            selectPreparedStatement.setString(1, name);
-            selectPreparedStatement.setString(2, hash);
-            selectPreparedStatement.setString(3, repoType.name());
-            rs = selectPreparedStatement.executeQuery();
-            Timestamp createdAt = null;
-            String createdBy = null;
-            while (rs.next()) {
-                createdAt = rs.getTimestamp(CREATED_AT);
-                createdBy = rs.getString(CREATED_BY);
-            }
-            String businessVersion = null;
-            if (createdAt != null && createdBy != null) {
-                String modifiedOnStr = WebStudioFormats.getInstance().formatDateTime(createdAt);
-                businessVersion = createdBy + ": " + modifiedOnStr;
-            }
-            connection.commit();
-            return businessVersion;
-        } catch (Exception e) {
-            throw new IOException(e);
-        } finally {
-            SqlDBUtils.safeClose(rs);
-            SqlDBUtils.safeClose(selectPreparedStatement);
-            SqlDBUtils.safeClose(connection);
-        }
     }
 
     public String getHash(String name, String version, Date createdAt, RepoType repoType) throws IOException {
@@ -170,7 +132,12 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
         }
     }
 
-    public String getVersion(String name, String hash, RepoType repoType) throws IOException {
+    /**
+     * Returns the latest version of a project whose content has the given hash.
+     *
+     * @return the version, or {@code null} when no version of that project has that content
+     */
+    public CachedProjectVersion getVersion(String name, String hash, RepoType repoType) throws IOException {
         Connection connection = null;
         ResultSet rs = null;
         PreparedStatement selectPreparedStatement = null;
@@ -182,12 +149,12 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             selectPreparedStatement.setString(1, name);
             selectPreparedStatement.setString(2, hash);
             selectPreparedStatement.setString(3, repoType.name());
-            selectPreparedStatement.setString(4, hash);
             rs = selectPreparedStatement.executeQuery();
-            String version = null;
-            while (rs.next()) {
-                version = rs.getString(VERSION);
-            }
+            var version = rs.next()
+                    ? new CachedProjectVersion(rs.getString(VERSION),
+                            rs.getTimestamp(CREATED_AT),
+                            rs.getString(CREATED_BY))
+                    : null;
             connection.commit();
             return version;
         } catch (Exception e) {
@@ -235,7 +202,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
         Connection connection = null;
         PreparedStatement selectPreparedStatement = null;
         ResultSet rs = null;
-        boolean state = false;
+        var state = false;
         try {
             connection = getDBConnection();
             connection.setAutoCommit(false);
@@ -257,7 +224,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     }
 
     public void closeDb() throws IOException {
-        try (Connection connection = getDBConnection(); Statement statement = connection.createStatement()) {
+        try (var connection = getDBConnection(); var statement = connection.createStatement()) {
             statement.execute("SHUTDOWN");
         } catch (Exception e) {
             throw new IOException(e);
@@ -296,7 +263,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
         PreparedStatement insertPreparedStatement = null;
         ResultSet checkStateResult = null;
         ResultSet rs = null;
-        int state = 0;
+        var state = 0;
         try {
             connection.setAutoCommit(false);
             checkPreparedStatement = connection.prepareStatement(CHECK_STATE_QUERY);

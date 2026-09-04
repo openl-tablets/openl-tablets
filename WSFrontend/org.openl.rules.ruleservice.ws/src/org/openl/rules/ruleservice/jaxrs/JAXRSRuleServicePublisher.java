@@ -86,12 +86,12 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             throw new RuleServiceDeployException(e.getMessage(), e);
         }
 
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        var oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             var svrFactory = new JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean();
             svrFactory.setApplicationContext(service.getServiceContext());
-            String url = "/" + getUrl(service);
+            var url = "/" + getUrl(service);
             svrFactory.setAddress(url);
 
             svrFactory.getFeatures().addAll(features);
@@ -122,7 +122,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             // Swagger support
             svrFactory.setProviders(exceptionMappers);
 
-            Object proxyServiceBean = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service);
+            var proxyServiceBean = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service);
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
 
@@ -132,10 +132,10 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(proxyServiceBean));
             svrFactory.setResourceProvider(OpenApiResource.class, new SingletonResourceProvider(openApiResource));
 
-            ClassLoader origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
+            var origClassLoader = svrFactory.getBus().getExtension(ClassLoader.class);
             try {
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
-                Server wsServer = svrFactory.create();
+                var wsServer = svrFactory.create();
                 runningServices.put(service, wsServer);
                 log.info("Service '{}' has been exposed with URL '{}'.", service.getDeployPath(), url);
             } finally {
@@ -174,7 +174,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     @Override
     public void undeploy(OpenLService service) throws RuleServiceUndeployException {
         Objects.requireNonNull(service, "service cannot be null");
-        Server server = runningServices.get(service);
+        var server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
                     "There is no running service with name '%s'.".formatted(service.getDeployPath()));
@@ -193,7 +193,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     @Override
     public String getUrl(OpenLService service) {
         String url = URLHelper.processURL(service.getUrl());
-        int numOfServicesWithUrls = service.getPublishers().size();
+        var numOfServicesWithUrls = service.getPublishers().size();
         if (service.getPublishers().contains(RulesDeploy.PublisherType.KAFKA.toString())) {
             numOfServicesWithUrls--;
         }

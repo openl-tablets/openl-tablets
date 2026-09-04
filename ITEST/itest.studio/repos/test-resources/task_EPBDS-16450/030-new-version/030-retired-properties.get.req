@@ -1,0 +1,3 @@
+GET /rest/projects/EPBDS-16450/tables/4b200c0ac327e1ec9ced088f18451197/properties HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

@@ -59,7 +59,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
     @Override
     public T next() {
-        int idx = current;
+        var idx = current;
         current += step;
         return indexedElement(idx);
     }

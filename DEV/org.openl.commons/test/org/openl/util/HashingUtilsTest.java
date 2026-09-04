@@ -57,7 +57,7 @@ class HashingUtilsTest {
 
     @Test
     void sha1_longString_handlesCorrectly() {
-        String longString = "a".repeat(10000);
+        var longString = "a".repeat(10000);
         byte[] result = HashingUtils.sha1(longString);
 
         assertNotNull(result);
@@ -110,7 +110,7 @@ class HashingUtilsTest {
 
     @Test
     void sha256Hex_longString_handlesCorrectly() {
-        String longString = "a".repeat(10000);
+        var longString = "a".repeat(10000);
         String result = HashingUtils.sha256Hex(longString);
 
         assertNotNull(result);
@@ -119,7 +119,7 @@ class HashingUtilsTest {
 
     @Test
     void sha256Hex_specialCharacters_handlesCorrectly() {
-        String specialChars = "!@#$%^&*()_+-=[]{}|;':\",./<>?`~";
+        var specialChars = "!@#$%^&*()_+-=[]{}|;':\",./<>?`~";
         String result = HashingUtils.sha256Hex(specialChars);
 
         assertNotNull(result);
@@ -136,7 +136,7 @@ class HashingUtilsTest {
 
     @Test
     void sha1_deterministicResults_sameInputProducesSameOutput() {
-        String input = "test data";
+        var input = "test data";
 
         byte[] result1 = HashingUtils.sha1(input);
         byte[] result2 = HashingUtils.sha1(input);
@@ -148,7 +148,7 @@ class HashingUtilsTest {
 
     @Test
     void sha256Hex_deterministicResults_sameInputProducesSameOutput() {
-        String input = "test data";
+        var input = "test data";
 
         String result1 = HashingUtils.sha256Hex(input);
         String result2 = HashingUtils.sha256Hex(input);

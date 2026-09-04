@@ -517,7 +517,8 @@ Content-Type: application/json
           "content" : {
             "text/plain" : {
               "schema" : {
-                "$ref" : "#/components/schemas/LocalTime"
+                "type" : "string",
+                "format" : "time-local"
               }
             }
           }
@@ -527,7 +528,8 @@ Content-Type: application/json
             "content" : {
               "text/plain;charset=UTF-8" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/LocalTime"
+                  "type" : "string",
+                  "format" : "time-local"
                 }
               }
             },
@@ -824,7 +826,8 @@ Content-Type: application/json
             "format" : "date-time"
           },
           "localTime" : {
-            "$ref" : "#/components/schemas/LocalTime"
+            "type" : "string",
+            "format" : "time-local"
           }
         }
       },
@@ -848,27 +851,6 @@ Content-Type: application/json
           },
           "message" : {
             "type" : "string"
-          }
-        }
-      },
-      "LocalTime" : {
-        "type" : "object",
-        "properties" : {
-          "hour" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "minute" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "second" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "nano" : {
-            "type" : "integer",
-            "format" : "int32"
           }
         }
       }

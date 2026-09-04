@@ -82,8 +82,8 @@ public class FieldChain extends AOpenField {
     public void set(Object target, Object value, IRuntimeEnv env) {
 
         // find last target, make if necessary
-        for (int i = 0; i < fields.length - 1; i++) {
-            Object newTarget = fields[i].get(target, env);
+        for (var i = 0; i < fields.length - 1; i++) {
+            var newTarget = fields[i].get(target, env);
 
             if (newTarget == null) {
                 newTarget = fields[i].getType().newInstance(env);

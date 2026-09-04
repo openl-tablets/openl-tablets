@@ -1,5 +1,9 @@
 package org.openl.rules.calc.element;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import org.openl.rules.table.ICell;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -9,54 +13,30 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class SpreadsheetCell implements Invokable {
 
+    @Getter
     private final int rowIndex;
+    @Getter
     private final int columnIndex;
+    @Getter
     private final ICell sourceCell;
 
+    @Getter
     private final SpreadsheetCellType spreadsheetCellType;
+    @Getter
     private Object value;
+    @Getter
     private IOpenClass type;
 
+    @Getter
+    @Setter
     private IOpenMethod method;
 
+    @Getter
+    @Setter
     private boolean returnCell;
-
-    public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
-        this.rowIndex = rowIndex;
-        this.columnIndex = columnIndex;
-        this.sourceCell = sourceCell;
-        this.spreadsheetCellType = spreadsheetCellType;
-    }
-
-    public ICell getSourceCell() {
-        return sourceCell;
-    }
-
-    public int getColumnIndex() {
-        return columnIndex;
-    }
-
-    public SpreadsheetCellType getSpreadsheetCellType() {
-        return spreadsheetCellType;
-    }
-
-    public IOpenMethod getMethod() {
-        return method;
-    }
-
-    public int getRowIndex() {
-        return rowIndex;
-    }
-
-    public IOpenClass getType() {
-        return type;
-    }
-
-    public Object getValue() {
-        return value;
-    }
 
     public boolean isEmpty() {
         return spreadsheetCellType == SpreadsheetCellType.EMPTY;
@@ -80,10 +60,6 @@ public class SpreadsheetCell implements Invokable {
                 .isPrimitive() && isEmpty();
     }
 
-    public void setMethod(IOpenMethod method) {
-        this.method = method;
-    }
-
     public void setType(IOpenClass type) {
         if (type != null) {
             if (type.equals(NullOpenClass.the)) {
@@ -103,14 +79,6 @@ public class SpreadsheetCell implements Invokable {
         } else {
             this.value = value;
         }
-    }
-
-    public boolean isReturnCell() {
-        return returnCell;
-    }
-
-    public void setReturnCell(boolean returnCell) {
-        this.returnCell = returnCell;
     }
 
     @Override

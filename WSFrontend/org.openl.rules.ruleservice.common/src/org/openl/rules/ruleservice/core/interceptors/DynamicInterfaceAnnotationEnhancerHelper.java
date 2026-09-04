@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -56,7 +55,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         }
 
         private Method[] getMissedMethods() {
-            Set<Method> tmp = new HashSet<>(Arrays.asList(templateClass.getMethods()));
+            var tmp = new HashSet<Method>(Arrays.asList(templateClass.getMethods()));
             tmp.removeAll(foundMethods);
             return tmp.toArray(new Method[]{});
         }
@@ -69,9 +68,9 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                           String superName,
                           String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
-            Annotation[] annotations = templateClass.getAnnotations();
+            var annotations = templateClass.getAnnotations();
             for (Annotation annotation : annotations) {
-                AnnotationVisitor annotationVisitor = this
+                var annotationVisitor = this
                         .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                 InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
             }
@@ -88,24 +87,24 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 List<Method> methods = templateClassMethodsByName.get(name);
                 if (methods != null) {
                     for (Method method : methods) {
-                        Type[] typesInTemplateMethod = Arrays.stream(method.getParameters())
+                        var typesInTemplateMethod = Arrays.stream(method.getParameters())
                                 .filter(e -> !e.isAnnotationPresent(ExternalParam.class)) // Skip parameters with
                                 // @ExternalParam annotation
                                 .map(e -> Type.getType(e.getType()))
                                 .toArray(Type[]::new);
                         Type[] typesInCurrentMethod = Type.getArgumentTypes(descriptor);
                         if (typesInCurrentMethod.length == typesInTemplateMethod.length) {
-                            boolean isCompatible = true;
-                            for (int i = 0; i < typesInCurrentMethod.length; i++) {
+                            var isCompatible = true;
+                            for (var i = 0; i < typesInCurrentMethod.length; i++) {
                                 if (!typesInCurrentMethod[i].equals(typesInTemplateMethod[i])) {
-                                    Parameter parameter = method.getParameters()[i];
-                                    boolean isCompatibleParameter = false;
-                                    RulesType rulesType = parameter.getAnnotation(RulesType.class);
+                                    var parameter = method.getParameters()[i];
+                                    var isCompatibleParameter = false;
+                                    var rulesType = parameter.getAnnotation(RulesType.class);
                                     if (rulesType != null) {
                                         try {
-                                            Class<?> type = RuleServiceInstantiationFactoryHelper
+                                            var type = RuleServiceInstantiationFactoryHelper
                                                     .findOrLoadType(rulesType, openClass, classLoader);
-                                            String d = typesInCurrentMethod[i].getDescriptor();
+                                            var d = typesInCurrentMethod[i].getDescriptor();
                                             while (d.startsWith("[")) {
                                                 d = d.substring(1);
                                             }
@@ -138,8 +137,8 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                     foundMethods.add(templateMethod);
                     Type[] argumentTypes = Type.getArgumentTypes(templateMethod);
                     Type[] originalMethodArgumentTypes = Type.getArgumentTypes(descriptor);
-                    int i = 0;
-                    int j = 0;
+                    var i = 0;
+                    var j = 0;
                     for (Parameter parameter : templateMethod.getParameters()) {
                         if (!parameter.isAnnotationPresent(ExternalParam.class)) {
                             if (!parameter.isAnnotationPresent(RulesType.class) || isObjectType(parameter.getType())) {
@@ -149,21 +148,21 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                         }
                         i++;
                     }
-                    MethodVisitor mv = super.visitMethod(access,
+                    var mv = super.visitMethod(access,
                             name,
                             Type.getMethodDescriptor(Type.getType(templateMethod.getReturnType()), argumentTypes),
                             signature,
                             exceptions);
-                    Annotation[] annotations = templateMethod.getAnnotations();
+                    var annotations = templateMethod.getAnnotations();
                     for (Annotation annotation : annotations) {
-                        AnnotationVisitor annotationVisitor = mv
+                        var annotationVisitor = mv
                                 .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                         InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
                     }
                     i = 0;
                     for (Parameter parameter : templateMethod.getParameters()) {
                         for (Annotation annotation : parameter.getAnnotations()) {
-                            AnnotationVisitor annotationVisitor = mv
+                            var annotationVisitor = mv
                                     .visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
                             InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
                         }
@@ -202,18 +201,18 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         if (!templateClass.isInterface() && !Modifier.isAbstract(templateClass.getModifiers())) {
             throw new InstantiationException("Only interfaces or abstract classes are supported");
         }
-        final String enhancedClassName = originalClass
+        final var enhancedClassName = originalClass
                 .getName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
 
-        ClassWriter cw = new ClassWriter(0);
-        DynamicInterfaceAnnotationEnhancerClassVisitor dynamicInterfaceAnnotationEnhancerClassVisitor = new DynamicInterfaceAnnotationEnhancerClassVisitor(
+        var cw = new ClassWriter(0);
+        var dynamicInterfaceAnnotationEnhancerClassVisitor = new DynamicInterfaceAnnotationEnhancerClassVisitor(
                 cw,
                 templateClass,
                 openClass,
                 classLoader);
         processServiceExtraMethods(dynamicInterfaceAnnotationEnhancerClassVisitor, templateClass);
 
-        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enhancedClassName);
+        var transformer = new InterfaceTransformer(originalClass, enhancedClassName);
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
         logMissedMethods(dynamicInterfaceAnnotationEnhancerClassVisitor);

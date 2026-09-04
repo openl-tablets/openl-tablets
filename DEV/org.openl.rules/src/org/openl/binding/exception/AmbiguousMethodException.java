@@ -9,6 +9,8 @@ package org.openl.binding.exception;
 import java.util.Collections;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
@@ -19,6 +21,7 @@ import org.openl.types.IOpenMethod;
  */
 public class AmbiguousMethodException extends OpenlNotCheckedException {
 
+    @Getter
     private final List<IOpenMethod> matchingMethods;
 
     private final String methodName;
@@ -36,13 +39,9 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
         this.matchingMethods = Collections.unmodifiableList(matchingMethods);
     }
 
-    public List<IOpenMethod> getMatchingMethods() {
-        return matchingMethods;
-    }
-
     @Override
     public String getMessage() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         sb.append("Method '");
         if (pars != null) {

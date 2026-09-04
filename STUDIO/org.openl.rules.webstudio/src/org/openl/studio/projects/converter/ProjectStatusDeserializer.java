@@ -17,7 +17,7 @@ public class ProjectStatusDeserializer extends JsonDeserializer<ProjectStatus> {
 
     @Override
     public ProjectStatus deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        String value = parser.getValueAsString();
+        var value = parser.getValueAsString();
 
         if (value == null) {
             return null;

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
+import lombok.Setter;
+
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.FileData;
@@ -11,6 +13,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
 
 public class AProjectResource extends AProjectArtefact implements IProjectResource {
+    @Setter
     private ResourceTransformer resourceTransformer;
 
     public AProjectResource(AProject project, Repository repository, FileData fileData) {
@@ -34,7 +37,7 @@ public class AProjectResource extends AProjectArtefact implements IProjectResour
         try {
             getProject().tryLockOrThrow();
 
-            FileData fd = getFileData();
+            var fd = getFileData();
             fd.setModifiedAt(new Date());
 
             setFileData(getRepository().save(fd, inputStream));
@@ -53,11 +56,7 @@ public class AProjectResource extends AProjectArtefact implements IProjectResour
     @Override
     public void update(AProjectArtefact artefact, CommonUser user) throws ProjectException {
         super.update(artefact, user);
-        AProjectResource resource = (AProjectResource) artefact;
+        var resource = (AProjectResource) artefact;
         setContent(resourceTransformer != null ? resourceTransformer.transform(resource) : resource.getContent());
-    }
-
-    public void setResourceTransformer(ResourceTransformer resourceTransformer) {
-        this.resourceTransformer = resourceTransformer;
     }
 }

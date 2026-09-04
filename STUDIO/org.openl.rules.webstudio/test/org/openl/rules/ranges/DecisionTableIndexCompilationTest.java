@@ -34,9 +34,9 @@ class DecisionTableIndexCompilationTest {
                 .setExecutionMode(false)
                 .build();
 
-        IOpenClass openClass = factory.getCompiledOpenClass().getOpenClass();
+        var openClass = factory.getCompiledOpenClass().getOpenClass();
 
-        DecisionTable dt = findDt("SimpleRules_NotDateRange_WhenNoRangesJustSimpleTextDates", openClass);
+        var dt = findDt("SimpleRules_NotDateRange_WhenNoRangesJustSimpleTextDates", openClass);
         assertConditionsNumber(dt);
         assertConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluator.class);
 

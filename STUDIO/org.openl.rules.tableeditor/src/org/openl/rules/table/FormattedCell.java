@@ -2,6 +2,8 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -26,14 +28,22 @@ public class FormattedCell implements ICell {
         return delegate.getTopLeftCellFromRegion();
     }
 
+    @Getter
     private final ICellFont font;
 
+    @Getter
     private final ICellStyle style;
 
+    @Getter
     private IGridFilter filter;
 
+    @Getter
+    @Setter
     private Object objectValue;
+    @Getter
+    @Setter
     private String formattedValue;
+    @Getter
     private final CellMetaInfo metaInfo;
 
     public FormattedCell(ICell delegate, CellMetaInfo cellMetaInfo) {
@@ -46,42 +56,11 @@ public class FormattedCell implements ICell {
         this.metaInfo = cellMetaInfo;
     }
 
-    @Override
-    public ICellStyle getStyle() {
-        return style;
-    }
-
-    @Override
-    public ICellFont getFont() {
-        return font;
-    }
-
-    @Override
-    public Object getObjectValue() {
-        return objectValue;
-    }
-
-    public void setObjectValue(Object objectValue) {
-        this.objectValue = objectValue;
-    }
-
-    public IGridFilter getFilter() {
-        return filter;
-    }
-
     public void setFilter(IGridFilter filter) {
         if (this.filter != null) {
             log.warn("More than one filter set on cell");
         }
         this.filter = filter;
-    }
-
-    public String getFormattedValue() {
-        return formattedValue;
-    }
-
-    public void setFormattedValue(String formattedValue) {
-        this.formattedValue = formattedValue;
     }
 
     @Override
@@ -167,10 +146,6 @@ public class FormattedCell implements ICell {
     @Override
     public Date getNativeDate() {
         return delegate.getNativeDate();
-    }
-
-    public CellMetaInfo getMetaInfo() {
-        return metaInfo;
     }
 
     @Override

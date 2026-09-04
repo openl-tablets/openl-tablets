@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,7 @@ class CollectionUtilsTest {
 
     @Test
     void testIsEmptyCollection() {
-        List<String> list = new ArrayList<>();
+        var list = new ArrayList<String>();
         assertTrue(CollectionUtils.isEmpty(list), "Collection is not empty");
         list.add("");
         assertFalse(CollectionUtils.isEmpty(list), "Collection is empty");
@@ -38,7 +37,7 @@ class CollectionUtilsTest {
 
     @Test
     void testIsNotEmptyCollection() {
-        List<String> list = new ArrayList<>();
+        var list = new ArrayList<String>();
         assertFalse(CollectionUtils.isNotEmpty(list), "Collection is empty");
         list.add("");
         assertTrue(CollectionUtils.isNotEmpty(list), "Collection is not empty");
@@ -49,7 +48,7 @@ class CollectionUtilsTest {
 
     @Test
     void testIsEmptyMap() {
-        Map<String, Integer> map = new HashMap<>();
+        var map = new HashMap<String, Integer>();
         assertTrue(CollectionUtils.isEmpty(map), "Collection is not empty");
         map.put(null, null);
         assertFalse(CollectionUtils.isEmpty(map), "Collection is empty");
@@ -60,7 +59,7 @@ class CollectionUtilsTest {
 
     @Test
     void testIsNotEmptyMap() {
-        Map<String, Integer> map = new HashMap<>();
+        var map = new HashMap<String, Integer>();
         assertFalse(CollectionUtils.isNotEmpty(map), "Collection is empty");
         map.put(null, null);
         assertTrue(CollectionUtils.isNotEmpty(map), "Collection is not empty");
@@ -154,7 +153,7 @@ class CollectionUtilsTest {
                 CollectionUtils.map(new ArrayList<>(), mapper).toArray(),
                 "Returned collection is not correct");
         assertArrayEquals(new String[]{"0"},
-                CollectionUtils.map(Collections.singletonList(0), mapper).toArray(),
+                CollectionUtils.map(List.of(0), mapper).toArray(),
                 "Returned collection is not correct");
     }
 
@@ -196,7 +195,7 @@ class CollectionUtilsTest {
                 CollectionUtils.findAll(Arrays.asList(1, 2, 3, 4, 5, 10), isEven).toArray(),
                 "Returned collection is not correct");
         assertArrayEquals(new Object[]{0},
-                CollectionUtils.findAll(Collections.singletonList(0), isEven).toArray(),
+                CollectionUtils.findAll(List.of(0), isEven).toArray(),
                 "Returned collection is not correct");
     }
 
@@ -230,7 +229,7 @@ class CollectionUtilsTest {
         assertArrayEquals((int[]) CollectionUtils.toArray(Arrays.asList(3, 1, 2), int.class), new int[]{3, 1, 2});
         assertArrayEquals((Double[]) CollectionUtils.toArray(Arrays.asList(3.1, 1.2, 2.3), Double.class),
                 new Double[]{3.1, 1.2, 2.3});
-        assertArrayEquals((String[]) CollectionUtils.toArray(Collections.emptyList(), String.class), new String[0]);
-        assertArrayEquals((byte[]) CollectionUtils.toArray(Collections.emptyList(), byte.class), new byte[0]);
+        assertArrayEquals((String[]) CollectionUtils.toArray(List.of(), String.class), new String[0]);
+        assertArrayEquals((byte[]) CollectionUtils.toArray(List.of(), byte.class), new byte[0]);
     }
 }

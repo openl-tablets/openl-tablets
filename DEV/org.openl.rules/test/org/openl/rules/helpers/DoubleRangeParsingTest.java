@@ -154,7 +154,7 @@ class DoubleRangeParsingTest {
 
     @Test
     void testSimplifiedDeclaration() {
-        DoubleRange range1 = new DoubleRange("1-15");
+        var range1 = new DoubleRange("1-15");
         assertEquals(range1, new DoubleRange("[1;15]"));
         assertTrue(range1.contains(1d));
         assertTrue(range1.contains(15d));

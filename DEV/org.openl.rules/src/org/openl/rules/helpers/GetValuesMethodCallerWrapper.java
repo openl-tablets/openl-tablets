@@ -1,10 +1,8 @@
 package org.openl.rules.helpers;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 
 import org.openl.binding.ICastFactory;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodCallerWrapper;
 import org.openl.binding.impl.cast.MethodSearchTuner;
 import org.openl.binding.impl.method.AutoCastableResultOpenMethod;
@@ -25,13 +23,13 @@ public class GetValuesMethodCallerWrapper implements MethodCallerWrapper {
                                 IOpenClass[] callParams,
                                 ICastFactory castFactory) {
 
-        Method javaMethod = javaOpenMethod.getJavaMethod();
-        MethodSearchTuner autoCastReturnType = javaMethod.getAnnotation(MethodSearchTuner.class);
+        var javaMethod = javaOpenMethod.getJavaMethod();
+        var autoCastReturnType = javaMethod.getAnnotation(MethodSearchTuner.class);
         if (autoCastReturnType != null) {
             IOpenClass arrayType = JavaOpenClass.getOpenClass(
                     Array.newInstance(((StaticDomainOpenClass) callParams[0]).getDelegate().getInstanceClass(), 1)
                             .getClass());
-            IOpenCast cast = castFactory.getCast(javaOpenMethod.getType(), arrayType);
+            var cast = castFactory.getCast(javaOpenMethod.getType(), arrayType);
             if (cast != null) {
                 return new AutoCastableResultOpenMethod(methodCaller, arrayType, cast);
             }

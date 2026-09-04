@@ -1,35 +1,36 @@
 package org.openl.studio.repositories.service;
 
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.repositories.model.ProjectRevision;
 
+@RequiredArgsConstructor
 @Service
 public class ProjectRevisionServiceImpl implements ProjectRevisionService {
 
     private final DesignTimeRepository designTimeRepository;
     private final RepositoryAclService designRepositoryAclService;
-
-    public ProjectRevisionServiceImpl(DesignTimeRepository designTimeRepository,
-                                      RepositoryAclService designRepositoryAclService) {
-        this.designTimeRepository = designTimeRepository;
-        this.designRepositoryAclService = designRepositoryAclService;
-    }
 
     @Lookup
     protected HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {
@@ -64,7 +65,11 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
         // Get full path based on repository features
         String fullPath;
         if (repository.supports().mappedFolders()) {
-            fullPath = project.getFolderPath();
+            fullPath = mappedPathIn(repository, project);
+            if (fullPath == null) {
+                // The branch being read does not hold the folder, so it has no history of it to report.
+                return PageResponse.of(List.of(), page, 0L);
+            }
         } else {
             fullPath = designTimeRepository.getRulesLocation() + projectName;
         }
@@ -73,12 +78,73 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
         return getHistoryRepositoryMapper(repository).getProjectHistory(fullPath, searchTerm, techRevs, page);
     }
 
+    @Override
+    public PageResponse<ProjectRevision> getProjectRevision(RulesProject project,
+                                                            String searchTerm,
+                                                            boolean techRevs,
+                                                            Pageable page) throws IOException {
+        if (project.isLocalOnly()) {
+            // Never published, so no repository holds a history of it.
+            return PageResponse.of(List.of(), page, 0L);
+        }
+        // The project carries the folder its repository holds it under, which is the folder its own history
+        // is read from. No name is resolved, so a rename that is not saved yet changes nothing here.
+        return getHistoryRepositoryMapper(project.getDesignRepository())
+                .getProjectHistory(project.getDesignFolderName(), searchTerm, techRevs, page);
+    }
+
+    @Override
+    public PageResponse<ProjectRevision> getFileRevision(RulesProject project,
+                                                         String path,
+                                                         String searchTerm,
+                                                         boolean techRevs,
+                                                         Pageable page) throws IOException {
+        if (project.isLocalOnly()) {
+            // Never published, so no repository holds a history of it.
+            return PageResponse.of(List.of(), page, 0L);
+        }
+        var filePath = path.startsWith("/") ? path.substring(1) : path;
+        if (filePath.isEmpty() || "/".equals(filePath)) {
+            // No file named: the history asked for is the project's own.
+            return getProjectRevision(project, searchTerm, techRevs, page);
+        }
+        // Reject absolute paths and parent traversal before they are anchored to the project folder. The
+        // container already refuses most of them, but the repository contract is enforced here rather than
+        // relied upon from the outside.
+        try {
+            Repository.validatePath(filePath);
+        } catch (InvalidPathException e) {
+            throw new BadRequestException("file.path.invalid.message");
+        }
+        // The repository keeps the file under the project folder, and the history of any path is read the
+        // same way, so the file's own history is the project folder's history narrowed to that path.
+        return getHistoryRepositoryMapper(project.getDesignRepository())
+                .getProjectHistory(project.getDesignFolderName() + "/" + filePath, searchTerm, techRevs, page);
+    }
+
+    /**
+     * The path the given repository view knows the project by, or {@code null} when that branch does not hold it.
+     *
+     * <p>A mapped repository names its folders per branch, so the path a project is listed under is not the path
+     * the branch being read uses for it. The folder is the same, so it is translated back through the mapping of
+     * that branch.
+     */
+    private static @Nullable String mappedPathIn(Repository repository, AProject project) {
+        var listedPath = project.getFolderPath();
+        var listedIn = project.getRepository();
+        if (!listedIn.supports().mappedFolders()) {
+            return listedPath;
+        }
+        var internalPath = ((FolderMapper) listedIn).getRealPath(listedPath);
+        return ((FolderMapper) repository).findMappedName(internalPath);
+    }
+
     private Repository checkoutBranchIfPresent(Repository repository, String branch) throws IOException {
         if (!repository.supports().branches()) {
             throw new NotFoundException("repository.branch.message");
         }
         branch = branch.replace(' ', '/');
-        BranchRepository branchRepo = ((BranchRepository) repository);
+        var branchRepo = ((BranchRepository) repository);
         if (!branchRepo.branchExists(branch)) {
             throw new NotFoundException("repository.branch.message");
         }

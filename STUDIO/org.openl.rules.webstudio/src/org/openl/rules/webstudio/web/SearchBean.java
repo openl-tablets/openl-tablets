@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -23,8 +22,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.WebStudioFormats;
-import org.openl.rules.webstudio.web.search.AISearch;
-import org.openl.rules.webstudio.web.search.SearchResult;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -52,8 +49,6 @@ public class SearchBean {
             new SelectItem(XlsNodeTypes.XLS_PROPERTIES.toString(), "Properties"),
             new SelectItem(XlsNodeTypes.XLS_OTHER.toString(), "Other")};
 
-    private static final int MAX_TABLES_FOR_AI_SEARCH_TO_IGNORE_XLS_OTHER = 1000;
-
     private boolean active;
     private String query;
     private String[] tableTypes;
@@ -63,13 +58,7 @@ public class SearchBean {
 
     private List<IOpenLTable> searchResults;
 
-    private final AISearch aiSearch;
-
-    private int expectedIndexingDuration;
-    private int tableCountForIndexing;
-
-    public SearchBean(AISearch aiSearch) {
-        this.aiSearch = aiSearch;
+    public SearchBean() {
         initProperties();
         initSearchQuery();
         search();
@@ -89,14 +78,6 @@ public class SearchBean {
 
     public SelectItem[] getTableTypeItems() {
         return tableTypeItems;
-    }
-
-    public int getExpectedIndexingDuration() {
-        return expectedIndexingDuration;
-    }
-
-    public int getTableCountForIndexing() {
-        return tableCountForIndexing;
     }
 
     public SelectItem[] getSearchScopeItems() {
@@ -136,7 +117,6 @@ public class SearchBean {
             String tableTypes = WebStudioUtils.getRequestParameter("types");
             String tableHeader = WebStudioUtils.getRequestParameter("header");
             String searchScope = WebStudioUtils.getRequestParameter("searchScope");
-            String useAiSearch = WebStudioUtils.getRequestParameter("useAiSearch");
             if (StringUtils.isNotBlank(query)) {
                 // Replace all non-breaking spaces by breaking spaces
                 String spaceToRemove = Character.toString((char) 160);
@@ -209,30 +189,8 @@ public class SearchBean {
             String q = query != null ? UriEncoder.decode(query) : null;
             Predicate<TableSyntaxNode> cellValueSelector = new CellValueSelector(q);
 
-            LinkedHashMap<TableSyntaxNode, Integer> result = new LinkedHashMap<>();
-            List<TableSyntaxNode> foundTsnes = tnses.stream().filter(cellValueSelector).collect(Collectors.toList());
-            foundTsnes.forEach(e -> result.put(e, 1));
-            if (StringUtils.isNotBlank(q)) {
-                // AI search is expensive operation. It is better to use only actual tables for it.
-                if (tnses.size() > MAX_TABLES_FOR_AI_SEARCH_TO_IGNORE_XLS_OTHER) {
-                    tnses = tnses.stream()
-                            .filter(e -> !e.getType().equals(XlsNodeTypes.XLS_OTHER.toString()))
-                            .collect(Collectors.toList());
-                }
-                SearchResult searchResult = aiSearch.filter(q, tnses);
-                List<TableSyntaxNode> tnsesByAiSearch = searchResult.getTableSyntaxNodes();
-                expectedIndexingDuration = searchResult.getExpectedIndexingDuration();
-                tableCountForIndexing = searchResult.getTableCountForIndexing();
-                tnsesByAiSearch.forEach(e -> result.compute(e, (key, value) -> (value == null) ? 1 : value + 1));
-            } else {
-                expectedIndexingDuration = 0;
-                tableCountForIndexing = 0;
-            }
-
-            List<Map.Entry<TableSyntaxNode, Integer>> entryList = new ArrayList<>(result.entrySet());
-            entryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
-            searchResults = entryList.stream()
-                    .map(Map.Entry::getKey)
+            searchResults = tnses.stream()
+                    .filter(cellValueSelector)
                     .map(TableSyntaxNodeAdapter::new)
                     .collect(Collectors.toList());
         }

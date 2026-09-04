@@ -9,9 +9,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +36,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         }
         try {
             final boolean isExcelFile;
-            try (Stream<Path> stream = Files.walk(folder, 1)) {
+            try (var stream = Files.walk(folder, 1)) {
                 isExcelFile = stream.anyMatch(this::isExcelFile);
             }
             if (isExcelFile) {
@@ -57,20 +55,20 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
 
     @Override
     public ProjectDescriptor resolveProject(Path folder) throws ProjectResolvingException {
-        Map<String, Module> modules = new TreeMap<>();
+        var modules = new TreeMap<String, Module>();
         try {
-            ProjectDescriptor project = createDescriptor(folder);
+            var project = createDescriptor(folder);
             Files.walkFileTree(folder, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path f, BasicFileAttributes attrs) throws IOException {
-                    final String fileName = f.getFileName().toString();
+                    final var fileName = f.getFileName().toString();
                     if (!Files.isHidden(f) && attrs.isRegularFile() && FileTypeHelper.isExcelFile(fileName)) {
                         String name = FileUtils.removeExtension(fileName);
                         if (!modules.containsKey(name)) {
-                            final String relativePath = project.getProjectFolder()
+                            final var relativePath = project.getProjectFolder()
                                     .relativize(f.toRealPath().toAbsolutePath())
                                     .toString();
-                            Module module = createModule(project, relativePath, name);
+                            var module = createModule(project, relativePath, name);
                             modules.put(name, module);
                         } else {
                             log.error("A module with the same name already exists: {}", name);
@@ -87,7 +85,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
     }
 
     private Module createModule(ProjectDescriptor project, String rootPath, String name) {
-        Module module = new Module();
+        var module = new Module();
         module.setProject(project);
         module.setRulesRootPath(rootPath);
         module.setName(name);
@@ -95,9 +93,9 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
     }
 
     private ProjectDescriptor createDescriptor(Path folder) throws IOException {
-        ProjectDescriptor project = new ProjectDescriptor();
+        var project = new ProjectDescriptor();
         project.setProjectFolder(folder.toRealPath());
-        Path fileName = folder.getFileName();
+        var fileName = folder.getFileName();
         if (fileName != null) {
             project.setName(fileName.toString());
         } else {

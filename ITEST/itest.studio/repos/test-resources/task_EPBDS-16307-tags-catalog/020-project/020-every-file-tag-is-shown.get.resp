@@ -1,0 +1,11 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS_Tags",
+  "tags": {
+    "Ghost": "Anything",
+    "Region": "EU",
+    "Team": "Unknown"
+  }
+}

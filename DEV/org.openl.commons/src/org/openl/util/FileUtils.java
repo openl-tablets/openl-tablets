@@ -5,12 +5,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -35,6 +40,83 @@ public class FileUtils {
     }
 
     /**
+     * Creates a temporary file readable and writable only by its owner, so other local users cannot
+     * read what is written to it (Sonar java:S5443). On file systems without POSIX permissions the
+     * per-user temporary directory is private already.
+     *
+     * @param prefix the prefix of the file name
+     * @param suffix the suffix of the file name, or {@code null} for {@code .tmp}
+     * @return the path of the created file
+     */
+    public static Path createPrivateTempFile(String prefix, String suffix) throws IOException {
+        FileAttribute<?>[] permissions = FileSystems.getDefault().supportedFileAttributeViews().contains("posix")
+                ? new FileAttribute<?>[]{
+                        PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"))}
+                : new FileAttribute<?>[0];
+        return Files.createTempFile(prefix, suffix, permissions);
+    }
+
+    /**
+     * Copies the content into a temporary file only its owner can read, and returns that file. The
+     * stream is left open for the caller to close. A failed copy deletes the partially written file
+     * before the error is rethrown.
+     *
+     * <p>The copy stops as soon as the content is longer than {@code maxBytes} and reports it as
+     * {@link ContentTooLargeException}, so content of an unknown length cannot fill the disk it is
+     * copied to.
+     *
+     * @param content  the content to copy
+     * @param prefix   the prefix of the file name
+     * @param suffix   the suffix of the file name, or {@code null} for {@code .tmp}
+     * @param maxBytes the largest content that may be copied
+     * @return the path of the written file
+     * @throws ContentTooLargeException when the content is longer than {@code maxBytes}
+     */
+    public static Path copyToPrivateTempFile(InputStream content, String prefix, String suffix,
+                                             long maxBytes) throws IOException {
+        Path file = createPrivateTempFile(prefix, suffix);
+        // The content is written into the file that was just created, so it keeps the permissions it was
+        // created with. Files.copy(..., REPLACE_EXISTING) would delete that file and create a new one,
+        // which the default umask makes readable by every local user.
+        try (OutputStream out = Files.newOutputStream(file)) {
+            byte[] buffer = new byte[64 * 1024];
+            long copied = 0;
+            int read;
+            while ((read = content.read(buffer)) != -1) {
+                copied += read;
+                if (copied > maxBytes) {
+                    throw new ContentTooLargeException(maxBytes);
+                }
+                out.write(buffer, 0, read);
+            }
+        } catch (IOException e) {
+            deleteQuietly(file);
+            throw e;
+        }
+        return file;
+    }
+
+    /**
+     * Reports content that is longer than the copy of it may be.
+     */
+    public static class ContentTooLargeException extends IOException {
+
+        private final long maxBytes;
+
+        ContentTooLargeException(long maxBytes) {
+            super("The content is longer than " + maxBytes + " bytes.");
+            this.maxBytes = maxBytes;
+        }
+
+        /**
+         * The largest content the copy would have accepted.
+         */
+        public long getMaxBytes() {
+            return maxBytes;
+        }
+    }
+
+    /**
      * Copies a file to a new location preserving the file date.
      * <p>
      * This method copies the contents of the specified source file to the specified destination file. The directory
@@ -55,25 +137,25 @@ public class FileUtils {
         if (!src.exists()) {
             throw new FileNotFoundException("Source '%s' does not exist".formatted(src));
         }
-        final String srcPath = src.getCanonicalPath();
-        final String destPath = dest.getCanonicalPath();
+        final var srcPath = src.getCanonicalPath();
+        final var destPath = dest.getCanonicalPath();
         if (srcPath.equals(destPath)) {
             throw new IOException("Source '%s' and destination '%s' are the same".formatted(src, dest));
         }
 
         if (src.isDirectory()) {
-            Collection<String> looped = getLoopedDirectories(src, dest);
+            var looped = getLoopedDirectories(src, dest);
             doCopyDirectory(src, dest, looped);
         } else {
             if (destPath.startsWith(srcPath)) {
                 throw new IOException(
                         "Destination '%s' has the same path of the source '%s'".formatted(dest, src));
             }
-            File destFile = dest;
+            var destFile = dest;
             if (dest.isDirectory()) {
                 destFile = new File(dest, src.getName());
             } else {
-                File parentFile = dest.getParentFile();
+                var parentFile = dest.getParentFile();
                 if (parentFile != null && !parentFile.mkdirs() && !parentFile.isDirectory()) {
                     throw new IOException("Destination '%s' directory cannot be created".formatted(parentFile));
                 }
@@ -95,11 +177,11 @@ public class FileUtils {
             return null;
         }
         Collection<String> looped = null;
-        File[] srcFiles = src.listFiles();
+        var srcFiles = src.listFiles();
         if (srcFiles != null && srcFiles.length > 0) {
             looped = new ArrayList<>(srcFiles.length + 1);
             for (File srcFile : srcFiles) {
-                File copiedFile = new File(dest, srcFile.getName());
+                var copiedFile = new File(dest, srcFile.getName());
                 if (srcFile.isDirectory()) {
                     looped.add(copiedFile.getCanonicalPath());
                 }
@@ -120,7 +202,7 @@ public class FileUtils {
      * @throws IOException if an error occurs
      */
     private static void doCopyDirectory(File srcDir, File destDir, Collection<String> excluded) throws IOException {
-        File[] srcFiles = srcDir.listFiles();
+        var srcFiles = srcDir.listFiles();
         if (srcFiles == null) { // null if security restricted
             throw new IOException("Failed to list contents of " + srcDir);
         }
@@ -136,7 +218,7 @@ public class FileUtils {
 
         // recurse copying
         for (File srcFile : srcFiles) {
-            File dstFile = new File(destDir, srcFile.getName());
+            var dstFile = new File(destDir, srcFile.getName());
             if (excluded == null || !excluded.contains(srcFile.getCanonicalPath())) {
                 if (srcFile.isDirectory()) {
                     doCopyDirectory(srcFile, dstFile, excluded);
@@ -173,8 +255,8 @@ public class FileUtils {
             fos = new FileOutputStream(destFile);
             input = fis.getChannel();
             output = fos.getChannel();
-            long size = input.size();
-            long pos = 0;
+            var size = input.size();
+            var pos = 0L;
             while (pos < size) {
                 pos += output.transferFrom(input, pos, DEFAULT_BUFFER_SIZE);
             }
@@ -292,7 +374,7 @@ public class FileUtils {
         if (filename == null) {
             return null;
         }
-        int sep = getSeparatorIndex(filename);
+        var sep = getSeparatorIndex(filename);
         return filename.substring(sep + 1);
     }
 
@@ -318,8 +400,8 @@ public class FileUtils {
             return null;
         }
 
-        int dot = filename.lastIndexOf('.');
-        int sep = getSeparatorIndex(filename);
+        var dot = filename.lastIndexOf('.');
+        var sep = getSeparatorIndex(filename);
         if (dot > sep) {
             return filename.substring(sep + 1, dot);
         } else {
@@ -350,7 +432,7 @@ public class FileUtils {
             return null;
         }
 
-        int dot = getExtensionIndex(filename);
+        var dot = getExtensionIndex(filename);
         if (dot == -1) {
             return StringUtils.EMPTY;
         } else {
@@ -380,7 +462,7 @@ public class FileUtils {
             return null;
         }
 
-        int dot = getExtensionIndex(filename);
+        var dot = getExtensionIndex(filename);
         if (dot == -1) {
             return filename;
         } else {
@@ -389,17 +471,17 @@ public class FileUtils {
     }
 
     private static int getSeparatorIndex(String filename) {
-        int winSep = filename.lastIndexOf('\\');
-        int unixSep = filename.lastIndexOf('/');
+        var winSep = filename.lastIndexOf('\\');
+        var unixSep = filename.lastIndexOf('/');
         return Math.max(winSep, unixSep);
     }
 
     private static int getExtensionIndex(String filename) {
-        int dot = filename.lastIndexOf('.');
+        var dot = filename.lastIndexOf('.');
         if (dot == -1) {
             return -1;
         }
-        int sep = getSeparatorIndex(filename);
+        var sep = getSeparatorIndex(filename);
         if (dot > sep) {
             return dot;
         }
@@ -455,12 +537,12 @@ public class FileUtils {
             throw new NullPointerException("Ant pattern must not be null");
         }
 
-        StringBuilder regex = new StringBuilder();
+        var regex = new StringBuilder();
         regex.append('^'); // Start of string
 
-        int length = antPattern.length();
-        for (int i = 0; i < length; i++) {
-            char c = antPattern.charAt(i);
+        var length = antPattern.length();
+        for (var i = 0; i < length; i++) {
+            var c = antPattern.charAt(i);
 
             switch (c) {
                 case '?':

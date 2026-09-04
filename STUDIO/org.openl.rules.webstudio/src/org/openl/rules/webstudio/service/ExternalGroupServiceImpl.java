@@ -1,12 +1,13 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.integration.support.locks.LockRegistry;
@@ -24,6 +25,7 @@ import org.openl.rules.security.standalone.persistence.ExternalGroup;
  *
  * @author Vladyslav Pikus
  */
+@RequiredArgsConstructor
 @Slf4j
 public class ExternalGroupServiceImpl implements ExternalGroupService {
 
@@ -31,14 +33,6 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private final ExternalGroupDao externalGroupDao;
     private final LockRegistry lockRegistry;
     private final TransactionTemplate txTemplate;
-
-    public ExternalGroupServiceImpl(ExternalGroupDao externalGroupDao,
-                                    LockRegistry lockRegistry,
-                                    TransactionTemplate txTemplate) {
-        this.externalGroupDao = externalGroupDao;
-        this.lockRegistry = lockRegistry;
-        this.txTemplate = txTemplate;
-    }
 
     @Override
     @Transactional
@@ -49,7 +43,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     @Override
     public void mergeAllForUser(String loginName, Collection<? extends GrantedAuthority> externalGroups) {
         var lock = lockRegistry.obtain("externalGroupMergeLock_" + loginName);
-        boolean lockAcquired = false;
+        var lockAcquired = false;
         try {
             lockAcquired = lock.tryLock(30, TimeUnit.SECONDS);
             if (!lockAcquired) {
@@ -76,7 +70,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findAllForUser(String loginName) {
         return externalGroupDao.findAllForUser(loginName)
                 .stream()
-                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Collections.emptySet()))
+                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Set.of()))
                 .collect(Collectors.toList());
     }
 
@@ -106,7 +100,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findNotMatchedForUser(String loginName) {
         return externalGroupDao.findNotMatchedForUser(loginName)
                 .stream()
-                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Collections.emptySet()))
+                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Set.of()))
                 .collect(Collectors.toList());
     }
 
@@ -121,7 +115,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findAllByName(String groupName, int limit) {
         return externalGroupDao.findAllByName(groupName, limit)
                 .stream()
-                .map(ext -> new SimpleGroup(ext, ext, Collections.emptySet()))
+                .map(ext -> new SimpleGroup(ext, ext, Set.of()))
                 .collect(Collectors.toList());
     }
 
@@ -147,8 +141,8 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
                 @Override
                 public ExternalGroup next() {
-                    GrantedAuthority group = it.next();
-                    ExternalGroup externalGroup = new ExternalGroup();
+                    var group = it.next();
+                    var externalGroup = new ExternalGroup();
                     externalGroup.setLoginName(loginName);
                     externalGroup.setGroupName(group.getAuthority());
                     return externalGroup;

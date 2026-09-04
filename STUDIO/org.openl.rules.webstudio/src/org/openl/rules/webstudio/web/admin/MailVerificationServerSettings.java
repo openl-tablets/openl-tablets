@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.web.admin;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.rest.validation.MailConfigConstraint;
@@ -13,41 +15,23 @@ public class MailVerificationServerSettings implements SettingsHolder {
     public static final String MAIL_USERNAME = "mail.username";
     public static final String MAIL_PASSWORD = "mail.password";
 
+    @Getter
     @Parameter(description = "Mail server url", example = "smtps://mail.example.com:1587")
+    @Setter
     @SettingPropertyName(MAIL_URL)
     private String url;
 
+    @Getter
     @Parameter(description = "Username for authentication on mail server", example = "jhon@mail.example.com")
+    @Setter
     @SettingPropertyName(MAIL_USERNAME)
     private String username;
 
+    @Getter
     @Parameter(description = "Password for authentication on mail server", example = "qwerty")
+    @Setter
     @SettingPropertyName(value = MAIL_PASSWORD, secret = true)
     private String password;
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     @Override
     public void load(PropertiesHolder properties) {

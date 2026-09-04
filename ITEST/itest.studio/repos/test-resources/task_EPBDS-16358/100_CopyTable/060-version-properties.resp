@@ -1,0 +1,20 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "BankLimitIndex",
+  "kind": "Rules",
+  "properties": [
+    {
+      "name": "state",
+      "value": "AL"
+    }
+  ],
+  "versions": {
+    "current": "0.0.1",
+    "next": "0.0.2",
+    "taken": [
+      "0.0.1"
+    ]
+  }
+}

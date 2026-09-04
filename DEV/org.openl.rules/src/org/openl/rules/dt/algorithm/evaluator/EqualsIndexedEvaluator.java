@@ -27,17 +27,17 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
             return null;
         }
 
-        EqualsIndex.Builder builder = new EqualsIndex.Builder();
+        var builder = new EqualsIndex.Builder();
         builder.setConditionCasts(conditionCasts);
         while (it.hasNext()) {
-            int ruleN = it.nextInt();
+            var ruleN = it.nextInt();
 
             if (condition.isEmpty(ruleN)) {
                 builder.putEmptyRule(ruleN);
                 continue;
             }
 
-            Object value = conditionCasts.castToInputType(condition.getParamValue(0, ruleN));
+            var value = conditionCasts.castToInputType(condition.getParamValue(0, ruleN));
             builder.putValueToRule(value, ruleN);
 
         }
@@ -48,11 +48,11 @@ public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
     public int countUniqueKeys(ICondition condition, IIntIterator it) {
         Set<Object> uniqueVals = null;
         while (it.hasNext()) {
-            int i = it.nextInt();
+            var i = it.nextInt();
             if (condition.isEmpty(i)) {
                 continue;
             }
-            Object val = conditionCasts.castToInputType(condition.getParamValue(0, i));
+            var val = conditionCasts.castToInputType(condition.getParamValue(0, i));
             if (uniqueVals == null) {
                 if (NumberUtils.isObjectFloatPointNumber(val)) {
                     if (val instanceof BigDecimal) {

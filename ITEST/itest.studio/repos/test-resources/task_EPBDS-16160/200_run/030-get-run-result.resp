@@ -1,0 +1,30 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "MyRule",
+  "tableId": "197f9ad992135f46198fd44e540f0c7f",
+  "executionTimeMs": "*",
+  "result": {
+    "Test": {}
+  },
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "AnySpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "Test": {
+            "$ref": "#/$defs/AnySpreadsheetResult"
+          }
+        }
+      }
+    },
+    "type": "object",
+    "properties": {
+      "Test": {
+        "$ref": "#/$defs/AnySpreadsheetResult"
+      }
+    }
+  }
+}

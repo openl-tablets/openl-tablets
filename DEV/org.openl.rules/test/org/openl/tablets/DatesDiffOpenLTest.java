@@ -19,7 +19,7 @@ class DatesDiffOpenLTest {
 
     @BeforeEach
     void initEngine() {
-        RulesEngineFactory<IDateDifferenceTest> engineFactory = new RulesEngineFactory<>(SRC,
+        var engineFactory = new RulesEngineFactory<IDateDifferenceTest>(SRC,
                 IDateDifferenceTest.class);
 
         instance = engineFactory.newEngineInstance();
@@ -28,43 +28,43 @@ class DatesDiffOpenLTest {
     // ------------Testing via Openl-------------------
     @Test
     void testViaRule1() throws Exception {
-        Date startDate = getDate("01/01/1969");
+        var startDate = getDate("01/01/1969");
 
-        Date endDate = getDate("02/08/2010");
+        var endDate = getDate("02/08/2010");
 
-        int diff = instance.dateCount(startDate, endDate);
+        var diff = instance.dateCount(startDate, endDate);
         assertEquals(15188, diff);
     }
 
     @Test
     void testViaRule2() throws Exception {
-        Date startDate = getDate("01/01/1960");
+        var startDate = getDate("01/01/1960");
 
-        Date endDate = getDate("02/08/2010");
+        var endDate = getDate("02/08/2010");
 
-        int diff = instance.dateCount(startDate, endDate);
+        var diff = instance.dateCount(startDate, endDate);
         assertEquals(18476, diff);
     }
 
     @Test
     void testViaRule3() throws Exception {
-        Date startDate = getDate("01/01/1970");
+        var startDate = getDate("01/01/1970");
 
-        Date endDate = getDate("02/08/2010");
+        var endDate = getDate("02/08/2010");
 
-        int diff = instance.dateCount(startDate, endDate);
+        var diff = instance.dateCount(startDate, endDate);
         assertEquals(14823, diff);
     }
 
     @Test
     void testMonthDiff() throws Exception {
-        Date startDate = getDate("01/01/1970");
+        var startDate = getDate("01/01/1970");
 
-        Date endDate = getDate("02/08/2010");
+        var endDate = getDate("02/08/2010");
 
         Integer oldRes = DateTool.monthDiff(endDate, startDate);
 
-        Integer newRes = Dates.dateDif(startDate, endDate, "M").intValue();
+        var newRes = Dates.dateDif(startDate, endDate, "M").intValue();
 
         assertEquals(oldRes, newRes);
     }
@@ -72,7 +72,7 @@ class DatesDiffOpenLTest {
     // ------------End Testing via Openl-------------------
 
     private Date getDate(String stringDate) throws Exception {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        var dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         return dateFormat.parse(stringDate);
     }
 }

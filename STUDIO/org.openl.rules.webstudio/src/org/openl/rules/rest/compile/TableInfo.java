@@ -2,16 +2,22 @@ package org.openl.rules.rest.compile;
 
 import java.util.List;
 
+import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 
 public class TableInfo {
 
+    @Getter
     private final List<OpenlProblemMessage> errors;
+    @Getter
     private final List<OpenlProblemMessage> warnings;
+    @Getter
     private final List<Pair<String, TableBean.TableDescription>> targetTables;
+    @Getter
     private final String tableUrl;
+    @Getter
     private final TableRunState tableRunState;
 
     public TableInfo(Builder from) {
@@ -20,26 +26,6 @@ public class TableInfo {
         this.targetTables = from.targetTables;
         this.tableUrl = from.tableUrl;
         this.tableRunState = from.tableRunState;
-    }
-
-    public List<OpenlProblemMessage> getErrors() {
-        return errors;
-    }
-
-    public List<OpenlProblemMessage> getWarnings() {
-        return warnings;
-    }
-
-    public List<Pair<String, TableBean.TableDescription>> getTargetTables() {
-        return targetTables;
-    }
-
-    public String getTableUrl() {
-        return tableUrl;
-    }
-
-    public TableRunState getTableRunState() {
-        return tableRunState;
     }
 
     public static Builder builder() {

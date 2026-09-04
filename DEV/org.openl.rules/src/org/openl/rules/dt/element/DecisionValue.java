@@ -6,9 +6,13 @@
 
 package org.openl.rules.dt.element;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class DecisionValue {
 
     private static final int FALSE = 1;
@@ -19,26 +23,14 @@ public class DecisionValue {
     public static final DecisionValue TRUE_VALUE = new DecisionValue(TRUE, true, false);
     public static final DecisionValue NxA_VALUE = new DecisionValue(NA, true, true);
 
+    @Getter
     private final int type;
     private final boolean booleanValue;
+    @Getter
     private final boolean special;
-
-    public DecisionValue(int type, boolean booleanValue, boolean special) {
-        this.type = type;
-        this.booleanValue = booleanValue;
-        this.special = special;
-    }
 
     public boolean getBooleanValue() {
         return booleanValue;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public boolean isSpecial() {
-        return special;
     }
 
 }

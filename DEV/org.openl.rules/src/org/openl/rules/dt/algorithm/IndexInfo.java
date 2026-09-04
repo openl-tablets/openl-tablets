@@ -1,15 +1,16 @@
 package org.openl.rules.dt.algorithm;
 
+import lombok.Getter;
+
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IntRangeDomain;
-import org.openl.rules.dt.DTInfo;
-import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 
 public class IndexInfo {
 
     int fromCondition;
     int toCondition; // defines a range of conditions to be included in the index
+    @Getter
     private DecisionTable table;
     private int toRule;
 
@@ -22,23 +23,19 @@ public class IndexInfo {
         return this;
     }
 
-    public DecisionTable getTable() {
-        return table;
-    }
-
     IndexInfo makeVerticalInfo() {
-        DTInfo dti = table.getDtInfo();
+        var dti = table.getDtInfo();
         return new IndexInfo().withTable(table)
                 .withToCondition(dti.getNumberVConditions() - 1)
                 .withToRule(dti.getScale().getHScale().getMultiplier() - 1);
     }
 
     IndexInfo makeHorizontalalInfo() {
-        DTInfo dti = table.getDtInfo();
-        DTScale dts = dti.getScale();
+        var dti = table.getDtInfo();
+        var dts = dti.getScale();
 
-        int vSize = dts.getVScale().getMultiplier();
-        int hSize = dts.getHScale().getMultiplier();
+        var vSize = dts.getVScale().getMultiplier();
+        var hSize = dts.getHScale().getMultiplier();
 
         return new IndexInfo().withTable(table)
                 .withFromCondition(dti.getNumberVConditions())

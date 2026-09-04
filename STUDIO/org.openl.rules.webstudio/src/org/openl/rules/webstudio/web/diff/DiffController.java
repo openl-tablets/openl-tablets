@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,15 +33,12 @@ import org.openl.util.FileUtils;
 
 @RestController
 @RequestMapping("/public/compare")
+@RequiredArgsConstructor
 @Tag(name = "Compare")
 @Slf4j
 public class DiffController {
 
     private final DiffManager diffManager;
-
-    public DiffController(DiffManager diffManager) {
-        this.diffManager = diffManager;
-    }
 
     @Operation(summary = "diff.compare-xls.summary", description = "diff.compare-xls.desc")
     @PostMapping(value = "xls", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -54,13 +52,13 @@ public class DiffController {
                                         @RequestParam(value = "file2", required = false) MultipartFile file2,
                                         @RequestParam(value = "fileName", required = false) String fileName) {
         try {
-            String requestId = UUID.randomUUID().toString();
+            var requestId = UUID.randomUUID().toString();
 
-            File excelFile1 = createTempFile(file1.getInputStream(), "file1");
-            File excelFile2 = createTempFile(file2.getInputStream(), "file2");
+            var excelFile1 = createTempFile(file1.getInputStream(), "file1");
+            var excelFile2 = createTempFile(file2.getInputStream(), "file2");
             diffManager.add(requestId, new ShowDiffController(excelFile1, excelFile2, fileName));
 
-            String root = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+            var root = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
             if (root.endsWith("/web") || root.endsWith("/rest")) {
                 // Remove prefix for rest service because we return a link to a html page.
                 root = root.substring(0, root.lastIndexOf('/'));

@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.kafka.publish;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -96,16 +95,16 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private void validate(Object config) throws IllegalAccessException, KafkaServiceConfigurationException {
-        List<String> missedRequiredFields = new ArrayList<>();
+        var missedRequiredFields = new ArrayList<String>();
         for (Field field : config.getClass().getFields()) {
-            JsonProperty jsonPropertyAnnotation = field.getAnnotation(JsonProperty.class);
+            var jsonPropertyAnnotation = field.getAnnotation(JsonProperty.class);
             if (jsonPropertyAnnotation != null && jsonPropertyAnnotation.required() && requiredFieldIsMissed(
                     field.get(config))) {
                 missedRequiredFields.add(jsonPropertyAnnotation.value());
             }
         }
         if (!missedRequiredFields.isEmpty()) {
-            String missedRequiredFieldsString = missedRequiredFields.stream()
+            var missedRequiredFieldsString = missedRequiredFields.stream()
                     .collect(Collectors.joining(",", "[", "]"));
             if (config instanceof KafkaMethodConfig kafkaMethodConfig) {
                 throw new KafkaServiceConfigurationException(
@@ -143,7 +142,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private static void substituteAndPut(Environment environment, Properties target, Properties source) {
         if (source != null) {
             for (String key : source.stringPropertyNames()) {
-                String property = source.getProperty(key);
+                var property = source.getProperty(key);
                 if (property != null) {
                     property = environment.resolvePlaceholders(property);
                     target.put(key, property);
@@ -160,9 +159,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             return null;
         }
         @SuppressWarnings("unchecked")
-        Class<T> clazz = (Class<T>) service.getClassLoader().loadClass(className);
+        var clazz = (Class<T>) service.getClassLoader().loadClass(className);
         try {
-            Constructor<T> constructor = clazz.getConstructor(OpenLService.class, ObjectMapper.class, Method.class);
+            var constructor = clazz.<T>getConstructor(OpenLService.class, ObjectMapper.class, Method.class);
             return constructor.newInstance(service, objectMapper, method);
         } catch (NoSuchMethodException e) {
             return clazz.getDeclaredConstructor().newInstance();
@@ -176,9 +175,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             return null;
         }
         @SuppressWarnings("unchecked")
-        Class<T> clazz = (Class<T>) service.getClassLoader().loadClass(className);
+        var clazz = (Class<T>) service.getClassLoader().loadClass(className);
         try {
-            Constructor<T> constructor = clazz.getConstructor(OpenLService.class, ObjectMapper.class);
+            var constructor = clazz.<T>getConstructor(OpenLService.class, ObjectMapper.class);
             return constructor.newInstance(service, objectMapper);
         } catch (NoSuchMethodException e) {
             return clazz.getDeclaredConstructor().newInstance();
@@ -191,7 +190,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             return null;
         }
         @SuppressWarnings("unchecked")
-        Class<T> clazz = (Class<T>) service.getClassLoader().loadClass(className);
+        var clazz = (Class<T>) service.getClassLoader().loadClass(className);
         return clazz.getDeclaredConstructor().newInstance();
     }
 
@@ -245,14 +244,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                                                                 RulesDeploy rulesDeploy) throws KafkaServiceException {
         // Build Kafka Consumer
         final var objectMapper = service.getServiceContext().getBean(ServiceInvocationAdvice.OBJECT_MAPPER_ID, ObjectMapper.class);
-        final KafkaConsumer<String, RequestMessage> consumer = buildConsumer( service,
+        final var consumer = buildConsumer( service,
                 objectMapper,
                 method,
                 mergedKafkaConfig.getConsumerConfigs());
         kafkaConsumers.add(consumer);
 
         // Build Method Kafka Producer or reuse shared
-        boolean possibleToReuseShared = config.getProducerConfigs() == null || config.getProducerConfigs().isEmpty();
+        var possibleToReuseShared = config.getProducerConfigs() == null || config.getProducerConfigs().isEmpty();
         ObjectSerializer objectSerializer = null;
         KafkaProducer<String, Object> producer = null;
         if (possibleToReuseShared) {
@@ -306,7 +305,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        var oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
 
@@ -324,16 +323,16 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             var kafkaDeploy = YAML.readValue(resource.getResourceAsStream(), KafkaDeploy.class);
 
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs();
-            Collection<KafkaService> kafkaServices = new HashSet<>();
-            Collection<KafkaProducer<?, ?>> kafkaProducers = new HashSet<>();
-            Collection<KafkaConsumer<?, ?>> kafkaConsumers = new HashSet<>();
+            var kafkaServices = new HashSet<KafkaService>();
+            var kafkaProducers = new HashSet<KafkaProducer<?, ?>>();
+            var kafkaConsumers = new HashSet<KafkaConsumer<?, ?>>();
             if (kafkaDeploy.getServiceConfig() != null) {
                 validate(kafkaDeploy.getServiceConfig());
             }
             validateConfiguration(service, kafkaMethodConfigs);
 
-            Map<KafkaMethodConfig, KafkaServiceConfig> kafkaMethodConfigsMap = new HashMap<>();
-            Map<KafkaMethodConfig, Method> methodsMap = new HashMap<>();
+            var kafkaMethodConfigsMap = new HashMap<KafkaMethodConfig, KafkaServiceConfig>();
+            var methodsMap = new HashMap<KafkaMethodConfig, Method>();
             var serviceEnv = service.getServiceContext().getEnvironment();
             for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
                 var kafkaMethodConfig = makeMergedKafkaConfig(serviceEnv, kmc);
@@ -346,7 +345,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             }
 
             try {
-                ServiceDeployContext sharedProducersContext = new ServiceDeployContext();
+                var sharedProducersContext = new ServiceDeployContext();
                 if (kafkaDeploy.getServiceConfig() != null) {
                     var kafkaServiceConfig = makeMergedKafkaConfig(serviceEnv, kafkaDeploy.getServiceConfig());
                     createKafkaService(service,
@@ -360,7 +359,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                             serviceDescription.getRulesDeploy());
                 }
                 for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
-                    final Method method = methodsMap.get(kmc);
+                    final var method = methodsMap.get(kmc);
                     final var kafkaMethodConfig = kafkaMethodConfigsMap.get(kmc);
                     createKafkaService(service,
                             kafkaServices,
@@ -395,7 +394,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
     private boolean stopAndClose(
             Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>> t) {
-        boolean ret = true;
+        var ret = true;
         for (KafkaService kafkaService : t.getLeft()) {
             try {
                 kafkaService.stop();
@@ -424,12 +423,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private void validateConfiguration(OpenLService service, List<KafkaMethodConfig> kafkaMethodConfigs) {
-        Map<Pair<String, String>, Integer> w = new HashMap<>();
-        Map<Pair<String, String>, List<String>> w1 = new HashMap<>();
+        var w = new HashMap<Pair<String, String>, Integer>();
+        var w1 = new HashMap<Pair<String, String>, List<String>>();
         for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
             if (kmc.getInTopic() != null && kmc.getMethodName() != null) {
-                Pair<String, String> p = Pair.of(kmc.getInTopic(), kmc.getConsumerConfigs().getProperty("group.id"));
-                Integer t = w.get(p);
+                var p = Pair.of(kmc.getInTopic(), kmc.getConsumerConfigs().getProperty("group.id"));
+                var t = w.get(p);
                 w1.computeIfAbsent(p, e -> new ArrayList<>()).add(kmc.getMethodName());
                 if (t == null) {
                     w.put(p, 1);

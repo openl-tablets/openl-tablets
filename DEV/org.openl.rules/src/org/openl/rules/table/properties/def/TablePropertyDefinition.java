@@ -1,5 +1,8 @@
 package org.openl.rules.table.properties.def;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
@@ -9,181 +12,67 @@ import org.openl.types.IOpenClass;
 
 public class TablePropertyDefinition implements Comparable<TablePropertyDefinition> {
 
+    @Getter
+    @Setter
     private String displayName;
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private boolean primaryKey;
+    @Getter
+    @Setter
     private IOpenClass type;
+    @Getter
+    @Setter
     private String group;
+    @Getter
+    @Setter
     private boolean system;
+    @Getter
+    @Setter
     private String systemValueDescriptor;
+    @Getter
+    @Setter
     private SystemValuePolicy systemValuePolicy;
+    @Getter
+    @Setter
     private boolean dimensional;
+    @Getter
+    @Setter
     private String securityFilter;
+    @Getter
+    @Setter
     private XlsNodeTypes[] tableType;
+    @Getter
+    @Setter
     private String defaultValue;
+    @Getter
+    @Setter
     private Constraints constraints;
+    @Getter
+    @Setter
     private String format;
+    @Getter
+    @Setter
     private InheritanceLevel[] inheritanceLevel;
+    @Getter
+    @Setter
     private String description;
+    @Getter
+    @Setter
     private MatchingExpression expression;
+    @Getter
+    @Setter
     private Severity errorSeverity;
+    @Getter
+    @Setter
     private String deprecation;
 
     public enum SystemValuePolicy {
         IF_BLANK_ONLY,
         ON_EACH_EDIT
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isPrimaryKey() {
-        return primaryKey;
-    }
-
-    public void setPrimaryKey(boolean primaryKey) {
-        this.primaryKey = primaryKey;
-    }
-
-    public IOpenClass getType() {
-        return type;
-    }
-
-    public void setType(IOpenClass type) {
-        this.type = type;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public String getSecurityFilter() {
-        return securityFilter;
-    }
-
-    public void setSecurityFilter(String securityFilter) {
-        this.securityFilter = securityFilter;
-    }
-
-    public XlsNodeTypes[] getTableType() {
-        return tableType;
-    }
-
-    public void setTableType(XlsNodeTypes[] tableType) {
-        this.tableType = tableType;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public Constraints getConstraints() {
-        return constraints;
-    }
-
-    public void setConstraints(Constraints constraints) {
-        this.constraints = constraints;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isDimensional() {
-        return dimensional;
-    }
-
-    public void setDimensional(boolean dimensional) {
-        this.dimensional = dimensional;
-    }
-
-    public MatchingExpression getExpression() {
-        return expression;
-    }
-
-    public void setExpression(MatchingExpression expression) {
-        this.expression = expression;
-    }
-
-    public void setSystem(boolean system) {
-        this.system = system;
-    }
-
-    public boolean isSystem() {
-        return system;
-    }
-
-    public void setSystemValueDescriptor(String systemValueDescriptor) {
-        this.systemValueDescriptor = systemValueDescriptor;
-    }
-
-    public String getSystemValueDescriptor() {
-        return systemValueDescriptor;
-    }
-
-    public void setSystemValuePolicy(SystemValuePolicy systemValuePolicy) {
-        this.systemValuePolicy = systemValuePolicy;
-    }
-
-    public SystemValuePolicy getSystemValuePolicy() {
-        return systemValuePolicy;
-    }
-
-    public void setInheritanceLevel(InheritanceLevel[] inheritanceLevel) {
-        this.inheritanceLevel = inheritanceLevel;
-    }
-
-    public InheritanceLevel[] getInheritanceLevel() {
-        return inheritanceLevel;
-    }
-
-    public Severity getErrorSeverity() {
-        return errorSeverity;
-    }
-
-    public void setErrorSeverity(Severity errorSeverity) {
-        this.errorSeverity = errorSeverity;
-    }
-
-    public String getDeprecation() {
-        return deprecation;
-    }
-
-    public void setDeprecation(String deprecation) {
-        this.deprecation = deprecation;
     }
 
     @Override

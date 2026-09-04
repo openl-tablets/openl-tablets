@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.studio.settings.converter.SettingPropertyName;
@@ -20,31 +22,43 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
     private static final String SCOPE = "security.oauth2.scope";
     private static final String GRANT_TYPE = "security.oauth2.grant-type";
 
+    @Getter
     @Parameter(description = "OAuth2 client ID registered in the identity provider.")
+    @Setter
     @SettingPropertyName(CLIENT_ID)
     @NotBlank
     private String clientId;
 
+    @Getter
     @Parameter(description = "Client secret used for authenticating to the OAuth2 server.")
+    @Setter
     @SettingPropertyName(value = CLIENT_SECRET, secret = true)
     @NotBlank
     private String clientSecret;
 
+    @Getter
     @Parameter(description = "OAuth2 issuer URI (authorization server metadata URL).")
+    @Setter
     @SettingPropertyName(ISSUER_URI)
     @NotBlank
     private String issuerUri;
 
+    @Getter
     @Parameter(description = "Requested scopes for authorization (e.g., openid, profile, email).")
+    @Setter
     @SettingPropertyName(SCOPE)
     @NotBlank
     private String scope;
 
+    @Getter
     @Parameter(description = "OAuth2 grant type (e.g., authorization_code).")
+    @Setter
     @SettingPropertyName(GRANT_TYPE)
     private String grantType;
 
+    @Getter
     @Parameter(description = "OAuth2 attributes settings.")
+    @Setter
     @Valid
     @NotNull
     @JsonMerge
@@ -87,53 +101,5 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
         );
         attributes.revert(properties);
         super.revert(properties);
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
-    }
-
-    public String getIssuerUri() {
-        return issuerUri;
-    }
-
-    public void setIssuerUri(String issuerUri) {
-        this.issuerUri = issuerUri;
-    }
-
-    public String getScope() {
-        return scope;
-    }
-
-    public void setScope(String scope) {
-        this.scope = scope;
-    }
-
-    public String getGrantType() {
-        return grantType;
-    }
-
-    public void setGrantType(String grantType) {
-        this.grantType = grantType;
-    }
-
-    public OAuth2AttributesSettings getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(OAuth2AttributesSettings attributes) {
-        this.attributes = attributes;
     }
 }

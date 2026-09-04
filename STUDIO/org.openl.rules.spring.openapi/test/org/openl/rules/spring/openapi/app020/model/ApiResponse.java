@@ -1,38 +1,22 @@
 package org.openl.rules.spring.openapi.app020.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 public class ApiResponse {
+    @Getter
     @JsonProperty("code")
+    @Setter
     private Integer code;
 
+    @Getter
     @JsonProperty("message")
+    @Setter
     private String message;
 
+    @Getter
     @JsonProperty("type")
+    @Setter
     private String type;
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 }

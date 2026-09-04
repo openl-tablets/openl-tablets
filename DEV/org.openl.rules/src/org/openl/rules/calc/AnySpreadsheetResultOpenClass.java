@@ -31,7 +31,7 @@ public class AnySpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public IOpenField getField(String fieldName, boolean strictMatch) {
-        IOpenField field = super.getField(fieldName, strictMatch);
+        var field = super.getField(fieldName, strictMatch);
         if (field == null && fieldName.startsWith("$")) {
             field = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
         }

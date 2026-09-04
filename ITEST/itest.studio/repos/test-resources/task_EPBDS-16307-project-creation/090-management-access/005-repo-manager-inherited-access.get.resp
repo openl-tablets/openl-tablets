@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "sid": {
+      "sid": "admin",
+      "principal": true
+    },
+    "source": "project",
+    "role": "CONTRIBUTOR"
+  },
+  {
+    "sid": {
+      "sid": "zzz_project_manager",
+      "principal": true
+    },
+    "source": "project",
+    "role": "MANAGER"
+  },
+  {
+    "sid": {
+      "sid": "EPBDS_14095_user1",
+      "principal": true
+    },
+    "source": "repository",
+    "role": "CONTRIBUTOR"
+  },
+  {
+    "sid": {
+      "sid": "EPBDS_14095_user2",
+      "principal": true
+    },
+    "source": "repository",
+    "role": "CONTRIBUTOR"
+  },
+  {
+    "sid": {
+      "sid": "zzz_repo_manager",
+      "principal": true
+    },
+    "source": "repository",
+    "role": "MANAGER"
+  },
+  {
+    "sid": {
+      "sid": "zzz_repo_subject",
+      "principal": true
+    },
+    "source": "repository",
+    "role": "VIEWER"
+  }
+]

@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
@@ -53,17 +55,17 @@ public class OpenApiGenerator {
      * @throws RulesInstantiationException in case of compilation errors or if project has now public rules tables
      */
     public OpenAPI generate() throws RulesInstantiationException, OpenApiGenerationException {
-        final ClassLoader serviceClassLoader = resolveServiceClassLoader(instantiationStrategy);
-        final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        final var serviceClassLoader = resolveServiceClassLoader(instantiationStrategy);
+        final var oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
-            Class<?> serviceClass = resolveInterface(instantiationStrategy);
-            ObjectMapper objectMapper = createObjectMapper(serviceClassLoader);
-            Class<?> enhancedServiceClass = enhanceWithJAXRS(serviceClass,
+            var serviceClass = resolveInterface(instantiationStrategy);
+            var objectMapper = createObjectMapper(serviceClassLoader);
+            var enhancedServiceClass = enhanceWithJAXRS(serviceClass,
                     instantiationStrategy.instantiate(),
                     serviceClassLoader
             );
-            Map<Method, Method> methodMap = buildMethodMapWithJAXRS(serviceClass, enhancedServiceClass);
+            var methodMap = buildMethodMapWithJAXRS(serviceClass, enhancedServiceClass);
             if (methodMap.isEmpty()) {
                 throw new OpenApiGenerationException(
                         "There are no public methods. Check the provided rules, annotation template class, and included/excluded methods in module settings.");
@@ -77,9 +79,9 @@ public class OpenApiGenerator {
     private ClassLoader resolveServiceClassLoader(
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
         if (classLoader == null) {
-            ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) instantiationStrategy.compile()
+            var moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) instantiationStrategy.compile()
                     .getOpenClass()).getClassGenerationClassLoader();
-            OpenLClassLoader openLClassLoader = new OpenLClassLoader(null);
+            var openLClassLoader = new OpenLClassLoader(null);
             openLClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
             openLClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
             classLoader = openLClassLoader;
@@ -89,13 +91,13 @@ public class OpenApiGenerator {
 
     private Class<?> resolveInterface(
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException, OpenApiGenerationException {
-        final Optional<String> serviceClassName = Optional.ofNullable(rulesDeploy)
+        final var serviceClassName = Optional.ofNullable(rulesDeploy)
                 .map(RulesDeploy::getServiceClass)
                 .map(StringUtils::trimToNull);
 
         if (serviceClassName.isPresent()) {
             try {
-                Class<?> serviceClass = compiledOpenClass.getClassLoader().loadClass(serviceClassName.get());
+                var serviceClass = compiledOpenClass.getClassLoader().loadClass(serviceClassName.get());
                 if (serviceClass.isInterface()) {
                     return serviceClass;
                 } else {
@@ -110,7 +112,7 @@ public class OpenApiGenerator {
             }
         }
 
-        final String templateClassName = Optional.ofNullable(rulesDeploy)
+        final var templateClassName = Optional.ofNullable(rulesDeploy)
                 .map(RulesDeploy::getAnnotationTemplateClassName)
                 .map(StringUtils::trimToNull)
                 .orElseGet(() -> Optional.ofNullable(rulesDeploy)
@@ -119,10 +121,10 @@ public class OpenApiGenerator {
                         .orElse(null));
 
         Class<?> serviceClass = instantiationStrategy.getInstanceClass();
-        ClassLoader resolveServiceClassLoader = resolveServiceClassLoader(instantiationStrategy);
+        var resolveServiceClassLoader = resolveServiceClassLoader(instantiationStrategy);
         if (!StringUtils.isEmpty(templateClassName)) {
             try {
-                Class<?> templateClass = resolveServiceClassLoader.loadClass(templateClassName);
+                var templateClass = resolveServiceClassLoader.loadClass(templateClassName);
                 if (templateClass.isInterface() || Modifier.isAbstract(templateClass.getModifiers())) {
                     serviceClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
                             templateClass,
@@ -156,7 +158,7 @@ public class OpenApiGenerator {
     }
 
     private ObjectMapper createObjectMapper(ClassLoader serviceClassLoader) {
-        ClassLoader classLoader = compiledOpenClass.getClassLoader();
+        var classLoader = compiledOpenClass.getClassLoader();
 
         var objectMapperFactoryBean = new ProjectJacksonObjectMapperFactoryBean();
         objectMapperFactoryBean.setClassLoader(classLoader);
@@ -195,15 +197,11 @@ public class OpenApiGenerator {
         }
     }
 
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Builder {
 
         private final ProjectDescriptor projectDescriptor;
         private final RulesInstantiationStrategy instantiationStrategy;
-
-        private Builder(ProjectDescriptor projectDescriptor, RulesInstantiationStrategy instantiationStrategy) {
-            this.projectDescriptor = projectDescriptor;
-            this.instantiationStrategy = instantiationStrategy;
-        }
 
         /**
          * Creates new instance of {@link OpenApiGenerator}

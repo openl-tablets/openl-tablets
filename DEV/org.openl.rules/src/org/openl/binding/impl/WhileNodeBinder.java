@@ -13,8 +13,8 @@ public class WhileNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         IBoundNode[] children = bindChildren(node, bindingContext);
-        IBoundNode conditionNode = children[0];
-        IBoundNode blockCodeNode = children[1];
+        var conditionNode = children[0];
+        var blockCodeNode = children[1];
 
         IBoundNode checkConditionNode = BindHelper.checkConditionBoundNode(conditionNode, bindingContext);
 

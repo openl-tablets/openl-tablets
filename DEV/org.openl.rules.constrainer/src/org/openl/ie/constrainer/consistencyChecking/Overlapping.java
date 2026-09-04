@@ -6,6 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.consistencyChecking.DTChecker.Utils;
 
@@ -33,20 +37,14 @@ public class Overlapping {
      *
      */
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum OverlappingStatus {
         BLOCK(0x01),
         PARTIAL(0x02),
         OVERRIDE(0x04);
 
-        OverlappingStatus(int bit) {
-            this.bit = bit;
-        }
-
+        @Getter
         private final int bit;
-
-        public int getBit() {
-            return bit;
-        }
 
     }
 
@@ -55,11 +53,8 @@ public class Overlapping {
     protected String[] _solutionNames;
     protected int[] _solutionValues;
 
+    @Getter
     private OverlappingStatus status;
-
-    public OverlappingStatus getStatus() {
-        return status;
-    }
 
     Overlapping(IntExpArray solution) {
 
@@ -96,7 +91,7 @@ public class Overlapping {
     public int[] getOverlapped() {
         int[] arr = new int[_overlapped.size()];
         Iterator<Integer> iter = _overlapped.iterator();
-        int i = 0;
+        var i = 0;
         while (iter.hasNext()) {
             arr[i++] = iter.next();
         }
@@ -109,8 +104,8 @@ public class Overlapping {
      *         with the according values
      */
     public Map<String, Integer> getSolution() {
-        Map<String, Integer> map = new HashMap<>();
-        for (int i = 0; i < _solutionNames.length; i++) {
+        var map = new HashMap<String, Integer>();
+        for (var i = 0; i < _solutionNames.length; i++) {
             map.put(_solutionNames[i], _solutionValues[i]);
         }
         return map;

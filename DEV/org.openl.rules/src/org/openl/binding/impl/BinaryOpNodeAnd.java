@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -23,7 +25,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class BinaryOpNodeAnd extends ABoundNode {
 
+    @Getter
     private final IBoundNode left;
+    @Getter
     private final IBoundNode right;
 
     BinaryOpNodeAnd(ISyntaxNode syntaxNode, IBoundNode left, IBoundNode right) {
@@ -35,11 +39,11 @@ public class BinaryOpNodeAnd extends ABoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
 
-        Object res1 = left.evaluate(env);
+        var res1 = left.evaluate(env);
         if (Boolean.FALSE.equals(res1)) {
             return Boolean.FALSE;
         }
-        Object res2 = right.evaluate(env);
+        var res2 = right.evaluate(env);
         if (Boolean.FALSE.equals(res2)) {
             return Boolean.FALSE;
         }
@@ -48,14 +52,6 @@ public class BinaryOpNodeAnd extends ABoundNode {
         } else {
             return Boolean.TRUE;
         }
-    }
-
-    public IBoundNode getLeft() {
-        return left;
-    }
-
-    public IBoundNode getRight() {
-        return right;
     }
 
     @Override

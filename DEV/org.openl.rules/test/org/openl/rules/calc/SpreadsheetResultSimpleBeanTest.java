@@ -12,7 +12,7 @@ class SpreadsheetResultSimpleBeanTest {
     @Test
     void test1() {
         ITestCalc test = TestUtils.create(SCR, ITestCalc.class);
-        Double result = test.calc();
+        var result = test.calc();
         assertEquals(375.0, result, 1e-8);
     }
 

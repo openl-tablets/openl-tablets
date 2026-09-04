@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class ArrayComparatorTest {
     @Test
     void test() {
-        ArrayComparator comparator = new ArrayComparator(Integer.class, null);
+        var comparator = new ArrayComparator(Integer.class, null);
 
         assertTrue(comparator.isEqual(null, null));
         Integer[] intArray = new Integer[]{1, 2};

@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "Categorize",
+  "tableId": "8833af30e7ba142f27162434a8753d0a",
+  "executionTimeMs": "*",
+  "result": "LOW",
+  "resultSchema": "***",
+  "parameters": [
+    {
+      "name": "x",
+      "description": "x",
+      "value": 7,
+      "schema": "***"
+    }
+  ]
+}
+

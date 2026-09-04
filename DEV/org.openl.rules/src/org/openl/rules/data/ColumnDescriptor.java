@@ -18,15 +18,12 @@ import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.lang.xls.types.DatatypeOpenField;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenIndex;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -95,7 +92,7 @@ public class ColumnDescriptor {
 
     private static boolean isSupportMultirows(IOpenField field) {
         if (field instanceof FieldChain fieldChain) {
-            IOpenField[] fields = fieldChain.getFields();
+            var fields = fieldChain.getFields();
             for (IOpenField f : fields) {
                 if (f instanceof CollectionElementWithMultiRowField) {
                     return true;
@@ -107,7 +104,7 @@ public class ColumnDescriptor {
 
     public ColumnGroupKey buildGroupKey() {
         if (field instanceof FieldChain chain) {
-            int fields = chain.getFields().length;
+            var fields = chain.getFields().length;
             if (isPrimaryKey() && chain
                     .getFields()[fields - 1] instanceof CollectionElementWithMultiRowField) {
                 fields += 1;
@@ -140,11 +137,11 @@ public class ColumnDescriptor {
                              ILogicalTable valuesTable,
                              OpenlToolAdaptor ota) throws SyntaxNodeException {
 
-        boolean isValuesAnArray = isValuesAnArray(paramType);
+        var isValuesAnArray = isValuesAnArray(paramType);
         valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
 
         if (isValuesAnArray) {
-            IOpenClass aggregateType = paramType;
+            var aggregateType = paramType;
             paramType = aggregateType.getAggregateInfo().getComponentType(paramType);
             if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
                 return RuleRowHelper.loadCommaSeparatedParam(aggregateType,
@@ -203,8 +200,8 @@ public class ColumnDescriptor {
              */
             return literal;
         }
-        IOpenClass aggregateType = field.getType();
-        IOpenClass paramType = aggregateType;
+        var aggregateType = field.getType();
+        var paramType = aggregateType;
 
         if (valuesAnArray) {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
@@ -220,8 +217,8 @@ public class ColumnDescriptor {
             if (valuesAnArray) {
                 res = getArrayValues(valuesTable, toolAdapter, aggregateType, paramType);
             } else {
-                IGridTable sourceGrid = valuesTable.getSource().getSubtable(0, 0, 1, 1);
-                ILogicalTable logicalTable = LogicalTableHelper.logicalTable(sourceGrid).getSubtable(0, 0, 1, 1);
+                var sourceGrid = valuesTable.getSource().getSubtable(0, 0, 1, 1);
+                var logicalTable = LogicalTableHelper.logicalTable(sourceGrid).getSubtable(0, 0, 1, 1);
                 res = getSingleValue(logicalTable, toolAdapter, paramType);
             }
             if (res != null) {
@@ -255,16 +252,16 @@ public class ColumnDescriptor {
                                              IOpenClass aggregateType,
                                              IOpenClass paramType) throws SyntaxNodeException {
 
-        DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext =
+        var datatypeArrayMultiRowElementContext =
                 (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
-        Object prevRes = PREV_RES_EMPTY;
-        for (int i = 0; i < valuesTable.getSource().getHeight(); i++) {
+        var prevRes = PREV_RES_EMPTY;
+        for (var i = 0; i < valuesTable.getSource().getHeight(); i++) {
             datatypeArrayMultiRowElementContext.setRow(i);
             Object res;
-            ILogicalTable logicalTable = LogicalTableHelper
+            var logicalTable = LogicalTableHelper
                     .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
                     .getSubtable(0, 0, 1, 1);
-            boolean isSame = false;
+            var isSame = false;
             if (valuesAnArray) {
                 res = getArrayValues(logicalTable, toolAdapter, aggregateType, paramType);
                 if (prevRes != null && prevRes.getClass().isArray()) {
@@ -291,8 +288,8 @@ public class ColumnDescriptor {
     }
 
     Object parseCellValue(ILogicalTable valuesTable, OpenlToolAdaptor toolAdapter) throws SyntaxNodeException {
-        IOpenClass aggregateType = field.getType();
-        IOpenClass paramType = aggregateType;
+        var aggregateType = field.getType();
+        var paramType = aggregateType;
 
         if (valuesAnArray) {
             paramType = paramType.getAggregateInfo().getComponentType(paramType);
@@ -307,7 +304,7 @@ public class ColumnDescriptor {
     }
 
     private static boolean isSameArrayValue(Object res, Object prevRes) {
-        boolean resIsEmpty = Array.getLength(res) == 0;
+        var resIsEmpty = Array.getLength(res) == 0;
 
         return (resIsEmpty && Array.getLength(prevRes) == 0)
                 || Arrays.deepEquals((Object[]) prevRes, (Object[]) res)
@@ -354,11 +351,11 @@ public class ColumnDescriptor {
 
         // get height of table without empty cells at the end
         //
-        int valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/* logicalTable.getHeight(); */
-        ArrayList<Object> values = new ArrayList<>(valuesTableHeight);
+        var valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/* logicalTable.getHeight(); */
+        var values = new ArrayList<Object>(valuesTableHeight);
 
-        for (int i = 0; i < valuesTableHeight; i++) {
-            Object res = getSingleValue(logicalTable.getRow(i), openlAdaptor, paramType);
+        for (var i = 0; i < valuesTableHeight; i++) {
+            var res = getSingleValue(logicalTable.getRow(i), openlAdaptor, paramType);
 
             // Change request: null value cells should be loaded into array as a
             // null value elements.
@@ -370,11 +367,11 @@ public class ColumnDescriptor {
             values.add(res);
         }
 
-        IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
-        Object arrayValues = aggregateInfo.makeIndexedAggregate(paramType, values.size());
-        IOpenIndex index = aggregateInfo.getIndex(aggregateType);
+        var aggregateInfo = aggregateType.getAggregateInfo();
+        var arrayValues = aggregateInfo.makeIndexedAggregate(paramType, values.size());
+        var index = aggregateInfo.getIndex(aggregateType);
 
-        for (int i = 0; i < values.size(); i++) {
+        for (var i = 0; i < values.size(); i++) {
             index.setValue(arrayValues, i, values.get(i));
         }
 
@@ -382,15 +379,15 @@ public class ColumnDescriptor {
     }
 
     boolean isDeclaredClassSupportMultirow() {
-        IOpenField targetField = getTargetField();
+        var targetField = getTargetField();
         if (!(targetField instanceof DatatypeOpenField)) {
             return true;
         }
-        IOpenClass declaredClass = targetField.getDeclaringClass();
+        var declaredClass = targetField.getDeclaringClass();
 
         for (IOpenField declaredField : declaredClass.getFields()) {
-            IOpenClass fieldType = declaredField.getType();
-            IAggregateInfo info = fieldType.getAggregateInfo();
+            var fieldType = declaredField.getType();
+            var info = fieldType.getAggregateInfo();
             if (info != null && info.isAggregate(fieldType)) {
                 return true;
             }
@@ -402,8 +399,8 @@ public class ColumnDescriptor {
         if (!(field instanceof FieldChain)) {
             return null;
         }
-        FieldChain fieldChain = (FieldChain) field;
-        IOpenField[] fields = fieldChain.getFields();
+        var fieldChain = (FieldChain) field;
+        var fields = fieldChain.getFields();
         if (fields.length == 0) {
             return null;
         }
@@ -450,7 +447,7 @@ public class ColumnDescriptor {
             if (pk) {
                 this.path = path;
             } else {
-                int sep = path.lastIndexOf('.');
+                var sep = path.lastIndexOf('.');
                 this.path = sep > 0 ? path.substring(0, sep) : path;
             }
         }
@@ -461,7 +458,7 @@ public class ColumnDescriptor {
 
         @Override
         public int compareTo(ColumnGroupKey o) {
-            int i = Integer.compare(level, o.level);
+            var i = Integer.compare(level, o.level);
             if (i != 0) {
                 return i;
             }
@@ -476,7 +473,7 @@ public class ColumnDescriptor {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-            ColumnGroupKey key = (ColumnGroupKey) o;
+            var key = (ColumnGroupKey) o;
             return level == key.level && Objects.equals(path, key.path);
         }
 

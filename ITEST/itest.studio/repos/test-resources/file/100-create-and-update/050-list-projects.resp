@@ -1,0 +1,71 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "ZGVzaWduLWZpbGU6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "name": "Project",
+      "status": "CLOSED",
+      "repository": "design-file",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "Project",
+      "repositoryInfo": {
+        "id": "design-file",
+        "name": "Design File",
+        "type": "repo-file",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": true
+        }
+      },
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    },
+    {
+      "id": "ZGVzaWduLWZpbGU6UHJvamVjdDI6MmMyNmI0NmI2OGZmYzY4ZmY5OWI0NTNjMWQzMDQxMzQxMzQyMmQ3MDY0ODNiZmEwZjk4YTVlODg2MjY2ZTdhZQ==",
+      "name": "Project2",
+      "status": "CLOSED",
+      "repository": "design-file",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "revision": "*",
+      "path": "foo",
+      "repositoryInfo": {
+        "id": "design-file",
+        "name": "Design File",
+        "type": "repo-file",
+        "features": {
+          "branches": false,
+          "searchable": false,
+          "mappedFolders": true
+        }
+      },
+      "capabilities": {
+        "canOpen": true,
+        "canDelete": true,
+        "canDeploy": true,
+        "canCompare": true,
+        "canViewHistory": true,
+        "canManage": true,
+        "canCopy": true,
+        "canExport": true
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}

@@ -1,5 +1,5 @@
 import apiCall from './apiCall'
-import { webSocketService, WebSocketMessage } from './websocket'
+import { subscribeTopic, type TopicSubscription } from './stompTopic'
 
 /**
  * Compilation severity values produced by the backend (`@JsonProperty` on the enum, but
@@ -54,14 +54,16 @@ export interface ProjectStatusDetailedMessage extends ProjectStatusMessage {
 }
 
 export interface ProjectStatusCompilationMessages {
-    items: ProjectStatusDetailedMessage[]
+    /** The detailed message list. Populated for the project detail/status views; omitted for list rows, which show only the counts. */
+    items?: ProjectStatusDetailedMessage[]
     total: number
     errors: number
     warnings: number
 }
 
 export interface ProjectStatusCompilationModules {
-    compiledModules: string[]
+    /** Names of compiled modules. Populated for the project detail/status views; omitted for list rows, which show only the counts. */
+    compiledModules?: string[]
     total: number
     compiled: number
 }
@@ -76,21 +78,29 @@ export interface ProjectStatusCompilation {
     tests?: ProjectStatusCompilationTests
 }
 
+export type ProjectFileChangeType = 'added' | 'modified' | 'deleted'
+
+export interface ProjectFileChange {
+    path: string
+    type: ProjectFileChangeType
+}
+
+export interface ProjectPendingChanges {
+    total: number
+    files: ProjectFileChange[]
+}
+
 export interface ProjectStatusUpdate {
     projectId: string
     branch?: string | null
     revision?: string
     compileState: ProjectCompileState
     compilation?: ProjectStatusCompilation
-    // pendingChanges / lastModifiedBy are part of the payload but unused by the legacy UI.
+    pendingChanges?: ProjectPendingChanges
 }
 
-export interface ProjectStatusSubscription {
-    /**
-     * Cancel the WebSocket subscription. Idempotent.
-     */
-    unsubscribe(): void
-}
+/** The one subscription handle shape — an alias of the shared topic multiplexer's. */
+export type ProjectStatusSubscription = TopicSubscription
 
 /**
  * Shape published to {@code window.openl.projectStatus} for legacy JSF callers.
@@ -120,10 +130,8 @@ function buildDestination(projectId: string, branch: string | null | undefined):
 }
 
 /**
- * Concurrent fetches for the same project share one network round trip — several
- * legacy panels (testPanel, problems panel, …) bootstrap in the same load tick and
- * would otherwise hammer the backend with identical requests. The entry is cleared
- * as soon as the request settles so subsequent fetches still hit the network.
+ * Concurrent fetches for the same project share a network round trip. The entry is
+ * cleared as soon as the request settles so subsequent fetches still hit the network.
  */
 const inflightFetches = new Map<string, Promise<ProjectStatusUpdate>>()
 
@@ -139,10 +147,18 @@ export function fetchProjectStatus(projectId: string): Promise<ProjectStatusUpda
     if (existing) {
         return existing
     }
+    const promise = fetchSingleProjectStatus(projectId).finally(() => {
+        inflightFetches.delete(projectId)
+    })
+    inflightFetches.set(projectId, promise)
+    return promise
+}
+
+function fetchSingleProjectStatus(projectId: string): Promise<ProjectStatusUpdate> {
     // Background poll: throw on error so callers can decide how to render, and suppress
     // the global "show login / forbidden / not-found / server error" page redirects —
     // a stale status fetch shouldn't take over the whole UI.
-    const promise = (apiCall(
+    return apiCall(
         `/projects/${encodeURIComponent(projectId)}/status?branch=`,
         {
             method: 'GET',
@@ -150,37 +166,16 @@ export function fetchProjectStatus(projectId: string): Promise<ProjectStatusUpda
             headers: { Accept: 'application/json' },
         },
         { throwError: true, suppressErrorPages: true }
-    ) as Promise<ProjectStatusUpdate>).finally(() => {
-        inflightFetches.delete(projectId)
-    })
-    inflightFetches.set(projectId, promise)
-    return promise
+    ) as Promise<ProjectStatusUpdate>
 }
-
-interface MultiplexedSubscription {
-    listeners: Set<(status: ProjectStatusUpdate) => void>
-    stompSubscriptionId: string
-    teardownTimer: ReturnType<typeof setTimeout> | undefined
-}
-
-/**
- * Multiple legacy panels subscribe to the same destination (testPanel, problems,
- * table — all watching the open project). One STOMP subscription is held per
- * destination and fan-out happens locally.
- *
- * <p>The teardown is deferred by a short cooldown after the last listener detaches.
- * Each panel reload runs `unsubscribe()` synchronously and re-`subscribe()`s only
- * after its `fetch()` resolves — without the cooldown the listener count would
- * briefly hit zero, killing the STOMP subscription and dropping any in-flight
- * compilation events.
- */
-const subscriptions = new Map<string, MultiplexedSubscription>()
-const TEARDOWN_COOLDOWN_MS = 5000
 
 /**
  * Subscribe to project status updates pushed by the backend over WebSocket. The
  * callback receives the full {@code ProjectStatusViewModel} for every transition
  * (compile-cycle start, per-module progress, terminal state).
+ *
+ * <p>Multiple legacy panels watch the same destination (testPanel, problems, table — all watching
+ * the open project); the shared topic subscription fans the messages out locally.
  *
  * <p>Caller responsibilities:
  *   - call {@link fetchProjectStatus} first to render the current state — STOMP only
@@ -193,59 +188,44 @@ export function subscribeProjectStatus(
     branch: string | null,
     onUpdate: (status: ProjectStatusUpdate) => void
 ): ProjectStatusSubscription {
-    const destination = buildDestination(projectId, branch)
+    return subscribeTopic(buildDestination(projectId, branch), statusBodyHandler(onUpdate))
+}
 
-    let entry = subscriptions.get(destination)
-    if (entry) {
-        // A pending teardown from the last panel-reload tick — rescue it.
-        if (entry.teardownTimer) {
-            clearTimeout(entry.teardownTimer)
-            entry.teardownTimer = undefined
-        }
-    } else {
-        // Best-effort connect — `webSocketService.subscribe` queues subscriptions until
-        // the STOMP client is connected, so we don't have to await this promise.
-        void webSocketService.connect().catch(() => {
-            // Connection failures surface via the service's own reconnect loop.
-        })
-        const newEntry: MultiplexedSubscription = {
-            listeners: new Set(),
-            stompSubscriptionId: '',
-            teardownTimer: undefined,
-        }
-        newEntry.stompSubscriptionId = webSocketService.subscribe(
-            destination,
-            (message: WebSocketMessage) => {
-                let payload: ProjectStatusUpdate
-                try {
-                    payload = JSON.parse(message.body) as ProjectStatusUpdate
-                } catch {
-                    return
-                }
-                newEntry.listeners.forEach((listener) => listener(payload))
-            }
-        )
-        subscriptions.set(destination, newEntry)
-        entry = newEntry
-    }
-    entry.listeners.add(onUpdate)
+/**
+ * Whether a status the channel pushed still outranks the one a read carries.
+ *
+ * A push and a read answer the same question from two sides, and the fresher one wins: a push beats
+ * a read that started before it arrived, and gives way to a read started after it. Both screens ask
+ * this — the list about each row, the project page about the one project — so they ask it here.
+ *
+ * @param pushedAt       when the pushed status arrived
+ * @param readStartedAt  when the read carrying the other status started
+ */
+export function isPushFresherThanRead(pushedAt: number, readStartedAt: number): boolean {
+    return pushedAt > readStartedAt
+}
 
-    let unsubscribed = false
-    return {
-        unsubscribe: () => {
-            if (unsubscribed) return
-            unsubscribed = true
-            entry.listeners.delete(onUpdate)
-            if (entry.listeners.size === 0) {
-                entry.teardownTimer = setTimeout(() => {
-                    // Re-check size — a `subscribe()` could have arrived during the cooldown.
-                    if (entry.listeners.size === 0) {
-                        webSocketService.unsubscribe(entry.stompSubscriptionId)
-                        subscriptions.delete(destination)
-                    }
-                    entry.teardownTimer = undefined
-                }, TEARDOWN_COOLDOWN_MS)
-            }
-        },
+/**
+ * The one status stream of the whole workspace, matching
+ * {@code ProjectSocketNotificationService.notifyWorkspaceProjectStatus} on the backend.
+ * Every update names its own project and branch, so a screen showing many projects — the projects
+ * list — holds this single subscription and routes the updates itself, instead of one subscription
+ * per row. The single-project screens keep {@link subscribeProjectStatus}.
+ */
+export function subscribeWorkspaceProjectStatuses(
+    onUpdate: (status: ProjectStatusUpdate) => void
+): ProjectStatusSubscription {
+    return subscribeTopic('/user/topic/workspace/projects/status', statusBodyHandler(onUpdate))
+}
+
+function statusBodyHandler(onUpdate: (status: ProjectStatusUpdate) => void): (body: string) => void {
+    return body => {
+        let payload: ProjectStatusUpdate
+        try {
+            payload = JSON.parse(body) as ProjectStatusUpdate
+        } catch {
+            return
+        }
+        onUpdate(payload)
     }
 }

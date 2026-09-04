@@ -4,7 +4,13 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
+import org.openl.rules.repository.api.Pageable;
+
+@Getter
+@Schema(description = "A page of results with pagination metadata")
 public class PageResponse<T> {
 
     @Parameter(description = "Current page content")
@@ -36,23 +42,16 @@ public class PageResponse<T> {
         this(content, pageNumber, pageSize, null);
     }
 
-    public Collection<T> getContent() {
-        return content;
+    /** Build a page from already-sliced content, deriving the page number and size from the request. */
+    protected PageResponse(Collection<T> content, Pageable page, Long total) {
+        this(content,
+                page.isUnpaged() ? -1 : page.getPageNumber(),
+                page.isUnpaged() ? content.size() : page.getPageSize(),
+                total);
     }
 
-    public int getPageNumber() {
-        return pageNumber;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public int getNumberOfElements() {
-        return numberOfElements;
-    }
-
-    public Long getTotal() {
-        return total;
+    /** Build a page from already-sliced content, deriving the page number and size from the request. */
+    public static <T> PageResponse<T> of(Collection<T> content, Pageable page, Long total) {
+        return new PageResponse<>(content, page, total);
     }
 }

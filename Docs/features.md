@@ -151,9 +151,9 @@ Use rules as usual Java methods from your code.
 
 ## Editing
 
-**Wizards**
+**Table Skeletons**
 
-Create tables with assistance of guided wizards.
+Create tables in one window with a type-aware editable skeleton, signature builders, and automatically expanding rows.
 
 **Powerful Editor**
 
@@ -174,7 +174,7 @@ gaps and overlaps.
 
 **Domain Model**
 
-Create description of domain with intuitive wizard. Reuse it in services and application.
+Create domain descriptions from editable Datatype and Vocabulary skeletons. Reuse them in services and applications.
 
 **Extensible Type System**
 

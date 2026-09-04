@@ -26,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.openl.rules.security.standalone.dao.PersonalAccessTokenDao;
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
 import org.openl.studio.security.pat.model.PatToken;
-import org.openl.studio.security.pat.model.PatValidationResult;
 
 /**
  * Unit tests for {@link PatValidationServiceImpl}.
@@ -67,13 +66,13 @@ class PatValidationServiceImplTest {
     @Test
     void testValidate_ValidToken() {
         // Arrange
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         assertTrue(result.valid());
@@ -90,10 +89,10 @@ class PatValidationServiceImplTest {
         // Arrange
         when(tokenDao.getByPublicId(eq(NONEXISTENT_ID))).thenReturn(null);
 
-        PatToken patToken = new PatToken(NONEXISTENT_ID, TEST_SECRET);
+        var patToken = new PatToken(NONEXISTENT_ID, TEST_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         // Security Note: Returns INVALID without revealing the specific reason (token doesn't exist).
@@ -107,14 +106,14 @@ class PatValidationServiceImplTest {
     @Test
     void testValidate_SecretMismatch() {
         // Arrange
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
         // Try to validate with different secret
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, WRONG_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, WRONG_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         assertFalse(result.valid());
@@ -126,14 +125,14 @@ class PatValidationServiceImplTest {
     @Test
     void testValidate_ExpiredToken() {
         // Arrange
-        Instant oneHourAgo = FIXED_TIME.minusSeconds(3600);
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneHourAgo);
+        var oneHourAgo = FIXED_TIME.minusSeconds(3600);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneHourAgo);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         assertFalse(result.valid());
@@ -145,13 +144,13 @@ class PatValidationServiceImplTest {
     @Test
     void testValidate_TokenWithoutExpiration() {
         // Arrange
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, null);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         assertTrue(result.valid());
@@ -164,14 +163,14 @@ class PatValidationServiceImplTest {
     @Test
     void testValidate_TokenExpiresInFuture() {
         // Arrange
-        Instant oneDayLater = FIXED_TIME.plusSeconds(86400);
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneDayLater);
+        var oneDayLater = FIXED_TIME.plusSeconds(86400);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneDayLater);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         assertTrue(result.valid());
@@ -184,13 +183,13 @@ class PatValidationServiceImplTest {
     void testValidate_TokenExpiresExactlyNow() {
         // Arrange
         // Token expires at exactly the current time (boundary condition)
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, FIXED_TIME);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, FIXED_TIME);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         // Implementation uses isBefore(), so token expiring exactly at current time is still valid
@@ -203,14 +202,14 @@ class PatValidationServiceImplTest {
     @Test
     void testValidate_TokenJustExpired() {
         // Arrange
-        Instant justExpired = FIXED_TIME.minusMillis(1);
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, justExpired);
+        var justExpired = FIXED_TIME.minusMillis(1);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, justExpired);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         assertFalse(result.valid());
@@ -222,24 +221,24 @@ class PatValidationServiceImplTest {
     @Test
     void testValidate_MultipleTokens() {
         // Arrange
-        PersonalAccessToken token1 = createToken(TEST_PUBLIC_ID_2, "jdoe", TEST_SECRET_2, null);
-        PersonalAccessToken token2 = createToken(TEST_PUBLIC_ID_3, "jsmith", TEST_SECRET_3, null);
+        var token1 = createToken(TEST_PUBLIC_ID_2, "jdoe", TEST_SECRET_2, null);
+        var token2 = createToken(TEST_PUBLIC_ID_3, "jsmith", TEST_SECRET_3, null);
 
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID_2))).thenReturn(token1);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID_3))).thenReturn(token2);
 
         // Act & Assert - validate jdoe's token
-        PatValidationResult result1 = validationService.validate(new PatToken(TEST_PUBLIC_ID_2, TEST_SECRET_2));
+        var result1 = validationService.validate(new PatToken(TEST_PUBLIC_ID_2, TEST_SECRET_2));
         assertTrue(result1.valid());
         assertEquals("jdoe", result1.token().getLoginName());
 
         // Act & Assert - validate jsmith's token
-        PatValidationResult result2 = validationService.validate(new PatToken(TEST_PUBLIC_ID_3, TEST_SECRET_3));
+        var result2 = validationService.validate(new PatToken(TEST_PUBLIC_ID_3, TEST_SECRET_3));
         assertTrue(result2.valid());
         assertEquals("jsmith", result2.token().getLoginName());
 
         // Act & Assert - wrong secret for jdoe
-        PatValidationResult result3 = validationService.validate(new PatToken(TEST_PUBLIC_ID_2, TEST_SECRET_3));
+        var result3 = validationService.validate(new PatToken(TEST_PUBLIC_ID_2, TEST_SECRET_3));
         assertFalse(result3.valid());
 
         verify(tokenDao, times(2)).getByPublicId(eq(TEST_PUBLIC_ID_2));
@@ -249,18 +248,18 @@ class PatValidationServiceImplTest {
     @Test
     void testValidate_CaseSensitiveSecret() {
         // Arrange - Test that secrets are case-sensitive
-        String caseSensitiveSecret = "MySecretABC123456789012345678XY"; // 32 chars
-        String wrongCaseSecret = "mysecretabc123456789012345678xy"; // same but lowercase
+        var caseSensitiveSecret = "MySecretABC123456789012345678XY"; // 32 chars
+        var wrongCaseSecret = "mysecretabc123456789012345678xy"; // same but lowercase
 
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", caseSensitiveSecret, null);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", caseSensitiveSecret, null);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
         // Act & Assert - exact match
-        PatValidationResult result1 = validationService.validate(new PatToken(TEST_PUBLIC_ID, caseSensitiveSecret));
+        var result1 = validationService.validate(new PatToken(TEST_PUBLIC_ID, caseSensitiveSecret));
         assertTrue(result1.valid());
 
         // Act & Assert - wrong case
-        PatValidationResult result2 = validationService.validate(new PatToken(TEST_PUBLIC_ID, wrongCaseSecret));
+        var result2 = validationService.validate(new PatToken(TEST_PUBLIC_ID, wrongCaseSecret));
         assertFalse(result2.valid());
 
         verify(tokenDao, times(2)).getByPublicId(eq(TEST_PUBLIC_ID));
@@ -270,14 +269,14 @@ class PatValidationServiceImplTest {
     void testValidate_ExpiredTokenWithCorrectSecret() {
         // Arrange
         // Even though secret is correct, token should be rejected if expired
-        Instant oneHourAgo = FIXED_TIME.minusSeconds(3600);
-        PersonalAccessToken storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneHourAgo);
+        var oneHourAgo = FIXED_TIME.minusSeconds(3600);
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, oneHourAgo);
         when(tokenDao.getByPublicId(eq(TEST_PUBLIC_ID))).thenReturn(storedToken);
 
-        PatToken patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
 
         // Act
-        PatValidationResult result = validationService.validate(patToken);
+        var result = validationService.validate(patToken);
 
         // Assert
         assertFalse(result.valid());
@@ -290,7 +289,7 @@ class PatValidationServiceImplTest {
      * Helper method to create a PersonalAccessToken with encoded secret.
      */
     private PersonalAccessToken createToken(String publicId, String loginName, String secret, Instant expiresAt) {
-        PersonalAccessToken token = new PersonalAccessToken();
+        var token = new PersonalAccessToken();
         token.setPublicId(publicId);
         token.setSecretHash(passwordEncoder.encode(secret));
         token.setLoginName(loginName);

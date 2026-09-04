@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import lombok.Getter;
+
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
@@ -11,6 +13,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class CastNode extends ABoundNode {
 
+    @Getter
     private final IOpenCast cast;
     private final IOpenClass castedType;
 
@@ -32,7 +35,7 @@ public class CastNode extends ABoundNode {
 
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
-        Object res = children[0].evaluate(env);
+        var res = children[0].evaluate(env);
         return cast.convert(res);
     }
 
@@ -69,9 +72,5 @@ public class CastNode extends ABoundNode {
     @Override
     public int getDims() {
         return children[0].getDims();
-    }
-
-    public IOpenCast getCast() {
-        return cast;
     }
 }

@@ -10,22 +10,21 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Pack an OpenL project using {@linkplain ZipArchiver}.
  *
  * @author Yury Molchan
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProjectPackager implements FileVisitor<Path> {
     private static final List<String> systems = Arrays.asList("rules.xml", "rules-deploy.xml");
 
     private final Path dir;
     private final ZipArchiver arch;
     private boolean emptyDir;
-
-    private ProjectPackager(Path dir, ZipArchiver arch) {
-        this.dir = dir;
-        this.arch = arch;
-    }
 
     /**
      * Pack provided files in a source directory.
@@ -35,7 +34,7 @@ public final class ProjectPackager implements FileVisitor<Path> {
      * @param arch      a zip archiver.
      */
     public static void addOpenLProject(File sourceDir, String[] includes, ZipArchiver arch) throws IOException {
-        Path path = sourceDir.toPath();
+        var path = sourceDir.toPath();
         resolveSystemFiles(path, arch);
         for (String file : includes) {
             if (!systems.contains(file)) {
@@ -51,7 +50,7 @@ public final class ProjectPackager implements FileVisitor<Path> {
      * @param arch      a zip archiver.
      */
     public static void addOpenLProject(File sourceDir, ZipArchiver arch) throws IOException {
-        Path path = sourceDir.toPath();
+        var path = sourceDir.toPath();
         resolveSystemFiles(path, arch);
 
         Files.walkFileTree(path, new ProjectPackager(path, arch));
@@ -74,7 +73,7 @@ public final class ProjectPackager implements FileVisitor<Path> {
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         emptyDir = false;
         // A directory was defined for compression, so make inner files relative to a base directory
-        String relativePath = toRelative(file);
+        var relativePath = toRelative(file);
         if (!systems.contains(relativePath)) {
             arch.addEntry(file, relativePath);
         }
@@ -91,7 +90,7 @@ public final class ProjectPackager implements FileVisitor<Path> {
     public FileVisitResult postVisitDirectory(Path file, IOException exc) throws IOException {
         if (emptyDir) {
             emptyDir = false;
-            String relativePath = toRelative(file);
+            var relativePath = toRelative(file);
             arch.addEntry(file, relativePath);
         }
         return FileVisitResult.CONTINUE;

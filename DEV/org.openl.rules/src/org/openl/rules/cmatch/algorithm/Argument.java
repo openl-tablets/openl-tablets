@@ -1,21 +1,22 @@
 package org.openl.rules.cmatch.algorithm;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class Argument {
     private final int index;
     /**
      * Type of argument
      */
+    @Getter
     private final IOpenClass type;
+    @Getter
     private IOpenField field;
-
-    public Argument(int index, IOpenClass type) {
-        this.index = index;
-        this.type = type;
-    }
 
     public Argument(int index, IOpenField field) {
         this.index = index;
@@ -29,13 +30,5 @@ public class Argument {
         } else {
             return field.get(params[index], env);
         }
-    }
-
-    public IOpenField getField() {
-        return field;
-    }
-
-    public IOpenClass getType() {
-        return type;
     }
 }

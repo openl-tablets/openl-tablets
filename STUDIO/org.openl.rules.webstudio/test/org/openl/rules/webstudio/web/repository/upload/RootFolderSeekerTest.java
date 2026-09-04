@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.HashSet;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +11,7 @@ class RootFolderSeekerTest {
 
     @Test
     void test() {
-        Set<String> folderNames = new HashSet<>();
+        var folderNames = new HashSet<String>();
         folderNames.add("my/");
         folderNames.add("my/file.txt");
         folderNames.add("my/very_very_very_big_file_name.xml");
@@ -22,7 +21,7 @@ class RootFolderSeekerTest {
         folderNames.add("my/package/newFile.owl");
         folderNames.add("my/package/rules/");
         folderNames.add("my/package/rules/rule.xls");
-        RootFolderExtractor folderExtractor = new RootFolderExtractor(folderNames, null);
+        var folderExtractor = new RootFolderExtractor(folderNames, null);
 
         assertEquals("package/hello/", folderExtractor.extractFromRootFolder("my/package/hello/"));
         assertEquals("file.xml", folderExtractor.extractFromRootFolder("my/file.xml"));
@@ -33,7 +32,7 @@ class RootFolderSeekerTest {
 
     @Test
     void testFilesInRootDirectory() {
-        Set<String> folderNames = new HashSet<>();
+        var folderNames = new HashSet<String>();
         folderNames.add("my/");
         folderNames.add("file.txt");
         folderNames.add("very_very_very_big_file_name.xml");
@@ -43,7 +42,7 @@ class RootFolderSeekerTest {
         folderNames.add("my/package/newFile.owl");
         folderNames.add("my/package/rules/");
         folderNames.add("my/package/rules/rule.xls");
-        RootFolderExtractor folderExtractor = new RootFolderExtractor(folderNames, null);
+        var folderExtractor = new RootFolderExtractor(folderNames, null);
 
         assertEquals("my/package/hello/", folderExtractor.extractFromRootFolder("my/package/hello/"));
         assertEquals("my/file.xml", folderExtractor.extractFromRootFolder("my/file.xml"));

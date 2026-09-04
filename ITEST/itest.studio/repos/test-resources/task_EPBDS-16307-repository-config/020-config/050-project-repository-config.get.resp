@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "branch": "master",
+  "protectedBranches": [
+    "release-*"
+  ],
+  "newBranch": {},
+  "comment": {
+    "templates": {
+      "save": "Project {project-name} is saved.",
+      "create": "Project {project-name} is created.",
+      "copy": "Copied from: {project-name}.",
+      "restoreFrom": "Restored from revision of {author} on {datetime}."
+    }
+  }
+}

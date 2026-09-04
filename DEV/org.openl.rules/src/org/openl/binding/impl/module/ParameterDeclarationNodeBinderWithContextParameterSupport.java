@@ -15,7 +15,7 @@ public class ParameterDeclarationNodeBinderWithContextParameterSupport extends P
     @Override
     protected void validateMetaData(ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         if (syntaxNode.getNumberOfChildren() == 2) {
-            IdentifierNode identifierNode = (IdentifierNode) syntaxNode.getChild(0);
+            var identifierNode = (IdentifierNode) syntaxNode.getChild(0);
             if (!"context".equals(identifierNode.getText())) {
                 BindHelper
                         .processError("Illegal context parameter declaration.", syntaxNode.getChild(0), bindingContext);
@@ -31,10 +31,10 @@ public class ParameterDeclarationNodeBinderWithContextParameterSupport extends P
                                            IOpenClass type,
                                            IBindingContext bindingContext) {
         if (node.getNumberOfChildren() > 2) {
-            ISyntaxNode syntaxNode = node.getChild(2);
+            var syntaxNode = node.getChild(2);
             if (syntaxNode.getNumberOfChildren() == 2) {
-                IdentifierNode contextPropertyIdentifierNode = (IdentifierNode) syntaxNode.getChild(1);
-                String contextProperty = contextPropertyIdentifierNode.getText();
+                var contextPropertyIdentifierNode = (IdentifierNode) syntaxNode.getChild(1);
+                var contextProperty = contextPropertyIdentifierNode.getText();
                 String errorMessage = ContextPropertyBinderUtils
                         .validateContextProperty(contextProperty, type, bindingContext);
                 if (errorMessage != null) {

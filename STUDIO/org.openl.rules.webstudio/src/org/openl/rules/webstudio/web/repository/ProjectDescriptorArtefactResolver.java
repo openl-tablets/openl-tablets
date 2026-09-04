@@ -1,58 +1,62 @@
 package org.openl.rules.webstudio.web.repository;
 
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.repository.api.FileData;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 /**
  * Resolves specified OpenL project revision's dependencies.
  */
+@Component
+@RequiredArgsConstructor
 @Slf4j
 public class ProjectDescriptorArtefactResolver {
 
-    /**
-     * Project descriptors cache. Replace with ehcache if GC occurs too often.
-     */
-    private final Map<String, ProjectDescriptor> cache = new WeakHashMap<>();
+    static final String CACHE_NAME = "projectDescriptors";
+
+    private final CacheManager cacheManager;
 
     private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException {
-        FileData fileData = project.getFileData();
+        var fileData = project.getFileData();
         if (fileData == null) {
             return null;
         }
-        String version = fileData.getVersion();
-        String versionName = version == null ? "" : version;
-        String key = "%s:%s:%b".formatted(project.getName(), versionName, project.isModified());
-
-        ProjectDescriptor descriptor = cache.get(key);
-        if (descriptor != null) {
-            return descriptor;
+        // A committed revision's rules.xml is immutable and identical for every user, so cache it by repository,
+        // project and revision. The repository id keeps same-named projects in different repositories apart. A
+        // modified working copy is read fresh: its rules.xml can change in place without a new revision and must
+        // not be shared between users.
+        String cacheKey = fileData.getVersion() != null && !project.isModified()
+                ? project.getRepository().getId() + '/' + project.getName() + '@' + fileData.getVersion()
+                : null;
+        var cache = cacheKey == null ? null : cacheManager.getCache(CACHE_NAME);
+        if (cache != null) {
+            var cached = cache.get(cacheKey, ProjectDescriptor.class);
+            if (cached != null) {
+                return cached;
+            }
         }
 
         if (!project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
-            // For performance reasons assume that if there is no rules.xml then there are no project dependencies and
-            // project name is got from the project folder name.
+            // For performance reasons assume that if there is no rules.xml then there are no project
+            // dependencies and the project name is taken from the project folder name.
             return null;
         }
 
-        AProjectArtefact artefact = project
-                .getArtefact(ProjectDescriptor.FILE_NAME);
+        var artefact = project.getArtefact(ProjectDescriptor.FILE_NAME);
         if (artefact instanceof AProjectResource resource) {
+            ProjectDescriptor descriptor;
             InputStream content = null;
             try {
                 content = resource.getContent();
@@ -60,7 +64,9 @@ public class ProjectDescriptorArtefactResolver {
             } finally {
                 IOUtils.closeQuietly(content);
             }
-            cache.put(key, descriptor);
+            if (cache != null) {
+                cache.put(cacheKey, descriptor);
+            }
             return descriptor;
         }
 
@@ -68,8 +74,8 @@ public class ProjectDescriptorArtefactResolver {
     }
 
     public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException {
-        ProjectDescriptor pd = getProjectDescriptor(project);
-        return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : Collections.emptyList();
+        var pd = getProjectDescriptor(project);
+        return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : List.of();
     }
 
     public String getLogicalName(AProject project) {
@@ -87,15 +93,7 @@ public class ProjectDescriptorArtefactResolver {
             return pd.getName();
         }
         // rules.xml is absent or does not declare a name - fall back to the physical project folder name
-        String actualPath = project.getRealPath();
+        var actualPath = project.getRealPath();
         return actualPath.substring(actualPath.lastIndexOf('/') + 1);
-    }
-
-    public void deleteRevisionsFromCache(AProject project) {
-        for (String key : new HashSet<>(cache.keySet())) {
-            if (key.split(":")[0].equals(project.getName())) {
-                cache.remove(key);
-            }
-        }
     }
 }

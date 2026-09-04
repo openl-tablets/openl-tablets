@@ -2,8 +2,6 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'common', {
     openl_studio: 'OpenL Studio',
-    openl_tables: 'OpenL Tables',
-    report_a_problem: 'Report a problem',
     users: 'Users',
     groups: 'Groups',
     loading: 'Loading...',
@@ -34,6 +32,8 @@ i18next.addResourceBundle('en', 'common', {
     menu: {
         editor: 'Editor',
         repository: 'Repository',
+        projects: 'Projects',
+        deployments: 'Deployments',
         my_profile: 'My Profile',
         my_settings: 'My Settings',
         personal_access_tokens: 'Personal Access Tokens',
@@ -68,17 +68,7 @@ i18next.addResourceBundle('en', 'common', {
     validation: {
         required: 'Required',
         invalid_email: 'Invalid email address',
-        invalid_username: 'Invalid username',
-        invalid_password: 'Invalid password',
-        invalid_url: 'Invalid URL',
-        invalid_date: 'Invalid date',
-        invalid_time: 'Invalid time',
-        invalid_number: 'Invalid number',
         leave_blank: 'Leave blank to keep the current value'
-    },
-    plugin: {
-        loading_plugin: 'Loading Plugin',
-        no_plugin_specified: 'No plugin specified',
     },
     role: {
         VIEWER: 'Viewer',

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -26,8 +25,8 @@ public class LocalRepository extends FileSystemRepository {
     @Override
     protected String getVersion(Path file) {
         if (Files.isDirectory(file)) {
-            File[] files = listAllFiles(file.toFile());
-            int hash = 1;
+            var files = listAllFiles(file.toFile());
+            var hash = 1;
             for (File f : files) {
                 hash = 31 * hash + Objects.hash(f.getName(), f.lastModified(), f.length());
             }
@@ -43,7 +42,7 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     private File[] listAllFiles(File dir) {
-        try (Stream<Path> stream = Files.walk(dir.toPath())) {
+        try (var stream = Files.walk(dir.toPath())) {
             return stream.filter(Files::isRegularFile).map(Path::toFile).toArray(File[]::new);
         } catch (IOException unused) {
             return EMPTY_FILES;

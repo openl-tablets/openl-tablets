@@ -1,0 +1,111 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 14,
+  "executionTimeMs": "*",
+  "numberOfTests": 33,
+  "numberOfFailures": 1,
+  "testCases": [
+    {
+      "name": "BankRatingTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 0,
+      "numberOfFailures": 1
+    },
+    {
+      "name": "BankLimitIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "BankRatingGroupTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 5,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "CapitalAdequacyScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "DynamicIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "EquityScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "IsAdequateMaxCreditRiskScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "IsAdequateNormativeIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "LossesInThisYearScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 2,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "ProfitDynamicScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "QualitativeIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "QualityIndexTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "SetNonZeroValuesTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 1,
+      "numberOfFailures": 0
+    },
+    {
+      "name": "TotalBalanceScoreTest",
+      "tableId": "*",
+      "executionTimeMs": "*",
+      "numberOfTests": 4,
+      "numberOfFailures": 0
+    }
+  ]
+}

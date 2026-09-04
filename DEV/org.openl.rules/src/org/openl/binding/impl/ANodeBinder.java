@@ -70,7 +70,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
     public static IBoundNode[] bindChildren(ISyntaxNode parentNode, IBindingContext bindingContext, int from, int to) {
 
-        int n = to - from;
+        var n = to - from;
 
         if (n == 0) {
             return IBoundNode.EMPTY;
@@ -78,11 +78,11 @@ public abstract class ANodeBinder implements INodeBinder {
 
         IBoundNode[] children = new IBoundNode[n];
 
-        int boundNodesCount = 0;
+        var boundNodesCount = 0;
 
-        for (int i = 0; i < n; i++) {
+        for (var i = 0; i < n; i++) {
 
-            ISyntaxNode childNode = parentNode.getChild(from + i);
+            var childNode = parentNode.getChild(from + i);
 
             if (childNode == null) {
                 boundNodesCount += 1;
@@ -112,7 +112,7 @@ public abstract class ANodeBinder implements INodeBinder {
                                                 int from,
                                                 int to) {
 
-        int n = to - from;
+        var n = to - from;
 
         if (n == 0) {
             return IBoundNode.EMPTY;
@@ -120,9 +120,9 @@ public abstract class ANodeBinder implements INodeBinder {
 
         IBoundNode[] children = new IBoundNode[n];
 
-        for (int i = 0; i < n; i++) {
+        for (var i = 0; i < n; i++) {
 
-            ISyntaxNode childNode = parentNode.getChild(from + i);
+            var childNode = parentNode.getChild(from + i);
 
             if (childNode == null) {
                 continue;
@@ -138,7 +138,7 @@ public abstract class ANodeBinder implements INodeBinder {
 
         IOpenClass[] types = new IOpenClass[nodes.length];
 
-        for (int i = 0; i < types.length; i++) {
+        for (var i = 0; i < types.length; i++) {
             types[i] = nodes[i].getType();
         }
 
@@ -168,7 +168,7 @@ public abstract class ANodeBinder implements INodeBinder {
                                     IOpenClass to,
                                     IBindingContext bindingContext,
                                     boolean implicitOnly) throws TypeCastException {
-        IOpenClass from = node.getType();
+        var from = node.getType();
 
         if (from == null) {
             throw new TypeCastException(node.getSyntaxNode(), NullOpenClass.the, to);
@@ -178,7 +178,7 @@ public abstract class ANodeBinder implements INodeBinder {
             return null;
         }
 
-        IOpenCast cast = bindingContext.getCast(from, to);
+        var cast = bindingContext.getCast(from, to);
 
         if ((cast == null || (implicitOnly && !cast.isImplicit())) && !NullOpenClass.isAnyNull(from, to)) {
             throw new TypeCastException(node.getSyntaxNode(), from, to);
@@ -211,8 +211,8 @@ public abstract class ANodeBinder implements INodeBinder {
     protected static IOpenClass getType(ISyntaxNode node,
                                         IBindingContext bindingContext) throws ClassNotFoundException {
         if ("type.name".equals(node.getType())) {
-            String typeName = node.getText();
-            IOpenClass varType = bindingContext.findType(typeName);
+            var typeName = node.getText();
+            var varType = bindingContext.findType(typeName);
             if (varType == null) {
                 throw new ClassNotFoundException(MessageUtils.getTypeNotFoundMessage(typeName));
             }
@@ -220,10 +220,10 @@ public abstract class ANodeBinder implements INodeBinder {
             return varType;
         } else if ("combined.type.name".equals(node.getType())) {
             IOpenClass[] typesToCombine = new IOpenClass[node.getNumberOfChildren()];
-            boolean allTypesFound = true;
-            for (int i = 0; i < node.getNumberOfChildren(); i++) {
-                ISyntaxNode childNode = node.getChild(i);
-                String typeName = childNode.getText();
+            var allTypesFound = true;
+            for (var i = 0; i < node.getNumberOfChildren(); i++) {
+                var childNode = node.getChild(i);
+                var typeName = childNode.getText();
                 typesToCombine[i] = bindingContext.findType(typeName);
                 if (typesToCombine[i] == null) {
                     allTypesFound = false;

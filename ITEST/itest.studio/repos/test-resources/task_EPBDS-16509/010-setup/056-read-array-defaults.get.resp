@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "ArrayDefaults",
+  "pos": "B2:D4",
+  "source": [
+    [{"cell": "B2", "value": "Datatype ArrayDefaults"}, {"cell": "C2"}, {"cell": "D2"}],
+    [{"cell": "B3", "value": "String[]"}, {"cell": "C3", "value": "attributes"}, {"cell": "D3", "value": ["C:\\", "ACME, Inc"]}],
+    [
+      {"cell": "B4", "value": "Date[]"},
+      {"cell": "C4", "value": "effectiveDates"},
+      {"cell": "D4", "value": ["2050-01-02T03:04:05.678", "2051-02-03T04:05:06.789"]}
+    ]
+  ]
+}

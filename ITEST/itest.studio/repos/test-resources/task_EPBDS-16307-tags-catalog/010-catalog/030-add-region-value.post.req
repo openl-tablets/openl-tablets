@@ -1,0 +1,5 @@
+POST /rest/admin/tag-config/types/2/tags HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: text/plain
+
+EU

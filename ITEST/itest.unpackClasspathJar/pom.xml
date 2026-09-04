@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>6.3.1-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.unpackClasspathJar</artifactId>
@@ -17,6 +17,12 @@
         <dependency>
             <groupId>org.openl.itest</groupId>
             <artifactId>server-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+            <type>war</type>
             <scope>test</scope>
         </dependency>
     </dependencies>

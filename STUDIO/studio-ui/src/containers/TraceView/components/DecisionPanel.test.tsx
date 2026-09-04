@@ -62,7 +62,8 @@ describe('DecisionPanel', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         useTraceStore.getState().reset()
-        useTraceStore.setState({ projectId: 'p1' })
+        // Breakpoint controls belong to the advanced debugger; these cases exercise them.
+        useTraceStore.setState({ projectId: 'p1', advanced: true })
     })
 
     it('shows the fired rule and per-rule condition outcomes', () => {
@@ -122,6 +123,19 @@ describe('DecisionPanel', () => {
     it('hides the rule dropdown when the rule list is unavailable', () => {
         render(<DecisionPanel decision={decision} frameName="DT" frameUri="dt/uri" />)
         expect(screen.queryByTestId('decision-rule-select')).not.toBeInTheDocument()
+    })
+
+    it('hides every breakpoint control in the business view, keeping the explanation', () => {
+        useTraceStore.setState({ advanced: false })
+        render(<DecisionPanel decision={decision} frameName="DT" frameUri="dt/uri" ruleNames={['Standard', 'Senior']} />)
+
+        // The business view debugs with no breakpoints — no fire toggle, no rule picker, no per-rule gutters.
+        expect(screen.queryByTestId('decision-break-on-fire')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('decision-rule-select')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('decision-rule-bp-Senior')).not.toBeInTheDocument()
+        // The plain-language "why it fired" explanation still shows.
+        expect(screen.getByText('Fired: Standard')).toBeInTheDocument()
+        expect(screen.getByText('Senior')).toBeInTheDocument()
     })
 
     it('caps the rule breakdown for a collect-all table and expands on demand', async () => {

@@ -2,7 +2,6 @@ package org.openl.rules.rest.acl;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +25,7 @@ public class AclRolesController {
         return Stream.of(AclRole.values())
                 .sorted(Comparator.comparing(AclRole::ordinal).reversed())
                 .map(role -> new AclRoleModel(role, role.getDescription()))
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
     }
 
 }

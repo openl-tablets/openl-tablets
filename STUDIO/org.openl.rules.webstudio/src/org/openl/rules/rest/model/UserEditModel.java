@@ -1,20 +1,25 @@
 package org.openl.rules.rest.model;
 
 import java.util.Set;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Getter;
 
 public class UserEditModel extends UserInfoModel {
 
+    @Getter
     @Size(max = 25, message = "{openl.constraints.size.max.message}")
     @Parameter(description = "Password", example = "qwerty")
     private String password;
 
+    @Getter
     @Parameter(description = "Assigned Groups")
     private Set<String> groups;
 
     @Override
+    @NotBlank
     public String getEmail() {
         return super.getEmail();
     }
@@ -25,6 +30,7 @@ public class UserEditModel extends UserInfoModel {
     }
 
     @Override
+    @NotBlank
     public String getDisplayName() {
         return super.getDisplayName();
     }
@@ -35,18 +41,8 @@ public class UserEditModel extends UserInfoModel {
     }
 
     @Override
-    public String getFirstName() {
-        return super.getFirstName();
-    }
-
-    @Override
     public UserEditModel setFirstName(String firstName) {
         return (UserEditModel) super.setFirstName(firstName);
-    }
-
-    @Override
-    public String getLastName() {
-        return super.getLastName();
     }
 
     @Override
@@ -54,17 +50,9 @@ public class UserEditModel extends UserInfoModel {
         return (UserEditModel) super.setLastName(lastName);
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public UserEditModel setPassword(String password) {
         this.password = password;
         return this;
-    }
-
-    public Set<String> getGroups() {
-        return groups;
     }
 
     public UserEditModel setGroups(Set<String> groups) {

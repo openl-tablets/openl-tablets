@@ -2,14 +2,14 @@ package org.openl.rules.webstudio;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import jakarta.annotation.PostConstruct;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -26,7 +25,6 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
-import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -35,6 +33,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.repositories.service.ProjectCreationService;
 
 /**
  * Creates demo projects in a repository.
@@ -44,36 +43,31 @@ import org.openl.studio.common.exception.ForbiddenException;
 @Component
 @ConditionalOnProperty(name = "demo.init", havingValue = "true")
 @DependsOn("singleUserModeInit")
+@RequiredArgsConstructor
 @Slf4j
 public class DemoInit {
 
     private final TemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
 
+    @Qualifier("zipFilter")
     private final PathFilter zipFilter;
     private final MultiUserWorkspaceManager workspaceManager;
     private final DeploymentManager deploymentManager;
     private final UserManagementService userManagementService;
     private final AclProjectsHelper aclProjectsHelper;
-
-    @Autowired
-    public DemoInit(@Qualifier("zipFilter") PathFilter zipFilter,
-                    MultiUserWorkspaceManager workspaceManager,
-                    DeploymentManager deploymentManager,
-                    UserManagementService userManagementService,
-                    AclProjectsHelper aclProjectsHelper) {
-        this.zipFilter = zipFilter;
-        this.workspaceManager = workspaceManager;
-        this.deploymentManager = deploymentManager;
-        this.userManagementService = userManagementService;
-        this.aclProjectsHelper = aclProjectsHelper;
-    }
+    private final ProjectCreationService projectCreationService;
 
     @PostConstruct
     public void init() {
         try {
             var config = new HashMap<String, String>();
             config.put("demo.init", null);
-            DynamicPropertySource.get().save(config);
+            var settings = DynamicPropertySource.get();
+            settings.save(config);
+            // The settings file was written by the application itself, so it carries no change to reload. Left
+            // unread, it is taken for a change someone made and the Spring context is refreshed a second later,
+            // while the web application is still starting up, which fails the start-up (EPBDS-16473).
+            settings.reloadIfModified();
         } catch (IOException ex) {
             log.error("Could not clean demo.init property", ex);
         }
@@ -89,11 +83,11 @@ public class DemoInit {
         initUser("u4", "u4@example.com", "U4", "Deployers");
         initUser("user", "user@example.com", "User", "Viewers");
 
-        WorkspaceUserImpl user = new WorkspaceUserImpl(usr.getUsername(),
+        var user = new WorkspaceUserImpl(usr.getUsername(),
                 (x) -> new UserInfo(usr.getUsername(),
                         usr.getEmail(),
                         usr.getDisplayName()));
-        UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
+        var userWorkspace = workspaceManager.getUserWorkspace(user);
 
         createProject(userWorkspace, "examples", "Example 1 - Bank Rating", true, false);
         createProject(userWorkspace, "examples", "Example 2 - Corporate Rating", true, false);
@@ -121,16 +115,16 @@ public class DemoInit {
     }
 
     private void createProject(UserWorkspace userWorkspace, String part, String projectName, boolean open, boolean deploy) {
-        ProjectFile[] templateFiles = templatesResolver.getProjectFiles(part, projectName);
-        String repositoryId = "design";
+        var templateFiles = templatesResolver.getProjectFiles(part, projectName);
+        var repositoryId = "design";
 
-        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(repositoryId,
+        var projectCreator = new ExcelFilesProjectCreator(repositoryId,
                 projectName,
                 "",
                 userWorkspace,
                 "Project " + projectName + " is created.",
                 zipFilter,
-                Collections.emptyMap(),
+                Map.of(),
                 templateFiles);
         try {
             try {
@@ -139,8 +133,15 @@ public class DemoInit {
                 log.error("Project: {}. Message: {}", projectName, e.getMessage(), e);
                 return;
             }
-            String technicalName = projectCreator.getCreatedProjectName();
-            RulesProject createdProject = userWorkspace.getProject(repositoryId, technicalName);
+            // A design write becomes resolvable by name only once the project index publishes it, so the demo
+            // waits for that as every other create path does. Without it the next lookup loses the race and the
+            // project is left neither opened nor deployed — see EPBDS-16409.
+            var designTimeRepository = userWorkspace.getDesignTimeRepository();
+            projectCreationService.awaitProjectVisibility(designTimeRepository,
+                    designTimeRepository.getRepository(repositoryId));
+
+            var technicalName = projectCreator.getCreatedProjectName();
+            var createdProject = userWorkspace.getProject(repositoryId, technicalName);
 
             if (open) {
                 createdProject.open();

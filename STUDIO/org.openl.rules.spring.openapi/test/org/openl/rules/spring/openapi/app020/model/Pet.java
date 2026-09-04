@@ -8,30 +8,45 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 public class Pet {
 
+    @Getter
     @JsonProperty("tags")
+    @Setter
     private List<Tag> tags = null;
 
+    @Getter
     @JsonProperty("category")
+    @Setter
     private Category category;
 
+    @Getter
     @JsonProperty("id")
+    @Setter
     private Long id;
 
+    @Getter
     @JsonProperty("name")
     @Parameter(example = "doggie")
+    @Setter
     @NotNull
     private String name;
 
+    @Getter
     @JsonProperty("photoUrls")
     @NotNull
+    @Setter
     private List<String> photoUrls = new ArrayList<>();
 
     /**
      * pet status in the store
      */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum StatusEnum {
         AVAILABLE("available"),
 
@@ -39,16 +54,8 @@ public class Pet {
 
         SOLD("sold");
 
+        @Getter(onMethod_ = {@JsonValue})
         private final String value;
-
-        StatusEnum(String value) {
-            this.value = value;
-        }
-
-        @JsonValue
-        public String getValue() {
-            return value;
-        }
 
         @Override
         public String toString() {
@@ -66,55 +73,9 @@ public class Pet {
         }
     }
 
+    @Getter
     @JsonProperty("status")
     @Parameter(description = "pet status in the store")
+    @Setter
     private StatusEnum status;
-
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<String> getPhotoUrls() {
-        return photoUrls;
-    }
-
-    public void setPhotoUrls(List<String> photoUrls) {
-        this.photoUrls = photoUrls;
-    }
-
-    public StatusEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusEnum status) {
-        this.status = status;
-    }
 }

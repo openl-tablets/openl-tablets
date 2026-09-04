@@ -1,12 +1,15 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+
+import lombok.Getter;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
@@ -26,47 +29,18 @@ public class ProjectUploader {
     private final List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
     private final String comment;
-    private final String repositoryId;
+    private final Repository repository;
     private final String modelsPath;
     private final String algorithmsPath;
     private final String modelsModuleName;
     private final String algorithmsModuleName;
+    private final Consumer<RulesProject> finalizeProject;
+    private final Runnable awaitProjectVisibility;
+    @Getter
     private String createdProjectName;
     private final Map<String, String> tags;
 
-    public ProjectUploader(String repositoryId,
-                           ProjectFile uploadedFile,
-                           String projectName,
-                           String projectFolder,
-                           UserWorkspace userWorkspace,
-                           RepositoryAclService designRepositoryAclService,
-                           String comment,
-                           PathFilter zipFilter,
-                           ZipCharsetDetector zipCharsetDetector,
-                           String modelsPath,
-                           String algorithmsPath,
-                           String modelsModuleName,
-                           String algorithmsModuleName,
-                           Map<String, String> tags) {
-        this.repositoryId = repositoryId;
-        this.projectFolder = projectFolder;
-        this.comment = comment;
-        this.zipCharsetDetector = zipCharsetDetector;
-        this.uploadedFiles = new ArrayList<>();
-        this.uploadedFiles.add(uploadedFile);
-
-        this.projectName = projectName;
-        this.userWorkspace = userWorkspace;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.zipFilter = zipFilter;
-        this.modelsPath = modelsPath;
-        this.algorithmsPath = algorithmsPath;
-        this.modelsModuleName = modelsModuleName;
-        this.algorithmsModuleName = algorithmsModuleName;
-        this.tags = tags;
-    }
-
-    public ProjectUploader(String repositoryId,
+    public ProjectUploader(Repository repository,
                            List<ProjectFile> uploadedFiles,
                            String projectName,
                            String projectFolder,
@@ -79,8 +53,10 @@ public class ProjectUploader {
                            String algorithmsPath,
                            String modelsModuleName,
                            String algorithmsModuleName,
-                           Map<String, String> tags) {
-        this.repositoryId = repositoryId;
+                           Map<String, String> tags,
+                           Consumer<RulesProject> finalizeProject,
+                           Runnable awaitProjectVisibility) {
+        this.repository = repository;
         this.uploadedFiles = uploadedFiles;
         this.projectName = projectName;
         this.projectFolder = projectFolder;
@@ -94,6 +70,8 @@ public class ProjectUploader {
         this.modelsModuleName = modelsModuleName;
         this.algorithmsModuleName = algorithmsModuleName;
         this.tags = tags;
+        this.finalizeProject = finalizeProject;
+        this.awaitProjectVisibility = awaitProjectVisibility;
     }
 
     public RulesProject uploadProject() throws ProjectException {
@@ -103,11 +81,11 @@ public class ProjectUploader {
         }
         try {
             // Get the last file
-            ProjectFile file = uploadedFiles.getLast();
-            String fileName = file.getName();
+            var file = uploadedFiles.getLast();
+            var fileName = file.getName();
             if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
-                projectCreator = new OpenAPIProjectCreator(file,
-                        repositoryId,
+                projectCreator = new OpenAPIProjectCreator(repository,
+                        file,
                         projectName,
                         projectFolder,
                         userWorkspace,
@@ -119,7 +97,7 @@ public class ProjectUploader {
                         tags);
             } else if (FileTypeHelper.isZipFile(fileName)) {
                 // Create project creator for the single zip file
-                projectCreator = new ZipFileProjectCreator(repositoryId,
+                projectCreator = new ZipFileProjectCreator(repository,
                         fileName,
                         file.getInput(),
                         projectName,
@@ -130,7 +108,7 @@ public class ProjectUploader {
                         zipCharsetDetector,
                         tags);
             } else {
-                projectCreator = new ExcelFilesProjectCreator(repositoryId,
+                projectCreator = new ExcelFilesProjectCreator(repository,
                         projectName,
                         projectFolder,
                         userWorkspace,
@@ -138,9 +116,8 @@ public class ProjectUploader {
                         zipFilter,
                         tags,
                         uploadedFiles.toArray(new ProjectFile[0]));
-                uploadedFiles.toArray(new ProjectFile[0]);
             }
-            RulesProject rulesProject = projectCreator.createRulesProject();
+            var rulesProject = projectCreator.createRulesProject();
             if (!designRepositoryAclService.createAcl(rulesProject,
                     List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
                     true)) {
@@ -148,15 +125,15 @@ public class ProjectUploader {
                         ProjectArtifactUtils.extractResourceName(rulesProject)));
             }
             createdProjectName = projectCreator.getCreatedProjectName();
-            // Get just created project, because creator API doesn't create internals states for ProjectState
-            RulesProject createdProject = userWorkspace.getProject(repositoryId, createdProjectName);
-            if (!userWorkspace.isOpenedOtherProject(createdProject)) {
-                createdProject.open();
-                createdProjectName = createdProject.getName();
-            }
-            return createdProject;
+            finalizeProject.accept(rulesProject);
+            awaitProjectVisibility.run();
+            // The controller applies the requested workspace status after the durable write. Resolving the project
+            // here by repository and name alone loses its branch and can turn a successful create into an error.
+            return rulesProject;
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new ProjectException("Error creating the project, " + e.getMessage(), e);
         } finally {
@@ -164,9 +141,5 @@ public class ProjectUploader {
                 projectCreator.destroy();
             }
         }
-    }
-
-    public String getCreatedProjectName() {
-        return createdProjectName;
     }
 }

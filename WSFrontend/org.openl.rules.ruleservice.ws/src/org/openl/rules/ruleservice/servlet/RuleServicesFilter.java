@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-import org.springframework.core.env.Environment;
 
 import org.openl.info.OpenLInfoLogger;
 import org.openl.rules.ruleservice.api.AccessDeniedHandler;
@@ -74,7 +73,7 @@ public class RuleServicesFilter implements Filter {
         mimeMap = servletContext::getMimeType;
 
         ApplicationContext appContext = SpringInitializer.getApplicationContext(servletContext);
-        Environment env = appContext.getEnvironment();
+        var env = appContext.getEnvironment();
 
         // MDC
         requestIdHeaderKey = StringUtils.trimToNull(env.getProperty("log.request-id.header"));

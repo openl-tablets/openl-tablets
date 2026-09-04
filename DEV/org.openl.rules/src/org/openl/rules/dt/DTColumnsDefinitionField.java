@@ -2,6 +2,8 @@ package org.openl.rules.dt;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinitionType;
 import org.openl.types.IMemberMetaInfo;
@@ -12,10 +14,14 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DTColumnsDefinitionField implements IOpenField {
 
+    @Getter
     private final IOpenClass type;
+    @Getter
     private final IOpenClass declaringClass;
+    @Getter
     private final String name;
     private final String title;
+    @Getter
     private final DTColumnsDefinition dtColumnsDefinition;
 
     DTColumnsDefinitionField(String name,
@@ -32,7 +38,7 @@ public class DTColumnsDefinitionField implements IOpenField {
 
     @Override
     public String getDisplayName(int mode) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.append("'").append(name).append("'");
         if (!StringUtils.isEmpty(title)) {
             sb.append(" with column title '%s'".formatted(title));
@@ -52,20 +58,6 @@ public class DTColumnsDefinitionField implements IOpenField {
         return sb.toString();
     }
 
-    public DTColumnsDefinition getDtColumnsDefinition() {
-        return dtColumnsDefinition;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
-    }
-
     @Override
     public boolean isStatic() {
         return false;
@@ -74,11 +66,6 @@ public class DTColumnsDefinitionField implements IOpenField {
     @Override
     public IMemberMetaInfo getInfo() {
         return null;
-    }
-
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
     }
 
     @Override

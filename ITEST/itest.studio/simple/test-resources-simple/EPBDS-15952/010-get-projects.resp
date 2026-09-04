@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "bG9jYWw6RVBCRFMtMTU5NTItUHJvamVjdA==",
+      "name": "EPBDS-15952-Project",
+      "status": "LOCAL",
+      "repository": "local",
+      "modifiedBy": "*",
+      "modifiedAt": "*",
+      "capabilities": {
+        "canWrite": true,
+        "canDelete": true
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

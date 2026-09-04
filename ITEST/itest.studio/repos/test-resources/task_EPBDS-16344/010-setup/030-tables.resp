@@ -1,0 +1,65 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "c71a2bcf5f86c4590cf470ab1fd2b0e1",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "calc1",
+      "returnType": "SpreadsheetResult",
+      "signature": "calc1 (Type1 originalValue)",
+      "file": "EPBDS-16344/BugReproducing.xlsx",
+      "pos": "C25:D28"
+    },
+    {
+      "id": "37ced736faf0f4c909561d986d5576a1",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "calc1Test",
+      "file": "EPBDS-16344/BugReproducing.xlsx",
+      "pos": "B2:D5"
+    },
+    {
+      "id": "7eae422f9f4d3a6c07f48d5b4d6d02bc",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "calc2",
+      "returnType": "SpreadsheetResult",
+      "signature": "calc2 (Type1 someInputValue, Type1[] originalValues)",
+      "file": "EPBDS-16344/BugReproducing.xlsx",
+      "pos": "C14:D18"
+    },
+    {
+      "id": "9b100b5c85a738a5fbec4eac04092603",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "calc3",
+      "returnType": "SpreadsheetResult",
+      "signature": "calc3 (Type3 originalValue, Type3 overriddenValuess)",
+      "file": "EPBDS-16344/BugReproducing.xlsx",
+      "pos": "C3:D6"
+    },
+    {
+      "id": "774c0c1077490c3a12ff5708d2be7efc",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Type1",
+      "file": "EPBDS-16344/BugReproducing.xlsx",
+      "pos": "C52:D53"
+    },
+    {
+      "id": "43f253f4e7d6410c5669fd2d5271556b",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Type3",
+      "file": "EPBDS-16344/BugReproducing.xlsx",
+      "pos": "C35:D37"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 6,
+  "total": 6
+}

@@ -35,7 +35,6 @@ public abstract class GoalImpl extends ConstrainerObjectImpl implements Goal {
 
     public GoalImpl(Constrainer c, String name) {
         super(c, name);
-        // c.addGoal(this);
     }
 
 } // ~GoalImpl

@@ -77,10 +77,10 @@ as a Java system property or an environment variable, because they are resolved 
 
 ### The Generated Property Reference
 
-A running instance publishes every known property with its description and effective default value at
-`/webstudio/application.properties`, for example, <http://localhost:8080/webstudio/application.properties>. Use it as
-the authoritative list for the installed version — it also includes properties contributed by optional modules that
-this page does not cover.
+A running instance publishes every known property with its effective default value at
+`/webstudio/application.properties`, for example, <http://localhost:8080/webstudio/application.properties>. Most
+properties also carry a description. Use it as the authoritative list for the installed version — it also includes
+properties contributed by optional modules that this page does not cover.
 
 ---
 
@@ -329,16 +329,18 @@ selected whenever a login is defined, so setting `.login` and `.password` is wha
 
 Applies to Git design repositories. See [Customizing Git Commit Comments][git-comments].
 
-| Field                       | Property suffix                                        |
-|-----------------------------|--------------------------------------------------------|
-| Customize comments          | `.comment-template.use-custom-comments`                |
-| Message template            | `.comment-template`                                    |
-| User message pattern        | `.comment-template.comment-validation-pattern`         |
-| Invalid user message hint   | `.comment-template.invalid-comment-message`            |
-| Save project                | `.comment-template.user-message.default.save`          |
-| Create project              | `.comment-template.user-message.default.create`        |
-| Copy project                | `.comment-template.user-message.default.copied-from`   |
-| Restore from old version    | `.comment-template.user-message.default.restored-from` |
+| Field                     | Property suffix                                        |
+|---------------------------|--------------------------------------------------------|
+| Customize comments        | `.comment-template.use-custom-comments`                |
+| User message pattern      | `.comment-template.comment-validation-pattern`         |
+| Invalid user message hint | `.comment-template.invalid-comment-message`            |
+| Save project              | `.comment-template.user-message.default.save`          |
+| Create project            | `.comment-template.user-message.default.create`        |
+| Copy project              | `.comment-template.user-message.default.copied-from`   |
+| Restore from old version  | `.comment-template.user-message.default.restored-from` |
+
+A Git repository stores the resulting comment directly as the commit message; there is no separate message template to
+configure.
 
 ### Email Server
 

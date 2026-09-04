@@ -10,7 +10,6 @@ import java.lang.reflect.InvocationTargetException;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /*
  * @author PTarasevich
@@ -25,14 +24,14 @@ class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testTypeWithArrayColumns() {
-        String tableName = "Data TestHelperDataBean_v10 testArray";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Data TestHelperDataBean_v10 testArray";
+        var resultTsn = findTable(tableName);
         if (resultTsn != null) {
-            DataOpenField member = (DataOpenField) resultTsn.getMember();
+            var member = (DataOpenField) resultTsn.getMember();
 
             assertNotNull(member);
 
-            Object[] typeWitharray = (Object[]) member.getTable().getDataArray();
+            var typeWitharray = (Object[]) member.getTable().getDataArray();
 
             assertEquals(15, typeWitharray.length);
             try {
@@ -51,14 +50,14 @@ class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testTypeWithArray2Columns() {
-        String tableName = "Data TestHelperDataBean_v10 testArray2";
-        TableSyntaxNode resultTsn = findTable(tableName);
+        var tableName = "Data TestHelperDataBean_v10 testArray2";
+        var resultTsn = findTable(tableName);
         if (resultTsn != null) {
-            DataOpenField member = (DataOpenField) resultTsn.getMember();
+            var member = (DataOpenField) resultTsn.getMember();
 
             assertNotNull(member);
 
-            Object[] typeWitharray = (Object[]) member.getTable().getDataArray();
+            var typeWitharray = (Object[]) member.getTable().getDataArray();
 
             assertEquals(15, typeWitharray.length);
             try {

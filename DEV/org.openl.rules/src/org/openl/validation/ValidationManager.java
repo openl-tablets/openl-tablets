@@ -1,7 +1,6 @@
 package org.openl.validation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ public class ValidationManager {
     private static final ThreadLocal<Boolean> validationEnabled = new ThreadLocal<>(); // Workaround
 
     public static boolean isValidationEnabled() {
-        Boolean validationIsOn = validationEnabled.get();
+        var validationIsOn = validationEnabled.get();
         return validationIsOn == null || validationIsOn;
     }
 
@@ -30,7 +29,7 @@ public class ValidationManager {
     }
 
     public static void validate(ICompileContext context, IOpenClass openClass, IBindingContext bindingContext) {
-        List<ValidationResult> validationResults = processValidation(context, openClass);
+        var validationResults = processValidation(context, openClass);
         for (ValidationResult validationResult : validationResults) {
             bindingContext.addMessages(validationResult.getMessages());
         }
@@ -44,9 +43,9 @@ public class ValidationManager {
      */
     public static List<ValidationResult> processValidation(ICompileContext context, IOpenClass openClass) {
         if (!ValidationManager.isValidationEnabled()) {
-            return Collections.emptyList();
+            return List.of();
         }
-        List<ValidationResult> results = new ArrayList<>();
+        var results = new ArrayList<ValidationResult>();
         // Check that compile context initialized. If context is null or
         // validation switched off then skip validation process.
         if (context != null) {
@@ -58,7 +57,7 @@ public class ValidationManager {
                     results.add(result);
                 } catch (Exception e) {
                     result = new ValidationResult(ValidationStatus.FAIL,
-                            Collections.singletonList(
+                            List.of(
                                     OpenLMessagesUtils.newErrorMessage("Failed to execute validator: %s. %s".formatted(
                                             validator.getClass().getTypeName(),
                                             ExceptionUtils.getRootCauseMessage(e)))));

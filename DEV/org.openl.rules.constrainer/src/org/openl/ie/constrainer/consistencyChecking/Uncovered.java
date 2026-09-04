@@ -32,8 +32,8 @@ public class Uncovered {
     }
 
     public HashMap getSolution() {
-        HashMap map = new HashMap();
-        for (int i = 0; i < _solutionNames.length; i++) {
+        var map = new HashMap();
+        for (var i = 0; i < _solutionNames.length; i++) {
             map.put(_solutionNames[i], _solutionValues[i]);
         }
         return map;

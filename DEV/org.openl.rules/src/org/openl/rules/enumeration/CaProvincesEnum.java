@@ -1,5 +1,9 @@
 package org.openl.rules.enumeration;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum CaProvincesEnum {
 
     AB("Alberta"),
@@ -17,10 +21,6 @@ public enum CaProvincesEnum {
     NT("Territoires du Nord-Ouest");
 
     private final String displayName;
-
-    CaProvincesEnum(String displayName) {
-        this.displayName = displayName;
-    }
 
     @Override
     public String toString() {

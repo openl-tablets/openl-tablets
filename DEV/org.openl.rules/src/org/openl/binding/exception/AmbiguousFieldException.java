@@ -10,7 +10,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import lombok.Getter;
 
 import org.openl.base.INamedThing;
 import org.openl.exception.OpenlNotCheckedException;
@@ -22,6 +23,7 @@ import org.openl.types.IOpenField;
  */
 public class AmbiguousFieldException extends OpenlNotCheckedException {
 
+    @Getter
     private final Collection<IOpenField> matchingFields;
 
     private final String fieldName;
@@ -31,19 +33,15 @@ public class AmbiguousFieldException extends OpenlNotCheckedException {
         this.matchingFields = Collections.unmodifiableList(matchingFields);
     }
 
-    public Collection<IOpenField> getMatchingFields() {
-        return matchingFields;
-    }
-
     @Override
     public String getMessage() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         sb.append("Field '").append(fieldName).append("' is ambiguous");
         if (matchingFields != null) {
             sb.append(":\nMatching fields:\n");
-            boolean first = true;
-            Set<IOpenClass> openClasses = new HashSet<>();
+            var first = true;
+            var openClasses = new HashSet<IOpenClass>();
             for (IOpenField f : matchingFields) {
                 openClasses.add(f.getDeclaringClass());
             }

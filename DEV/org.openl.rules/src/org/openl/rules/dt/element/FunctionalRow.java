@@ -29,7 +29,6 @@ import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.SimpleLogicalTable;
@@ -40,7 +39,6 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullOpenClass;
 import org.openl.types.NullParameterDeclaration;
@@ -190,12 +188,12 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public String[] getParamPresentation() {
-        int length = paramsTable.getHeight();
+        var length = paramsTable.getHeight();
         String[] result = new String[length];
-        int fromHeight = 0;
-        for (int i = 0; i < result.length; i++) {
-            int gridHeight = paramsTable.getRow(i).getSource().getHeight();
-            IGridTable singleParamGridTable = presentationTable.getSource()
+        var fromHeight = 0;
+        for (var i = 0; i < result.length; i++) {
+            var gridHeight = paramsTable.getRow(i).getSource().getHeight();
+            var singleParamGridTable = presentationTable.getSource()
                     .getRows(fromHeight, fromHeight + gridHeight - 1);
             result[i] = singleParamGridTable.getCell(0, 0).getStringValue();
             fromHeight += gridHeight;
@@ -205,10 +203,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public boolean hasDeclaredParams() {
-        boolean res = false;
-        for (int i = 0; i < paramsTable.getHeight(); i++) {
-            ILogicalTable paramTable = paramsTable.getRow(i);
-            IOpenSourceCodeModule source = new GridCellSourceCodeModule(paramTable.getSource());
+        var res = false;
+        for (var i = 0; i < paramsTable.getHeight(); i++) {
+            var paramTable = paramsTable.getRow(i);
+            var source = new GridCellSourceCodeModule(paramTable.getSource());
             if (StringUtils.isNotBlank(source.getCode())) {
                 res = true;
             }
@@ -226,7 +224,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                         IOpenClass ruleExecutionType,
                         TableSyntaxNode tableSyntaxNode) throws Exception {
         this.ruleExecutionType = ruleExecutionType;
-        IOpenSourceCodeModule source = getExpressionSource(tableSyntaxNode,
+        var source = getExpressionSource(tableSyntaxNode,
                 signature,
                 methodType,
                 null,
@@ -234,11 +232,11 @@ public abstract class FunctionalRow implements IDecisionRow {
                 bindingContext);
         prepareParams(null, signature, methodType, source, openl, bindingContext);
 
-        OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);
-        IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, null);
+        var openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);
+        var header = new OpenMethodHeader(name, null, signature, null);
         openlAdaptor.setHeader(header);
 
-        prepareParamValues(table, openlAdaptor, ruleRow, bindingContext);
+        prepareParamValues(table, openlAdaptor, ruleRow);
 
         this.method = compileExpressionSource(source, methodType, signature, openl, bindingContext);
 
@@ -258,8 +256,8 @@ public abstract class FunctionalRow implements IDecisionRow {
                                            IMethodSignature signature,
                                            OpenL openl,
                                            IBindingContext bindingContext) {
-        IMethodSignature newSignature = ((MethodSignature) signature).merge(params);
-        OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
+        var newSignature = ((MethodSignature) signature).merge(params);
+        var methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
         RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(), bindingContext);
         return OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
     }
@@ -275,13 +273,13 @@ public abstract class FunctionalRow implements IDecisionRow {
                                  IOpenSourceCodeModule methodSource,
                                  OpenL openl,
                                  IBindingContext bindingContext) throws Exception {
-        int length = paramsTable.getHeight();
-        for (int i = 0; i < length; i++) {
+        var length = paramsTable.getHeight();
+        for (var i = 0; i < length; i++) {
             if (!paramInitialized.get(i)) {
-                ILogicalTable paramTable = paramsTable.getRow(i);
-                IOpenSourceCodeModule source = new GridCellSourceCodeModule(paramTable.getSource(), bindingContext);
+                var paramTable = paramsTable.getRow(i);
+                var source = new GridCellSourceCodeModule(paramTable.getSource(), bindingContext);
 
-                IParameterDeclaration parameterDeclaration = getParameterDeclaration(source,
+                var parameterDeclaration = getParameterDeclaration(source,
                         methodSource,
                         signature,
                         declaringClass,
@@ -293,7 +291,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                 if (parameterDeclaration == null) {
                     params[i] = NullParameterDeclaration.the;
                 } else {
-                    String paramName = parameterDeclaration.getName();
+                    var paramName = parameterDeclaration.getName();
                     if (!paramsUniqueNames.add(paramName)) {
                         BindHelper.processError("Duplicated parameter name: " + paramName, source, bindingContext);
                     }
@@ -306,12 +304,12 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public void prepareParams(OpenL openl, IBindingContext bindingContext) {
-        for (int i = 0; i < paramsTable.getHeight(); i++) {
+        for (var i = 0; i < paramsTable.getHeight(); i++) {
             if (!paramInitialized.get(i)) {
-                ILogicalTable paramTable = paramsTable.getRow(i);
-                IOpenSourceCodeModule paramSource = new GridCellSourceCodeModule(paramTable.getSource(),
+                var paramTable = paramsTable.getRow(i);
+                var paramSource = new GridCellSourceCodeModule(paramTable.getSource(),
                         bindingContext);
-                String code = paramSource.getCode();
+                var code = paramSource.getCode();
                 if (!StringUtils.isBlank(code)) {
                     IParameterDeclaration pd = OpenLManager
                             .makeParameterDeclaration(openl, paramSource, bindingContext);
@@ -329,36 +327,33 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
     }
 
-    private void prepareParamValues(DecisionTable decisionTable,
-                                    OpenlToolAdaptor ota,
-                                    RuleRow ruleRow,
-                                    IBindingContext bindingContext) {
-        int len = nValues();
+    private void prepareParamValues(DecisionTable decisionTable, OpenlToolAdaptor ota, RuleRow ruleRow) {
+        var len = nValues();
 
-        boolean[] paramIndexed = getParamIndexed(params);
+        var paramIndexed = getParamIndexed(params);
 
-        IStorageBuilder<?>[] builders = makeStorageBuilders(len, params);
+        var builders = makeStorageBuilders(len, params);
 
-        int actualStorageSize = scale.getActualSize(len);
+        var actualStorageSize = scale.getActualSize(len);
 
-        for (int i = 0; i < actualStorageSize; i++) {
-            int ruleN = scale.getLogicalIndex(i);
+        for (var i = 0; i < actualStorageSize; i++) {
+            var ruleN = scale.getLogicalIndex(i);
             loadParamsFromColumn(ota, ruleRow, params, paramIndexed, ruleN, builders);
         }
 
         storage = new IStorage<?>[builders.length];
-        for (int i = 0; i < builders.length; i++) {
+        for (var i = 0; i < builders.length; i++) {
             storage[i] = builders[i].optimizeAndBuild();
-            IOpenClass paramType = params[i].getType();
-            int paramDim = 0;
+            var paramType = params[i].getType();
+            var paramDim = 0;
             while (paramType.isArray()) {
                 paramType = paramType.getComponentClass();
                 paramDim++;
             }
             if (paramType.getInstanceClass() == SpreadsheetResult.class) {
-                Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new HashSet<>();
-                boolean anySpreadsheetResult = false;
-                for (int j = 0; j < storage[i].size(); j++) {
+                var customSpreadsheetResultOpenClasses = new HashSet<CustomSpreadsheetResultOpenClass>();
+                var anySpreadsheetResult = false;
+                for (var j = 0; j < storage[i].size(); j++) {
                     if (storage[i].getValue(j) instanceof CompositeMethod) {
                         anySpreadsheetResult = processCompositeMethod((CompositeMethod) storage[i].getValue(j),
                                 customSpreadsheetResultOpenClasses,
@@ -368,9 +363,9 @@ public abstract class FunctionalRow implements IDecisionRow {
                             break;
                         }
                     } else if (storage[i].getValue(j) instanceof ArrayHolder) {
-                        ArrayHolder arrayHolder = (ArrayHolder) storage[i].getValue(j);
+                        var arrayHolder = (ArrayHolder) storage[i].getValue(j);
                         if (paramDim > 1 && arrayHolder.is2DimArray()) {
-                            Object[][] values = arrayHolder.get2DimValues();
+                            var values = arrayHolder.get2DimValues();
                             for (Object[] value : values) {
                                 for (Object o : value) {
                                     if (o instanceof CompositeMethod compositeMethod) {
@@ -385,7 +380,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                                 }
                             }
                         } else if (paramDim > 0) {
-                            Object[] values = arrayHolder.getValues();
+                            var values = arrayHolder.getValues();
                             for (Object o : values) {
                                 if (o instanceof CompositeMethod compositeMethod) {
                                     anySpreadsheetResult = processCompositeMethod(compositeMethod,
@@ -422,8 +417,8 @@ public abstract class FunctionalRow implements IDecisionRow {
                                            Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses,
                                            int expectedDim,
                                            boolean anySpreadsheetResult) {
-        IOpenClass methodBodyType = o.getBodyType();
-        int methodTypeDim = 0;
+        var methodBodyType = o.getBodyType();
+        var methodTypeDim = 0;
         while (methodBodyType.isArray()) {
             methodBodyType = methodBodyType.getComponentClass();
             methodTypeDim++;
@@ -445,9 +440,9 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     private IStorageBuilder<?>[] makeStorageBuilders(int len, IParameterDeclaration[] paramDecl) {
 
-        int nparams = paramDecl.length;
+        var nparams = paramDecl.length;
         IStorageBuilder<?>[] builders = new IStorageBuilder[nparams];
-        for (int i = 0; i < builders.length; i++) {
+        for (var i = 0; i < builders.length; i++) {
             builders[i] = StorageFactory.makeStorageBuilder(len, scale);
         }
 
@@ -460,29 +455,29 @@ public abstract class FunctionalRow implements IDecisionRow {
                                       boolean[] paramIndexed,
                                       int ruleN,
                                       IStorageBuilder<?>[] builders) {
-        IGridTable paramGridColumn = getValueCell(ruleN).getSource();
+        var paramGridColumn = getValueCell(ruleN).getSource();
 
-        int fromHeight = 0;
+        var fromHeight = 0;
 
-        boolean executionMode = ota.getBindingContext().isExecutionMode();
+        var executionMode = ota.getBindingContext().isExecutionMode();
 
         String ruleName = null;
         if (!executionMode) {
             ruleName = ruleRow == null ? "R" + (ruleN + 1) : ruleRow.getRuleName(ruleN);
         }
 
-        for (int j = 0; j < paramDecl.length; j++) {
+        for (var j = 0; j < paramDecl.length; j++) {
             if (paramDecl[j] == null) {
                 continue;
             }
 
-            IOpenClass paramType = paramDecl[j].getType();
+            var paramType = paramDecl[j].getType();
             if (paramType == NullOpenClass.the) {
                 continue;
             }
 
-            int gridHeight = paramsTable.getRow(j).getSource().getHeight();
-            IGridTable singleParamGridTable = paramGridColumn.getRows(fromHeight, fromHeight + gridHeight - 1);
+            var gridHeight = paramsTable.getRow(j).getSource().getHeight();
+            var singleParamGridTable = paramGridColumn.getRows(fromHeight, fromHeight + gridHeight - 1);
 
             Object loadedValue;
             if (paramDecl[j].getName() == null) {
@@ -491,7 +486,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             } else {
                 // Column parameter must be invisible on column compilation, we don't want to prevent references to
                 // themself
-                OpenlToolAdaptor paramOta = new OpenlToolAdaptor(ota.getOpenl(),
+                var paramOta = new OpenlToolAdaptor(ota.getOpenl(),
                         new OtaBindingContext(ota.getBindingContext(), paramDecl[j].getName()),
                         ota.getTableSyntaxNode());
                 paramOta.setHeader(ota.getHeader());
@@ -523,7 +518,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     private boolean[] getParamIndexed(IParameterDeclaration[] paramDecl) {
         boolean[] paramIndexed = new boolean[paramDecl.length];
-        for (int i = 0; i < paramIndexed.length; i++) {
+        for (var i = 0; i < paramIndexed.length; i++) {
             paramIndexed[i] = paramDecl[i].getType().getAggregateInfo().isAggregate(paramDecl[i].getType());
         }
         return paramIndexed;
@@ -613,12 +608,12 @@ public abstract class FunctionalRow implements IDecisionRow {
                                                           OpenL openl,
                                                           IBindingContext bindingContext) {
 
-        String code = paramSource.getCode();
+        var code = paramSource.getCode();
 
         if (StringUtils.isBlank(code)) {
             if (allowEmpty) {
                 try {
-                    OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
+                    var methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
                     RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(),
                             bindingContext);
                     CompositeMethod method;
@@ -630,19 +625,19 @@ public abstract class FunctionalRow implements IDecisionRow {
                         bindingContext.popMessages();
                         bindingContext.popErrors();
                     }
-                    IOpenClass type = method.getMethodBodyBoundNode().getType();
+                    var type = method.getMethodBodyBoundNode().getType();
 
                     if (type != NullOpenClass.the) {
                         return new ParameterDeclaration(type, makeParamName(), paramSource);
                     }
-                    String message = "Cannot recognize type of local parameter for expression";
+                    var message = "Cannot recognize type of local parameter for expression";
                     BindHelper.processError(message, methodSource, bindingContext);
 
                 } catch (Exception | LinkageError ex) {
                     BindHelper.processError("Cannot compile expression", ex, methodSource, bindingContext);
                 }
             } else {
-                String errMsg = "Parameter cell format: <type> <name>";
+                var errMsg = "Parameter cell format: <type> <name>";
                 BindHelper.processError(errMsg, paramSource, bindingContext);
             }
             return new ParameterDeclaration(NullOpenClass.the, makeParamName(), paramSource);
@@ -652,7 +647,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                 .makeParameterDeclaration(openl, paramSource, bindingContext);
 
         if (parameterDeclaration == null) {
-            String errMsg = "Parameter cell format: <type> <name>";
+            var errMsg = "Parameter cell format: <type> <name>";
             BindHelper.processError(errMsg, paramSource, bindingContext);
             return new ParameterDeclaration(NullOpenClass.the, makeParamName(), paramSource);
         }
@@ -692,7 +687,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                 }
             }
         } else {
-            IGridTable paramGridColumn = getValueCell(ruleN).getSource();
+            var paramGridColumn = getValueCell(ruleN).getSource();
             return RuleRowHelper.isFormula(new SimpleLogicalTable(paramGridColumn));
         }
         return false;
@@ -707,8 +702,8 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env) {
 
-        for (int i = 0; i < dest.length - offset; i++) {
-            Object value = storage[i].getValue(ruleN);
+        for (var i = 0; i < dest.length - offset; i++) {
+            var value = storage[i].getValue(ruleN);
             if (value instanceof IOpenMethod openMethod) {
                 value = openMethod.invoke(target, tableParams, env);
             } else if (value instanceof ArrayHolder holder) {
@@ -721,7 +716,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public Object loadValue(int row, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env) {
-        Object value = storage[row].getValue(ruleN);
+        var value = storage[row].getValue(ruleN);
         if (value instanceof IOpenMethod openMethod) {
             value = openMethod.invoke(target, tableParams, env);
         } else if (value instanceof ArrayHolder holder) {
@@ -746,11 +741,11 @@ public abstract class FunctionalRow implements IDecisionRow {
                 }
             }
         } else {
-            int len = nValues();
-            int actualStorageSize = scale.getActualSize(len);
+            var len = nValues();
+            var actualStorageSize = scale.getActualSize(len);
 
-            for (int i = 0; i < actualStorageSize; i++) {
-                int ruleN = scale.getLogicalIndex(i);
+            for (var i = 0; i < actualStorageSize; i++) {
+                var ruleN = scale.getLogicalIndex(i);
                 if (hasFormula(ruleN)) {
                     return true;
                 }
@@ -775,9 +770,9 @@ public abstract class FunctionalRow implements IDecisionRow {
         Optional.ofNullable(method).ifPresent(CompositeMethod::removeDebugInformation);
         if (storage != null) {
             for (IStorage<?> st : storage) {
-                int rules = st.size();
-                for (int i = 0; i < rules; i++) {
-                    Object paramValue = st.getValue(i);
+                var rules = st.size();
+                for (var i = 0; i < rules; i++) {
+                    var paramValue = st.getValue(i);
                     if (paramValue instanceof CompositeMethod compositeMethod) {
                         compositeMethod.removeDebugInformation();
                     }
@@ -797,10 +792,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public boolean isEqual(int rule1, int rule2) {
-        int n = getNumberOfParams();
-        for (int i = 0; i < n; i++) {
-            Object p1 = getParamValue(i, rule1);
-            Object p2 = getParamValue(i, rule2);
+        var n = getNumberOfParams();
+        for (var i = 0; i < n; i++) {
+            var p1 = getParamValue(i, rule1);
+            var p2 = getParamValue(i, rule2);
             if (p1 != p2 && p1 != null && !p1.equals(p2)) {
                 return false;
             }

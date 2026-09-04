@@ -19,6 +19,8 @@ import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -40,6 +42,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     private static final String THIS = SpringInitializer.class.getName();
     private static final int PERIOD = 10;
+    // Keep short form fields in memory while spilling larger workbook parts to disk.
+    private static final int MULTIPART_FILE_SIZE_THRESHOLD = 8 * 1024;
 
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock read = rwl.readLock();
@@ -49,9 +53,33 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     private XmlWebApplicationContext applicationContext;
     private ScheduledExecutorService scheduledPool;
     private ScheduledFuture<?> scheduled;
+    private volatile boolean shuttingDown;
 
-    public static ApplicationContext getApplicationContext(ServletContext sc) {
-        return ((SpringInitializer) sc.getAttribute(THIS)).applicationContext;
+    public static @NonNull ApplicationContext getApplicationContext(@NonNull ServletContext sc) {
+        return ((@NonNull SpringInitializer) sc.getAttribute(THIS)).applicationContext;
+    }
+
+    /**
+     * Returns whether the Spring application context is active and available for requests.
+     *
+     * <p>The application is not ready before initialization completes, while the context is being refreshed, or
+     * after shutdown begins.
+     *
+     * @param sc servlet context
+     * @return {@code true} when OpenL Studio is ready to handle requests
+     */
+    static boolean isReady(@NonNull ServletContext sc) {
+        @Nullable Object attribute = sc.getAttribute(THIS);
+        if (!(attribute instanceof SpringInitializer initializer) || !initializer.read.tryLock()) {
+            return false;
+        }
+        try {
+            return !initializer.shuttingDown
+                    && initializer.applicationContext != null
+                    && initializer.applicationContext.isActive();
+        } finally {
+            initializer.read.unlock();
+        }
     }
 
     public static void addSessionCache(HttpSession session) {
@@ -103,8 +131,6 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         Migrator.migrate();
 
         applicationContext.refresh();
-        // Store Spring context object for accessing from code.
-        servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
 
         // Run migration which require context to be initialized
@@ -113,6 +139,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         HTMLRenderer.MAX_NUM_CELLS = Props.integer("experimental.MAX_NUM_CELLS");
 
         startTimer();
+        // Store the initializer only after OpenL Studio is ready to handle requests.
+        servletContext.setAttribute(THIS, this);
     }
 
     /**
@@ -130,12 +158,13 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         registration.setLoadOnStartup(1);
         registration.addMapping("/rest/*", "/web/*");
 
-        MultipartConfigElement multipartConfigElement = new MultipartConfigElement("", -1L, -1L, 0);
+        var multipartConfigElement = new MultipartConfigElement("", -1L, -1L, MULTIPART_FILE_SIZE_THRESHOLD);
         registration.setMultipartConfig(multipartConfigElement);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        shuttingDown = true;
         OpenLInfoLogger.memStat();
         ServletContext servletContext = sce.getServletContext();
         servletContext.removeAttribute(THIS);
@@ -177,8 +206,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         }
     }
 
-    public static Lock getLock(ServletContext sc) {
-        return ((SpringInitializer) sc.getAttribute(THIS)).read;
+    public static @NonNull Lock getLock(@NonNull ServletContext sc) {
+        return ((@NonNull SpringInitializer) sc.getAttribute(THIS)).read;
     }
 
     // Trigger refresh context in the separate thread

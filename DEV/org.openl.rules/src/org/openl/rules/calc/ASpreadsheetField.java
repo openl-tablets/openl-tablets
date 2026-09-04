@@ -1,12 +1,16 @@
 package org.openl.rules.calc;
 
+import lombok.Getter;
+
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.util.StringPool;
 
 public abstract class ASpreadsheetField extends DynamicObjectField {
 
+    @Getter
     private String columnName;
+    @Getter
     private String rowName;
 
     public ASpreadsheetField(IOpenClass declaringClass, String name, IOpenClass type) {
@@ -17,14 +21,6 @@ public abstract class ASpreadsheetField extends DynamicObjectField {
         super(declaringClass, createFieldName(columnName, rowName), type);
         this.columnName = columnName;
         this.rowName = rowName;
-    }
-
-    public String getColumnName() {
-        return columnName;
-    }
-
-    public String getRowName() {
-        return rowName;
     }
 
     public static String createFieldName(String columnName, String rowName) {

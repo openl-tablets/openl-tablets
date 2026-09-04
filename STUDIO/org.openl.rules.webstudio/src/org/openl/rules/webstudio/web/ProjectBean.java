@@ -11,15 +11,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
@@ -29,7 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.stereotype.Service;
@@ -51,6 +48,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.openl.rules.project.migration.RulesXmlMigrations;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
@@ -74,8 +72,6 @@ import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
-import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclRole;
@@ -98,8 +94,6 @@ public class ProjectBean {
 
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
-    private final RepositoryTreeState repositoryTreeState;
-
     private final WebStudio studio = WebStudioUtils.getWebStudio();
 
 
@@ -119,14 +113,14 @@ public class ProjectBean {
     private String newFileName;
     private String currentPathPattern;
     private Integer currentModuleIndex;
+    /** Cached for the request: {@link #isModulesDefault()} is asked once per module row. */
+    private Boolean modulesDefault;
 
     private final RepositoryAclService designRepositoryAclService;
 
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
 
-    public ProjectBean(RepositoryTreeState repositoryTreeState,
-                       @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
-        this.repositoryTreeState = repositoryTreeState;
+    public ProjectBean(@Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.designRepositoryAclService = designRepositoryAclService;
     }
 
@@ -536,6 +530,7 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         projectDescriptor.setPropertiesFileNamePatterns(propertiesFileNamePatterns);
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
 
         Repository designRepository = currentProject.getDesignRepository();
         boolean supportsMappedFolders = designRepository != null && designRepository.supports().mappedFolders();
@@ -593,12 +588,12 @@ public class ProjectBean {
         Module module;
 
         boolean moduleWasRenamed = false;
+        boolean addNewModule = StringUtils.isBlank(oldName) && StringUtils.isBlank(index);
 
-        if (StringUtils.isBlank(oldName) && StringUtils.isBlank(index)) {
-            // Add new Module
+        if (addNewModule) {
+            // Add new Module - registered after its path is known so implicit modules are preserved
             module = new Module();
             module.setProject(newProjectDescriptor);
-            newProjectDescriptor.getModules().add(module);
         } else {
             // Edit current Module
             if (!StringUtils.isBlank(oldName)) {
@@ -607,53 +602,80 @@ public class ProjectBean {
                     moduleWasRenamed = true;
                 }
             } else {
-                module = newProjectDescriptor.getModules().get(Integer.parseInt(index));
+                module = moduleAt(newProjectDescriptor, index);
             }
         }
 
-        if (module != null) {
-            module.setName(name);
-            module.setRulesRootPath(path);
+        if (module == null) {
+            // Saying nothing here passes for a successful edit: nothing is written, yet the screen goes on to the
+            // module the user asked for and answers that it does not exist.
+            var reference = StringUtils.isNotBlank(oldName) ? oldName : "#" + index;
+            throw new Message("Module '%s' is not found in the project.".formatted(reference));
+        }
+        // The name a module declaring none is known by. Leaving that name as it is asks for no name at all, so it
+        // stays out of rules.xml and the module goes on following its workbook.
+        var implicitName = addNewModule || StringUtils.isNotBlank(module.getName()) ? null : module.getResolvedName();
+        module.setRulesRootPath(path);
+        module.setName(Objects.equals(name, implicitName) ? null : name);
 
-            MethodFilter filter = module.getMethodFilter();
-            if (filter == null) {
-                filter = new MethodFilter();
-                module.setMethodFilter(filter);
-            }
-            filter.setIncludes(null);
-            filter.setExcludes(null);
+        MethodFilter filter = module.getMethodFilter();
+        if (filter == null) {
+            filter = new MethodFilter();
+            module.setMethodFilter(filter);
+        }
+        filter.setIncludes(null);
+        filter.setExcludes(null);
 
-            if (StringUtils.isNotBlank(includes)) {
-                filter.addIncludePattern(StringUtils.toLines(includes));
-            }
-            if (StringUtils.isNotBlank(excludes)) {
-                filter.addExcludePattern(StringUtils.toLines(excludes));
-            }
+        if (StringUtils.isNotBlank(includes)) {
+            filter.addIncludePattern(StringUtils.toLines(includes));
+        }
+        if (StringUtils.isNotBlank(excludes)) {
+            filter.addExcludePattern(StringUtils.toLines(excludes));
+        }
 
-            if (moduleWasRenamed) {
-                OpenAPI descriptorOpenAPI = newProjectDescriptor.getOpenapi();
-                if (descriptorOpenAPI != null) {
-                    String algorithmsModuleName = descriptorOpenAPI.getAlgorithmModuleName();
-                    String modelsModuleName = descriptorOpenAPI.getModelModuleName();
-                    boolean moduleNamesExists = StringUtils.isNotBlank(algorithmsModuleName) || StringUtils
-                            .isNotBlank(modelsModuleName);
-                    if (moduleNamesExists) {
-                        if (oldName.equals(algorithmsModuleName)) {
-                            descriptorOpenAPI.setAlgorithmModuleName(name);
-                        } else if (oldName.equals(modelsModuleName)) {
-                            descriptorOpenAPI.setModelModuleName(name);
-                        }
+        if (moduleWasRenamed) {
+            OpenAPI descriptorOpenAPI = newProjectDescriptor.getOpenapi();
+            if (descriptorOpenAPI != null) {
+                String algorithmsModuleName = descriptorOpenAPI.getAlgorithmModuleName();
+                String modelsModuleName = descriptorOpenAPI.getModelModuleName();
+                boolean moduleNamesExists = StringUtils.isNotBlank(algorithmsModuleName) || StringUtils
+                        .isNotBlank(modelsModuleName);
+                if (moduleNamesExists) {
+                    if (oldName.equals(algorithmsModuleName)) {
+                        descriptorOpenAPI.setAlgorithmModuleName(name);
+                    } else if (oldName.equals(modelsModuleName)) {
+                        descriptorOpenAPI.setModelModuleName(name);
                     }
                 }
             }
-            WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
-            if ("on".equals(compileThisModuleOnly)) {
-                webstudioConfiguration.setCompileThisModuleOnly(true);
-            }
-            module.setWebstudioConfiguration(webstudioConfiguration);
+        }
+        WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
+        if ("on".equals(compileThisModuleOnly)) {
+            webstudioConfiguration.setCompileThisModuleOnly(true);
+        }
+        module.setWebstudioConfiguration(webstudioConfiguration);
 
-            clean(newProjectDescriptor);
-            save(newProjectDescriptor);
+        if (addNewModule) {
+            projectDescriptorManager.registerModule(newProjectDescriptor, module);
+        }
+
+        clean(newProjectDescriptor);
+        save(newProjectDescriptor);
+    }
+
+    /**
+     * The module the screen points at by its position, or {@code null} when the project no longer has one there.
+     *
+     * <p>The position comes from a rendered page, while the modules are re-read from rules.xml, so the two can
+     * disagree when the file changed in between.
+     */
+    private static @Nullable Module moduleAt(ProjectDescriptor projectDescriptor, String index) {
+        var modules = projectDescriptor.getModules();
+        try {
+            var position = Integer.parseInt(index);
+            return position >= 0 && position < modules.size() ? modules.get(position) : null;
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
@@ -674,8 +696,11 @@ public class ProjectBean {
         Module newModule = new Module();
         newModule.setName(name);
         newModule.setRulesRootPath(path);
-        boolean moduleMatchesSomePathPattern = isModuleMatchesSomePathPattern(newModule);
-        if (!moduleMatchesSomePathPattern) {
+        // The same question the registration asks, so a copy named after itself stays auto-discovered while a
+        // copy the user named differently is declared and keeps that name.
+        boolean alreadyRegistered = projectDescriptorManager
+                .isAlreadyRegistered(getOriginalProjectDescriptor(), newModule);
+        if (!alreadyRegistered) {
             validatePermissionsForDescriptorFile(currentProject, false);
         }
 
@@ -699,28 +724,23 @@ public class ProjectBean {
         }
         currentProject.setModified();
 
-        if (!moduleMatchesSomePathPattern) {
+        if (!alreadyRegistered) {
             // Add new Module
             newModule.setProject(newProjectDescriptor);
-            newProjectDescriptor.getModules().add(newModule);
+            projectDescriptorManager.registerModule(newProjectDescriptor, newModule);
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
         } else {
-            refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+            refreshProject(currentProject.getRepository().getId());
         }
     }
 
-    private void refreshProject(String repoId, String name) {
+    private void refreshProject(String repoId) {
         studio.getModel().clearModuleInfo();
         ProjectDescriptor oldProjectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = studio.resolveProject(oldProjectDescriptor);
         studio.forceUpdateProjectDescriptor(repoId, newProjectDescriptor, oldProjectDescriptor);
-        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(repoId, name);
-        if (projectNode != null) {
-            // For example, repository wasn't refreshed yet
-            projectNode.refresh();
-        }
     }
 
     /**
@@ -778,7 +798,7 @@ public class ProjectBean {
                 save(newProjectDescriptor);
             } else {
                 currentProject.setModified();
-                refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+                refreshProject(currentProject.getRepository().getId());
             }
         } else {
             clean(newProjectDescriptor);
@@ -897,6 +917,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
 
         clean(newProjectDescriptor);
 
@@ -917,6 +938,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
 
         clean(newProjectDescriptor);
 
@@ -948,6 +970,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
 
         clean(newProjectDescriptor);
 
@@ -964,6 +987,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
         clean(newProjectDescriptor);
 
         String[] includeArray = StringUtils.toLines(exposedMethodIncludes);
@@ -1016,153 +1040,12 @@ public class ProjectBean {
         var currentProject = studio.getCurrentProject();
         validatePermissionsForDescriptorFile(currentProject, true);
 
-        var projectDescriptor = studio.getCurrentProjectDescriptor();
-        var newProjectDescriptor = _migrateMethodFilters(projectDescriptor);
+        var newProjectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
+        keepDeclaredModules(newProjectDescriptor);
+        clean(newProjectDescriptor);
+        RulesXmlMigrations.methodFilter(newProjectDescriptor);
 
         save(newProjectDescriptor);
-    }
-
-    /**
-     * Migrates module-level method-filter regex patterns to project-level exposed-methods glob patterns.
-     * <p>
-     * For each module, converts its method-filter includes/excludes from regex to glob syntax,
-     * merges them with any existing exposed-methods, clears the module-level filters,
-     * and sets the result on the project descriptor.
-     * <p>
-     * Invalid patterns that cannot match any method signature are silently ignored.
-     *
-     * @param projectDescriptor the project descriptor to migrate
-     * @return a new project descriptor with migrated filters (the original is not modified)
-     */
-    // package-private static for testing
-    static @NonNull ProjectDescriptor _migrateMethodFilters(@NonNull ProjectDescriptor projectDescriptor) {
-        var newProjectDescriptor = Cloner.clone(projectDescriptor);
-
-        clean(newProjectDescriptor);
-
-        // Collect all method-filter patterns from all modules
-        var allIncludes = new LinkedHashSet<String>();
-        var allExcludes = new LinkedHashSet<String>();
-        for (var module : newProjectDescriptor.getModules()) {
-            var mf = module.getMethodFilter();
-            if (mf != null) {
-                if (mf.getIncludes() != null) {
-                    for (var pattern : mf.getIncludes()) {
-                        var converted = convertRegexToGlob(pattern);
-                        if (StringUtils.isNotBlank(converted)) {
-                            allIncludes.add(converted);
-                        }
-                    }
-                }
-                if (mf.getExcludes() != null) {
-                    for (var pattern : mf.getExcludes()) {
-                        var converted = convertRegexToGlob(pattern);
-                        if (StringUtils.isNotBlank(converted)) {
-                            allExcludes.add(converted);
-                        }
-                    }
-                }
-                // Clear module-level method-filter
-                mf.setIncludes(null);
-                mf.setExcludes(null);
-            }
-        }
-
-        // Merge with existing exposed-methods if present
-        ExposedMethods existing = newProjectDescriptor.getExposedMethods();
-        if (existing != null) {
-            if (existing.getIncludes() != null) {
-                allIncludes.addAll(existing.getIncludes());
-            }
-            if (existing.getExcludes() != null) {
-                allExcludes.addAll(existing.getExcludes());
-            }
-        }
-
-        if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-            ExposedMethods filter = new ExposedMethods();
-            if (!allIncludes.isEmpty()) {
-                filter.setIncludes(new HashSet<>(allIncludes));
-            }
-            if (!allExcludes.isEmpty()) {
-                filter.setExcludes(new HashSet<>(allExcludes));
-            }
-            newProjectDescriptor.setExposedMethods(filter);
-        }
-        return newProjectDescriptor;
-    }
-
-    /**
-     * Converts a method-filter regex pattern (matched against full method signature) to an
-     * exposed-methods glob pattern (matched against method name only).
-     * <p>
-     * Method-filter patterns are regexps matched against method signatures in the format:
-     * {@code returnType methodName(ArgType1, ArgType2, ArgTypeN)}.
-     * If the pattern is not a valid regexp or cannot match any method signature, it is ignored.
-     * <p>
-     * Common regex patterns and their conversions:
-     * <ul>
-     *     <li>{@code .+ methodName\(.+\)} → {@code methodName}</li>
-     *     <li>{@code .* methodName\(.*\)} → {@code methodName}</li>
-     *     <li>{@code .+ methodName\(\)} → {@code methodName}</li>
-     *     <li>{@code .*methodName.*} → {@code methodName}</li>
-     *     <li>{@code .*} or {@code *} → {@code *}</li>
-     * </ul>
-     *
-     * @return the converted glob pattern, or {@code null} if the pattern should be ignored
-     */
-    static String convertRegexToGlob(String regex) {
-        if (regex == null || regex.isBlank()) {
-            return null;
-        }
-        regex = regex.trim();
-
-        // Validate that the pattern is a valid regexp and can match a method signature
-        try {
-            Pattern.compile(regex);
-        } catch (PatternSyntaxException e) {
-            // Not a valid regex
-            return null;
-        }
-
-        var prefix = Pattern.compile("^[^ (]+ ");
-        var matcher = prefix.matcher(regex);
-        if (matcher.find()) {
-            // remove return type definition
-            regex = matcher.replaceFirst("");
-        } else if (!regex.matches("^[.][*+].*")) {
-            // does not match to return type definition of the method signature
-            return null;
-        }
-
-        // Pattern: <returnType> <methodName>(<params>)
-        // e.g., ".+ methodName\(.+\)" or ".* methodName\(.*\)" or ".+ methodName\(\)"
-        var signaturePattern = Pattern.compile("\\\\\\(.*\\\\\\)$");
-        var signatureMatcher = signaturePattern.matcher(regex);
-        if (signatureMatcher.find()) {
-            regex = signatureMatcher.replaceFirst("");
-        }
-
-        // Try to convert simple regex patterns in the name part to glob
-        // Replace .* and .+ with glob *, and . with ?
-        regex = regex.replace("(.*)", "*");
-        regex = regex.replace("(.+)", "*");
-        regex = regex.replace(".*", "*");
-        regex = regex.replace(".+", "*");
-        regex = regex.replace("?", "^"); // replace on the illegal symbol due conflict with Glob
-        regex = regex.replace(".", "?");
-
-        // check on the illegal symbols in the method name glob
-        for (int i = 0; i < regex.length(); i++) {
-            char c = regex.charAt(i);
-            if (c == '\\' || c == '[' || c == ']' || c == '(' || c == ')'
-                    || c == '{' || c == '}' || c == '|' || c == '^'
-                    || c == '+' || c == '.' || c == ' ') {
-                return null;
-            }
-        }
-        // If the result looks clean (no remaining regex metacharacters), return it
-        return regex;
     }
 
     public void reconcileOpenAPI() {
@@ -1173,6 +1056,7 @@ public class ProjectBean {
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        keepDeclaredModules(newProjectDescriptor);
         clean(newProjectDescriptor);
 
         String openAPIPathParam = FileNameFormatter
@@ -1264,6 +1148,7 @@ public class ProjectBean {
                 }
             }
             ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentDescriptor);
+            keepDeclaredModules(newProjectDescriptor);
             clean(newProjectDescriptor);
             if (update && newProjectDescriptor.getOpenapi() != null) {
                 OpenAPI openAPI = newProjectDescriptor.getOpenapi();
@@ -1377,6 +1262,9 @@ public class ProjectBean {
 
             boolean openAPIInfoChanged;
             boolean classPathChanged = false;
+            // The modules the import creates. They are declared on save: reading rules.xml back keeps the
+            // block the user wrote, and would otherwise drop the very modules just generated.
+            List<Module> generatedModules = new ArrayList<>();
 
             final OpenAPI existingOpenAPI = currentProjectDescriptor.getOpenapi();
             OpenAPI openAPI = new OpenAPI();
@@ -1410,6 +1298,7 @@ public class ProjectBean {
                 rulesModule.setRulesRootPath(algorithmModulePathParam);
                 rulesModule.setName(algorithmModuleNameParam);
                 modules.add(rulesModule);
+                generatedModules.add(rulesModule);
                 openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
                 openAPIInfoChanged = true;
             }
@@ -1424,6 +1313,7 @@ public class ProjectBean {
                 modelsModule.setRulesRootPath(modelModulePathParam);
                 modelsModule.setName(modelModuleNameParam);
                 modules.add(modelsModule);
+                generatedModules.add(modelsModule);
                 openAPI.setModelModuleName(modelModuleNameParam);
                 openAPIInfoChanged = true;
             }
@@ -1467,14 +1357,15 @@ public class ProjectBean {
                     currentProject.hasArtefact(RulesDeploy.FILE_NAME));
             studio.storeProjectHistory();
 
-            refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+            refreshProject(currentProject.getRepository().getId());
 
-            if (openAPIInfoChanged || classPathChanged) {
+            if (openAPIInfoChanged || classPathChanged || !generatedModules.isEmpty()) {
                 editDescriptorIfNeeded(currentProjectDescriptor,
                         openAPIInfoChanged,
                         classPathChanged,
                         openAPI,
-                        annotationTemplateClassesAreGenerated);
+                        annotationTemplateClassesAreGenerated,
+                        generatedModules);
             }
         } finally {
             studio.releaseProject(currentProjectDescriptor.getName());
@@ -1537,11 +1428,13 @@ public class ProjectBean {
                                         boolean openAPIInfoChanged,
                                         boolean classPathChanged,
                                         OpenAPI openAPI,
-                                        boolean annotationTemplateClassesAreGenerated) {
+                                        boolean annotationTemplateClassesAreGenerated,
+                                        List<Module> generatedModules) {
         RulesProject currentProject = studio.getCurrentProject();
         validatePermissionsForDescriptorFile(currentProject, true);
 
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
+        keepDeclaredModules(newProjectDescriptor, generatedModules);
         clean(newProjectDescriptor);
         if (openAPIInfoChanged) {
             newProjectDescriptor.setOpenapi(openAPI);
@@ -1731,7 +1624,7 @@ public class ProjectBean {
                 artifact.setContent(new ByteArrayInputStream(rulesDeploy.toBytes()));
             }
 
-            refreshProject(project.getRepository().getId(), project.getName());
+            refreshProject(project.getRepository().getId());
         } catch (Message e) {
             throw e;
         } catch (Exception e) {
@@ -1809,6 +1702,55 @@ public class ProjectBean {
         return Cloner.clone(projectDescriptor);
     }
 
+    /**
+     * Restores the modules declared in rules.xml on a descriptor that is about to be saved.
+     *
+     * <p>The resolved descriptor expands wildcard and auto-discovered modules into concrete files. When
+     * project information other than modules is edited, saving that descriptor would rewrite the modules
+     * block with those concrete files. Reading rules.xml as written keeps the block untouched. When
+     * rules.xml declares no modules, the block stays empty and is dropped on save.
+     */
+    private void keepDeclaredModules(ProjectDescriptor target) {
+        applyDeclaredModules(target, readDeclaredDescriptor());
+    }
+
+    /**
+     * Restores the modules declared in rules.xml, then declares the ones an import has just generated.
+     *
+     * <p>The restore alone would drop them: they are not in rules.xml yet, which is exactly why they have to be
+     * written. A generated module a declared wildcard already matches under the same name stays auto-discovered.
+     */
+    private void keepDeclaredModules(ProjectDescriptor target, List<Module> generated) {
+        applyDeclaredModules(target, readDeclaredDescriptor(), generated);
+    }
+
+    /**
+     * Copies the modules declared in rules.xml onto the descriptor about to be saved.
+     *
+     * <p>Leaves the target modules unchanged when rules.xml cannot be read.
+     */
+    static void applyDeclaredModules(ProjectDescriptor target, @Nullable ProjectDescriptor declared) {
+        if (declared != null) {
+            // A list of its own: what is declared next goes into the descriptor being saved, not into the one
+            // rules.xml was read into.
+            target.setModules(new ArrayList<>(declared.getModules()));
+        }
+    }
+
+    /**
+     * Copies the modules declared in rules.xml onto the descriptor about to be saved, and adds the generated ones.
+     *
+     * <p>The declared block is what the user wrote, so it comes back as written. A module an import has generated
+     * is not in it yet, and is declared unless a wildcard already contributes it under the same name.
+     */
+    static void applyDeclaredModules(ProjectDescriptor target,
+                                     @Nullable ProjectDescriptor declared,
+                                     List<Module> generated) {
+        applyDeclaredModules(target, declared);
+        var descriptorManager = new ProjectDescriptorManager();
+        generated.forEach(module -> descriptorManager.registerModule(target, module));
+    }
+
     public UIInput getPropertiesFileNameProcessorInput() {
         return propertiesFileNameProcessorInput;
     }
@@ -1831,6 +1773,18 @@ public class ProjectBean {
 
     public boolean isModuleWithWildcard(Module module) {
         return module.isModuleWithWildcard();
+    }
+
+    /**
+     * Tells whether the modules on the screen are the engine's defaults, taken because rules.xml declares
+     * none. The screen reads it to label those modules as auto-discovered.
+     */
+    public boolean isModulesDefault() {
+        if (modulesDefault == null) {
+            var declared = readDeclaredDescriptor();
+            modulesDefault = declared != null && declared.getModules().isEmpty();
+        }
+        return modulesDefault;
     }
 
     public boolean isModuleMatchesSomePathPattern(Module module) {
@@ -2031,29 +1985,54 @@ public class ProjectBean {
     }
 
     private ProjectDescriptor getOriginalProjectDescriptor() {
-        var descriptor = studio.getCurrentProjectDescriptor();
+        return chooseModulesSource(readDeclaredDescriptor(), studio.getCurrentProjectDescriptor());
+    }
+
+    /**
+     * Reads rules.xml as written, or {@code null} when it is missing or cannot be read. The single place
+     * the bean reads the declared descriptor from disk.
+     */
+    private @Nullable ProjectDescriptor readDeclaredDescriptor() {
         try {
-            var originalDescriptor = ProjectDescriptor.read(descriptor.getProjectFolder());
-            return originalDescriptor != null ? originalDescriptor : descriptor;
+            return ProjectDescriptor.read(studio.getCurrentProjectDescriptor().getProjectFolder());
         } catch (Exception e) {
-            return descriptor;
+            log.debug("Error on reading the declared rules.xml.", e);
+            return null;
         }
+    }
+
+    /**
+     * Chooses which descriptor supplies the modules shown on the Project Info screen.
+     *
+     * <p>Uses the modules declared in rules.xml when it declares any.
+     *
+     * <p>When rules.xml is present but declares no modules, the project relies on the default wildcard
+     * modules that OpenL discovers from the rules and tests directories. The screen then shows those
+     * patterns, each grouping the files it matches, instead of one standalone entry per discovered file.
+     * This mirrors the modern project screen and keeps a later edit of other project information from
+     * rewriting the empty modules block with every discovered file.
+     *
+     * <p>When rules.xml is missing or cannot be read, falls back to the resolved descriptor so the
+     * discovered files are still listed.
+     */
+    static ProjectDescriptor chooseModulesSource(@Nullable ProjectDescriptor declared,
+                                                 ProjectDescriptor resolved) {
+        if (declared == null) {
+            return resolved;
+        }
+        if (declared.getModules().isEmpty()) {
+            // A mutable copy: the deprecated module-edit actions add to and remove from this list.
+            declared.setModules(new ArrayList<>(ProjectDescriptor.defaultModules()));
+        }
+        return declared;
     }
 
     public void setCurrentModuleIndex(Integer currentModuleIndex) {
         this.currentModuleIndex = currentModuleIndex;
     }
 
-    public Integer getCurrentModuleIndex() {
-        return currentModuleIndex;
-    }
-
     public List<ModuleInfoDTO> getModulesInfoList() {
         return modulesInfoList;
-    }
-
-    public void setModulesInfoList(List<ModuleInfoDTO> modulesInfoList) {
-        this.modulesInfoList = modulesInfoList;
     }
 
 }

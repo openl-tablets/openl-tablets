@@ -37,6 +37,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
@@ -89,7 +90,7 @@ class FileRootWriteBatchTest {
         assertEquals("Replace data", folder.getValue().getComment());
         assertEquals(author, folder.getValue().getAuthor());
         assertEquals("Project1/data/a.txt",
-                ((List<FileItem>) items.getValue()).get(0).getData().getName());
+                ((List<FileItem>) items.getValue()).getFirst().getData().getName());
         verify(project).refresh();
     }
 
@@ -110,7 +111,7 @@ class FileRootWriteBatchTest {
         ArgumentCaptor<Iterable<FileItem>> items = ArgumentCaptor.forClass(Iterable.class);
         verify(repository).save(folder.capture(), items.capture(), eq(ChangesetType.DIFF));
         assertEquals("Project1", folder.getValue().getName());
-        assertEquals("Project1/a.txt", ((List<FileItem>) items.getValue()).get(0).getData().getName());
+        assertEquals("Project1/a.txt", ((List<FileItem>) items.getValue()).getFirst().getData().getName());
     }
 
     @Test
@@ -125,7 +126,7 @@ class FileRootWriteBatchTest {
         ArgumentCaptor<List<FileItem>> items = ArgumentCaptor.forClass(List.class);
         verify(root).writeBatch(eq("data"), items.capture(), eq(ChangesetType.DIFF), eq("Upload archive to data"));
         assertEquals(2, items.getValue().size());
-        assertEquals("data/a.txt", items.getValue().get(0).getData().getName());
+        assertEquals("data/a.txt", items.getValue().getFirst().getData().getName());
     }
 
     @Test
@@ -142,7 +143,7 @@ class FileRootWriteBatchTest {
         ArgumentCaptor<List<FileItem>> items = ArgumentCaptor.forClass(List.class);
         verify(root).writeBatch(eq("data"), items.capture(), eq(ChangesetType.DIFF), eq("Upload files to data"));
         assertEquals(2, items.getValue().size());
-        assertEquals("data/x.txt", items.getValue().get(0).getData().getName());
+        assertEquals("data/x.txt", items.getValue().getFirst().getData().getName());
         assertEquals("data/sub/y.txt", items.getValue().get(1).getData().getName());
     }
 
@@ -181,7 +182,7 @@ class FileRootWriteBatchTest {
         ArgumentCaptor<List<FileItem>> items = ArgumentCaptor.forClass(List.class);
         verify(root).writeBatch(eq("data"), items.capture(), eq(ChangesetType.FULL), eq("Upload files to data"));
         assertEquals(1, items.getValue().size());
-        assertEquals("data/keep.txt", items.getValue().get(0).getData().getName());
+        assertEquals("data/keep.txt", items.getValue().getFirst().getData().getName());
     }
 
     @Test
@@ -220,7 +221,8 @@ class FileRootWriteBatchTest {
 
     private static ProjectFilesServiceImpl service(AclProjectsHelper acl) {
         return new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
-                new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class));
+                new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
+                new BeanValidationProvider(List.of()));
     }
 
     private static AclProjectsHelper grantAllAcl() {

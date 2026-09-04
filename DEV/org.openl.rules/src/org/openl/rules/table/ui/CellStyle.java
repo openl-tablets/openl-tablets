@@ -1,5 +1,7 @@
 package org.openl.rules.table.ui;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -10,29 +12,47 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
  */
 public class CellStyle implements ICellStyle {
 
+    @Getter
     private HorizontalAlignment horizontalAlignment = HorizontalAlignment.GENERAL;
 
+    @Getter
     private VerticalAlignment verticalAlignment = VerticalAlignment.TOP;
 
+    @Getter
+    @Setter
     private short[] fillBackgroundColor;
 
+    @Getter
+    @Setter
     private short[] fillForegroundColor;
 
+    @Getter
     private short fillBackgroundColorIndex;
 
+    @Getter
     private short fillForegroundColorIndex;
 
+    @Getter
     private FillPatternType fillPattern;
 
+    @Getter
+    @Setter
     private BorderStyle[] borderStyle;
 
+    @Getter
+    @Setter
     private short[][] borderRGB;
+    @Getter
     private int indent;
 
+    @Getter
     private boolean wrappedText;
 
+    @Getter
     private int rotation;
+    @Getter
     private short formatIndex;
+    @Getter
     private String formatString;
 
     public CellStyle(ICellStyle cellStyle) {
@@ -62,91 +82,5 @@ public class CellStyle implements ICellStyle {
 
         formatIndex = cellStyle.getFormatIndex();
         formatString = cellStyle.getFormatString();
-    }
-
-    @Override
-    public short[][] getBorderRGB() {
-        return borderRGB;
-    }
-
-    @Override
-    public BorderStyle[] getBorderStyle() {
-        return borderStyle;
-    }
-
-    @Override
-    public short[] getFillBackgroundColor() {
-        return fillBackgroundColor;
-    }
-
-    @Override
-    public short[] getFillForegroundColor() {
-        return fillForegroundColor;
-    }
-
-    @Override
-    public HorizontalAlignment getHorizontalAlignment() {
-        return horizontalAlignment;
-    }
-
-    @Override
-    public int getIndent() {
-        return indent;
-    }
-
-    @Override
-    public int getRotation() {
-        return rotation;
-    }
-
-    @Override
-    public VerticalAlignment getVerticalAlignment() {
-        return verticalAlignment;
-    }
-
-    @Override
-    public boolean isWrappedText() {
-        return wrappedText;
-    }
-
-    public void setBorderRGB(short[][] borderRGB) {
-        this.borderRGB = borderRGB;
-    }
-
-    public void setBorderStyle(BorderStyle[] borderStyle) {
-        this.borderStyle = borderStyle;
-    }
-
-    public void setFillBackgroundColor(short[] fillBackgroundColor) {
-        this.fillBackgroundColor = fillBackgroundColor;
-    }
-
-    public void setFillForegroundColor(short[] fillForegroundColor) {
-        this.fillForegroundColor = fillForegroundColor;
-    }
-
-    @Override
-    public short getFillBackgroundColorIndex() {
-        return fillBackgroundColorIndex;
-    }
-
-    @Override
-    public short getFillForegroundColorIndex() {
-        return fillForegroundColorIndex;
-    }
-
-    @Override
-    public FillPatternType getFillPattern() {
-        return fillPattern;
-    }
-
-    @Override
-    public short getFormatIndex() {
-        return formatIndex;
-    }
-
-    @Override
-    public String getFormatString() {
-        return formatString;
     }
 }

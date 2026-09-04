@@ -1,0 +1,28 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:D12",
+  "source": [
+    [
+      {
+        "cell": "B12",
+        "value": 22
+      },
+      {
+        "cell": "C12",
+        "value": 24
+      },
+      {
+        "cell": "D12",
+        "value": "Good Night"
+      }
+    ]
+  ],
+  "totalRows": 9
+}
+

@@ -2,6 +2,9 @@ package org.openl.rules.cmatch;
 
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -13,16 +16,30 @@ import org.openl.vm.IRuntimeEnv;
 
 @Executable
 public class ColumnMatch extends ExecutableRulesMethod {
+    @Getter
+    @Setter
     private List<TableColumn> columns;
+    @Getter
+    @Setter
     private List<TableRow> rows;
 
+    @Getter
+    @Setter
     private Object[] returnValues;
+    @Getter
+    @Setter
     private MatchNode checkTree;
 
+    @Getter
+    @Setter
     private IMatchAlgorithmExecutor algorithmExecutor;
 
     // WEIGHT algorithm
+    @Getter
+    @Setter
     private MatchNode totalScore;
+    @Getter
+    @Setter
     private int[] columnScores;
 
     public ColumnMatch() {
@@ -38,31 +55,11 @@ public class ColumnMatch extends ExecutableRulesMethod {
         return ((ColumnMatchBoundNode) getBoundNode()).getAlgorithm();
     }
 
-    public MatchNode getCheckTree() {
-        return checkTree;
-    }
-
-    public List<TableColumn> getColumns() {
-        return columns;
-    }
-
-    public int[] getColumnScores() {
-        return columnScores;
-    }
-
     @Override
     public BindingDependencies getDependencies() {
-        BindingDependencies dependencies = new RulesBindingDependencies();
+        var dependencies = new RulesBindingDependencies();
         getBoundNode().updateDependency(dependencies);
         return dependencies;
-    }
-
-    public Object[] getReturnValues() {
-        return returnValues;
-    }
-
-    public List<TableRow> getRows() {
-        return rows;
     }
 
     @Override
@@ -70,13 +67,9 @@ public class ColumnMatch extends ExecutableRulesMethod {
         return getSyntaxNode().getUri();
     }
 
-    public MatchNode getTotalScore() {
-        return totalScore;
-    }
-
     @Override
     protected Object innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
-        Object result = algorithmExecutor.invoke(this, params, env);
+        var result = algorithmExecutor.invoke(this, params, env);
         if (result == null) {
             Class<?> type = getHeader().getType().getInstanceClass();
             if (type.isPrimitive()) {
@@ -84,38 +77,6 @@ public class ColumnMatch extends ExecutableRulesMethod {
             }
         }
         return result;
-    }
-
-    public void setAlgorithmExecutor(IMatchAlgorithmExecutor algorithmExecutor) {
-        this.algorithmExecutor = algorithmExecutor;
-    }
-
-    public void setCheckTree(MatchNode checkTree) {
-        this.checkTree = checkTree;
-    }
-
-    public void setColumns(List<TableColumn> columns) {
-        this.columns = columns;
-    }
-
-    public void setColumnScores(int[] columnScores) {
-        this.columnScores = columnScores;
-    }
-
-    public void setReturnValues(Object[] returnValues) {
-        this.returnValues = returnValues;
-    }
-
-    public void setRows(List<TableRow> rows) {
-        this.rows = rows;
-    }
-
-    public void setTotalScore(MatchNode totalScore) {
-        this.totalScore = totalScore;
-    }
-
-    public IMatchAlgorithmExecutor getAlgorithmExecutor() {
-        return algorithmExecutor;
     }
 
 }

@@ -1,4 +1,4 @@
-## Appendix H: Manifest File for Deployed Projects
+## Appendix G: Manifest File for Deployed Projects
 
 When a user deploys the OpenL Tablets project from OpenL Studio or using the OpenL Tablets Maven plugin, the MANIFEST.MF file is generated. This file contains information about deployment author, deployment time, project version, and OpenL Tablets version used for deployment.
 
@@ -26,7 +26,7 @@ If the project is deployed in OpenL Studio, the manifest file contains the follo
 
 The manifest file is available in OpenL Rule Services, on the main page, for each deployed service.
 
-![](../../../assets/images/rule-services/989c0347237015276cece6779d16e9a8.png)
+![Manifest file available for the deployed project](../../../assets/images/rule-services/989c0347237015276cece6779d16e9a8.png)
 
 *Manifest file available for the deployed project*
 
@@ -49,7 +49,5 @@ An example of the file contents is as follows:
   }
 }
 ```
-```
-Release 5.27
-OpenL Tablets Documentation is licensed under a Creative Commons Attribution 3.0 United States License.
-```
+
+OpenL Tablets Documentation is licensed under a Creative Commons Attribution 4.0 International License.

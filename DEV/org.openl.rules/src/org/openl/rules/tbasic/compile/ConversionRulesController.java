@@ -6,7 +6,6 @@ import java.util.List;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
-import org.openl.source.IOpenSourceCodeModule;
 
 public final class ConversionRulesController {
 
@@ -301,10 +300,10 @@ public final class ConversionRulesController {
         }
 
         // No conversion rule found.
-        String errorMessage = "The operations sequence is wrong: %2$s. Operations %1$s must precede the %2$s".formatted(
+        var errorMessage = "The operations sequence is wrong: %2$s. Operations %1$s must precede the %2$s".formatted(
                 specification.getPredecessorOperations(),
                 groupedOperationNames);
-        IOpenSourceCodeModule errorSource = theFirstNode.getAlgorithmRow()
+        var errorSource = theFirstNode.getAlgorithmRow()
                 .getOperation()
                 .asSourceCodeModule();
         BindHelper.processError(errorMessage, errorSource, bindingContext);

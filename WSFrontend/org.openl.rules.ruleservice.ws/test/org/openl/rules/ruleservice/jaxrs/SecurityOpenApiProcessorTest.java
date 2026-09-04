@@ -18,11 +18,11 @@ class SecurityOpenApiProcessorTest {
 
         var processor = new SecurityOpenApiProcessor(Json.mapper().copy().setDefaultMergeable(true));
 
-        OpenAPI result = processor.apply(existing);
+        var result = processor.apply(existing);
 
         assertNotNull(result.getSecurity(), "security list must be populated");
         assertEquals(1, result.getSecurity().size());
-        assertTrue(result.getSecurity().get(0).containsKey("OAuth2"));
+        assertTrue(result.getSecurity().getFirst().containsKey("OAuth2"));
 
         var components = result.getComponents();
         assertNotNull(components);

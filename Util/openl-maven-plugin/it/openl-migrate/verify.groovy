@@ -66,7 +66,8 @@ interface LegacyService {
     assert buildLog.contains('Migrate: rules-deploy.xml (needless tags cleanup)')
     assert buildLog.contains('Migrate: rules-deploy.xml (drop default isProvideRuntimeContext=false)')
     assert buildLog.contains('Migrate: rules-deploy.xml (interceptingTemplateClassName to annotationTemplateClassName)')
-    assert buildLog.contains('Migrate groovy/LegacyService.groovy')
+    // GroovyJakartaMigrator logs a relative path, so the separator is the platform one.
+    assert buildLog =~ /Migrate groovy[\\\/]LegacyService\.groovy/
 
     // Tally every "Migrate: " line so an unexpected migrator (e.g. someone wires a noisy migrator without
     // updating this script) immediately surfaces. rules.xml: empty-tag + lib + classpath + cw-processor +
@@ -118,4 +119,13 @@ interface LegacyService {
 } catch (Throwable e) {
     e.printStackTrace()
     return false
+} finally {
+    // The assertions above are the last users of the repository setup.groovy created here. Git stores its
+    // objects read-only and Windows refuses to delete a read-only file, so leaving the repository behind
+    // would make the next `mvn clean` fail on this folder.
+    def gitDir = new File(basedir, '.git')
+    if (gitDir.isDirectory()) {
+        gitDir.eachFileRecurse { it.setWritable(true) }
+        assert gitDir.deleteDir() : "cannot delete the fixture repository ${gitDir} — `mvn clean` would fail on it"
+    }
 }

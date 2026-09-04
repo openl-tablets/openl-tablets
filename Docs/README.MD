@@ -90,6 +90,14 @@ Integration patterns with popular frameworks:
 - **[Technology Stack](architecture/technology-stack.md)** - Complete technology inventory (Java, Spring, React, etc.)
 - **[Dependencies](architecture/dependencies.md)** - Module dependency graph and external dependencies
 - **[Legacy System Map](architecture/legacy-system-map.md)** - Legacy vs modern components, migration status
+- **[Table Creation and Copying](architecture/table-creation.md)** - How the dialog builds and copies a table
+
+### Specifications
+- **[Table Types](ref/table-types.md)** - Every OpenL table type and its header syntax
+- **[Rules Project Structure](ref/project-structure.md)** - Layout of a rules project
+- **[rules.xml](ref/rules.xml.md)** - Rules project descriptor
+- **[rules-deploy.xml](ref/rules-deploy.xml.md)** - Rules deployment descriptor
+- **[OpenL Maven Plugin](ref/openl-maven-plugin.md)** - Goals and configuration
 
 ### Onboarding Documentation
 - **[Codebase Tour](onboarding/codebase-tour.md)** - Repository structure and navigation guide
@@ -164,13 +172,12 @@ OpenL Tablets is organized into 5 major module groups:
 
 ### 4. Util - Tools & Utilities
 **Location**: `/Util/`
-**Purpose**: Maven plugins, archetypes, profiler, OpenTelemetry
+**Purpose**: Maven plugins, archetypes, OpenTelemetry
 **Documentation**: [Util Overview](analysis/studio-wsfrontend-util-overview.md) | [Util/CLAUDE.md](/Util/CLAUDE.md)
 
 **Key Submodules**:
 - `openl-maven-plugin` - Maven plugin for OpenL compilation
 - `openl-openapi-*` - OpenAPI code generation and parsing
-- `org.openl.rules.profiler` - Performance profiling
 - `openl-rules-opentelemetry` - Observability integration
 
 ### 5. ITEST - Integration Tests

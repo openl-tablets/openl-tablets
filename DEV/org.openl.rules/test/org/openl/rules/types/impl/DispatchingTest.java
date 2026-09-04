@@ -9,10 +9,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -90,25 +88,25 @@ class DispatchingTest {
 
     @Test
     void testRequestDate() throws Exception {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        var df = new SimpleDateFormat("yyyy-MM-dd");
 
         Object[][] testData = {{"2011-08-15", "2012-01-01", 4.0}, {"2011-08-15", "2009-01-01", 2.0}};
 
-        for (int i = 0; i < testData.length; i++) {
+        for (var i = 0; i < testData.length; i++) {
             IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-            Object[] data = testData[i];
-            Date currentDate = df.parse((String) data[0]);
-            Date requestDate = df.parse((String) data[1]);
+            var data = testData[i];
+            var currentDate = df.parse((String) data[0]);
+            var requestDate = df.parse((String) data[1]);
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
-            Double res = instance.driverRiskScoreOverloadTest2(context, "High Risk Driver");
+            var res = instance.driverRiskScoreOverloadTest2(context, "High Risk Driver");
             assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 
     @Test
     void testAmbiguousDispatching1() throws Exception {
-        Method method = Rules.class.getMethod("getAmbiguousPriority", IRulesRuntimeContext.class);
+        var method = Rules.class.getMethod("getAmbiguousPriority", IRulesRuntimeContext.class);
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
@@ -118,7 +116,7 @@ class DispatchingTest {
 
     @Test
     void testAmbiguousDispatching2() throws Exception {
-        Method method = Rules.class.getMethod("getAmbiguousPriority1", IRulesRuntimeContext.class);
+        var method = Rules.class.getMethod("getAmbiguousPriority1", IRulesRuntimeContext.class);
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.RU);
@@ -128,7 +126,7 @@ class DispatchingTest {
 
     @Test
     void testAmbiguousDispatching3() throws Exception {
-        Method method = Rules.class.getMethod("getPriority", IRulesRuntimeContext.class);
+        var method = Rules.class.getMethod("getPriority", IRulesRuntimeContext.class);
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         invokeAndCheckForAmbiguous(method, instance, context);
@@ -142,18 +140,18 @@ class DispatchingTest {
     @Test
     void testDatesDispatching() {
         MyRule myRule = TestUtils.create("test/rules/dispatching/EPBDS-10367_dates_Dispatching.xlsx", MyRule.class);
-        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        IRulesRuntimeContext context;
         assertEquals(myRule.myRule(13), (Double) 7.0);
 
         context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        Calendar cal = new GregorianCalendar();
+        var cal = new GregorianCalendar();
         cal.set(2021, Calendar.OCTOBER, 4, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal.getTime());
         assertEquals(myRule.myRule(13), (Double) 7.0);
 
         context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        Calendar cal2 = new GregorianCalendar();
+        var cal2 = new GregorianCalendar();
         cal2.set(2019, Calendar.OCTOBER, 4, 0, 0, 0);
         cal2.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal2.getTime());
@@ -162,13 +160,13 @@ class DispatchingTest {
 
     private void invokeAndCheckForAmbiguous(Method method, Object target, Object... args) throws IllegalAccessException {
         try {
-            Object o = method.invoke(target, args);
+            var o = method.invoke(target, args);
             fail(NO_EXCEPTION + o);
         } catch (InvocationTargetException e) {
             assertNotNull(e);
 
-            StringWriter sw = new StringWriter(1024);
-            PrintWriter pw = new PrintWriter(sw, true);
+            var sw = new StringWriter(1024);
+            var pw = new PrintWriter(sw, true);
             e.printStackTrace(pw);
             pw.close();
 

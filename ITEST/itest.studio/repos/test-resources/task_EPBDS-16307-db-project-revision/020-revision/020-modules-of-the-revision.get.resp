@@ -1,0 +1,47 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduMTpEQkhpc3Rvcnk=",
+  "name": "DBHistory",
+  "status": "OPENED",
+  "repository": "design1",
+  "modifiedBy": "admin",
+  "modifiedAt": "*",
+  "revision": "1",
+  "comment": "Create a project in a repository without folders",
+  "descriptor": {
+    "modules": [
+      {
+        "name": "Main",
+        "path": "Main.xlsx"
+      }
+    ],
+    "sources": [
+      "groovy/",
+      "lib/*.jar"
+    ],
+    "sourcesDefault": true
+  },
+  "repositoryInfo": {
+    "id": "design1",
+    "name": "H2 History",
+    "type": "repo-jdbc",
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": false
+    }
+  },
+  "capabilities": {
+    "canWrite": true,
+    "canDelete": true,
+    "canClose": true,
+    "canDeploy": true,
+    "canCompare": true,
+    "canViewHistory": true,
+    "canManage": true,
+    "canCopy": true,
+    "canExport": true
+  }
+}

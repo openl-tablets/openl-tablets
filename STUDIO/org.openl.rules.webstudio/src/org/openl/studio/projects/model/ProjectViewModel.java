@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import org.openl.studio.common.model.GenericView;
+import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.util.StringUtils;
 
 public class ProjectViewModel extends AProjectViewModel {
@@ -44,13 +46,43 @@ public class ProjectViewModel extends AProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final String comment;
 
-    @Parameter(description = "The list of selected branches")
-    @JsonView(GenericView.Full.class)
-    public final List<String> selectedBranches;
-
     @Parameter(description = "Project Dependencies")
     @JsonView(GenericView.Full.class)
     public final List<ProjectDependencyViewModel> dependencies;
+
+    @Parameter(description = "Projects that depend on this one. Present only on the single-project response")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public final List<ProjectDependencyViewModel> usedBy;
+
+    @Parameter(description = "The project as its rules.xml describes it. Present only when the descriptor is requested.")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public final DescriptorViewModel descriptor;
+
+    @Parameter(description = "Whether the project's current branch is protected")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public final boolean branchProtected;
+
+    @Parameter(description = "Whether the project's current branch is the repository main branch")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public final boolean branchDefault;
+
+    @Parameter(description = "The repository the project is stored in. Travels with the project, so it is readable without access to the repository as a whole")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public final ProjectRepositoryModel repositoryInfo;
+
+    @Parameter(description = "Capabilities of the current user on the project")
+    @JsonView(GenericView.Full.class)
+    public final ProjectCapabilities capabilities;
+
+    @Parameter(description = "Current compilation status. Present only when requested.")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public final ProjectStatusViewModel compileStatus;
 
     private ProjectViewModel(Builder from) {
         super(from);
@@ -61,8 +93,14 @@ public class ProjectViewModel extends AProjectViewModel {
         this.lockInfo = from.lockInfo;
         this.tags = new TreeMap<>(from.tags);
         this.comment = from.comment;
-        this.selectedBranches = Optional.ofNullable(from.selectedBranches).map(List::copyOf).orElseGet(List::of);
         this.dependencies = Optional.ofNullable(from.dependencies).map(List::copyOf).orElseGet(List::of);
+        this.usedBy = Optional.ofNullable(from.usedBy).map(List::copyOf).orElseGet(List::of);
+        this.descriptor = from.descriptor;
+        this.branchProtected = from.branchProtected;
+        this.branchDefault = from.branchDefault;
+        this.repositoryInfo = from.repositoryInfo;
+        this.capabilities = from.capabilities;
+        this.compileStatus = from.compileStatus;
     }
 
     public static Builder builder() {
@@ -77,8 +115,14 @@ public class ProjectViewModel extends AProjectViewModel {
         private String path;
         private final Map<String, String> tags = new HashMap<>();
         private String comment;
-        private List<String> selectedBranches;
         private List<ProjectDependencyViewModel> dependencies;
+        private List<ProjectDependencyViewModel> usedBy;
+        private DescriptorViewModel descriptor;
+        private boolean branchProtected;
+        private boolean branchDefault;
+        private ProjectRepositoryModel repositoryInfo;
+        private ProjectCapabilities capabilities;
+        private ProjectStatusViewModel compileStatus;
 
         private Builder() {
         }
@@ -118,16 +162,49 @@ public class ProjectViewModel extends AProjectViewModel {
             return this;
         }
 
-        public Builder selectedBranches(List<String> selectedBranches) {
-            this.selectedBranches = selectedBranches;
-            return this;
-        }
-
         public Builder addDependency(ProjectDependencyViewModel dependency) {
             if (dependencies == null) {
                 dependencies = new ArrayList<>();
             }
             this.dependencies.add(dependency);
+            return this;
+        }
+
+        public Builder addUsedBy(ProjectDependencyViewModel usedBy) {
+            if (this.usedBy == null) {
+                this.usedBy = new ArrayList<>();
+            }
+            this.usedBy.add(usedBy);
+            return this;
+        }
+
+        public Builder descriptor(DescriptorViewModel descriptor) {
+            this.descriptor = descriptor;
+            return this;
+        }
+
+        public Builder branchProtected(boolean branchProtected) {
+            this.branchProtected = branchProtected;
+            return this;
+        }
+
+        public Builder branchDefault(boolean branchDefault) {
+            this.branchDefault = branchDefault;
+            return this;
+        }
+
+        public Builder repositoryInfo(ProjectRepositoryModel repositoryInfo) {
+            this.repositoryInfo = repositoryInfo;
+            return this;
+        }
+
+        public Builder capabilities(ProjectCapabilities capabilities) {
+            this.capabilities = capabilities;
+            return this;
+        }
+
+        public Builder compileStatus(ProjectStatusViewModel compileStatus) {
+            this.compileStatus = compileStatus;
             return this;
         }
 

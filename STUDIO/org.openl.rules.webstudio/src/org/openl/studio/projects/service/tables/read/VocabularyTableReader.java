@@ -1,7 +1,6 @@
 package org.openl.studio.projects.service.tables.read;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -30,9 +29,10 @@ public class VocabularyTableReader extends EditableTableReader<VocabularyView, V
         var tsn = openLTable.getSyntaxNode();
         var metaInfoReader = tsn.getMetaInfoReader();
         var cellValueReader = new CellValueReader(metaInfoReader);
+        // a vocabulary that lists no values is a header alone, with no body to read
         var table = tsn.getTableBody();
-        List<VocabularyValueView> values = new ArrayList<>();
-        for (int row = 0; row < table.getHeight(); row++) {
+        var values = new ArrayList<VocabularyValueView>();
+        for (var row = 0; table != null && row < table.getHeight(); row++) {
             var cell = table.getCell(0, row);
             var cellValue = cellValueReader.apply(cell);
             values.add(VocabularyValueView.builder().value(cellValue).build());
@@ -48,11 +48,11 @@ public class VocabularyTableReader extends EditableTableReader<VocabularyView, V
 
     private static String getVocabularyType(String header) {
         var len = header.length();
-        int pos1 = StringUtils.first(header, 0, len, x -> x == VocabularyTableWriter.TYPE_OPEN);
+        var pos1 = StringUtils.first(header, 0, len, x -> x == VocabularyTableWriter.TYPE_OPEN);
         if (pos1 < 0) {
             return null;
         }
-        int pos2 = StringUtils.first(header, pos1, len, x -> x == VocabularyTableWriter.TYPE_CLOSE);
+        var pos2 = StringUtils.first(header, pos1, len, x -> x == VocabularyTableWriter.TYPE_CLOSE);
         if (pos2 < 0) {
             return null;
         }

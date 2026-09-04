@@ -69,8 +69,8 @@ public class JavaKeywordUtils {
         }
         if (!s.isEmpty()) {
             s = s.replaceAll("\\s+", "_"); // Replace whitespaces
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < s.length(); i++) {
+            var sb = new StringBuilder();
+            for (var i = 0; i < s.length(); i++) {
                 if (Character.isJavaIdentifierPart(s.charAt(i))) {
                     sb.append(s.charAt(i));
                 }

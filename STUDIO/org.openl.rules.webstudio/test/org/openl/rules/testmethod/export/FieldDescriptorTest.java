@@ -1,8 +1,6 @@
 package org.openl.rules.testmethod.export;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -34,13 +32,13 @@ class FieldDescriptorTest {
     void commonCases() {
         List<FieldDescriptor> descriptors;
 
-        assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int.class), emptyList(), true));
+        assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int.class), List.of(), true));
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int.class), asList(1, 2, 3), true));
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int[].class), asList(1, 2, 3), true));
         assertNull(
                 FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(Integer[][].class), asList(1, 2, 3), true));
 
-        descriptors = FieldDescriptor.nonEmptyFields(aType, emptyList(), true);
+        descriptors = FieldDescriptor.nonEmptyFields(aType, List.of(), true);
         assertNotNull(descriptors);
         assertTrue(descriptors.isEmpty());
 
@@ -91,7 +89,7 @@ class FieldDescriptorTest {
 
     @Test
     void arrayTypes() {
-        List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(B2), true);
+        List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, List.of(B2), true);
         assertNotNull(descriptors);
         assertEquals(2, descriptors.size());
         assertFalse(descriptors.getFirst().isArray());
@@ -118,12 +116,12 @@ class FieldDescriptorTest {
 
     @Test
     void leafNodeCount() {
-        List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(B2), true);
+        List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, List.of(B2), true);
         assertNotNull(descriptors);
         assertEquals(1, descriptors.getFirst().getLeafNodeCount());
         assertEquals(2, descriptors.get(1).getLeafNodeCount());
 
-        descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(new B("id", new A(null, 5))), true);
+        descriptors = FieldDescriptor.nonEmptyFields(bType, List.of(new B("id", new A(null, 5))), true);
         assertNotNull(descriptors);
         assertEquals(1, descriptors.getFirst().getLeafNodeCount());
         assertEquals(1, descriptors.get(1).getLeafNodeCount());
@@ -133,22 +131,22 @@ class FieldDescriptorTest {
     void maxArraySize() {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, asList(B2, B1), true);
         assertNotNull(descriptors);
-        FieldDescriptor id = descriptors.getFirst();
+        var id = descriptors.getFirst();
         assertEquals(1, id.getMaxArraySize(B1));
         assertEquals(1, id.getMaxArraySize(B2));
         assertEquals(1, id.getMaxArraySize(B3));
 
-        FieldDescriptor aValues = descriptors.get(1);
+        var aValues = descriptors.get(1);
         assertEquals(1, aValues.getMaxArraySize(B1)); // Even empty array contains at least 1 row
         assertEquals(1, aValues.getMaxArraySize(B2));
         assertEquals(3, aValues.getMaxArraySize(B3));
 
-        B composite = new B("composite", A2, A1);
+        var composite = new B("composite", A2, A1);
         composite.setChildBValues(B1, B2);
         descriptors = FieldDescriptor.nonEmptyFields(bType, asList(B3, composite), true);
         assertNotNull(descriptors);
         assertEquals(3, descriptors.size());
-        FieldDescriptor childBValues = descriptors.get(2);
+        var childBValues = descriptors.get(2);
         assertEquals(1, childBValues.getMaxArraySize(B3));
         assertEquals(2, childBValues.getMaxArraySize(composite));
     }

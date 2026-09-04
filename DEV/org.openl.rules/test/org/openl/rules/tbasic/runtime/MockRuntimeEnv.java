@@ -2,16 +2,22 @@ package org.openl.rules.tbasic.runtime;
 
 import java.util.Stack;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.IOpenRunner;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.vm.IRuntimeEnv;
 
 public class MockRuntimeEnv implements IRuntimeEnv {
+    @Getter
     private final IOpenRunner runner;
 
     private final Stack<Object> thisStack = new Stack<>();
     private final Stack<Object[]> frameStack = new Stack<>();
 
+    @Getter
+    @Setter
     private IRuntimeContext context;
 
     public MockRuntimeEnv(MockRuntimeEnv mockRuntimeEnv) {
@@ -32,11 +38,6 @@ public class MockRuntimeEnv implements IRuntimeEnv {
     @Override
     public Object[] getLocalFrame() {
         return frameStack.peek();
-    }
-
-    @Override
-    public IOpenRunner getRunner() {
-        return runner;
     }
 
     @Override
@@ -66,16 +67,6 @@ public class MockRuntimeEnv implements IRuntimeEnv {
     @Override
     public void pushThis(Object thisObject) {
         thisStack.push(thisObject);
-    }
-
-    @Override
-    public IRuntimeContext getContext() {
-        return context;
-    }
-
-    @Override
-    public void setContext(IRuntimeContext context) {
-        this.context = context;
     }
 
     @Override

@@ -5,11 +5,13 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import lombok.RequiredArgsConstructor;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.h2.jdbcx.JdbcDataSource;
 
 import org.openl.util.FileUtils;
 
+@RequiredArgsConstructor
 public class H2CacheDB {
 
     private static final String DB_CONNECTION = "jdbc:h2:";
@@ -22,22 +24,18 @@ public class H2CacheDB {
     private final String cacheName;
     private boolean initialized = false;
 
-    public H2CacheDB(String cacheName) {
-        this.cacheName = cacheName;
-    }
-
     protected Connection getDBConnection() throws IOException {
         try {
-            Connection connection = cp.getConnection();
+            var connection = cp.getConnection();
             initialized = true;
             return connection;
         } catch (SQLException e) {
             if (!initialized) {
                 // Probably db file is broken or unsupported version. Clear it so it will be recreated again.
-                String dbPath = jdbcDataSource.getURL().substring(DB_CONNECTION.length());
+                var dbPath = jdbcDataSource.getURL().substring(DB_CONNECTION.length());
                 FileUtils.deleteQuietly(Path.of(dbPath + ".mv.db"));
                 try {
-                    Connection connection = cp.getConnection();
+                    var connection = cp.getConnection();
                     initialized = true;
                     return connection;
                 } catch (SQLException ex) {

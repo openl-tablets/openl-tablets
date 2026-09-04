@@ -15,7 +15,7 @@ This document provides comprehensive coverage of the upper layers of OpenL Table
 - **OpenL Studio**: 4 core modules + React UI
 - **OpenAPI**: 3 modules (generation, validation, integration)
 - **Rule Services**: 12 modules (deployment, web services, Kafka)
-- **Utilities**: 9 modules (Maven plugin, profiler, OpenTelemetry)
+- **Utilities**: 9 modules (Maven plugin, OpenTelemetry)
 - **Integration Tests**: 18+ modules + Demo application
 
 ---
@@ -268,19 +268,7 @@ webstudio.concurrent.builds = 4
 - `WebContext` - Request context holder
 - `ExceptionHandler` - Global exception handling
 
-### 3. org.openl.rules.webstudio.ai - AI Features
-
-**Purpose**: AI-assisted rule authoring (experimental)
-
-**Features**:
-- Rule suggestion
-- Auto-completion
-- Pattern detection
-- Code generation assistance
-
-**Note**: Experimental module, limited documentation
-
-### 4. org.openl.rules.tableeditor - Table Editor
+### 3. org.openl.rules.tableeditor - Table Editor
 
 **Purpose**: Excel-like table editor component
 
@@ -783,24 +771,6 @@ builder.save("rules/Premium.xlsx");
 ### 7. openl-yaml - YAML Support
 
 **Purpose**: YAML parsing and generation utilities
-
-### 8. org.openl.rules.profiler - Performance Profiler
-
-**Purpose**: Profile rule execution performance
-
-**Usage**:
-```java
-@EnableProfiling
-public interface MyRules {
-    double calculatePremium(int age, double coverage);
-}
-
-// Profiling data automatically collected
-ProfileReport report = profiler.getReport();
-System.out.println("Method: " + report.getMethodName());
-System.out.println("Calls: " + report.getCallCount());
-System.out.println("Avg Time: " + report.getAverageTime() + "ms");
-```
 
 ### 9. openl-rules-opentelemetry - Observability
 

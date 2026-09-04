@@ -1,11 +1,11 @@
 package org.openl.rules.xls.merge;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Comment;
@@ -20,6 +20,7 @@ import org.apache.poi.xssf.usermodel.XSSFShape;
 /**
  * Internal cursor, that points to current iteration state
  */
+@RequiredArgsConstructor
 class Cursor {
 
     /**
@@ -57,12 +58,6 @@ class Cursor {
         this.workbook = workbook;
         this.sheet = sheet;
         formulas = null;
-    }
-
-    public Cursor(Workbook workbook, Sheet sheet, Collection<Cell> formulas) {
-        this.workbook = workbook;
-        this.sheet = sheet;
-        this.formulas = formulas;
     }
 
     /**
@@ -107,7 +102,7 @@ class Cursor {
                 .filter(XSSFDrawing.class::isInstance)
                 .map(XSSFDrawing.class::cast)
                 .map(XSSFDrawing::getShapes)
-                .orElse(Collections.emptyList());
+                .orElse(List.of());
     }
 
     /**
@@ -120,16 +115,6 @@ class Cursor {
                 .filter(XSSFPicture.class::isInstance)
                 .map(XSSFPicture.class::cast)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Get physical numbers of cells of current {@code sheet}
-     *
-     * @return int representing the number of defined cells in the row.
-     */
-    public int getSheetPhysicalNumberOfCells() {
-        var rowIter = sheet.rowIterator();
-        return rowIter.hasNext() ? rowIter.next().getPhysicalNumberOfCells() : 0;
     }
 
     public void addFormulaCell(Cell formulaCell) {

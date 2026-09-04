@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import lombok.RequiredArgsConstructor;
+
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntBoolExp;
@@ -26,12 +28,9 @@ import org.openl.ie.constrainer.Subject;
  */
 final class IntBoolExpAnd extends IntBoolExpForSubject {
 
+    @RequiredArgsConstructor
     class ObserverBoolExpAnd extends Observer {
         final IntBoolExp _exp2;
-
-        public ObserverBoolExpAnd(IntBoolExp exp2) {
-            _exp2 = exp2;
-        }
 
         @Override
         public Object master() {

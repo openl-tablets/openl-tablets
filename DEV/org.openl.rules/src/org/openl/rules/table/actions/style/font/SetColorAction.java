@@ -4,7 +4,6 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.AUndoableCellAction;
-import org.openl.rules.table.ui.ICellFont;
 
 public class SetColorAction extends AUndoableCellAction {
 
@@ -18,9 +17,9 @@ public class SetColorAction extends AUndoableCellAction {
 
     @Override
     public void doAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
 
-        ICellFont font = grid.getCell(getCol(), getRow()).getFont();
+        var font = grid.getCell(getCol(), getRow()).getFont();
         prevColor = font != null ? font.getFontColor() : null;
 
         grid.setCellFontColor(getCol(), getRow(), newColor);
@@ -28,7 +27,7 @@ public class SetColorAction extends AUndoableCellAction {
 
     @Override
     public void undoAction(IGridTable table) {
-        IWritableGrid grid = (IWritableGrid) table.getGrid();
+        var grid = (IWritableGrid) table.getGrid();
         grid.setCellFontColor(getCol(), getRow(), prevColor);
     }
 

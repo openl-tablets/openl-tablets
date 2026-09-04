@@ -9,6 +9,9 @@ package org.openl.types.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.util.print.NicePrinter;
@@ -19,6 +22,8 @@ import org.openl.util.print.NicePrinterAdaptor;
  */
 public class DynamicObject implements IDynamicObject {
 
+    @Getter
+    @Setter
     private IOpenClass type;
 
     private final HashMap<String, Object> fieldValues = new HashMap<>();
@@ -57,11 +62,6 @@ public class DynamicObject implements IDynamicObject {
         return (HashMap<String, Object>) fieldValues.clone();
     }
 
-    @Override
-    public IOpenClass getType() {
-        return type;
-    }
-
     protected boolean isMyField(String name) {
         return type.getField(name) != null;
     }
@@ -71,13 +71,9 @@ public class DynamicObject implements IDynamicObject {
         fieldValues.put(name, value);
     }
 
-    public void setType(IOpenClass type) {
-        this.type = type;
-    }
-
     @Override
     public String toString() {
-        NicePrinter printer = new NicePrinter();
+        var printer = new NicePrinter();
         printer.print(this, getNicePrinterAdaptor());
         return printer.getBuffer().toString();
     }
@@ -96,7 +92,6 @@ public class DynamicObject implements IDynamicObject {
         public void printObject(Object obj, int newID, NicePrinter printer) {
             if (obj instanceof IDynamicObject dobj) {
                 printReference(dobj, newID, printer);
-                // printer.getBuffer().append(shortTypeName(dobj.getType().getName()));
                 printMap(dobj.getFieldValues(), null, printer);
                 return;
             }

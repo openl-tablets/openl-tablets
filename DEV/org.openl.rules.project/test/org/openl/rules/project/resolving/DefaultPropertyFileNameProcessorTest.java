@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
-import org.openl.rules.table.properties.ITableProperties;
 
 class DefaultPropertyFileNameProcessorTest {
 
@@ -34,7 +33,7 @@ class DefaultPropertyFileNameProcessorTest {
 
     @Test
     void lobTest() throws Exception {
-        ITableProperties props = new DefaultPropertiesFileNameProcessor(
+        var props = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%nature%-%state%-%effectiveDate:yyyy-MM-dd%-%startRequestDate:yyyy-MM-dd%")
                 .process("AL-BL-CL-GL-NY-2018-07-01-2018-05-03");
         assertArrayEquals(props.getLob(), new String[]{"AL"});
@@ -67,7 +66,7 @@ class DefaultPropertyFileNameProcessorTest {
             InvalidFileNamePatternException,
             ParseException {
 
-        ITableProperties properties = new DefaultPropertiesFileNameProcessor(
+        var properties = new DefaultPropertiesFileNameProcessor(
                 ".*-%lob%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%")
                 .process("rules/Project-PMT,CMT-01012017-01012018.ext");
 
@@ -82,7 +81,7 @@ class DefaultPropertyFileNameProcessorTest {
             InvalidFileNamePatternException,
             ParseException {
 
-        ITableProperties properties = new DefaultPropertiesFileNameProcessor(
+        var properties = new DefaultPropertiesFileNameProcessor(
                 ".*-%lob%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%currency%")
                 .process("Project-PMT,CMT-01012017-01012018-EUR,UAH.xlsx");
 
@@ -109,7 +108,7 @@ class DefaultPropertyFileNameProcessorTest {
             InvalidFileNamePatternException,
             ParseException {
 
-        ITableProperties properties = new DefaultPropertiesFileNameProcessor(
+        var properties = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%startRequestDate:yyyy-MM-dd%").process("path/to.rules/AUTO-FL-2016-01-01");
 
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
@@ -122,7 +121,7 @@ class DefaultPropertyFileNameProcessorTest {
     void testMultiPatterns0() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                 .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
-        ITableProperties properties = processor.process("AUTO-CW-20160101.xlsx");
+        var properties = processor.process("AUTO-CW-20160101.xlsx");
 
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
         assertArrayEquals(UsStatesEnum.values(), properties.getState());
@@ -134,7 +133,7 @@ class DefaultPropertyFileNameProcessorTest {
     void testMultiPatterns() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                 .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
-        ITableProperties properties = processor.process("AUTO-Any-20160101");
+        var properties = processor.process("AUTO-Any-20160101");
 
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
         assertArrayEquals(UsStatesEnum.values(), properties.getState());
@@ -146,7 +145,7 @@ class DefaultPropertyFileNameProcessorTest {
     void testMultiPatterns1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                 .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
-        ITableProperties properties = processor.process("AUTO-FL,ME-20160101.xlsx");
+        var properties = processor.process("AUTO-FL,ME-20160101.xlsx");
 
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
         assertArrayEquals(new UsStatesEnum[]{UsStatesEnum.FL, UsStatesEnum.ME}, properties.getState());
@@ -158,7 +157,7 @@ class DefaultPropertyFileNameProcessorTest {
     void testMultiPatterns2() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         PropertiesFileNameProcessor processor = PropertiesFileNameProcessorBuilder
                 .buildDefault("%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
-        ITableProperties properties = processor.process("path.to/rules/AUTO-PMT-20160101.xlsx");
+        var properties = processor.process("path.to/rules/AUTO-PMT-20160101.xlsx");
 
         assertArrayEquals(new String[]{"PMT"}, properties.getLob());
         assertArrayEquals(null, properties.getState());
@@ -227,29 +226,29 @@ class DefaultPropertyFileNameProcessorTest {
 
     @Test
     void testPropertyGroups() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
-        ITableProperties properties = new DefaultPropertiesFileNameProcessor(
+        var properties = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%effectiveDate,startRequestDate%").process("AUTO-FL,ME-20160101.xlsx");
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
         assertArrayEquals(new UsStatesEnum[]{UsStatesEnum.FL, UsStatesEnum.ME}, properties.getState());
-        Date date = dateFormat.parse("01012016");
+        var date = dateFormat.parse("01012016");
         assertEquals(date, properties.getStartRequestDate());
         assertEquals(date, properties.getEffectiveDate());
     }
 
     @Test
     void testPropertyGroups1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
-        ITableProperties properties = new DefaultPropertiesFileNameProcessor(
+        var properties = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%").process("AUTO-FL,ME-01012016");
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
         assertArrayEquals(new UsStatesEnum[]{UsStatesEnum.FL, UsStatesEnum.ME}, properties.getState());
-        Date date = dateFormat.parse("01012016");
+        var date = dateFormat.parse("01012016");
         assertEquals(date, properties.getStartRequestDate());
         assertEquals(date, properties.getEffectiveDate());
     }
 
     @Test
     void testFolder() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
-        DefaultPropertiesFileNameProcessor processor1 = new DefaultPropertiesFileNameProcessor(
+        var processor1 = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%startRequestDate%");
         assertMatch(processor1, "AUTO-NY-20200712");
         assertMatch(processor1, "AUTO-NY-20200712.xlsx");
@@ -258,7 +257,7 @@ class DefaultPropertyFileNameProcessorTest {
         assertMatch(processor1, "rules/AUTO/AUTO-NY-20200712");
         assertMatch(processor1, "rules/AUTO/AUTO-NY-20200712.txt");
 
-        DefaultPropertiesFileNameProcessor processor2 = new DefaultPropertiesFileNameProcessor(
+        var processor2 = new DefaultPropertiesFileNameProcessor(
                 "%lob%/%state%/*%startRequestDate%");
         assertMatch(processor2, "AUTO/NY/UP.20200712");
         assertMatch(processor2, "AUTO/NY/UP-20200712");
@@ -338,7 +337,7 @@ class DefaultPropertyFileNameProcessorTest {
 
     @Test
     void testFolderNoMatch() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
-        DefaultPropertiesFileNameProcessor processor1 = new DefaultPropertiesFileNameProcessor(
+        var processor1 = new DefaultPropertiesFileNameProcessor(
                 "%lob%-%state%-%startRequestDate%");
         assertNotMatch(processor1, "AUTO--20200712");
         assertNotMatch(processor1, "AUTO-NY-20200712/test");
@@ -346,7 +345,7 @@ class DefaultPropertyFileNameProcessorTest {
         assertNotMatch(processor1, "AUTO/-NY-20200712");
         assertNotMatch(processor1, "AUTO-/NY-20200712");
 
-        DefaultPropertiesFileNameProcessor processor2 = new DefaultPropertiesFileNameProcessor(
+        var processor2 = new DefaultPropertiesFileNameProcessor(
                 "%lob%/%state%/*%startRequestDate%");
         assertNotMatch(processor2, "AUTO/NY-20200712");
         assertNotMatch(processor2, "AUTO/ALNY/20200712");
@@ -450,7 +449,7 @@ class DefaultPropertyFileNameProcessorTest {
 
     private void assertMatch(DefaultPropertiesFileNameProcessor processor,
                              String fileName) throws NoMatchFileNameException, ParseException {
-        ITableProperties properties = processor.process(fileName);
+        var properties = processor.process(fileName);
 
         assertArrayEquals(new String[]{"AUTO"}, properties.getLob());
         assertArrayEquals(new UsStatesEnum[]{UsStatesEnum.NY}, properties.getState());

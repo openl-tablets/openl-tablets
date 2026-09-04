@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
@@ -22,18 +21,18 @@ public class ProjectResourceLoader {
     }
 
     public ProjectResource[] loadResource(String name, boolean includeDependencies) {
-        URL[] urls = projectDescriptor.getClassPathUrls();
+        var urls = projectDescriptor.getClassPathUrls();
         if (includeDependencies) {
-            ClassLoader classloader = compiledOpenClass.getClassLoader();
+            var classloader = compiledOpenClass.getClassLoader();
             if (classloader instanceof URLClassLoader urlClassLoader) {
                 urls = urlClassLoader.getURLs();
             }
         }
-        List<ProjectResource> projectResources = new ArrayList<>();
+        var projectResources = new ArrayList<ProjectResource>();
         for (URL url : urls) {
             try {
-                try (URLClassLoader urlClassLoader1 = new URLClassLoader(new URL[]{url})) {
-                    URL resourceURL = urlClassLoader1.getResource(name);
+                try (var urlClassLoader1 = new URLClassLoader(new URL[]{url})) {
+                    var resourceURL = urlClassLoader1.getResource(name);
                     if (resourceURL != null) {
                         projectResources.add(new ProjectResource(projectDescriptor, resourceURL));
                     }

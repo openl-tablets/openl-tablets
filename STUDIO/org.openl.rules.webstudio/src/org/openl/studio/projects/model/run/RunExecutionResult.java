@@ -14,7 +14,7 @@ import org.openl.studio.projects.model.ParameterValue;
 @Builder
 @Schema(description = "Run execution result containing method output, parameters, and metadata")
 public record RunExecutionResult(
-        @Parameter(description = "Table name")
+        @Parameter(description = "Name of the executed table")
         String tableName,
 
         @Parameter(description = "Table ID")

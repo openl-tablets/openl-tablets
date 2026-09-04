@@ -25,14 +25,14 @@ class ExpectedResultFilter extends AGridFilter {
         Point cellCoordinates = Point.get(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
 
         if (spreadsheetCellsForTest.containsKey(cellCoordinates)) {
-            ComparedResult result = spreadsheetCellsForTest.get(cellCoordinates);
-            StringBuilder formattedValue = new StringBuilder(60);
-            boolean isOk = result.getStatus() == TestStatus.TR_OK;
+            var result = spreadsheetCellsForTest.get(cellCoordinates);
+            var formattedValue = new StringBuilder(60);
+            var isOk = result.getStatus() == TestStatus.TR_OK;
             if (isOk) {
                 formattedValue.append("<i class=\"case-success\"></i> ")
                         .append(XlsDataFormatterFactory.getFormattedValue(cell, cell.getMetaInfo(), false));
             } else {
-                Object expectedValue = result.getExpectedValue();
+                var expectedValue = result.getExpectedValue();
                 if (expectedValue instanceof IParameterWithValueDeclaration declaration) {
                     expectedValue = declaration.getValue();
                 }

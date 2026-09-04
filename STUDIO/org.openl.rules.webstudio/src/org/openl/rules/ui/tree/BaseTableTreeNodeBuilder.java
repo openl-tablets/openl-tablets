@@ -14,12 +14,12 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
 
-        Object nodeObject = makeObject(tableSyntaxNode);
-        String[] displayNames = getDisplayValue(nodeObject, 0);
+        var nodeObject = makeObject(tableSyntaxNode);
+        var displayNames = getDisplayValue(nodeObject, 0);
 
         ProjectTreeNode projectTreeNode;
 
-        String type = getType(nodeObject);
+        var type = getType(nodeObject);
         if (type.equals(IProjectTypes.PT_FOLDER)) {
             projectTreeNode = new ProjectTreeNode(displayNames, type, null);
         } else {
@@ -43,7 +43,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     @Override
     public Comparable<?> makeKey(TableSyntaxNode tableSyntaxNode, int i) {
 
-        Object nodeObject = makeObject(tableSyntaxNode);
+        var nodeObject = makeObject(tableSyntaxNode);
 
         return new NodeKey(getWeight(nodeObject), getDisplayValue(nodeObject, i));
     }

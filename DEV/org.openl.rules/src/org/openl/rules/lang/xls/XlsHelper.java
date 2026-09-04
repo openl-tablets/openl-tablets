@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IModuleInfo;
-import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
 
 public final class XlsHelper {
@@ -36,7 +34,7 @@ public final class XlsHelper {
     private static final Map<String, String> TABLE_HEADERS;
 
     static {
-        Map<String, String> tableHeaders = new HashMap<>();
+        var tableHeaders = new HashMap<String, String>();
         tableHeaders.put(IXlsTableNames.CONSTANTS, XlsNodeTypes.XLS_CONSTANTS.toString());
 
         tableHeaders.put(IXlsTableNames.DECISION_TABLE, XlsNodeTypes.XLS_DT.toString());
@@ -101,12 +99,12 @@ public final class XlsHelper {
             return ((IModuleInfo) node.getModule()).getModuleName();
         }
 
-        String uri = node.getModule().getUri();
+        var uri = node.getModule().getUri();
 
         try {
-            URL url = new URL(uri);
-            String fileName = url.getFile();
-            int index = fileName.lastIndexOf('/');
+            var url = new URL(uri);
+            var fileName = url.getFile();
+            var index = fileName.lastIndexOf('/');
 
             fileName = index < 0 ? fileName : fileName.substring(index + 1);
 
@@ -131,39 +129,39 @@ public final class XlsHelper {
 
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table,
                                                         XlsSheetSourceCodeModule source) throws OpenLCompilationException {
-        GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
+        var src = new GridCellSourceCodeModule(table);
         IdentifierNode[] headerTokens = Tokenizer.tokenize(src, TOKEN_DELIMITERS);
         if (headerTokens.length == 0) {
             headerTokens = new IdentifierNode[]{Tokenizer.firstToken(src, TOKEN_DELIMITERS)};
         }
-        IdentifierNode headerToken = headerTokens[0];
-        String header = headerTokens[0].getIdentifier();
-        String xlsType = TABLE_HEADERS.get(header);
+        var headerToken = headerTokens[0];
+        var header = headerTokens[0].getIdentifier();
+        var xlsType = TABLE_HEADERS.get(header);
 
         if (xlsType == null) {
             xlsType = XlsNodeTypes.XLS_OTHER.toString();
         }
 
         // Collect token concatenation
-        List<String> collectParameters = new ArrayList<>();
-        boolean isCollect = false;
+        var collectParameters = new ArrayList<String>();
+        var isCollect = false;
         if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header
                 .equals(IXlsTableNames.SMART_DECISION_TABLE) || header
                 .equals(IXlsTableNames.SIMPLE_DECISION_LOOKUP) || header.equals(IXlsTableNames.SMART_DECISION_LOOKUP)) {
             if (headerTokens.length > 1 && headerTokens[1].getIdentifier().equals(IXlsTableNames.COLLECT)) {
                 isCollect = true;
                 if (headerTokens.length > 2 && headerTokens[2].getIdentifier().equals(IXlsTableNames.COLLECT_AS)) {
-                    int i = 3;
+                    var i = 3;
                     collectParameters.add(headerTokens[i].getIdentifier());
                     if (headerTokens[i + 1].getIdentifier().equals(IXlsTableNames.COLLECT_AND)) {
                         i = i + 2;
                         collectParameters.add(headerTokens[i].getIdentifier());
                     }
-                    ILocation location = new TextInterval(headerToken.getLocation().getStart(),
+                    var location = new TextInterval(headerToken.getLocation().getStart(),
                             headerTokens[i].getLocation().getEnd());
                     headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
                 } else {
-                    ILocation location = new TextInterval(headerToken.getLocation().getStart(),
+                    var location = new TextInterval(headerToken.getLocation().getStart(),
                             headerTokens[1].getLocation().getEnd());
                     headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
                 }
@@ -177,7 +175,7 @@ public final class XlsHelper {
             headerNode = new HeaderSyntaxNode(src, headerToken, isCollect, collectParameters.toArray(new String[]{}));
         }
 
-        GridLocation pos = new GridLocation(table);
+        var pos = new GridLocation(table);
         return new TableSyntaxNode(xlsType, pos, source, table, headerNode);
     }
 }

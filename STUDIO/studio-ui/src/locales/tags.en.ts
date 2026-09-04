@@ -29,4 +29,22 @@ i18next.addResourceBundle('en', 'tags', {
     templates_save_error: 'Failed to save templates',
     fill_tags_success: 'Tags filled successfully for {{count}} project(s)',
     fill_tags_error: 'Failed to fill tags for projects',
+    fill_preview: {
+        title: 'Projects without tags',
+        project_column: 'Project',
+        tags_column: 'Tags',
+        apply: 'Fill Tags',
+        legend: 'A white tag is assigned as it is, a green one is created for its extensible tag type, '
+            + 'a red one cannot be assigned, and a grey one is what the project carries now.',
+        nothing_to_fill: 'Every project that matches a template already carries its tags.',
+        not_modifiable: 'You do not have permission to change this project.',
+        state: {
+            assign: 'The value exists in the list of tags and is assigned to the project.',
+            create: 'The value does not exist in the list of tags, and the tag type is extensible, '
+                + 'so it is created and assigned to the project.',
+            rejected: 'The value does not exist in the list of tags, and the tag type is not extensible, '
+                + 'so it is neither created nor assigned, and the tag remains None.',
+            keep: 'The project already carries this value.',
+        },
+    },
 })

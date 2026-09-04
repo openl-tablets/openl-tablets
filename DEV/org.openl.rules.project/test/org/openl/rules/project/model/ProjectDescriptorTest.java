@@ -32,7 +32,7 @@ class ProjectDescriptorTest {
 
     @Test
     void testRelativeUri() {
-        ProjectDescriptor pd = new ProjectDescriptor();
+        var pd = new ProjectDescriptor();
         pd.setProjectFolder(Path.of("test/rules/test xls"));
         assertEquals("test%20xls", pd.getRelativeUri());
     }
@@ -40,9 +40,9 @@ class ProjectDescriptorTest {
     @Test
     void equalsAndHashCodeAreNullNameSafe() {
         // 'name' is nullable until expand() fills it - equals()/hashCode() must not throw on a null name
-        ProjectDescriptor nullName1 = new ProjectDescriptor();
-        ProjectDescriptor nullName2 = new ProjectDescriptor();
-        ProjectDescriptor named = new ProjectDescriptor();
+        var nullName1 = new ProjectDescriptor();
+        var nullName2 = new ProjectDescriptor();
+        var named = new ProjectDescriptor();
         named.setName("project");
 
         assertEquals(nullName1, nullName1);
@@ -54,7 +54,7 @@ class ProjectDescriptorTest {
         assertNotEquals(nullName1, "project");
 
         // a null-name descriptor must survive hash-based collections (relies on both equals() and hashCode())
-        Set<ProjectDescriptor> descriptors = new HashSet<>();
+        var descriptors = new HashSet<ProjectDescriptor>();
         descriptors.add(nullName1);
         assertTrue(descriptors.contains(nullName2));
         assertFalse(descriptors.contains(named));
@@ -64,22 +64,22 @@ class ProjectDescriptorTest {
     void testReadDescriptor1() throws Exception {
         var descriptor = ProjectDescriptor.read(Path.of("test-resources/descriptor/rules1.xml")).expand();
         assertReadDescriptor1(descriptor);
-        final Path rootFolder = Path.of("test-resources/descriptor").toAbsolutePath();
-        Module module1 = descriptor.getModules().getFirst();
+        final var rootFolder = Path.of("test-resources/descriptor").toAbsolutePath();
+        var module1 = descriptor.getModules().getFirst();
         assertTrue(module1.getRulesPath().startsWith(rootFolder));
-        Module module2 = descriptor.getModules().get(1);
+        var module2 = descriptor.getModules().get(1);
         assertTrue(module2.getRulesPath().startsWith(rootFolder));
     }
 
     @Test
     void zipArchive_testReadDescriptor1() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
-            final Path rootFolder = fs.getPath("/");
+            final var rootFolder = fs.getPath("/");
             var descriptor = ProjectDescriptor.read(fs.getPath("/rules1.xml")).expand();
             assertReadDescriptor1(descriptor);
-            Module module1 = descriptor.getModules().getFirst();
+            var module1 = descriptor.getModules().getFirst();
             assertTrue(module1.getRulesPath().startsWith(rootFolder));
-            Module module2 = descriptor.getModules().get(1);
+            var module2 = descriptor.getModules().get(1);
             assertTrue(module2.getRulesPath().startsWith(rootFolder));
         }
     }
@@ -90,14 +90,14 @@ class ProjectDescriptorTest {
         assertEquals(2, descriptor.getModules().size());
         assertArrayEquals(new String[]{"%lob%"}, descriptor.getPropertiesFileNamePatterns());
         assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getPropertiesFileNameProcessor());
-        Module module1 = descriptor.getModules().getFirst();
+        var module1 = descriptor.getModules().getFirst();
         assertEquals("MyModule1", module1.getName());
         assertEquals("MyModule1.xls",
                 module1.getRulesPath().getName(module1.getRulesPath().getNameCount() - 1).toString());
         assertEquals("MyModule1.xls", module1.getRulesRootPath());
         assertTrue(module1.getRulesPath().isAbsolute());
 
-        Module module2 = descriptor.getModules().get(1);
+        var module2 = descriptor.getModules().get(1);
         assertEquals("MyModule2", module2.getName());
         assertEquals("MyModule2.xls",
                 module2.getRulesPath().getName(module2.getRulesPath().getNameCount() - 1).toString());
@@ -106,15 +106,15 @@ class ProjectDescriptorTest {
 
         assertEquals(2, descriptor.getClasspath().size());
 
-        String classpathEntry1 = descriptor.getClasspath().getFirst();
+        var classpathEntry1 = descriptor.getClasspath().getFirst();
         assertEquals("path1", classpathEntry1);
 
-        String classpathEntry2 = descriptor.getClasspath().get(1);
+        var classpathEntry2 = descriptor.getClasspath().get(1);
         assertEquals("path2", classpathEntry2);
 
         assertNotNull(descriptor.getModules());
         assertEquals(2, descriptor.getModules().size());
-        Module module = descriptor.getModules().getFirst();
+        var module = descriptor.getModules().getFirst();
         if (!"MyModule2".equals(module.getName())) {
             module = descriptor.getModules().get(1);
         }
@@ -123,12 +123,12 @@ class ProjectDescriptorTest {
         assertEquals(1, module.getMethodFilter().getIncludes().size());
         assertNotNull(module.getMethodFilter().getExcludes());
         Iterator<String> itr = module.getMethodFilter().getIncludes().iterator();
-        String value = itr.next();
+        var value = itr.next();
         assertEquals("*", value);
 
         assertNotNull(descriptor.getDependencies());
         assertEquals(1, descriptor.getDependencies().size());
-        ProjectDependencyDescriptor projectDependencyDescriptor = descriptor.getDependencies().getFirst();
+        var projectDependencyDescriptor = descriptor.getDependencies().getFirst();
         assertEquals("someProjectName", projectDependencyDescriptor.getName());
         assertFalse(projectDependencyDescriptor.isAutoIncluded());
     }
@@ -164,14 +164,14 @@ class ProjectDescriptorTest {
     @SuppressWarnings("deprecation")
     @Test
     void testWriteDescriptor1() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("name1");
         descriptor.setComment("comment1");
         descriptor.setPropertiesFileNamePatterns(new String[]{"{lob}"});
         descriptor.setPropertiesFileNameProcessor("default.DefaultPropertiesFileNameProcessor");
 
-        List<ProjectDependencyDescriptor> dependencies = new ArrayList<>();
-        ProjectDependencyDescriptor dependencyDescriptor = new ProjectDependencyDescriptor();
+        var dependencies = new ArrayList<ProjectDependencyDescriptor>();
+        var dependencyDescriptor = new ProjectDependencyDescriptor();
         dependencyDescriptor.setName("someProjectName");
         dependencyDescriptor.setAutoIncluded(false);
         dependencies.add(dependencyDescriptor);
@@ -180,17 +180,17 @@ class ProjectDescriptorTest {
         descriptor.getExposedMethods().setIncludes(Set.of(" INCL "));
         descriptor.getExposedMethods().setExcludes(Set.of(" excl "));
 
-        Module module1 = new Module();
+        var module1 = new Module();
         module1.setName("name1");
         module1.setRulesRootPath("path1");
         module1.setMethodFilter(new MethodFilter());
 
-        List<String> classpath = new ArrayList<>();
+        var classpath = new ArrayList<String>();
         classpath.add("path1");
         classpath.add("path2");
         descriptor.setClasspath(classpath);
 
-        List<Module> modules = new ArrayList<>();
+        var modules = new ArrayList<Module>();
         modules.add(module1);
         descriptor.setModules(modules);
 
@@ -200,7 +200,7 @@ class ProjectDescriptorTest {
 
         var dest = new String(descriptor.toBytes(), StandardCharsets.UTF_8);
 
-        String expected = """
+        var expected = """
                 <project>
                     <name>name1</name>
                     <comment>comment1</comment>
@@ -294,7 +294,7 @@ class ProjectDescriptorTest {
             var projectDescriptor = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand();
 
             // Nested jars inside the project archive are extracted to temp files in java.io.tmpdir.
-            List<Path> tempJars = new ArrayList<>();
+            var tempJars = new ArrayList<Path>();
             for (URL url : projectDescriptor.getClassPathUrls()) {
                 Path path = toFilePath(url);
                 if (path != null && path.getFileName().toString().startsWith("tmp-")) {
@@ -317,7 +317,7 @@ class ProjectDescriptorTest {
     @Test
     void zipArchive_extractedTempJarsAreDeletedWhenDescriptorIsCollected() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_ZIP)) {
-            List<Path> tempJars = extractClasspathTempJars(fs);
+            var tempJars = extractClasspathTempJars(fs);
             assertFalse(tempJars.isEmpty(), "expected nested jars to be extracted to temp files");
             tempJars.forEach(p -> assertTrue(Files.exists(p), "temp jar must exist before GC: " + p));
 
@@ -344,7 +344,7 @@ class ProjectDescriptorTest {
         List<Module> modules = pd.getModules();
         assertNotNull(modules);
         assertEquals(1, modules.size());
-        Module m = modules.getFirst();
+        var m = modules.getFirst();
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath());
         assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd.getPropertiesFileNamePatterns());
@@ -395,7 +395,7 @@ class ProjectDescriptorTest {
         List<Module> modules = pd1.getModules();
         assertNotNull(modules);
         assertEquals(1, modules.size());
-        Module m = modules.getFirst();
+        var m = modules.getFirst();
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath());
         assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd1.getPropertiesFileNamePatterns());
@@ -403,7 +403,7 @@ class ProjectDescriptorTest {
 
     @Test
     void testWriteOmitsBlankProjectFields() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("   ");
         descriptor.setComment("");
         descriptor.setPropertiesFileNameProcessor("\t");
@@ -411,7 +411,7 @@ class ProjectDescriptorTest {
         descriptor.setClasspath(new ArrayList<>(List.of("", "  ")));
         descriptor.setDependencies(new ArrayList<>());
         descriptor.setOpenapi(new OpenAPI("  ", null, "", null));
-        ExposedMethods em = new ExposedMethods();
+        var em = new ExposedMethods();
         em.setIncludes(new HashSet<>(Arrays.asList("", null, " ")));
         em.setExcludes(new HashSet<>(Arrays.asList("", null, " ")));
         descriptor.setExposedMethods(em);
@@ -423,7 +423,7 @@ class ProjectDescriptorTest {
 
     @Test
     void testWriteFiltersBlankPropertiesFileNamePatterns() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setPropertiesFileNamePatterns(new String[]{"", "{lob}-{state}", null, "  "});
 
@@ -439,7 +439,7 @@ class ProjectDescriptorTest {
 
     @Test
     void testWriteFiltersBlankClasspathEntries() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setClasspath(new ArrayList<>(List.of("lib/*.jar", "")));
 
@@ -457,7 +457,7 @@ class ProjectDescriptorTest {
 
     @Test
     void testWriteKeepsOpenApiWithPath() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("api.yaml", OpenAPI.Mode.RECONCILIATION, "", null));
 
@@ -477,7 +477,7 @@ class ProjectDescriptorTest {
     @Test
     void testWriteOmitsDefaultReconciliationOpenApi() throws Exception {
         for (String defaultPath : List.of("openapi.yaml", "openapi.yml", "openapi.json")) {
-            ProjectDescriptor descriptor = new ProjectDescriptor();
+            var descriptor = new ProjectDescriptor();
             descriptor.setName("p");
             descriptor.setOpenapi(new OpenAPI(defaultPath, OpenAPI.Mode.RECONCILIATION, null, null));
 
@@ -493,7 +493,7 @@ class ProjectDescriptorTest {
 
     @Test
     void testWriteKeepsGenerationOpenApiEvenForDefaultPath() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("openapi.yaml", OpenAPI.Mode.GENERATION, null, null));
 
@@ -512,7 +512,7 @@ class ProjectDescriptorTest {
 
     @Test
     void testWriteKeepsReconciliationOpenApiWithModelOverrides() throws Exception {
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setOpenapi(new OpenAPI("openapi2.yaml", OpenAPI.Mode.RECONCILIATION, "Model", null));
 
@@ -532,14 +532,14 @@ class ProjectDescriptorTest {
 
     @Test
     void testWriteDropsModulesWithoutRulesRootPath() throws Exception {
-        Module noPath = new Module();
+        var noPath = new Module();
         noPath.setName("orphan");
-        Module blankPath = new Module();
+        var blankPath = new Module();
         blankPath.setRulesRootPath("  ");
-        Module valid = new Module();
+        var valid = new Module();
         valid.setName("kept");
         valid.setRulesRootPath("rules/A.xlsx");
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setModules(new ArrayList<>(List.of(noPath, blankPath, valid)));
 
@@ -575,7 +575,7 @@ class ProjectDescriptorTest {
         var pd = ProjectDescriptor.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         assertNotNull(pd);
         assertEquals(2, pd.getClasspath().size());
-        assertEquals("lib/*.jar", pd.getClasspath().get(0));
+        assertEquals("lib/*.jar", pd.getClasspath().getFirst());
         assertEquals("lib/extra.jar", pd.getClasspath().get(1));
     }
 
@@ -620,21 +620,21 @@ class ProjectDescriptorTest {
         var pd = ProjectDescriptor.read(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         assertNotNull(pd);
         assertEquals(3, pd.getModules().size());
-        assertEquals("rules/A.xlsx", pd.getModules().get(0).getRulesRootPath());
+        assertEquals("rules/A.xlsx", pd.getModules().getFirst().getRulesRootPath());
         assertNull(pd.getModules().get(1).getRulesRootPath());
         assertNull(pd.getModules().get(2).getRulesRootPath());
     }
 
     @Test
     void testWriteOmitsEmptyMethodFilterOnValidModule() throws Exception {
-        Module module = new Module();
+        var module = new Module();
         module.setName("  ");
         module.setRulesRootPath("rules/A.xlsx");
-        MethodFilter mf = new MethodFilter();
+        var mf = new MethodFilter();
         mf.setIncludes(new HashSet<>());
         mf.setExcludes(new HashSet<>());
         module.setMethodFilter(mf);
-        ProjectDescriptor descriptor = new ProjectDescriptor();
+        var descriptor = new ProjectDescriptor();
         descriptor.setName("p");
         descriptor.setModules(new ArrayList<>(List.of(module)));
 
@@ -664,7 +664,7 @@ class ProjectDescriptorTest {
     void writeDependencyWithDefaultValuesOmitsAutoIncluded() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("consumer");
-        Module module = new Module();
+        var module = new Module();
         module.setRulesRootPath("rules/*.xlsx");
         descriptor.setModules(new ArrayList<>(List.of(module)));
 
@@ -704,7 +704,7 @@ class ProjectDescriptorTest {
     void writeDependencyWithExplicitAutoIncludedFalseOmitsIt() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("consumer");
-        Module module = new Module();
+        var module = new Module();
         module.setRulesRootPath("rules/*.xlsx");
         descriptor.setModules(new ArrayList<>(List.of(module)));
 
@@ -741,7 +741,7 @@ class ProjectDescriptorTest {
     void writeDependencyWithAutoIncludedTrueEmitsIt() {
         var descriptor = new ProjectDescriptor();
         descriptor.setName("consumer");
-        Module module = new Module();
+        var module = new Module();
         module.setRulesRootPath("rules/*.xlsx");
         descriptor.setModules(new ArrayList<>(List.of(module)));
 
@@ -785,8 +785,8 @@ class ProjectDescriptorTest {
     private static List<Path> extractClasspathTempJars(FileSystem fs) throws Exception {
         // Kept in a separate method so the descriptor reference does not survive on the caller's frame
         // and can be garbage-collected.
-        ProjectDescriptor projectDescriptor = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand();
-        List<Path> tempJars = new ArrayList<>();
+        var projectDescriptor = ProjectDescriptor.read(fs.getPath("/rules-clspth.xml")).expand();
+        var tempJars = new ArrayList<Path>();
         for (URL url : projectDescriptor.getClassPathUrls()) {
             Path path = toFilePath(url);
             if (path != null && path.getFileName().toString().startsWith("tmp-")) {
@@ -798,7 +798,7 @@ class ProjectDescriptorTest {
 
     private static void awaitDeleted(List<Path> files) throws InterruptedException {
         // Generous timeout (~10s) so the GC + Cleaner have time under CI load; the loop exits early once deleted.
-        for (int i = 0; i < 200 && files.stream().anyMatch(Files::exists); i++) {
+        for (var i = 0; i < 200 && files.stream().anyMatch(Files::exists); i++) {
             System.gc();
             Thread.sleep(50);
         }

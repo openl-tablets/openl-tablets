@@ -1,16 +1,13 @@
 package org.openl.rules.testmethod;
 
-import org.openl.runtime.IRuntimeContext;
-import org.openl.types.IOpenMethod;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class TestRunner {
 
     private final ITestResultBuilder resultBuilder;
-
-    public TestRunner(ITestResultBuilder resultBuilder) {
-        this.resultBuilder = resultBuilder;
-    }
 
     @SuppressWarnings("unchecked")
     public ITestUnit runTest(TestDescription test,
@@ -22,18 +19,18 @@ public class TestRunner {
         } else {
             Object res = null;
             Throwable exception = null;
-            IRuntimeContext oldContext = env.getContext();
+            var oldContext = env.getContext();
             long time;
-            long start = System.nanoTime(); // Initialization here is needed if exception is thrown
+            var start = System.nanoTime(); // Initialization here is needed if exception is thrown
             long end;
             try {
-                IRuntimeContext context = test.getRuntimeContext();
+                var context = test.getRuntimeContext();
                 env.setContext(context);
-                Object[] args = test.getArguments();
-                IOpenMethod testedMethod = test.getTestedMethod();
+                var args = test.getArguments();
+                var testedMethod = test.getTestedMethod();
                 // Measure only actual test run time
                 start = System.nanoTime();
-                for (int j = 0; j < ntimes; j++) {
+                for (var j = 0; j < ntimes; j++) {
                     res = testedMethod.invoke(target, args, env);
                 }
                 end = System.nanoTime();

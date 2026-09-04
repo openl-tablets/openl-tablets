@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -41,7 +40,7 @@ class FileSystemRepositoryTest {
     void createFolderOnDemand() throws IOException {
         var root = tmpDir.resolve("parent/my-repo");
 
-        FileSystemRepository repo = new FileSystemRepository();
+        var repo = new FileSystemRepository();
         repo.setRoot(root);
         repo.initialize();
         assertFalse(Files.exists(root), "Repo folder must not be created after initialize().");
@@ -66,7 +65,7 @@ class FileSystemRepositoryTest {
 
     @Test
     void testRepo() throws IOException {
-        FileSystemRepository repo = new FileSystemRepository();
+        var repo = new FileSystemRepository();
         repo.setRoot(tmpDir);
         repo.initialize();
         Calendar calendar = Calendar.getInstance();
@@ -107,7 +106,7 @@ class FileSystemRepositoryTest {
         assertNoRead(repo, "absent");
         assertRead(repo, ".override", "This new content");
 
-        ZipInputStream stream = createZipInputStream("first", "second", "folder/name", "very/deep/folder/file");
+        var stream = createZipInputStream("first", "second", "folder/name", "very/deep/folder/file");
         assertSaveFromZip(repo, stream);
         stream.close();
 
@@ -119,7 +118,7 @@ class FileSystemRepositoryTest {
     @Test
     void listMustStayInsideRoot() throws IOException {
         var root = tmpDir.resolve("repo");
-        FileSystemRepository repo = new FileSystemRepository();
+        var repo = new FileSystemRepository();
         repo.setRoot(root);
         repo.initialize();
         assertSave(repo, "folder/text", "The file in the folder");
@@ -137,31 +136,31 @@ class FileSystemRepositoryTest {
     }
 
     private void assertNoRead(Repository repo, String name) throws IOException {
-        FileItem result = repo.read(name);
+        var result = repo.read(name);
         assertNull(result, "Null value should be returned for the absent file");
     }
 
     private void assertRead(Repository repo, String name, String value) throws IOException {
         try (var result = repo.read(name)) {
             assertNotNull(result, "The file is not found.");
-            FileData data = result.getData();
+            var data = result.getData();
             assertNotNull(data, "The file descriptor is missing.");
             assertEquals(name, data.getName(), "Wrong file name");
-            InputStream stream = result.getStream();
-            String text = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            var stream = result.getStream();
+            var text = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             assertEquals(value, text, "Unexpected content in the file.");
         }
     }
 
     private void assertDelete(Repository repo, String name, boolean expected) throws IOException {
-        FileData fileData = new FileData();
+        var fileData = new FileData();
         fileData.setName(name);
-        boolean result = repo.delete(fileData);
+        var result = repo.delete(fileData);
         assertEquals(expected, result, "The deleting of the file has been failed");
     }
 
     private void assertList(Repository repo, String path, int size) throws IOException {
-        List<FileData> list = repo.list(path);
+        var list = repo.list(path);
         assertEquals(size, list.size(), "Unexpected size of the directory [" + path + "]");
     }
 
@@ -170,13 +169,13 @@ class FileSystemRepositoryTest {
     }
 
     private void assertSave(Repository repo, String name, String text, Date modifiedAt) throws IOException {
-        FileData data = new FileData();
+        var data = new FileData();
         data.setName(name);
         if (modifiedAt != null) {
             data.setModifiedAt(modifiedAt);
         }
 
-        FileData result = repo.save(data, IOUtils.toInputStream(text));
+        var result = repo.save(data, IOUtils.toInputStream(text));
         assertEquals(text.length(), result.getSize(), "Wrong file length");
         assertRead(repo, name, text);
         assertEquals(name, result.getName(), "Wrong file name");
@@ -191,15 +190,15 @@ class FileSystemRepositoryTest {
                             String text,
                             Date modifiedAt,
                             String... fileNames) throws IOException {
-        FileData folder = new FileData();
+        var folder = new FileData();
         folder.setName(folderName);
         if (modifiedAt != null) {
             folder.setModifiedAt(modifiedAt);
         }
 
-        List<FileItem> changes = new ArrayList<>();
+        var changes = new ArrayList<FileItem>();
         for (String fileName : fileNames) {
-            FileData file = new FileData();
+            var file = new FileData();
             file.setName(fileName);
             if (modifiedAt != null) {
                 file.setModifiedAt(modifiedAt);
@@ -210,7 +209,7 @@ class FileSystemRepositoryTest {
 
         repo.save(folder, changes, ChangesetType.FULL);
         for (String name : fileNames) {
-            FileData result = repo.check(name);
+            var result = repo.check(name);
             assertEquals(text.length(), result.getSize(), "Wrong file length");
             assertRead(repo, name, text);
             assertEquals(name, result.getName(), "Wrong file name");
@@ -224,12 +223,12 @@ class FileSystemRepositoryTest {
     private void assertSaveFromZip(Repository repo, ZipInputStream inputStream) throws IOException {
         ZipEntry entry;
         while ((entry = inputStream.getNextEntry()) != null) {
-            String name = entry.getName();
-            String text = "Text for file " + name;
+            var name = entry.getName();
+            var text = "Text for file " + name;
 
-            FileData data = new FileData();
+            var data = new FileData();
             data.setName(name);
-            FileData result = repo.save(data, inputStream);
+            var result = repo.save(data, inputStream);
             assertEquals(text.length(), result.getSize(), "Wrong file length");
             assertRead(repo, name, text);
             assertEquals(name, result.getName(), "Wrong file name");
@@ -237,12 +236,12 @@ class FileSystemRepositoryTest {
     }
 
     private ZipInputStream createZipInputStream(String... names) throws IOException {
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        ZipOutputStream outputStream = new ZipOutputStream(byteStream);
+        var byteStream = new ByteArrayOutputStream();
+        var outputStream = new ZipOutputStream(byteStream);
         for (String name : names) {
-            ZipEntry entry = new ZipEntry(name);
+            var entry = new ZipEntry(name);
             outputStream.putNextEntry(entry);
-            String text = "Text for file " + name;
+            var text = "Text for file " + name;
             InputStream input = IOUtils.toInputStream(text);
             input.transferTo(outputStream);
             outputStream.closeEntry();

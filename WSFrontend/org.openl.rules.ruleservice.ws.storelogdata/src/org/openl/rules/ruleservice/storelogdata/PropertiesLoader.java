@@ -9,7 +9,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
 
 @Slf4j
 public final class PropertiesLoader {
@@ -34,9 +33,9 @@ public final class PropertiesLoader {
 
     @SuppressWarnings("rawtypes")
     public static Properties getApplicationContextProperties(ApplicationContext applicationContext) {
-        Environment env = applicationContext.getEnvironment();
-        Properties props = new Properties();
-        MutablePropertySources propSources = ((AbstractEnvironment) env).getPropertySources();
+        var env = applicationContext.getEnvironment();
+        var props = new Properties();
+        var propSources = ((AbstractEnvironment) env).getPropertySources();
         StreamSupport.stream(propSources.spliterator(), false)
                 .filter(ps -> ps instanceof EnumerablePropertySource)
                 .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())

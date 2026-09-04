@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.service;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -9,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.session.SessionRegistry;
@@ -31,6 +31,7 @@ import org.openl.util.StringUtils;
 /**
  * @author Andrei Astrouski
  */
+@RequiredArgsConstructor
 public class UserManagementService {
 
     private final UserDao userDao;
@@ -39,21 +40,14 @@ public class UserManagementService {
     private final PasswordEncoder passwordEncoder;
     private final JdbcMutableAclService aclService;
 
-    public UserManagementService(UserDao userDao,
-                                 GroupDao groupDao,
-                                 SessionRegistry sessionRegistry,
-                                 PasswordEncoder passwordEncoder,
-                                 JdbcMutableAclService aclService) {
-        this.userDao = userDao;
-        this.groupDao = groupDao;
-        this.sessionRegistry = sessionRegistry;
-        this.passwordEncoder = passwordEncoder;
-        this.aclService = aclService;
-    }
-
     @Transactional(readOnly = true)
     public List<org.openl.rules.security.User> getAllUsers() {
         return userDao.getAllUsers().stream().map(this::createSecurityUser).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> findUserNames(String searchTerm, int limit) {
+        return userDao.findUserNames(searchTerm, limit);
     }
 
     @Transactional(readOnly = true)
@@ -74,7 +68,7 @@ public class UserManagementService {
     public List<org.openl.rules.security.User> getUsersInGroup(String groupName) {
         return userDao.getUsersInGroup(groupName)
                 .stream()
-                .map(user -> createSecurityUser(user, Collections.emptySet()))
+                .map(user -> createSecurityUser(user, Set.of()))
                 .collect(Collectors.toList());
     }
 
@@ -90,13 +84,6 @@ public class UserManagementService {
         return userDao.countUsersInGroup(groupName);
     }
 
-    @Transactional(readOnly = true)
-    public org.openl.rules.security.User getUserWithoutGroups(String username) {
-        return Optional.ofNullable(userDao.getUserByName(username))
-                .map(user -> createSecurityUser(user, Collections.emptySet()))
-                .orElse(null);
-    }
-
     @Transactional
     public boolean existsByName(String name) {
         return userDao.existsByName(name);
@@ -108,7 +95,7 @@ public class UserManagementService {
                         String password,
                         String email,
                         String displayName) {
-        User persistUser = new User();
+        var persistUser = new User();
         persistUser.setLoginName(user);
         persistUser.setPasswordHash(StringUtils.isNotBlank(password) ? passwordEncoder.encode(password) : null);
         persistUser.setFirstName(firstName);
@@ -125,13 +112,13 @@ public class UserManagementService {
     public void syncUserData(String user, String firstName, String lastName, String email, String displayName) {
 
         // Get
-        User persistUser = userDao.getUserByName(user);
-        boolean isNewUser = persistUser == null;
+        var persistUser = userDao.getUserByName(user);
+        var isNewUser = persistUser == null;
         if (isNewUser) {
             persistUser = new User();
             persistUser.setLoginName(user);
         }
-        UserExternalFlags flags = UserExternalFlags.builder()
+        var flags = UserExternalFlags.builder()
                 .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
                 .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
                 .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
@@ -177,8 +164,8 @@ public class UserManagementService {
                                String email,
                                String displayName,
                                boolean emailVerified) {
-        User persistUser = userDao.getUserByName(user);
-        final UserExternalFlags currentFlags = persistUser.getUserExternalFlags();
+        var persistUser = userDao.getUserByName(user);
+        final var currentFlags = persistUser.getUserExternalFlags();
         persistUser.setFirstName(currentFlags.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
         persistUser.setSurname(currentFlags.isLastNameExternal() ? persistUser.getSurname() : lastName);
         persistUser.setEmail(currentFlags.isEmailExternal() ? persistUser.getEmail() : email);
@@ -199,20 +186,20 @@ public class UserManagementService {
 
     @Transactional
     public void updateAuthorities(final String user, final Set<String> authorities, final boolean leaveAdminGroups) {
-        Set<String> fullAuthorities = new HashSet<>(authorities);
+        var fullAuthorities = new HashSet<String>(authorities);
         if (leaveAdminGroups) {
-            Set<Group> currentGroups = userDao.getGroupsForUser(user);
-            Set<String> currentAdminGroups = getCurrentAdminGroups(currentGroups);
+            var currentGroups = userDao.getGroupsForUser(user);
+            var currentAdminGroups = getCurrentAdminGroups(currentGroups);
             fullAuthorities.addAll(currentAdminGroups);
         }
         doUpdateAuthorities(user, fullAuthorities);
     }
 
     private void doUpdateAuthorities(String user, Set<String> authorities) {
-        Set<Group> groups = new HashSet<>();
+        var groups = new HashSet<Group>();
         if (authorities != null) {
             for (String auth : authorities) {
-                Group group = groupDao.getGroupByName(auth);
+                var group = groupDao.getGroupByName(auth);
                 if (group != null) {
                     groups.add(group);
                 }
@@ -222,7 +209,7 @@ public class UserManagementService {
     }
 
     public Set<String> getCurrentAdminGroups(final Set<Group> groups) {
-        Set<String> groupNames = new HashSet<>();
+        var groupNames = new HashSet<String>();
 
         for (Group group : groups) {
             SimpleGroup simpleGroup = PrivilegesEvaluator.wrap(group);
@@ -280,7 +267,7 @@ public class UserManagementService {
     }
 
     private org.openl.rules.security.User createSecurityUser(User user) {
-        Set<Group> groups = userDao.getGroupsForUser(user.getLoginName());
+        var groups = userDao.getGroupsForUser(user.getLoginName());
         return createSecurityUser(user, groups);
     }
 

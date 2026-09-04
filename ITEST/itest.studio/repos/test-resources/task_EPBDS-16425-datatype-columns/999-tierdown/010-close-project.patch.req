@@ -1,0 +1,9 @@
+PATCH /rest/projects/EPBDS-16425-Columns HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "status": "CLOSED",
+  "discardChanges": true
+}
+

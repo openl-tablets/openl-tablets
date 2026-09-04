@@ -1,9 +1,10 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.function.BiFunction;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,33 +20,26 @@ import org.openl.rules.security.standalone.dao.UserDao;
  * @author Andrey Naumenko
  * @author adjusted to new security model.
  */
+@RequiredArgsConstructor
 public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
 
     private final UserDao userDao;
     private final AdminUsers adminUsersInitializer;
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper;
 
-    public UserInfoUserDetailsServiceImpl(UserDao userDao,
-                                          AdminUsers adminUsersInitializer,
-                                          BiFunction<String, Collection<? extends GrantedAuthority>, Collection<GrantedAuthority>> privilegeMapper) {
-        this.userDao = userDao;
-        this.adminUsersInitializer = adminUsersInitializer;
-        this.privilegeMapper = privilegeMapper;
-    }
-
     @Override
     public User loadUserByUsername(String name) throws UsernameNotFoundException, DataAccessException {
 
         adminUsersInitializer.initIfSuperuser(name);
 
-        org.openl.rules.security.standalone.persistence.User user = userDao.getUserByName(name);
+        var user = userDao.getUserByName(name);
         if (user == null) {
             throw new UsernameNotFoundException("Unknown user: '%s'".formatted(name));
         }
 
-        Collection<GrantedAuthority> privileges = mapPrivileges(user, Collections.emptyList());
+        var privileges = mapPrivileges(user, List.of());
 
-        SimpleUser simpleUser = SimpleUser.builder()
+        var simpleUser = SimpleUser.builder()
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getSurname())
                 .setUsername(user.getLoginName())

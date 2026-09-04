@@ -1,0 +1,167 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "f7a99cb235d59130fac6d870e804b58b",
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "Blank",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "E11",
+    "project": "EPBDS-16318",
+    "vocabulary": {
+      "valueType": "String",
+      "valueCount": 0,
+      "truncated": false
+    }
+  },
+  {
+    "id": "d88622078f17aced6103a8b173c3622b",
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "calcPremium",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B22:C24",
+    "project": "EPBDS-16318",
+    "returnType": "SpreadsheetResult",
+    "signature": "calcPremium(Policy policy)"
+  },
+  {
+    "id": "b8f6b32c64ba84aadb482d966b78bcc8",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Car",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B5:C6",
+    "project": "EPBDS-16318",
+    "dependencies": [
+      "2fceeecaa2b6442cb3788a3b7257a93c"
+    ],
+    "fields": [
+      {
+        "name": "model",
+        "type": "String"
+      }
+    ],
+    "extends": "2fceeecaa2b6442cb3788a3b7257a93c"
+  },
+  {
+    "id": "e92d6feab8e164e94f1f0bad158ce52e",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Driver",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B8:C10",
+    "project": "EPBDS-16318",
+    "dependencies": [
+      "e92d6feab8e164e94f1f0bad158ce52e"
+    ],
+    "fields": [
+      {
+        "name": "name",
+        "type": "String"
+      },
+      {
+        "name": "mentor",
+        "type": "Driver",
+        "ref": "e92d6feab8e164e94f1f0bad158ce52e"
+      }
+    ]
+  },
+  {
+    "id": "34539b1f0ec6389a26ac8dffdbf949a1",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Policy",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B16:C20",
+    "project": "EPBDS-16318",
+    "dependencies": [
+      "4e68c895f5d09029aba13e41928661fa",
+      "b8f6b32c64ba84aadb482d966b78bcc8",
+      "e92d6feab8e164e94f1f0bad158ce52e"
+    ],
+    "fields": [
+      {
+        "name": "car",
+        "type": "Car",
+        "ref": "b8f6b32c64ba84aadb482d966b78bcc8"
+      },
+      {
+        "name": "drivers",
+        "type": "Driver[]",
+        "ref": "e92d6feab8e164e94f1f0bad158ce52e",
+        "collection": true
+      },
+      {
+        "name": "region",
+        "type": "Region",
+        "ref": "4e68c895f5d09029aba13e41928661fa"
+      },
+      {
+        "name": "policyNumber",
+        "type": "String"
+      }
+    ]
+  },
+  {
+    "id": "4e68c895f5d09029aba13e41928661fa",
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "Region",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B12:B14",
+    "project": "EPBDS-16318",
+    "vocabulary": {
+      "valueType": "String",
+      "valueCount": 2,
+      "valuesPreview": [
+        "North",
+        "South"
+      ],
+      "truncated": false
+    }
+  },
+  {
+    "id": "df04591b80210ed942dc093298689149",
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "Score",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "E1:E9",
+    "project": "EPBDS-16318",
+    "vocabulary": {
+      "valueType": "Integer",
+      "valueCount": 8,
+      "valuesPreview": [
+        100,
+        200,
+        300,
+        600,
+        700,
+        800
+      ],
+      "truncated": true
+    }
+  },
+  {
+    "id": "2fceeecaa2b6442cb3788a3b7257a93c",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Vehicle",
+    "file": "EPBDS-16318/DataModel.xlsx",
+    "pos": "B1:C3",
+    "project": "EPBDS-16318",
+    "fields": [
+      {
+        "name": "make",
+        "type": "String"
+      },
+      {
+        "name": "year",
+        "type": "int"
+      }
+    ]
+  }
+]

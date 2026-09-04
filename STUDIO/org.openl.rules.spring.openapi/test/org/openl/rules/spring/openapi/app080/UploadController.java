@@ -22,8 +22,9 @@ public class UploadController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Create upload with model attribute",
-            description = "Creates a new upload using @ModelAttribute to bind multipart form data to a Java object. " +
-                    "All fields from the UploadRequest model should be expanded as form parameters.")
+            description = """
+                    Creates a new upload using @ModelAttribute to bind multipart form data to a Java object. \
+                    All fields from the UploadRequest model should be expanded as form parameters.""")
     @ApiResponse(responseCode = "200", description = "Upload created successfully")
     public ResponseEntity<UploadResponse> createUpload(@ModelAttribute @Valid UploadRequest request) {
         return ResponseEntity.ok(new UploadResponse("upload-id-123", request.name()));

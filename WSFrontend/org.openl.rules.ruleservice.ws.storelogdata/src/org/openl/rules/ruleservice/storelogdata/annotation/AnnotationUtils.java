@@ -12,7 +12,7 @@ public final class AnnotationUtils {
     public static <T extends Annotation> T getAnnotationInServiceClassOrServiceMethod(StoreLogData storeLogData,
                                                                                       Class<T> annotationClass) {
         if (storeLogData.getServiceMethod() != null) {
-            T annotation = storeLogData.getServiceMethod().getAnnotation(annotationClass);
+            var annotation = storeLogData.getServiceMethod().getAnnotation(annotationClass);
             if (annotation != null) {
                 return annotation;
             }

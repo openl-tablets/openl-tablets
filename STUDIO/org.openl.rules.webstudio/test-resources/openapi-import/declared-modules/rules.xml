@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <name>Bank Rating</name>
+    <modules>
+        <module>
+            <name>Bank Rating</name>
+            <rules-root path="rules/Bank Rating.xlsx"/>
+        </module>
+    </modules>
+</project>

@@ -2,13 +2,18 @@ package org.openl.rules.common.impl;
 
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+
 import org.openl.rules.common.CommonVersion;
 
 public class CommonVersionImpl implements CommonVersion {
     private static final Pattern ONLY_DIGITS = Pattern.compile("\\d+");
     private static final String VERSION_PATTERN = "\\d+\\.\\d+(\\.\\d+.*)?";
+    @Getter
     private int major = MAX_MM_INT;
+    @Getter
     private int minor = MAX_MM_INT;
+    @Getter
     private String revision = "0";
 
     private transient String versionName;
@@ -37,7 +42,7 @@ public class CommonVersionImpl implements CommonVersion {
             revision = s;
             return;
         }
-        String[] version = s.split("\\.", -1);
+        var version = s.split("\\.", -1);
 
         if (version.length == 1) {
             revision = version[0];
@@ -76,7 +81,7 @@ public class CommonVersionImpl implements CommonVersion {
     }
 
     private int compareRevision(CommonVersion other) {
-        String otherRevision = other.getRevision();
+        var otherRevision = other.getRevision();
 
         if (ONLY_DIGITS.matcher(revision).matches() && ONLY_DIGITS.matcher(otherRevision).matches()) {
             return Integer.parseInt(revision) - Integer.parseInt(otherRevision);
@@ -99,21 +104,6 @@ public class CommonVersionImpl implements CommonVersion {
     }
 
     @Override
-    public int getMajor() {
-        return major;
-    }
-
-    @Override
-    public int getMinor() {
-        return minor;
-    }
-
-    @Override
-    public String getRevision() {
-        return revision;
-    }
-
-    @Override
     public String getVersionName() {
         if (versionName == null) {
             if (major != MAX_MM_INT && minor != MAX_MM_INT && major != -1 && minor != -1) {
@@ -128,7 +118,7 @@ public class CommonVersionImpl implements CommonVersion {
 
     @Override
     public String getShortVersion() {
-        String version = getVersionName();
+        var version = getVersionName();
         return version == null || version.length() < 6 ? version : version.substring(0, 6);
     }
 

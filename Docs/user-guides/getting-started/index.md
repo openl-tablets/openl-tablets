@@ -29,25 +29,15 @@ Before we dive in, here are the **OpenL Tablets** basic concepts:
 | **Projects** | An OpenL Tablets project is a container of all resources required for processing rule-related information. Usually, a simple project contains just Excel files with rules.                                                                                                                                                                                                                           |
 
 More details can be found
-in [OpenL Tablets Reference Guide, Chapter 1: Introducing OpenL Tablets](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#introducing-openl-tablets).
+in [OpenL Tablets Reference Guide, Chapter 1: Introducing OpenL Tablets](../reference-guide/index.md#getting-started).
 
 ---
 
 ## Quick Start
 
-To start working with OpenL Studio, you can use our online demo. Please note that it is for demonstration purposes only
-and all the content is deleted from it once a day.
-
-Use the following links to the applications of our Live Demo:
-
-| Demo Application             | URL                                                                                                          |
-|------------------------------|--------------------------------------------------------------------------------------------------------------|
-| OpenL Studio                 | [http://demo.openl-tablets.org/webstudio](http://demo.openl-tablets.org/webstudio)                           |
-| Rule Services                | [http://demo.openl-tablets.org/webservice](http://demo.openl-tablets.org/webservice)                         |
-| Rule Services client example | [http://demo.openl-tablets.org/webservice-client.html](http://demo.openl-tablets.org/webservice-client.html) |
-
-For more details on OpenL Tablets Demo, you can refer to [OpenL Tablets Demo Package Guide](demo-package). You can
-always download and install OpenL Tablets Demo for yourself by following this guide.
+The quickest way to get started is the **OpenL Tablets Demo** — a ready-to-run package that comes with OpenL Studio,
+OpenL Rule Services, and example projects preconfigured. To download and install it, follow the
+[OpenL Tablets Demo Package Guide](demo-package).
 
 When you open OpenL Studio, you will see the OpenL Studio start page in your browser:
 
@@ -67,16 +57,16 @@ types and different underlying logic.
 
 Rules can be created with the following tools:
 
-1. OpenL Studio Table Wizards.
+1. The OpenL Studio **Create Table** dialog.
 2. Microsoft Excel. In this case, the rule file should be uploaded in OpenL Studio where it will be validated and
    properly tested.
 
 In this tutorial, we are going to see the creation of a rule and its test in Microsoft Excel, and then their updating
-and testing in OpenL Studio. You can also create the same rule directly in OpenL Studio using the Simple Rules Table
-Wizard on your own.
+and testing in OpenL Studio. You can also create the same rule directly in OpenL Studio by picking the **Simple Rules**
+table type in the **Create Table** dialog.
 
 Details about creating rules and different rule table types can be found
-in [OpenL Tablets Reference Guide, Creating Tables for OpenL Tablets](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/#creating-tables-for-openl-tablets).
+in [OpenL Tablets Reference Guide, Creating Tables for OpenL Tablets](../reference-guide/index.md#working-with-openl-tables).
 
 Here we are going to create a business rule according to an Excel file that contains requirements. The idea is that by
 slightly modifying the original requirements, we can create ready-to-execute OpenL rules without any special effort and
@@ -88,7 +78,7 @@ The following example demonstrates how to create a simple rule that determines t
 city of departure and a city of destination. For example, if the departure city is Chicago and the destination city is
 Madrid, we want our rules to return $900 as an air ticket price.
 
-The business requirements are represented as the following Excel table in the [**TicketsPrice.xls**](TicketsPrice.xlsx)
+The business requirements are represented as the following Excel table in the [**TicketsPrice.xlsx**](TicketsPrice.xlsx)
 file:
 
 ![Figure 2: A spreadsheet requirements for Air Tickets Price rule](images/spreadsheet-requirements-air-tickets-price.png)
@@ -120,14 +110,14 @@ Here:
   in your rule. Depending on the input values that the user enters, OpenL Tablets selects the result value.
 
 Details on data types can be found
-in [OpenL Tablets Reference Guide, OpenL Tablets Functions and Supported Data Types](../reference_guide/index.md#openl-tablets-functions-and-supported-data-types).
+in [OpenL Tablets Reference Guide, OpenL Tablets Functions and Supported Data Types](../reference-guide/index.md#openl-tablets-functions-and-supported-data-types).
 
 ---
 
 ## Rule Project Creation
 
 Now that we have the rule created and ready to use, let's create a project with the just-created rules in OpenL Studio.
-We will create a project from the Excel file **TicketsPrice.xls** containing our `AirTicketsPrice` rule that we prepared
+We will create a project from the Excel file **TicketsPrice.xlsx** containing our `AirTicketsPrice` rule that we prepared
 in the previous step.
 
 To do it:
@@ -150,7 +140,7 @@ To do it:
 
    *Figure 5: Create Project from.. window*
 
-3. **Add** and **Upload** the **TicketsPrice.xls** file.
+3. **Add** and **Upload** the **TicketsPrice.xlsx** file.
 
    ![Figure 6: Upload Excel file](images/upload-excel-file.png)
 
@@ -169,8 +159,8 @@ To do it:
 
    *Figure 8: Created Air Ticket Price project*
 
-> **Note**: OpenL Studio also allows creating projects with Tutorials and Examples quickly from the **Create Project**
-> dialog.
+> [!Note]
+> OpenL Studio also allows creating projects with Tutorials and Examples quickly from the **Create Project** dialog.
 
 ---
 
@@ -199,13 +189,6 @@ To do it:
    *Figure 10: Air Tickets Price Decision table update*
 
 4. Save the updated Decision Table.
-
-Alternatively, you can click the **Open** button — the rule file opens in Excel — and apply all required changes there.
-Your changes become available in OpenL Studio right upon saving the Excel file.
-
-> **Note**: This is valid only when OpenL Studio runs on your machine. If it does not — use the **Export** and **Update
-** buttons to download the file to your machine, edit it in Excel, and then import the updated file back into the
-> project.
 
 ---
 
@@ -265,26 +248,6 @@ To create a table for testing the `AirTicketsPrice` rule, proceed as follows:
 
    *Figure 16: Initial Test Table*
 
-### Editing a Test in Excel
-
-1. To edit the test in Excel, click ![Open in Excel](images/icon-open-in-excel.png) and update the table in the opened
-   Excel file.
-
-   ![Figure 17: Test Table being updated in Excel file](images/test-table-updated-in-excel.png)
-
-   *Figure 17: Test Table being updated in Excel file*
-
-2. Save the changes made in Excel. Your changes become available in OpenL Studio right upon saving the Excel file.
-
-   > **Note**: If OpenL Studio does not run on your machine, you need to update the file in OpenL Studio — click the *
-   *Update** button and upload the updated version of the file.
-
-3. The Test Table is refreshed and the updated data is displayed in OpenL Studio.
-
-   ![Figure 18: Updated Test Table in OpenL Studio](images/updated-test-table-in-studio.png)
-
-   *Figure 18: Updated Test Table in OpenL Studio*
-
 ### Editing a Test in OpenL Studio
 
 1. Click the **Edit** ![Edit](images/icon-edit.png) button to edit the test table in OpenL Studio.
@@ -296,29 +259,29 @@ To create a table for testing the `AirTicketsPrice` rule, proceed as follows:
    b. In the table editor menu, select the ![Insert row](images/icon-insert-row.png) button to insert a row before the
    selected one. Insert two rows.
 
-   ![Figure 19: Table editor menu](images/table-editor-menu.png)
+   ![Figure 17: Table editor menu](images/table-editor-menu.png)
 
-   *Figure 19: Table editor menu*
+   *Figure 17: Table editor menu*
 
    c. Add test data and **Save** your changes.
 
-   ![Figure 20: Add test data](images/add-test-data.png)
+   ![Figure 18: Add test data](images/add-test-data.png)
 
-   *Figure 20: Add test data*
+   *Figure 18: Add test data*
 
 ### Test Execution
 
 1. Run the test table. To execute all test cases, click the **Run** button.
 
-   ![Figure 21: Run Test](images/run-test.png)
+   ![Figure 19: Run Test](images/run-test.png)
 
-   *Figure 21: Run Test*
+   *Figure 19: Run Test*
 
 2. OpenL Studio will display the test results.
 
-   ![Figure 22: Test results window](images/test-results-window.png)
+   ![Figure 20: Test results window](images/test-results-window.png)
 
-   *Figure 22: Test results window*
+   *Figure 20: Test results window*
 
 Failed test cases are marked by the ![Failed](images/icon-failed.png) icon.
 
@@ -336,3 +299,7 @@ You have created the rule that defines the air ticket price value depending on t
 destination. You have also created a test for your rule to verify the correctness of the rule logic.
 
 We hope that working with OpenL Tablets was interesting and easy for you.
+
+---
+
+OpenL Tablets Documentation is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).

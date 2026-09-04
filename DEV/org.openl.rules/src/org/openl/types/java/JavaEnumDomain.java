@@ -4,11 +4,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 
 public class JavaEnumDomain implements IDomain<Object> {
 
+    @Getter
     private final JavaOpenEnum enumClass;
 
     public JavaEnumDomain(JavaOpenEnum enumClass) {
@@ -39,18 +42,14 @@ public class JavaEnumDomain implements IDomain<Object> {
         return enumClass.getInstanceClass().getEnumConstants()[index];
     }
 
-    public JavaOpenEnum getEnumClass() {
-        return enumClass;
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         @SuppressWarnings("rawtypes")
-        Iterator itr = iterator();
-        boolean f = false;
+        var itr = iterator();
+        var f = false;
         while (itr.hasNext()) {
-            Object v = itr.next();
+            var v = itr.next();
             if (f) {
                 sb.append(", ");
             } else {
@@ -68,7 +67,7 @@ public class JavaEnumDomain implements IDomain<Object> {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        JavaEnumDomain objects = (JavaEnumDomain) o;
+        var objects = (JavaEnumDomain) o;
 
         return enumClass.equals(objects.enumClass);
     }

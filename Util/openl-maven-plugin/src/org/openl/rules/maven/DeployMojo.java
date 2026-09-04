@@ -7,7 +7,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
@@ -49,9 +48,9 @@ public class DeployMojo extends BaseOpenLMojo {
             throw new IllegalArgumentException("The deploy server url cannot be empty");
         }
 
-        File zipFile = findZipFile();
+        var zipFile = findZipFile();
 
-        Server server = settings.getServer(deployServer);
+        var server = settings.getServer(deployServer);
         if (server == null) {
             throw new IllegalStateException(
                     "The server configuration with name %s does not exist".formatted(deployServer));
@@ -66,13 +65,13 @@ public class DeployMojo extends BaseOpenLMojo {
         properties.put("production-repository.password", server.getPassword());
         properties.put("production-repository.base.path", "deploy/");
 
-        try (RulesDeployerService deployerService = new RulesDeployerService(properties::get)) {
+        try (var deployerService = new RulesDeployerService(properties::get)) {
             deployerService.deploy(zipFile.toPath(), false);
         }
     }
 
     private File findZipFile() {
-        File[] zipZiles = outputDirectory.listFiles((dir, name) -> name.contains(finalName) && name.endsWith(".zip"));
+        var zipZiles = outputDirectory.listFiles((dir, name) -> name.contains(finalName) && name.endsWith(".zip"));
         if (zipZiles == null) {
             throw new IllegalStateException("Cannot deploy the rules project, as the zip file does not exist");
         }

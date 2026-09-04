@@ -16,7 +16,7 @@ public final class SpreadsheetCellNames {
     }
 
     public static String of(Spreadsheet spreadsheet, SpreadsheetCell cell) {
-        StringBuilder name = new StringBuilder();
+        var name = new StringBuilder();
         // Drop the column part for a single-column spreadsheet. A short-circuiting scan (stop at the second
         // column) avoids allocating a stream per cell, which matters when profiling replays thousands of cells.
         String columnName = hasMultipleColumns(spreadsheet.getColumnNamesForResultModel())
@@ -30,7 +30,7 @@ public final class SpreadsheetCellNames {
     }
 
     private static boolean hasMultipleColumns(String[] columnNames) {
-        int seen = 0;
+        var seen = 0;
         for (String columnName : columnNames) {
             if (columnName != null && ++seen > 1) {
                 return true;

@@ -1,0 +1,264 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+    "id": "be0bf535bc4f02a362ee0f327bccf9e8",
+    "tableType": "RawSource",
+    "kind": "Rules",
+    "name": "BankLimitIndexCopy",
+    "pos": "B42:H50",
+    "source": [
+        [
+            {
+                "cell": "B42",
+                "value": "Rules Double BankLimitIndexCopy (String bank, String bankRatingGroup)",
+                "colspan": 7
+            },
+            {
+                "covered": true
+            },
+            {
+                "covered": true
+            },
+            {
+                "covered": true
+            },
+            {
+                "covered": true
+            },
+            {
+                "covered": true
+            },
+            {
+                "covered": true
+            }
+        ],
+        [
+            {
+                "cell": "B43",
+                "value": "Rule"
+            },
+            {
+                "cell": "C43",
+                "value": "C1"
+            },
+            {
+                "cell": "D43",
+                "value": "RET1"
+            },
+            {
+                "cell": "E43"
+            },
+            {
+                "cell": "F43"
+            },
+            {
+                "cell": "G43"
+            },
+            {
+                "cell": "H43"
+            }
+        ],
+        [
+            {
+                "cell": "B44"
+            },
+            {
+                "cell": "C44",
+                "value": "bankRatingGroup"
+            },
+            {
+                "cell": "D44"
+            },
+            {
+                "cell": "E44"
+            },
+            {
+                "cell": "F44"
+            },
+            {
+                "cell": "G44"
+            },
+            {
+                "cell": "H44"
+            }
+        ],
+        [
+            {
+                "cell": "B45"
+            },
+            {
+                "cell": "C45",
+                "value": "String[]"
+            },
+            {
+                "cell": "D45"
+            },
+            {
+                "cell": "E45"
+            },
+            {
+                "cell": "F45"
+            },
+            {
+                "cell": "G45"
+            },
+            {
+                "cell": "H45"
+            }
+        ],
+        [
+            {
+                "cell": "B46"
+            },
+            {
+                "cell": "C46",
+                "value": "Bank Rating Group /\nCountry, Financial Data"
+            },
+            {
+                "cell": "D46"
+            },
+            {
+                "cell": "E46",
+                "value": "RU, UA, KZ"
+            },
+            {
+                "cell": "F46"
+            },
+            {
+                "cell": "G46"
+            },
+            {
+                "cell": "H46"
+            }
+        ],
+        [
+            {
+                "cell": "B47",
+                "value": 7
+            },
+            {
+                "cell": "C47",
+                "value": [
+                    "R1"
+                ]
+            },
+            {
+                "cell": "D47",
+                "value": 1
+            },
+            {
+                "cell": "E47",
+                "value": 0.25
+            },
+            {
+                "cell": "F47",
+                "value": 0.8
+            },
+            {
+                "cell": "G47",
+                "value": 1
+            },
+            {
+                "cell": "H47",
+                "value": 0.7
+            }
+        ],
+        [
+            {
+                "cell": "B48",
+                "value": 8
+            },
+            {
+                "cell": "C48",
+                "value": [
+                    "R2"
+                ]
+            },
+            {
+                "cell": "D48",
+                "value": 0.9
+            },
+            {
+                "cell": "E48",
+                "value": 0.15
+            },
+            {
+                "cell": "F48",
+                "value": 0.7
+            },
+            {
+                "cell": "G48",
+                "value": 1
+            },
+            {
+                "cell": "H48",
+                "value": 0.6
+            }
+        ],
+        [
+            {
+                "cell": "B49",
+                "value": 9
+            },
+            {
+                "cell": "C49",
+                "value": [
+                    "R3"
+                ]
+            },
+            {
+                "cell": "D49",
+                "value": 0.7
+            },
+            {
+                "cell": "E49",
+                "value": 0.07
+            },
+            {
+                "cell": "F49",
+                "value": 0.5
+            },
+            {
+                "cell": "G49",
+                "value": 0.9
+            },
+            {
+                "cell": "H49",
+                "value": 0.2
+            }
+        ],
+        [
+            {
+                "cell": "B50",
+                "value": 10
+            },
+            {
+                "cell": "C50",
+                "value": [
+                    "R4"
+                ]
+            },
+            {
+                "cell": "D50",
+                "value": 0.25
+            },
+            {
+                "cell": "E50",
+                "value": 0.01
+            },
+            {
+                "cell": "F50",
+                "value": 0.25
+            },
+            {
+                "cell": "G50",
+                "value": 0.7
+            },
+            {
+                "cell": "H50",
+                "value": 0.02
+            }
+        ]
+    ]
+}

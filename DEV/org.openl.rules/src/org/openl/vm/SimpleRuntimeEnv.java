@@ -75,7 +75,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
 
     public boolean joinActionIfExists() {
         if (actionStack != null && !actionStack.isEmpty()) {
-            RecursiveAction action = actionStack.poll();
+            var action = actionStack.poll();
             action.join();
             return true;
         }
@@ -84,7 +84,7 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
 
     public boolean cancelActionIfExists() {
         if (actionStack != null && !actionStack.isEmpty()) {
-            RecursiveAction action = actionStack.poll();
+            var action = actionStack.poll();
             action.cancel(true);
             return true;
         }

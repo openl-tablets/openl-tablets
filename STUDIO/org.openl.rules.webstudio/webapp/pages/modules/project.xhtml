@@ -150,7 +150,7 @@
             <div class="block editable">
                 <h3>
                     <span>Modules</span>
-                    <h:panelGroup rendered="#{editable}">
+                    <h:panelGroup rendered="#{editable and not projectBean.modulesDefault}">
                         <a href="javascript:void(0)" title="Add Module" class="editable-link"
                            onclick="addModule()"><img src="#{request.contextPath}/webresource/images/add.png"
                                                       style="opacity:0.4"/></a>
@@ -159,6 +159,7 @@
                 <div class="block-content">
                     <div class="list list-modules">
                         <ui:param name="modulesNumber" value="#{projectBean.modulesWithWildcard.size()}"/>
+                        <ui:param name="modulesDefault" value="#{projectBean.modulesDefault}"/>
                         <ui:repeat var="module" value="#{projectBean.modulesWithWildcard}" varStatus="i">
                             <ui:param name="isModuleWithWildcard" value="#{projectBean.isModuleWithWildcard(module)}"/>
                             <ui:param name="includedInWildcard"
@@ -167,11 +168,17 @@
                                           styleClass="list-item editable-inner"
                                           rendered="#{isModuleWithWildcard or !includedInWildcard}">
                                 <div>
-                                    <h:panelGroup rendered="#{isModuleWithWildcard}">
+                                    <h:panelGroup rendered="#{isModuleWithWildcard and modulesDefault}">
+                                        #{module.rulesRootPath.startsWith('tests/') ? 'Auto-discovered tests' : 'Auto-discovered modules'}
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{isModuleWithWildcard and not modulesDefault and not empty module.name}">
+                                        #{module.name}
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{isModuleWithWildcard and not modulesDefault and empty module.name}">
                                         Modules matched by pattern
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!isModuleWithWildcard}">
-                                        <a href="#{utils.toUrl(projectData.repository.id, projectData.name, module.name)}">#{module.name}</a>
+                                        <a href="#{utils.toUrl(projectData.repository.id, projectData.name, module.resolvedName)}">#{module.resolvedName}</a>
                                     </h:panelGroup>
                                     <span class="path">#{projectBean.getModulePath(module)}</span>
                                 </div>
@@ -208,22 +215,22 @@
                                     </div>
                                 </h:panelGroup>
                                 <h:panelGroup >
-                                    <h:panelGroup rendered="#{editable}">
+                                    <h:panelGroup rendered="#{editable and not modulesDefault}">
                                         <a href="javascript:void(0)" title="Edit Module"
                                            class="editable-link-inner first-button"
-                                           onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}', compileThisModuleOnly: #{module.webstudioConfiguration.compileThisModuleOnly}})"><img
+                                           onclick="editModule({index:'#{i.index}',name:'#{utils.toJSText(module.resolvedName)}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}', compileThisModuleOnly: #{module.webstudioConfiguration.compileThisModuleOnly}})"><img
                                                 src="#{request.contextPath}/webresource/images/edit.png"
                                                 style="opacity:0.4"/></a>
                                     </h:panelGroup>
                                     <c:set var="canCopyModule" value="#{projectBean.canCopyModule(module)}"/>
-                                    <h:panelGroup rendered="#{canCopyModule}">
+                                    <h:panelGroup rendered="#{canCopyModule and not modulesDefault}">
                                         <a href="javascript:void(0)" title="Copy Module"
                                            class="editable-link-inner #{editable ? 'second-button' : 'first-button'}"
                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
                                                 src="#{request.contextPath}/webresource/images/copy.png"
                                                 style="opacity:0.4"/></a>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{modulesNumber > 1 and projectBean.canDeleteModule(module)}">
+                                    <h:panelGroup rendered="#{modulesNumber > 1 and not modulesDefault and projectBean.canDeleteModule(module)}">
                                         <a href="javascript:void(0)" title="Remove Module"
                                            class="editable-link-inner #{canCopyModule and editable ? 'third-button' : (editable ? 'second-button' : 'first-button')} delete-icon"
                                            onclick="removeModule('#{i.index}', #{projectBean.isOnlySafeModuleRemove(module)}, #{isModuleWithWildcard})"/>
@@ -257,7 +264,7 @@
                                     <ui:param name="dependentProject"
                                               value="#{studio.getProjectByName(dependency.name)}"/>
                                     <h:panelGroup rendered="#{!empty dependentProject}">
-                                        <a href="#{utils.toUrl(dependentProject.repository.id, dependentProject.name)}">#{dependency.name}</a>
+                                        <a href="#{utils.toUrl(dependentProject.repository.id, dependency.name)}">#{dependency.name}</a>
                                         <h:panelGroup rendered="#{dependency.autoIncluded}" styleClass="path">
                                             All Modules
                                         </h:panelGroup>
@@ -481,7 +488,7 @@
                     <tr>
                         <td></td>
                         <td><h:panelGroup styleClass="warning"
-                                          rendered="#{!repositoryTreeController.isSupportsMappedFolders(projectData.getRepository().getId()) and projectData.name != project.name}">
+                                          rendered="#{not utils.supportsMappedFolders(projectData) and projectData.name != project.name}">
                             <h:outputText
                                     value="Project name in rules.xml is '#{project.name}'. It will be replaced with '#{projectData.name}'."/>
                         </h:panelGroup>

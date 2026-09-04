@@ -42,7 +42,7 @@ public class TraceParameterRegistry {
      * @return unique ID for later retrieval
      */
     public synchronized int register(ParameterWithValueDeclaration param) {
-        int id = counter.incrementAndGet();
+        var id = counter.incrementAndGet();
         parameters.put(id, param);
         return id;
     }

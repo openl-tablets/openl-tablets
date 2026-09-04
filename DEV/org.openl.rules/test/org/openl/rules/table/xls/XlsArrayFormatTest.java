@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.table.formatters.ArrayFormatter;
@@ -12,15 +14,12 @@ import org.openl.util.formatters.EnumFormatter;
 
 class XlsArrayFormatTest {
 
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     public enum TestConstants {
         TEST_CONST_1("Test Constant 1"),
         TEST_CONST_2("Test Constant 2");
 
         private final String displayName;
-
-        TestConstants(String displayName) {
-            this.displayName = displayName;
-        }
 
         @Override
         public String toString() {
@@ -30,13 +29,13 @@ class XlsArrayFormatTest {
 
     @Test
     void testParse() {
-        ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter(), String.class);
-        String value = "tag1,tag2,tag3";
+        var arrayFormat = new ArrayFormatter(new DefaultFormatter(), String.class);
+        var value = "tag1,tag2,tag3";
 
-        Object result = arrayFormat.parse(value);
+        var result = arrayFormat.parse(value);
         assertNotNull(result);
 
-        String[] resStr = (String[]) result;
+        var resStr = (String[]) result;
         assertEquals(3, resStr.length);
         assertEquals("tag1", resStr[0]);
         assertEquals("tag2", resStr[1]);
@@ -45,37 +44,37 @@ class XlsArrayFormatTest {
 
     @Test
     void testParseEmptyString() {
-        ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter(), String.class);
+        var arrayFormat = new ArrayFormatter(new DefaultFormatter(), String.class);
         String value = null;
 
-        Object result = arrayFormat.parse(value);
+        var result = arrayFormat.parse(value);
         assertNull(result);
     }
 
     @Test
     void testFormatEnums() {
-        ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
+        var arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
 
         TestConstants[] arrayEnum = new TestConstants[2];
 
         arrayEnum[0] = TestConstants.TEST_CONST_1;
         arrayEnum[1] = TestConstants.TEST_CONST_2;
 
-        String result = arrayFormat.format(arrayEnum);
+        var result = arrayFormat.format(arrayEnum);
         assertNotNull(result);
         assertEquals(TestConstants.TEST_CONST_1.name() + "," + TestConstants.TEST_CONST_2.name(), result);
     }
 
     @Test
     void testFormatNull() {
-        ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
+        var arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
 
         TestConstants[] arrayEnum = new TestConstants[2];
 
         arrayEnum[0] = TestConstants.TEST_CONST_1;
         arrayEnum[1] = TestConstants.TEST_CONST_2;
 
-        String result = arrayFormat.format(null);
+        var result = arrayFormat.format(null);
 
         assertNull(result);
     }

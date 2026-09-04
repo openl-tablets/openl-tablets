@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.common.ProjectException;
@@ -22,28 +23,24 @@ import org.openl.util.IOUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
+@RequiredArgsConstructor
 @Slf4j
 public class CopyProjectTransformer implements ResourceTransformer {
     private final String newProjectName;
     private final Map<String, String> tags;
-
-    public CopyProjectTransformer(String newProjectName, Map<String, String> tags) {
-        this.newProjectName = newProjectName;
-        this.tags = tags;
-    }
 
     @Override
     public InputStream transform(AProjectResource resource) throws ProjectException {
         if (isProjectDescriptor(resource)) {
             // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return
             // original rules.xml.
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            var outputStream = new ByteArrayOutputStream();
             try {
                 IOUtils.copyAndClose(resource.getContent(), outputStream);
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);
             }
-            ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
+            var copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
                 ProjectDescriptor projectDescriptor = ProjectDescriptor.read(copy);
@@ -67,13 +64,13 @@ public class CopyProjectTransformer implements ResourceTransformer {
     public List<FileItem> transformChangedFiles(String rootPath, List<FileItem> changes) {
         Optional<FileItem> tagsFile = changes.stream().filter(fileItem -> fileItem.getData().getName().equals(TAGS_FILE_NAME)).findFirst();
         if (!tags.isEmpty() || tagsFile.isPresent()) {
-            List<FileItem> changesWithTags = new ArrayList<>(changes);
+            var changesWithTags = new ArrayList<FileItem>(changes);
             tagsFile.ifPresent(file -> IOUtils.closeQuietly(file.getStream()));
             tagsFile.ifPresent(changesWithTags::remove);
-            try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            try (var byteArrayOutputStream = new ByteArrayOutputStream()) {
                 PropertiesUtils.store(byteArrayOutputStream, tags.entrySet());
                 var inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-                StringBuilder fullName = new StringBuilder();
+                var fullName = new StringBuilder();
                 if (StringUtils.isNotBlank(rootPath)) {
                     fullName.append(rootPath);
                     if (! rootPath.endsWith("/")) {
@@ -81,7 +78,7 @@ public class CopyProjectTransformer implements ResourceTransformer {
                     }
                 }
                 fullName.append(TAGS_FILE_NAME);
-                FileItem newTagFile = new FileItem(fullName.toString(), inputStream);
+                var newTagFile = new FileItem(fullName.toString(), inputStream);
                 changesWithTags.add(newTagFile);
                 return changesWithTags;
             } catch (IOException e) {

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -25,17 +24,17 @@ class TokenizerParserTest {
 
     @Test
     void testPerformance() throws Exception {
-        long start = System.currentTimeMillis();
-        String test = "a123344 b1233468474 c238746374";
-        int n = 1000000;
+        var start = System.currentTimeMillis();
+        var test = "a123344 b1233468474 c238746374";
+        var n = 1000000;
         // String delim = ". \n\r{}[]!@#$%^&*()-_+=,.<>/?;:'\"\\|";
-        IOpenSourceCodeModule src = new StringSourceCodeModule(test, null);
+        var src = new StringSourceCodeModule(test, null);
         // TokenizerParser tp = new TokenizerParser(delim);
-        for (int i = 0; i < n; ++i) {
+        for (var i = 0; i < n; ++i) {
             Tokenizer.tokenize(src, " \n\r");
             // tp.parse(new StringSourceCodeModule(test, null));
         }
-        long end = System.currentTimeMillis();
+        var end = System.currentTimeMillis();
 
         log.info("Time: {} 1 run: {}mks per char: {}mks", (end - start), 1000.0 * (end - start) / n, 1000.0 * (end - start) / n / test
                 .length());

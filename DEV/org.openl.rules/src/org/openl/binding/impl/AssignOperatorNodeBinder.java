@@ -30,18 +30,18 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
             return makeErrorNode("Expected two child nodes in assign node.", node, bindingContext);
         }
 
-        int index = node.getType().lastIndexOf('.');
-        String methodName = node.getType().substring(index + 1);
+        var index = node.getType().lastIndexOf('.');
+        var methodName = node.getType().substring(index + 1);
         IBoundNode[] children = bindChildren(node, bindingContext);
 
-        IBoundNode target = children[0];
-        IBoundNode source = children[1];
+        var target = children[0];
+        var source = children[1];
         if (!target.isLvalue()) {
             return makeErrorNode("Impossible to assign value.", node, bindingContext);
         }
 
-        IOpenClass targetType = target.getType();
-        IOpenClass sourceType = source.getType();
+        var targetType = target.getType();
+        var sourceType = source.getType();
         IMethodCaller methodCaller = null;
 
         if (!"assign".equals(methodName)) {
@@ -70,7 +70,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
 
             // only implicit casts and explicit casts for literal are allowed for right part
             if (cast == null || (!cast.isImplicit() && !(source instanceof LiteralBoundNode))) {
-                String message = "Cannot convert from '%s' to '%s'."
+                var message = "Cannot convert from '%s' to '%s'."
                         .formatted(rightType.getName(), targetType.getName());
                 return makeErrorNode(message, node, bindingContext);
             }

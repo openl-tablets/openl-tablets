@@ -10,7 +10,7 @@ import org.openl.types.java.JavaOpenClass;
 class CustomSpreadsheetResultOpenClassTest {
     @Test
     void test() {
-        CustomSpreadsheetResultOpenClass openClass = new CustomSpreadsheetResultOpenClass("CSR1",
+        var openClass = new CustomSpreadsheetResultOpenClass("CSR1",
                 null,
                 null,
                 true);
@@ -21,7 +21,7 @@ class CustomSpreadsheetResultOpenClassTest {
 
     @Test
     void testIsAssignableFromNullOpenClass() {
-        CustomSpreadsheetResultOpenClass openClass = new CustomSpreadsheetResultOpenClass("CSR1",
+        var openClass = new CustomSpreadsheetResultOpenClass("CSR1",
                 null,
                 null,
                 true);

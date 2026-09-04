@@ -1,0 +1,5 @@
+POST /faces/pages/modules/index.xhtml HTTP/1.1
+Faces-Request: partial/ajax
+Content-type: application/x-www-form-urlencoded
+
+jakarta.faces.partial.ajax=true&jakarta.faces.source=shellForm%3AonPageUnloadFunction&jakarta.faces.partial.execute=shellForm%3AonPageUnloadFunction&shellForm=shellForm&requestId=itest&jakarta.faces.ViewState=stateless

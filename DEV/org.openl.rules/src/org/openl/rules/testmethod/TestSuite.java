@@ -3,6 +3,8 @@ package org.openl.rules.testmethod;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
+import lombok.Getter;
+
 import org.openl.base.INamedThing;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
@@ -12,7 +14,9 @@ import org.openl.vm.Tracer;
 
 public class TestSuite implements INamedThing {
     public static final String VIRTUAL_TEST_SUITE = "Virtual test suite";
+    @Getter
     private TestSuiteMethod testSuiteMethod;
+    @Getter
     private final TestDescription[] tests;
     private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
 
@@ -37,14 +41,6 @@ public class TestSuite implements INamedThing {
 
     public TestSuite(TestDescription... tests) {
         this.tests = tests;
-    }
-
-    public TestSuiteMethod getTestSuiteMethod() {
-        return testSuiteMethod;
-    }
-
-    public TestDescription[] getTests() {
-        return tests;
     }
 
     public TestDescription getTest(int testNumber) {

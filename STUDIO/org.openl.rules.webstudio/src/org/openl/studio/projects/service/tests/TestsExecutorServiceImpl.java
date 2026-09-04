@@ -2,8 +2,8 @@ package org.openl.studio.projects.service.tests;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.scheduling.annotation.Async;
@@ -34,7 +34,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
     @Override
     @Async("testSuiteExecutor")
     public CompletableFuture<List<TestUnitsResults>> runAllForTable(ProjectTestsExecutionProgressListener listener, ProjectModel projectModel, IOpenLTable table, boolean currentOpenedModule) {
-        String uri = table.getUri();
+        var uri = table.getUri();
         IOpenMethod method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
@@ -42,7 +42,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
             return CompletableFuture.completedFuture(executionResult);
         }
-        TestSuiteMethod[] testMethods = projectModel.getTestMethods(uri, currentOpenedModule);
+        var testMethods = projectModel.getTestMethods(uri, currentOpenedModule);
         runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule);
         return CompletableFuture.completedFuture(executionResult);
     }
@@ -50,7 +50,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
     @Override
     @Async("testSuiteExecutor")
     public CompletableFuture<List<TestUnitsResults>> runSingle(ProjectTestsExecutionProgressListener listener, ProjectModel projectModel, IOpenLTable table, String testRanges, boolean currentOpenedModule) {
-        String uri = table.getUri();
+        var uri = table.getUri();
         IOpenMethod method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
@@ -61,7 +61,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
                 testSuite = new TestSuite(testSuiteMethod);
             } else {
                 // Run only selected test cases of selected test suite
-                int[] indices = testSuiteMethod.getIndices(testRanges);
+                var indices = testSuiteMethod.getIndices(testRanges);
                 testSuite = new TestSuite(testSuiteMethod, indices);
             }
             var unitsResult = projectModel.runTest(testSuite, currentOpenedModule);
@@ -85,14 +85,14 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             return;
         }
 
-        boolean interrupted = false;
+        var interrupted = false;
         for (TestSuiteMethod testSuiteMethod : tests) {
             if (Thread.currentThread().isInterrupted()) {
                 listener.onStatusChanged(TestExecutionStatus.INTERRUPTED);
                 interrupted = true;
                 break;
             }
-            TestUnitsResults testUnitsResults = runSingleTest(model, testSuiteMethod, currentOpenedModule);
+            var testUnitsResults = runSingleTest(model, testSuiteMethod, currentOpenedModule);
             executionResult.add(testUnitsResults);
             listener.onTestUnitExecuted(testUnitsResults);
         }
@@ -102,13 +102,13 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
     }
 
     private TestUnitsResults runSingleTest(ProjectModel model, TestSuiteMethod testSuiteMethod, boolean currentOpenedModule) {
-        IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
-        TestSuite testSuite = new TestSuite(testSuiteMethod);
+        var testedMethod = testSuiteMethod.getTestedMethod();
+        var testSuite = new TestSuite(testSuiteMethod);
         TestUnitsResults testUnitsResults;
         Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher dispatcher)
                 ? dispatcher.getCandidates()
-                : Collections.singleton(testedMethod);
-        boolean noErrors = true;
+                : Set.of(testedMethod);
+        var noErrors = true;
         for (IOpenMethod method : methods) {
             if (!model.getErrorsByUri(method.getInfo().getSourceUrl()).isEmpty()) {
                 noErrors = false;

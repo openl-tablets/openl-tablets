@@ -22,8 +22,8 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
+import org.openl.rules.table.ui.filters.GreyColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.ui.ColorFilterHolder;
 import org.openl.util.FileUtils;
 
 public abstract class AbstractDiffController {
@@ -124,8 +124,7 @@ public abstract class AbstractDiffController {
             return null;
         }
         IGridRegion[] aRegions = regions.toArray(IGridRegion.EMPTY_REGION);
-        return new ColorGridFilter(new RegionGridSelector(aRegions, true),
-                new ColorFilterHolder().makeFilter());
+        return new ColorGridFilter(new RegionGridSelector(aRegions, true), new GreyColorFilter(0.8));
     }
 
     public void setDiffTree(DiffTreeNode diffTree) {

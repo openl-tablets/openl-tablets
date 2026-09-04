@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "suspended",
+  "frames": [
+    {
+      "index": 0,
+      "depth": 1,
+      "instance": 0,
+      "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Groups&range=C8:D14",
+      "tableId": "4d8eb238ff687745c805f69724a3c60e",
+      "name": "BankRatingGroup",
+      "kind": "decisionTable",
+      "location": {
+        "kind": "dtrule",
+        "ref": "R1",
+        "label": "R1"
+      },
+      "active": true,
+      "completed": false,
+      "error": false,
+      "steps": [
+        {
+          "ref": "R1",
+          "label": "R1",
+          "status": "current"
+        },
+        {
+          "ref": "R2",
+          "label": "R2",
+          "status": "pending"
+        },
+        {
+          "ref": "R3",
+          "label": "R3",
+          "status": "pending"
+        },
+        {
+          "ref": "R4",
+          "label": "R4",
+          "status": "pending"
+        },
+        {
+          "ref": "R5",
+          "label": "R5",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "sessionId": "***"
+}

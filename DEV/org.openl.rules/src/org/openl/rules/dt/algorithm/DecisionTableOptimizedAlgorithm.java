@@ -3,14 +3,15 @@ package org.openl.rules.dt.algorithm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.BindHelper;
 import org.openl.domain.IIntIterator;
-import org.openl.domain.IIntSelector;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -43,7 +44,6 @@ import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
@@ -279,12 +279,12 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     public static IConditionEvaluator makeEvaluator(ICondition condition,
                                                     IOpenClass conditionMethodType,
                                                     IBindingContext bindingContext) {
-        IParameterDeclaration[] params = condition.getParams();
+        var params = condition.getParams();
         if (NullParameterDeclaration.isAnyNull(params)) {
             return DefaultConditionEvaluator.INSTANCE; // parameters defined with error cannot build evaluator
         }
         if (params.length == 1) {
-            IOpenClass conditionParamType = params[0].getType();
+            var conditionParamType = params[0].getType();
 
             ConditionCasts conditionCasts = ConditionHelper
                     .findConditionCasts(conditionParamType, conditionMethodType, bindingContext);
@@ -294,7 +294,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                         : new EqualsIndexedEvaluator(conditionCasts);
             }
 
-            IAggregateInfo aggregateInfo = conditionParamType.getAggregateInfo();
+            var aggregateInfo = conditionParamType.getAggregateInfo();
 
             if (aggregateInfo.isAggregate(conditionParamType)) {
                 ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(aggregateInfo
@@ -307,7 +307,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 }
             }
 
-            IRangeAdaptor<? extends Object, ? extends Comparable<?>> rangeAdaptor = getRangeAdaptor(conditionMethodType,
+            var rangeAdaptor = getRangeAdaptor(conditionMethodType,
                     conditionParamType);
 
             if (rangeAdaptor != null) {
@@ -324,8 +324,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             }
 
         } else if (params.length == 2) {
-            IOpenClass conditionParamType0 = params[0].getType();
-            IOpenClass conditionParamType1 = params[1].getType();
+            var conditionParamType0 = params[0].getType();
+            var conditionParamType1 = params[1].getType();
 
             ConditionCasts conditionCasts = ConditionHelper
                     .findConditionCasts(conditionParamType0, conditionMethodType, bindingContext);
@@ -338,7 +338,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 }
             }
 
-            IAggregateInfo aggregateInfo = conditionParamType1.getAggregateInfo();
+            var aggregateInfo = conditionParamType1.getAggregateInfo();
             if (aggregateInfo.isAggregate(
                     conditionParamType1) && aggregateInfo.getComponentType(conditionParamType1) == conditionMethodType) {
                 BooleanTypeAdaptor booleanTypeAdaptor = BooleanAdaptorFactory.getAdaptor(conditionParamType0);
@@ -354,13 +354,13 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return DefaultConditionEvaluator.INSTANCE;
         }
 
-        List<String> names = new ArrayList<>();
+        var names = new ArrayList<String>();
         for (IParameterDeclaration parameterDeclaration : params) {
-            String name = parameterDeclaration.getType().getName();
+            var name = parameterDeclaration.getType().getName();
             names.add(name);
         }
 
-        String message = "Cannot build an evaluator for condition '%s' with parameters '%s' and method parameter '%s'.".formatted(
+        var message = "Cannot build an evaluator for condition '%s' with parameters '%s' and method parameter '%s'.".formatted(
                 condition.getName(),
                 String.join(", ", names),
                 conditionMethodType.getName());
@@ -375,19 +375,19 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (table.getNumberOfConditions() <= info.fromCondition || info.fromCondition > info.toCondition) {
             return ConditionToEvaluatorHolder.EMPTY_ARRAY;
         } else {
-            List<ConditionToEvaluatorHolder> evalToConds = new ArrayList<>(evaluators.length);
-            for (int j = info.fromCondition; j <= info.toCondition; j++) {
-                IConditionEvaluator eval = evaluators[j];
-                ICondition condition = table.getCondition(j);
+            var evalToConds = new ArrayList<ConditionToEvaluatorHolder>(evaluators.length);
+            for (var j = info.fromCondition; j <= info.toCondition; j++) {
+                var eval = evaluators[j];
+                var condition = table.getCondition(j);
                 if (eval instanceof ContainsInArrayIndexedEvaluatorV2 containsInArrayIndexedEvaluatorV2) {
-                    final int maxArrayLength = containsInArrayIndexedEvaluatorV2.getMaxArrayLength(condition,
+                    final var maxArrayLength = containsInArrayIndexedEvaluatorV2.getMaxArrayLength(condition,
                             info.makeRuleIterator());
                     if (maxArrayLength > 1 && !condition.isOptimizedExpression()) {
                         // Replace with more fast evaluator
                         eval = containsInArrayIndexedEvaluatorV2.toV1();
                     }
                 }
-                ConditionToEvaluatorHolder pair = new ConditionToEvaluatorHolder(condition, eval, info);
+                var pair = new ConditionToEvaluatorHolder(condition, eval, info);
                 evalToConds.add(pair);
             }
             Collections.sort(evalToConds);
@@ -399,11 +399,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         if (evaluators.length == 0) {
             return null;
         }
-        ConditionToEvaluatorHolder firstPair = evaluators[0];
+        var firstPair = evaluators[0];
         if (!firstPair.isIndexed()) {
             return null;
         }
-        IRuleIndex indexRoot = firstPair.makeIndex(info.makeRuleIterator());
+        var indexRoot = firstPair.makeIndex(info.makeRuleIterator());
         indexNodes(indexRoot, 1, info);
         return indexRoot;
     }
@@ -413,7 +413,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return;
         }
 
-        ConditionToEvaluatorHolder pair = evaluators[condN];
+        var pair = evaluators[condN];
         if (!pair.isIndexed()) {
             return;
         }
@@ -425,8 +425,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     private void indexNode(DecisionTableRuleNode node, int condN, IndexInfo info) {
-        ConditionToEvaluatorHolder pair = evaluators[condN];
-        IRuleIndex nodeIndex = pair.makeIndex(node.getRulesIterator());
+        var pair = evaluators[condN];
+        var nodeIndex = pair.makeIndex(node.getRulesIterator());
         node.setNextIndex(nodeIndex);
 
         indexNodes(nodeIndex, condN + 1, info);
@@ -491,21 +491,21 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     @Override
     public IIntIterator checkedRules(Object target, Object[] params, IRuntimeEnv env) {
         IIntIterator iterator = null;
-        int conditionNumber = 0;
+        var conditionNumber = 0;
 
         if (indexRoot == null) {
             iterator = info.makeRuleIterator();
         } else {
-            IRuleIndex index = indexRoot;
+            var index = indexRoot;
             DecisionTableRuleNode node = null;
             while (conditionNumber < evaluators.length) {
-                ICondition condition = evaluators[conditionNumber].getCondition();
+                var condition = evaluators[conditionNumber].getCondition();
                 Boolean staticResult = null;
                 if (condition.isOptimizedExpression()) {
                     staticResult = (Boolean) condition.getStaticMethod().invoke(null, params, env);
                 }
                 index = env.getTracer().wrap(this, index, condition);
-                Object testValue = evaluateTestValue(condition, target, params, env);
+                var testValue = evaluateTestValue(condition, target, params, env);
 
                 node = index.findNode(testValue, staticResult, node);
                 env.getTracer().put(this, "index", condition, node, true);
@@ -522,11 +522,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         while (conditionNumber < evaluators.length) {
-            ConditionToEvaluatorHolder pair = evaluators[conditionNumber];
-            ICondition condition = pair.getCondition();
-            IConditionEvaluator evaluator = pair.getEvaluator();
+            var pair = evaluators[conditionNumber];
+            var condition = pair.getCondition();
+            var evaluator = pair.getEvaluator();
 
-            IIntSelector sel = evaluator.getSelector(condition, target, params, env);
+            var sel = evaluator.getSelector(condition, target, params, env);
             sel = env.getTracer().wrap(this, sel, condition);
 
             iterator = iterator.select(sel);
@@ -541,25 +541,16 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         static final ConditionToEvaluatorHolder[] EMPTY_ARRAY = new ConditionToEvaluatorHolder[0];
         private final IndexInfo localInfo;
         private int uniqueKeysSize = -1;
+        @Getter
         private final ICondition condition;
+        @Getter
+        @Setter
         private IConditionEvaluator evaluator;
 
         ConditionToEvaluatorHolder(ICondition condition, IConditionEvaluator evaluator, IndexInfo localInfo) {
             this.condition = condition;
             this.evaluator = evaluator;
             this.localInfo = localInfo;
-        }
-
-        public ICondition getCondition() {
-            return condition;
-        }
-
-        public IConditionEvaluator getEvaluator() {
-            return evaluator;
-        }
-
-        public void setEvaluator(IConditionEvaluator evaluator) {
-            this.evaluator = evaluator;
         }
 
         public boolean isIndexed() {

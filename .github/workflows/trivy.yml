@@ -20,11 +20,11 @@ on:
 
 env:
   REGISTRY: ${{ inputs.registry || 'ghcr.io/openl-tablets' }}
-  VERSION: ${{ inputs.version || inputs.registry == 'openltablets' && 'latest' || 'x' }}
+  VERSION: ${{ inputs.version || 'latest' }}
 
 run-name: Trivy scan for
   ${{ inputs.registry || 'ghcr.io/openl-tablets' }}
-  ${{ inputs.version || inputs.registry == 'openltablets' && 'latest' || 'x' }}
+  ${{ inputs.version || 'latest' }}
 
 jobs:
   trivy:
@@ -36,10 +36,7 @@ jobs:
           - ws
           - ws-all
         version:
-          - ${{ inputs.version || inputs.registry == 'openltablets' && 'latest' || 'x' }}
-        exclude:
-          - image: ws-all
-            version: latest
+          - ${{ inputs.version || 'latest' }}
 
     runs-on: ubuntu-latest
 

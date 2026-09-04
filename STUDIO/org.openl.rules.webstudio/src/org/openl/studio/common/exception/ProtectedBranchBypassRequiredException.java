@@ -12,10 +12,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(code = HttpStatus.CONFLICT)
 public class ProtectedBranchBypassRequiredException extends RestRuntimeException {
 
-    public ProtectedBranchBypassRequiredException(String code) {
-        super(code);
-    }
-
     public ProtectedBranchBypassRequiredException(String code, Object... args) {
         super(code, args);
     }

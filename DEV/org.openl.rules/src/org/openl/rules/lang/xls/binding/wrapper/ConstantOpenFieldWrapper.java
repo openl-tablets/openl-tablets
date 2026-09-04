@@ -1,28 +1,25 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.lang.xls.binding.wrapper.base.WrapperValidation;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor
 public class ConstantOpenFieldWrapper extends ConstantOpenField {
     static {
         WrapperValidation.validateWrapperClass(ConstantOpenFieldWrapper.class,
                 ConstantOpenFieldWrapper.class.getSuperclass());
     }
 
+    @Getter
     private final ConstantOpenField delegate;
+    @Getter
     private final IOpenClass type;
-
-    public ConstantOpenFieldWrapper(ConstantOpenField delegate, IOpenClass type) {
-        this.delegate = delegate;
-        this.type = type;
-    }
-
-    public ConstantOpenField getDelegate() {
-        return delegate;
-    }
 
     @Override
     public boolean isContextProperty() {
@@ -52,11 +49,6 @@ public class ConstantOpenFieldWrapper extends ConstantOpenField {
     @Override
     public String getName() {
         return delegate.getName();
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return type;
     }
 
     @Override

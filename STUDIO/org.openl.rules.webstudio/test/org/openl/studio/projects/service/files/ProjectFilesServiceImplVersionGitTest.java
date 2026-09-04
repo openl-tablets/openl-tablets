@@ -11,12 +11,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +30,7 @@ import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.util.IOUtils;
 
 /**
@@ -72,7 +72,8 @@ class ProjectFilesServiceImplVersionGitTest {
                 new ProjectFileLookupServiceImpl(aclProjectsHelper, mock(RepositoryAclServiceProvider.class)),
                 mock(ProjectLockGuard.class));
         service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class),
-                mock(FileSearchSupport.class), mock(FileArchiveSupport.class), mock(ProjectDescriptorCleaner.class));
+                mock(FileSearchSupport.class), mock(FileArchiveSupport.class), mock(ProjectDescriptorCleaner.class),
+                new BeanValidationProvider(List.of()));
     }
 
     @AfterEach
@@ -111,12 +112,12 @@ class ProjectFilesServiceImplVersionGitTest {
     }
 
     private void seedRemoteRepository() throws GitAPIException, IOException {
-        try (Git git = Git.init().setDirectory(remoteRoot).call()) {
-            File rootDir = git.getRepository().getDirectory().getParentFile();
+        try (var git = Git.init().setDirectory(remoteRoot).call()) {
+            var rootDir = git.getRepository().getDirectory().getParentFile();
 
             writeFile(new File(rootDir, FILE_PATH), "version one");
             git.add().addFilepattern(".").call();
-            RevCommit first = git.commit()
+            var first = git.commit()
                     .setMessage("Add sample")
                     .setCommitter("Test", "test@openl.org")
                     .call();
@@ -124,7 +125,7 @@ class ProjectFilesServiceImplVersionGitTest {
 
             writeFile(new File(rootDir, FILE_PATH), "version two");
             git.add().addFilepattern(".").call();
-            RevCommit second = git.commit()
+            var second = git.commit()
                     .setMessage("Update sample")
                     .setCommitter("Test", "test@openl.org")
                     .call();
@@ -137,18 +138,17 @@ class ProjectFilesServiceImplVersionGitTest {
             case "id" -> "design";
             case "uri" -> remoteRoot.toURI().toString();
             case "local-repositories-folder" -> localRepositoriesFolder.getAbsolutePath();
-            case "comment-template" -> "OpenL Studio: {commit-type}. {user-message}";
             default -> null;
         });
     }
 
     private static void writeFile(File file, String content) throws IOException {
-        Path path = file.toPath();
-        Path parent = path.getParent();
+        var path = file.toPath();
+        var parent = path.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }
-        Files.writeString(path, content, StandardCharsets.UTF_8,
+        Files.writeString(path, content,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

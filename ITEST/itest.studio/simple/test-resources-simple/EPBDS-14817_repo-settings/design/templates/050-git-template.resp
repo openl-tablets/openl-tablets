@@ -1,0 +1,30 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "Design1",
+  "settings": {
+    "useCustomComments": false,
+    "commentValidationPattern": "",
+    "invalidCommentMessage": "Invalid comment: Comment doesn't match validation pattern",
+    "defaultCommentSave": "Project {project-name} is saved.",
+    "defaultCommentCreate": "Project {project-name} is created.",
+    "defaultCommentCopiedFrom": "Copied from: {project-name}.",
+    "defaultCommentRestoredFrom": "Restored from revision of {author} on {datetime}.",
+    "basePath": "DESIGN/rules/",
+    "uri": "**/repositories/design1",
+    "login": "",
+    "password": "",
+    "branch": "",
+    "newBranchTemplate": "{project-name}/{username}/{current-date}",
+    "newBranchRegex": "",
+    "newBranchRegexError": "",
+    "tagPrefix": "",
+    "listenerTimerPeriod": 10,
+    "connectionTimeout": 60,
+    "failedAuthenticationSeconds": 300,
+    "protectedBranches": ""
+  },
+  "type": "repo-git",
+  "id": "**"
+}

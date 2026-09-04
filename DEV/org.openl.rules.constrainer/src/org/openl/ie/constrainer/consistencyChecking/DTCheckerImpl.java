@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.openl.ie.constrainer.Constrainer;
-import org.openl.ie.constrainer.Constraint;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.Goal;
 import org.openl.ie.constrainer.GoalAnd;
@@ -29,22 +30,24 @@ public class DTCheckerImpl implements DTChecker {
     static public class CDecisionTableImpl implements CDecisionTable {
         private final IntBoolExp[] _rules;
         private final IntExpArray _vars;
+        @Getter
         private final boolean overrideAscending;
 
         public CDecisionTableImpl(IntBoolExp[][] data, IntExpArray vars, boolean overrideAscending) {
             if (data == null) {
                 throw new IllegalArgumentException(
-                        "DecisionTableImpl(IntBoolExp[][] _data, IntExpArray vars) : " +
-                                "cannot be created based on null data array.");
+                        """
+                        DecisionTableImpl(IntBoolExp[][] _data, IntExpArray vars) : \
+                        cannot be created based on null data array.""");
             }
             _vars = vars;
             this.overrideAscending = overrideAscending;
-            int nbRules = data.length;
+            var nbRules = data.length;
             _rules = new IntBoolExp[nbRules];
             Arrays.fill(_rules, new IntBoolExpConst(_vars.constrainer(), true));
-            for (int i = 0; i < data.length; i++) {
-                int nbVars = data[i].length;
-                for (int j = 0; j < nbVars; j++) {
+            for (var i = 0; i < data.length; i++) {
+                var nbVars = data[i].length;
+                for (var j = 0; j < nbVars; j++) {
                     _rules[i] = _rules[i].and(data[i][j]);
                 }
             }
@@ -69,11 +72,6 @@ public class DTCheckerImpl implements DTChecker {
         public IntExpArray getVars() {
             return _vars;
         }
-
-        @Override
-        public boolean isOverrideAscending() {
-            return overrideAscending;
-        }
     }
 
     private class CompletenessCheckerImpl implements CompletenessChecker {
@@ -93,17 +91,17 @@ public class DTCheckerImpl implements DTChecker {
 
         @Override
         public List<Uncovered> check() {
-            IntBoolExp[] rules = _dt.getRules();
-            Constrainer c = rules[0].constrainer();
-            int stackSize = c.getStackSize();
-            IntExpArray ruleArray = new IntExpArray(c, rules.length);
-            for (int i = 0; i < rules.length; i++) {
+            var rules = _dt.getRules();
+            var c = rules[0].constrainer();
+            var stackSize = c.getStackSize();
+            var ruleArray = new IntExpArray(c, rules.length);
+            for (var i = 0; i < rules.length; i++) {
                 ruleArray.set(rules[i], i);
             }
-            Constraint incompleteness = ruleArray.sum().equals(0);
-            Goal save = new GoalSaveSolutions(c);
-            Goal generate = new GoalGenerate(_dt.getVars());
-            Goal target = new GoalAnd(new GoalAnd(incompleteness, generate), save);
+            var incompleteness = ruleArray.sum().equals(0);
+            var save = new GoalSaveSolutions(c);
+            var generate = new GoalGenerate(_dt.getVars());
+            var target = new GoalAnd(new GoalAnd(incompleteness, generate), save);
             c.execute(target, true);
             c.backtrackStack(stackSize);
             return _uncoveredRegions;

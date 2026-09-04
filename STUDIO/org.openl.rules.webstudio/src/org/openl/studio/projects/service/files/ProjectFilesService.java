@@ -120,11 +120,11 @@ public interface ProjectFilesService {
      * are relative to the requested folder. Files the user cannot read are skipped.
      *
      * @param root    the file root
-     * @param path    mount-relative folder path (e.g. "folder")
+     * @param path    mount-relative folder path (e.g. "folder"); blank zips the whole project root
      * @param out     stream the archive is written to
      * @param version optional historical revision to read; {@code null} or blank reads the latest
      */
-    void writeFolderAsZip(@NotNull FileRoot root, @NotBlank String path, @NotNull OutputStream out, String version)
+    void writeFolderAsZip(@NotNull FileRoot root, String path, @NotNull OutputStream out, String version)
             throws IOException;
 
     /**

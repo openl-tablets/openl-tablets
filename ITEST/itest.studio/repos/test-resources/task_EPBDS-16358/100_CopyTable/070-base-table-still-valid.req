@@ -1,0 +1,3 @@
+GET /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNTg6NmNjNmI4Mzk3ZDg4ZjBmMzNhMjA5ZTlkODc0YTNiNWY4NTAzYjYzNjAyZDRhYWUyMWEwMzc1YjNiMjY5MTg1ZA==/tables/eb371809463ad5de586563bd08dbdef9?raw=true&maxRows=1 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

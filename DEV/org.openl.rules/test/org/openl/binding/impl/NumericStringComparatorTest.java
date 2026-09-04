@@ -72,8 +72,8 @@ class NumericStringComparatorTest {
     }
 
     private int compare(String a, String b) {
-        int result = NumericStringComparator.INSTANCE.compare(a, b);
-        int inverse = NumericStringComparator.INSTANCE.compare(b, a);
+        var result = NumericStringComparator.INSTANCE.compare(a, b);
+        var inverse = NumericStringComparator.INSTANCE.compare(b, a);
         assertFalse(result < 0 && inverse <= 0);
         assertFalse(result > 0 && inverse >= 0);
         assertFalse(result == 0 && inverse != 0);

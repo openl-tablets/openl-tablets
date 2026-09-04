@@ -2,6 +2,8 @@ package org.openl.binding.impl;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.text.TextInfo;
@@ -10,11 +12,17 @@ import org.openl.util.text.TextInfo;
  * @author nsamatov.
  */
 public class SimpleNodeUsage implements NodeUsage {
+    @Getter
     private final int start;
+    @Getter
     private final int end;
+    @Getter
     private final String description;
+    @Getter
     private final String uri;
+    @Getter
     private final NodeType nodeType;
+    @Getter
     private final IOpenClass type;
 
     public SimpleNodeUsage(int start, int end, String description, String uri, NodeType nodeType) {
@@ -55,40 +63,11 @@ public class SimpleNodeUsage implements NodeUsage {
     }
 
     private static IOpenClass extractRootType(IOpenClass type) {
-        IOpenClass t = type;
+        var t = type;
         while (t != null && t.isArray()) {
             t = t.getComponentClass();
         }
         return t;
-    }
-
-    @Override
-    public int getStart() {
-        return start;
-    }
-
-    @Override
-    public int getEnd() {
-        return end;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
-    }
-
-    @Override
-    public NodeType getNodeType() {
-        return nodeType;
-    }
-
-    public IOpenClass getType() {
-        return type;
     }
 
     @Override
@@ -99,7 +78,7 @@ public class SimpleNodeUsage implements NodeUsage {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SimpleNodeUsage that = (SimpleNodeUsage) o;
+        var that = (SimpleNodeUsage) o;
         return start == that.start && end == that.end && Objects.equals(description, that.description) && Objects
                 .equals(uri, that.uri) && nodeType == that.nodeType;
     }

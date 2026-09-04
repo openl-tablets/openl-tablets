@@ -1,28 +1,21 @@
 package org.openl.rules.lang.xls.types.meta;
 
-import java.util.Collections;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.openl.binding.impl.NodeType;
-import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.data.DataTableBoundNode;
 import org.openl.rules.data.ForeignKeyColumnDescriptor;
-import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.CellKey;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
@@ -43,16 +36,16 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
 
     @Override
     protected CellMetaInfo getHeaderMetaInfo() {
-        ILogicalTable table = getTableSyntaxNode().getTable();
-        IOpenSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), null);
+        var table = getTableSyntaxNode().getTable();
+        var source = new GridCellSourceCodeModule(table.getSource(), null);
 
-        DataTableBoundNode boundNode = getBoundNode();
+        var boundNode = getBoundNode();
         if (boundNode.getField() == null) {
             // Datatype contains errors
             return null;
         }
 
-        IMetaInfo typeMeta = boundNode.getType().getMetaInfo();
+        var typeMeta = boundNode.getType().getMetaInfo();
         if (typeMeta != null) {
             try {
                 IdentifierNode[] parsedHeader = Tokenizer.tokenize(source, " \n\r");
@@ -70,7 +63,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
     @Override
     protected CellMetaInfo getBodyMetaInfo(int row, int col) {
         try {
-            ITable table = getBoundNode().getTable();
+            var table = getBoundNode().getTable();
             if (table == null) {
                 // Datatype contains errors
                 return null;
@@ -97,7 +90,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
             // No data values in this table. Only description.
             return true;
         }
-        ICell firstDataCell = table.getRowTable(0).getCell(0, 0);
+        var firstDataCell = table.getRowTable(0).getCell(0, 0);
         if (table.getData().isNormalOrientation()) {
             return row < firstDataCell.getAbsoluteRow();
         } else {
@@ -106,10 +99,10 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
     }
 
     private CellMetaInfo getDescriptionMetaInfo(ITable table, int row, int col) {
-        int numberOfColumns = table.getNumberOfColumns();
-        for (int i = 0; i < numberOfColumns; i++) {
-            ColumnDescriptor descriptor = table.getColumnDescriptor(i);
-            CellMetaInfo metaInfo = checkForeignKeyInHeader(descriptor, row, col);
+        var numberOfColumns = table.getNumberOfColumns();
+        for (var i = 0; i < numberOfColumns; i++) {
+            var descriptor = table.getColumnDescriptor(i);
+            var metaInfo = checkForeignKeyInHeader(descriptor, row, col);
             if (metaInfo != NOT_FOUND) {
                 return metaInfo;
             }
@@ -120,19 +113,19 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
 
     private CellMetaInfo checkForeignKeyInHeader(ColumnDescriptor descriptor, int row, int col) {
         if (descriptor instanceof ForeignKeyColumnDescriptor foreignDescriptor) {
-            CellKey cellKey = foreignDescriptor.getForeignKeyCellCoordinate();
+            var cellKey = foreignDescriptor.getForeignKeyCellCoordinate();
             if (isNeededCell(cellKey, row, col)) {
                 // Found needed cell
                 if (foreignDescriptor.isReference()) {
-                    IDataBase db = getBoundNode().getDataBase();
-                    IdentifierNode foreignKeyTable = foreignDescriptor.getForeignKeyTable();
-                    ITable foreignTable = db.getTable(foreignKeyTable.getIdentifier());
+                    var db = getBoundNode().getDataBase();
+                    var foreignKeyTable = foreignDescriptor.getForeignKeyTable();
+                    var foreignTable = db.getTable(foreignKeyTable.getIdentifier());
                     if (foreignTable != null) {
-                        NodeUsage nodeUsage = new SimpleNodeUsage(foreignKeyTable,
+                        var nodeUsage = new SimpleNodeUsage(foreignKeyTable,
                                 foreignTable.getTableSyntaxNode().getHeaderLineValue().getValue(),
                                 foreignTable.getTableSyntaxNode().getUri(),
                                 NodeType.DATA);
-                        return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
+                        return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
                     }
 
                 }
@@ -144,27 +137,27 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
     }
 
     private CellMetaInfo getDataMetaInfo(ITable table, int row, int col) throws SyntaxNodeException {
-        ILogicalTable data = table.getData();
-        boolean normalOrientation = data.isNormalOrientation();
+        var data = table.getData();
+        var normalOrientation = data.isNormalOrientation();
 
-        ICell firstCell = table.getRowTable(0).getCell(0, 0);
+        var firstCell = table.getRowTable(0).getCell(0, 0);
         // logicalCol is column for normal orientation and is row for transposed table
         int logicalCol = normalOrientation ? (col - firstCell.getAbsoluteColumn()) : (row - firstCell.getAbsoluteRow());
 
-        for (int i = 0; i < table.getNumberOfColumns(); i++) {
-            ICell cell = data.getCell(i, 0);
-            int logicalColStart = cell.getColumn();
-            int logicalWidth = data.getColumnWidth(i);
+        for (var i = 0; i < table.getNumberOfColumns(); i++) {
+            var cell = data.getCell(i, 0);
+            var logicalColStart = cell.getColumn();
+            var logicalWidth = data.getColumnWidth(i);
 
             if (logicalColStart <= logicalCol && logicalCol < logicalColStart + logicalWidth) {
                 // Found needed column for cell
-                ColumnDescriptor descriptor = table.getColumnDescriptor(i);
+                var descriptor = table.getColumnDescriptor(i);
                 if (descriptor == null) {
                     continue;
                 }
                 IOpenClass columnType;
                 if (descriptor instanceof ForeignKeyColumnDescriptor columnDescriptor) {
-                    IDataBase db = getBoundNode().getDataBase();
+                    var db = getBoundNode().getDataBase();
                     columnType = columnDescriptor.getDomainClassForForeignTable(db);
                 } else {
                     columnType = descriptor.isConstructor() ? table.getDataModel().getType() : descriptor.getType();
@@ -178,7 +171,7 @@ public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNo
                     if (descriptor instanceof ForeignKeyColumnDescriptor) {
                         return new CellMetaInfo(columnType, logicalWidth == 1);
                     } else {
-                        IOpenClass elemType = columnType.getAggregateInfo().getComponentType(columnType);
+                        var elemType = columnType.getAggregateInfo().getComponentType(columnType);
                         return new CellMetaInfo(elemType, logicalWidth == 1);
                     }
                 }

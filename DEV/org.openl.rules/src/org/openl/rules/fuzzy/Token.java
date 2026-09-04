@@ -1,37 +1,26 @@
 package org.openl.rules.fuzzy;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class Token {
 
+    @Getter
     private final String value;
+    @Getter
     private final int distance;
+    @Getter
     private final int minMatchedTokens;
 
     public Token(String value, int distance) {
         this(value, distance, 0);
     }
 
-    public Token(String value, int distance, int minMatchedTokens) {
-        this.value = value;
-        this.distance = distance;
-        this.minMatchedTokens = minMatchedTokens;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public int getDistance() {
-        return distance;
-    }
-
-    public int getMinMatchedTokens() {
-        return minMatchedTokens;
-    }
-
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
+        final var prime = 31;
+        var result = 1;
         result = prime * result + distance;
         result = prime * result + (value == null ? 0 : value.hashCode());
         return result;
@@ -48,7 +37,7 @@ public class Token {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Token other = (Token) obj;
+        var other = (Token) obj;
         if (distance != other.distance) {
             return false;
         }

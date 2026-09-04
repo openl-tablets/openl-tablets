@@ -1,10 +1,14 @@
 package org.openl.binding.impl.cast;
 
+import lombok.Getter;
+
 final class AliasToTypeCast implements IOpenCast, INestedCastOpenCast {
     private static final AliasToTypeCast INSTANCE = new AliasToTypeCast();
 
     private IOpenCast typeCast;
+    @Getter
     private int distance = CastFactory.ALIAS_TO_TYPE_CAST_DISTANCE;
+    @Getter
     private boolean implicit = true;
 
     static AliasToTypeCast getInstance() {
@@ -37,15 +41,5 @@ final class AliasToTypeCast implements IOpenCast, INestedCastOpenCast {
         }
 
         return from;
-    }
-
-    @Override
-    public int getDistance() {
-        return distance;
-    }
-
-    @Override
-    public boolean isImplicit() {
-        return implicit;
     }
 }

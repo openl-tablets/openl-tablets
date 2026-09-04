@@ -31,20 +31,20 @@ class IdentifiedMethodTest {
 
         context.setCurrentDate(calendar.getTime());
 
-        Double res1 = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
+        var res1 = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
         assertEquals(120.0, res1, 1e-8);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
-        Double res2 = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
+        var res2 = instance.driverRiskScoreOverloadTest(context, "High Risk Driver");
         assertEquals(100.0, res2, 1e-8);
 
         // direct call to particular method avoiding method dispatcher
         calendar.set(2003, 5, 15);
 
         context.setCurrentDate(calendar.getTime());
-        Double res2_2 = instance.driverRiskEarlier(context, "High Risk Driver");
+        var res2_2 = instance.driverRiskEarlier(context, "High Risk Driver");
         assertEquals(120.0, res2_2, 1e-8);
     }
 
@@ -71,7 +71,7 @@ class IdentifiedMethodTest {
             }
         }
         assertNotNull(regexpConstraint);
-        String regex = ((RegexpValueConstraint) regexpConstraint).getRegexp();
+        var regex = ((RegexpValueConstraint) regexpConstraint).getRegexp();
         assertTrue("_name".matches(regex));
         assertTrue("Name".matches(regex));
         assertTrue("name__999".matches(regex));

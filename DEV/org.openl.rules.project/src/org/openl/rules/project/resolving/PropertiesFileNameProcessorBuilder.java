@@ -2,7 +2,6 @@ package org.openl.rules.project.resolving;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.openl.classloader.ClassLoaderUtils;
@@ -24,27 +23,27 @@ public final class PropertiesFileNameProcessorBuilder {
         if (processor != null) {
             throw new IllegalStateException("Processor is already built! Use a new builder.");
         }
-        String[] patterns = projectDescriptor.getPropertiesFileNamePatterns();
-        String prcClass = projectDescriptor.getPropertiesFileNameProcessor();
+        var patterns = projectDescriptor.getPropertiesFileNamePatterns();
+        var prcClass = projectDescriptor.getPropertiesFileNameProcessor();
 
         if (StringUtils.isBlank(prcClass) || prcClass
                 .equals("org.openl.rules.project.resolving.CWPropertyFileNameProcessor")) {
             processor = buildDefault(patterns);
         } else {
-            ClassLoader classLoader = getCustomClassLoader(projectDescriptor);
+            var classLoader = getCustomClassLoader(projectDescriptor);
             Class<PropertiesFileNameProcessor> clazz;
             try {
                 clazz = (Class<PropertiesFileNameProcessor>) classLoader.loadClass(prcClass);
             } catch (ClassNotFoundException e) {
-                String message = "Properties file name processor class '" + prcClass + "' is not found.";
+                var message = "Properties file name processor class '" + prcClass + "' is not found.";
                 throw new InvalidFileNameProcessorException(message, e);
             } catch (NoClassDefFoundError e) {
-                String message = "Failed to instantiate file name processor class '" + prcClass + "'.";
+                var message = "Failed to instantiate file name processor class '" + prcClass + "'.";
                 throw new InvalidFileNameProcessorException(message, e);
             }
 
             if (!PropertiesFileNameProcessor.class.isAssignableFrom(clazz)) {
-                String message = "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.".formatted(
+                var message = "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.".formatted(
                         prcClass,
                         PropertiesFileNameProcessor.class.getTypeName());
                 throw new InvalidFileNameProcessorException(message);
@@ -63,7 +62,7 @@ public final class PropertiesFileNameProcessorBuilder {
                     declaredConstructor = clazz.getDeclaredConstructor();
                     processor = newInstance(declaredConstructor);
                 } catch (NoSuchMethodException e1) {
-                    String message = "Failed to instantiate file name processor class '" + prcClass + "'. Constructor with 'String' argument or default constructor is not found.";
+                    var message = "Failed to instantiate file name processor class '" + prcClass + "'. Constructor with 'String' argument or default constructor is not found.";
                     throw new InvalidFileNameProcessorException(message, e);
                 }
             }
@@ -74,7 +73,7 @@ public final class PropertiesFileNameProcessorBuilder {
     static PropertiesFileNameProcessor buildDefault(String... patterns) throws InvalidFileNamePatternException {
         if (CollectionUtils.isNotEmpty(patterns)) {
             PropertiesFileNameProcessor[] processors = new PropertiesFileNameProcessor[patterns.length];
-            for (int i = 0; i < patterns.length; i++) {
+            for (var i = 0; i < patterns.length; i++) {
                 processors[i] = new DefaultPropertiesFileNameProcessor(patterns[i]);
             }
 
@@ -86,7 +85,7 @@ public final class PropertiesFileNameProcessorBuilder {
     private PropertiesFileNameProcessor buildCustom(Constructor<PropertiesFileNameProcessor> procConstructor,
                                                     String... patterns) throws InvalidFileNamePatternException, InvalidFileNameProcessorException {
         PropertiesFileNameProcessor[] processors = new PropertiesFileNameProcessor[patterns.length];
-        for (int i = 0; i < patterns.length; i++) {
+        for (var i = 0; i < patterns.length; i++) {
             processors[i] = newInstance(procConstructor, patterns[i]);
         }
 
@@ -99,18 +98,18 @@ public final class PropertiesFileNameProcessorBuilder {
         try {
             prc = procConstructor.newInstance(args);
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
+            var targetException = e.getTargetException();
             if (targetException instanceof InvalidFileNamePatternException exception) {
                 throw exception;
             }
             if (targetException instanceof RuntimeException exception) {
                 throw exception;
             }
-            String message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
+            var message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
                     .getTypeName() + "'. Unexpected exception is thrown, only InvalidFileNamePatternException is supported.";
             throw new InvalidFileNameProcessorException(message, e);
         } catch (Exception e) {
-            String message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
+            var message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
                     .getTypeName() + "'.";
             throw new InvalidFileNameProcessorException(message, e);
         }
@@ -146,7 +145,7 @@ public final class PropertiesFileNameProcessorBuilder {
     }
 
     protected ClassLoader getCustomClassLoader(ProjectDescriptor projectDescriptor) {
-        URL[] urls = projectDescriptor.getClassPathUrls();
+        var urls = projectDescriptor.getClassPathUrls();
         classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
         return classLoader;
     }

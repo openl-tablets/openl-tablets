@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -18,9 +17,6 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
-import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.Sid;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
@@ -58,17 +54,17 @@ class JdbcMutableAclServiceConcurrencyTest {
     @Test
     @WithMockUser(value = "admin", authorities = "Administrators")
     void concurrentGrantPermissionsForSameSid() throws Exception {
-        int threadCount = 5;
-        String runId = UUID.randomUUID().toString();
-        Sid sid = new PrincipalSid("newUser-" + runId);
-        CyclicBarrier barrier = new CyclicBarrier(threadCount);
+        var threadCount = 5;
+        var runId = UUID.randomUUID().toString();
+        var sid = new PrincipalSid("newUser-" + runId);
+        var barrier = new CyclicBarrier(threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         try {
-            List<Future<?>> futures = new ArrayList<>();
-            for (int i = 0; i < threadCount; i++) {
-                final String projectId = "project-" + runId + "-" + i;
+            var futures = new ArrayList<Future<?>>();
+            for (var i = 0; i < threadCount; i++) {
+                final var projectId = "project-" + runId + "-" + i;
                 futures.add(executor.submit(() -> {
                     // Propagate security context to child thread (each thread gets its own instance)
                     var ctx = SecurityContextHolder.createEmptyContext();
@@ -78,10 +74,10 @@ class JdbcMutableAclServiceConcurrencyTest {
                         // Wait until all threads are ready to maximize contention
                         assertDoesNotThrow(() -> barrier.await());
 
-                        TransactionTemplate tx = new TransactionTemplate(txManager);
+                        var tx = new TransactionTemplate(txManager);
                         tx.execute(status -> {
-                            ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, projectId);
-                            MutableAcl acl = aclService.createAcl(oi);
+                            var oi = new ObjectIdentityImpl(Foo.class, projectId);
+                            var acl = aclService.createAcl(oi);
                             acl.insertAce(0, BasePermission.READ, sid, true);
                             aclService.updateAcl(acl);
                             return null;
@@ -102,11 +98,11 @@ class JdbcMutableAclServiceConcurrencyTest {
         }
 
         // Verify all ACLs were created successfully
-        for (int i = 0; i < threadCount; i++) {
-            ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "project-" + runId + "-" + i);
-            TransactionTemplate tx = new TransactionTemplate(txManager);
+        for (var i = 0; i < threadCount; i++) {
+            var oi = new ObjectIdentityImpl(Foo.class, "project-" + runId + "-" + i);
+            var tx = new TransactionTemplate(txManager);
             tx.setReadOnly(true);
-            MutableAcl acl = tx.execute(status -> (MutableAcl) aclService.readAclById(oi));
+            var acl = tx.execute(status -> (MutableAcl) aclService.readAclById(oi));
             assertEquals(1, acl.getEntries().size());
         }
     }
@@ -118,16 +114,16 @@ class JdbcMutableAclServiceConcurrencyTest {
     @Test
     @WithMockUser(value = "admin", authorities = "Administrators")
     void concurrentGrantPermissionsForMultipleSids() throws Exception {
-        int threadCount = 8;
-        String runId = UUID.randomUUID().toString();
-        CyclicBarrier barrier = new CyclicBarrier(threadCount);
+        var threadCount = 8;
+        var runId = UUID.randomUUID().toString();
+        var barrier = new CyclicBarrier(threadCount);
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         try {
-            List<Future<?>> futures = new ArrayList<>();
-            for (int i = 0; i < threadCount; i++) {
-                final String projectId = "multi-project-" + runId + "-" + i;
+            var futures = new ArrayList<Future<?>>();
+            for (var i = 0; i < threadCount; i++) {
+                final var projectId = "multi-project-" + runId + "-" + i;
                 futures.add(executor.submit(() -> {
                     var ctx = SecurityContextHolder.createEmptyContext();
                     ctx.setAuthentication(authentication);
@@ -135,11 +131,11 @@ class JdbcMutableAclServiceConcurrencyTest {
                     try {
                         assertDoesNotThrow(() -> barrier.await());
 
-                        TransactionTemplate tx = new TransactionTemplate(txManager);
+                        var tx = new TransactionTemplate(txManager);
                         tx.execute(status -> {
-                            ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, projectId);
-                            MutableAcl acl = aclService.createAcl(oi);
-                            Sid sid = new PrincipalSid("sharedUser-" + runId);
+                            var oi = new ObjectIdentityImpl(Foo.class, projectId);
+                            var acl = aclService.createAcl(oi);
+                            var sid = new PrincipalSid("sharedUser-" + runId);
                             acl.insertAce(0, BasePermission.WRITE, sid, true);
                             aclService.updateAcl(acl);
                             return null;
@@ -159,11 +155,11 @@ class JdbcMutableAclServiceConcurrencyTest {
         }
 
         // Verify all ACLs have the correct entry
-        for (int i = 0; i < threadCount; i++) {
-            ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "multi-project-" + runId + "-" + i);
-            TransactionTemplate tx = new TransactionTemplate(txManager);
+        for (var i = 0; i < threadCount; i++) {
+            var oi = new ObjectIdentityImpl(Foo.class, "multi-project-" + runId + "-" + i);
+            var tx = new TransactionTemplate(txManager);
             tx.setReadOnly(true);
-            MutableAcl acl = tx.execute(status -> (MutableAcl) aclService.readAclById(oi));
+            var acl = tx.execute(status -> (MutableAcl) aclService.readAclById(oi));
             assertEquals(1, acl.getEntries().size());
         }
     }

@@ -86,7 +86,7 @@ class QuotientTest {
         assertEquals(1.0f, Quotient.quotient(-4.5f, -3.1f), 0.0f);
         assertEquals(0.0f, Quotient.quotient(0.0f, 3.1f), 0.0f);
         // Result is integral — zero fractional part.
-        float q = Quotient.quotient(1.0e10f, 7.0f);
+        var q = Quotient.quotient(1.0e10f, 7.0f);
         assertTrue(Float.isFinite(q));
         assertEquals(q, (float) Math.floor(q), 0.0f);
     }
@@ -147,8 +147,8 @@ class QuotientTest {
 
     @Test
     void quotientBigIntegerLarge() {
-        BigInteger dividend = new BigInteger("203000745502000030060144252100");
-        BigInteger expected = new BigInteger("2092791190742268351135507753");
+        var dividend = new BigInteger("203000745502000030060144252100");
+        var expected = new BigInteger("2092791190742268351135507753");
         assertEquals(expected, Quotient.quotient(dividend, BigInteger.valueOf(97)));
         assertEquals(expected.negate(), Quotient.quotient(dividend, BigInteger.valueOf(-97)));
         assertEquals(expected.negate(), Quotient.quotient(dividend.negate(), BigInteger.valueOf(97)));
@@ -175,8 +175,8 @@ class QuotientTest {
 
     @Test
     void quotientBigDecimalLarge() {
-        BigDecimal dividend = new BigDecimal("203000745502000030060144252100");
-        BigDecimal expected = new BigDecimal("2092791190742268351135507753");
+        var dividend = new BigDecimal("203000745502000030060144252100");
+        var expected = new BigDecimal("2092791190742268351135507753");
         assertEquals(0, expected.compareTo(Quotient.quotient(dividend, BigDecimal.valueOf(97))));
     }
 

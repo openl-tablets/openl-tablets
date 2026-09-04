@@ -11,9 +11,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class NicePrinter {
 
     private static final int DEF_IDENT_STEP = 2;
@@ -27,22 +30,18 @@ public class NicePrinter {
     }
 
     public static String print(Object obj) {
-        StringBuilder buf = new StringBuilder(100);
+        var buf = new StringBuilder(100);
         print(obj, buf);
         return buf.toString();
     }
 
     public static void print(Object obj, StringBuilder buf) {
-        NicePrinter np = new NicePrinter(buf);
+        var np = new NicePrinter(buf);
         np.print(obj, new NicePrinterAdaptor());
     }
 
     public NicePrinter() {
         this(new StringBuilder(100));
-    }
-
-    public NicePrinter(StringBuilder buf) {
-        buffer = buf;
     }
 
     public void decIdent() {
@@ -72,13 +71,13 @@ public class NicePrinter {
             return;
         }
 
-        Integer existingID = printedObjects.get(obj);
+        var existingID = printedObjects.get(obj);
         if (existingID != null) {
             adaptor.printReference(obj, existingID, this);
             return;
         }
 
-        int newID = printedID++;
+        var newID = printedID++;
 
         printedObjects.put(obj, newID);
 
@@ -108,8 +107,8 @@ public class NicePrinter {
 
     public void startNewLine() {
         buffer.append('\n');
-        for (int i = 0; i < ident; ++i) {
-            for (int j = 0; j < DEF_IDENT_STEP; j++) {
+        for (var i = 0; i < ident; ++i) {
+            for (var j = 0; j < DEF_IDENT_STEP; j++) {
                 buffer.append(' ');
             }
         }

@@ -20,7 +20,7 @@ public class FilledPropertiesPriorityRule implements IPriorityRule {
     }
 
     public static int getNumberOfSpecifiedProperties(ITableProperties properties) {
-        int result = 0;
+        var result = 0;
         for (String dimensionPropertyName : dimensionProperties) {
             if (properties.getPropertyValue(dimensionPropertyName) != null) {
                 result++;

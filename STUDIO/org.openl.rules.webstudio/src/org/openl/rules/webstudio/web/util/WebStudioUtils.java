@@ -5,17 +5,14 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.validator.ValidatorException;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -49,12 +46,16 @@ public abstract class WebStudioUtils {
         if (rulesUserSession == null && create) {
             ApplicationContext appContext = SpringInitializer.getApplicationContext(session.getServletContext());
             rulesUserSession = appContext.getBean(RulesUserSession.class);
-            session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
-            // immediately add OpenL Studio to the session to be able to use it in RichFaces UI
-            // it can be removed after removing RichFaces
-            session.setAttribute(STUDIO_ATTR, rulesUserSession.getWebStudio());
+            registerRulesUserSession(session, rulesUserSession);
         }
         return rulesUserSession;
+    }
+
+    public static void registerRulesUserSession(HttpSession session, RulesUserSession rulesUserSession) {
+        session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
+        // Immediately add OpenL Studio to the session to be able to use it in RichFaces UI.
+        // It can be removed after removing RichFaces.
+        session.setAttribute(STUDIO_ATTR, rulesUserSession.getWebStudio());
     }
 
     public static WebStudio getWebStudio() {
@@ -67,15 +68,10 @@ public abstract class WebStudioUtils {
         return rulesUserSession == null ? null : rulesUserSession.getWebStudio();
     }
 
-    public static WebStudio getWebStudio(boolean create) {
+    public static WebStudio getOrCreateWebStudio() {
         HttpSession session = (HttpSession) getExternalContext().getSession(true);
         return Optional.ofNullable(getWebStudio(session))
                 .orElseGet(() -> getRulesUserSession(session, true).getWebStudio());
-    }
-
-    public static boolean isStudioReady() {
-        WebStudio webStudio = getWebStudio();
-        return webStudio != null && webStudio.getModel().isReady();
     }
 
     public static ProjectModel getProjectModel() {
@@ -91,12 +87,6 @@ public abstract class WebStudioUtils {
             log.error("Failed to get user workspace", e);
         }
         return userWorkspace;
-    }
-
-    public static <T> T getBean(Class<T> clazz) {
-        ServletContext servletContext = (ServletContext) getExternalContext().getContext();
-        WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-        return appContext.getBean(clazz);
     }
 
     @Deprecated
@@ -127,10 +117,6 @@ public abstract class WebStudioUtils {
 
     public static void addMessage(String clientId, String summary, String detail, FacesMessage.Severity severity) {
         FacesContext.getCurrentInstance().addMessage(clientId, new FacesMessage(severity, summary, detail));
-    }
-
-    public static void addInfoMessage(String summary) {
-        addMessage(null, summary, null, FacesMessage.SEVERITY_INFO);
     }
 
     public static void addErrorMessage(String summary) {

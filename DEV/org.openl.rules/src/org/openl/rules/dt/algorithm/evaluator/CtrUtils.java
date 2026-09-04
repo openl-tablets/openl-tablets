@@ -18,9 +18,9 @@ public final class CtrUtils {
             return IntBoolExpConst.getIntBoolExpConst(exp.constrainer(), false);
         }
 
-        IntBoolExp b = exp.eq(ary[0]);
+        var b = exp.eq(ary[0]);
 
-        for (int i = 1; i < ary.length; i++) {
+        for (var i = 1; i < ary.length; i++) {
             b = b.or(exp.eq(ary[i]));
         }
 

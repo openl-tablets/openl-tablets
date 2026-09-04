@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -34,7 +33,6 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.types.IOpenClass;
 
 @Slf4j
 public abstract class AbstractDependencyManager implements IDependencyManager {
@@ -93,7 +91,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
         @Override
         public int hashCode() {
-            int result = 1;
+            var result = 1;
             result = 31 * result + (dependOnThisDependency == null ? 0 : dependOnThisDependency.hashCode());
             result = 31 * result + (dependency == null ? 0 : dependency.hashCode());
             return result;
@@ -170,7 +168,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     @Override
     public synchronized CompiledDependency loadDependency(
             ResolvedDependency dependency) throws OpenLCompilationException {
-        final IDependencyLoader dependencyLoader = findDependencyLoaderByDependency(dependency);
+        final var dependencyLoader = findDependencyLoaderByDependency(dependency);
         Deque<IDependencyLoader> compilationStack = getCompilationStack();
         try {
             if (log.isDebugEnabled()) {
@@ -180,9 +178,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                                 : "Dependency '{}' is not found in the compilation stack.",
                         dependency);
             }
-            boolean isCircularDependency = compilationStack.contains(dependencyLoader);
+            var isCircularDependency = compilationStack.contains(dependencyLoader);
             if (!isCircularDependency && !compilationStack.isEmpty()) {
-                DependencyRelation dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyLoader);
+                var dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyLoader);
                 this.addDependencyRelation(dr);
             }
 
@@ -224,12 +222,12 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     }
 
     public Collection<IDependencyLoader> findAllProjectDependencyLoaders(ProjectDescriptor project) {
-        Collection<IDependencyLoader> dependencyLoadersForProject = new HashSet<>();
-        Deque<ProjectDescriptor> queue = new ArrayDeque<>();
+        var dependencyLoadersForProject = new HashSet<IDependencyLoader>();
+        var queue = new ArrayDeque<ProjectDescriptor>();
         queue.add(project);
-        Set<ProjectDescriptor> projectDescriptors = new HashSet<>();
+        var projectDescriptors = new HashSet<ProjectDescriptor>();
         while (!queue.isEmpty()) {
-            ProjectDescriptor projectDescriptor = queue.poll();
+            var projectDescriptor = queue.poll();
             getDependencyLoaders().stream()
                     .filter(e -> Objects.equals(e.getProject(), projectDescriptor))
                     .forEach(dependencyLoadersForProject::add);
@@ -240,7 +238,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                         // resolved via the project classpath — not an OpenL project reference.
                         continue;
                     }
-                    IDependencyLoader dl = this.findDependencyLoader(buildResolvedDependency(pdd.getName()));
+                    var dl = this.findDependencyLoader(buildResolvedDependency(pdd.getName()));
                     if (dl != null && dl.isProjectLoader() && !projectDescriptors.contains(dl.getProject())) {
                         queue.add(dl.getProject());
                         projectDescriptors.add(dl.getProject());
@@ -254,7 +252,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     @Override
     public Collection<ResolvedDependency> resolveDependency(IDependency dependency,
                                                             boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException {
-        String value = dependency.getNode().getIdentifier();
+        var value = dependency.getNode().getIdentifier();
         boolean withWildcard;
         if (withWildcardSupport) {
             withWildcard = ASTERISK_SIGN.matcher(value).find() || QUESTION_SIGN.matcher(value).find();
@@ -307,7 +305,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                     .collect(Collectors.toSet());
         }
 
-        Collection<ResolvedDependency> ret = dependencyLoaders.stream()
+        var ret = dependencyLoaders.stream()
                 .map(e -> new ResolvedDependency(e.isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE,
                         new IdentifierNode(dependency.getNode().getType(),
                                 dependency.getNode().getLocation(),
@@ -335,7 +333,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     protected IDependencyLoader findDependencyLoaderByDependency(
             ResolvedDependency dependency) throws OpenLCompilationException {
-        IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
+        var dependencyLoader = findDependencyLoader(dependency);
         if (dependencyLoader == null) {
             throw new OpenLCompilationException(
                     "Dependency '%s' is not found.".formatted(dependency.getNode().getIdentifier()),
@@ -348,9 +346,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private static String buildCircularDependencyDetails(IDependencyLoader dependencyLoader,
                                                          Deque<IDependencyLoader> compilationStack) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
-        Map<String, List<Module>> p = compilationStack.stream()
+        var p = compilationStack.stream()
                 .filter(e -> !e.isProjectLoader())
                 .map(IDependencyLoader::getModule)
                 .collect(Collectors.groupingBy(Module::getName));
@@ -361,7 +359,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 !dependencyLoader.isProjectLoader() && p.get(dependencyLoader.getModule().getName())
                         .size() == 1 ? dependencyLoader.getModule().getName() : dependencyLoader.getDependency());
         while (itr.hasNext()) {
-            IDependencyLoader s = itr.next();
+            var s = itr.next();
             sb.insert(0, "' -> '");
             sb.insert(0,
                     !s.isProjectLoader() && p.get(s.getModule().getName()).size() == 1 ? s.getModule().getName()
@@ -376,7 +374,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     }
 
     private CompiledDependency throwDependencyNotFoundError(IDependency dependency) throws OpenLCompilationException {
-        IdentifierNode node = dependency.getNode();
+        var node = dependency.getNode();
         throw new OpenLCompilationException("Dependency '%s' is not found.".formatted(node.getIdentifier()),
                 null,
                 node.getSourceLocation(),
@@ -384,7 +382,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     }
 
     public synchronized ClassLoader getExternalJarsClassLoader(ProjectDescriptor project) {
-        Set<ProjectDescriptor> breadcrumbs = new HashSet<>();
+        var breadcrumbs = new HashSet<ProjectDescriptor>();
         breadcrumbs.add(project);
         return getExternalJarsClassLoaderRec(project, breadcrumbs);
     }
@@ -396,10 +394,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             return externalJarsClassloaders.get(project);
         }
         ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
-        OpenLClassLoader externalJarsClassloader = new OpenLClassLoader(project.getClassPathUrls(), parentClassLoader);
+        var externalJarsClassloader = new OpenLClassLoader(project.getClassPathUrls(), parentClassLoader);
         // To load classes from dependency jars first
         if (project.getDependencies() != null) {
-            Collection<IDependencyLoader> projectDependencyLoaders = getDependencyLoaders().stream()
+            var projectDependencyLoaders = getDependencyLoaders().stream()
                     .filter(IDependencyLoader::isProjectLoader)
                     .collect(Collectors.toCollection(ArrayList::new));
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
@@ -425,17 +423,17 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (dependencies == null || dependencies.length == 0) {
             return;
         }
-        Set<IDependencyLoader> dependenciesToKeep = new HashSet<>();
-        Deque<IDependencyLoader> queue = new ArrayDeque<>();
+        var dependenciesToKeep = new HashSet<IDependencyLoader>();
+        var queue = new ArrayDeque<IDependencyLoader>();
         for (ResolvedDependency dependency : dependencies) {
             if (dependency != null) {
-                IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
+                var dependencyLoader = findDependencyLoader(dependency);
                 queue.add(dependencyLoader);
                 dependenciesToKeep.add(dependencyLoader);
             }
         }
         while (!queue.isEmpty()) {
-            IDependencyLoader depLoader = queue.poll();
+            var depLoader = queue.poll();
             for (DependencyRelation dependencyReference : dependencyRelations) {
                 if (dependencyReference.getDependency().equals(depLoader)) {
                     if (dependenciesToKeep.add(dependencyReference.getDependOnThisDependency())) {
@@ -456,15 +454,15 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (dependency == null) {
             return;
         }
-        IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
-        Set<DependencyRelation> dependenciesReferencesToRemove = new HashSet<>();
-        Deque<IDependencyLoader> queue = new ArrayDeque<>();
+        var dependencyLoader = findDependencyLoader(dependency);
+        var dependenciesReferencesToRemove = new HashSet<DependencyRelation>();
+        var queue = new ArrayDeque<IDependencyLoader>();
         queue.add(dependencyLoader);
-        Set<IDependencyLoader> dependenciesToReset = new HashSet<>();
+        var dependenciesToReset = new HashSet<IDependencyLoader>();
         dependenciesToReset.add(dependencyLoader);
-        Set<ProjectDescriptor> projectClassloaderToReset = new HashSet<>();
+        var projectClassloaderToReset = new HashSet<ProjectDescriptor>();
         while (!queue.isEmpty()) {
-            IDependencyLoader depLoader = queue.poll();
+            var depLoader = queue.poll();
             for (DependencyRelation dependencyReference : dependencyRelations) {
                 if (dependencyReference.getDependOnThisDependency().equals(depLoader)) {
                     if (dependenciesToReset.add(dependencyReference.getDependency())) {
@@ -476,16 +474,16 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 }
             }
             if (depLoader.getRefToCompiledDependency() != null) {
-                CompiledDependency compiledDependency = depLoader.getRefToCompiledDependency();
-                IOpenClass openClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
+                var compiledDependency = depLoader.getRefToCompiledDependency();
+                var openClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
                 if (openClass instanceof XlsModuleOpenClass class1 && class1
                         .isAppliedChangesToClasspath()) {
                     // Datatypes are generated into the project classloader. If module contains datatype then
                     // whole project needs to be recompiled.
-                    Deque<ProjectDescriptor> queue1 = new ArrayDeque<>();
+                    var queue1 = new ArrayDeque<ProjectDescriptor>();
                     queue1.add(dependencyLoader.getProject());
                     while (!queue1.isEmpty()) {
-                        ProjectDescriptor pd = queue1.poll();
+                        var pd = queue1.poll();
                         if (projectClassloaderToReset.add(pd)) {
                             for (IDependencyLoader dl : this.getDependencyLoaders()) {
                                 if (Objects.equals(dl.getProject(), pd)) {
@@ -516,7 +514,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             dependencyRelations.remove(dependencyReference);
         }
         for (ProjectDescriptor projectDescriptor : projectClassloaderToReset) {
-            ClassLoader cl = externalJarsClassloaders.get(projectDescriptor);
+            var cl = externalJarsClassloaders.get(projectDescriptor);
             if (cl != null) {
                 OpenClassUtil.releaseClassLoader(cl);
             }

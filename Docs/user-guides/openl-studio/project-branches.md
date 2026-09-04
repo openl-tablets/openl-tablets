@@ -11,21 +11,36 @@ The following topics are included in this section:
 
 ### Creating a Branch
 
-A branch is created by copying an existing project. Both predefined and user-defined names can be used for a branch. For more information on name patterns, see [Setting Up a Connection to a Git Repository](administration/01-repository-settings/02-git-repository-settings.md#setting-up-a-connection-to-a-git-repository).
+A repository branch can be selected or created while creating a project. This applies to projects created from a
+template, Excel files, an OpenAPI file, a ZIP archive, another project, or the user's workspace. Both configured and
+user-defined names can be used. For more information on name patterns, see [Setting Up a Connection to a Git
+Repository](administration/01-repository-settings/02-git-repository-settings.md#setting-up-a-connection-to-a-git-repository).
 
 Proceed as follows:
 
-1.  In OpenL Studio, in the editor or repository, select a project.
-2.  Click **Copy.**
-3.  In the **New Branch Name** field, proceed with the default value or enter a new branch name.
+1.  In the repository, click **Create Project** and select a creation method.
+1.  Select a branch-capable Design repository.
+1.  In the single **Branch** field, select an existing branch from the suggestions or enter a valid new branch name.
+1.  Complete the remaining fields and click **Create**.
 
-The newly created project branch is displayed as an active branch and ready for work.
+If the entered branch does not exist, OpenL Studio creates it from the repository default branch and writes the new
+project there. A project created only in that branch uses it as the home branch and is listed for other authorized
+users without a manual refresh. If the repository is empty, the first project commit creates the selected branch,
+including a valid non-default branch. Invalid Git names and names that do not match the configured branch-name pattern
+are reported below the **Branch** field before the request is sent.
 
-**Note:** When a project in the **Closed** status is copied, the project in the newly created branch has the **No changes** status.
+> [!Note]
+> To copy an existing project, select **Copy Project** as the creation method. The copy has its own project name and
+> target branch.
 
 ### Working with Branches
 
-This section describes how to view existing branches, switch between them in the editor and repository, enable and disable branches, and delete branches. Proceed as follows:
+This section describes how to view existing branches, switch between them in the editor and repository,
+inspect project membership, and delete branches. OpenL Studio discovers projects from the current Git tree
+of every readable branch. A project that exists only outside the default branch therefore appears in the
+project list, represented by a protected branch when one contains it and by the branch with the newest commit
+otherwise. Its **Branch** field shows the current branch and loads the branches that contain the project when
+the branch menu is opened. Proceed as follows:
 
 1.  To display a current project branch, in OpenL Studio, in the editor or repository, open a project.
 
@@ -38,13 +53,15 @@ This section describes how to view existing branches, switch between them in the
     *Switching between branches in the editor*
 
 1.  To switch between branches in the repository, for a project, in the **Branch** field, select the required branch.
-2.  To disable or enable a branch for a project, in the repository, click the dots next to the branch name field and in the window that appears, clear or select the appropriate branch check box.
+2.  To inspect which repository branches contain the project, click the dots next to the **Branch** field.
 
-    This list also contains branches created outside of OpenL Studio.
+    **Manage Branches** lists only the branches whose current content contains the project. Membership is read-only
+    because it is discovered from Git content.
 
-    ![](images/enable-disable-branches.jpeg)
+    ![Viewing the Git branches that contain a project](images/view-project-branches.png "Viewing project branch membership")
 
-    *Enabling and disabling branches for a project*
+    To create a copy in another branch, use **Create Project** > **Copy Project** and select the target branch.
+    To remove a project from a branch, switch the project to that branch and use **Delete**.
 
 1.  To delete a non-default branch, switch to this branch in the project properties and click **Delete Branch.**
 
@@ -53,14 +70,23 @@ This section describes how to view existing branches, switch between them in the
     default branch, a warning message is displayed upon deletion attempt. A branch on which the project is locked by
     another user cannot be deleted while the lock is held: the lock means that user is editing the project there.
 
+    **Delete Branch** is unavailable in these cases:
+
+    - the branch is the default one;
+    - the branch is protected and the user cannot bypass branch protection;
+    - the branch is the only one that contains the project and the user cannot delete the project. Deleting that
+      branch removes the project, so it takes the same permission as deleting the project. Users who have it are
+      warned in the confirmation dialog that the project will be gone.
+
     ![](images/delete-branch-unmerged-commits.png)
 
     *Deleting a non-default branch with unmerged commits*
 
-1.  To delete a default branch, in the repository, select the required project branch and click **Delete.**
+1.  To delete a project from its current branch, in the repository, select the required project branch and click
+    **Delete**.
 
-    The project is deleted from the current state of Design repository and disappears from the list of projects. This
-    change is recorded in repository history.
+    The project is deleted from the current branch of Design repository. It disappears from the project list only when
+    it does not exist in another branch. This change is recorded in repository history.
 
 1.  To merge two branches, click **Sync** and select one of the following options:
 
@@ -68,6 +94,16 @@ This section describes how to view existing branches, switch between them in the
     |-----------------------|-------------------------------------------------------------------------------|
     | Receive their updates | Changes from a selected branch are copied to the currently active branch.     |
     | Send your updates     | Changes from the currently active branch are uploaded to the selected branch. |
+
+    **Merge with branch** lists the branches that hold the project. To merge into a branch that does not hold it
+    yet — the main branch, for a project created in its own branch — select **Show every branch of the
+    repository**. A project whose only branch is the current one offers that wider list right away, so the
+    target can always be selected. Synchronizing a clean project introduces it into the selected branch, and the
+    dialog says so when the selected branch does not hold the project yet.
+
+    ![](images/sync-merge-with-branch.png)
+
+    *Selecting a branch that does not hold the project yet*
 
     If upon saving there is a conflict due to updates in the same module sheet, the **Resolve Conflicts** dialog appears.
 
@@ -90,7 +126,10 @@ This section describes how to view existing branches, switch between them in the
 
 If the same version of the project is edited by several users, upon submitting their changes using different clients, the **Resolve Conflicts** dialog appears, listing the conflicting files and the resolution options for each one.
 
-![](images/save-conflict-error-message.png)
+The dialog also appears when a project is renamed and saved, then an earlier revision is opened and renamed again.
+The project remains available to the dialog under the identifier issued after the first rename.
+
+![Save conflict dialog](images/save-conflict-error-message.png "Resolving a save conflict")
 
 *Resolving conflicts upon saving concurrent changes*
 

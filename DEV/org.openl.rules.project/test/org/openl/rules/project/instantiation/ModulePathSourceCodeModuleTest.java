@@ -16,9 +16,9 @@ class ModulePathSourceCodeModuleTest {
 
     @Test
     void testUri() {
-        final Path pathToProject = Path.of("test/rules/test xls").toAbsolutePath();
-        final Path pathToModule = Path.of("test/rules/test xls/Test with spaces.xls").toAbsolutePath();
-        Module module = new Module();
+        final var pathToProject = Path.of("test/rules/test xls").toAbsolutePath();
+        final var pathToModule = Path.of("test/rules/test xls/Test with spaces.xls").toAbsolutePath();
+        var module = new Module();
         module.setRulesRootPath(pathToModule.toString());
 
         module.setProject(mock(ProjectDescriptor.class));
@@ -26,10 +26,10 @@ class ModulePathSourceCodeModuleTest {
 
         assertEquals("test%20xls/Test%20with%20spaces.xls", module.getRelativeUri());
 
-        ModulePathSourceCodeModule src = new ModulePathSourceCodeModule(module);
+        var src = new ModulePathSourceCodeModule(module);
 
-        final String actualFullUri = src.getFileUri();
-        final String actualRelativeUri = src.getUri();
+        final var actualFullUri = src.getFileUri();
+        final var actualRelativeUri = src.getUri();
         assertTrue(actualFullUri.endsWith(actualRelativeUri));
         assertEquals("test%20xls/Test%20with%20spaces.xls", actualRelativeUri);
     }

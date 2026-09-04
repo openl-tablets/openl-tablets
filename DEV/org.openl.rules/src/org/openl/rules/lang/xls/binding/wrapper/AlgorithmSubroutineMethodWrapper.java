@@ -2,6 +2,8 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.Objects;
 
+import lombok.Getter;
+
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.base.AbstractAlgorithmSubroutineMethodWrapper;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -12,8 +14,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSubroutineMethodWrapper implements IRulesMethodWrapper {
 
+    @Getter
     private final XlsModuleOpenClass xlsModuleOpenClass;
+    @Getter
     private final ContextPropertiesInjector contextPropertiesInjector;
+    @Getter
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
@@ -43,28 +48,13 @@ public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSub
     }
 
     @Override
-    public XlsModuleOpenClass getXlsModuleOpenClass() {
-        return xlsModuleOpenClass;
-    }
-
-    @Override
     public IMethodSignature getSignature() {
         return methodSignature;
     }
 
     @Override
-    public IOpenClass getType() {
-        return type;
-    }
-
-    @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
         return topClassOpenMethodWrapperCache.getTopOpenClassMethod(openClass);
-    }
-
-    @Override
-    public ContextPropertiesInjector getContextPropertiesInjector() {
-        return contextPropertiesInjector;
     }
 
     @Override
@@ -75,7 +65,7 @@ public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSub
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AlgorithmSubroutineMethodWrapper that = (AlgorithmSubroutineMethodWrapper) o;
+        var that = (AlgorithmSubroutineMethodWrapper) o;
         return delegate.equals(that.delegate);
     }
 

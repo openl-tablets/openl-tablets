@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.kafka.publish;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -16,8 +15,8 @@ public final class KafkaHelpers {
     }
 
     public static String[] getMethodParameters(String methodParameters) {
-        String[] parameterTypes = methodParameters.split(",");
-        for (int i = 0; i < parameterTypes.length; i++) {
+        var parameterTypes = methodParameters.split(",");
+        for (var i = 0; i < parameterTypes.length; i++) {
             parameterTypes[i] = parameterTypes[i].trim();
         }
         return parameterTypes;
@@ -29,7 +28,7 @@ public final class KafkaHelpers {
         if (methodName == null) {
             throw new MethodNotFoundException("Method name is not found.");
         }
-        int cnt = 0;
+        var cnt = 0;
         Method method = null;
         for (Method m : service.getServiceClass().getMethods()) {
             if (m.getName().equals(methodName)) {
@@ -47,7 +46,7 @@ public final class KafkaHelpers {
                     "Multiple methods with the same name '%s' is found in the service class.".formatted(methodName));
         } else {
             String[] methodParametersSplitted = KafkaHelpers.getMethodParameters(methodParameters);
-            List<Method> methods = new ArrayList<>();
+            var methods = new ArrayList<Method>();
             for (Method m : service.getServiceClass().getMethods()) {
                 if (m.getName().equals(methodName) && isMethodParametersMatched(m.getParameterTypes(),
                         methodParametersSplitted)) {
@@ -75,7 +74,7 @@ public final class KafkaHelpers {
         if (classTypes.length != types.length) {
             return false;
         }
-        for (int i = 0; i < classTypes.length; i++) {
+        for (var i = 0; i < classTypes.length; i++) {
             if (!("*".equals(types[i]) || Objects.equals(classTypes[i].getSimpleName(), types[i]) || Objects
                     .equals(classTypes[i].getCanonicalName(), types[i]) || Objects.equals(classTypes[i].getName(),
                     types[i]) || Objects.equals(classTypes[i].getTypeName(), types[i]))) {

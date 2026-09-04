@@ -1,5 +1,7 @@
 package org.openl.rules.dt.data;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -10,20 +12,16 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class DecisionRuleNameField implements IOpenField {
 
     private final DecisionTableDataType decisionTableDataType;
     private final RuleRow ruleRow;
 
-    DecisionRuleNameField(DecisionTableDataType decisionTableDataType, RuleRow ruleRow) {
-        this.decisionTableDataType = decisionTableDataType;
-        this.ruleRow = ruleRow;
-    }
-
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        RuleExecutionObject reo = (RuleExecutionObject) target;
-        int rowNum = reo.getRuleNum();
+        var reo = (RuleExecutionObject) target;
+        var rowNum = reo.getRuleNum();
         return ruleRow != null ? ruleRow.getRuleName(rowNum) : StringUtils.EMPTY;
     }
 

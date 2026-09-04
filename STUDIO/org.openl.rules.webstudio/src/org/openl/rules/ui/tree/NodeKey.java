@@ -32,7 +32,7 @@ public class NodeKey implements Comparable<Object> {
     @Override
     public int compareTo(Object arg0) {
 
-        NodeKey key = (NodeKey) arg0;
+        var key = (NodeKey) arg0;
 
         if (weight == key.weight) {
             if (value[0] == null) {
@@ -72,7 +72,7 @@ public class NodeKey implements Comparable<Object> {
             return false;
         }
 
-        NodeKey nodeKey = (NodeKey) o;
+        var nodeKey = (NodeKey) o;
 
         // Make this method consistent with compareTo()
         return compareTo(nodeKey) == 0;
@@ -81,7 +81,7 @@ public class NodeKey implements Comparable<Object> {
     @Override
     public int hashCode() {
         // Make this method consistent with compareTo() and equals()
-        int result = value[0].hashCode();
+        var result = value[0].hashCode();
         result = 31 * result + weight;
         return result;
     }

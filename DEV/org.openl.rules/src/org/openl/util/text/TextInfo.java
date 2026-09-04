@@ -8,29 +8,29 @@ package org.openl.util.text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author snshor
  */
+@RequiredArgsConstructor
 public class TextInfo {
 
+    @Getter
     private final String text;
     private int[] lineTable;
 
-    public TextInfo(String text) {
-        this.text = text;
-    }
-
     public String getLine(int i) {
-        int from = lines()[i];
+        var from = lines()[i];
         int to = i + 1 >= lines().length ? text.length() : lines()[i + 1];
 
         return text.substring(from, to);
     }
 
     public int getLineIdx(int absPosition) {
-        int idx = Arrays.binarySearch(lines(), absPosition);
+        var idx = Arrays.binarySearch(lines(), absPosition);
         if (idx >= 0) {
             return idx;
         }
@@ -51,17 +51,13 @@ public class TextInfo {
         return lineTable;
     }
 
-    public String getText() {
-        return text;
-    }
-
     protected void scanText() {
-        boolean isCR = false;
-        boolean isLF = true;
-        List<Integer> table = new ArrayList<>();
+        var isCR = false;
+        var isLF = true;
+        var table = new ArrayList<Integer>();
 
-        for (int i = 0; i < text.length(); ++i) {
-            char c = text.charAt(i);
+        for (var i = 0; i < text.length(); ++i) {
+            var c = text.charAt(i);
 
             if (isLF) {
                 isLF = false;
@@ -87,7 +83,7 @@ public class TextInfo {
         }
 
         lineTable = new int[table.size()];
-        for (int i = 0; i < lineTable.length; i++) {
+        for (var i = 0; i < lineTable.length; i++) {
             lineTable[i] = table.get(i);
         }
     }

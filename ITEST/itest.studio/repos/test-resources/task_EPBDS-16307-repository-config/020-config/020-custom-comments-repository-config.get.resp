@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "branch": "master",
+  "newBranch": {},
+  "comment": {
+    "userMessagePattern": "\\p{Upper}{3,}-\\d+:?\\s+[^\\s].{4,}",
+    "invalidUserMessageHint": "'Invalid comment: Comment must be started with ticket number like EPBDS-0000'",
+    "templates": {
+      "save": "Project {project-name} is saved.",
+      "create": "Project {project-name} is created.",
+      "copy": "Copied from: {project-name}.",
+      "restoreFrom": "Restored from revision of {author} on {datetime}."
+    }
+  }
+}

@@ -1,0 +1,5 @@
+POST /rest/repos/design/projects/EPBDS_CopyRevMissing/from-project HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{"sourceRepositoryId":"design","sourceProject":"EPBDS_CopyRev","revision":"does-not-exist"}

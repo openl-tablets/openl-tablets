@@ -1,5 +1,6 @@
 package org.openl.spring.env;
 
+import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -9,7 +10,6 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
 
 /**
  * Loads OpenL default properties from <code>classpath*:openl-default.properties</code>
@@ -20,10 +20,11 @@ public class DefaultPropertyLoader implements ApplicationContextInitializer<Conf
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        var environment = applicationContext.getEnvironment();
         initialize(environment);
     }
 
+    @Setter
     private Environment environment;
 
     @Override
@@ -32,7 +33,7 @@ public class DefaultPropertyLoader implements ApplicationContextInitializer<Conf
     }
 
     private void initialize(ConfigurableEnvironment environment) {
-        MutablePropertySources propertySources = environment.getPropertySources();
+        var propertySources = environment.getPropertySources();
         if (!propertySources.contains(DefaultPropertySource.PROPS_NAME)) {
             ConfigLog.LOG.info("Loading default properties...");
             propertySources.addLast(new DefaultPropertySource());
@@ -41,11 +42,6 @@ public class DefaultPropertyLoader implements ApplicationContextInitializer<Conf
             ConfigLog.LOG.info("Register reference property processor...");
             propertySources.addLast(new RefPropertySource(environment, propertySources));
         }
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
     @Override
