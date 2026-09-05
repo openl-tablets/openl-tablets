@@ -8,6 +8,8 @@ its one condition `new_reliability_rating` 4 — the pre-existing Critical `java
 file and line (`WorkbookListener.java` 273); `rules=javabugs:S6466` without `pullRequest` re-proves it, its five
 BUGs are answered, and no clean removal is ever reverted for it. Redo that proof and the trial merge whenever main
 advances; every detector is spent, so a run is PR maintenance, compaction, the profile-delta check, main's delta.
+Skip the rule-facet re-check while `api/project_analyses/search` still names the analysis the last facet covered —
+an unchanged analysis returns an unchanged facet.
 CONCURRENCY: runs share this ledger and this PR; a stale CI event names a superseded `head_sha`.
 
 ## Change-type queue
@@ -374,10 +376,11 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 57: no deletion; main, head, the 28 body headings and 26/291/346/628 all unchanged; trial merge clean;
-  profile check clean (only groovy moved); gate still red on that one condition, S6466 open on main at line 273.
 - Run 58: no deletion; main, head, the 28 headings and 26/291/346/628 unchanged; trial merge clean; profile check
   clean; main's 09-04 re-analysis turned the S9341 zero into a post-activation proof and the facet re-check added
   nothing.
 - Run 59: no deletion; main still `4a45294c`, head, the 28 headings and 26/291/346/628 unchanged; trial merge
   clean; no profile moved past the covered batch; facet re-check over main's 12:04 analysis added nothing.
+- Run 60: no deletion; main still `4a45294c` and its last analysis still 09-04 12:04, so the facet re-check was
+  skipped as waste; head, the 28 headings and 26/291/346/628 unchanged; trial merge clean; profile check clean; no
+  comment since 09-03; the ref-DELETE 403 re-confirmed, so the abandoned branch still needs a human.
