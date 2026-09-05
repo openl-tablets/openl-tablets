@@ -8,7 +8,7 @@ its one condition `new_reliability_rating` 4 — the pre-existing Critical `java
 file and line (`WorkbookListener.java` 273); `rules=javabugs:S6466` without `pullRequest` re-proves it, its five
 BUGs are answered, and no clean removal is ever reverted for it. Redo that proof and the trial merge whenever main
 advances; every detector is spent, so a run is PR maintenance, compaction, the profile-delta check, main's delta.
-Main has now stood at `4a45294c` and head at `a0e0041f` for seven runs, so expect a run to find nothing and end
+Main has now stood at `4a45294c` and head at `a0e0041f` for eight runs, so expect a run to find nothing and end
 in minutes: read the four, write the run-log line, stop. Do not manufacture work from an unchanged repository.
 Skip the rule-facet re-check while `api/project_analyses/search` still names the analysis the last facet covered —
 an unchanged analysis returns an unchanged facet.
@@ -379,7 +379,6 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 64: no deletion; a fifth identical run — the same two SHAs, the 09-04 12:04 analysis, 26/291/346/628.
 - Run 65: no deletion; a sixth identical run — S6466 re-proved at `WorkbookListener` 273 on main.
-- Run 66: no deletion; a seventh identical run — the same two SHAs, analysis, 26/291/346/628 and 28 headings; 12 CI
-  jobs green with `dependabot` skipped, merge clean, profiles inside the 09-02 batch, no comment since 09-03.
+- Run 66: no deletion; a seventh identical run — same SHAs, analysis, 26/291/346/628, 28 headings, 12 jobs green.
+- Run 67: no deletion; an eighth identical run — same four checks; only `groovy` moved past the 09-02 batch, noise.
