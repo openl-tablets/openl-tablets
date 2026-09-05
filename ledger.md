@@ -8,7 +8,7 @@ its one condition `new_reliability_rating` 4 — the pre-existing Critical `java
 file and line (`WorkbookListener.java` 273); `rules=javabugs:S6466` without `pullRequest` re-proves it, its five
 BUGs are answered, and no clean removal is ever reverted for it. Redo that proof and the trial merge whenever main
 advances; every detector is spent, so a run is PR maintenance, compaction, the profile-delta check, main's delta.
-Main has now stood at `4a45294c` and head at `a0e0041f` for four runs, so expect a run to find nothing and to end
+Main has now stood at `4a45294c` and head at `a0e0041f` for five runs, so expect a run to find nothing and to end
 in minutes: read the four, write the run-log line, stop. Do not manufacture work from an unchanged repository.
 Skip the rule-facet re-check while `api/project_analyses/search` still names the analysis the last facet covered —
 an unchanged analysis returns an unchanged facet.
@@ -379,8 +379,9 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 61: no deletion; that same state again, 12 jobs green with the gate red on the same `new_reliability_rating` 4.
 - Run 62: no deletion; that same state a third time, every count re-derived and the body verified against it; the
   gate's six conditions and the seven analyzed languages both unchanged; no comment since 09-03, none ever human.
 - Run 63: no deletion; a fourth identical run — main, its 09-04 12:04 analysis, head, 26/291/346/628 and the 28
   headings all unmoved; trial merge clean; every profile's `rulesUpdatedAt` inside the covered 09-02 batch.
+- Run 64: no deletion; a fifth identical run — main `4a45294c`, head `a0e0041f`, the same 09-04 12:04 analysis,
+  26/291/346/628 re-derived, the gate's lone `new_reliability_rating` 4, profiles inside the 09-02 batch, merge clean.
