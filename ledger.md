@@ -376,11 +376,11 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 58: no deletion; main, head, the 28 headings and 26/291/346/628 unchanged; trial merge clean; profile check
-  clean; main's 09-04 re-analysis turned the S9341 zero into a post-activation proof and the facet re-check added
-  nothing.
 - Run 59: no deletion; main still `4a45294c`, head, the 28 headings and 26/291/346/628 unchanged; trial merge
   clean; no profile moved past the covered batch; facet re-check over main's 12:04 analysis added nothing.
 - Run 60: no deletion; main still `4a45294c` and its last analysis still 09-04 12:04, so the facet re-check was
   skipped as waste; head, the 28 headings and 26/291/346/628 unchanged; trial merge clean; profile check clean; no
   comment since 09-03; the ref-DELETE 403 re-confirmed, so the abandoned branch still needs a human.
+- Run 61: no deletion; main, its 09-04 12:04 analysis, head `a0e0041f`, the 28 headings and 26/291/346/628 all
+  unchanged, so the facet re-check was skipped again; trial merge clean; 12 jobs green with the gate red on the
+  same `new_reliability_rating` 4; profile check clean; no comment since 09-03, none of them ever human.
