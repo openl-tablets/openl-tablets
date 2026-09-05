@@ -8,10 +8,10 @@ its one condition `new_reliability_rating` 4 — the pre-existing Critical `java
 file and line (`WorkbookListener.java` 273); `rules=javabugs:S6466` without `pullRequest` re-proves it, its five
 BUGs are answered, and no clean removal is ever reverted for it. Redo that proof and the trial merge whenever main
 advances; every detector is spent, so a run is PR maintenance, compaction, the profile-delta check, main's delta.
-Main has now stood at `4a45294c` and head at `a0e0041f` for nine runs, so expect a run to find nothing and end
+Main has now stood at `4a45294c` and head at `a0e0041f` for ten runs, so expect a run to find nothing and end
 in minutes: read the four, write the run-log line, stop. Do not manufacture work from an unchanged repository.
-Skip the rule-facet re-check while `api/project_analyses/search` still names the analysis the last facet covered —
-an unchanged analysis returns an unchanged facet.
+Skip the rule-facet re-check unless BOTH main's commit and an analyzed profile moved: main is re-analyzed on
+unchanged code, so a fresh `api/project_analyses/search` key alone still returns an unchanged facet.
 CONCURRENCY: runs share this ledger and this PR; a stale CI event names a superseded `head_sha`.
 
 ## Change-type queue
@@ -379,6 +379,7 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 66: no deletion; a seventh identical run — same SHAs, analysis, 26/291/346/628, 28 headings, 12 jobs green.
 - Run 67: no deletion; an eighth identical run — same four checks; only `groovy` moved past the 09-02 batch, noise.
 - Run 68: no deletion; a ninth identical run — same SHAs, counts, jobs, analysis; `groovy` still the only mover.
+- Run 69: no deletion; a tenth identical run — same SHAs, 26/291/346/628, 28 headings, 12 jobs green; main was
+  re-analyzed on unchanged code and the facet was unchanged, which is what sharpened the skip rule above.
