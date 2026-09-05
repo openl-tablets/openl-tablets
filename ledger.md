@@ -8,6 +8,8 @@ its one condition `new_reliability_rating` 4 — the pre-existing Critical `java
 file and line (`WorkbookListener.java` 273); `rules=javabugs:S6466` without `pullRequest` re-proves it, its five
 BUGs are answered, and no clean removal is ever reverted for it. Redo that proof and the trial merge whenever main
 advances; every detector is spent, so a run is PR maintenance, compaction, the profile-delta check, main's delta.
+Main has now stood at `4a45294c` and head at `a0e0041f` for three runs, so expect a run to find nothing and to end
+in minutes: read the four, write the run-log line, stop. Do not manufacture work from an unchanged repository.
 Skip the rule-facet re-check while `api/project_analyses/search` still names the analysis the last facet covered —
 an unchanged analysis returns an unchanged facet.
 CONCURRENCY: runs share this ledger and this PR; a stale CI event names a superseded `head_sha`.
@@ -272,7 +274,8 @@ returns whose fix is a DELETION — a spent detector re-run is waste, and a rewr
   pass `GIT_AUTHOR_*` / `GIT_COMMITTER_*` inline on every commit; `--amend` alone keeps the wrong author,
   so it needs `--reset-author`.
 - `gh` and `xxd` are absent, but `$GITHUB_TOKEN` is set: `curl` the REST API to read a PR body to a file and
-  `PATCH` it back. An MCP body argument also swallows angle-bracketed text. The agent proxy allows that PATCH
+  `PATCH` it back — MCP `pull_request_read` `get` overflows the tool-result cap on a body this long, and an MCP
+  body argument swallows angle-bracketed text, so curl is the only read and write that fit. The proxy allows PATCH
   yet refuses a REF write — `DELETE /git/refs/heads/<b>` and `git push --delete` both 403 — so no run can
   delete a branch, whatever the token's own scopes. Read the 403 body: it names the proxy, not a permission.
 - `sonarcloud.io`'s WEB UI is blocked (403) but its API answers 200, so a gate failure IS diagnosable here:
@@ -376,11 +379,8 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 59: no deletion; main still `4a45294c`, head, the 28 headings and 26/291/346/628 unchanged; trial merge
-  clean; no profile moved past the covered batch; facet re-check over main's 12:04 analysis added nothing.
-- Run 60: no deletion; main still `4a45294c` and its last analysis still 09-04 12:04, so the facet re-check was
-  skipped as waste; head, the 28 headings and 26/291/346/628 unchanged; trial merge clean; profile check clean; no
-  comment since 09-03; the ref-DELETE 403 re-confirmed, so the abandoned branch still needs a human.
-- Run 61: no deletion; main, its 09-04 12:04 analysis, head `a0e0041f`, the 28 headings and 26/291/346/628 all
-  unchanged, so the facet re-check was skipped again; trial merge clean; 12 jobs green with the gate red on the
-  same `new_reliability_rating` 4; profile check clean; no comment since 09-03, none of them ever human.
+- Run 60: no deletion; nothing moved — main `4a45294c`, its 09-04 12:04 analysis, head, the 28 headings and
+  26/291/346/628; facet re-check skipped as waste; trial merge and profile check clean; ref-DELETE 403 re-confirmed.
+- Run 61: no deletion; that same state again, 12 jobs green with the gate red on the same `new_reliability_rating` 4.
+- Run 62: no deletion; that same state a third time, every count re-derived and the body verified against it; the
+  gate's six conditions and the seven analyzed languages both unchanged; no comment since 09-03, none ever human.
