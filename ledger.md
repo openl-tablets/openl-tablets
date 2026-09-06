@@ -8,10 +8,11 @@ its one condition `new_reliability_rating` 4 — the pre-existing Critical `java
 file and line (`WorkbookListener.java` 273); `rules=javabugs:S6466` without `pullRequest` re-proves it, its five
 BUGs are answered, and no clean removal is ever reverted for it. Redo that proof and the trial merge whenever main
 advances; every detector is spent, so a run is PR maintenance, compaction, the profile-delta check, main's delta.
-Main has now stood at `4a45294c` and head at `a0e0041f` for twelve runs, so expect a run to find nothing and end
+Main has now stood at `4a45294c` and head at `a0e0041f` for thirteen runs, so expect a run to find nothing and end
 in minutes: read the four, write the run-log line, stop. Do not manufacture work from an unchanged repository.
 Skip the rule-facet re-check unless BOTH main's commit and an analyzed profile moved: main is re-analyzed on
-unchanged code, so a fresh `api/project_analyses/search` key alone still returns an unchanged facet.
+unchanged code, so a fresh `api/project_analyses/search` key alone still returns an unchanged facet. The seven
+analyzed profiles stand at css 08-19, js/ts 08-28, web 06-15, yaml 03-16, java and xml 09-02 — the covered batch.
 CONCURRENCY: runs share this ledger and this PR; a stale CI event names a superseded `head_sha`.
 
 ## Change-type queue
@@ -379,7 +380,9 @@ identical-content duplicates across production files, and every tracked build le
 
 ## Run log
 
-- Run 69: no deletion; a tenth identical run — same SHAs, 26/291/346/628, 28 headings, 12 jobs green.
 - Run 70: no deletion; an eleventh identical run — same SHAs and counts, 12 jobs green, only `groovy` moved.
 - Run 71: no deletion; a twelfth identical run — same SHAs and counts, 12 jobs green, trial merge clean, newest
   comment still 09-03; main unmoved, so the skip rule held and no Sonar query was spent. 5 minutes.
+- Run 72: no deletion; a thirteenth identical run — same SHAs, counts re-derived against the merge base, 28
+  headings, 12 jobs green, trial merge clean, newest comment 09-03. The profile-delta check ran and returned
+  nothing: only `groovy` moved again, so the rule-facet re-check stayed skipped. 5 minutes.
