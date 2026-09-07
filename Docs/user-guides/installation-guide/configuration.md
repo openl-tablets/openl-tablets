@@ -504,12 +504,21 @@ repository.archive.password = ENC(kLmNoPqRsTuVwXyZaBcD==)
 ```properties
 user.mode = ad
 security.ad.domain = example.com
-security.ad.server-url = ldap://ad.example.com:3268
+security.ad.server-url = ldaps://ad.example.com:3269
 security.ad.search-filter = (&(objectClass=user)(userPrincipalName={0}))
 security.ad.group-filter = (&(objectClass=group)(member:1.2.840.113556.1.4.1941:={2}))
 security.administrators = jsmith
 security.default-group = Viewers
 ```
+
+A login sends the user's password to the server named by `security.ad.server-url`, so use the `ldaps://` scheme — over
+plain `ldap://` the password crosses the network unencrypted. The ports differ as well: 3269 for the encrypted global
+catalog against 3268 for the plain one, or 636 against 389 for a single domain controller.
+
+An `ldaps://` connection is only as good as the certificate check behind it, and that check is the JVM's: the
+certificate of the domain controller, or the CA that issued it, has to be present in the truststore of the JVM that
+runs OpenL Studio. Without it every login fails with `PKIX path building failed`. Import the certificate with
+`keytool -import -trustcacerts`, or point the instance at a prepared truststore through `javax.net.ssl.trustStore`.
 
 ### OIDC Authentication
 
