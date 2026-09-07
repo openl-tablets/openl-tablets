@@ -3,9 +3,10 @@
 # Checks performance on limited amount of memory to detect extra memory consumption by throwing timeouts and memory errors.
 #
 # The work is split into parallel jobs:
-#   build  - compiles everything without tests (-T1C) and shares the artifacts (jars, wars) via ~/.m2
+#   build  - compiles everything without tests (-T1C), assembles demo.zip and shares the artifacts via ~/.m2
 #   itest  - a matrix of integration-test jobs (the ITEST suites, the openl-maven-plugin invoker
 #            tests with the archetypes) running against the artifacts from 'build'
+#   demo   - a matrix that starts demo.zip on Linux, Windows and macOS and checks its endpoints
 #   tests  - the whole build with unit tests but without integration tests, in parallel with the 'build' track
 #   sonar  - waits for 'tests' and 'itest', combines their JaCoCo execution data into the aggregate
 #            report (jacoco-report) and runs the SonarCloud analysis
@@ -75,6 +76,13 @@ jobs:
       - name: Build with Maven
         run: mvn -B "-Dstyle.color=always" -T1C install -DskipTests
 
+      - name: Create DEMO package
+        run: |
+          set -euo pipefail
+          cp "STUDIO/org.openl.rules.webstudio/target/webstudio.war" "DEMO/webapps/webstudio.war"
+          cp "WSFrontend/org.openl.rules.ruleservice.ws/target/webservice.war" "DEMO/webapps/webservice.war"
+          echo "LOCAL" > DEMO/openl.version
+
       - name: Share OpenL artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -82,6 +90,14 @@ jobs:
           path: ~/.m2/repository/org/openl/
           compression-level: 0
           retention-days: 7
+
+      - name: Share DEMO package
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo
+          path: DEMO
+          retention-days: 3
+          if-no-files-found: error
 
   tests:
 
@@ -198,6 +214,146 @@ jobs:
             ITEST/**/target/*.exec
             Util/**/target/*.exec
           retention-days: 7
+
+  demo:
+
+    name: DEMO on ${{ matrix.os }}
+
+    needs: build
+
+    # Do not start the legs when the DEMO package failed to build
+    if: success()
+
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+      - name: Download DEMO package
+        uses: actions/download-artifact@v8
+        with:
+          name: demo
+          path: "DEMO package"
+
+      # 1. Start on Linux/macOS
+      - name: Start DEMO (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -uo pipefail
+          cd "DEMO package"
+          chmod +x start
+          nohup ./start > demo-${{ runner.os }}.log.txt 2>&1 &
+          echo "DEMO_PID=$!" >> "$GITHUB_ENV"
+          echo "DEMO started, pid=$!"
+
+      # 2. Start on Windows
+      - name: Start DEMO (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          Set-Location 'DEMO package'
+
+          # Use -Command instead of -File, and add *> demo.log to combine streams
+          $proc = Start-Process -FilePath 'pwsh' `
+            -ArgumentList '-ExecutionPolicy', 'Bypass', '-Command', '.\start.ps1 *> demo-${{ runner.os }}.log.txt' `
+            -PassThru -WindowStyle Hidden
+
+          Write-Host "DEMO started, pid=$($proc.Id)"
+          "DEMO_PID=$($proc.Id)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      # 3. Common URL Check (Runs on all OS)
+      - name: Check URLs
+        shell: bash
+        timeout-minutes: 6
+        run: |
+          set -uo pipefail
+
+          # Cross-platform process liveness check
+          check_process() {
+            if [ "$RUNNER_OS" == "Windows" ]; then
+              tasklist //FI "PID eq $DEMO_PID" 2>/dev/null | grep -q "$DEMO_PID"
+            else
+              kill -0 "$DEMO_PID" 2>/dev/null
+            fi
+          }
+
+          # One deadline for the whole check, not one per URL: a webapp that failed to deploy answers 503 to
+          # every request for good, and a budget per URL lets the first such URL eat the step timeout, killing
+          # the step before it reports what happened.
+          DEADLINE=$((SECONDS + 240))
+
+          wait_for() {
+            local url="$1" code="000"
+            while [ "$SECONDS" -lt "$DEADLINE" ]; do
+              code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url")
+              code="${code:-XXX}"
+              [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
+              check_process || { echo "  ERR  server process exited  $url"; return 1; }
+              sleep 2
+            done
+            echo "  FAIL $code  $url"; return 1
+          }
+
+          URLS=(
+            ""
+            "webstudio"
+            "webstudio/healthcheck/startup"
+            "webstudio/healthcheck/readiness"
+            "webstudio/faces/pages/public/showDiff.xhtml"
+            "webservice"
+            "webservice/admin/healthcheck/startup"
+            "webservice/admin/healthcheck/readiness"
+            "webservice/Example3-AutoPolicyCalculation/AccidentPremium"
+          )
+
+          fail=0
+          for p in "${URLS[@]}"; do wait_for "http://localhost:8080/$p" || fail=1; done
+
+          if [ "$fail" -ne 0 ]; then
+            echo "::group::demo logs (tail)"
+            tail -n 200 "DEMO package/demo-${{ runner.os }}.log.txt" || true
+            echo "::endgroup::"
+            exit 1
+          fi
+
+          echo "All DEMO endpoints accessible on $RUNNER_OS."
+
+      # 4. Common Cleanup (Runs on all OS)
+      - name: Stop DEMO
+        if: always()
+        shell: bash
+        run: |
+          echo "--- stopping DEMO ---"
+          if [ -z "${DEMO_PID:-}" ]; then
+            echo "DEMO_PID not set, nothing to stop."
+            exit 0
+          fi
+
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            taskkill //T //PID "$DEMO_PID" 2>/dev/null || true
+            taskkill //IM "java.exe" 2>/dev/null || true
+          else
+            kill "$DEMO_PID" 2>/dev/null || true
+            pkill -f 'jetty-home/start.jar' 2>/dev/null || true
+          fi
+
+      - name: Upload DEMO log on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          path: |
+            DEMO package/demo-${{ runner.os }}.log.txt
+          if-no-files-found: ignore
+          archive: false
+          retention-days: 10
 
   sonar:
 
