@@ -261,7 +261,7 @@ This section describes test execution. Proceed as follows:
 
     The form for entering required values to test rule table appears.
 
-    ![Testing a rule table without tests](images/testing-rule-without-tests.jpeg)
+    ![Testing a rule table without tests](images/testing-rule-without-tests.png)
 
     *Testing a rule table without tests*
 1.  To run a test for the currently opened module and its dependent modules only, ensure that the **Within Current Module Only** option is selected.
@@ -272,15 +272,32 @@ This section describes test execution. Proceed as follows:
     ![Result of running virtual test](images/virtual-test-result.png)
 
     *Result of running virtual test*
-3. To export the results to an Excel file, click the "Run Into File" button. This action will generate an Excel file named "test-results.xlsx", which includes two sheets: 'Result' and 'Parameters'. <br/> By default, the 'Parameters' sheet lists each attribute's name and value on separate rows. For a more compact table format, deselect the ***Flat Parameter Layout*** option. <br/>To exclude any empty input values, select the ***Skip Empty Parameters*** checkbox.
-    The following examples illustrate how ***Flat Parameter Layout*** and ***Skip Empty Parameters*** affect the "test-results.xlsx" file:<br/>
-   ![](images/test-export-flat-layout-default.png)<br/>
-   *"Flat Parameter Layout” = ***True***, “Skip Empty Parameters” = ***False*** (***default***)*
-   ![](images/test-export-non-flat-layout.png)<br/>
-   *"Flat Parameter Layout” = ***False***, “Skip Empty Parameters” = ***False**** <br/>
-   ![](images/test-export-skip-empty-params.png)<br/>
-   *"Flat Parameter Layout” = ***True***, “Skip Empty Parameters” = ***True****
+3.  To export the results to a file, click **Run Into File**.
 
+    By default, OpenL Studio generates an Excel file named `test-results.xlsx` with two sheets, **Result** and
+    **Parameters**. The following options control its content:
+
+    -   **Flat Parameter Layout** — selected by default, the **Parameters** sheet lists each attribute's name and
+        value on separate rows. Clear it for a more compact table format.
+    -   **Skip Empty Parameters** — select it to exclude empty input values.
+    -   **Result in JSON format** — select it to download the calculated result as `response.json` instead of the
+        Excel file. The JSON holds the result only, so **Flat Parameter Layout** and **Skip Empty Parameters** do
+        not apply.
+
+    The following examples illustrate how **Flat Parameter Layout** and **Skip Empty Parameters** affect
+    `test-results.xlsx`:
+
+    ![Default export layout with each parameter on its own row](images/test-export-flat-layout-default.png "Default export layout")
+
+    *Flat Parameter Layout = True, Skip Empty Parameters = False (default)*
+
+    ![Export layout with parameters in a compact table](images/test-export-non-flat-layout.png "Non-flat export layout")
+
+    *Flat Parameter Layout = False, Skip Empty Parameters = False*
+
+    ![Export layout with empty parameters excluded](images/test-export-skip-empty-params.png "Export with empty parameters skipped")
+
+    *Flat Parameter Layout = True, Skip Empty Parameters = True*
 
 A test table addresses its cases by the **ID** column. The column is not mandatory: define it and give each test
 case a unique value, or leave it out and OpenL Studio numbers the cases itself.
