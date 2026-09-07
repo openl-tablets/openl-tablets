@@ -58,9 +58,16 @@ export interface RevisionInfo {
     exists: boolean
 }
 
+export interface ConflictFileAvailability {
+    ours: boolean
+    theirs: boolean
+    base: boolean
+}
+
 // API Response: Conflict details with revision info
 export interface ConflictDetails {
     conflictGroups: ConflictGroup[]
+    fileAvailability: Record<string, ConflictFileAvailability>
     oursRevision: RevisionInfo
     theirsRevision: RevisionInfo
     baseRevision: RevisionInfo

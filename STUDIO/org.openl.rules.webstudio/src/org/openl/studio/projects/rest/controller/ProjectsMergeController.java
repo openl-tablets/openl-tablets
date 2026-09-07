@@ -86,7 +86,8 @@ public class ProjectsMergeController {
     @Operation(summary = "projects.merge.get-conflicts.summary", description = "projects.merge.get-conflicts.desc")
     @ApiResponse(responseCode = "200", description = "projects.merge.get-conflicts.200.desc")
     @GetMapping("/conflicts")
-    public ConflictDetailsResponse getMergeConflictInfo(@ProjectId @PathVariable("projectId") RulesProject project) {
+    public ConflictDetailsResponse getMergeConflictInfo(@ProjectId @PathVariable("projectId") RulesProject project)
+            throws IOException {
         var conflictInfo = getMergeConflictInfo0(project);
         return mergeConflictsService.getConflictDetails(conflictInfo);
     }

@@ -2,8 +2,11 @@ package org.openl.studio.projects.model.merge;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 /**
@@ -12,6 +15,7 @@ import lombok.Builder;
  * and a default merge message.
  *
  * @param conflictGroups list of conflict groups organized by project
+ * @param fileAvailability availability of each conflicted file in all merge revisions
  * @param oursRevision revision details for "ours" side (current branch)
  * @param theirsRevision revision details for "theirs" side (merging branch)
  * @param baseRevision revision details for common ancestor (base)
@@ -21,11 +25,31 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ConflictDetailsResponse(
         List<ConflictGroup> conflictGroups,
+        @Parameter(description = "Availability of every conflicted file in each merge revision")
+        Map<String, ConflictFileAvailability> fileAvailability,
         RevisionDetails oursRevision,
         RevisionDetails theirsRevision,
         RevisionDetails baseRevision,
         String defaultMessage
 ) {
+
+    /**
+     * Indicates which revisions contain a conflicted file.
+     *
+     * @param ours whether the current branch contains the file
+     * @param theirs whether the merging branch contains the file
+     * @param base whether the common ancestor contains the file
+     */
+    @Schema(description = "Availability of a conflicted file in each merge revision")
+    public record ConflictFileAvailability(
+            @Parameter(description = "Whether the current branch contains the file")
+            boolean ours,
+            @Parameter(description = "Whether the merging branch contains the file")
+            boolean theirs,
+            @Parameter(description = "Whether the common ancestor contains the file")
+            boolean base
+    ) {
+    }
 
     /**
      * Details about a specific revision/commit.
@@ -34,7 +58,7 @@ public record ConflictDetailsResponse(
      * @param branch branch name (if applicable)
      * @param author author name
      * @param modifiedAt modification timestamp
-     * @param exists whether this revision exists (file may not exist in all revisions)
+     * @param exists whether this revision contains at least one conflicted file
      */
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)

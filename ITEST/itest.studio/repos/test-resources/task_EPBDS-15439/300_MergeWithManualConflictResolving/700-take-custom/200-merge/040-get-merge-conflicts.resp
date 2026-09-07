@@ -11,6 +11,13 @@ Content-Type: application/json
       ]
     }
   ],
+  "fileAvailability": {
+    "EPBDS-15439/Main.xlsx": {
+      "ours": true,
+      "theirs": true,
+      "base": true
+    }
+  },
   "oursRevision": {
     "commit": "*",
     "branch": "*",

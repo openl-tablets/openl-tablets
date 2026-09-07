@@ -1,9 +1,9 @@
 import React from 'react'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConflictResolutionStep } from 'containers/MergeModal/ConflictResolutionStep'
 import * as services from 'services'
-import { BranchInfo, ConflictDetails, ConflictGroup } from 'containers/MergeModal/types'
+import { BranchInfo, ConflictDetails, ConflictFileAvailability, ConflictGroup } from 'containers/MergeModal/types'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('services', () => ({
@@ -127,6 +127,9 @@ const multiFileGroups: ConflictGroup[] = [
 
 const conflictDetails: ConflictDetails = {
     conflictGroups,
+    fileAvailability: {
+        'rules/Main.xlsx': { ours: true, theirs: true, base: true },
+    },
     oursRevision: {
         commit: 'abc123',
         branch: 'feature',
@@ -224,6 +227,17 @@ describe('ConflictResolutionStep', () => {
 
             expect(screen.getByText('feature')).toBeInTheDocument()
             expect(screen.getByText('main')).toBeInTheDocument()
+        })
+
+        it('keeps a long revision branch on one line and exposes its full name', async () => {
+            const branch = 'Example3-AutoPolicyCalculation/openl/20260907'
+            const details = {
+                ...conflictDetails,
+                theirsRevision: { ...conflictDetails.theirsRevision, branch },
+            }
+            await renderAndLoad(defaultProps(), details)
+
+            expect(screen.getByTitle(branch)).toHaveTextContent(branch)
         })
 
         it('marks a revision branch as the default and protected one', async () => {
@@ -373,6 +387,53 @@ describe('ConflictResolutionStep', () => {
             } finally {
                 openSpy.mockRestore()
             }
+        })
+
+        it.each([
+            ['oursRevision', 'merge:compare.download_yours', 'merge:compare.deleted_yours'],
+            ['theirsRevision', 'merge:compare.download_theirs', 'merge:compare.deleted_theirs'],
+            ['baseRevision', 'merge:compare.download_base', 'merge:compare.deleted_base'],
+        ] as const)('shows a deleted status instead of the download action when %s does not contain the file',
+            async (revision, downloadLabel, deletedLabel) => {
+                const side = revision.replace('Revision', '') as keyof ConflictFileAvailability
+                const availability = conflictDetails.fileAvailability['rules/Main.xlsx']!
+                const details = {
+                    ...conflictDetails,
+                    fileAvailability: {
+                        'rules/Main.xlsx': { ...availability, [side]: false },
+                    },
+                }
+                await renderAndLoad(defaultProps(), details)
+
+                expect(screen.queryByText(downloadLabel)).not.toBeInTheDocument()
+                expect(screen.getByText(deletedLabel)).toBeInTheDocument()
+                expect(screen.queryByRole('button', { name: deletedLabel })).not.toBeInTheDocument()
+                expect(screen.getByText('merge:compare.title')).toBeInTheDocument()
+            })
+
+        it('uses availability of each file when one conflict contains different deleted sides', async () => {
+            const groups = [{
+                projectName: 'Project A',
+                projectPath: 'projectA',
+                files: ['rules/Main.xlsx', 'rules/Helper.xlsx'],
+            }]
+            const details = {
+                ...conflictDetails,
+                conflictGroups: groups,
+                fileAvailability: {
+                    'rules/Main.xlsx': { ours: false, theirs: true, base: true },
+                    'rules/Helper.xlsx': { ours: true, theirs: false, base: true },
+                },
+            }
+            await renderAndLoad({ ...defaultProps(), conflictGroups: groups }, details)
+
+            const mainRow = screen.getByText('Main.xlsx').closest('tr')!
+            expect(within(mainRow).getByText('merge:compare.deleted_yours')).toBeInTheDocument()
+            expect(within(mainRow).getByText('merge:compare.download_theirs')).toBeInTheDocument()
+
+            const helperRow = screen.getByText('Helper.xlsx').closest('tr')!
+            expect(within(helperRow).getByText('merge:compare.download_yours')).toBeInTheDocument()
+            expect(within(helperRow).getByText('merge:compare.deleted_theirs')).toBeInTheDocument()
         })
     })
 

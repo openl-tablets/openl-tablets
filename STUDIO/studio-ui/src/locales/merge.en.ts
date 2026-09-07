@@ -68,6 +68,9 @@ i18next.addResourceBundle('en', 'merge', {
         download_yours: 'Download your version',
         download_theirs: 'Download their version',
         download_base: 'Download base version',
+        deleted_yours: 'Deleted in your version',
+        deleted_theirs: 'Deleted in their version',
+        deleted_base: 'Deleted in base version',
     },
 
     upload: {

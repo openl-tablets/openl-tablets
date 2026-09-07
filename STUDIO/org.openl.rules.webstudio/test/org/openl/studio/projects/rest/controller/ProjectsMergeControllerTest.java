@@ -39,6 +39,9 @@ class ProjectsMergeControllerTest {
     private RulesProject project;
     private WorkspaceProjectService projectService;
     private ProjectsMergeService mergeService;
+    private ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
+    private ProjectsMergeConflictsService mergeConflictsService;
+    private ProjectIdentifierMapper projectIdentifierMapper;
     private ProjectModel model;
     private ProjectsMergeController controller;
 
@@ -65,12 +68,15 @@ class ProjectsMergeControllerTest {
         mergeService = mock(ProjectsMergeService.class);
         lenient().when(mergeService.merge(any(), any(), any(), anyBoolean()))
                 .thenReturn(MergeResult.builder().build());
+        conflictsSessionHolder = new ProjectsMergeConflictsSessionHolder();
+        mergeConflictsService = mock(ProjectsMergeConflictsService.class);
+        projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
 
         controller = new ProjectsMergeController(mergeService,
                 projectService,
-                new ProjectsMergeConflictsSessionHolder(),
-                mock(ProjectsMergeConflictsService.class),
-                mock(ProjectIdentifierMapper.class));
+                conflictsSessionHolder,
+                mergeConflictsService,
+                projectIdentifierMapper);
     }
 
     @Test
@@ -98,4 +104,5 @@ class ProjectsMergeControllerTest {
         verify(model).clearModuleInfo();
         verify(project).close();
     }
+
 }

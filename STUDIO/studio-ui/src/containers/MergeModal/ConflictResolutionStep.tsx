@@ -15,6 +15,7 @@ import {
 } from 'antd'
 import {
     CheckCircleOutlined,
+    DeleteOutlined,
     DownloadOutlined,
     EyeOutlined,
     FileOutlined,
@@ -34,6 +35,7 @@ import {
     RevisionInfo,
 } from './types'
 import { MergeBranchLabel } from './MergeBranchLabel'
+import { useStyles } from './ConflictResolutionStep.styles'
 
 const { TextArea } = Input
 
@@ -56,6 +58,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     onCompare,
 }) => {
     const { t } = useTranslation()
+    const { styles } = useStyles()
 
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
@@ -164,6 +167,35 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
         window.open(url, '_blank')
     }
 
+    const renderDownloadAction = (
+        filePath: string,
+        side: FileSide,
+        exists: boolean | undefined,
+        downloadLabel: string,
+        deletedLabel: string
+    ) => {
+        if (exists === undefined) return null
+
+        return exists ? (
+            <Button
+                icon={<DownloadOutlined />}
+                onClick={() => handleDownload(filePath, side)}
+                size="small"
+                type="link"
+            >
+                {downloadLabel}
+            </Button>
+        ) : (
+            <Typography.Text
+                className={styles.deletedFileStatus}
+                type="secondary"
+            >
+                <DeleteOutlined />
+                {deletedLabel}
+            </Typography.Text>
+        )
+    }
+
     const handleSave = async () => {
         if (!allResolved) {
             notification.warning({
@@ -247,6 +279,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                         <Space orientation="vertical" size={0}>
                             {revision.branch && (
                                 <MergeBranchLabel
+                                    truncate
                                     branches={branches}
                                     name={revision.branch}
                                     testId={`conflict-branch-${revision.branch}`}
@@ -291,42 +324,42 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             title: t('merge:conflicts.compare_column'),
             key: 'compare',
             width: 200,
-            render: (_: any, record: { filePath: string }) => (
-                <Space orientation="vertical" size="small">
-                    <Button
-                        icon={<EyeOutlined />}
-                        onClick={() => onCompare(record.filePath)}
-                        size="small"
-                        type="link"
-                    >
-                        {t('merge:compare.title')}
-                    </Button>
-                    <Button
-                        icon={<DownloadOutlined />}
-                        onClick={() => handleDownload(record.filePath, 'OURS')}
-                        size="small"
-                        type="link"
-                    >
-                        {t('merge:compare.download_yours')}
-                    </Button>
-                    <Button
-                        icon={<DownloadOutlined />}
-                        onClick={() => handleDownload(record.filePath, 'THEIRS')}
-                        size="small"
-                        type="link"
-                    >
-                        {t('merge:compare.download_theirs')}
-                    </Button>
-                    <Button
-                        icon={<DownloadOutlined />}
-                        onClick={() => handleDownload(record.filePath, 'BASE')}
-                        size="small"
-                        type="link"
-                    >
-                        {t('merge:compare.download_base')}
-                    </Button>
-                </Space>
-            ),
+            render: (_: any, record: { filePath: string }) => {
+                const availability = conflictDetails?.fileAvailability[record.filePath]
+                return (
+                    <Space orientation="vertical" size="small">
+                        <Button
+                            icon={<EyeOutlined />}
+                            onClick={() => onCompare(record.filePath)}
+                            size="small"
+                            type="link"
+                        >
+                            {t('merge:compare.title')}
+                        </Button>
+                        {renderDownloadAction(
+                            record.filePath,
+                            'OURS',
+                            availability?.ours,
+                            t('merge:compare.download_yours'),
+                            t('merge:compare.deleted_yours')
+                        )}
+                        {renderDownloadAction(
+                            record.filePath,
+                            'THEIRS',
+                            availability?.theirs,
+                            t('merge:compare.download_theirs'),
+                            t('merge:compare.deleted_theirs')
+                        )}
+                        {renderDownloadAction(
+                            record.filePath,
+                            'BASE',
+                            availability?.base,
+                            t('merge:compare.download_base'),
+                            t('merge:compare.deleted_base')
+                        )}
+                    </Space>
+                )
+            },
         },
         {
             title: t('merge:conflicts.resolution_column'),
