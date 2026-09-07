@@ -1,7 +1,9 @@
 package org.openl.security.acl.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
@@ -17,6 +19,19 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
     boolean isGranted(AProjectArtefact projectArtefact, List<Permission> permissions);
 
     boolean isGranted(AProjectArtefact projectArtefact, boolean useParentStrategy, Permission... permissions);
+
+    /**
+     * Answers one permission question for every given artefact at once.
+     *
+     * <p>An ACL identity is a repository and an internal path, so artefacts that address the same
+     * identity share one answer and are evaluated once. Every branch that keeps a project in the same
+     * folder addresses the same identity.
+     *
+     * <p>The whole batch is read in one transaction.
+     *
+     * @return the artefacts the current user holds the permissions on, compared by reference
+     */
+    <T extends AProjectArtefact> Set<T> filterGranted(Collection<T> artefacts, List<Permission> permissions);
 
     boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions, boolean force);
 

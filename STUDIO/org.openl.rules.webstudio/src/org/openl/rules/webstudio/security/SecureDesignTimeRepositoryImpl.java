@@ -74,7 +74,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     @Override
     public AProject getProject(String repositoryId, String name) throws ProjectException {
-        var branchedProject = getBranchedProject(repositoryId, name);
+        var branchedProject = securedBranchedProject(repositoryId, name, List.of(BasePermission.READ));
         if (branchedProject.isPresent()) {
             return branchedProject.get().homeEntry().project();
         }
@@ -144,7 +144,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     @Override
     public Optional<BranchedProject> getBranchedProject(String repositoryId, String name) {
-        return getBranchedProject(repositoryId, name, List.of(BasePermission.READ));
+        return securedBranchedProject(repositoryId, name, List.of(BasePermission.READ));
     }
 
     /**
@@ -177,14 +177,27 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
         return designTimeRepository.containsProject(repositoryId, name, branch);
     }
 
-    private Optional<BranchedProject> getBranchedProject(String repositoryId,
-                                                         String name,
-                                                         List<Permission> permissions) {
+    /**
+     * The branch entries of one project the caller may reach, and the readable home chosen among them.
+     *
+     * <p>Every entry is asked about once per ACL identity rather than once per branch. An identity is a
+     * repository and an internal path, and the index keeps one logical project in one folder, so the
+     * branches of a project normally share a single answer. Branches whose mapped paths differ keep
+     * their own.
+     */
+    private Optional<BranchedProject> securedBranchedProject(String repositoryId,
+                                                             String name,
+                                                             List<Permission> permissions) {
         return designTimeRepository.getBranchedProject(repositoryId, name)
-                .flatMap(project -> project
-                        .filter(entry -> designRepositoryAclService
-                                .isGranted(entry.project(), permissions))
-                        .map(filtered -> filtered.mapProjects(this::secureProject)));
+                .flatMap(project -> {
+                    var readable = designRepositoryAclService.filterGranted(projectsOf(project), permissions);
+                    return project.filter(entry -> readable.contains(entry.project()));
+                })
+                .map(filtered -> filtered.mapProjects(this::secureProject));
+    }
+
+    private static List<AProject> projectsOf(BranchedProject project) {
+        return project.entries().values().stream().map(BranchedProject.BranchEntry::project).toList();
     }
 
     @Override
@@ -234,7 +247,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     private Optional<AProject> secureVisibleProject(AProject project, List<Permission> permissions) {
-        var branched = getBranchedProject(project.getRepository().getId(), project.getName(), permissions);
+        var branched = securedBranchedProject(project.getRepository().getId(), project.getName(), permissions);
         if (branched.isPresent()) {
             return Optional.of(branched.get().homeEntry().project());
         }
