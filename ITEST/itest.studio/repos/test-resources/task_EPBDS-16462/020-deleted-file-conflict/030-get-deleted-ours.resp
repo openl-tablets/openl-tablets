@@ -1,0 +1,8 @@
+HTTP/1.1 404
+Content-Type: application/json
+
+{
+  "code": "openl.error.404.project.merge.conflict.file.revision.not.found",
+  "message": "The revision '***' of the merge conflict file 'EPBDS-16462/Main.xlsx' is not found."
+}
+

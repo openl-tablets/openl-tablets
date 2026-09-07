@@ -64,4 +64,19 @@ describe('BranchSelect over the real AntD Select', () => {
         expect(dropdown.querySelector('.ant-spin')).toBeNull()
         expect(dropdown.querySelector('.ant-empty')).toBeInTheDocument()
     })
+
+    it('keeps a long selected branch within the field', () => {
+        const branch = 'Example3-AutoPolicyCalculation/openl/20260907'
+        const { container } = render(
+            <BranchSelect branchNames={[branch]} onChange={() => {}} value={branch} />
+        )
+
+        expect(container.querySelector('.ant-select')).toHaveStyle({ minWidth: 0, width: '100%' })
+        expect(screen.getByTitle(branch)).toHaveStyle({
+            minWidth: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+        })
+    })
 })

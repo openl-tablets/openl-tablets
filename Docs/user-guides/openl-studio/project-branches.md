@@ -107,7 +107,7 @@ the branch menu is opened. Proceed as follows:
 
     If upon saving there is a conflict due to updates in the same module sheet, the **Resolve Conflicts** dialog appears.
 
-    ![](images/resolve-conflicts-on-merge.png)
+    ![Resolve Conflicts dialog](images/resolve-conflicts-on-merge.png "Resolving conflicts on merging branches")
 
     *Resolving conflicts on merging branches*
 
@@ -121,6 +121,14 @@ the branch menu is opened. Proceed as follows:
     | Upload merged file | Depending on the selected merging options, changes in the manually updated and uploaded file override changes in the branch. |
 
 1.  To view the changes made by another user, compare them to your changes, or view the base version of the file, select a corresponding option in the **Compare** column.
+
+    Download links are available only for versions in which the conflicted file exists. The **Compare** column marks
+    a deleted file as **Deleted in your version**, **Deleted in their version**, or **Deleted in base version** instead
+    of offering a download. Deleted files can still be compared.
+
+    ![Deleted file status in the Compare column](images/resolve-conflicts-deleted-file.png "Deleted file in the Resolve Conflicts dialog")
+
+    *A deleted version is shown as a status instead of a download action*
 
 ### Resolving Conflicts
 

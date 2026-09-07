@@ -64,8 +64,9 @@ public interface ProjectsMergeConflictsService {
      *
      * @param mergeConflictInfo conflict information from merge operation
      * @return detailed conflict response with all revision information
+     * @throws IOException if revision information cannot be read from the Git repository
      */
-    ConflictDetailsResponse getConflictDetails(MergeConflictInfo mergeConflictInfo);
+    ConflictDetailsResponse getConflictDetails(MergeConflictInfo mergeConflictInfo) throws IOException;
 
     /**
      * Groups conflicted files by project with automatic sorting.
@@ -123,6 +124,7 @@ public interface ProjectsMergeConflictsService {
      * @param side which version to retrieve (BASE, OURS, or THEIRS)
      * @return file item containing input stream and metadata for the requested version
      * @throws IOException if file cannot be read from Git repository
+     * @throws org.openl.studio.common.exception.NotFoundException if the file does not exist in the requested revision
      * @throws IllegalArgumentException if path is not in conflict list or side is null
      * @throws IllegalStateException if Git repository is in unexpected state
      */

@@ -130,6 +130,11 @@ describe('MergeBranchesStep', () => {
         render(<MergeBranchesStep {...defaultProps()} />)
         expect(screen.getByText('main')).toBeInTheDocument()
         expect(screen.getByText('merge:branches.current')).toBeInTheDocument()
+        const branchField = screen.getByTestId('merge-target-branch-field')
+        expect(branchField).toHaveStyle({ minWidth: 0, width: '100%' })
+        expect(branchField.closest('.ant-form-item-control')).toHaveStyle({ minWidth: 0 })
+        const targetRow = branchField.closest('.ant-form-item-row')!
+        expect(getComputedStyle(targetRow).flexWrap).toBe('nowrap')
     })
 
     it('filters out current branch from options', () => {

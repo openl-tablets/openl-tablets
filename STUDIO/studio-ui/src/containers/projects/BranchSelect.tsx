@@ -9,10 +9,20 @@ import { BranchMarks } from './BranchMarks'
 const useStyles = createStyles(({ css }) => ({
     /** The branch reads in the select's own text; only the marks are borrowed. */
     option: css`
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 6px;
+        width: 100%;
         min-width: 0;
+    `,
+    name: css`
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    `,
+    marks: css`
+        flex: none;
     `,
 }))
 
@@ -89,8 +99,10 @@ export const BranchSelect = ({
         value: name,
         label: (
             <span className={styles.option}>
-                {name}
-                <BranchMarks {...marksOf?.(name)} testId={`branch-option-${name}`} />
+                <span className={styles.name} title={name}>{name}</span>
+                <span className={styles.marks}>
+                    <BranchMarks {...marksOf?.(name)} testId={`branch-option-${name}`} />
+                </span>
             </span>
         ),
     }))
@@ -110,7 +122,7 @@ export const BranchSelect = ({
             loading={!!loading}
             notFoundContent={loading ? <BranchListLoading /> : undefined}
             options={options}
-            style={{ width: '100%', ...style }}
+            style={{ minWidth: 0, width: '100%', ...style }}
             suffixIcon={loading ? undefined : <BranchesOutlined />}
             value={value || undefined}
             onChange={next => {
