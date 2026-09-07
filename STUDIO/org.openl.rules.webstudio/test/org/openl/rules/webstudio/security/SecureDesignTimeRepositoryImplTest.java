@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,6 +41,8 @@ import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SecureBranchRepository;
+import org.openl.security.acl.repository.SecuredRepositoryFactory;
 
 class SecureDesignTimeRepositoryImplTest {
 
@@ -154,6 +158,59 @@ class SecureDesignTimeRepositoryImplTest {
         // One batch for the project, and no per-branch question behind it.
         verify(aclService, times(1)).filterGranted(anyCollection(), anyList());
         verify(aclService, never()).isGranted(any(AProject.class), anyList());
+    }
+
+    @Test
+    void listingAProjectBuildsASecuredViewOfItsHomeAlone() {
+        var branches = 300;
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        for (var i = 0; i < branches; i++) {
+            var branch = i == 0 ? "main" : "feature/" + i;
+            entries.put(branch, entry(project(branch, "DESIGN/Readable/Rates"),
+                    Instant.parse("2026-07-29T09:00:00Z").plusSeconds(i)));
+        }
+        var branched = BranchedProject.create("Rates", "main", entries);
+        var home = branched.homeEntry().project();
+
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getProjects()).thenAnswer(invocation -> List.of(home));
+        when(delegate.getBranchedProject("design", "Rates")).thenReturn(Optional.of(branched));
+        var aclService = mock(RepositoryAclService.class);
+        grantPathsContaining(aclService, "Readable");
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        try (var factory = mockStatic(SecuredRepositoryFactory.class)) {
+            factory.when(() -> SecuredRepositoryFactory.wrapToSecureRepo(any(), any()))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            secured.getProjects();
+
+            // The listing reads the home and nothing else, so the other 299 entries are never built into a view.
+            factory.verify(() -> SecuredRepositoryFactory.wrapToSecureRepo(any(), any()), times(1));
+        }
+    }
+
+    @Test
+    void aBranchAwareReadBuildsASecuredViewOfEveryEntryItHandsOut() {
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        entries.put("main", entry(project("main", "DESIGN/Readable/Rates"),
+                Instant.parse("2026-07-29T09:00:00Z")));
+        entries.put("feature/rates", entry(project("feature/rates", "DESIGN/Readable/Rates"),
+                Instant.parse("2026-07-29T10:00:00Z")));
+        var branched = BranchedProject.create("Rates", "main", entries);
+
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getBranchedProject("design", "Rates")).thenReturn(Optional.of(branched));
+        var aclService = mock(RepositoryAclService.class);
+        grantPathsContaining(aclService, "Readable");
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        var visible = secured.getBranchedProject("design", "Rates").orElseThrow();
+
+        // Whoever asks for the branches gets a secured view of each of them, not just of the home.
+        visible.entries().values()
+                .forEach(entry -> assertInstanceOf(SecureBranchRepository.class,
+                        entry.project().getRepository()));
     }
 
     /**
