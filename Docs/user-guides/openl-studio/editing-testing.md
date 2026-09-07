@@ -256,8 +256,6 @@ This section describes test execution. Proceed as follows:
 
     *Results of executing all test runs for one rule table*
 
-    If the table contains Value types, such as IntValue, the results are clickable and enable a user to view the calculation history.
-
 1.  To test a rule table even if no tests have been created for the given table yet, proceed as follows:
 2.  In the module tree, select the required rule table and click the green **Run** arrow ![](images/run-arrow-icon.png) above the table.
 
