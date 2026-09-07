@@ -23,6 +23,7 @@ The following topics are included in this chapter:
 -   [Configuration Examples](#configuration-examples)
 -   [Encrypting Passwords](#encrypting-passwords)
 -   [Cluster Mode Configuration](#cluster-mode-configuration)
+-   [Related Documentation](#related-documentation)
 
 ---
 
@@ -47,19 +48,28 @@ Sources are listed from the highest priority to the lowest. A value found in a h
 
 Settings saved in the **Administration** area are not written back to `application.properties`. They are stored
 separately, in `${openl.home.shared}/<application-name>.properties` — for example, `webstudio.properties` — so an
-`application.properties` file keeps only the values an administrator wrote by hand. Deleting that file is equivalent to
-**Restore Defaults and Restart**.
+`application.properties` file keeps only the values an administrator wrote by hand.
+
+The two files are reset independently:
+
+- **Restore Defaults and Restart** clears the values saved in the **Administration** area from
+  `${openl.home.shared}/<application-name>.properties` and restarts the instance. It never modifies
+  `application.properties`.
+- Deleting `application.properties` discards only the values written there by hand. The instance then falls back to the
+  settings saved in the **Administration** area and to the built-in defaults.
 
 ### Environment Variables
 
 An environment variable is recognized either as the exact property name or in upper case with dots and dashes replaced
-by underscores:
+by underscores. A shell rejects a variable name that contains a dot, so export the upper-case form:
 
 ```bash
-export openl.home=/srv/openl
-export OPENL_HOME=/srv/openl        # equivalent
+export OPENL_HOME=/srv/openl        # sets openl.home
 export USER_MODE=multi              # sets user.mode
 ```
+
+The exact property name still works where the environment can carry such a name, for example when it is passed by
+`env` or set by a container runtime.
 
 ### File Locations
 
@@ -302,7 +312,13 @@ Retry behavior after a failed authentication is controlled by `.failed-authentic
 For **Database JNDI**, the URL is the datasource name in the JNDI context, such as `java:comp/env/jdbc/DB`.
 
 The **Secure connection** check box has no property of its own. It is derived from **Login**: the check box appears
-selected whenever a login is defined, so setting `.login` and `.password` is what enables a secure connection.
+selected whenever a login is defined, and clearing it erases the stored `.login` and `.password`.
+
+Despite its name the check box selects database authentication, not transport security. With a login the repository
+opens its connections through the credentialed call — `getConnection(uri, login, password)` for **Database JDBC** and
+`getConnection(login, password)` on the datasource for **Database JNDI** — and without one through the plain call that
+takes no credentials. Encrypting the connection itself is configured elsewhere: in the JDBC URL through a
+driver-specific parameter such as `sslmode` for PostgreSQL, in the driver, or in the JNDI datasource definition.
 
 #### AWS S3
 
@@ -370,7 +386,7 @@ Needed when a browser application served from another origin calls the OpenL Stu
 | `cors.allowed.origins`  | Comma-separated allowed origins. An asterisk allows any origin.                |
 | `cors.allowed.methods`  | Comma-separated allowed HTTP methods.                                          |
 | `cors.allowed.headers`  | Comma-separated allowed request headers.                                       |
-| `cors.preflight.maxage` | Seconds a browser may cache a pre-flight response. A negative value omits it.  |
+| `cors.preflight.maxage` | Seconds a browser may cache a pre-flight response.                             |
 
 ```properties
 cors.allowed.origins = https://apps.example.com
@@ -494,12 +510,21 @@ repository.archive.password = ENC(kLmNoPqRsTuVwXyZaBcD==)
 ```properties
 user.mode = ad
 security.ad.domain = example.com
-security.ad.server-url = ldap://ad.example.com:3268
+security.ad.server-url = ldaps://ad.example.com:3269
 security.ad.search-filter = (&(objectClass=user)(userPrincipalName={0}))
 security.ad.group-filter = (&(objectClass=group)(member:1.2.840.113556.1.4.1941:={2}))
 security.administrators = jsmith
 security.default-group = Viewers
 ```
+
+A login sends the user's password to the server named by `security.ad.server-url`, so use the `ldaps://` scheme — over
+plain `ldap://` the password crosses the network unencrypted. The ports differ as well: 3269 for the encrypted global
+catalog against 3268 for the plain one, or 636 against 389 for a single domain controller.
+
+An `ldaps://` connection is only as good as the certificate check behind it, and that check is the JVM's: the
+certificate of the domain controller, or the CA that issued it, has to be present in the truststore of the JVM that
+runs OpenL Studio. Without it every login fails with `PKIX path building failed`. Import the certificate with
+`keytool -import -trustcacerts`, or point the instance at a prepared truststore through `javax.net.ssl.trustStore`.
 
 ### OIDC Authentication
 
@@ -523,8 +548,11 @@ encrypted value in `ENC(...)`:
 
 ```properties
 secret.key = MyMasterPassword
-db.password = ENC(eNcoDedPa$$w0RD)
+db.password = ENC(AP7hs0n88JJMcFlV/7VQTg==)
 ```
+
+The value inside `ENC(...)` is Base64, so it cannot be invented — the example above is the password `MyDbPassword`
+encrypted with the `secret.key` shown next to it. Produce your own value as described at the end of this section.
 
 Keep `secret.key` out of `application.properties` in a shared environment — pass it as a Java system property or an
 environment variable instead. Quote the value if it contains spaces or shell metacharacters, so that
@@ -574,7 +602,10 @@ the old location and requires moving it manually.
 ### What Moves to the Shared Directory
 
 - **Administration settings** — every instance reads the same `<application-name>.properties`, so a change applied in
-  one instance's **Administration** area takes effect everywhere.
+  one instance's **Administration** area takes effect everywhere. The passwords in that file are stored as `ENC(...)`,
+  so every instance needs the same `secret.key`: an instance configured with a different key reads such a password as
+  an empty value. Changing the key therefore means changing it on all instances together and re-entering the affected
+  passwords afterwards, which saves them encrypted with the new key.
 - **User workspace and project history** — users see the same open projects and history on whichever instance serves
   them.
 - **Locks** — an instance sees projects locked by users on other instances.
