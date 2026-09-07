@@ -6,13 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +70,7 @@ class SecureDesignTimeRepositoryImplTest {
         var refresh = CompletableFuture.<Void>completedFuture(null);
         when(delegate.refreshBranch("design", "feature/rates")).thenReturn(refresh);
         var aclService = mock(RepositoryAclService.class);
+        grantPathsContaining(aclService, "Readable");
         when(aclService.isGranted(any(AProject.class), anyList()))
                 .thenAnswer(invocation -> ((AProject) invocation.getArgument(0)).getRealPath().contains("Readable"));
         when(aclService.isGranted("design", null, List.of(BasePermission.READ))).thenReturn(true);
@@ -101,6 +107,7 @@ class SecureDesignTimeRepositoryImplTest {
         var delegate = mock(DesignTimeRepository.class);
         var aclService = mock(RepositoryAclService.class);
         var denied = project("main", "DESIGN/Denied/Rates");
+        grantPathsContaining(aclService, "Readable");
         when(aclService.isGranted(any(AProject.class), anyList())).thenReturn(false);
         when(delegate.isLastProjectBranch("design", "Rates", "feature/rates")).thenReturn(false);
         when(delegate.getProjectsHeldOnlyBy("design", "feature/rates")).thenReturn(List.of(denied));
@@ -121,6 +128,44 @@ class SecureDesignTimeRepositoryImplTest {
         assertTrue(secured.getProjectIndexHealth("design").isEmpty());
 
         verify(delegate, never()).getProjectIndexHealth("design");
+    }
+
+    @Test
+    void asksTheAclServiceOncePerProjectWhateverTheNumberOfBranches() {
+        var branches = 300;
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        for (var i = 0; i < branches; i++) {
+            // Every branch keeps the project in the same folder, so all of them share one ACL identity.
+            var branch = i == 0 ? "main" : "feature/" + i;
+            entries.put(branch, entry(project(branch, "DESIGN/Readable/Rates"),
+                    Instant.parse("2026-07-29T09:00:00Z").plusSeconds(i)));
+        }
+        var branched = BranchedProject.create("Rates", "main", entries);
+
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getBranchedProject("design", "Rates")).thenReturn(Optional.of(branched));
+        var aclService = mock(RepositoryAclService.class);
+        grantPathsContaining(aclService, "Readable");
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        var visible = secured.getBranchedProject("design", "Rates").orElseThrow();
+
+        assertEquals(branches, visible.entries().size());
+        // One batch for the project, and no per-branch question behind it.
+        verify(aclService, times(1)).filterGranted(anyCollection(), anyList());
+        verify(aclService, never()).isGranted(any(AProject.class), anyList());
+    }
+
+    /**
+     * Grants every artefact whose real path contains the marker, the way the ACL service answers a batch.
+     */
+    private static void grantPathsContaining(RepositoryAclService aclService, String marker) {
+        when(aclService.filterGranted(anyCollection(), anyList())).thenAnswer(invocation -> {
+            Collection<AProject> artefacts = invocation.getArgument(0);
+            Set<AProject> granted = Collections.newSetFromMap(new IdentityHashMap<>());
+            artefacts.stream().filter(project -> project.getRealPath().contains(marker)).forEach(granted::add);
+            return granted;
+        });
     }
 
     private static AProject project(String branch, String path) {

@@ -280,7 +280,9 @@ project views.
 ## Authorization
 
 Authorization must be evaluated per branch entry because ACL identities use `(repositoryId, internalPath)` and mapped
-paths may differ by branch.
+paths may differ by branch. Entries that address the same identity must be answered once rather than once per
+branch: the index keeps one logical project in one folder, so a project normally reaches its whole branch set on a
+single decision.
 
 - A branch entry must require `READ` permission on its internal path.
 - A logical project must be visible when at least one entry is readable.

@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +27,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
@@ -357,6 +364,77 @@ class RepositoryAclServiceTest {
         assertFalse(designRepositoryAclService.isGranted("repoId1", "", List.of(BasePermission.READ)));
         assertFalse(designRepositoryAclService.isGranted("repoId1", "/", List.of(BasePermission.READ)));
 
+    }
+
+    @Test
+    @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
+    @Transactional
+    @Rollback
+    void filterGrantedAnswersEveryArtefactAndAgreesWithTheSingleQuestion() {
+        var mockUser = setAdminAuthenticationToContext();
+        designRepositoryAclService.addPermissions("repoId1",
+                "/readable",
+                List.of(BasePermission.READ),
+                List.of(new GrantedAuthoritySid(DEVELOPERS_JUNIT)));
+
+        SecurityContextHolder.getContext().setAuthentication(mockUser);
+        var readableOnMain = project("repoId1", "/readable");
+        var readableOnFeature = project("repoId1", "/readable");
+        var denied = project("repoId1", "/denied");
+
+        var granted = designRepositoryAclService.filterGranted(
+                List.of(readableOnMain, readableOnFeature, denied), List.of(BasePermission.READ));
+
+        // The two branch views share one identity, so both are answered, and the denied one is left out.
+        assertEquals(2, granted.size());
+        assertTrue(granted.contains(readableOnMain));
+        assertTrue(granted.contains(readableOnFeature));
+        assertFalse(granted.contains(denied));
+
+
+        // The batch answers exactly what the single-artefact question answers.
+        assertTrue(designRepositoryAclService.isGranted(readableOnMain, List.of(BasePermission.READ)));
+        assertTrue(designRepositoryAclService.isGranted(readableOnFeature, List.of(BasePermission.READ)));
+        assertFalse(designRepositoryAclService.isGranted(denied, List.of(BasePermission.READ)));
+    }
+
+    @Test
+    @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
+    @Transactional
+    @Rollback
+    void filterGrantedOnNoArtefactsGrantsNothing() {
+        assertTrue(designRepositoryAclService.filterGranted(List.of(), List.of(BasePermission.READ)).isEmpty());
+    }
+
+    @Test
+    @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
+    @Transactional
+    @Rollback
+    void filterGrantedAnswersForAProjectOfTheUsersOwnWorkspaceWithoutAsking() {
+        var local = project(LocalWorkspace.LOCAL_ID, "/my-project");
+
+        var granted = designRepositoryAclService.filterGranted(
+                Collections.singletonList(local), List.of(BasePermission.READ));
+
+        assertTrue(granted.contains(local));
+    }
+
+    @Test
+    @WithMockUser(value = "oleg", authorities = DEVELOPERS_JUNIT)
+    @Transactional
+    @Rollback
+    void filterGrantedRefusesAnArtefactThatIsNotThere() {
+        assertTrue(designRepositoryAclService
+                .filterGranted(Collections.singletonList(null), List.of(BasePermission.READ))
+                .isEmpty());
+    }
+
+    private static AProject project(String repositoryId, String path) {
+        var repository = mock(Repository.class);
+        when(repository.getId()).thenReturn(repositoryId);
+        var fileData = new FileData();
+        fileData.setName(path);
+        return new AProject(repository, fileData);
     }
 
     private Authentication setAdminAuthenticationToContext() {

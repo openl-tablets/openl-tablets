@@ -70,6 +70,9 @@ public record BranchedProject(String name,
 
     /**
      * Keeps matching branch entries and recomputes the home branch.
+     *
+     * <p>A project every entry of which matches is returned as it is: the same entries over the same base
+     * branch choose the same home, and a listing keeps whole projects far more often than parts of them.
      */
     public Optional<BranchedProject> filter(Predicate<BranchEntry> predicate) {
         var filtered = new LinkedHashMap<String, BranchEntry>();
@@ -78,6 +81,9 @@ public record BranchedProject(String name,
                 filtered.put(branch, entry);
             }
         });
+        if (filtered.size() == entries.size()) {
+            return Optional.of(this);
+        }
         return filtered.isEmpty() ? Optional.empty() : Optional.of(create(name, baseBranch, filtered));
     }
 

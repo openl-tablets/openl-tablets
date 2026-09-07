@@ -1,11 +1,17 @@
 package org.openl.security.acl.repository;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AclCache;
+import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
@@ -64,6 +70,40 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
             oi = oidProvider.getParentOid(oi);
         }
         return isGranted(oi, sids, permissions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public <T extends AProjectArtefact> Set<T> filterGranted(Collection<T> artefacts, List<Permission> permissions) {
+        Set<T> granted = Collections.newSetFromMap(new IdentityHashMap<>());
+        if (artefacts.isEmpty()) {
+            return granted;
+        }
+        var sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
+        var decisions = new HashMap<ObjectIdentity, Boolean>();
+        for (T artefact : artefacts) {
+            if (isGrantedOnce(artefact, sids, permissions, decisions)) {
+                granted.add(artefact);
+            }
+        }
+        return granted;
+    }
+
+    /**
+     * Answers for one artefact, reusing the answer already taken for its ACL identity.
+     */
+    private boolean isGrantedOnce(AProjectArtefact artefact,
+                                  List<Sid> sids,
+                                  List<Permission> permissions,
+                                  Map<ObjectIdentity, Boolean> decisions) {
+        if (artefact == null) {
+            return false;
+        }
+        if (LocalWorkspace.LOCAL_ID.equals(artefact.getRepository().getId())) {
+            return true;
+        }
+        return decisions.computeIfAbsent(oidProvider.getArtifactOid(artefact),
+                oid -> isGranted(oid, sids, permissions));
     }
 
     @Override
