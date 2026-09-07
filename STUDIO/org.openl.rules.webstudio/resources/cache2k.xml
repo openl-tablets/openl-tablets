@@ -18,6 +18,13 @@
             <expireAfterWrite>2m</expireAfterWrite>
         </cache>
         <cache>
+            <!-- Answers for the identities aclCache cannot hold: the ones that carry no ACL of their own.
+                 Kept short-lived: a stale answer here withholds a permission rather than granting one. -->
+            <name>missingAclCache</name>
+            <entryCapacity>60_000</entryCapacity>
+            <expireAfterWrite>15s</expireAfterWrite>
+        </cache>
+        <cache>
             <name>userInfoOAuth2Cache</name>
             <entryCapacity>100</entryCapacity>
             <expireAfterWrite>30m</expireAfterWrite>

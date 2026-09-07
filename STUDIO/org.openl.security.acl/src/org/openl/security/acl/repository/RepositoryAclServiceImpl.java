@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.springframework.cache.Cache;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -26,11 +27,13 @@ import org.openl.security.acl.oid.AclObjectIdentityProvider;
 public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl implements RepositoryAclService {
 
     public RepositoryAclServiceImpl(AclCache springCacheBasedAclCache,
+                                    Cache missingAclCache,
                                     MutableAclService aclService,
                                     Sid relevantSystemWideSid,
                                     SidRetrievalStrategy sidRetrievalStrategy,
                                     AclObjectIdentityProvider oidProvider) {
         super(springCacheBasedAclCache,
+                missingAclCache,
                 aclService,
                 relevantSystemWideSid,
                 sidRetrievalStrategy,
@@ -110,7 +113,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     @Transactional
     public void deleteAcl(AProjectArtefact projectArtefact) {
         var oi = oidProvider.getArtifactOid(projectArtefact);
-        aclService.deleteAcl(oi, true);
+        deleteAcl(oi);
     }
 
     @Override
