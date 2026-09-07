@@ -312,7 +312,13 @@ Retry behavior after a failed authentication is controlled by `.failed-authentic
 For **Database JNDI**, the URL is the datasource name in the JNDI context, such as `java:comp/env/jdbc/DB`.
 
 The **Secure connection** check box has no property of its own. It is derived from **Login**: the check box appears
-selected whenever a login is defined, so setting `.login` and `.password` is what enables a secure connection.
+selected whenever a login is defined, and clearing it erases the stored `.login` and `.password`.
+
+Despite its name the check box selects database authentication, not transport security. With a login the repository
+opens its connections through the credentialed call — `getConnection(uri, login, password)` for **Database JDBC** and
+`getConnection(login, password)` on the datasource for **Database JNDI** — and without one through the plain call that
+takes no credentials. Encrypting the connection itself is configured elsewhere: in the JDBC URL through a
+driver-specific parameter such as `sslmode` for PostgreSQL, in the driver, or in the JNDI datasource definition.
 
 #### AWS S3
 
