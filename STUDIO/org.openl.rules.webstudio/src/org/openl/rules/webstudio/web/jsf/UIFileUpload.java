@@ -12,7 +12,7 @@ import jakarta.faces.event.PostAddToViewEvent;
  * {@value QUEUED_FILE_UPLOAD_EVENTS_ATTR} is not initialized. By default, it is initialized
  * if {@link javax.faces.event.PreRenderComponentEvent} is fired. But in our case, it is not fired.
  */
-@FacesComponent(value = "openl.UIFileUpload")
+@FacesComponent("openl.UIFileUpload")
 @ListenerFor(systemEventClass = PostAddToViewEvent.class)
 public class UIFileUpload extends org.richfaces.component.UIFileUpload {
 

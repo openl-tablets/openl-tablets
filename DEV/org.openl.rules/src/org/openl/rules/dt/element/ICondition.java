@@ -44,6 +44,12 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     CompositeMethod getStaticMethod();
 
+    /**
+     * Tells what the static part of an optimized condition has decided for the rules with a filled cell:
+     * {@code TRUE} when every rule matches, {@code FALSE} when none does, {@code null} when the index decides.
+     */
+    Boolean evaluateStaticDecision(Object[] params, IRuntimeEnv env);
+
     IOpenSourceCodeModule getIndexSourceCodeModule();
 
     CompositeMethod getIndexMethod();

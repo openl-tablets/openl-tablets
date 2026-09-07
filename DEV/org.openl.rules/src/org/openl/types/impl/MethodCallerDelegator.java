@@ -11,7 +11,6 @@ public class MethodCallerDelegator implements IMethodCaller {
     private final IMethodCaller delegate;
 
     public MethodCallerDelegator(IMethodCaller delegate) {
-        super();
         this.delegate = delegate;
     }
 

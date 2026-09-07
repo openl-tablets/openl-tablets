@@ -27,7 +27,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     @Setter
     private String versionComment;
     @Getter
-    private boolean deleted = false;
+    private boolean deleted;
 
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo) {
         major = version.getMajor();

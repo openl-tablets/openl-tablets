@@ -51,7 +51,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         return out.toString();
     }
 
-    private transient Map<IOpenMethod, IOpenMethod> cache = null;
+    private transient Map<IOpenMethod, IOpenMethod> cache;
 
     @Override
     public IOpenMethod getMethodForOpenMethodDispatcher(OpenMethodDispatcher openMethodDispatcher) {
@@ -210,7 +210,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private java.util.Date currentDate = null;
+    private java.util.Date currentDate;
 
     @Override
     public void setCurrentDate(java.util.Date currentDate) {
@@ -220,7 +220,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private java.util.Date requestDate = null;
+    private java.util.Date requestDate;
 
     @Override
     public void setRequestDate(java.util.Date requestDate) {
@@ -230,7 +230,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private java.lang.String lob = null;
+    private java.lang.String lob;
 
     @Override
     public void setLob(java.lang.String lob) {
@@ -240,7 +240,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private java.lang.String nature = null;
+    private java.lang.String nature;
 
     @Override
     public void setNature(java.lang.String nature) {
@@ -250,7 +250,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private org.openl.rules.enumeration.UsStatesEnum usState = null;
+    private org.openl.rules.enumeration.UsStatesEnum usState;
 
     @Override
     public void setUsState(org.openl.rules.enumeration.UsStatesEnum usState) {
@@ -260,7 +260,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private org.openl.rules.enumeration.CountriesEnum country = null;
+    private org.openl.rules.enumeration.CountriesEnum country;
 
     @Override
     public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
@@ -270,7 +270,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private org.openl.rules.enumeration.UsRegionsEnum usRegion = null;
+    private org.openl.rules.enumeration.UsRegionsEnum usRegion;
 
     @Override
     public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
@@ -280,7 +280,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private org.openl.rules.enumeration.CurrenciesEnum currency = null;
+    private org.openl.rules.enumeration.CurrenciesEnum currency;
 
     @Override
     public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
@@ -290,7 +290,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private org.openl.rules.enumeration.LanguagesEnum lang = null;
+    private org.openl.rules.enumeration.LanguagesEnum lang;
 
     @Override
     public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
@@ -300,7 +300,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private org.openl.rules.enumeration.RegionsEnum region = null;
+    private org.openl.rules.enumeration.RegionsEnum region;
 
     @Override
     public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
@@ -310,7 +310,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private org.openl.rules.enumeration.CaProvincesEnum caProvince = null;
+    private org.openl.rules.enumeration.CaProvincesEnum caProvince;
 
     @Override
     public void setCaProvince(org.openl.rules.enumeration.CaProvincesEnum caProvince) {
@@ -320,7 +320,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private org.openl.rules.enumeration.CaRegionsEnum caRegion = null;
+    private org.openl.rules.enumeration.CaRegionsEnum caRegion;
 
     @Override
     public void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion) {
@@ -330,7 +330,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     @Getter
-    private java.util.Locale locale = null;
+    private java.util.Locale locale;
 
     @Override
     public void setLocale(java.util.Locale locale) {

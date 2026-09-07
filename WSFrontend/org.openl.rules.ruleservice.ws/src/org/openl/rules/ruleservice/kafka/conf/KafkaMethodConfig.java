@@ -11,7 +11,7 @@ public class KafkaMethodConfig extends KafkaServiceConfig {
     private String methodName;
 
     @Getter
-    @JsonProperty(value = "method.parameters")
+    @JsonProperty("method.parameters")
     @Setter
     private String methodParameters;
 }

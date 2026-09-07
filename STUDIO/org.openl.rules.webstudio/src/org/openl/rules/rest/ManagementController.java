@@ -105,7 +105,7 @@ public class ManagementController {
     }
 
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
-    @DeleteMapping(value = "/groups/{id}")
+    @DeleteMapping("/groups/{id}")
     @Transactional
     public void deleteGroup(@Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
         var group = groupDao.getGroupById(id);
@@ -115,7 +115,7 @@ public class ManagementController {
         }
     }
 
-    @DeleteMapping(value = "/groups")
+    @DeleteMapping("/groups")
     @Transactional
     @Hidden // for testing purposes
     public void deleteGroupByName(@RequestParam("name") final String name) {

@@ -30,7 +30,7 @@ public class JettyServer {
     private final Locale DEFAULT_LOCALE = Locale.getDefault();
     private final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
-    private JettyServer() throws IOException {
+    private JettyServer() {
         var webAppContext = new WebAppContext();
         webAppContext.setWar(System.getProperty("webservice-webapp"));
         // Fail the suite with the real deploy exception instead of serving HTTP 503 to every request
@@ -70,11 +70,7 @@ public class JettyServer {
     }
 
     public static JettyServer get() {
-        try {
-            return new JettyServer();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        return new JettyServer();
     }
 
     public JettyServer withInitParam(Map<String, String> params) {

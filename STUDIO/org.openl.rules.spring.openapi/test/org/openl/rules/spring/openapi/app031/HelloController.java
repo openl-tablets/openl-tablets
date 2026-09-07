@@ -25,7 +25,7 @@ public class HelloController {
                     Integer.class}), examples = {@ExampleObject(name = "The String example", value = "Foo-bar"),
                     @ExampleObject(name = "The Integer example", value = "4221")}))})
     @Tag(name = "default")
-    @GetMapping(value = "/hello")
+    @GetMapping("/hello")
     @Deprecated
     ResponseEntity<Void> sayHello() {
         return null;

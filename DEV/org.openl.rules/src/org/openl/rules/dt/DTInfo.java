@@ -14,7 +14,6 @@ public class DTInfo {
     private boolean transposed;
 
     DTInfo(int numberHConditions, int numberVConditions, DTScale scale, boolean transposed) {
-        super();
         this.numberHConditions = numberHConditions;
         this.numberVConditions = numberVConditions;
         this.scale = scale;
@@ -22,7 +21,6 @@ public class DTInfo {
     }
 
     DTInfo(int numberHConditions, int numberVConditions, boolean transposed) {
-        super();
         this.numberHConditions = numberHConditions;
         this.numberVConditions = numberVConditions;
         this.transposed = transposed;

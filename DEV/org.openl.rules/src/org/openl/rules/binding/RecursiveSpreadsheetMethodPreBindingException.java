@@ -12,7 +12,6 @@ public class RecursiveSpreadsheetMethodPreBindingException extends OpenlNotCheck
     private static final long serialVersionUID = 1L;
 
     public RecursiveSpreadsheetMethodPreBindingException() {
-        super();
     }
 
     public RecursiveSpreadsheetMethodPreBindingException(String message,

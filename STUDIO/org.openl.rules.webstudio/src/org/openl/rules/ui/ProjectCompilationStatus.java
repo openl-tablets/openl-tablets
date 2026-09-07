@@ -56,9 +56,9 @@ public final class ProjectCompilationStatus {
 
     public static class Builder {
 
-        private int modulesCount = 0;
+        private int modulesCount;
 
-        private int modulesCompiled = 0;
+        private int modulesCompiled;
 
         private final Map<Severity, List<OpenLMessage>> messages = new HashMap<>();
 

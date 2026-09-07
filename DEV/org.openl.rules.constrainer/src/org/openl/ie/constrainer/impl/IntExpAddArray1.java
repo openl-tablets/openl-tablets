@@ -28,9 +28,6 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
     class ExpAddVectorObserver extends Observer {
 
-        ExpAddVectorObserver() {
-        }
-
         @Override
         public Object master() {
             return IntExpAddArray1.this;

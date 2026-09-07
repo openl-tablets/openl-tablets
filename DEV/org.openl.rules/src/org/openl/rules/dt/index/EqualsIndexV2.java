@@ -1,7 +1,7 @@
 package org.openl.rules.dt.index;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
     }
 
-    private int[] findIndex(Object value) {
+    protected int[] findIndex(Object value) {
         int[] result = null;
         if (value != null) {
             value = conditionCasts.castToConditionType(value);
@@ -70,19 +70,27 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         return intersectionSortedArrays(rules, prevRes);
     }
 
+    /**
+     * Collects every rule of the index in the order of the table.
+     *
+     * <p>A rule is collected once even when it is registered under several values, as an array column does.
+     */
     @Override
-    public int[] collectRules() {
-        int[] result = new int[rulesTotalSize];
-        var k = 0;
+    protected int[] computeRules() {
+        var rules = new BitSet();
         for (int[] arr : index.values()) {
             for (int ruleN : arr) {
-                result[k++] = ruleN;
+                rules.set(ruleN);
             }
         }
         for (int ruleN : emptyRules) {
+            rules.set(ruleN);
+        }
+        int[] result = new int[rules.cardinality()];
+        var k = 0;
+        for (var ruleN = rules.nextSetBit(0); ruleN >= 0; ruleN = rules.nextSetBit(ruleN + 1)) {
             result[k++] = ruleN;
         }
-        Arrays.sort(result);
         return result;
     }
 
@@ -121,7 +129,7 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
      * @param b second array
      * @return a new array which contains common elements
      */
-    private static int[] intersectionSortedArrays(int[] a, int[] b) {
+    static int[] intersectionSortedArrays(int[] a, int[] b) {
         int[] result = new int[Math.min(a.length, b.length)];
         int i = 0, j = 0, k = 0;
         while (i < a.length && j < b.length) {
@@ -146,9 +154,9 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
         private final DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
         private final DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
 
-        private Map<Object, DecisionTableRuleNodeBuilder> map = null;
-        private Map<Object, int[]> result = null;
-        private boolean comparatorBasedMap = false;
+        private Map<Object, DecisionTableRuleNodeBuilder> map;
+        private Map<Object, int[]> result;
+        private boolean comparatorBasedMap;
 
         @Setter
         private ConditionCasts conditionCasts;
@@ -195,7 +203,19 @@ public class EqualsIndexV2 extends ARuleIndexV2 {
                 }
             }
 
-            return new EqualsIndexV2(nextNodeBuilder.makeNode(), result, emptyBuilder.makeRulesAry(), conditionCasts);
+            return newIndex(nextNodeBuilder.makeNode(), result, emptyBuilder.makeRulesAry(), conditionCasts);
+        }
+
+        /**
+         * Creates the index for the collected rules.
+         *
+         * <p>Subclasses return their own index kind built from the same collected data.
+         */
+        protected EqualsIndexV2 newIndex(DecisionTableRuleNode nextNode,
+                                         Map<Object, int[]> index,
+                                         int[] emptyRules,
+                                         ConditionCasts conditionCasts) {
+            return new EqualsIndexV2(nextNode, index, emptyRules, conditionCasts);
         }
     }
 

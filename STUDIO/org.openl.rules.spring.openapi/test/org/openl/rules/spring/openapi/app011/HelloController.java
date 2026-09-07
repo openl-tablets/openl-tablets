@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/greetings")
 public class HelloController {
 
-    @GetMapping(value = "/hello")
+    @GetMapping("/hello")
     @Deprecated
     ResponseEntity<Void> sayHello() {
         return null;

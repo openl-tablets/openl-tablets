@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import { FC, useMemo } from 'react'
 import { Input, InputNumber, Select } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { AWS_SSE_ALGORITHM } from './constants'

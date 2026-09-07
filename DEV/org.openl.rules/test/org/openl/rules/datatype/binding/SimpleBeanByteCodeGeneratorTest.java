@@ -144,7 +144,7 @@ class SimpleBeanByteCodeGeneratorTest {
             instance2 = clazz.getDeclaredConstructor().newInstance();
             equalsMethod = clazz.getMethod("equals", Object.class);
             setFirstField = clazz.getMethod("setFirstField", String.class);
-            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[]{instance2});
+            isEqual = (Boolean) equalsMethod.invoke(instance1, instance2);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -154,7 +154,7 @@ class SimpleBeanByteCodeGeneratorTest {
         try {
             assertNotNull(setFirstField);
             setFirstField.invoke(instance1, "TestValue");
-            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[]{instance2});
+            isEqual = (Boolean) equalsMethod.invoke(instance1, instance2);
         } catch (Exception e) {
             fail(e.getMessage());
         }

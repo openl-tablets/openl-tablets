@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import { FC } from 'react'
 import { Divider, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { Select } from '../../components'

@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import { FC } from 'react'
 import { designRepositoryTypeOptions, RepositoryDataType, RepositoryType } from './constants'
 import { RepositoryAWSS3Configuration } from './RepositoryAWSS3Configuration'
 import { RepositoryDBConfiguration } from './RepositoryDBConfiguration'

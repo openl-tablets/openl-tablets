@@ -15,10 +15,6 @@ public class SpreadsheetModel implements MethodModel {
     private PathInfo pathInfo;
     private boolean include;
 
-    public SpreadsheetModel() {
-        // empty constructor
-    }
-
     @Override
     public String getName() {
         return name;

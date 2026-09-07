@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
 import { UserOutlined } from '@ant-design/icons'

@@ -19,6 +19,7 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableUtils;
 import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.algorithm.evaluator.ContainsInInputArrayIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionDirectParameterField;
@@ -295,9 +296,17 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         }
         var methodType = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode().getType();
         if (condition.isDependentOnOtherColumnsParams()) {
+            if (isBooleanType(methodType)) {
+                // a lookup that reads the values of several columns is the only shape indexed here
+                var conditionEvaluator = makeDependentParamsEvaluator(condition, index, bindingContext);
+                if (conditionEvaluator instanceof ContainsInInputArrayIndexedEvaluator) {
+                    applyDependentParamsEvaluator(condition, conditionEvaluator);
+                    return conditionEvaluator;
+                }
+                condition.resetOptimizedExpression();
+            }
             condition.setConditionEvaluator(DefaultConditionEvaluator.INSTANCE);
-            if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
-                    .equals(methodType)) {
+            if (!isBooleanType(methodType)) {
                 if (condition.getParams().length != 1) {
                     BindHelper.processError(
                             "Condition expression must return a boolean type if it uses condition parameters.",
@@ -315,8 +324,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         }
 
         if (condition.isDependentOnInputParams() || condition.isRuleIdOrRuleNameUsed()) {
-            if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
-                    .equals(methodType)) {
+            if (!isBooleanType(methodType)) {
                 BindHelper.processError(
                         "Condition expression must return a boolean type if it uses condition parameters.",
                         source,
@@ -324,37 +332,12 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 return DefaultConditionEvaluator.INSTANCE;
             }
 
-            IConditionEvaluator conditionEvaluator = DependentParametersOptimizedAlgorithm
-                    .makeEvaluator(condition, signature, bindingContext);
-
+            IConditionEvaluator conditionEvaluator = makeDependentParamsEvaluator(condition,
+                    index,
+                    bindingContext);
             if (conditionEvaluator != null) {
-                condition.setConditionEvaluator(conditionEvaluator);
-                var evaluator = makeOptimizedConditionMethodEvaluator(signature,
-                        conditionEvaluator.getOptimizedSourceCode());
-                condition.setEvaluator(evaluator);
-                if (evaluator == null) {
-                    condition.setEvaluator(makeDependentParamsIndexedConditionMethodEvaluator(condition,
-                            signature,
-                            conditionEvaluator.getOptimizedSourceCode()));
-                }
-            } else if (condition.optimizeExpression(signature, openl, bindingContext)) {
-                // try to optimize expression and create index
-                conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(condition, signature, bindingContext);
-                if (conditionEvaluator != null) {
-                    condition.setConditionEvaluator(conditionEvaluator);
-                    var evaluator = makeOptimizedConditionMethodEvaluator(signature,
-                            conditionEvaluator.getOptimizedSourceCode());
-                    if (evaluator == null) {
-                        evaluator = makeDependentParamsIndexedConditionMethodEvaluator(condition,
-                                signature,
-                                conditionEvaluator.getOptimizedSourceCode());
-                    }
-                    condition.setEvaluator(evaluator);
-                } else {
-                    condition.resetOptimizedExpression();
-                }
-            }
-            if (conditionEvaluator == null) {
+                applyDependentParamsEvaluator(condition, conditionEvaluator);
+            } else {
                 // fallback to default evaluator
                 conditionEvaluator = DefaultConditionEvaluator.INSTANCE;
                 condition.setConditionEvaluator(conditionEvaluator);
@@ -367,6 +350,65 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             condition.setConditionEvaluator(dtcev);
             return dtcev;
         }
+    }
+
+    private static boolean isBooleanType(IOpenClass methodType) {
+        return JavaOpenClass.BOOLEAN.equals(methodType) || JavaOpenClass.getOpenClass(Boolean.class)
+                .equals(methodType);
+    }
+
+    /**
+     * Builds an evaluator for a condition that mentions the column parameters, splitting a static check off the
+     * expression when the expression alone cannot be indexed.
+     *
+     * <p>Returns {@code null} when the condition has to be evaluated row by row.
+     */
+    private IConditionEvaluator makeDependentParamsEvaluator(ICondition condition,
+                                                             int index,
+                                                             IBindingContext bindingContext) {
+        var conditions = conditionsOfTheSameDimension(index);
+        var conditionEvaluator = DependentParametersOptimizedAlgorithm
+                .makeEvaluator(condition, signature, bindingContext, conditions);
+        if (conditionEvaluator == null && condition.optimizeExpression(signature, openl, bindingContext)) {
+            conditionEvaluator = DependentParametersOptimizedAlgorithm
+                    .makeEvaluator(condition, signature, bindingContext, conditions);
+            if (conditionEvaluator == null) {
+                condition.resetOptimizedExpression();
+            }
+        }
+        return conditionEvaluator;
+    }
+
+    /**
+     * Returns the columns whose values are numbered by the same rules as the column at the given position.
+     *
+     * <p>A lookup table evaluates its vertical and its horizontal conditions with rule numbers of their own, so a
+     * column of one dimension cannot read the values of a column of the other one.
+     */
+    private ICondition[] conditionsOfTheSameDimension(int index) {
+        var vConditions = table.getDtInfo().getNumberVConditions();
+        var from = index < vConditions ? 0 : vConditions;
+        var to = index < vConditions ? Math.min(vConditions, table.getNumberOfConditions())
+                : table.getNumberOfConditions();
+        var conditions = new ICondition[to - from];
+        for (var i = from; i < to; i++) {
+            conditions[i - from] = table.getCondition(i);
+        }
+        return conditions;
+    }
+
+    /**
+     * Attaches the evaluator to the condition and compiles the expression that gives the value to look up.
+     */
+    private void applyDependentParamsEvaluator(ICondition condition, IConditionEvaluator conditionEvaluator) {
+        condition.setConditionEvaluator(conditionEvaluator);
+        var evaluator = makeOptimizedConditionMethodEvaluator(signature, conditionEvaluator.getOptimizedSourceCode());
+        if (evaluator == null) {
+            evaluator = makeDependentParamsIndexedConditionMethodEvaluator(condition,
+                    signature,
+                    conditionEvaluator.getOptimizedSourceCode());
+        }
+        condition.setEvaluator(evaluator);
     }
 
     private boolean checkOtherColumnParametersInExpression(Condition condition) {

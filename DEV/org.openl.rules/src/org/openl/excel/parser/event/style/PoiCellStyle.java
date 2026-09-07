@@ -48,7 +48,7 @@ class PoiCellStyle implements CellStyle {
         if (formatIndex >= HSSFDataFormat.getNumberOfBuiltinBuiltinFormats() || formats.get(formatIndex) != null) {
             format = formats.get(formatIndex).getFormatString();
         } else {
-            format = HSSFDataFormat.getBuiltinFormat((short) formatIndex);
+            format = HSSFDataFormat.getBuiltinFormat(formatIndex);
         }
         return format;
     }

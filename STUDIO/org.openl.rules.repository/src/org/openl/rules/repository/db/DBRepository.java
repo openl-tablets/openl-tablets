@@ -46,7 +46,7 @@ abstract class DBRepository implements Repository, Closeable {
     @Setter
     private int listenerTimerPeriod = 10;
 
-    private volatile boolean initialized = false;
+    private volatile boolean initialized;
 
     @Override
     public List<FileData> list(String path) throws IOException {

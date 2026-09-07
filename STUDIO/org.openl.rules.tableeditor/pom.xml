@@ -51,7 +51,6 @@
                     <include>js/**</include>
                     <include>img/**</include>
                     <include>css/**</include>
-                    <include>docs/**</include>
                 </includes>
             </resource>
         </resources>

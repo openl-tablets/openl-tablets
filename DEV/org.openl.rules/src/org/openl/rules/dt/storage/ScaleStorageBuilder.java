@@ -8,7 +8,6 @@ public class ScaleStorageBuilder implements IStorageBuilder {
     private final StorageBuilder sb;
 
     ScaleStorageBuilder(RowScale scale, StorageBuilder sb) {
-        super();
         this.scale = scale;
         this.sb = sb;
     }

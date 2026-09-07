@@ -80,7 +80,7 @@ public class AclRepositoriesController {
 
     @Operation(summary = "Get a list of ALC rules for a single repository")
     @RepositoryManagementPermission
-    @GetMapping(value = "/{repo-id}")
+    @GetMapping("/{repo-id}")
     @JsonView(AclView.Sid.class)
     public List<AclRepositoryModel> getAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId) {
         return mapAclRepositoryModelForSid(aclRepoId.getType(), aclRepoId.getId())
@@ -111,7 +111,7 @@ public class AclRepositoriesController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @RepositoryManagementPermission
-    @DeleteMapping(value = "/{repo-id}")
+    @DeleteMapping("/{repo-id}")
     public void deleteAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid) {
         var aclService = aclServiceProvider.getAclService(aclRepoId.getType().getType());
@@ -124,7 +124,7 @@ public class AclRepositoriesController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @AdminPrivilege
-    @GetMapping(value = "/roots")
+    @GetMapping("/roots")
     @JsonView(AclView.Root.class)
     public List<AclRepositoryModel> getAclRepositoryRulesForRoot(@NotNull @SidExistsConstraint Sid sid) {
         return Stream.concat(mapAclRepositoryModelForRoot(AclRepositoryType.DESIGN, sid),
@@ -156,7 +156,7 @@ public class AclRepositoriesController {
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
     @AdminPrivilege
-    @DeleteMapping(value = "/roots/{root-id}")
+    @DeleteMapping("/roots/{root-id}")
     public void deleteAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid) {
         var aclService = aclServiceProvider.getAclService(aclRepoId.getType().getType());

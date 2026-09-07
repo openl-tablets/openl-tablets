@@ -1,19 +1,26 @@
 package org.openl.rules.dt.element;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.BinaryOpNode;
+import org.openl.binding.impl.BinaryOpNodeAnd;
 import org.openl.binding.impl.BinaryOpNodeOr;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.FieldBoundNode;
+import org.openl.binding.impl.IfNode;
 import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.binding.impl.MethodBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -31,19 +38,23 @@ import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
+import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.Invokable;
 import org.openl.types.NullOpenClass;
@@ -57,6 +68,10 @@ import org.openl.util.text.TextInfo;
 import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {
+
+    private static final String FUNCTION_NAME_NODE = "funcname";
+    // the words that are not names of anything: the literals and the operators written as words
+    private static final Set<String> KEYWORDS = Set.of("true", "false", "null", "and", "or", "not");
 
     @Setter
     private Invokable evaluator;
@@ -77,6 +92,9 @@ public class Condition extends FunctionalRow implements ICondition {
     @Getter
     private CompositeMethod staticMethod;
     private CompositeMethod indexMethod;
+    private CompositeMethod staticAnswerMethod;
+    private boolean staticConjunction;
+    private boolean lookedUpWhenTestHolds;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
@@ -347,35 +365,421 @@ public class Condition extends FunctionalRow implements ICondition {
     public boolean optimizeExpression(IMethodSignature signature,
                                       OpenL openl,
                                       IBindingContext bindingContext) {
-        var originalExprBoundNode = getMethod().getMethodBodyBoundNode();
-        if (originalExprBoundNode == null) {
+        var expression = expressionOf(getMethod());
+        if (expression == null) {
             return false;
         }
-        var children = originalExprBoundNode.getChildren();
-        if (children != null && children.length == 1 &&
-                children[0] != null && children[0].getChildren() != null &&
-                children[0].getChildren().length == 1 &&
-                children[0].getChildren()[0] instanceof BinaryOpNodeOr binaryOpNodeOr) {
-
-            var staticMethod = compileStaticExpression(binaryOpNodeOr, signature, openl);
-            if (staticMethod != null && !isDependentOnInputParams(staticMethod)) {
-                var indexMethod = compileIndexExpression(binaryOpNodeOr, signature, openl, bindingContext);
-                if (indexMethod != null && isDependentOnInputParams(indexMethod)) {
-                    this.staticMethod = staticMethod;
-                    this.indexMethod = indexMethod;
-                    return true;
+        if (expression instanceof MethodBoundNode call) {
+            var inlined = inlineCall(call, signature, openl, bindingContext);
+            if (inlined != null && isDependentOnInputParams(inlined)) {
+                var inlinedExpression = expressionOf(inlined);
+                if (inlinedExpression == null || !splitExpression(inlinedExpression,
+                        signature,
+                        openl,
+                        bindingContext)) {
+                    // the expression of the called table holds no static check and is indexed as it is
+                    this.indexMethod = inlined;
                 }
+                return true;
+            }
+        }
+        return splitExpression(expression, signature, openl, bindingContext);
+    }
+
+    /**
+     * Returns the single expression the method is written of, or {@code null} when it is written of anything else.
+     */
+    private static IBoundNode expressionOf(CompositeMethod method) {
+        var body = method.getMethodBodyBoundNode();
+        if (body == null) {
+            return null;
+        }
+        var children = body.getChildren();
+        if (children == null || children.length != 1 || children[0] == null || children[0]
+                .getChildren() == null || children[0].getChildren().length != 1) {
+            return null;
+        }
+        return children[0].getChildren()[0];
+    }
+
+    /**
+     * Splits the expression into the check that reads the inputs of the table alone and the part that is indexed.
+     */
+    private boolean splitExpression(IBoundNode expression,
+                                    IMethodSignature signature,
+                                    OpenL openl,
+                                    IBindingContext bindingContext) {
+        IBoundNode left;
+        IBoundNode right;
+        ISyntaxNode operator;
+        boolean conjunction;
+        switch (expression) {
+            case BinaryOpNodeOr or -> {
+                // "a or b or c" reads as "(a or b) or c", and only the leftmost part can be the static one
+                var first = or;
+                while (first.getLeft() instanceof BinaryOpNodeOr nested) {
+                    first = nested;
+                }
+                left = first.getLeft();
+                right = first == or ? or.getRight() : expression;
+                operator = first.getSyntaxNode();
+                conjunction = false;
+            }
+            case BinaryOpNodeAnd and -> {
+                left = and.getLeft();
+                right = and.getRight();
+                operator = and.getSyntaxNode();
+                conjunction = true;
+            }
+            case IfNode ifNode -> {
+                return optimizeTernaryExpression(ifNode, signature, openl, bindingContext);
+            }
+            default -> {
+                return false;
+            }
+        }
+
+        var compiledStaticMethod = compileStaticExpression(operator, left, signature, openl);
+        if (compiledStaticMethod != null && !isDependentOnInputParams(compiledStaticMethod)) {
+            var compiledIndexMethod = compileIndexExpression(operator,
+                    right,
+                    signature,
+                    openl,
+                    bindingContext);
+            if (compiledIndexMethod != null && isDependentOnInputParams(compiledIndexMethod)) {
+                this.staticMethod = compiledStaticMethod;
+                this.indexMethod = compiledIndexMethod;
+                this.staticConjunction = conjunction;
+                return true;
             }
         }
         return false;
     }
 
-    private CompositeMethod compileIndexExpression(BinaryOpNodeOr binaryOpNodeOr, IMethodSignature signature, OpenL openl, IBindingContext bindingContext) {
-        var rightBoundNode = binaryOpNodeOr.getRight();
+    /**
+     * Reads a call of a table written of a single expression as that expression, so that the shapes the index
+     * understands can be looked for inside it.
+     *
+     * <p>The arguments of the call take the place of the parameters of the called table. Returns the expression the
+     * call stands for, or {@code null} when the call cannot be read this way.
+     */
+    private CompositeMethod inlineCall(MethodBoundNode call,
+                                       IMethodSignature signature,
+                                       OpenL openl,
+                                       IBindingContext bindingContext) {
+        var method = call.getMethodCaller().getMethod();
+        var body = singleExpressionBody(method);
+        if (body == null) {
+            return null;
+        }
+        var arguments = argumentTexts(call);
+        if (arguments == null) {
+            return null;
+        }
+        var inlinedText = substituteParameters(body, method.getSignature(), arguments);
+        if (inlinedText == null) {
+            return null;
+        }
+        // the errors of the inlined text are reported at the cell the condition is written in
+        var source = new StringSourceCodeModule(inlinedText, getSourceCodeModule(getMethod()).getUri());
+        var inlinedMethod = compileIndexSource(source, signature, openl, bindingContext);
+        return inlinedMethod == null || callsAnotherTable(inlinedMethod.getMethodBodyBoundNode()) ? null
+                : inlinedMethod;
+    }
+
+    /**
+     * Tells whether the expression calls a table of the project.
+     *
+     * <p>Such a call is answered by the table the decision table sees, which is not always the one the called table
+     * saw, so the expression is not the same expression any more.
+     */
+    private static boolean callsAnotherTable(IBoundNode node) {
+        if (node instanceof MethodBoundNode call && call.getMethodCaller()
+                .getMethod() instanceof ExecutableRulesMethod) {
+            return true;
+        }
+        var children = node.getChildren();
+        if (children == null) {
+            return false;
+        }
+        for (IBoundNode child : children) {
+            if (child != null && callsAnotherTable(child)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the text of the expression the called table is written of, or {@code null} when the table is written
+     * of anything else than a single expression.
+     */
+    private static String singleExpressionBody(IOpenMethod method) {
+        var unwrapped = method;
+        while (unwrapped instanceof IOpenMethodWrapper wrapper) {
+            unwrapped = wrapper.getDelegate();
+        }
+        return unwrapped instanceof ExecutableRulesMethod executable ? executable.getSingleExpression() : null;
+    }
+
+    /**
+     * Returns the text of every argument of the call, in the order the call writes them.
+     */
+    private static List<String> argumentTexts(MethodBoundNode call) {
+        var syntaxNode = call.getSyntaxNode();
+        var module = syntaxNode.getModule();
+        var children = call.getChildren();
+        if (module == null || children == null) {
+            return null;
+        }
+        var sourceCode = module.getCode();
+        var info = new TextInfo(sourceCode);
+        var texts = new ArrayList<String>();
+        for (var i = 0; i < syntaxNode.getNumberOfChildren(); i++) {
+            var child = syntaxNode.getChild(i);
+            var location = FUNCTION_NAME_NODE.equals(child.getType()) ? null : child.getSourceLocation();
+            if (location != null) {
+                texts.add(sourceCode.substring(location.getStart().getAbsolutePosition(info),
+                        location.getEnd().getAbsolutePosition(info) + 1));
+            }
+        }
+        return texts.size() == children.length ? texts : null;
+    }
+
+    /**
+     * Writes the arguments of the call in the place of the parameters of the called table.
+     *
+     * <p>Returns {@code null} when the expression reads a name of its own: read again in the scope of the decision
+     * table, such a name may mean something else there. Only the parameters of the table and the functions it calls
+     * are allowed.
+     */
+    private static String substituteParameters(String body, IMethodSignature parameters, List<String> arguments) {
+        if (parameters.getNumberOfParameters() != arguments.size()) {
+            return null;
+        }
+        var byName = new HashMap<String, String>();
+        for (var i = 0; i < arguments.size(); i++) {
+            var name = parameters.getParameterName(i);
+            if (name == null || name.isBlank()) {
+                return null;
+            }
+            var argument = arguments.get(i);
+            byName.put(name, isSimplePath(argument) ? argument : "(" + argument + ")");
+        }
+        return writeExpression(body, byName);
+    }
+
+    /**
+     * Writes the expression with the arguments in the place of the parameters, keeping the text values as they are.
+     *
+     * <p>Returns {@code null} for an expression that reads a name of its own.
+     */
+    private static String writeExpression(String body, Map<String, String> arguments) {
+        var result = new StringBuilder();
+        var position = 0;
+        while (position < body.length()) {
+            var character = body.charAt(position);
+            if (character == '"' || character == '\'') {
+                var end = endOfTextValue(body, position);
+                result.append(body, position, end);
+                position = end;
+            } else if (!Character.isJavaIdentifierStart(character)) {
+                result.append(character);
+                position++;
+            } else {
+                var end = endOfName(body, position);
+                var name = body.substring(position, end);
+                if (!writeName(body, position, end, name, arguments, result)) {
+                    return null;
+                }
+                position = end;
+            }
+        }
+        return result.toString();
+    }
+
+    /**
+     * Tells whether the text is a name, or names joined by dots, and therefore needs no parentheses around it.
+     */
+    private static boolean isSimplePath(String text) {
+        var nameExpected = true;
+        for (var i = 0; i < text.length(); i++) {
+            var character = text.charAt(i);
+            var allowed = nameExpected ? Character.isJavaIdentifierStart(character)
+                    : Character.isJavaIdentifierPart(character) || character == '.';
+            if (!allowed) {
+                return false;
+            }
+            nameExpected = character == '.';
+        }
+        return !text.isEmpty() && !nameExpected;
+    }
+
+    /**
+     * Writes one name of the expression, or the argument that takes its place.
+     *
+     * <p>Returns {@code false} for a name that stands for something the called table alone knows.
+     */
+    private static boolean writeName(String body,
+                                     int start,
+                                     int end,
+                                     String name,
+                                     Map<String, String> arguments,
+                                     StringBuilder result) {
+        var argument = arguments.get(name);
+        if (argument != null && !isFieldName(body, start)) {
+            result.append(argument);
+            return true;
+        }
+        if (argument == null && !isFieldName(body, start) && !isFunctionName(body, end) && !KEYWORDS.contains(name)) {
+            return false;
+        }
+        result.append(name);
+        return true;
+    }
+
+    private static int endOfName(String body, int start) {
+        var end = start;
+        while (end < body.length() && Character.isJavaIdentifierPart(body.charAt(end))) {
+            end++;
+        }
+        return end;
+    }
+
+    private static int endOfTextValue(String body, int start) {
+        var quote = body.charAt(start);
+        var position = start + 1;
+        while (position < body.length()) {
+            var character = body.charAt(position++);
+            if (character == '\\') {
+                position++;
+            } else if (character == quote) {
+                break;
+            }
+        }
+        // a text value the last character opens ends with the text itself
+        return Math.min(position, body.length());
+    }
+
+    private static boolean isFieldName(String body, int start) {
+        var position = start - 1;
+        while (position >= 0 && Character.isWhitespace(body.charAt(position))) {
+            position--;
+        }
+        return position >= 0 && body.charAt(position) == '.';
+    }
+
+    private static boolean isFunctionName(String body, int end) {
+        var position = end;
+        while (position < body.length() && Character.isWhitespace(body.charAt(position))) {
+            position++;
+        }
+        return position < body.length() && body.charAt(position) == '(';
+    }
+
+    /**
+     * Splits a condition written as {@code test ? indexed : otherwise} or as {@code test ? otherwise : indexed},
+     * where the test and the part that is not looked up read the inputs of the table alone.
+     *
+     * <p>The test then decides whether the index is asked at all. When it points at the other part, the answer of
+     * that part is the answer of the condition for every rule.
+     *
+     * <p>Returns {@code false} when the condition is written of anything else, and the condition is left as it is.
+     */
+    private boolean optimizeTernaryExpression(IfNode ifNode,
+                                              IMethodSignature signature,
+                                              OpenL openl,
+                                              IBindingContext bindingContext) {
+        if (ifNode.getElseNode() == null) {
+            return false;
+        }
+        var module = ifNode.getSyntaxNode().getModule();
+        var questionMark = ifNode.getSyntaxNode().getSourceLocation();
+        var elseLocation = ifNode.getElseNode().getSyntaxNode().getSourceLocation();
+        if (module == null || questionMark == null || elseLocation == null) {
+            return false;
+        }
+        var sourceCode = module.getCode();
+        var info = new TextInfo(sourceCode);
+        var questionMarkStart = questionMark.getStart().getAbsolutePosition(info);
+        var questionMarkEnd = questionMark.getEnd().getAbsolutePosition(info);
+        var colon = sourceCode.lastIndexOf(':', elseLocation.getStart().getAbsolutePosition(info));
+        if (colon <= questionMarkEnd) {
+            return false;
+        }
+
+        var testMethod = compileStaticSource(new SubTextSourceCodeModule(module, 0, questionMarkStart),
+                signature,
+                openl);
+        if (testMethod == null || isDependentOnInputParams(testMethod)) {
+            return false;
+        }
+        var thenSource = new SubTextSourceCodeModule(module, questionMarkEnd + 1, colon);
+        var elseSource = new SubTextSourceCodeModule(module, colon + 1);
+        return splitTernaryParts(testMethod, thenSource, elseSource, true, signature, openl, bindingContext)
+                || splitTernaryParts(testMethod, elseSource, thenSource, false, signature, openl, bindingContext);
+    }
+
+    /**
+     * Compiles the part of the ternary that is looked up in the index and the part that answers without it.
+     *
+     * <p>Returns {@code false} when the parts are written the other way round.
+     */
+    private boolean splitTernaryParts(CompositeMethod testMethod,
+                                      IOpenSourceCodeModule lookedUp,
+                                      IOpenSourceCodeModule answered,
+                                      boolean lookedUpWhenTestHolds,
+                                      IMethodSignature signature,
+                                      OpenL openl,
+                                      IBindingContext bindingContext) {
+        var answerMethod = compileStaticSource(answered, signature, openl);
+        if (answerMethod == null || isDependentOnInputParams(answerMethod)) {
+            return false;
+        }
+        var compiledIndexMethod = compileIndexSource(lookedUp, signature, openl, bindingContext);
+        if (compiledIndexMethod == null || !isDependentOnInputParams(compiledIndexMethod)) {
+            return false;
+        }
+        this.staticMethod = testMethod;
+        this.staticAnswerMethod = answerMethod;
+        this.indexMethod = compiledIndexMethod;
+        this.staticConjunction = false;
+        this.lookedUpWhenTestHolds = lookedUpWhenTestHolds;
+        return true;
+    }
+
+    /**
+     * Tells what the static part of the condition has decided for the rules with a filled cell.
+     *
+     * <p>{@code TRUE} means that every rule of the index matches, {@code FALSE} that none of them does, and
+     * {@code null} that the index has to be asked for the value.
+     */
+    @Override
+    public Boolean evaluateStaticDecision(Object[] params, IRuntimeEnv env) {
+        var result = (Boolean) staticMethod.invoke(null, params, env);
+        if (staticAnswerMethod != null) {
+            // the test chooses between the lookup and an answer that does not look at the rules at all
+            if (Boolean.TRUE.equals(result) == lookedUpWhenTestHolds) {
+                return null;
+            }
+            return Boolean.TRUE.equals(staticAnswerMethod.invoke(null, params, env)) ? Boolean.TRUE : Boolean.FALSE;
+        }
+        if (staticConjunction) {
+            // the condition holds only when both parts do, so anything but true leaves no rule to match
+            return Boolean.TRUE.equals(result) ? null : Boolean.FALSE;
+        }
+        return Boolean.TRUE.equals(result) ? Boolean.TRUE : null;
+    }
+
+    private CompositeMethod compileIndexExpression(ISyntaxNode operator,
+                                                  IBoundNode rightBoundNode,
+                                                  IMethodSignature signature,
+                                                  OpenL openl,
+                                                  IBindingContext bindingContext) {
         IOpenSourceCodeModule indexSourceCodeModule;
-        if (rightBoundNode instanceof BinaryOpNode) {
-            var module = binaryOpNodeOr.getSyntaxNode().getModule();
-            var location = binaryOpNodeOr.getSyntaxNode().getSourceLocation();
+        if (rightBoundNode instanceof BinaryOpNode || rightBoundNode instanceof BinaryOpNodeOr) {
+            var module = operator.getModule();
+            var location = operator.getSourceLocation();
             var sourceCode = module.getCode();
             indexSourceCodeModule = new SubTextSourceCodeModule(module,
                     location.getEnd().getAbsolutePosition(new TextInfo(sourceCode)) + 1);
@@ -384,17 +788,19 @@ public class Condition extends FunctionalRow implements ICondition {
         } else {
             return null;
         }
+        return compileIndexSource(indexSourceCodeModule, signature, openl, bindingContext);
+    }
 
+    private CompositeMethod compileIndexSource(IOpenSourceCodeModule source,
+                                               IMethodSignature signature,
+                                               OpenL openl,
+                                               IBindingContext bindingContext) {
         CompositeMethod indexMethod;
         List<SyntaxNodeException> errors;
         try {
             bindingContext.pushErrors();
             bindingContext.pushMessages();
-            indexMethod = super.compileExpressionSource(indexSourceCodeModule,
-                    NullOpenClass.the,
-                    signature,
-                    openl,
-                    bindingContext);
+            indexMethod = super.compileExpressionSource(source, NullOpenClass.the, signature, openl, bindingContext);
         } finally {
             errors = bindingContext.popErrors();
             bindingContext.popMessages();
@@ -402,48 +808,55 @@ public class Condition extends FunctionalRow implements ICondition {
         return errors.isEmpty() ? indexMethod : null;
     }
 
-    private CompositeMethod compileStaticExpression(BinaryOpNodeOr binaryOpNodeOr, IMethodSignature signature, OpenL openl) {
-        var rightBoundNode = binaryOpNodeOr.getLeft();
+    private CompositeMethod compileStaticExpression(ISyntaxNode operator,
+                                                   IBoundNode leftBoundNode,
+                                                   IMethodSignature signature,
+                                                   OpenL openl) {
         IOpenSourceCodeModule staticSourceCodeModule;
-        if (rightBoundNode instanceof BinaryOpNode) {
-            var module = binaryOpNodeOr.getSyntaxNode().getModule();
-            var location = binaryOpNodeOr.getSyntaxNode().getSourceLocation();
+        if (leftBoundNode instanceof BinaryOpNode) {
+            var module = operator.getModule();
+            var location = operator.getSourceLocation();
             var sourceCode = module.getCode();
             staticSourceCodeModule = new SubTextSourceCodeModule(module,
                     0,
                     location.getStart().getAbsolutePosition(new TextInfo(sourceCode)));
-        } else if (rightBoundNode instanceof MethodBoundNode
-                || rightBoundNode instanceof LiteralBoundNode
-                || rightBoundNode instanceof FieldBoundNode) {
-            staticSourceCodeModule = rightBoundNode.getSyntaxNode().getSourceCodeModule();
+        } else if (leftBoundNode instanceof MethodBoundNode
+                || leftBoundNode instanceof LiteralBoundNode
+                || leftBoundNode instanceof FieldBoundNode) {
+            staticSourceCodeModule = leftBoundNode.getSyntaxNode().getSourceCodeModule();
         } else {
             return null;
         }
+        return compileStaticSource(staticSourceCodeModule, signature, openl);
+    }
 
+    private CompositeMethod compileStaticSource(IOpenSourceCodeModule source,
+                                                IMethodSignature signature,
+                                                OpenL openl) {
         var returnType = JavaOpenClass.getOpenClass(Boolean.class);
         var staticExprCtx = new BindingContext(openl.getBinder(), returnType, openl);
         var methodHeader = new OpenMethodHeader("run", returnType, signature, null);
-        var compiledMethod = OpenLManager.makeMethod(openl,
-                staticSourceCodeModule,
-                methodHeader,
-                staticExprCtx);
+        var compiledMethod = OpenLManager.makeMethod(openl, source, methodHeader, staticExprCtx);
         return staticExprCtx.getErrors().length == 0 ? compiledMethod : null;
     }
 
     @Override
     public IOpenSourceCodeModule getIndexSourceCodeModule() {
-        return getSourceCodeModule(isOptimizedExpression() ? indexMethod : getMethod());
+        return getSourceCodeModule(getIndexMethod());
     }
 
     @Override
     public CompositeMethod getIndexMethod() {
-        return isOptimizedExpression() ? indexMethod : getMethod();
+        return indexMethod != null ? indexMethod : getMethod();
     }
 
     @Override
     public void resetOptimizedExpression() {
         this.staticMethod = null;
         this.indexMethod = null;
+        this.staticAnswerMethod = null;
+        this.staticConjunction = false;
+        this.lookedUpWhenTestHolds = false;
     }
 
     @Override

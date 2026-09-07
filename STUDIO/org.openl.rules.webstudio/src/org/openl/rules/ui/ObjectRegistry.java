@@ -8,7 +8,7 @@ public class ObjectRegistry<T> {
     private final IdentityHashMap<T, Integer> value2id = new IdentityHashMap<>();
     private final Map<Integer, T> id2value = new HashMap<>();
 
-    private int uniqueId = 0;
+    private int uniqueId;
 
     public Integer getId(T value) {
         return value2id.get(value);

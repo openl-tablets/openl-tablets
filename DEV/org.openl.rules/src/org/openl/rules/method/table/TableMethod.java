@@ -46,6 +46,13 @@ public class TableMethod extends ExecutableRulesMethod {
         initProperties(getSyntaxNode().getTableProperties());
     }
 
+    @Override
+    protected String readSingleExpression() {
+        var body = getSyntaxNode().getTableBody();
+        return body == null || body.getHeight() != 1 || body.getWidth() != 1 ? null
+                : readExpressionText(body.getRow(0), "return");
+    }
+
     public MethodTableBoundNode getMethodTableBoundNode() {
         return (MethodTableBoundNode) getBoundNode();
     }

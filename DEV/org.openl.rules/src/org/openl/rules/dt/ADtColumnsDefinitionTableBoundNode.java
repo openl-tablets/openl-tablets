@@ -61,7 +61,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     @Getter(AccessLevel.PROTECTED)
     private XlsModuleOpenClass xlsModuleOpenClass;
     private final Map<DTColumnsDefinition, PreBindDetails> definitions = new HashMap<>();
-    private boolean initialized = false;
+    private boolean initialized;
 
     public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode);

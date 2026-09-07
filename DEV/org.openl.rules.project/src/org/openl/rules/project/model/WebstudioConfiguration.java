@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 public class WebstudioConfiguration {
     static final String WEBSTUDIO_CONFIGURATION = "webstudioConfiguration";
-    private boolean compileThisModuleOnly = false;
+    private boolean compileThisModuleOnly;
 
     /**
      * Marshal a {@link WebstudioConfiguration} only when it diverges from the default state — i.e. when

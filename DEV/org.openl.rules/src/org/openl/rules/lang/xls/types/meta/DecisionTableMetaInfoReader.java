@@ -617,7 +617,6 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         final String uri;
 
         public ReturnMetaInfo(String details, String uri) {
-            super();
             this.details = details;
             this.uri = uri;
         }

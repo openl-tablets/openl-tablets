@@ -167,6 +167,13 @@ import org.openl.vm.IRuntimeEnv;
  * <td>Constant(HashMap) performance</td>
  * </tr>
  * <tr>
+ * <td>any T[] ary</td>
+ * <td align="center">1</td>
+ * <td>T value</td>
+ * <td><code>contains(ary, value)</code></td>
+ * <td>Constant(HashMap) performance per array element</td>
+ * </tr>
+ * <tr>
  * <td>Comparable T x</td>
  * <td align="center">2</td>
  * <td>T min, T max</td>
@@ -502,10 +509,11 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 var condition = evaluators[conditionNumber].getCondition();
                 Boolean staticResult = null;
                 if (condition.isOptimizedExpression()) {
-                    staticResult = (Boolean) condition.getStaticMethod().invoke(null, params, env);
+                    staticResult = condition.evaluateStaticDecision(params, env);
                 }
                 index = env.getTracer().wrap(this, index, condition);
-                var testValue = evaluateTestValue(condition, target, params, env);
+                // a static answer stands for every rule of the index, so there is nothing to look up
+                var testValue = staticResult == null ? evaluateTestValue(condition, target, params, env) : null;
 
                 node = index.findNode(testValue, staticResult, node);
                 env.getTracer().put(this, "index", condition, node, true);

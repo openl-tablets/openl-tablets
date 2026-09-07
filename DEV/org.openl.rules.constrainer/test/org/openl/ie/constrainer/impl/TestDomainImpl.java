@@ -57,7 +57,7 @@ class TestDomainImpl {
         final int[] values = new int[db.size()];
         try {
             db.iterateDomain(new IntExp.IntDomainIterator() {
-                private int idx = 0;
+                private int idx;
 
                 @Override
                 public boolean doSomethingOrStop(int val) throws Failure {

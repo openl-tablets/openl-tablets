@@ -36,7 +36,7 @@ public class StoreController {
     @Operation(summary = "Delete purchase order by ID", description = "For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors", responses = {
             @ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @ApiResponse(responseCode = "404", description = "Order not found")}, parameters = @Parameter(description = "ID of the order that needs to be deleted", name = "orderId", in = ParameterIn.PATH, required = true, schema = @Schema(type = "integer", format = "int64", minimum = "1")))
-    @DeleteMapping(value = "/order/{orderId}")
+    @DeleteMapping("/order/{orderId}")
     public ResponseEntity<Void> deleteOrder(@PathVariable("orderId") Long orderId) {
         return ResponseEntity.ok().build();
     }

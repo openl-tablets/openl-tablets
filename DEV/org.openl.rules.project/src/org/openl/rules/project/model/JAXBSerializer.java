@@ -32,7 +32,7 @@ class JAXBSerializer {
 
     static class SkipUntilBracketOutputStream extends FilterOutputStream {
 
-        private boolean foundBracket = false;
+        private boolean foundBracket;
 
         public SkipUntilBracketOutputStream(OutputStream out) {
             super(out);

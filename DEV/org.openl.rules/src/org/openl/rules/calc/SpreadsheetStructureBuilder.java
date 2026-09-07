@@ -149,7 +149,7 @@ public class SpreadsheetStructureBuilder {
     private final List<SyntaxNodeException> onDemandErrors = new ArrayList<>();
     private final Collection<OpenLMessage> onDemandMessages = new LinkedHashSet<>();
 
-    private volatile boolean cellsExtracted = false;
+    private volatile boolean cellsExtracted;
 
     /**
      * Extract cell values from the source spreadsheet table.

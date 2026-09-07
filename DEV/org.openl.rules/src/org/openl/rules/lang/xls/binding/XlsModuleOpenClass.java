@@ -54,8 +54,6 @@ import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.PropertiesHelper;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.DuplicateMemberThrowExceptionHelper;
@@ -68,7 +66,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.MethodSignature;
-import org.openl.util.StringUtils;
 
 /**
  * @author snshor
@@ -624,7 +621,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // Just wrap original method with dispatcher functionality.
             //
 
-            if (dispatchingValidationEnabled && !(m instanceof TestSuiteMethod) && isDimensionalPropertyPresented(m)) {
+            if (dispatchingValidationEnabled && !(m instanceof TestSuiteMethod) && TablePropertyDefinitionUtils
+                    .isDimensionalPropertyPresented(m)) {
                 // Create dispatcher for existed method.
                 //
                 var dispatcher = getOpenMethodDispatcher(m);
@@ -637,19 +635,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 super.addMethod(m);
             }
         }
-    }
-
-    private boolean isDimensionalPropertyPresented(IOpenMethod m) {
-        List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
-                .getDimensionalTableProperties();
-        ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
-        for (TablePropertyDefinition dimensionProperty : dimensionalPropertiesDef) {
-            var propertyValue = propertiesFromMethod.getPropertyValueAsString(dimensionProperty.getName());
-            if (StringUtils.isNotEmpty(propertyValue)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private OpenMethodDispatcher getOpenMethodDispatcher(IOpenMethod method) {

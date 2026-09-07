@@ -15,9 +15,6 @@ import org.openl.ie.constrainer.Subject;
 public final class IntExpAddArray extends IntExpImpl {
     class ExpAddVectorObserver extends Observer {
 
-        ExpAddVectorObserver() {
-        }
-
         @Override
         public Object master() {
             return IntExpAddArray.this;
