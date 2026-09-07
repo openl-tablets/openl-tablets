@@ -1,11 +1,14 @@
 package org.openl.security.acl.config;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +44,13 @@ class DisabledAclConfigurationTest {
         service.move(stubArtefact, null);
         service.deleteAcl(stubArtefact);
         assertTrue(service.isGranted(stubArtefact, List.of()));
+        // Nothing is withheld, so a batch question answers every artefact it was given.
+        var another = mock(AProjectArtefact.class);
+        assertEquals(Set.of(stubArtefact, another),
+                service.filterGranted(List.of(stubArtefact, another), List.of()));
+        assertTrue(service.filterGranted(List.of(), List.of()).isEmpty());
+        // An artefact that is not there is refused here too, as it is when the permissions are enforced.
+        assertTrue(service.filterGranted(Collections.singletonList(null), List.of()).isEmpty());
         assertTrue(service.createAcl(stubArtefact, List.of(), false));
         assertTrue(service.hasAcl(stubArtefact));
         assertNull(service.getPath(stubArtefact));

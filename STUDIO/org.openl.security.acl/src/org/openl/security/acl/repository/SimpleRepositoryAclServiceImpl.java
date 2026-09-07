@@ -6,10 +6,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
@@ -22,6 +22,8 @@ import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.security.acl.MutableAclService;
@@ -36,25 +38,59 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     private final AclCache springCacheBasedAclCache;
     protected final SidRetrievalStrategy sidRetrievalStrategy;
 
-    private final static int MAX_LIFE_TIME = 15000;
-    private final Map<ObjectIdentity, Long> objectIdentityIdCache = new ConcurrentHashMap<>();
+    /**
+     * The identities known to carry no ACL of their own, so that the walk to the parent skips the read that
+     * would only fail.
+     *
+     * <p>A stale answer here withholds a permission rather than granting one, so it is kept short-lived:
+     * an identity given its first ACL on another node is answered from its parent until the entry expires.
+     */
+    private final Cache missingAclCache;
 
     protected final AclObjectIdentityProvider oidProvider;
 
     public SimpleRepositoryAclServiceImpl(AclCache springCacheBasedAclCache,
+                                          Cache missingAclCache,
                                           MutableAclService aclService,
                                           Sid relevantSystemWideSid,
                                           SidRetrievalStrategy sidRetrievalStrategy,
                                           AclObjectIdentityProvider oidProvider) {
         this.springCacheBasedAclCache = springCacheBasedAclCache;
+        this.missingAclCache = missingAclCache;
         this.aclService = aclService;
         this.relevantSystemWideSid = relevantSystemWideSid;
         this.sidRetrievalStrategy = sidRetrievalStrategy;
         this.oidProvider = oidProvider;
     }
 
+    /**
+     * Forgets everything remembered about one identity, whether it carries an ACL or is known not to.
+     *
+     * <p>Both answers are dropped together: a write that gives an identity its first ACL, and one that
+     * changes the ACL it already has, each leave the other answer wrong.
+     */
     protected void evictCache(ObjectIdentity objectIdentity) {
         springCacheBasedAclCache.evictFromCache(objectIdentity);
+        missingAclCache.evict(objectIdentity);
+    }
+
+    /**
+     * Forgets an identity once the write that changed it is committed.
+     *
+     * <p>Dropping it before the commit is not enough: a reader that arrives in between still finds the
+     * database as it was and remembers that, so the change would stay unseen until the entry expired.
+     */
+    private void evictCacheOnCommit(ObjectIdentity objectIdentity) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            evictCache(objectIdentity);
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                evictCache(objectIdentity);
+            }
+        });
     }
 
     protected MutableAcl getOrCreateAcl(ObjectIdentity oi) {
@@ -64,7 +100,6 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             acl = (MutableAcl) aclService.readAclById(oi);
         } catch (NotFoundException nfe) {
             acl = aclService.createAcl(oi);
-            objectIdentityIdCache.remove(oi);
             acl.setEntriesInheriting(true);
             var poi = oidProvider.getParentOid(oi);
             if (poi != null) {
@@ -77,6 +112,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
                 }
             }
             aclService.updateAcl(acl);
+            evictCacheOnCommit(oi);
         }
         return acl;
     }
@@ -323,7 +359,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         var oldAcl = getOrCreateAcl(oldObjectIdentity);
         var newParentAcl = getOrCreateAcl(oidProvider.getParentOid(newObjectIdentity));
         var newAcl = aclService.createAcl(newObjectIdentity);
-        objectIdentityIdCache.remove(newObjectIdentity);
+        evictCache(newObjectIdentity);
         newAcl.setParent(newParentAcl);
         newAcl.setEntriesInheriting(true);
         for (AccessControlEntry accessControlEntry : oldAcl.getEntries()) {
@@ -334,6 +370,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         }
         newAcl.setOwner(oldAcl.getOwner());
         aclService.updateAcl(newAcl);
+        evictCacheOnCommit(newObjectIdentity);
         var children = aclService.findChildren(oldObjectIdentity);
         if (children != null) {
             for (ObjectIdentity child : children) {
@@ -366,13 +403,8 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         if (sids.contains(relevantSystemWideSid)) {
             return true;
         }
-        var t = objectIdentityIdCache.get(objectIdentity);
-        if (t != null) {
-            // This is a performance optimization to avoid hitting the database
-            if (System.currentTimeMillis() - t <= MAX_LIFE_TIME) {
-                var poi = oidProvider.getParentOid(objectIdentity);
-                return poi != null && isGranted(poi, sids, permissions);
-            }
+        if (missingAclCache.get(objectIdentity) != null) {
+            return isGrantedByParent(objectIdentity, sids, permissions);
         }
         try {
             var acl = (MutableAcl) aclService.readAclById(objectIdentity);
@@ -382,10 +414,17 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
                 return false;
             }
         } catch (NotFoundException nfe) {
-            objectIdentityIdCache.put(objectIdentity, System.currentTimeMillis());
-            var poi = oidProvider.getParentOid(objectIdentity);
-            return poi != null && isGranted(poi, sids, permissions);
+            missingAclCache.put(objectIdentity, Boolean.TRUE);
+            return isGrantedByParent(objectIdentity, sids, permissions);
         }
+    }
+
+    /**
+     * Answers for an identity that carries no ACL of its own, from the one it inherits from.
+     */
+    private boolean isGrantedByParent(ObjectIdentity objectIdentity, List<Sid> sids, List<Permission> permissions) {
+        var poi = oidProvider.getParentOid(objectIdentity);
+        return poi != null && isGranted(poi, sids, permissions);
     }
 
     @Override
@@ -416,9 +455,16 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Override
     @Transactional
     public void deleteAcl(String repositoryId, String path) {
-        var oi = oidProvider.getRepositoryOid(repositoryId, path);
+        deleteAcl(oidProvider.getRepositoryOid(repositoryId, path));
+    }
+
+    /**
+     * Removes the ACL of an identity together with the ACLs it is the parent of.
+     */
+    protected void deleteAcl(ObjectIdentity oi) {
         aclService.deleteAcl(oi, true);
-        objectIdentityIdCache.remove(oi);
+        evictCache(oi);
+        evictCacheOnCommit(oi);
     }
 
     @Override
@@ -438,6 +484,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     }
 
     protected boolean tryCreateAcl(ObjectIdentity oi, List<Permission> permissions) {
+        evictCache(oi);
         try {
             aclService.readAclById(oi);
             return false;
@@ -445,7 +492,6 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             var poi = oidProvider.getParentOid(oi);
             var pacl = getOrCreateAcl(poi);
             var acl = aclService.createAcl(oi);
-            objectIdentityIdCache.remove(oi);
             acl.setParent(pacl);
             acl.setEntriesInheriting(true);
             var i = 0;
@@ -455,6 +501,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
                 i++;
             }
             aclService.updateAcl(acl);
+            evictCacheOnCommit(oi);
             return true;
         }
     }
