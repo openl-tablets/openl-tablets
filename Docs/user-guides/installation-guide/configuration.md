@@ -386,7 +386,7 @@ Needed when a browser application served from another origin calls the OpenL Stu
 | `cors.allowed.origins`  | Comma-separated allowed origins. An asterisk allows any origin.                |
 | `cors.allowed.methods`  | Comma-separated allowed HTTP methods.                                          |
 | `cors.allowed.headers`  | Comma-separated allowed request headers.                                       |
-| `cors.preflight.maxage` | Seconds a browser may cache a pre-flight response. A negative value omits it.  |
+| `cors.preflight.maxage` | Seconds a browser may cache a pre-flight response.                             |
 
 ```properties
 cors.allowed.origins = https://apps.example.com
