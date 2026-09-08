@@ -153,7 +153,7 @@
         <jgit.version>7.3.0.202506031305-openl</jgit.version>
 
         <!-- DB -->
-        <h2.version>2.4.240</h2.version>
+        <h2.version>2.5.250</h2.version>
         <hikaricp.version>7.1.0</hikaricp.version>
         <hibernate.orm.version>6.6.56.Final</hibernate.orm.version>
         <hibernate.validator.version>8.0.5.Final</hibernate.validator.version>
