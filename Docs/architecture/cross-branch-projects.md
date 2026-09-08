@@ -319,8 +319,8 @@ whole-ref workflows.
 The Projects table, breadcrumb and Overview branch switchers must render the effective branch and load membership
 from the project branch endpoint only when opened.
 
-Manage Branches must display actual project membership as read-only data. Project copy, project deletion, branch
-creation and branch deletion must remain explicit operations with separate permission checks.
+The branch switchers must display actual project membership as read-only data. Project copy, project deletion,
+branch creation and branch deletion must remain explicit operations with separate permission checks.
 
 ### Filtering, merge and deployment
 

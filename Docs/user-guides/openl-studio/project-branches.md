@@ -53,20 +53,22 @@ the branch menu is opened. Proceed as follows:
     *Switching between branches in the editor*
 
 1.  To switch between branches in the repository, for a project, in the **Branch** field, select the required branch.
-2.  To inspect which repository branches contain the project, click the dots next to the **Branch** field.
 
-    **Manage Branches** lists only the branches whose current content contains the project. Membership is read-only
-    because it is discovered from Git content.
+    The list offers only the branches that currently contain the project, and typing in **Filter branches**
+    narrows it. A branch shows the marks that apply to it, and it can carry both:
 
-    ![Viewing the Git branches that contain a project](images/view-project-branches.png "Viewing project branch membership")
+    -   **Default** — the repository default branch.
+    -   A shield — a protected branch; see [Using Protected Branches](#using-protected-branches).
+
+    Which branches contain the project is discovered from Git content, so the list itself cannot change it.
 
     To create a copy in another branch, use **+ New Project** > **Copy project** and select the target branch.
     To remove a project from a branch, switch the project to that branch and use **Delete**.
 
 1.  To delete a non-default branch, switch to this branch in the project properties and click **Delete Branch.**
 
-    The non-default branch is deleted completely, it cannot be later restored, and it does not appear in the **Manage
-    branches** list. The project in the branch is deleted. If the non-default branch contains commits not merged to the
+    The non-default branch is deleted completely, it cannot be later restored, and it no longer appears in the
+    branch list. The project in the branch is deleted. If the non-default branch contains commits not merged to the
     default branch, a warning message is displayed upon deletion attempt. A branch on which the project is locked by
     another user cannot be deleted while the lock is held: the lock means that user is editing the project there.
 
