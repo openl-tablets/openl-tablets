@@ -11,6 +11,13 @@ Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy
   dropped after a dozen or so panel loads and every later request of its own is answered as expired
   ([EPBDS-16275](https://jira.eisgroup.com/browse/EPBDS-16275)). Keep the shell free of state to carry between
   requests, and guard it with `ITEST/itest.studio/simple` → `ShellViewTest`.
+- **ACL checks are the last thing a condition evaluates.** A permission probe reaches the ACL database
+  through a transaction of its own, while the project state it is weighed against is already at hand, so a
+  condition tests the state first and asks for the permission only when the answer still depends on it.
+  Compute a permission lazily — never up front "in case it is needed" — and reuse one answer across every
+  condition that weighs it (`ProjectAccessService.computeCapabilities` is the worked example). The same
+  applies in the large: never ask per branch, per file or per artefact what one question about the project
+  answers, and never repeat a question a pass over the same set has already answered.
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `org.openl.security.standalone/resources/db/flyway/`
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens

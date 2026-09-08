@@ -2,8 +2,11 @@ package org.openl.studio.projects.service;
 
 import static org.openl.studio.common.model.Capabilities.flag;
 
+import java.util.function.BooleanSupplier;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -40,34 +43,37 @@ public class ProjectAccessService {
     private final DesignTimeRepository designTimeRepository;
 
     public ProjectCapabilities computeCapabilities(AProject project) {
-        var read = aclProjectsHelper.hasPermission(project, BasePermission.READ);
-        var write = aclProjectsHelper.hasPermission(project, BasePermission.WRITE);
-        var delete = aclProjectsHelper.hasPermission(project, BasePermission.DELETE);
-        var administer = aclProjectsHelper.hasPermission(project, BasePermission.ADMINISTRATION);
         if (!(project instanceof UserWorkspaceProject workspaceProject)) {
             return ProjectCapabilities.builder().build();
         }
+        // Each permission is asked at most once, and only where the project state leaves the answer open.
+        var read = permission(project, BasePermission.READ);
+        var write = permission(project, BasePermission.WRITE);
+        var delete = permission(project, BasePermission.DELETE);
+        var administer = permission(project, BasePermission.ADMINISTRATION);
+
         var localOnly = workspaceProject.isLocalOnly();
         // A local-only project is itself the working copy, so it is always editable; a committed project
         // must be opened for editing first. canModify folds in the branch-protection and lock state.
         var editable = projectStateValidator.canModify(workspaceProject)
                 && (localOnly || workspaceProject.isOpenedForEditing());
         // Compare, view-history and export are all "read a shared (non-local) project".
-        var readShared = read && !localOnly;
+        var readShared = !localOnly && read.getAsBoolean();
         return ProjectCapabilities.builder()
                 .project(Capabilities.builder()
-                        .canWrite(flag(write && editable))
-                        .canDelete(flag(delete && projectStateValidator.canDelete(workspaceProject)))
+                        .canWrite(flag(editable && write.getAsBoolean()))
+                        .canDelete(flag(projectStateValidator.canDelete(workspaceProject) && delete.getAsBoolean()))
                         .build())
-                .canOpen(flag(read && projectStateValidator.canOpen(workspaceProject)))
+                .canOpen(flag(projectStateValidator.canOpen(workspaceProject) && read.getAsBoolean()))
                 .canClose(flag(projectStateValidator.canClose(workspaceProject)))
-                .canSave(flag(write && projectStateValidator.canSave(workspaceProject)))
-                .canUnlock(flag(administer && workspaceProject.isLocked() && !workspaceProject.isLockedByMe()))
+                .canSave(flag(projectStateValidator.canSave(workspaceProject) && write.getAsBoolean()))
+                .canUnlock(flag(workspaceProject.isLocked() && !workspaceProject.isLockedByMe()
+                        && administer.getAsBoolean()))
                 .canDeploy(flag(!localOnly && projectStateValidator.canDeploy(workspaceProject)
                         && listingContext.canDeployToAnyRepository(deploymentRepositoryService::canDeployToAnyRepository)))
                 .canCompare(flag(readShared))
                 .canViewHistory(flag(readShared))
-                .canManage(flag(administer && !localOnly))
+                .canManage(flag(!localOnly && administer.getAsBoolean()))
                 // Copy creates a new project in a repository the user picks, so it mirrors the copy dialog's
                 // repository list — not just the source repository.
                 .canCopy(flag(!localOnly && canCreateSomewhere()))
@@ -75,6 +81,36 @@ public class ProjectAccessService {
                 .canDeleteBranch(flag(canDeleteBranch(workspaceProject, write, delete)))
                 .canExport(flag(readShared))
                 .build();
+    }
+
+    /**
+     * A permission of the current user on the project, asked when it is first read and remembered after.
+     *
+     * <p>A permission reaches the ACL database while the project state it is weighed against is at hand,
+     * so a capability tests the state first and asks for the permission only when the answer still depends
+     * on it. Several capabilities weigh the same permission, and it is asked once for all of them.
+     */
+    private BooleanSupplier permission(AProject project, Permission permission) {
+        return new Probe(() -> aclProjectsHelper.hasPermission(project, permission));
+    }
+
+    /** A permission answered at most once, and only if it is asked at all. */
+    private static final class Probe implements BooleanSupplier {
+
+        private final BooleanSupplier ask;
+        private Boolean granted;
+
+        private Probe(BooleanSupplier ask) {
+            this.ask = ask;
+        }
+
+        @Override
+        public boolean getAsBoolean() {
+            if (granted == null) {
+                granted = ask.getAsBoolean();
+            }
+            return granted;
+        }
     }
 
     /**
@@ -92,8 +128,7 @@ public class ProjectAccessService {
         }
         // One permission probe on the project, so it is asked before the repository scan: a page evaluates
         // this on every render, and whoever is editing the project usually answers it here.
-        return canBranch(project, aclProjectsHelper.hasPermission(project, BasePermission.WRITE))
-                || canCreateSomewhere();
+        return canBranch(project, permission(project, BasePermission.WRITE)) || canCreateSomewhere();
     }
 
     /** Whether a project may be created in any repository at all — the target list a copy picks from. */
@@ -107,8 +142,8 @@ public class ProjectAccessService {
      * branch. The per-artefact check, the branch protection and the base-branch rule are enforced when the
      * operation runs.
      */
-    private boolean canBranch(UserWorkspaceProject project, boolean write) {
-        return project.isSupportsBranches() && write;
+    private boolean canBranch(UserWorkspaceProject project, BooleanSupplier write) {
+        return project.isSupportsBranches() && write.getAsBoolean();
     }
 
     /**
@@ -117,13 +152,15 @@ public class ProjectAccessService {
      * only branch that holds the project deletes the project, which takes the right to delete a project rather
      * than the right to manage branches.
      */
-    private boolean canDeleteBranch(UserWorkspaceProject project, boolean write, boolean delete) {
-        if (!write || !(project instanceof RulesProject rulesProject)
-                || !projectStateValidator.canDeleteBranch(rulesProject)) {
+    private boolean canDeleteBranch(UserWorkspaceProject project, BooleanSupplier write, BooleanSupplier delete) {
+        if (!(project instanceof RulesProject rulesProject)
+                || !projectStateValidator.canDeleteBranch(rulesProject)
+                || !write.getAsBoolean()) {
             return false;
         }
-        return delete || !designTimeRepository.isLastProjectBranch(rulesProject.getDesignRepository().getId(),
+        // Deleting the last branch deletes the project, and only then does the right to delete one matter.
+        return !designTimeRepository.isLastProjectBranch(rulesProject.getDesignRepository().getId(),
                 rulesProject.getDesignProjectName(),
-                rulesProject.getBranch());
+                rulesProject.getBranch()) || delete.getAsBoolean();
     }
 }
