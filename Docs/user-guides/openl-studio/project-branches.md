@@ -107,39 +107,40 @@ the branch menu is opened. Proceed as follows:
 
     *Selecting a branch that does not hold the project yet*
 
-    If upon saving there is a conflict due to updates in the same module sheet, the **Resolve Conflicts** dialog appears.
-
-    ![Resolving conflicts on merging branches](images/resolve-conflicts-on-merge.png)
-
-    *Resolving conflicts on merging branches*
-
-    Conflicts can be resolved by selecting one of the following options:
-
-    | Option             | Description                                                                                                                  |
-    |--------------------|------------------------------------------------------------------------------------------------------------------------------|
-    | Use yours          | Changes in the currently active branch are applied on merge. The changes applied by another user are lost.                   |
-    | Use theirs         | Changes in the selected branch are applied on merge. The changes made by you are lost.                                       |
-    | Use base           | The common base version of the file is applied on merge. Changes from both branches are discarded.                          |
-    | Upload merged file | Depending on the selected merging options, changes in the manually updated and uploaded file override changes in the branch. |
-
-1.  To view the changes made by another user, compare them to your changes, or view the base version of the file, select a corresponding option in the **Compare** column.
+    If a conflict arises on merging because the same module sheet changed on both sides, the **Resolve Conflicts**
+    dialog appears; see [Resolving Conflicts](#resolving-conflicts).
 
 ### Resolving Conflicts
 
-If the same version of the project is edited by several users, upon submitting their changes using different clients, the **Resolve Conflicts** dialog appears, listing the conflicting files and the resolution options for each one.
+The **Resolve Conflicts** dialog appears whenever the same file changed on both sides of an operation: on merging
+two branches, and when several users submit changes to the same project version from different clients.
 
 The dialog also appears when a project is renamed and saved, then an earlier revision is opened and renamed again.
 The project remains available to the dialog under the identifier issued after the first rename.
 
-![Resolving conflicts upon saving concurrent changes](images/save-conflict-error-message.png)
+The dialog shows **Your version**, **Their version** and **Base version** with their authors and timestamps, the
+**Merge message** for the resulting commit, and every conflicting file.
 
-*Resolving conflicts upon saving concurrent changes*
+![The Resolve Conflicts dialog listing a conflicting file and its resolution options](images/resolve-conflicts-on-merge.png "The Resolve Conflicts dialog")
 
-The dialog contains the **Compare File Versions** link that allows viewing both conflicting versions for comparison.
+*The Resolve Conflicts dialog*
+
+Each conflicting file is resolved by selecting one of the following options in the **Resolution** column:
+
+-   **Use yours** — your version of the file is kept, and the changes in the other version are lost.
+-   **Use theirs** — the other version of the file is kept, and your changes are lost.
+-   **Use base** — the common base version is kept, and the changes from both versions are discarded.
+-   **Upload merged file** — a file merged by hand outside OpenL Studio is uploaded and used as the resolution.
+
+To view the changes made by another user, compare them to your changes, or view the base version of the file, use
+the **Compare** column. **Compare File Versions** shows both conflicting versions side by side, and **Download
+your version**, **Download their version** and **Download base version** save a copy of each.
 
 ![Comparing conflicting versions](images/compare-conflicting-versions.jpeg)
 
 *Comparing conflicting versions*
+
+Once every conflicting file has a resolution, click **Save and Resolve**.
 
 ### Using Protected Branches
 
