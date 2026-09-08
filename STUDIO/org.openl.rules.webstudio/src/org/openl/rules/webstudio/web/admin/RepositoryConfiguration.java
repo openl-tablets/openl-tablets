@@ -120,18 +120,39 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         setType(type);
     }
 
+    /**
+     * Names the type of the repository the given configuration describes.
+     *
+     * <p>Only the configured factory is read, so a caller that needs no more than the type does not pay
+     * for the rest of the configuration.
+     *
+     * <p>A configuration naming a factory that is not supported is reported as a Git repository, the
+     * same as a fully read configuration reports it.
+     */
+    public static String getType(String configName, PropertyResolver propertyResolver) {
+        var factoryKey = Comments.REPOSITORY_PREFIX + configName.toLowerCase() + REPOSITORY_FACTORY_SUFFIX;
+        return supportedType(RepositoryInstatiator.getRefID(propertyResolver.getProperty(factoryKey))).factoryId;
+    }
+
+    /**
+     * The repository type the given factory reference stands for.
+     *
+     * <p>A reference that stands for no supported type is reported as {@link RepositoryType#GIT}.
+     */
+    private static RepositoryType supportedType(String factoryRef) {
+        var repositoryType = RepositoryType.findByFactory(factoryRef);
+        return repositoryType == null ? RepositoryType.GIT : repositoryType;
+    }
+
     private void load() {
         var factoryClassName = properties.getProperty(REPOSITORY_FACTORY);
-        repoType = RepositoryInstatiator.getRefID(factoryClassName);
-        RepositoryType repositoryType = RepositoryType.findByFactory(repoType);
-        if (repositoryType == null) {
-            // Fallback to default value
-            repositoryType = RepositoryType.GIT;
-            repoType = repositoryType.factoryId;
-            if (factoryClassName != null) {
-                //add error message
-                errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ". Was replaced with " + repoType + ".";
-            }
+        var declaredRef = RepositoryInstatiator.getRefID(factoryClassName);
+        var repositoryType = supportedType(declaredRef);
+        repoType = repositoryType.factoryId;
+        if (factoryClassName != null && !repoType.equals(declaredRef)) {
+            //add error message
+            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName
+                    + ". Was replaced with " + repoType + ".";
         }
         name = properties.getProperty(REPOSITORY_NAME);
         oldName = name;

@@ -1321,8 +1321,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * <p>A project that exists only in the local workspace has no design repository, and nothing is
      * reported for it.
      *
-     * <p>The configured type comes from the repository settings, which are parsed once per repository per
-     * request: a page of projects repeats the same few repositories.
+     * <p>The configured type is read once per repository per request: a page of projects repeats the same
+     * few repositories.
      */
     @Nullable
     private ProjectRepositoryModel mapRepositoryInfo(RulesProject project) {
@@ -1334,7 +1334,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return new ProjectRepositoryModel(repositoryId,
                 repository.getName(),
                 listingContext.repositoryType(repositoryId,
-                        id -> new RepositoryConfiguration(id, environment).getType()),
+                        id -> RepositoryConfiguration.getType(id, environment)),
                 new RepositoryFeatures(repository.supports()));
     }
 
