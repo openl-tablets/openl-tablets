@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -39,6 +41,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
+import org.openl.rules.workspace.dtr.DesignProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SecureBranchRepository;
@@ -211,6 +214,69 @@ class SecureDesignTimeRepositoryImplTest {
         visible.entries().values()
                 .forEach(entry -> assertInstanceOf(SecureBranchRepository.class,
                         entry.project().getRepository()));
+    }
+
+    @Test
+    void aProjectAndItsBranchesAreResolvedInOnePass() {
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        entries.put("main", entry(project("main", "DESIGN/Readable/Rates"),
+                Instant.parse("2026-07-29T09:00:00Z")));
+        entries.put("feature/rates", entry(project("feature/rates", "DESIGN/Readable/Rates"),
+                Instant.parse("2026-07-29T10:00:00Z")));
+        var branched = BranchedProject.create("Rates", "main", entries);
+
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getDesignProjects())
+                .thenReturn(List.of(new DesignProject(branched.homeEntry().project(), branched)));
+        var aclService = mock(RepositoryAclService.class);
+        grantPathsContaining(aclService, "Readable");
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        var designProject = secured.getDesignProjects().iterator().next();
+
+        // Both halves come from one question about the project, not one question each.
+        verify(aclService, times(1)).filterGranted(anyCollection(), anyList());
+        verify(delegate, never()).getBranchedProject(anyString(), anyString());
+        assertInstanceOf(SecureBranchRepository.class, designProject.project().getRepository());
+        assertEquals(List.of("main", "feature/rates"),
+                List.copyOf(designProject.branches().entries().keySet()));
+        designProject.branches().entries().values()
+                .forEach(branch -> assertInstanceOf(SecureBranchRepository.class,
+                        branch.project().getRepository()));
+    }
+
+    @Test
+    void aProjectWithoutBranchesIsStillListedWhenItIsReadable() {
+        var plain = project("main", "DESIGN/Readable/Rates");
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getDesignProjects()).thenReturn(List.of(new DesignProject(plain, null)));
+        var aclService = mock(RepositoryAclService.class);
+        when(aclService.isGranted(any(AProject.class), anyList())).thenReturn(true);
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        var designProject = secured.getDesignProjects().iterator().next();
+
+        assertNull(designProject.branches());
+        assertNotSame(plain.getRepository(), designProject.project().getRepository());
+    }
+
+    @Test
+    void aProjectNoBranchOfWhichIsReadableIsLeftOut() {
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        entries.put("main", entry(project("main", "DESIGN/Denied/Rates"),
+                Instant.parse("2026-07-29T09:00:00Z")));
+        var branched = BranchedProject.create("Rates", "main", entries);
+
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getDesignProjects())
+                .thenReturn(List.of(new DesignProject(branched.homeEntry().project(), branched)));
+        var aclService = mock(RepositoryAclService.class);
+        grantPathsContaining(aclService, "Readable");
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        assertTrue(secured.getDesignProjects().isEmpty());
+        // The listed project is the view of a branch that already refused, so it is not asked about again.
+        verify(aclService, never()).isGranted(any(AProject.class), anyList());
     }
 
     /**

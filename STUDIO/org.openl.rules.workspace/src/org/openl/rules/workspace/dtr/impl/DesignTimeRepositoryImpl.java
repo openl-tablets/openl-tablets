@@ -37,6 +37,7 @@ import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
+import org.openl.rules.workspace.dtr.DesignProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.util.IOUtils;
@@ -412,6 +413,26 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         result.sort(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER));
+
+        return result;
+    }
+
+    @Override
+    public Collection<DesignProject> getDesignProjects() {
+        List<DesignProject> result;
+
+        synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+
+            result = projects.entrySet()
+                    .stream()
+                    .map(entry -> new DesignProject(entry.getValue(), branchedProjects.get(entry.getKey())))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        result.sort(Comparator.comparing(project -> project.project().getName(), String.CASE_INSENSITIVE_ORDER));
 
         return result;
     }
