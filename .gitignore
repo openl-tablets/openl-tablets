@@ -52,3 +52,11 @@ bun.lock
 /DEMO/jetty-home/
 /DEMO/webapps/*
 !/DEMO/webapps/ROOT/
+
+# Ignore local agent and tooling scratch directories
+/.agents/
+/.codex/
+/.playwright-mcp/
+/output/
+/outputs/
+/tmp/
