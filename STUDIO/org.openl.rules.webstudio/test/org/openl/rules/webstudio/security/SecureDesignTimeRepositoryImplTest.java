@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.security;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -276,6 +277,57 @@ class SecureDesignTimeRepositoryImplTest {
 
         assertTrue(secured.getDesignProjects().isEmpty());
         // The listed project is the view of a branch that already refused, so it is not asked about again.
+        verify(aclService, never()).isGranted(any(AProject.class), anyList());
+    }
+
+    @Test
+    void readingOneProjectBuildsASecuredViewOfItsHomeAlone() throws Exception {
+        var branches = 300;
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        for (var i = 0; i < branches; i++) {
+            var branch = i == 0 ? "main" : "feature/" + i;
+            entries.put(branch, entry(project(branch, "DESIGN/Readable/Rates"),
+                    Instant.parse("2026-07-29T09:00:00Z").plusSeconds(i)));
+        }
+        var branched = BranchedProject.create("Rates", "main", entries);
+
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getBranchedProject("design", "Rates")).thenReturn(Optional.of(branched));
+        var aclService = mock(RepositoryAclService.class);
+        grantPathsContaining(aclService, "Readable");
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        try (var factory = mockStatic(SecuredRepositoryFactory.class)) {
+            factory.when(() -> SecuredRepositoryFactory.wrapToSecureRepo(any(), any()))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            assertNotNull(secured.getProject("design", "Rates"));
+
+            // Asking for a project hands back its home, so the other 299 entries are never built into a view.
+            factory.verify(() -> SecuredRepositoryFactory.wrapToSecureRepo(any(), any()), times(1));
+        }
+    }
+
+    @Test
+    void offeringARepositoryTakesOnePermissionBatchPerProjectAndNoSecuredView() throws Exception {
+        var entries = new LinkedHashMap<String, BranchEntry>();
+        entries.put("main", entry(project("main", "DESIGN/Readable/Rates"),
+                Instant.parse("2026-07-29T09:00:00Z")));
+        var branched = BranchedProject.create("Rates", "main", entries);
+        var home = branched.homeEntry().project();
+
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getRepositories()).thenReturn(List.of(home.getRepository()));
+        when(delegate.getProjects("design")).thenAnswer(invocation -> List.of(home));
+        when(delegate.getBranchedProject("design", "Rates")).thenReturn(Optional.of(branched));
+        var aclService = mock(RepositoryAclService.class);
+        grantPathsContaining(aclService, "Readable");
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        assertEquals(1, secured.getRepositories().size());
+
+        // Whether a repository has anything to offer is one bit, so no project of it is built into a view.
+        verify(aclService, times(1)).filterGranted(anyCollection(), anyList());
         verify(aclService, never()).isGranted(any(AProject.class), anyList());
     }
 
