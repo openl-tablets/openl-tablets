@@ -5,7 +5,7 @@ This chapter describes tasks that can be performed in Repository Editor. For gen
 The following topics are included in this chapter:
 
 -   [Browsing Design Repository](#browsing-design-repository)
--   [Filtering and Grouping the Project Tree](#filtering-and-grouping-the-project-tree)
+-   [Filtering and Grouping Projects](#filtering-and-grouping-projects)
 -   [Creating Projects in Design Repository](#creating-projects-in-design-repository)
 -   [Opening a Project](#opening-a-project)
 -   [Closing a Project](#closing-a-project)
@@ -23,13 +23,8 @@ The following topics are included in this chapter:
 
 ### Browsing Design Repository
 
-Repository Editor displays all projects in user's workspace and Design repository. The project tree is organized into the following categories:
-
-| Category                  | Description                                                                                                                                                                         |
-|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Projects**              | Contains OpenL Tablets rule projects.                                                                                                                                               |
-
-Projects from all repositories are displayed in a common list that is sorted alphabetically.
+Repository Editor displays all projects in user's workspace and Design repository. Projects from all repositories
+are displayed in a common list that is sorted alphabetically.
 
 The status of each project in the tree is identified by a specific icon. The following table describes the icons in the project tree:
 
@@ -42,19 +37,53 @@ The status of each project in the tree is identified by a specific icon. The fol
 | ![](images/project-status-viewing-locked-icon.png) | Project is opened for viewing by the current user but edited by another user (Viewing Revision - Locked). <br/>Current user cannot edit the project but can browse the project in Rules Editor.                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ![](images/project-status-local-icon.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project or import it into Design repository as described in the [Creating Projects in Design Repository](#creating-projects-in-design-repository).                                                                                                                                                                                                                                                                                                             |
 
-### Filtering and Grouping the Project Tree
+### Filtering and Grouping Projects
 
-Projects in the Repository Editor are filtered the same way as in Rules Editor.
+The search box above the project list finds a project by name, author, branch or tag: enter the text and only
+the projects matching it are displayed.
 
-To filter projects by name, enter the name in the filter text box. All projects matching the name are displayed in the **Projects** list.
+The left panel offers the same projects in two modes, selected by the **Filters** and **Tree** switch at its
+top. OpenL Studio remembers the selected mode and the selected filters. To put the panel away, click **Hide
+the panel**, and to bring it back, click **Show the panel**. Drag the right edge of the panel to resize it.
 
-To group projects by repository or tag types, click the **Group Projects** icon ![](images/group-projects-icon.png)and select the required values. Please note that values of tags for grouping are taken from the most recent version of a project. If user has changed project tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree. For more information on tag definition for a project, see [Managing Tags](administration/06-tags.md#managing-tags).
+#### Filters
 
-![Grouping projects by tags](images/projects-grouped-by-tags.jpeg)
+The **Filters** mode narrows the list by the properties of the projects:
+
+-   **Repository** — the Design repository a project belongs to. Projects that exist only in user's workspace
+    are listed under **Local**.
+-   **Branch** — the branch a project is on.
+-   A group per tag type — the tag values the projects carry. For more information on tag definition for a
+    project, see [Managing Tags](administration/06-tags.md#managing-tags).
+-   **Status** — the project status, described in [Browsing Design Repository](#browsing-design-repository).
+
+Each value displays the number of projects it matches. Several values selected within one filter display the
+projects matching any of them, while values selected in different filters must all match. **Reset** clears
+every selected filter.
+
+![The Filters mode of the left panel with the repository, branch, tag type, and status filters](images/projects-filters-panel.png "Filtering projects")
+
+*Filtering projects*
+
+#### Tree
+
+The **Tree** mode displays the projects as a tree grouped by up to three levels. Proceed as follows:
+
+1.  Click the **Group Projects** icon ![](images/group-projects-icon.png).
+1.  For **Level 1**, **Level 2**, and **Level 3**, select **[Repository]**, **[Branch]**, or a tag type.
+    Selecting **[None]** ends the grouping at that level.
+1.  Click **Apply**.
+
+![The Group Projects dialog with the repository and tag type grouping levels](images/projects-grouped-by-tags.png "Grouping projects by tags")
 
 *Grouping projects by tags*
 
-To expand or collapse the repository tree, use the expand and collapse icons ![](images/expand-collapse-tree-icon.png).
+Values of tags for grouping are taken from the most recent version of a project. If user has changed project
+tags in an opened project, a project is required to be saved in order for a change to be reflected in a tree.
+
+To display the projects of one group, select the group in the tree. To display every project again, select the
+**Projects** title at the top of the tree. **Search the tree** narrows the tree itself, and **Reload the
+tree** reads the projects again.
 
 ### Creating Projects in Design Repository
 
