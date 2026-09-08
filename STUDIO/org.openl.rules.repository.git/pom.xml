@@ -41,10 +41,6 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>openl-yaml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.xls.merge</artifactId>
         </dependency>
     </dependencies>
