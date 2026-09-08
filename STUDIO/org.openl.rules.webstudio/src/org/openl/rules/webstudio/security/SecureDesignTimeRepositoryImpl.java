@@ -55,7 +55,22 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     private boolean isGrantedToAnyProject(String repoId, List<Permission> permissions) {
         return designTimeRepository.getProjects(repoId).stream()
-                .anyMatch(project -> secureVisibleProject(project, permissions).isPresent());
+                .anyMatch(project -> isVisibleProject(project, permissions));
+    }
+
+    /**
+     * Whether any view of the project is reachable, without building one.
+     *
+     * <p>The answer is a single bit, so the readable branches are not gathered into a project of their own
+     * and no secured view is made of them.
+     */
+    private boolean isVisibleProject(AProject project, List<Permission> permissions) {
+        var branched = designTimeRepository.getBranchedProject(project.getRepository().getId(), project.getName());
+        if (branched.isPresent() && !designRepositoryAclService
+                .filterGranted(projectsOf(branched.get()), permissions).isEmpty()) {
+            return true;
+        }
+        return designRepositoryAclService.isGranted(project, permissions);
     }
 
     @Override
@@ -75,9 +90,9 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     @Override
     public AProject getProject(String repositoryId, String name) throws ProjectException {
-        var branchedProject = securedBranchedProject(repositoryId, name, List.of(BasePermission.READ));
-        if (branchedProject.isPresent()) {
-            return branchedProject.get().homeEntry().project();
+        var home = readableHome(repositoryId, name, List.of(BasePermission.READ));
+        if (home.isPresent()) {
+            return secureProject(home.get());
         }
         var project = designTimeRepository.getProject(repositoryId, name);
         if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
