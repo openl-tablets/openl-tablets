@@ -26,16 +26,19 @@ The following topics are included in this chapter:
 Repository Editor displays all projects in user's workspace and Design repository. Projects from all repositories
 are displayed in a common list that is sorted alphabetically.
 
-The status of each project in the tree is identified by a specific icon. The following table describes the icons in the project tree:
+The status of each project in the tree is identified by a specific icon:
 
-| Icon                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](images/project-status-closed-icon.png) | Project is closed. It is available only in Design repository and must be opened to copy it to user's workspace.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ![](images/project-status-viewing-icon.png) | Project is opened for viewing. It is copied to user's workspace and can be modified. <br/>If the product is restored from the previous revision, its status is set to **Viewing Revision,** otherwise its status is set to **No Changes.**                                                                                                                                                                                                                                                                                                                                                                 |
-| ![](images/project-status-in-editing-icon.png) | Project is edited by the current user. It is copied to user's workspace and is modified. Other users cannot edit the project. <br/>To save changes, the project must be saved.                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ![](images/project-status-closed-locked-icon.png) | Project is closed by the current user but edited by another user (Closed – Locked). Current user cannot edit the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ![](images/project-status-viewing-locked-icon.png) | Project is opened for viewing by the current user but edited by another user (Viewing Revision - Locked). <br/>Current user cannot edit the project but can browse the project in Rules Editor.                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ![](images/project-status-local-icon.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project or import it into Design repository as described in the [Creating Projects in Design Repository](#creating-projects-in-design-repository).                                                                                                                                                                                                                                                                                                             |
+| Icon                                                     | Status               | Description                                                                            |
+|----------------------------------------------------------|----------------------|----------------------------------------------------------------------------------------|
+| ![](images/project-status-closed-icon.png)               | **Closed**           | The project is available only in Design repository. Open it to copy it to the user's workspace. |
+| ![](images/project-status-no-changes-icon.png)           | **No Changes**       | The project is opened in the user's workspace and has no uncommitted changes.           |
+| ![](images/project-status-in-editing-icon.png)           | **In Editing**       | The project has changes that are not committed yet.                                     |
+| ![](images/project-status-viewing-revision-icon.png)     | **Viewing Revision** | The project is opened on an older revision, not on the latest one.                      |
+
+In the project list, only the two statuses that call for attention are marked — **In Editing** and **Viewing
+Revision**. A project that is merely opened or closed carries no mark there, and its full status is displayed on
+the **Overview** tab. A project locked by another user carries a separate lock icon
+![](images/project-locked-icon.png) whose tooltip names the user and the time of the lock.
 
 ### Filtering and Grouping Projects
 
@@ -124,11 +127,14 @@ This is the easiest way to create a rule project in the Design repository that m
 
 While creating a project from template, use the following template types:
 
-| Template type        | Description                                                                                                                                                                                                                                        |
-|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Simple Templates** | Include the following: <br/>**- Sample Project** is a very simple project consisting of one rule table and hence, one Excel file. <br/>**- Empty Project** allows creating a project with an empty Excel file. <br/>Open the project and create tables as needed. |
-| **Examples**         | Provide several simple projects demonstrating how OpenL Tablets can be used in various business domains.                                                                                                                                           |
-| **Tutorials**        | Represents projects designed to familiarize users with OpenL Tablets step-by-step, from simple features and concepts to more complex ones.                                                                                                         |
+-   **Simple Templates** — include the following:
+    -   **Sample Project** is a very simple project consisting of one rule table and hence, one Excel file.
+    -   **Empty Project** allows creating a project with an empty Excel file. Open the project and create
+        tables as needed.
+-   **Examples** — provide several simple projects demonstrating how OpenL Tablets can be used in various
+    business domains.
+-   **Tutorials** — represent projects designed to familiarize users with OpenL Tablets step-by-step, from
+    simple features and concepts to more complex ones.
 
 Projects represented as Examples and Tutorials can be used not only to learn how they are organized and work, but also to create user’s own projects from them.
 
@@ -396,9 +402,13 @@ If user tries to modify an old revision of the project, the system displays the 
 
 Revisions can also be accessed through Editor by selecting **More \> Revisions** for a project.
 
-The features **Technical Revision** and **Search Filter** are available in OpenL Studio when the repository type is Git.<br/>
-The **Technical Revisions** feature, when checked, allows users to see revisions that are not directly related to the current project (for example, changes related to code updates or changes in other projects).<br/>
-The **Search Filter** field helps users quickly locate specific revisions by searching through the comments, modified by, and revision IDs.
+The features **Technical Revision** and **Search Filter** are available in OpenL Studio when the repository
+type is Git.
+
+-   **Technical Revisions**, when checked, allows users to see revisions that are not directly related to the
+    current project, for example, changes related to code updates or changes in other projects.
+-   **Search Filter** helps users quickly locate specific revisions by searching through the comments, modified
+    by, and revision IDs.
 
 ### Closing a Project
 
