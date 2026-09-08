@@ -86,6 +86,12 @@ class DesignTimeRepositoryImplTest {
 
             assertEquals(List.of("Rates"),
                     repository.getProjects().stream().map(AProject::getBusinessName).toList());
+            // The paired view answers what the two reads answer, so a caller that needs both reads once.
+            var listed = repository.getDesignProjects();
+            assertEquals(repository.getProjects().stream().map(AProject::getName).toList(),
+                    listed.stream().map(designProject -> designProject.project().getName()).toList());
+            assertEquals(repository.getBranchedProject("design", "Rates").orElseThrow().entries().keySet(),
+                    listed.iterator().next().branches().entries().keySet());
             var project = repository.getBranchedProject("design", "Rates").orElseThrow();
             assertEquals("feature/rates", project.homeBranch());
             assertEquals(List.of("feature/rates"), List.copyOf(project.entries().keySet()));
@@ -292,6 +298,10 @@ class DesignTimeRepositoryImplTest {
         assertTrue(designRepository.hasProject("design", "Rates"));
         assertFalse(designRepository.hasProject("design", "Missing"));
         assertTrue(designRepository.getBranchedProject("design", "Rates").isEmpty());
+        // A repository without branches lists its projects with no branch entries behind them.
+        var withoutBranches = designRepository.getDesignProjects().iterator().next();
+        assertSame(listed, withoutBranches.project());
+        assertNull(withoutBranches.branches());
         assertTrue(designRepository.getProjectIndexHealth("design").isEmpty());
         assertEquals("DESIGN/Rates",
                 designRepository.getProjectByPath("design", null, "DESIGN/Rates", "revision").getRealPath());

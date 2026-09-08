@@ -78,6 +78,9 @@ class UserWorkspaceRefreshTest {
         localRepository.initialize();
 
         designTimeRepository = mock(DesignTimeRepository.class);
+        // The refresh reads the projects and the branches that hold them together; the interface composes
+        // that view from the two the tests stub.
+        lenient().when(designTimeRepository.getDesignProjects()).thenCallRealMethod();
         lenient().when(designTimeRepository.getRulesLocation()).thenReturn("DESIGN/rules/");
         projectsLockEngine = mock(LockEngine.class);
         lenient().when(projectsLockEngine.getLockInfo(anyString(), any(), anyString()))

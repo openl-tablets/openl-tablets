@@ -34,6 +34,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.BranchedProject;
+import org.openl.rules.workspace.dtr.DesignProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -361,21 +362,25 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             clearRulesProjectsCache();
 
-            var designProjects = designTimeRepository.getProjects();
+            // Each project comes with the branches that hold it, resolved in the same pass: asking the design
+            // side for them again would repeat the permission questions the listing has already answered.
+            var designProjects = designTimeRepository.getDesignProjects();
 
             // The folders the design side accounts for, per repository. A workspace copy sitting in one of them
             // belongs to the project that holds it, so it must not be claimed by another project that merely
             // shares its name. Repositories are kept apart, because two of them may hold the very same folder.
             var designFolders = designProjects.stream()
+                    .map(DesignProject::project)
                     .collect(Collectors.groupingBy(project -> project.getRepository().getId(),
                             Collectors.mapping(AProject::getRealPath, Collectors.toSet())));
 
             // add new
-            for (AProject rp : designProjects) {
+            for (DesignProject designProject : designProjects) {
+                var rp = designProject.project();
                 var repoId = rp.getRepository().getId();
                 var localRepository = localWorkspace.getRepository(repoId);
                 var name = rp.getName();
-                var branchedProject = designTimeRepository.getBranchedProject(repoId, name);
+                var branchedProject = Optional.ofNullable(designProject.branches());
                 var lp = findLocalProject(repoId, rp, designFolders.getOrDefault(repoId, Set.of()));
 
                 FileData local = lp == null ? null : lp.getFileData();
