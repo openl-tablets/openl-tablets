@@ -42,15 +42,6 @@ public final class DomainImplWithHoles extends DomainImpl {
         return false;
     }
 
-    public void force(FastVector values) // throws Failure
-    {
-        _values = values;
-        var first = (DomainInterval) _values.firstElement();
-        _min = first.from;
-        var last = (DomainInterval) _values.lastElement();
-        _max = last.to;
-    }
-
     @Override
     public void forceMax(int max) {
         _max = max;

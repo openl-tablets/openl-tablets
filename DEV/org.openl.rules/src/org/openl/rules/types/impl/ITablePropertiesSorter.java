@@ -1,7 +1,6 @@
 package org.openl.rules.types.impl;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import org.openl.types.IOpenMethod;
@@ -17,6 +16,4 @@ import org.openl.types.IOpenMethod;
  */
 public interface ITablePropertiesSorter {
     List<IOpenMethod> sort(Collection<IOpenMethod> candidates);
-
-    Comparator<IOpenMethod> getMethodsComparator();
 }
