@@ -129,13 +129,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
 
     @Override
     public void removeRange(int min, int max) throws Failure {
-        /*
-         * commented by SV 02.06.03 by SV due to domain improvements if(min > max) throw new
-         * IllegalArgumentException("removeRange: min > max");
-         *
-         * if(min <= min()) { setMin(max + 1); } else if(max >= max()) { setMax(min - 1); } else // min() < min <= max <
-         * max() { removeRangeInternal(min,max); }
-         */
         removeRangeInternal(min, max); // added by SV 02.06.03 by SV due to
         // domain improvements
     }

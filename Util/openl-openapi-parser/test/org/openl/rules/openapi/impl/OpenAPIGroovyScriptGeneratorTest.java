@@ -208,7 +208,6 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
         assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
         assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
-        // assertTrue(commonClasses.contains(method1.getAnnotation(ServiceExtraMethod.class).value()));
 
         assertEquals(2, method1.getParameters()[0].getAnnotations().length);
         assertEquals("Policy", method1.getParameters()[0].getAnnotation(RulesType.class).value());
@@ -444,7 +443,6 @@ class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(2, method2.getParameters()[0].getAnnotations().length);
         assertEquals("Policy", method2.getParameters()[0].getAnnotation(RulesType.class).value());
         assertEquals("policy", method2.getParameters()[0].getAnnotation(Name.class).value());
-        // assertTrue(commonClasses.contains(method2.getAnnotation(ServiceExtraMethod.class).value()));
     }
 
     @Test

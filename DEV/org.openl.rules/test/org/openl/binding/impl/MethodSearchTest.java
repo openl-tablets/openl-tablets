@@ -46,11 +46,8 @@ class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("Long", ClassWithGenerics.class, "method2", Byte.class, Long.class);
         assertInvoke("Double", ClassWithGenerics.class, "method2", Double.class, short.class);
 
-        // assertNotFound( ClassWithGenerics.class, "method3", byte[].class, byte[].class);
-
         assertInvoke("M8", ClassWithGenerics.class, "method4", byte[].class);
         assertInvoke("M8", ClassWithGenerics.class, "method4", byte[].class, byte[].class);
-        // assertNotFound( ClassWithGenerics.class, "method4", byte[].class, byte[].class, byte[].class);
         assertInvoke("M8", ClassWithGenerics.class, "method4", byte[].class, byte.class, byte.class);
 
         assertInvoke("M9", ClassWithGenerics.class, "method5", byte[].class);
@@ -98,14 +95,10 @@ class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M17-2", ForthClassWithMethods.class, "method8", String.class, String.class);
 
         assertInvoke("M21", ForthClassWithMethods.class, "method7");
-
-        // assertAmbiguous(ForthClassWithMethods.class, "method7", String.class);
         assertInvoke("M19", ForthClassWithMethods.class, "method7", String.class);
 
         assertInvoke("M20", ForthClassWithMethods.class, "method7", String.class, String.class);
         assertAmbiguous(ForthClassWithMethods.class, "method7", null, null);
-
-        // assertAmbiguous(ForthClassWithMethods.class, "method7", String.class, String.class, String.class);
         assertInvoke("M19", ForthClassWithMethods.class, "method7", String.class, String.class, String.class);
 
         assertInvoke("M16", ForthClassWithMethods.class, "method7", Integer.class);

@@ -49,9 +49,6 @@ class PropertyTableTest extends BaseOpenlBuilderHelper {
         assertEquals(RegionsEnum.NCSA, ((RegionsEnum[]) categoryProperties.get("region"))[0]);
 
         Map<String, Object> defaultProperties = tableProperties.getDefaultProperties();
-        // assertTrue(defaultProperties.size() == 5);
-        // assertEquals("US",(String) defaultProperties.get("country"));
-
         assertTrue((Boolean) defaultProperties.get("active"));
         assertFalse((Boolean) defaultProperties.get("failOnMiss"));
     }

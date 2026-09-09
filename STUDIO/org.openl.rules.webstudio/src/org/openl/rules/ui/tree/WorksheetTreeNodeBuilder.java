@@ -46,7 +46,7 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode.getXlsSheetSourceCodeModule();//getModule();
+        return tableSyntaxNode.getXlsSheetSourceCodeModule();
     }
 
     @Override
