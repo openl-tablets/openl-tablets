@@ -47,10 +47,6 @@ var Popup = Class.create({
         return popupDiv;
     },
 
-    hide: function() {
-        this.hide(0);
-    },
-
     hide: function(timeout) {
         var self = this;
         if (!timeout || timeout < 0) {

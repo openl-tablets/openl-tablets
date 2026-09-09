@@ -284,18 +284,6 @@ var TableEditor = Class.create({
             }
         });
     },
-    
-    saveChanges: function() {
-        this.setCellValue();
-
-        var beforeSavePassed = true;
-        if (this.actions && this.actions.beforeSave) {
-            beforeSavePassed = this.actions.beforeSave();
-        }
-        if (beforeSavePassed == false) return;
-
-        this.doOperation(TableEditor.Operations.SAVE, { editorId: this.editorId }, hideLoader());
-     },
 
     /**
      * Rolls back all changes. Sends corresponding request to the server.
@@ -1095,7 +1083,6 @@ TableEditor.Editors = $H();
 
 TableEditor.Operations = {
     GET_CELL_EDITOR : "getCellEditor",
-    GET_CELL_VALUE : "getCellValue",
     SET_CELL_VALUE : "setCellValue",
     SET_ALIGN : "setAlign",
     SET_FILL_COLOR : "setFillColor",
