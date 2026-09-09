@@ -1,0 +1,11 @@
+POST /rest/projects/{DESIGN_FLAT_PROJECT_TECHNICAL_NAME_ENC_ID}/tables/{SOURCE_TABLE_ID}/copy HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Limits",
+  "modulePath": "Limits.xlsx",
+  "sheetName": "Limit",
+  "name": "BankLimitIndexCopy"
+}
+

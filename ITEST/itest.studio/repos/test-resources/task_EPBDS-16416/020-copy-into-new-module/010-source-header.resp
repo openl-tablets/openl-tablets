@@ -1,0 +1,67 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "source": [
+    [
+      {
+        "cell": "C8",
+        "value": "Rules Double BankLimitIndex (Bank bank, RatingGroup bankRatingGroup)",
+        "colspan": 11,
+        "style": {
+          "background": "#ddd9c3",
+          "color": "#4a452a",
+          "align": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            },
+            "left": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ]
+  ]
+}

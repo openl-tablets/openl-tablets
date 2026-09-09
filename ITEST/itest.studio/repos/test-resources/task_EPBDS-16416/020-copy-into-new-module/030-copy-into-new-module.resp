@@ -1,0 +1,13 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "25ab7192462d177acabc1aded16d26b7",
+  "tableType": "Rules",
+  "kind": "Rules",
+  "name": "BankLimitIndexCopy",
+  "returnType": "Double",
+  "signature": "BankLimitIndexCopy (Bank bank, RatingGroup bankRatingGroup)",
+  "file": "EPBDS-16416/Limits.xlsx",
+  "pos": "B2:L18"
+}
