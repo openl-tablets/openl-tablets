@@ -1,3 +1,5 @@
+import type { TraceParameterValue } from './trace'
+
 export interface RawTableCellInput {
     value: string | number | boolean | null
     colspan?: number
@@ -113,4 +115,43 @@ export interface ProjectProperty {
     pattern: string | null
     /** Values the property accepts, empty unless the type is an enum. */
     values: ProjectPropertyValue[]
+}
+
+/** One case of a test table. Its id, its description and the values of its columns. */
+export interface TableInputTestCase {
+    id: string
+    description?: string | null
+    /**
+     * The context columns first, then the input columns of the tested rule. Each is named by its column.
+     *
+     * In a page of cases a value with inner structure is lazy and left out. A case read on its own carries every
+     * value.
+     */
+    parameters: TraceParameterValue[]
+}
+
+/**
+ * The input a table takes to be executed.
+ *
+ * A rule table declares parameters, each with the JSON schema of the values it accepts. A test table carries
+ * cases instead, which are read a page at a time.
+ */
+export interface TableInput {
+    tableId: string
+    name: string
+    /** Whether the table is a test table. A test table carries cases, a rule table declares parameters. */
+    testTable: boolean
+    /** Declared parameters of a rule table. Absent when there are none, as every empty list of the API is. */
+    parameters?: TraceParameterValue[]
+    /** Schema of the runtime context, present when the project provides one to its rules. */
+    runtimeContext?: TraceParameterValue | null
+}
+
+/** One page of the cases of a test table, with the number of cases the table holds. */
+export interface TableInputCasesPage {
+    content: TableInputTestCase[]
+    pageNumber?: number
+    pageSize?: number
+    numberOfElements?: number
+    total: number
 }

@@ -388,35 +388,37 @@ Tracing is available for everything that can be run:
 
 #### Starting a Trace
 
-1.  In Rules editor, open the table to trace and click **Trace** in the toolbar above the table.
+1.  In Rules editor, open the table to trace and click **Trace** in the toolbar above the table. A panel opens under the button; clicking elsewhere on the page closes it.
 
-    ![Trace button in the table toolbar with the trace options open](images/trace-start-button.png "Starting a trace")
+    ![Trace button in the table toolbar with the trace panel open](images/trace-start-button.png "Starting a trace")
 
     *Starting a trace from the table toolbar*
 
-1.  For a test table, select the test cases to trace. The checkbox in the header selects or clears all cases at once.
+1.  For a test table, select the test case to trace. Every case is listed by ID with the values of its columns, shown the way the trace window shows them, and the first case is selected at first. A trace runs one case, so click the case to trace. A value with inner structure, such as a whole datatype, is not read until you ask for it. Click **Load value** next to it to see it.
 
     ![Test case selection for tracing a test table](images/trace-test-table-popup.png "Tracing a test table")
 
-    *Selecting test cases to trace*
+    *Selecting a test case to trace*
+
+    A table with more than 25 cases is shown a page at a time; a pager appears under the list to reach the rest, and the case you selected stays selected while you look through the other pages.
 
 1.  For a rule or method table, provide the input parameters instead:
 
-    -   **Tree Form** — fill in the parameter fields.
+    -   **Form** — the parameters are shown as a tree, one folded line each, and clicking the arrow next to a parameter shows its fields with the value of every field next to its name; a field with a default value in its datatype starts with that value, the others start as `null`. Click the pencil next to a field to enter or change its value: a number field takes only a number, a date opens a calendar, and a value with a fixed set of options offers them in a list; the cross clears the value back to `null`. A nested object starts as `null`: **+** creates it with its fields empty, **×** makes it `null` again. A list starts as `null` too: **+** creates it, **+** on the list adds a `null` element that another **+** turns into an object, and **−** next to an element removes it. When the project provides a runtime context to its rules, **Runtime Context** is the last line of the form, under the parameters, and opens the same way.
 
         ![Parameter entry form for a rule table](images/trace-rule-table-form.png "Entering trace parameters")
 
         *Entering parameters for a rule table*
 
-    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON must include the `context` object. If the option is off or `isProvideRuntimeContext` is absent from `rules-deploy.xml`, OpenL Studio treats runtime context as disabled. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. Most users can ignore this option and stay on **Tree Form**.
+    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. Switching to **JSON** shows what the form holds, so the form can be filled in first and adjusted as text; switching back reads the text into the form. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON can carry it in the `runtimeContext` object. If the option is off or `isProvideRuntimeContext` is absent from `rules-deploy.xml`, OpenL Studio treats runtime context as disabled. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. Most users can ignore this option and stay on **Form**.
 
         ![JSON input option for tracing](images/trace-json-option.png "Tracing with JSON input")
 
         *Providing input as JSON*
 
-1.  To trace only the rules of the current module and skip the modules it depends on, select **Within Current Module Only**.
+1.  To trace only the rules of the current module and skip the modules it depends on, select **Within Current Module Only**. While the project is still loading, or another module has errors, only the current module can be traced: the option is selected and cannot be changed.
 1.  Leave **Advanced tracer** off — the default — to open the business view. Select it only for the full step debugger; see [The Advanced Mode](#the-advanced-mode). The mode is chosen here, before the trace starts, and stays fixed for the trace window.
-1.  Click **Trace**. The trace window opens and runs the calculation.
+1.  Click **Trace**. The trace window opens and runs the calculation. A table that takes no parameters is traced as soon as **Trace** is clicked in the toolbar; no panel opens for it.
 
 To save the calculation as a text file instead of opening the trace window, click **Trace into File**. OpenL Studio runs the rule and downloads the result as `trace.txt`.
 

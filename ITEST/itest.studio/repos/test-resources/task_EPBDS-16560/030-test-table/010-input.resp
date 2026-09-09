@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableId": "451b35be727af55a2b1ec9409f5ae72d",
+  "name": "BankRatingTest",
+  "testTable": true
+}

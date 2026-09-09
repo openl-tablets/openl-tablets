@@ -7,12 +7,18 @@ import type {
     ProjectTable,
     SummaryTable,
     TableCopyInfo,
+    TableInput,
+    TableInputCasesPage,
+    TableInputTestCase,
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray } from './apiCall'
 import { toUrlSafeId } from './projectId'
 
 const TABLE_API_OPTIONS = { throwError: true, suppressErrorPages: true }
+
+/** How many cases of a test table a page carries, as the API pages them. */
+export const TEST_CASES_PAGE_SIZE = 25
 
 interface TableWriteMessages {
     successTitle: string
@@ -139,3 +145,66 @@ export const copyTable = async (
         missingTable: i18n.t('project:copy_table_modal.copied_table_not_found'),
     }
 )
+
+/** The address of a table's input, and of the cases and single case under it. */
+const inputUrl = (projectId: string, tableId: string, suffix = ''): string =>
+    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/input${suffix}`
+
+/**
+ * Reads the input a table takes to be executed.
+ *
+ * A rule table answers with its declared parameters, each carrying the JSON schema of the values it accepts. The
+ * schema of the runtime context comes with them when the project provides one. A test table declares no
+ * parameters of its own: its input is the cases it carries.
+ */
+export const getTableInput = async (
+    projectId: string,
+    tableId: string,
+    options: { fromModule?: string } = {}
+): Promise<TableInput> => {
+    const query = options.fromModule ? `?fromModule=${encodeURIComponent(options.fromModule)}` : ''
+    return await apiCall(inputUrl(projectId, tableId, query), undefined, TABLE_API_OPTIONS)
+}
+
+/**
+ * Reads a page of the cases of a test table.
+ *
+ * A value with inner structure is left out of the page and read with its case.
+ */
+export const getTableInputCases = async (
+    projectId: string,
+    tableId: string,
+    options: { fromModule?: string, page?: number, size?: number } = {}
+): Promise<TableInputCasesPage> => {
+    const params = new URLSearchParams()
+    if (options.fromModule) {
+        params.set('fromModule', options.fromModule)
+    }
+    params.set('page', String(options.page ?? 0))
+    params.set('size', String(options.size ?? TEST_CASES_PAGE_SIZE))
+    const page = await apiCall(
+        inputUrl(projectId, tableId, `/cases?${params}`),
+        undefined,
+        TABLE_API_OPTIONS
+    ) as TableInputCasesPage | null
+    return { ...page, content: asArray(page?.content), total: page?.total ?? 0 }
+}
+
+/**
+ * Reads one case of a test table with every value written in full.
+ *
+ * A page of cases leaves a value with inner structure out. This call brings it.
+ */
+export const getTableInputCase = async (
+    projectId: string,
+    tableId: string,
+    caseId: string,
+    options: { fromModule?: string } = {}
+): Promise<TableInputTestCase> => {
+    const query = options.fromModule ? `?fromModule=${encodeURIComponent(options.fromModule)}` : ''
+    return await apiCall(
+        inputUrl(projectId, tableId, `/cases/${encodeURIComponent(caseId)}${query}`),
+        undefined,
+        TABLE_API_OPTIONS
+    )
+}

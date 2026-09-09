@@ -11635,6 +11635,414 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/tables/{tableId}/input": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fromModule",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableInputView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/input/cases": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fromModule",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseTestCaseView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/input/cases/{caseId}": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "caseId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fromModule",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCaseView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/tables/{tableId}/lines": {
       "post": {
         "description": "***",
@@ -22888,6 +23296,44 @@ Content-Type: application/json
           "pageSize"
         ]
       },
+      "PageResponseTestCaseView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TestCaseView"
+            }
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
+          }
+        },
+        "required": [
+          "numberOfElements",
+          "pageNumber",
+          "pageSize"
+        ]
+      },
       "PairStringTableDescription": {
         "type": "object",
         "properties": {
@@ -25898,6 +26344,34 @@ Content-Type: application/json
           }
         }
       },
+      "TableInputView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "parameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ParameterValue"
+            }
+          },
+          "runtimeContext": {
+            "$ref": "#/components/schemas/ParameterValue"
+          },
+          "tableId": {
+            "type": "string",
+            "description": "***"
+          },
+          "testTable": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
       "TableMessageSource": {
         "type": "object",
         "allOf": [
@@ -26419,6 +26893,27 @@ Content-Type: application/json
             "description": "***",
             "items": {
               "$ref": "#/components/schemas/TestUnitExecutionResult"
+            }
+          }
+        }
+      },
+      "TestCaseView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "parameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ParameterValue"
             }
           }
         }

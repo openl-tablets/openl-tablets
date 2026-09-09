@@ -1,117 +1,12 @@
-import React, { useState, useMemo } from 'react'
-import { Tree, Spin, Typography } from 'antd'
-import type { TreeDataNode } from 'antd'
-import { LoadingOutlined } from '@ant-design/icons'
+import React, { useCallback } from 'react'
+import { Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { TraceParameterValue } from 'types/trace'
-import { onActivate } from './keyboardActivate'
+import { ParameterValueList, ParameterValueTree } from 'components/values/ParameterValues'
 import { useStyles } from './TraceParameters.styles'
 
 const { Text } = Typography
-
-type Styles = ReturnType<typeof useStyles>['styles']
-
-/**
- * Format a simple value for display (IDEA-style).
- */
-const formatSimpleValue = (value: any, styles: Styles): { display: string; className: string } => {
-    if (value === null) {
-        return { display: 'null', className: styles.valueNull }
-    }
-    if (value === undefined) {
-        return { display: 'undefined', className: styles.valueNull }
-    }
-    if (typeof value === 'string') {
-        return { display: `"${value}"`, className: styles.valueString }
-    }
-    if (typeof value === 'number') {
-        return { display: String(value), className: styles.valueNumber }
-    }
-    if (typeof value === 'boolean') {
-        return { display: String(value), className: styles.valueBoolean }
-    }
-    return { display: String(value), className: styles.valueDefault }
-}
-
-/**
- * Check if value is complex (object or array).
- */
-const isComplexValue = (value: any): boolean => {
-    return value !== null && typeof value === 'object'
-}
-
-/**
- * Get summary for complex value (IDEA-style).
- */
-const getComplexSummary = (value: any): string => {
-    if (Array.isArray(value)) {
-        return `{${value.length} elements}`
-    }
-    if (typeof value === 'object' && value !== null) {
-        const keys = Object.keys(value)
-        return `{${keys.length} fields}`
-    }
-    return ''
-}
-
-/**
- * Build tree data from a value recursively.
- */
-const buildTreeDataFromValue = (
-    name: string,
-    value: any,
-    styles: Styles,
-    type?: string,
-    keyPrefix: string = '0'
-): TreeDataNode => {
-    const isComplex = isComplexValue(value)
-
-    const hasChildren = isComplex && (
-        Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0
-    )
-
-    const renderTitle = () => {
-        const valueDisplay = isComplex
-            ? <span className={styles.valueSummary}>{getComplexSummary(value)}</span>
-            : (() => {
-                const { display, className } = formatSimpleValue(value, styles)
-                return <span className={className}>{display}</span>
-            })()
-
-        return (
-            <span className={styles.treeTitle}>
-                <span className={styles.valueName}>{name}</span>
-                {type && <span className={styles.valueType}>{type}</span>}
-                <span className={styles.valueEquals}>=</span>
-                {valueDisplay}
-            </span>
-        )
-    }
-
-    if (!hasChildren) {
-        return {
-            key: keyPrefix,
-            title: renderTitle(),
-            isLeaf: true,
-        }
-    }
-
-    const children: TreeDataNode[] = Array.isArray(value)
-        ? value.map((item, index) =>
-            buildTreeDataFromValue(`[${index}]`, item, styles, undefined, `${keyPrefix}-${index}`)
-        )
-        : Object.entries(value).map(([key, val], index) =>
-            buildTreeDataFromValue(key, val, styles, undefined, `${keyPrefix}-${index}`)
-        )
-
-    return {
-        key: keyPrefix,
-        title: renderTitle(),
-        isLeaf: false,
-        children,
-    }
-}
 
 interface ParameterTreeProps {
     param: TraceParameterValue
@@ -119,126 +14,34 @@ interface ParameterTreeProps {
 }
 
 /**
- * Single parameter as an Ant Design Tree with lazy loading support.
+ * One traced value as a line of the debugger, `name (type) = value`.
+ *
+ * A value too large to travel with the frame is read from the trace session when the user asks for it.
  */
 export const ParameterTree: React.FC<ParameterTreeProps> = ({ param, paramKey }) => {
-    const { t } = useTranslation('trace')
-    const { styles } = useStyles()
     const { fetchLazyParameter } = useTraceStore()
-    const [loading, setLoading] = useState(false)
-    const [loaded, setLoaded] = useState(false)
-    const [loadedValue, setLoadedValue] = useState<any>(undefined)
-    const [error, setError] = useState<string | null>(null)
+    const { parameterId } = param
+    const load = useCallback(
+        (): Promise<TraceParameterValue> => fetchLazyParameter(parameterId as number),
+        [fetchLazyParameter, parameterId]
+    )
+    return <ParameterValueTree onLoad={parameterId == null ? undefined : load} param={param} paramKey={paramKey} />
+}
 
-    const displayValue = loaded ? loadedValue : param.value
-    const isComplex = isComplexValue(displayValue)
-
-    const treeData = useMemo(() => {
-        if (displayValue === undefined || displayValue === null || !isComplex) {
-            return []
-        }
-        return [buildTreeDataFromValue(param.name, displayValue, styles, param.description, paramKey)]
-    }, [param.name, param.description, displayValue, paramKey, isComplex, styles])
-
-    const handleLoadValue = async () => {
-        if (!param.lazy || param.parameterId == null) return
-
-        setLoading(true)
-        setError(null)
-        try {
-            const result = await fetchLazyParameter(param.parameterId)
-            setLoadedValue(result.value)
-            setLoaded(true)
-        } catch (err: any) {
-            setError(err?.message || t('errors.parameterFailed'))
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    if (param.lazy && !loaded && (displayValue === undefined || displayValue === null) && !loading && !error) {
-        return (
-            <div className={styles.item}>
-                <span className={styles.treeTitle}>
-                    <span className={styles.valueName}>{param.name}</span>
-                    <span className={styles.valueType}>{param.description}</span>
-                    <span className={styles.valueEquals}>=</span>
-                    <span
-                        className={styles.valueLazy}
-                        onClick={handleLoadValue}
-                        onKeyDown={onActivate(handleLoadValue)}
-                        role="button"
-                        tabIndex={0}
-                    >
-                        {t('param.loadValue')}
-                    </span>
-                </span>
-            </div>
-        )
-    }
-
-    if (loading) {
-        return (
-            <div className={styles.item}>
-                <span className={styles.treeTitle}>
-                    <span className={styles.valueName}>{param.name}</span>
-                    <span className={styles.valueType}>{param.description}</span>
-                    <span className={styles.valueEquals}>=</span>
-                    <Spin indicator={<LoadingOutlined spin />} size="small" />
-                </span>
-            </div>
-        )
-    }
-
-    if (error) {
-        return (
-            <div className={styles.item}>
-                <span className={styles.treeTitle}>
-                    <span className={styles.valueName}>{param.name}</span>
-                    <span className={styles.valueType}>{param.description}</span>
-                    <span className={styles.valueEquals}>=</span>
-                    <span className={styles.valueError}>{error}</span>
-                </span>
-            </div>
-        )
-    }
-
-    if (loaded && displayValue === undefined) {
-        return (
-            <div className={styles.item}>
-                <span className={styles.treeTitle}>
-                    <span className={styles.valueName}>{param.name}</span>
-                    <span className={styles.valueType}>{param.description}</span>
-                    <span className={styles.valueEquals}>=</span>
-                    <span className={styles.valueEmpty}>{'{}'}</span>
-                </span>
-            </div>
-        )
-    }
-
-    if (!isComplex) {
-        const { display, className } = formatSimpleValue(displayValue, styles)
-        return (
-            <div className={styles.item}>
-                <span className={styles.treeTitle}>
-                    <span className={styles.valueName}>{param.name}</span>
-                    <span className={styles.valueType}>{param.description}</span>
-                    <span className={styles.valueEquals}>=</span>
-                    <span className={className}>{display}</span>
-                </span>
-            </div>
-        )
-    }
-
+/** The frame every group of traced values sits in: its title, the copy button, and the values themselves. */
+const Section: React.FC<{
+    title: string
+    copyButton?: React.ReactNode | undefined
+    children: React.ReactNode
+}> = ({ title, copyButton, children }) => {
+    const { styles } = useStyles()
     return (
-        <div className={styles.paramTree}>
-            <Tree
-                blockNode
-                defaultExpandedKeys={[]}
-                selectable={false}
-                showLine={{ showLeafIcon: false }}
-                treeData={treeData}
-            />
+        <div className={styles.section}>
+            <div className={styles.header}>
+                <span className={styles.title}>{title}:</span>
+                {copyButton}
+            </div>
+            {children}
         </div>
     )
 }
@@ -252,53 +55,38 @@ interface TraceParametersProps {
 }
 
 /**
- * Component for displaying trace parameters using Ant Design Tree.
- * Maintains IDEA debug style with colored values.
+ * The parameters a traced step received, each shown the way a debugger shows it.
+ *
+ * A step that received none says so instead.
  */
-const TraceParameters: React.FC<TraceParametersProps> = ({
-    parameters,
-    title,
-    emptyText,
-    copyButton,
-}) => {
+const TraceParameters: React.FC<TraceParametersProps> = ({ parameters, title, emptyText, copyButton }) => {
     const { t } = useTranslation('trace')
     const { styles } = useStyles()
+    const { fetchLazyParameter } = useTraceStore()
+    const load = useCallback(
+        (index: number): Promise<TraceParameterValue | undefined> => {
+            // A value the trace did not register cannot be read on its own; the line keeps what it has.
+            const parameterId = parameters?.[index]?.parameterId
+            return parameterId == null ? Promise.resolve(undefined) : fetchLazyParameter(parameterId)
+        },
+        [fetchLazyParameter, parameters]
+    )
 
     if (!parameters || parameters.length === 0) {
         return (
-            <div className={styles.section}>
-                <div className={styles.header}>
-                    <span className={styles.title}>{title}:</span>
-                </div>
-                <Text className={styles.empty} type="secondary">
-                    {emptyText || t('details.noParameters')}
-                </Text>
-            </div>
+            <Section copyButton={copyButton} title={title}>
+                <Text className={styles.empty} type="secondary">{emptyText || t('details.noParameters')}</Text>
+            </Section>
         )
     }
-
     return (
-        <div className={styles.section}>
-            <div className={styles.header}>
-                <span className={styles.title}>{title}:</span>
-                {copyButton}
-            </div>
-            <div className={styles.list}>
-                {parameters.map((param, index) => (
-                    <ParameterTree
-                        key={`${param.name}-${index}`}
-                        param={param}
-                        paramKey={`param-${index}`}
-                    />
-                ))}
-            </div>
-        </div>
+        <Section copyButton={copyButton} title={title}>
+            <ParameterValueList keyPrefix="param" onLoad={load} parameters={parameters} />
+        </Section>
     )
 }
 
-/**
- * Component for displaying a single parameter value (e.g., context, result).
- */
+/** One value of a traced step shown on its own, such as the runtime context or the result. */
 export const SingleParameter: React.FC<{
     parameter?: TraceParameterValue | undefined
     title: string
@@ -311,27 +99,15 @@ export const SingleParameter: React.FC<{
 
     if (!parameter) {
         return (
-            <div className={styles.section}>
-                <div className={styles.header}>
-                    <span className={styles.title}>{title}:</span>
-                </div>
-                <Text className={styles.empty} type="secondary">
-                    {emptyText || t('details.noResult')}
-                </Text>
-            </div>
+            <Section copyButton={copyButton} title={title}>
+                <Text className={styles.empty} type="secondary">{emptyText || t('details.noResult')}</Text>
+            </Section>
         )
     }
-
     return (
-        <div className={styles.section}>
-            <div className={styles.header}>
-                <span className={styles.title}>{title}:</span>
-                {copyButton}
-            </div>
-            <div className={styles.list}>
-                <ParameterTree param={parameter} paramKey="single-param" />
-            </div>
-        </div>
+        <Section copyButton={copyButton} title={title}>
+            <ParameterTree param={parameter} paramKey="single-param" />
+        </Section>
     )
 }
 

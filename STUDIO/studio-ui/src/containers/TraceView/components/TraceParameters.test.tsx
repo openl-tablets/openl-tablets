@@ -135,7 +135,7 @@ describe('TraceParameters', () => {
                     paramKey="k"
                 />
             )
-            expect(screen.getByText('param.loadValue')).toBeInTheDocument()
+            expect(screen.getByText('value.load')).toBeInTheDocument()
         })
 
         it('fetches and displays the lazy value on click', async () => {
@@ -147,13 +147,13 @@ describe('TraceParameters', () => {
                 />
             )
 
-            await userEvent.click(screen.getByText('param.loadValue'))
+            await userEvent.click(screen.getByText('value.load'))
 
             // The store's fetchLazyParameter goes through the service with the parameter id.
             await waitFor(() => expect(getParameterValue).toHaveBeenCalledWith('p1', 5))
             // Once loaded, the fetched value replaces the affordance.
             expect(await screen.findByText('99')).toBeInTheDocument()
-            expect(screen.queryByText('param.loadValue')).toBeNull()
+            expect(screen.queryByText('value.load')).toBeNull()
         })
 
         it('surfaces an error when the lazy fetch fails', async () => {
@@ -165,7 +165,7 @@ describe('TraceParameters', () => {
                 />
             )
 
-            await userEvent.click(screen.getByText('param.loadValue'))
+            await userEvent.click(screen.getByText('value.load'))
             expect(await screen.findByText('boom')).toBeInTheDocument()
         })
     })
