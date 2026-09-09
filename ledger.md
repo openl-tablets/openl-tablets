@@ -220,7 +220,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Cold ~/.m2 at session start: the first `-T1C` build needs the network (~30 min) and -Daether.syncContext.named.time=600, or resolution fails with "Could not acquire lock(s)"; never -o before that build.
 - After a -T1C failure, `mvn -rf :<module>` cannot resolve the banned siblings or the never-installed rules.test → rerun the whole `mvn install` (no clean, ~10 min warm).
 - Container presets gpg.format=ssh, commit.gpgsign=true, gpg.ssh.program=/tmp/code-sign; JGit has no ssh signer → repository.git tests die; `git config --global --unset commit.gpgsign` (and gpg.format) before the build; env overrides do not reach JGit.
-- ~/.gitconfig sets the Claude identity; set user.* globally and check `git log -1 --pretty='%an|%cn'` after the first commit.
+- The container rewrites ~/.gitconfig back to the Claude identity mid-session, silently reverting `git config --global user.*`. Set `git config --local user.*` in the clone instead (worktrees share it) and re-check `git log -1 --pretty='%an|%cn'` before every push, not only after the first commit.
 - No locale set: run builds with LANG=C.UTF-8 (one archive test uses a non-ASCII fixture name).
 - 4-core container: -T1C starves vitest (UserDetailsTab fails); use -T2 for whole-reactor builds when studio-ui tests run; never run npm in studio-ui while Maven runs.
 - Never `git switch --orphan` in the working tree while a build runs (it empties the tree): use a separate `git worktree add --detach` for the ledger branch.
@@ -270,7 +270,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
 - Delete the stale remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods (push --delete is blocked from the sandbox; merged PR branches are auto-deleted).
 - Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
-- Ledger commits cfc0f5a8 and 98c0ec16 are authored `Claude <noreply@anthropic.com>` against the identity rule; the ledger branch is never force-pushed, so they stay.
+- Ledger commits cfc0f5a8, 98c0ec16 and f83357bf are authored `Claude <noreply@anthropic.com>` against the identity rule; the ledger branch is never force-pushed, so they stay.
 
 ## Run log
 
