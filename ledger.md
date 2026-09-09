@@ -2,7 +2,8 @@
 
 ## Resume point
 
-- Open PR #2092 on `dead-code/legacy-web-resources` (2 commits, head `a7e76d36e6`): maintain it first (section 4).
+- Open PR #2092 on `dead-code/legacy-web-resources` (3 commits, head `c672baedab`): maintain it first (section 4).
+- Two runs of this routine can overlap: fetch the branch and the ledger before every write and build on what is there.
 - Next: finish the `.xhtml` page and `.properties` key scans (started, no result recorded) and fold `.xhtml` hits into the
   JS commit with `--fixup`; then verify the PMD hits listed under Deferred findings (test fixtures) and drop the safe ones.
 - Do not repeat the veins in Exhausted veins; the PMD scan itself is done and its non-generated hits are all recorded here.
@@ -13,7 +14,7 @@
 |---|-------------|-------|--------|
 | 1 | Commented-out code | read + grep | done (#2088) |
 | 2 | Unused non-public fields | ASM field-access scan | done (#2088) |
-| 3 | Uncalled non-public methods | ASM invoke scan + word index | done (#2088) |
+| 3 | Uncalled non-public methods | ASM invoke scan + word index | #2088 done; second pass in PR #2092 |
 | 4 | Test workbooks no test loads | base-name grep | done (#2088) |
 | 5 | Unreferenced images | base-name grep, whole word | exhausted, zero yield |
 | 6 | Unreferenced CSS rules | selector token grep | in PR #2092 (`.clickable`); vendor and tooltip rules deferred |
@@ -27,9 +28,10 @@
 
 ## Open PR
 
-- #2092 `dead-code/legacy-web-resources`, head `a7e76d36e6`, base `main` @ `5698aad6b6`; CI running at end of run.
+- #2092 `dead-code/legacy-web-resources`, head `c672baedab`, merge base `5698aad6b6`; CI running at end of run.
 - `db993d6ffc` Remove table editor script members no page, renderer or script calls (type 7, 5 files, −56)
 - `a7e76d36e6` Drop the clickable CSS rules no page applies (type 6, 1 file, −10)
+- `c672baedab` Remove methods no caller reaches in internal engine packages (type 3, 3 files, −18; pushed by a parallel run)
 - No review threads yet; CodeRabbit was rate-limited on the first push.
 
 ## Merged PRs
@@ -136,4 +138,4 @@
 ## Run log
 
 - 2026-09-09 a: #2088 merged; ledger created.
-- 2026-09-09 b: PR #2092 opened (JS members, `.clickable`); images, TS exports, PMD scanned; `.xhtml`/`.properties` scan unfinished.
+- 2026-09-09 b: PR #2092 opened (JS members, `.clickable`; a parallel run added uncalled engine methods); images, TS exports, PMD scanned; `.xhtml`/`.properties` scan unfinished.
