@@ -2,11 +2,11 @@
 
 ## Resume point
 
-- Open PR #2092 on `dead-code/legacy-web-resources` (3 commits: JS members, CSS rules, uncalled Java methods); CI green, waiting on a reviewer; maintain it first.
-- Every change type has had a repo-wide pass; the swept head is `origin/main` 9243b096 (the only commit after 5698aad6 is additive Docs prose).
-- Next run: diff `origin/main` against 9243b096; no Java or resource change → no build, no scan; otherwise rerun PMD, the identifier index and the ASM scan on changed files only.
+- No open sweep PR: #2092 merged (main head 50d0a663). The next branch is cut from a freshly fetched `origin/main` when a finding survives proof.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` 50d0a663 (#2092 merge; nothing else landed after 5698aad6 but Docs prose).
+- Next run: diff `origin/main` against 50d0a663; no Java or resource change → no build, no scan; otherwise rerun PMD, the identifier index and the ASM scan on changed files only.
 - Untried vein for the next build-requiring run: add `<init>` invocations to the ASM scan (uncalled non-public constructor overloads; expect Spring `class=`/newInstance FPs).
-- Same-kind finds extend the matching commit in #2092 with `--fixup` + autosquash; a new kind is a new commit there.
+- Same-kind finds extend the matching commit of the open PR with `--fixup` + autosquash; a new kind is a new commit there.
 
 ## Change-type queue
 
@@ -19,22 +19,18 @@
 | 5 | Pom metadata: managed entries, exclusions, plugin config, properties | done 2026-09-07 (1915, 2058, 2060, 2063) |
 | 6 | Redundant constructs, dead suppressions, VCS/build settings | done 2026-09-07 (2063) |
 | 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-09 (1906, 1912, 2054, 2058, 2063); rescans 2026-09-09: 0 |
-| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | in review 2026-09-09 (#2092 `.clickable`); earlier 2004, 2054, 2056, 2062 |
-| 9 | Legacy JS functions and .xhtml pages | in review 2026-09-09 (#2092, 4 JS members); .xhtml all alive (1933, 2054) |
+| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-09 (2004, 2054, 2056, 2062, 2092) |
+| 9 | Legacy JS functions and .xhtml pages | done 2026-09-09 (1906, 1933, 2062, 2063, 2092); .xhtml all alive |
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-08 (1906, 1933, 2056, 2082) |
 | 11 | TypeScript exports, types, components, imports | done 2026-09-09 (1906, 1909, 2063, 2082); rescan 849 exports: 0 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 (1940, 2088) |
-| 13 | Package-private/protected members and unreferenced internal classes | in review 2026-09-09 (#2092, 4 methods); earlier 1913, 2058, 2088 |
+| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-09 (1913, 2058, 2088, 2092) |
 
 Public API is never in the queue: unused public members go to Deferred findings for a human decision.
 
 ## Open PR
 
-- #2092 `dead-code/legacy-web-resources`, head c672baed, merge-base 5698aad6; CI green on head c672baed (all jobs and the Sonar gate); waiting on a reviewer.
-- db993d6f Remove table editor script members no page, renderer or script calls (5 files: TableEditor.js saveChanges + GET_CELL_VALUE, BaseEditor.js getDisplayValue, popup.js duplicate hide key, regenerated bundles).
-- a7e76d36 Drop the clickable CSS rules no page applies (common.css `.clickable`, `.clickable:hover`).
-- c672baed Remove methods no caller reaches in internal engine packages (DPOA.makeEvaluator/3, ExpressionImpl static getExpression x2, DomainImplWithHoles.values).
-- No review threads; CodeRabbit never reviewed it (rate limit); `mergeable_state: blocked` = a required approving review is missing.
+- None.
 
 ## Merged PRs
 
@@ -52,6 +48,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - 2082 dead increments, MergeModal wire types, openl-yaml and security.standalone deps, 23 locale keys.
 - 2088 uncalled `.impl.` methods (word index + ASM), constrainer TestUtils, 2 protected fields, 18 test .xls; merged with Sonar gate red.
 - 2089 33 commented-out blocks via SonarCloud S125; CodeRabbit invented a behavior change on a comment-only diff.
+- 2092 4 tableeditor JS members + regenerated bundles, `.clickable` CSS, 4 uncalled engine methods; CodeRabbit never reviewed it (rate limit); GitHub deleted its branch on merge.
 
 ## Module coverage
 
@@ -267,12 +264,12 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - CI health: LockTest load tolerance; OracleRdbmsTest ORA-12516; itest.studio.repos createdAt tiebreaker; kafka-native:latest segfault; jacoco aggregate overlap.
 - OverviewPanel.tsx floating promise into a state setter (~lines 799/1231) is a real test defect at any speed.
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
-- Delete the merged remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods (push --delete is blocked from the sandbox).
+- Delete the stale remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods (push --delete is blocked from the sandbox; merged PR branches are auto-deleted).
 - Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
 - Ledger commit cfc0f5a8 is authored `Claude <noreply@anthropic.com>` against the identity rule; the ledger branch is never force-pushed, so it stays.
 
 ## Run log
 
-- 2026-09-09 b: PR #2092 opened (JS members, `.clickable`); images, TS exports, PMD scanned.
 - 2026-09-09 c: ledger rebuilt from 20 merged PRs and merged with b's; PMD, identifier index, resource and ASM scans → 4 uncalled methods added to #2092; duplicate #2093 closed.
 - 2026-09-09 d: #2092 unchanged (green, unreviewed); main +1 additive Docs commit, nothing to judge; Jekyll and non-webstudio static veins closed; no build (cold ~/.m2).
+- 2026-09-09 e: #2092 merged (9 files, -84); ledger collapsed, check-ins stopped; no new sweep.
