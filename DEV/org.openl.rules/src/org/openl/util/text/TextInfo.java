@@ -35,7 +35,6 @@ public class TextInfo {
             return idx;
         }
 
-        // return -idx + 1;
         // Zero based lineIdx == InsertionPoint - 1
         return -idx - 1 - 1; // TODO SAM: No test case yet.
     }

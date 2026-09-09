@@ -27,12 +27,9 @@ class TokenizerParserTest {
         var start = System.currentTimeMillis();
         var test = "a123344 b1233468474 c238746374";
         var n = 1000000;
-        // String delim = ". \n\r{}[]!@#$%^&*()-_+=,.<>/?;:'\"\\|";
         var src = new StringSourceCodeModule(test, null);
-        // TokenizerParser tp = new TokenizerParser(delim);
         for (var i = 0; i < n; ++i) {
             Tokenizer.tokenize(src, " \n\r");
-            // tp.parse(new StringSourceCodeModule(test, null));
         }
         var end = System.currentTimeMillis();
 
