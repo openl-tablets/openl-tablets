@@ -145,10 +145,6 @@ i18next.addResourceBundle('en', 'trace', {
         truncated: 'Showing the first {{count}} of {{total}} rows. Open in Excel to see the full table.',
     },
 
-    param: {
-        loadValue: 'Load value',
-    },
-
     loadingDetails: 'Loading details…',
     loadingTable: 'Loading table…',
 
@@ -156,20 +152,18 @@ i18next.addResourceBundle('en', 'trace', {
         notFound: 'Trace not found. Please execute a trace first.',
         missingParams: 'Missing projectId or tableId in URL.',
         tableFailed: 'Failed to load table view.',
-        parameterFailed: 'Failed to load parameter value.',
     },
 
     severity: {
         ERROR: 'Error',
     },
 
-    modal: {
-        title: 'Trace execution',
-        statuses: {
-            started: 'Executing trace…',
-        },
-        errors: {
-            startFailed: 'Failed to start trace',
-        },
+    launch: {
+        trace: 'Trace',
+        traceIntoFile: 'Trace into File',
+        advanced: 'Advanced tracer',
+        advancedHint: 'Trace in the advanced step debugger instead of the business view',
+        startFailed: 'Failed to start trace',
+        loadFailed: 'Failed to load the table to trace',
     },
 })

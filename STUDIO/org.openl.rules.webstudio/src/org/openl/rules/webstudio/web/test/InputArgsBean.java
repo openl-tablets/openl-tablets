@@ -479,37 +479,6 @@ public class InputArgsBean {
         return runtimeContext;
     }
 
-    /**
-     * Converts current parameters to JSON string for trace API.
-     * Format: {"params": {...}, "runtimeContext": {...}}
-     *
-     * @return JSON string with params and optional runtime context
-     */
-    public String getParamsAsJson() {
-        try {
-            ObjectMapper mapper = configureObjectMapper();
-
-            // Get params - this also populates runtimeContext as side effect
-            Object[] paramValues = getParams();
-
-            // getTestedMethod() is null when the table the URI pointed at is gone.
-            return inputParserService.formatInput(paramValues, runtimeContext, getTestedMethod(), mapper);
-        } catch (Message e) {
-            throw e;
-        } catch (IOException e) {
-            if (StringUtils.isNotBlank(e.getMessage())) {
-                throw new Message("Failed to serialize params to JSON. " + e.getMessage(), e);
-            }
-            throw new Message("Failed to serialize params to JSON.", e);
-        } catch (RuntimeException e) {
-            if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
-                throw new Message("Failed to serialize params to JSON.", e);
-            } else {
-                throw e;
-            }
-        }
-    }
-
     private Object tryParseParameter(String json, IOpenClass type, ObjectMapper mapper) throws IOException {
         try {
             return inputParserService.parseParameter(json, type, mapper);

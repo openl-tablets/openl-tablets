@@ -21,6 +21,11 @@ i18next.addResourceBundle('en', 'common', {
     table: {
         showing_rows: '{{from}}-{{to}} of {{total}}',
     },
+    value: {
+        load: 'Load value',
+        retry: 'Try again',
+        loadFailed: 'Failed to load the value',
+    },
     help: {
         openl_tablets_help_title: 'Welcome to OpenL Tablets Help Center',
         openl_tablets_help_description: 'Here you can find documentation, guides, and resources to help you use OpenL Tablets effectively.',

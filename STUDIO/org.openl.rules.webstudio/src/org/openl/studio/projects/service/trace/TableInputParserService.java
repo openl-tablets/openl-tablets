@@ -70,24 +70,4 @@ public interface TableInputParserService {
      */
     @Nullable
     Object parseParameter(String json, IOpenClass parameterType, ObjectMapper mapper) throws IOException;
-
-    /**
-     * Writes parameter values and a runtime context as the structured format {@link #parseInput} reads back.
-     *
-     * <p>Spreadsheet result values are written in the shape OpenL Rule Services publishes, which is the shape
-     * {@link #parseParameter} reads.
-     *
-     * @param params         parameter values in the order of the method signature; shorter arrays and
-     *                       {@code null} elements are written as JSON nulls
-     * @param runtimeContext runtime context to include, omitted when {@code null}
-     * @param method         the method the values belong to, or {@code null} when its table is gone; the values
-     *                       are then left out, as there are no names to write them under
-     * @param mapper         ObjectMapper configured for the project
-     * @return JSON of the named form {@code {"params": {...}, "runtimeContext": {...}}}
-     * @throws IOException if a value cannot be written
-     */
-    String formatInput(Object @Nullable [] params,
-                       @Nullable IRulesRuntimeContext runtimeContext,
-                       @Nullable IOpenMethod method,
-                       ObjectMapper mapper) throws IOException;
 }

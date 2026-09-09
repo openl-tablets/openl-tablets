@@ -111,7 +111,13 @@ globalThis.dispatchEvent(new CustomEvent('openDeleteFileModal', { detail: { proj
 - Mount the modal once in `DefaultLayout` alongside the existing ones.
 
 Worked examples: `DeleteFileModal` (`openDeleteFileModal`), `MergeModal` (`openMergeModal`), `DeployModal`
-(`openDeployModal`), `TraceExecutionModal`, `TableGraphModal`.
+(`openDeployModal`), `TableGraphModal`, `TraceLaunchHost` (`openTraceLaunch`).
+
+A dialog that replaces a legacy drop-down keeps its place under the button: the event carries the button's
+viewport rectangle (`event.currentTarget.getBoundingClientRect()`), and the React side hangs an Ant Design
+`Popover` on an invisible fixed anchor at that rectangle. The legacy page and the React app share one document,
+so no coordinate translation is needed; an outside click closes the popover as it closed the drop-down.
+Worked example: `TableInputPopover` used by `TraceLaunchHost`.
 
 ### Reusing a Projects tab dialog
 

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.studio.common.exception.BadRequestException;
@@ -69,32 +68,6 @@ public class TableInputParserServiceImpl implements TableInputParserService {
     @Nullable
     public Object parseParameter(String json, IOpenClass parameterType, ObjectMapper mapper) throws IOException {
         return parseParameter(mapper.readTree(json), parameterType, mapper, new BeanClassRegistry());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String formatInput(Object @Nullable [] params,
-                              @Nullable IRulesRuntimeContext runtimeContext,
-                              @Nullable IOpenMethod method,
-                              ObjectMapper mapper) throws IOException {
-        var paramsNode = mapper.createObjectNode();
-        if (method != null) {
-            var signature = method.getSignature();
-            for (var i = 0; i < signature.getNumberOfParameters(); i++) {
-                var value = params != null && i < params.length ? params[i] : null;
-                paramsNode.set(signature.getParameterName(i),
-                        formatParameter(value, signature.getParameterType(i), mapper));
-            }
-        }
-
-        var resultNode = mapper.createObjectNode();
-        resultNode.set(PARAMS_FIELD, paramsNode);
-        if (runtimeContext != null) {
-            resultNode.set(RUNTIME_CONTEXT_FIELD, mapper.valueToTree(runtimeContext));
-        }
-        return mapper.writeValueAsString(resultNode);
     }
 
     /**
@@ -255,35 +228,6 @@ public class TableInputParserServiceImpl implements TableInputParserService {
         return SpreadsheetResult.convertBeansToSpreadsheetResults(
                 mapper.treeToValue(node, spreadsheetResult.beanClass()),
                 beanClasses.of(spreadsheetResult.type().getModule()));
-    }
-
-    /**
-     * Writes one parameter value in the shape {@link #parseParameter} reads it back.
-     */
-    private JsonNode formatParameter(@Nullable Object value, IOpenClass parameterType, ObjectMapper mapper)
-            throws IOException {
-        if (value == null) {
-            return mapper.nullNode();
-        }
-        var spreadsheetResult = SpreadsheetResultBean.of(parameterType);
-        var targetClass = spreadsheetResult != null
-                ? spreadsheetResult.beanClass()
-                : parameterType.getInstanceClass();
-        var target = spreadsheetResult != null
-                ? SpreadsheetResult.convertSpreadsheetResult(value, targetClass, parameterType,
-                        namingStrategyOf(mapper))
-                : value;
-        // Write against the declared type so the mixins registered for it apply, then read the result back as a
-        // tree: a value written through writerFor cannot be turned into a node in one step.
-        return mapper.readTree(mapper.writerFor(targetClass).writeValueAsString(target));
-    }
-
-    @Nullable
-    private static SpreadsheetResultBeanPropertyNamingStrategy namingStrategyOf(ObjectMapper mapper) {
-        return mapper.getSerializationConfig()
-                .getPropertyNamingStrategy() instanceof SpreadsheetResultBeanPropertyNamingStrategy strategy
-                ? strategy
-                : null;
     }
 
     /**

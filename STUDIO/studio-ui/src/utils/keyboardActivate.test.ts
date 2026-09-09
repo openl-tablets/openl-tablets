@@ -1,9 +1,10 @@
 import type React from 'react'
-import { onActivate } from 'containers/TraceView/components/keyboardActivate'
+import { onActivate } from 'utils/keyboardActivate'
 
-const keyEvent = (key: string): React.KeyboardEvent => {
+const keyEvent = (key: string, repeat = false): React.KeyboardEvent => {
     const preventDefault = vi.fn()
-    return { key, preventDefault } as unknown as React.KeyboardEvent & { preventDefault: ReturnType<typeof vi.fn> }
+    return { key, repeat, preventDefault } as unknown as React.KeyboardEvent
+        & { preventDefault: ReturnType<typeof vi.fn> }
 }
 
 describe('onActivate', () => {
@@ -25,6 +26,17 @@ describe('onActivate', () => {
 
         expect(action).toHaveBeenCalledTimes(1)
         expect(event.preventDefault).toHaveBeenCalledTimes(1)
+    })
+
+    it('acts once on a held key, which repeats while it is down', () => {
+        const action = vi.fn()
+        const handler = onActivate(action)
+
+        handler(keyEvent('Enter'))
+        handler(keyEvent('Enter', true))
+        handler(keyEvent('Enter', true))
+
+        expect(action).toHaveBeenCalledTimes(1)
     })
 
     it('ignores other keys — no action, no preventDefault', () => {

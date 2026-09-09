@@ -56,8 +56,10 @@ import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.model.UserInfoModel;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
@@ -86,9 +88,11 @@ import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableIdView;
+import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableView;
+import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
@@ -103,6 +107,7 @@ import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.GraphLayer;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
@@ -129,6 +134,9 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class ProjectsController {
 
+    /** How many cases of a test table a page carries unless the client asks for another size. */
+    private static final int TEST_CASE_PAGE_SIZE = 25;
+
     private static final String TAGS_PREFIX = "tags.";
     private static final String PROPERTIES_PREFIX = "properties.";
     private static final String APPLICATION_XLSX_MEDIATYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -146,6 +154,7 @@ public class ProjectsController {
     private final ProjectMetadataService metadataService;
     private final ProjectMigrationService migrationService;
     private final ProjectRevisionService projectRevisionService;
+    private final TableInputService tableInputService;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -154,6 +163,12 @@ public class ProjectsController {
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
+        return null;
+    }
+
+    /** The generator for the input a table takes. It also records the defaults a datatype declares. */
+    @Lookup("inputSchemaGenerator")
+    protected SchemaGenerator getInputSchemaGenerator(ObjectMapper objectMapper) {
         return null;
     }
 
@@ -491,6 +506,52 @@ public class ProjectsController {
     public TablePropertiesView getTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
                                                   @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId) {
         return projectService.getTableProperties(project, tableId);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/input")
+    @Operation(summary = "projects.table.input.summary", description = "projects.table.input.desc")
+    public TableInputView getTableInput(@ProjectId @PathVariable("projectId") RulesProject project,
+                                        @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                        @RequestParam(value = "fromModule", required = false) @Parameter(description = "projects.table.input.param.from-module.desc") String fromModule) {
+        var moduleName = StringUtils.trimToNull(fromModule);
+        var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
+        var objectMapper = objectMapperService.createObjectMapper();
+        return tableInputService.describe(projectModel, requireTable(projectModel, tableId), moduleName != null,
+                objectMapper, getInputSchemaGenerator(objectMapper));
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/input/cases")
+    @Operation(summary = "projects.table.input-cases.summary", description = "projects.table.input-cases.desc")
+    public PageResponse<TestCaseView> getTableInputCases(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                         @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                                         @RequestParam(value = "fromModule", required = false) @Parameter(description = "projects.table.input.param.from-module.desc") String fromModule,
+                                                         @PaginationDefault(size = TEST_CASE_PAGE_SIZE) Pageable page) {
+        var moduleName = StringUtils.trimToNull(fromModule);
+        var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
+        var objectMapper = objectMapperService.createObjectMapper();
+        return tableInputService.listTestCases(projectModel, requireTable(projectModel, tableId), moduleName != null,
+                page, objectMapper, getInputSchemaGenerator(objectMapper));
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/input/cases/{caseId}")
+    @Operation(summary = "projects.table.input-case.summary", description = "projects.table.input-case.desc")
+    public TestCaseView getTableInputCase(@ProjectId @PathVariable("projectId") RulesProject project,
+                                          @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                          @PathVariable("caseId") @Parameter(description = "projects.table.input-case.param.case-id.desc") String caseId,
+                                          @RequestParam(value = "fromModule", required = false) @Parameter(description = "projects.table.input.param.from-module.desc") String fromModule) {
+        var moduleName = StringUtils.trimToNull(fromModule);
+        var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
+        var objectMapper = objectMapperService.createObjectMapper();
+        return tableInputService.describeTestCase(projectModel, requireTable(projectModel, tableId), moduleName != null,
+                caseId, objectMapper, getInputSchemaGenerator(objectMapper));
+    }
+
+    private static IOpenLTable requireTable(ProjectModel projectModel, String tableId) {
+        var table = projectModel.getTableById(tableId);
+        if (table == null) {
+            throw new NotFoundException("table.message");
+        }
+        return table;
     }
 
     @GetMapping("/{projectId}/tables/graph")
