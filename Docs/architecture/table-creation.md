@@ -136,7 +136,10 @@ leave free, and a version any of them carries is refused — by the dialog and b
 The copy is written on the server. The dialog sends the destination, the copy's name and its properties; the table
 itself never crosses the network. The server rebuilds it on the destination sheet the way the table editor writes a
 new table, so the copy keeps the source's cell styles, merged cells and comments, and — being a new table — is
-stamped with the author and date OpenL Studio records for a table it creates, while it is set to record them. Each
+stamped with the author and date OpenL Studio records for a table it creates, while it is set to record them. A copy
+into another module is written into another workbook, and a colour can be held as a number that only the workbook it
+was written in gives meaning to, through a palette of its own — so the copy is given the colours the source shows
+rather than the numbers standing for them, and its fill, borders and font look as they did. Each
 declared value is read back as the property it names, so a date is written into the workbook as a date and the
 dimension values are compared the way the engine dispatches on them.
 
