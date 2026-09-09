@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- Open PR #2092 on `dead-code/legacy-web-resources` (3 commits: JS members, CSS rules, uncalled Java methods); maintain it first.
-- #2093 was a duplicate PR from a concurrent run of this routine; its commit was folded into #2092 and it is closed. One run at a time.
-- Every change type has had a repo-wide pass on main 5698aad6; main moved past it (9243b096, Docs only) during the run.
-- Next run: diff `origin/main` against 5698aad6, rerun PMD, the identifier index and the ASM scan; judge only members in changed files.
+- Open PR #2092 on `dead-code/legacy-web-resources` (3 commits: JS members, CSS rules, uncalled Java methods); CI green, waiting on a reviewer; maintain it first.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` 9243b096 (the only commit after 5698aad6 is additive Docs prose).
+- Next run: diff `origin/main` against 9243b096; no Java or resource change → no build, no scan; otherwise rerun PMD, the identifier index and the ASM scan on changed files only.
+- Untried vein for the next build-requiring run: add `<init>` invocations to the ASM scan (uncalled non-public constructor overloads; expect Spring `class=`/newInstance FPs).
 - Same-kind finds extend the matching commit in #2092 with `--fixup` + autosquash; a new kind is a new commit there.
 
 ## Change-type queue
@@ -34,7 +34,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - db993d6f Remove table editor script members no page, renderer or script calls (5 files: TableEditor.js saveChanges + GET_CELL_VALUE, BaseEditor.js getDisplayValue, popup.js duplicate hide key, regenerated bundles).
 - a7e76d36 Drop the clickable CSS rules no page applies (common.css `.clickable`, `.clickable:hover`).
 - c672baed Remove methods no caller reaches in internal engine packages (DPOA.makeEvaluator/3, ExpressionImpl static getExpression x2, DomainImplWithHoles.values).
-- No review threads yet; CodeRabbit was rate-limited on the first push.
+- No review threads; CodeRabbit never reviewed it (rate limit); `mergeable_state: blocked` = a required approving review is missing.
 
 ## Merged PRs
 
@@ -191,6 +191,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - hashCode delegating to super beside an overridden equals keeps the Sonar pair contract; annotation-carrying overrides (@NotBlank, @JsonProperty) stay.
 - Members carrying instructions stay: `THIS CONSTRUCTOR MUST BE EMPTY!!!`, GenericComparator "use getInstance()" Javadoc.
 - Out of scope: openl-maven-plugin it/ fixtures, Docs/examples and Docs/production-deployment poms, archetype resources, test-resources gen/.
+- `test-resources/**` in every module (1014 non-workbook files outside ITEST): rail 5 names the pattern and the trees are folder-loaded fixtures; never judge single files. Workbooks under `test/` dirs are judged.
 - Icons by literal path (rules-tree, diff icons, site.webmanifest); ITEST 001-Get-Static-CSS asserts only status/content-type of common.css.
 - War reachability is WEB-INF/lib, not compile: repositories are instantiated reflectively by class name from production-repository.factory.
 - SLF4J bridge log4j-slf4j2-impl runtime scope pinned by Log4jRoutingTest; swagger-core-jakarta is the deliberate substitute (root excludes swagger-core).
@@ -252,7 +253,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Test workbooks outside ITEST/test-resources/it (254): only 3 folder-loaded ones unmentioned; non-workbook test/ files (3) live.
 - Commented-out code: Java main+test, CSS, JS done; XHTML/TS none. Dead suppressions: 137 undecidable (category unchecked).
 - .gitignore/.gitconfig/.gitattributes/.editorconfig, package.json fields, eslint/vite/vitest config imports: done.
-- DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search).
+- DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
+- Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
 
 ## Human follow-ups
 
@@ -266,10 +268,11 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - OverviewPanel.tsx floating promise into a state setter (~lines 799/1231) is a real test defect at any speed.
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
 - Delete the merged remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods (push --delete is blocked from the sandbox).
-- The routine fires twice a day from two triggers or sessions (runs "a"/"b" and this one overlapped); keep one schedule.
+- Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
+- Ledger commit cfc0f5a8 is authored `Claude <noreply@anthropic.com>` against the identity rule; the ledger branch is never force-pushed, so it stays.
 
 ## Run log
 
-- 2026-09-09 a: #2088 merged; ledger created.
 - 2026-09-09 b: PR #2092 opened (JS members, `.clickable`); images, TS exports, PMD scanned.
 - 2026-09-09 c: ledger rebuilt from 20 merged PRs and merged with b's; PMD, identifier index, resource and ASM scans → 4 uncalled methods added to #2092; duplicate #2093 closed.
+- 2026-09-09 d: #2092 unchanged (green, unreviewed); main +1 additive Docs commit, nothing to judge; Jekyll and non-webstudio static veins closed; no build (cold ~/.m2).
