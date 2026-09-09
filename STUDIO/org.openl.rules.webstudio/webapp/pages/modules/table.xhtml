@@ -68,7 +68,7 @@
             text-align: center;
         }
 
-        #testSelector, #inputArgsForm\:inputTestCasePanel {
+        #testSelector {
             min-height: 50px;
             max-height: clamp(50px, 100vh - 470px, 50vh);
         }
@@ -224,40 +224,9 @@
                            value="true" style="vertical-align:-2px;margin:-4px"/>
                 </div>
             </h:panelGroup>
-            <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
-                          styleClass="hidden b-run b-test">
-                <div title="Show only failed test cases">
-                    <span>Failures Only</span>
-                    <input name="failuresOnly" type="checkbox"
-                           onclick="$j('#caseFailuresSetting').toggle(this.checked)"
-                           value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
-                           style="vertical-align:-2px;margin:-4px" />
-                </div>
-                <div id="caseFailuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
-                    <span>Failures per test</span>
-                    <select id="failures" name="failures">
-                        <c:set var="values" value="#{fn:split('1;5;20;-1', ';')}"/>
-                        <ui:repeat value="#{values}" var="value" varStatus="i">
-                            <option value="#{value}" selected="#{studio.testsFailuresPerTest == value ? 'selected':''}" >#{value == -1 ? "All" : value}</option>
-                        </ui:repeat>
-                    </select>
-                </div>
-                <div title="Display all executed test cases results including the ones for the tested values">
-                    <span>Compound Result</span>
-                    <input name="complexResult" type="checkbox"
-                           value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
-                           style="vertical-align:-2px;margin:-4px" />
-                </div>
-            </h:panelGroup>
-            <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-run b-benchmark scrollable">
+            <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-benchmark scrollable">
                 <c:if test="#{fn:length(tableBean.tests) gt 20}"><!-- Use range only for the huge tests -->
                     <input type="checkbox" id="useTestRanges" checked="checked" style="display: none"/>
-                    <div class="b-run">
-                        <span>Run All</span>
-                        <input type="checkbox" id="runAllTests"
-                               onclick="toggleRunAllTests(this)"
-                               style="vertical-align:-2px;margin:-4px"/>
-                    </div>
                     <div id="testRangeSetting">
                         <span>Range of IDs</span>
                         <input type="text" id="testRanges" value="#{tableBean.tests[0].id}"/>
@@ -317,24 +286,6 @@
                 </c:if>
             </h:panelGroup>
             <div style="padding: 6px 5px">
-                <a4j:commandButton id="testButton" value="Test"
-                                   rendered="#{tableBean.canRun}"
-                                   title="Test" onclick="runTestCases();"
-                                   styleClass="hidden on-errors-hide b-test"/>
-                <a4j:commandButton id="runButton" value="Run"
-                                   rendered="#{tableBean.canRun}"
-                                   title="Run" onclick="return isAnyTestSelected();" oncomplete="runTestCases();"
-                                   styleClass="hidden on-errors-hide b-run"/>
-                <a4j:commandButton id="runToExcel"
-                                   rendered="#{tableBean.canRun}"
-                                   onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
-                                   value="Run into File" title="Run into File"
-                                   styleClass="hidden on-errors-hide b-run"/>
-                <a4j:commandButton id="testToExcel"
-                                   rendered="#{tableBean.canRun}"
-                                   onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
-                                   value="Test into File" title="Test into File"
-                                   styleClass="hidden on-errors-hide b-test"/>
                 <a4j:commandButton id="benchmarkButton" action="#{benchmarkBean.addLastBenchmark}"
                                    rendered="#{tableBean.canBenchmark}"
                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
@@ -404,21 +355,15 @@
                         <table>
                             <tr>
                                 <td>
-                                    <a4j:commandLink id="runLink" title="Run" styleClass="toolbarButton on-errors-hide menuButton"
-                                        rendered="#{tableBean.canRun}"
-                                        onclick="onRun(); return false;"
-                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        style="padding-right: 1px">
+                                    <a4j:commandLink id="runLink" title="Run"
+                                                     styleClass="toolbarButton on-errors-hide menuButton changes-listener"
+                                                     rendered="#{tableBean.canRun}"
+                                                     onclick="openTableLaunch('openRunLaunch', event); return false;">
                                         <table>
                                             <tr>
                                                 <td>
                                                     <img src="#{contextPath}/webresource/images/run.gif" />
                                                 </td>
-                                                <td rowspan="2" class="arrow"
-                                                    onclick="onTestMenuOpen(event, 'b-run');return false;"
-                                                    style="visibility: hidden;"/>
-
                                             </tr>
                                             <tr>
                                                 <td>
@@ -432,7 +377,7 @@
                                     <a4j:commandLink id="traceLink" title="Trace"
                                                      styleClass="toolbarButton on-errors-hide menuButton changes-listener"
                                                      rendered="#{tableBean.canRun}"
-                                                     onclick="openTraceLaunch(event); return false;">
+                                                     onclick="openTableLaunch('openTraceLaunch', event); return false;">
                                         <table>
                                             <tr>
                                                 <td>
@@ -482,121 +427,33 @@
 
                 <c:if test="#{tableBean.table.executable}">
                     <td>
-                        <h:form id="inputArgsForm" onsubmit="return checkInput()">
-                            <c:set var="runLink" value="#{studio.url('test/run')}?id=#{tableBean.id}" />
-                            <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
-                            <c:if test="#{inputArgsBean.methodHasParameters}">
-                                <c:if test="#{tableBean.canRun}">
-                                    <a class="toolbarButton on-errors-hide" title="Launch the table" href="javascript:void(0)"
-                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');">
-                                        <img src="#{contextPath}/webresource/images/run.gif" />
-                                        <div>Run</div>
-                                    </a>
-                                </c:if>
-                                <c:if test="#{tableBean.canRun}">
-                                    <a class="toolbarButton on-errors-hide" title="Launch the table and trace steps"
-                                       href="javascript:void(0)"
-                                       onclick="openTraceLaunch(event); return false;">
-                                        <img src="#{contextPath}/webresource/images/trace.gif"/>
-                                        <div>Trace</div>
-                                    </a>
-                                </c:if>
-                                <div id="inputArgsMenu" style="display: none" >
-                                    <h:panelGroup layout="block">
-                                        <div style="margin: 10px" title="Within Current Module Only">
-                                            <span style="margin-right: 10px">Within Current Module Only</span>
-                                            <input id="runTestModuleOnlyInputArgs" name="currentOpenedModule" type="checkbox"
-                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                        <div style="margin: 10px" title="Skip Empty Parameters">
-                                            <span style="margin-right: 10px">Skip Empty Parameters</span>
-                                            <input id="skipEmptyParametersInputArgs" name="skipEmptyParameters" type="checkbox"
-                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                        <div style="margin: 10px" title="Flat Parameter Layout">
-                                            <span style="margin-right: 10px">Flat Parameter Layout</span>
-                                            <input id="flattenParametersInputArgs" name="flattenParameters" type="checkbox"
-                                                   value="true" checked="checked" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                        <div style="margin: 10px" title="Result in JSON format">
-                                            <span style="margin-right: 10px">Result in JSON format</span>
-                                            <input id="resultInJSONFormat" name="resultInJSONFormat" type="checkbox"
-                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                    </h:panelGroup>
-                                    <h:panelGroup id="inputTestCasePanelWrapper">
-                                        <h:selectOneRadio id="inputTestCaseType"
-                                                          value="#{inputArgsBean.inputTestCaseType}">
-                                            <f:selectItem itemValue="BEAN" itemLabel="Tree Form"/>
-                                            <f:selectItem itemValue="TEXT" itemLabel="JSON"/>
-                                            <f:ajax listener="#{runTestHelper.fillBean}"
-                                                    execute=":inputArgsForm:inputTestCasePanelWrapper"
-                                                    onerror="onInputTestCaseTypeChange"
-                                                    render=":inputArgsForm:inputTestCasePanelWrapper" />
-                                        </h:selectOneRadio>
-                                        <h:panelGroup id="inputTestCasePanel" layout="block"
-                                                      styleClass="#{inputArgsBean.inputTestCaseType == 'TEXT'?'hidden':''} scrollable">
-                                            <ui:include src="/pages/modules/test/inputTestCase.xhtml"/>
-                                        </h:panelGroup>
-                                        <h:panelGroup id="inputTestCaseText" layout="block"
-                                                      styleClass="#{inputArgsBean.inputTestCaseType == 'BEAN'?'hidden':''}">
-                                            <h:inputTextarea id="jsonInput" value="#{inputArgsBean.inputTextBean}"
-                                                             placeholder="Input JSON here"
-                                                             style="height:300px; width:500px">
-                                            </h:inputTextarea>
-                                        </h:panelGroup>
-                                    </h:panelGroup>
-                                    <div style="padding: 8px 5px 6px">
-                                        <a4j:commandButton id="runButton"
-                                            action="#{runTestHelper.catchParams}" value="Run" title="Launch the table"
-                                            oncomplete="runManualTest();"/>
-                                        <a4j:commandButton id="runToFileButton"
-                                            value="Run into File" title="Run into File" onclick="moduleOnlyInputArgs()"
-                                            action="#{runTestHelper.catchParamsToDownload}"
-                                            oncomplete="downloadManualTest();"/>
-                                    </div>
-                                </div>
-                            </c:if>
-                            <c:if test="#{not inputArgsBean.methodHasParameters}">
-                                <a4j:commandLink styleClass="toolbarButton on-errors-hide" title="Run"
-                                    rendered="#{tableBean.canRun}"
-                                    oncomplete="ws.nav.go('#{runLink}')">
-                                    <img src="#{contextPath}/webresource/images/run.gif" />
-                                    <div>Run</div>
-                                    <a4j:param name="id" value="#{tableBean.id}"/>
-                                </a4j:commandLink>
-                                <c:if test="#{tableBean.canRun}">
-                                    <a href="javascript:void(0)"
-                                       class="toolbarButton on-errors-hide"
-                                       onclick="openTraceLaunch(event); return false;"
-                                       title="Trace">
-                                        <img src="#{contextPath}/webresource/images/trace.gif" />
-                                        <div>Trace</div>
-                                    </a>
-                                </c:if>
-                            </c:if>
-                            <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyInputArgs"/>
-                        </h:form>
+                        <c:if test="#{tableBean.canRun}">
+                            <a class="toolbarButton on-errors-hide" title="Launch the table" href="javascript:void(0)"
+                               onclick="openTableLaunch('openRunLaunch', event); return false;">
+                                <img src="#{contextPath}/webresource/images/run.gif" />
+                                <div>Run</div>
+                            </a>
+                            <a class="toolbarButton on-errors-hide" title="Launch the table and trace steps"
+                               href="javascript:void(0)"
+                               onclick="openTableLaunch('openTraceLaunch', event); return false;">
+                                <img src="#{contextPath}/webresource/images/trace.gif"/>
+                                <div>Trace</div>
+                            </a>
+                        </c:if>
                     </td>
                 </c:if>
 
                 <c:if test="#{tableBean.hasTests}">
                     <td>
-                        <c:set var="testLink" value="#{studio.url('test/test')}?id=#{tableBean.id}" />
-                        <h:outputLink value="#{testLink}" title="Run Tests" styleClass="toolbarButton on-errors-hide menuButton"
-                                      onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                      onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                      onclick="onRun(true); return false;"
-                                      rendered="#{tableBean.canRun}"  >
+                        <a4j:commandLink title="Run Tests"
+                                         styleClass="toolbarButton on-errors-hide menuButton changes-listener"
+                                         rendered="#{tableBean.canRun}"
+                                         onclick="openTableLaunch('openTestsLaunch', event); return false;">
                             <table>
                                 <tr>
                                     <td>
                                         <img src="#{contextPath}/webresource/images/test_ok.gif" />
                                     </td>
-                                    <td rowspan="2" class="arrow"
-                                        onclick="showUnitsMenu(event, 'b-test');return false;"
-                                        style="visibility: hidden;"/>
-
                                 </tr>
                                 <tr>
                                     <td>
@@ -604,7 +461,7 @@
                                     </td>
                                 </tr>
                             </table>
-                        </h:outputLink>
+                        </a4j:commandLink>
                     </td>
                 </c:if>
 
@@ -831,8 +688,7 @@
 
             let all = {}
 
-            all["b-run"] = new ItemStatusesHandler("b-run", true);
-            all["b-benchmark"] = all["b-run"]; // Using the same handler for benchmark.
+            all["b-benchmark"] = new ItemStatusesHandler("b-benchmark", true);
 
             return {
                 switchTo(key) {
@@ -850,13 +706,18 @@
         var tableRunState = null;
 
         /**
-         * Opens the React trace launcher under the clicked Trace button.
+         * Opens the React panel of an action under the button that was clicked.
          *
-         * The page only says which table and where the button is. The launcher reads the table's input itself.
+         * The page only says which table and where the button is. The panel asks for what the action needs
+         * and starts it itself.
+         *
+         * The page shares its document with the shell, so it names nothing the shell already names. A
+         * function of its own called openTestsLaunch would shadow the one behind the module toolbar, and
+         * that button would run the tests of the open table instead of all of them.
          */
-        function openTraceLaunch(event) {
+        function openTableLaunch(action, event) {
             var anchor = event.currentTarget.getBoundingClientRect();
-            window.dispatchEvent(new CustomEvent('openTraceLaunch', {
+            window.dispatchEvent(new CustomEvent(action, {
                 detail: {
                     projectId: globalThis.openl.encodeProjectId('#{utils.toJSText(studio.currentProject.repository.id)}', '#{utils.toJSText(studio.currentProject.name)}'),
                     tableId: '#{tableBean.id}',
@@ -894,36 +755,9 @@
             ws.ui.info(data.message);
         }
 
-        function onRun(skipSelectionCheck) {
-            itemStatuses.switchTo("b-run");
-            compiled(function (compiled) {
-                let proceed = () => {
-                    if (skipSelectionCheck || isAnyTestSelected()) {
-                        runTestCases(!compiled);
-                    }
-                };
-
-                if (!compiled) {
-                    ws.ui.confirm({
-                        title: 'Tests',
-                        message: 'Tests can be run within current module only because the project is not loaded yet.',
-                        onOK: proceed
-                    });
-                } else if ($j("#tableHasProblems") === 'true') {
-                    ws.ui.confirm({
-                        title: 'Tests',
-                        message: 'Tests can be run for the currently opened module only because other modules contain errors.',
-                        onOK: proceed
-                    });
-                } else {
-                    proceed();
-                }
-            });
-        }
-
         function onBenchmark() {
             itemStatuses.switchTo("b-benchmark");
-            compiled(function (compiled) {
+            whenCompiled(function (compiled) {
                 let proceed = () => {
                     if (isAnyTestSelected()) {
                         $j("#testModuleHiddenInput").val(!compiled).prop('disabled', false);
@@ -949,28 +783,7 @@
             });
         }
 
-        function moduleOnlyInputArgs() {
-            $j("#testModuleOnlyInputArgs")
-                .val($j("#inputArgsMenu").find('input[type=checkbox]')[0].checked)
-                .prop('disabled', false);
-        }
-
-        function checkInput() {
-            var textBean = $j('textarea:[id=inputArgsForm\\:jsonInput]')[0].value;
-            var beanSelected = $j('input:radio[name=inputArgsForm\\:inputTestCaseType]')[1].checked;
-            if (beanSelected && textBean != null && textBean.length > 0) {
-                try {
-                    JSON.parse(textBean);
-                } catch (e) {
-                    ws.ui.info(e.message);
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        function compiled(callback) {
+        function whenCompiled(callback) {
             var projectId = "#{studio.currentProjectId}";
             if (!projectId) {
                 callback(false);
@@ -1046,53 +859,10 @@
             return true;
         }
 
-        function onTestMenuOpen(event, block) {
-            itemStatuses.switchTo(block);
-            showButtonMenu(event, 'unitsMenu', 'a');
-            $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-benchmark').hide();
-            $j('#unitsMenu .' + block).show();
-            resetRunAllForNonRunMode(block);
-        }
-
         function showUnitsMenu(event, block) {
             itemStatuses.switchTo(block);
             showButtonMenu(event, 'unitsMenu', 'a');
-            $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
-            resetRunAllForNonRunMode(block);
-        }
-
-        function resetRunAllForNonRunMode(block) {
-            // The "Run All" checkbox applies only to the Run mode. When switching to another
-            // mode, uncheck it so the range input becomes editable again.
-            if (block !== 'b-run') {
-                var runAll = $j("#runAllTests");
-                if (runAll.is(":checked")) {
-                    runAll.prop("checked", false);
-                    toggleRunAllTests(runAll[0]);
-                }
-            }
-        }
-
-        function getTestQuery(currentOpenedModule) {
-            var query = "?id=#{tableBean.id}";
-            query += '&currentOpenedModule=' + (currentOpenedModule === true ? 'true' : $j("#runModuleOnlySetting").find('input[type=checkbox]')[0].checked);
-            if ($j("#unitsMenu").is(":hidden")) {
-                // No query for the hidden menu
-                return query;
-            }
-
-            query += '&' + $j("#runCasesSettings").find("select,input").serialize();
-            jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
-                query += '&' + this.name + '=false';
-            });
-
-            var ids = getTestRangesParam();
-            if (ids) {
-                // Query only selected IDs
-                query += '&testRanges=' + encodeURIComponent(ids);
-            }
-            return query;
         }
 
         function getTestRangesParam() {
@@ -1107,47 +877,6 @@
                         .join();
             }
             return ids;
-        }
-
-        function toggleRunAllTests(cb) {
-            var $range = $j("#testRanges");
-            if (cb.checked) {
-                $range.data("prevValue", $range.val());
-                var first = testIds[1];
-                var last = testIds[testIds.length - 1];
-                var fullRange = (testIds.length > 2) ? (first + " - " + last) : (first || "");
-                $range.val(fullRange).prop("readonly", true);
-            } else {
-                var prev = $range.data("prevValue");
-                $range.val(prev != null ? prev : "").prop("readonly", false);
-            }
-        }
-
-        function runTestCases(currentOpenedModule) {
-            var link="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}";
-            ws.nav.go(link + getTestQuery(currentOpenedModule));
-        }
-
-        function downloadTestCases(currentOpenedModule) {
-            var link="#{contextPath}/web/test/testcase";
-            ws.nav.download(link + getTestQuery(currentOpenedModule));
-        }
-
-        function downloadManualTest() {
-            var currentOpenedModule = $j("#inputArgsMenu").find('input[id=runTestModuleOnlyInputArgs]')[0].checked;
-            var includeEmptyParamters = $j("#inputArgsMenu").find('input[id=skipEmptyParametersInputArgs]')[0].checked;
-            var flattenParameters = $j("#inputArgsMenu").find('input[id=flattenParametersInputArgs]')[0].checked;
-            let resultInJSONFormat = $j("#inputArgsMenu").find('input[id=resultInJSONFormat]')[0].checked;
-            ws.nav.download("#{contextPath}/web/test/rule"
-                + (resultInJSONFormat ? "/json" : "")
-                + "?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule
-                + "&skipEmptyParameters=" + includeEmptyParamters
-                + "&flattenParameters=" + flattenParameters);
-        }
-
-        function runManualTest() {
-            var currentOpenedModule = $j("#inputArgsMenu").find('input[type=checkbox]')[0].checked;
-            ws.nav.go("#{studio.url('test/run')}?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule);
         }
 
         function editTable() {
@@ -1220,17 +949,6 @@
                 });
             });
         });
-
-        function onInputTestCaseTypeChange() {
-            var beanSelected = $j('input:radio[name=inputArgsForm\\:inputTestCaseType]')[0].checked;
-            if(beanSelected){
-                $j('input:radio[name=inputArgsForm\\:inputTestCaseType]').val(['TEXT']);
-            }else{
-                $j('input:radio[name=inputArgsForm\\:inputTestCaseType]').val(['BEAN']);
-            }
-        }
-
-        var $jq = jQuery.noConflict();
 
         $jq('#tableTestsPanel').bind('refresh', function () {
             $jq.ajax({

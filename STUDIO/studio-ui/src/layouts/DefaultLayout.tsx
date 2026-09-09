@@ -8,7 +8,7 @@ import { OpenProjectModal } from 'containers/projects/OpenProjectModal'
 import { DeleteFileModal } from 'containers/DeleteFileModal'
 import { DeleteProjectModal } from 'containers/DeleteProjectModal'
 import { ConfirmModal } from 'containers/ConfirmModal'
-import { TraceLaunchHost } from 'containers/TableInput'
+import { RunLaunchHost, TestsLaunchHost, TraceLaunchHost } from 'containers/TableInput'
 import { TableGraphModal } from 'containers/TableGraphModal'
 import { UpdateModuleModal } from 'containers/UpdateModuleModal'
 import { UpdateProjectModal } from 'containers/UpdateProjectModal'
@@ -70,6 +70,8 @@ export const DefaultLayout = () => {
             <DeleteFileModal />
             <DeleteProjectModal />
             <TraceLaunchHost />
+            <RunLaunchHost />
+            <TestsLaunchHost />
             <TableGraphModal />
             <CreateTableModal />
             <CopyTableModal />

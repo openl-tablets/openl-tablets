@@ -52,6 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Pageable;
@@ -94,6 +95,7 @@ import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
+import org.openl.studio.projects.model.tests.TestUnitExecutionResult;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
@@ -728,28 +730,24 @@ public class ProjectsController {
                                              @Parameter(description = "projects.tests.summary.param.failures.desc")
                                              @Min(1)
                                              int failures,
+                                             @RequestParam(value = "compoundResult", defaultValue = "false")
+                                             @Parameter(description = "projects.tests.summary.param.compound-result.desc")
+                                             boolean compoundResult,
+                                             @RequestParam(value = "lazyValues", defaultValue = "false")
+                                             @Parameter(description = "projects.tests.summary.param.lazy-values.desc")
+                                             boolean lazyValues,
                                              @PaginationDefault Pageable page,
                                              @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
                                              @RequestHeader(name = HttpHeaders.ACCEPT)
                                              String acceptMediaType) throws IOException {
-        var projectId = projectIdentifierMapper.map(project);
-        if (!executionTestsResultRegistry.hasTask(projectId)) {
-            throw new NotFoundException("tests.execution.task.message");
-        }
-        if (!executionTestsResultRegistry.isDone(projectId)) {
-            throw new ConflictException("tests.execution.not.completed.message");
-        }
-        var executionResults = executionTestsResultRegistry.getResultIfDone(projectId);
-        if (executionResults == null) {
-            throw new NotFoundException("tests.execution.task.message");
-        }
+        var executionResults = completedTests(project);
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
             var objectMapper = objectMapperService.createObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
                     projectService.getSpreadsheetResultNamingStrategy());
-            var query = new TestExecutionSummaryQuery(failuresOnly, failures);
+            var query = new TestExecutionSummaryQuery(failuresOnly, failures, compoundResult, lazyValues);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             var output = new ByteArrayOutputStream();
@@ -761,6 +759,53 @@ public class ProjectsController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
+    }
+
+    @Operation(summary = "projects.tests.case.summary", description = "projects.tests.case.desc")
+    @ApiResponse(responseCode = "200", description = "projects.tests.case.200.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TestUnitExecutionResult.class)))
+    @ApiResponse(responseCode = "404", description = "projects.tests.case.404.desc")
+    @ApiResponse(responseCode = "409", description = "projects.tests.summary.409.desc")
+    @GetMapping("/{projectId}/tests/summary/{tableId}/cases/{caseId}")
+    public TestUnitExecutionResult getTestCaseResult(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("tableId") @Parameter(description = "projects.tests.case.param.table-id.desc") String tableId,
+            @PathVariable("caseId") @Parameter(description = "projects.tests.case.param.case-id.desc") String caseId) {
+
+        var testCase = completedTests(project).stream()
+                .filter(candidate -> tableId.equals(TableUtils.makeTableId(candidate.getTestSuite().getUri())))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
+        var testUnit = testCase.getTestUnits().stream()
+                .filter(candidate -> caseId.equals(candidate.getTest().getId()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
+
+        var objectMapper = objectMapperService.createObjectMapper();
+        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, getSchemaGenerator(objectMapper),
+                projectService.getSpreadsheetResultNamingStrategy());
+        return mapper.mapToTestUnitResult(testCase, testUnit, TestExecutionSummaryQuery.inFull());
+    }
+
+    /**
+     * The results of the test run that has ended, for the project of the request.
+     *
+     * @throws NotFoundException when no test run is remembered for the project
+     * @throws ConflictException when the tests are still running
+     */
+    private List<TestUnitsResults> completedTests(RulesProject project) {
+        var projectId = projectIdentifierMapper.map(project);
+        if (!executionTestsResultRegistry.hasTask(projectId)) {
+            throw new NotFoundException("tests.execution.task.message");
+        }
+        if (!executionTestsResultRegistry.isDone(projectId)) {
+            throw new ConflictException("tests.execution.not.completed.message");
+        }
+        var executionResults = executionTestsResultRegistry.getResultIfDone(projectId);
+        if (executionResults == null) {
+            throw new NotFoundException("tests.execution.task.message");
+        }
+        return executionResults;
     }
 
     /**

@@ -22,9 +22,11 @@ const renderSelector = (over: Partial<TestCaseSelectorProps> = {}) => render(
         onPageChange={vi.fn()}
         page={1}
         pageSize={25}
+        selection="single"
+        tableId="t1"
         testCases={testCases}
         total={2}
-        value="1"
+        value={['1']}
         {...over}
     />
 )
@@ -54,21 +56,34 @@ describe('TestCaseSelector', () => {
         renderSelector({ onChange })
 
         await userEvent.click(screen.getByTestId('pick-case-2'))
-        expect(onChange).toHaveBeenLastCalledWith('2')
+        expect(onChange).toHaveBeenLastCalledWith(['2'])
 
         await userEvent.click(screen.getByText('Young'))
-        expect(onChange).toHaveBeenLastCalledWith('1')
+        expect(onChange).toHaveBeenLastCalledWith(['1'])
+    })
+
+    it('picks every case of the page at once, and clears them the same way', async () => {
+        const onChange = vi.fn()
+        const { unmount } = renderSelector({ onChange, selection: 'multiple', value: []})
+
+        await userEvent.click(screen.getByTestId('pick-all-cases'))
+        expect(onChange).toHaveBeenLastCalledWith(['1', '2'])
+        unmount()
+
+        renderSelector({ onChange, selection: 'multiple', value: ['1', '2']})
+        await userEvent.click(screen.getByTestId('pick-all-cases'))
+        expect(onChange).toHaveBeenLastCalledWith([])
     })
 
     it('does not pick a case when a value of it is read or opened', async () => {
         const onChange = vi.fn()
         loadCase.mockResolvedValue({ id: '1', parameters: [{ name: 'car', description: 'Car', lazy: false, value: { vin: 'X' } }]})
         // The second case is the one picked, so a leaked click would show as a pick of the first.
-        renderSelector({ onChange, value: '2' })
+        renderSelector({ onChange, value: ['2']})
 
         await userEvent.click(screen.getByTestId('load-case-1-1'))
 
-        await waitFor(() => expect(loadCase).toHaveBeenCalledWith('1'))
+        await waitFor(() => expect(loadCase).toHaveBeenCalledWith('t1', '1'))
         expect(onChange).not.toHaveBeenCalled()
     })
 
@@ -89,7 +104,7 @@ describe('TestCaseSelector', () => {
 
         await userEvent.click(screen.getByTestId('load-case-1-1'))
 
-        expect(loadCase).toHaveBeenCalledWith('1')
+        expect(loadCase).toHaveBeenCalledWith('t1', '1')
         await waitFor(() => expect(screen.getByText('{1 fields}')).toBeInTheDocument())
         // The other value of the same case waits until it is asked for.
         expect(screen.getByTestId('load-case-1-0')).toBeInTheDocument()

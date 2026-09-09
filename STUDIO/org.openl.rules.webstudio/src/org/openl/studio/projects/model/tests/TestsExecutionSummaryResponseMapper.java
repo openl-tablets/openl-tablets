@@ -25,6 +25,9 @@ public class TestsExecutionSummaryResponseMapper {
 
     private static final double NANOS_IN_MILLISECOND = 1_000_000.0;
 
+    /** The name the whole returned value of a case is written under. */
+    private static final String RESULT_NAME = "result";
+
     private static final Comparator<TestUnitsResults> TEST_COMPARATOR = Comparator
             .nullsLast(Comparator.comparingInt(TestUnitsResults::getNumberOfFailures).reversed()
                     .thenComparing(TestUnitsResults::getName));
@@ -40,7 +43,7 @@ public class TestsExecutionSummaryResponseMapper {
     }
 
     public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {
-        var builder = TestsExecutionSummary.builder().page(page);
+        var builder = TestsExecutionSummary.builder().page(page).total(testUnitsResults.size());
         calculateSummaryStats(testUnitsResults, builder);
         testUnitsResults.stream()
                 .sorted(TEST_COMPARATOR)
@@ -72,20 +75,32 @@ public class TestsExecutionSummaryResponseMapper {
                 .description(testCase.getTestSuite().getTestSuiteMethod().getSyntaxNode().getTableProperties().getDescription())
                 .executionTimeMs(testCase.getExecutionTime() / NANOS_IN_MILLISECOND)
                 .numberOfTests(testCase.getNumberOfTestUnits())
-                .numberOfFailures(testCase.getNumberOfFailures());
+                .numberOfFailures(testCase.getNumberOfFailures())
+                // A Run table states no expected values, so its cases neither pass nor fail.
+                .runTable(testCase.getTestSuite().getTestSuiteMethod().isRunMethod() ? Boolean.TRUE : null);
 
         testCase.getFilteredTestUnits(query.failedOnly(), query.failures()).stream()
-                .map(tetUnit -> mapToTestUnitResult(testCase, tetUnit))
+                .map(tetUnit -> mapToTestUnitResult(testCase, tetUnit, query))
                 .forEach(builder::testUnit);
         return builder.build();
     }
 
-    private TestUnitExecutionResult mapToTestUnitResult(TestUnitsResults testCase, ITestUnit testUnit) {
+    /**
+     * Writes one case of a test table: what it was given, what came out and how the two compare.
+     *
+     * @param testCase the results of the test table the case belongs to
+     * @param testUnit the case
+     * @param query    what the summary is asked for
+     */
+    public TestUnitExecutionResult mapToTestUnitResult(TestUnitsResults testCase,
+                                                       ITestUnit testUnit,
+                                                       TestExecutionSummaryQuery query) {
         var builder = TestUnitExecutionResult.builder()
                 .id(testUnit.getTest().getId())
                 .description(testUnit.getTest().getDescription())
                 .status(testUnit.getResultStatus())
-                .executionTimeMs(testUnit.getExecutionTime() / 1_000_000.0);
+                .executionTimeMs(testUnit.getExecutionTime() / 1_000_000.0)
+                .result(query.compoundResult() ? wholeResult(testUnit, query) : null);
 
         // Map test assertions. Skip them for TR_EXCEPTION (unexpected exception thrown by the test)
         // to mirror the legacy RichFaces UI (test.xhtml renders only #{testCase.errors} when
@@ -108,7 +123,9 @@ public class TestsExecutionSummaryResponseMapper {
         var executionParams = testUnit.getTest().getExecutionParams();
         var executionParamNames = testCase.getTestDataColumnDisplayNames();
         IntStream.range(0, executionParams.length)
-                .mapToObj(i -> valueMapper.writeParameter(executionParams[i], executionParamNames[i]))
+                .mapToObj(i -> query.lazyValues()
+                        ? valueMapper.writeParameterLazily(executionParams[i], executionParamNames[i])
+                        : valueMapper.writeParameter(executionParams[i], executionParamNames[i]))
                 .forEach(builder::parameter);
 
         // Map context parameters
@@ -139,6 +156,35 @@ public class TestsExecutionSummaryResponseMapper {
      */
     private JsonNode writeAssertionValue(@Nullable Object value) {
         return objectMapper.valueToTree(valueMapper.convert(value));
+    }
+
+    /**
+     * The whole value the tested rule returned, for a summary asked with {@code compoundResult}.
+     *
+     * <p>A test that ended in an exception returns the exception itself, which the errors of the unit report
+     * instead.
+     *
+     * <p>A summary asked for lazy values refers to a value with inner structure instead of writing it, and
+     * carries no schema: the screen that asks for them only reads the values.
+     */
+    private @Nullable ParameterValue wholeResult(ITestUnit testUnit, TestExecutionSummaryQuery query) {
+        var actualResult = testUnit.getActualResult();
+        if (actualResult instanceof Throwable) {
+            return null;
+        }
+        if (query.lazyValues()) {
+            // A returned value with inner structure is the largest thing a case carries; it waits to be asked for.
+            return valueMapper.writeParameterLazily(testUnit.getActualParam(), null)
+                    .toBuilder()
+                    .name(RESULT_NAME)
+                    .build();
+        }
+        var converted = valueMapper.convert(actualResult);
+        return ParameterValue.builder()
+                .name(RESULT_NAME)
+                .value(valueMapper.writeConverted(converted))
+                .schema(valueMapper.schemaOf(converted))
+                .build();
     }
 
     private TestAssertionExecutionResult mapToTestAssertionResult(ComparedResult assertion, String description) {

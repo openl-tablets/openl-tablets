@@ -111,13 +111,52 @@ globalThis.dispatchEvent(new CustomEvent('openDeleteFileModal', { detail: { proj
 - Mount the modal once in `DefaultLayout` alongside the existing ones.
 
 Worked examples: `DeleteFileModal` (`openDeleteFileModal`), `MergeModal` (`openMergeModal`), `DeployModal`
-(`openDeployModal`), `TableGraphModal`, `TraceLaunchHost` (`openTraceLaunch`).
+(`openDeployModal`), `TableGraphModal`, `TraceLaunchHost` (`openTraceLaunch`), `RunLaunchHost`
+(`openRunLaunch`), `TestsLaunchHost` (`openTestsLaunch`).
 
 A dialog that replaces a legacy drop-down keeps its place under the button: the event carries the button's
 viewport rectangle (`event.currentTarget.getBoundingClientRect()`), and the React side hangs an Ant Design
 `Popover` on an invisible fixed anchor at that rectangle. The legacy page and the React app share one document,
 so no coordinate translation is needed; an outside click closes the popover as it closed the drop-down.
 Worked example: `TableInputPopover` used by `TraceLaunchHost`.
+
+Every action of the table toolbar asks for the same things, so one panel serves them all:
+`TableInputLauncher` reads what the table takes, shows the parameter form of a rule table or the cases of a
+test table, offers "Within Current Module Only", and hands what it collected to the buttons the action
+supplies. Trace, Run and Test differ only in those buttons and in the options next to the checkbox, which the
+panel renders through the same render props so an action offers only what applies to the table it is on.
+
+### Showing what an action produced
+
+A result belongs to the editor, so it is shown in a modal over the table rather than in a window of its own:
+the host that started the action swaps its panel for the result modal (`RunResultModal`, `TestsResultModal`)
+and closes both together. Closing the modal returns to the table with the action still in view, which the
+legacy pages could not do - they replaced it.
+
+A trace is the exception: it is a session the user works in, not a result to read, so it keeps a window of its
+own on a route outside the main layout (`/trace/:projectId`).
+
+The result modal opens while the action is still on its way and waits on the topic the action reports its status
+on. It reads the result once as soon as it is subscribed, which covers an action that ended before the window
+was there to hear about it, and again when the status says the action has ended. The status is reported from
+inside the run, so a read right after it can still answer "not ended yet" (`409`); the read is repeated for a
+few seconds to let the result appear, and a run that is genuinely still going on simply waits for the next
+status. Nothing polls.
+
+A screen that only reads values asks for them lazily. The test results are read with `lazyValues=true`: an input
+with inner structure and the whole returned value arrive as references, and no schema is written at all. The
+screen reads such a value from `GET /projects/{id}/tests/summary/{tableId}/cases/{caseId}`, which answers with
+one case of the run in full, when the user asks for it. On a project of fourteen test tables that is 62% less
+over the wire. The option is off by default, so a client that wants everything at once keeps getting it.
+
+A second view of the same value is asked for the same way. A run reports what the table returned as the value
+OpenL Rule Services publishes, and `GET /projects/{id}/run/result?spreadsheet=true` adds `resultSpreadsheet`,
+the same value laid out by the rows and the columns of the spreadsheet it was calculated by. The run window
+asks for it to show the result as the table its author wrote; the layout repeats the values, about a fifth of
+the response, so a caller that does not show a table is not sent it. The value itself and the schema that
+describes it never change shape - a field whose meaning turns on a query parameter would leave its schema
+describing something else, and the "Result in JSON Format" download would quietly stop being the JSON a
+deployed service answers with.
 
 ### Reusing a Projects tab dialog
 
