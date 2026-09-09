@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- Open PR #2095 on `dead-code/stale-message-keys` (1 commit, head `f844ee280e`, cut from main 50d0a663): maintain it first; a new finding goes there.
-- Every change type has had a repo-wide pass; the swept head is `origin/main` 50d0a663 (#2092 merge; nothing else landed after 5698aad6 but Docs prose).
-- Next run: diff `origin/main` against 50d0a663; no Java or resource change → no build, no scan; otherwise rerun PMD, the identifier index and the ASM scan on changed files only.
-- Untried vein for the next build-requiring run: add `<init>` invocations to the ASM scan (uncalled non-public constructor overloads; expect Spring `class=`/newInstance FPs).
+- Open PR #2096 on `dead-code/dead-internal-nested-classes` (1 commit, head `3a5520e1`, cut from main ef74952e): maintain it first; a new finding goes there.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` ef74952e (#2095 merge; nothing but this routine's own deletions landed after 5698aad6).
+- Next run: diff `origin/main` against ef74952e; no Java or resource change → no build, no scan; otherwise rerun PMD, the identifier index and the ASM scans on changed files only.
+- No untried detector is left. A build-requiring run only re-covers changed code; spend the run on PR maintenance and compaction instead.
 - Same-kind finds extend the matching commit of the open PR with `--fixup` + autosquash; a new kind is a new commit there.
 
 ## Change-type queue
@@ -21,35 +21,33 @@
 | 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-09 (1906, 1912, 2054, 2058, 2063); rescans 2026-09-09: 0 |
 | 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-09 (2004, 2054, 2056, 2062, 2092) |
 | 9 | Legacy JS functions and .xhtml pages | done 2026-09-09 (1906, 1933, 2062, 2063, 2092); .xhtml all alive |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-08 (1906, 1933, 2056, 2082); webstudio bundles rechecked 2026-09-09: 1 key in PR 2095 |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-09 (1906, 1933, 2056, 2082, 2095) |
 | 11 | TypeScript exports, types, components, imports | done 2026-09-09 (1906, 1909, 2063, 2082); rescan 849 exports: 0 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 (1940, 2088) |
-| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-09 (1913, 2058, 2088, 2092) |
+| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-09 (1913, 2058, 2088, 2092); ctor pass 2026-09-09: 1 pair in PR 2096 |
 
 Public API is never in the queue: unused public members go to Deferred findings for a human decision.
 
 ## Open PR
 
-- #2095 `dead-code/stale-message-keys`, head `f844ee280e`, base `main` @ 50d0a663; CI running at end of run; no review threads.
-- `f844ee280e` Drop the protected-branch merge message no endpoint raises any more (type 10, 1 file, −1).
+- #2096 `dead-code/dead-internal-nested-classes`, head `3a5520e1`, base `main` @ ef74952e; CI running at end of run; no review threads.
+- `3a5520e1` Remove the AOpenIterator wrappers nothing instantiates (type 13, 1 file, −29).
 
 ## Merged PRs
 
 - 1906 dead resources, unmounted studio-ui components; review: packaged js/** is HTTP-reachable, criterion is in-repo reference.
 - 1909 studio-ui trace styles (one createStyles key). 1912 orphan Docs images (43). 2004/2054/2056 legacy CSS and i18n keys.
 - 1911 WSFrontend/repository.git/tableeditor/DEV members; review: keep CacheAndWriteOutputStream fork, Javadoc why it differs.
-- 1911 review: maintainer says the AGENTS.md Jira-prefix exemption does not cover production deletions; merged unprefixed anyway.
 - 1913 private members/params, dead stores, ModelExport; review: removing a param can make a caller's param dead — rerun PMD after.
 - 1915 unused deps, OpenL2TextUtils (public, EPBDS-16309); review: public-API removal needs Jira confirmation.
 - 1918 dep declarations + never-read writes; review: used-undeclared deps are additions → separate hygiene PR, not this sweep.
 - 1933 57 i18n keys, PopupMenu.showChild, regenerated tableeditor bundles. 1940 initializers, locals, JavaType fixture.
-- 2055 closed unmerged and 2093 closed unmerged: duplicates from concurrent runs — check open `dead-code/*` PRs again right before pushing.
 - 2058 dead component-scan package, TablePropertyValues servlet, TLD, CXF map, jsp-api, Azure exclusions.
 - 2060 managed webstudio jar entries. 2062 commented-out code (55 Java files, JS, CSS). 2063 redundant constructs, suppressions, settings.
 - 2082 dead increments, MergeModal wire types, openl-yaml and security.standalone deps, 23 locale keys.
 - 2088 uncalled `.impl.` methods (word index + ASM), constrainer TestUtils, 2 protected fields, 18 test .xls; merged with Sonar gate red.
-- 2089 33 commented-out blocks via SonarCloud S125; CodeRabbit invented a behavior change on a comment-only diff.
-- 2092 4 tableeditor JS members + regenerated bundles, `.clickable` CSS, 4 uncalled engine methods; CodeRabbit never reviewed it (rate limit); GitHub deleted its branch on merge.
+- 2089 33 commented-out blocks via SonarCloud S125. 2092 4 tableeditor JS members + bundles, `.clickable` CSS, 4 uncalled engine methods. 2095 one ValidationMessages key.
+- GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour and silently skips the rest.
 
 ## Module coverage
 
@@ -67,6 +65,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - XlsProjectionType GRID..CELL_FONT (9 constants, `// TODO do we need the rest?`): public enum, no values()/valueOf use.
 - IConditionEvaluator.DECORATOR_CONDITION_PRIORITY, IColorFilter.COLOR_NAMES/COLORS: unread public interface constants.
 - IBoundModuleNode, RuleServicePublisherMapper: unreferenced public types.
+- ChoicePointLabel: public in DEV constrainer, its only ctor package-private and uninvoked, so the Constrainer/Failure/GoalOr/GoalStack members typed on it always hold null; removal edits public signatures.
 - Protected abstract without caller: ADtColumnsDefinitionTableBoundNode.isReturns (3 overrides), AbstractOpenlTableExporter.getExcelSheetName (4).
 - TableBuilder.getGridModel: protected in a public non-final DEV class = extension surface.
 - Pure super-forwarding publics: DependencyOpenClass.getTypes/findType, CastingCustomSpreadsheetResultField.getDeclaringClass, SidExistsValidator.isValid.
@@ -109,6 +108,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - ASM sees no @MethodSource/@ValueSource providers (annotation values are not ldc strings): filter annotated declarations.
 - ASM override check: a supertype outside the scanned classes (third-party) must count as a possible override; JDK supertypes can be checked by reflection.
 - Jackson MixIn methods (GroovyObject.getMetaClass), empty SubtypeMixin marker, @Bean, @ExceptionHandler, argument-resolver overrides.
+- Uninvoked ctor FPs: Jackson-bound records (readValue/TypeReference/getForObject/awaitMatching), JAXB XmlAdapter, Jackson MixIn, @Component/@Conditional, ctor params carrying @Autowired/@Value, OpenL String-constructor datatypes, JUnit classes.
+- A private or protected no-arg ctor is the anti-instantiation idiom, never a finding; an implicit default ctor has no source line to delete; a record's canonical ctor cannot be removed.
 - Reflection fixtures: YamlMapperFactoryTest MyBean, FormatterTest, ModuleTest, RulesUtilsTest, JavaOpenClassTest beans, JsonUtilsTest.BindingClasses.
 - Test types alive without reference: @Test classes, abstract-base inheritors, TestRunner* Spring configs, WizardUtilsTest dir-scan beans, JMH.
 - Test fixtures with deliberately private members: epbds6830 BeanA.getAB, AOpenClassTest.C.getC, JavaOpenClassTest.BeanA.gg (asserted by name).
@@ -145,6 +146,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Track enclosing types for effective visibility: a public member of a private or package-private type is internal.
 - ASM scan of target/classes + target/test-classes (all reactor modules, ITEST, maven-plugin): invokes, method handles, lambda bootstrap args, field get/put.
 - ASM filters: drop @Override, any annotation, name in non-Java text or Java string literal, record accessors; skip compile-time-constant fields.
+- Ctor reachability: one ASM pass recording every INVOKESPECIAL, method handle and invokedynamic bootstrap argument naming a constructor, matched on owner+descriptor; intersect owners with target/classes to drop JUnit classes.
 - ASM scanner source lives in no repository: rebuild it (~130 lines on org.ow2.asm from ~/.m2) each run; 5155 classes scan in under a minute.
 - Run PMD standalone (pmd-dist from GitHub releases, not Maven Central; maven-pmd-plugin skips the non-standard `test` roots); absolute paths in `--file-list`; drop hits under target/; rerun on the post-change tree.
 - javac lint (Error Prone): UnusedMethod, UnusedVariable, EffectivelyPrivate, UnusedNestedClass; ignore [NullAway].
@@ -244,6 +246,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Java PMD (UnusedAssignment, UnusedLocalVariable, UnusedPrivateField, UnusedPrivateMethod, UnusedFormalParameter) over all 4045 files: 46 hits, all FPs or deferred.
 - Java identifier index: non-public methods with global count 1 in main sources = 2 (JAXB hook, @Bean); count-1 fields = 36, all Lombok accessors.
 - ASM scan on main 5698aad6 (5155 classes): 32 hits; 4 removed in #2092, 28 catalogued FPs or deferred; nothing else non-public is unreferenced.
+- ASM ctor scan on main ef74952e: 9 of 830 non-public parameterized ctors and 901 no-arg ones uninvoked; only the pair in #2096 is dead, and 11 production no-arg hits are all reflective or implicit.
 - Java: protected members of final classes, public members of .internal. packages: none; pkg-private top-level (246) and nested (318) publics all called.
 - Java: enum constants all alive except XlsProjectionType (deferred); classes with no bytecode reference (22) all reflection fixtures/inheritors/@Delegate excludes.
 - Java: JavaDoc tags, @SuppressWarnings keys, bare super(), empty default constructors, UnnecessaryBooleanAssertion: done; UnnecessaryFullyQualifiedName/UselessParentheses are rewrites, not deletions.
@@ -271,6 +274,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-09 d: #2092 unchanged (green, unreviewed); main +1 additive Docs commit, nothing to judge; Jekyll and non-webstudio static veins closed; no build (cold ~/.m2).
 - 2026-09-09 e: #2092 merged (9 files, -84); ledger collapsed, check-ins stopped; no new sweep.
 - 2026-09-09 f: webstudio bundle and .xhtml recheck finished → PR #2095 (1 dead ValidationMessages key); whole-reactor build green.
+- 2026-09-09 g: #2095 merged clean; ctor-reachability scan run → PR #2096 (AOpenIterator wrappers); two whole-reactor builds green; last detector closed.
