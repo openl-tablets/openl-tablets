@@ -50,12 +50,6 @@ public class BindingContext implements IBindingContext {
 
     private boolean executionMode;
 
-    /*
-     * // NOTE: A temporary implementation of multi-module feature.
-     *
-     * private Set<IOpenClass> imports = new LinkedHashSet<IOpenClass>();
-     */
-
     public BindingContext(IOpenBinder binder, IOpenClass returnType, OpenL openl) {
         this.binder = binder;
         this.returnType = returnType;

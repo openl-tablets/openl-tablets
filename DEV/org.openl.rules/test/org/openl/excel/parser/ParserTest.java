@@ -216,10 +216,6 @@ class ParserTest {
 
     @Test
     void testLiteral() throws OpenLConfigurationException {
-        // we should remove suffix the next line produces NumberFormatException
-        // Assert.assertEquals(new Long(5), Long.decode("5L"));
-
-        // _testLiteral("-5L", "-5L", "literal.integer");
         _testLiteral("0xff", "0xff", "literal.integer");
         _testLiteral("5L", "5L", "literal.integer");
         _testLiteral("\"ab\\n\"", "\"ab\\n\"", "literal.string");

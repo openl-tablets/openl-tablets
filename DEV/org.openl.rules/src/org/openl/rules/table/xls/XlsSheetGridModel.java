@@ -379,12 +379,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (style instanceof XlsCellStyle cellStyle) {
             newPoiStyle = cellStyle.getXlsStyle();
             newPoiStyle.cloneStyleFrom(newPoiStyle);
-        } /*
-         * else if (style instanceof org.openl.rules.table.ui.CellStyle) { styleToClone = poiCell.getCellStyle();
-         * newPoiStyle.cloneStyleFrom(styleToClone);
-         *
-         * setCellStyle(newPoiStyle, style); }
-         */ else {
+        } else {
             newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
