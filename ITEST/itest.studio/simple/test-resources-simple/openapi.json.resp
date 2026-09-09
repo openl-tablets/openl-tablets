@@ -105,9 +105,6 @@ Content-Type: application/json
       "name": "Tags"
     },
     {
-      "name": "Test"
-    },
-    {
       "name": "Users"
     }
   ],
@@ -10248,6 +10245,33 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "skipEmptyParameters",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "flattenParameters",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "spreadsheet",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -12432,6 +12456,24 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "compoundResult",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "lazyValues",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "offset",
             "schema": {
               "type": "integer",
@@ -12555,6 +12597,112 @@ Content-Type: application/json
               }
             },
             "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tests/summary/{tableId}/cases/{caseId}": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "caseId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestUnitExecutionResult"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "***"
+          },
+          "409": {
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
           }
         },
         "summary": "***",
@@ -18081,285 +18229,6 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Tags"
-        ]
-      }
-    },
-    "/test/rule": {
-      "get": {
-        "deprecated": true,
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "response-monitor",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "currentOpenedModule",
-            "required": true,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "in": "query",
-            "name": "skipEmptyParameters",
-            "required": true,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "in": "query",
-            "name": "flattenParameters",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/xlsx": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            },
-            "description": "***",
-            "headers": {
-              "Content-Disposition": {
-                "description": "***",
-                "required": true,
-                "schema": {
-                  "type": "string"
-                },
-                "style": "simple"
-              },
-              "Set-Cookie": {
-                "description": "***",
-                "schema": {
-                  "type": "string"
-                },
-                "style": "simple"
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Test"
-        ]
-      }
-    },
-    "/test/testcase": {
-      "get": {
-        "deprecated": true,
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "query",
-            "name": "id",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "testRanges",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "pp",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "in": "query",
-            "name": "response-monitor",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "currentOpenedModule",
-            "required": true,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/xlsx": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            },
-            "description": "***",
-            "headers": {
-              "Content-Disposition": {
-                "description": "***",
-                "required": true,
-                "schema": {
-                  "type": "string"
-                },
-                "style": "simple"
-              },
-              "Set-Cookie": {
-                "description": "***",
-                "schema": {
-                  "type": "string"
-                },
-                "style": "simple"
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Test"
         ]
       }
     },
@@ -25436,6 +25305,9 @@ Content-Type: application/json
             "type": "object",
             "description": "***"
           },
+          "resultSpreadsheet": {
+            "$ref": "#/components/schemas/SpreadsheetResultView"
+          },
           "tableId": {
             "type": "string",
             "description": "***"
@@ -25981,6 +25853,39 @@ Content-Type: application/json
           "type": {
             "type": "string",
             "description": "***"
+          }
+        }
+      },
+      "SpreadsheetResultView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "array",
+              "description": "***",
+              "items": {
+                "$ref": "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "columns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string",
+              "description": "***"
+            }
           }
         }
       },
@@ -26884,6 +26789,10 @@ Content-Type: application/json
             "format": "int32",
             "description": "***"
           },
+          "runTable": {
+            "type": "boolean",
+            "description": "***"
+          },
           "tableId": {
             "type": "string",
             "description": "***"
@@ -26954,6 +26863,9 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/ParameterValue"
             }
+          },
+          "result": {
+            "$ref": "#/components/schemas/ParameterValue"
           },
           "status": {
             "type": "string",
@@ -27089,6 +27001,11 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/TestCaseExecutionResult"
             }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
           }
         },
         "required": [

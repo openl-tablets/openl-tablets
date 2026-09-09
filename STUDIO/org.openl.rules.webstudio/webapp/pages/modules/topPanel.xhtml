@@ -136,67 +136,8 @@
             </a4j:ajax>
 
             <h:panelGroup rendered="#{!empty module and treeBean.canRun}">
-            <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
-                styleClass="navbar-dropdown test-section" onclick="return runAllTests(event);">Test <span id="testCountSpan" style="color:#888;padding: 1px 4px; border: 1px solid #ddd"></span></h:outputLink>
-            <span class="dropdown dropdown-form test-section">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="onTestOpen()"><b class="caret" /></a>
-                <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
-                    <li onclick="event.stopPropagation()">
-                        <span style="margin-bottom: -3px" tabindex="-1" title="Within Current Module Only">
-                            <span style="margin-right: 10px">Within Current Module Only</span>
-                            <input id="testModuleOnlyField" name="currentOpenedModule" type="checkbox"
-                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                        </span>
-                    </li>
-                    <li onclick="event.stopPropagation()">
-                        <span tabindex="-1">
-                            <span>Tests per page</span>
-                            <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
-                                <f:selectItem itemLabel="1" itemValue="1" />
-                                <f:selectItem itemLabel="5" itemValue="5" />
-                                <f:selectItem itemLabel="20" itemValue="20" />
-                                <f:selectItem itemLabel="All" itemValue="-1" />
-                            </h:selectOneMenu>
-                        </span>
-                    </li>
-                    <li onclick="event.stopPropagation()">
-                        <span tabindex="-1" title="Show only failed test cases">
-                            <span>Failures Only</span>
-                            <input name="failuresOnly" type="checkbox"
-                                onclick="$j('#failuresSetting').toggle(this.checked)"
-                                value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
-                                style="vertical-align:-2px;margin:-4px" />
-                        </span>
-                    </li>
-                    <li id="failuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}"
-                        onclick="event.stopPropagation()">
-                        <span tabindex="-1">
-                            <span>Failures per test</span>
-                            <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
-                                <f:selectItem itemLabel="1" itemValue="1" />
-                                <f:selectItem itemLabel="5" itemValue="5" />
-                                <f:selectItem itemLabel="20" itemValue="20" />
-                                <f:selectItem itemLabel="All" itemValue="-1" />
-                            </h:selectOneMenu>
-                        </span>
-                    </li>
-                    <li onclick="event.stopPropagation()">
-                        <span tabindex="-1" title="Display all executed test cases results including the ones for the tested values">
-                            <span>Compound Result</span>
-                            <input name="complexResult" type="checkbox"
-                                value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
-                                style="vertical-align:-2px;margin:-4px" />
-                        </span>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <span style="padding:6px 18px 7px">
-                            <a href="#{studio.url('test/test')}" class="button" onclick="test(event, '#{studio.url('test/test')}')">Test</a>
-                            <a href="#" id="downloadTest" class="button" onclick="downloadTest(event)">Test into File</a>
-                        </span>
-                    </li>
-                </ul>
-            </span>
+            <a href="javascript:void(0)" title="Run Tests" class="navbar-dropdown test-section"
+               onclick="openTestsLaunch(event); return false;">Test <span id="testCountSpan" style="color:#888;padding: 1px 4px; border: 1px solid #ddd"></span></a>
             <span class="delimeter test-section"></span>
             </h:panelGroup>
 
@@ -256,14 +197,6 @@
     <script>
         //<![CDATA[
         // TODO Add to namespace
-        function getGlobalTestQuery() {
-            var query = $j("#testSettings").find("select,input").serialize();
-            jQuery('#testSettings').find('input[type=checkbox]').each(function () {
-                query += '&' + this.name + '=' + this.checked;
-            });
-            return query;
-        }
-
         var $jq = jQuery.noConflict();
 
         (function initTestPanel() {
@@ -302,25 +235,6 @@
             }
         }
 
-        function test(e, testUrl) {
-            e.preventDefault();
-            var query = getGlobalTestQuery();
-            ws.nav.go(testUrl + "?" + query, true);
-        }
-
-        function onTestOpen() {
-            compiled(function(data) {
-                var testModuleOnlyField = $j("#testModuleOnlyField");
-                if (!data || $j("#tableRunState").val() === 'CAN_RUN_MODULE') {
-                    testModuleOnlyField.prop('checked', true);
-                    testModuleOnlyField.prop('disabled', true);
-                } else {
-                    testModuleOnlyField.prop('checked', false);
-                    testModuleOnlyField.prop('disabled', false);
-                }
-            });
-        }
-
         function compiled(callback) {
             var projectId = "#{studio.currentProjectId}";
             if (!projectId) {
@@ -334,25 +248,24 @@
             });
         }
 
-        function runAllTests(e) {
+        /**
+         * Opens the React panel that runs every test of the project under the Test button.
+         *
+         * The panel names no table, so it runs them all; while the project is still loading it can only run
+         * the tests of the current module, and it says so itself.
+         */
+        function openTestsLaunch(event) {
+            var anchor = event.currentTarget.getBoundingClientRect();
             compiled(function (compiled) {
-                if (!compiled) {
-                    ws.ui.confirm({
-                        title: 'Tests',
-                        message: 'Tests can be run within current module only because the project is not loaded yet.',
-                        onOK: () => ws.nav.go("#{studio.url('test/test')}?currentOpenedModule=true", true)
-                    });
-                } else {
-                    ws.nav.go("#{studio.url('test/test')}", true)
-                }
+                window.dispatchEvent(new CustomEvent('openTestsLaunch', {
+                    detail: {
+                        projectId: globalThis.openl.encodeProjectId('#{utils.toJSText(studio.currentProject.repository.id)}', '#{utils.toJSText(studio.currentProject.name)}'),
+                        moduleName: '#{utils.toJSText(studio.currentModule.name)}',
+                        anchor: {left: anchor.left, top: anchor.top, width: anchor.width, height: anchor.height},
+                        moduleOnlyLocked: !compiled
+                    }
+                }));
             });
-            return false;
-        }
-
-        function downloadTest(e) {
-            e.preventDefault();
-            var query = getGlobalTestQuery();
-            ws.nav.download("#{contextPath}/web/test/testcase?" + query);
         }
 
         function canOverwriteRevision() {

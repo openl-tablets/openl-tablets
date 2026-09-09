@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Getter;
@@ -12,7 +11,6 @@ import lombok.Getter;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.studio.common.model.PageResponse;
 
-@JsonIgnoreProperties("total")
 public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult> {
 
     @Getter
@@ -34,7 +32,8 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
                         : builder.page.getPageNumber(),
                 builder.page.isUnpaged()
                         ? builder.testCases.size()
-                        : builder.page.getPageSize());
+                        : builder.page.getPageSize(),
+                builder.total);
         this.executionTimeMs = builder.executionTimeMs;
         this.numberOfTests = builder.numberOfTests;
         this.numberOfFailures = builder.numberOfFailures;
@@ -56,6 +55,7 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
         private double executionTimeMs;
         private int numberOfTests;
         private int numberOfFailures;
+        private long total;
         private Pageable page;
         private final List<TestCaseExecutionResult> testCases = new ArrayList<>();
 
@@ -84,6 +84,12 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
 
         public Builder page(Pageable page) {
             this.page = page;
+            return this;
+        }
+
+        /** How many test tables ran in all, of which the page below carries some. */
+        public Builder total(long total) {
+            this.total = total;
             return this;
         }
 

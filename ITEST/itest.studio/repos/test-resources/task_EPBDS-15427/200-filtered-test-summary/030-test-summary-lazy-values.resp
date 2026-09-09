@@ -1,0 +1,49 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 3,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": 14,
+  "executionTimeMs": "##.##",
+  "numberOfTests": 34,
+  "numberOfFailures": 4,
+  "testCases": [
+    {
+      "name": "BankLimitIndexTest",
+      "tableId": "786f9d6a8a1c247811e71dd1f870ebfd",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "testAssertions": [
+            {
+              "description": "*",
+              "expectedValue": 1.0,
+              "actualValue": 1.0,
+              "status": "TR_OK"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "bank",
+              "description": "*",
+              "lazy": true
+            },
+            {
+              "name": "bankRatingGroup",
+              "description": "*",
+              "lazy": false,
+              "value": "R2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,8 @@
 package org.openl.studio.projects.model;
 
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -67,6 +70,30 @@ public class ExecutionValueMapper {
      */
     public @Nullable ObjectNode schemaOf(@Nullable Object convertedValue) {
         return convertedValue == null ? null : SafeSchemaGenerator.generate(schemaGenerator, convertedValue.getClass());
+    }
+
+    /**
+     * Lays a spreadsheet result out the way its spreadsheet is written.
+     *
+     * <p>Use it for a value whose declared type is unknown, next to {@link #convert(Object)}. Every cell is
+     * written the same way the value itself is, so a client shows the same values in the grid and in the tree.
+     *
+     * @param value value to lay out
+     * @return the layout of the value, or {@code null} when the value is not a spreadsheet result
+     */
+    public @Nullable SpreadsheetResultView spreadsheetOf(@Nullable Object value) {
+        if (!(value instanceof SpreadsheetResult spreadsheet) || spreadsheet.getRowNames() == null
+                || spreadsheet.getColumnNames() == null || spreadsheet.getResults() == null) {
+            return null;
+        }
+        var columns = Arrays.stream(spreadsheet.getColumnNames()).toList();
+        var rows = Arrays.stream(spreadsheet.getRowNames()).toList();
+        var cells = IntStream.range(0, rows.size())
+                .mapToObj(row -> IntStream.range(0, columns.size())
+                        .mapToObj(column -> writeConverted(convert(spreadsheet.getValue(row, column))))
+                        .toList())
+                .toList();
+        return new SpreadsheetResultView(columns, rows, cells);
     }
 
     /**

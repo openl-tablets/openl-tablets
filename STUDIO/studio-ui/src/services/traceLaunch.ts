@@ -1,4 +1,5 @@
 import CONFIG from './config'
+import { saveFile } from 'utils/download'
 import { retireTraceLaunch, stampTraceLaunch } from './traceLaunchToken'
 import { traceService } from './traceService'
 
@@ -18,18 +19,6 @@ export interface TraceLaunchRequest {
     advanced?: boolean | undefined
     /** Write numbers as the rules computed them, without rounding, in the downloaded file. */
     showRealNumbers: boolean
-}
-
-/** Save the exported trace text to the user's machine as trace.txt. */
-const downloadTraceFile = (text: string): void => {
-    const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }))
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'trace.txt'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
 }
 
 const openTraceWindow = (request: TraceLaunchRequest): void => {
@@ -71,7 +60,7 @@ export const launchTrace = async (request: TraceLaunchRequest): Promise<void> =>
     }
     if (request.download) {
         // Trace into File saves the run as text. No debugger window opens.
-        downloadTraceFile(await traceService.exportTrace(request.projectId, request.showRealNumbers))
+        saveFile(await traceService.exportTrace(request.projectId, request.showRealNumbers), 'trace.txt')
     } else {
         openTraceWindow(request)
     }

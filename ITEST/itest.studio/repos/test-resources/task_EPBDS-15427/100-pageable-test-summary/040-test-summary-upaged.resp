@@ -5,6 +5,7 @@ Content-Type: application/json
   "pageNumber": -1,
   "pageSize": 14,
   "numberOfElements": 14,
+  "total": 14,
   "executionTimeMs": "*",
   "numberOfTests": 34,
   "numberOfFailures": 4,

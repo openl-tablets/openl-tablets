@@ -25,7 +25,7 @@ src/
 ├── App.tsx              # Root: error boundary, auth gate, router mount
 ├── index.tsx            # Entry: inits i18n, mounts App
 ├── components/          # Reusable widgets (accessManagement/, form/, modal/, schemaForm/, values/, shared)
-├── containers/          # Feature screens (System, Security, Users, Groups, Tags, Repositories, Trace, Merge…)
+├── containers/          # Feature screens (System, Security, Users, Groups, Tags, Repositories, Trace, execution, Merge…)
 ├── contexts/            # PermissionContext, SystemContext, GroupsContext
 ├── providers/           # SecurityProvider (wraps app with SystemContext + PermissionContext)
 ├── hooks/               # Shared hooks (forms, global events, websocket, scripts)

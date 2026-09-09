@@ -8,6 +8,7 @@ Content-Type: application/json
   "pageNumber": 0,
   "pageSize": 50,
   "numberOfElements": 14,
+  "total": 14,
   "testCases": [
     {
       "name": "BankLimitIndexTest",

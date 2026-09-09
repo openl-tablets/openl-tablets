@@ -1,12 +1,17 @@
-import React, { useCallback, useMemo, useRef } from 'react'
-import { Table } from 'antd'
-import type { ColumnsType } from 'antd/es/table'
+import React, { useMemo } from 'react'
+import { Checkbox, Flex, Pagination, Radio } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { ParameterValueList } from 'components/values/ParameterValues'
+import { useTestCase, type ReadTestCase } from 'hooks/useTestCase'
 import type { TableInputTestCase } from 'types/tables'
 import type { TraceParameterValue } from 'types/trace'
 
 export interface TestCaseSelectorProps {
+    /** The test table the cases belong to. */
+    tableId: string
+    /** Whether one case is picked at a time, or several. */
+    selection: 'single' | 'multiple'
     /** The cases of the page shown. */
     testCases: TableInputTestCase[]
     /** How many cases the table holds in all. */
@@ -17,11 +22,11 @@ export interface TestCaseSelectorProps {
     /** Whether the page is on its way. */
     loading?: boolean | undefined
     onPageChange: (page: number) => void
-    /** Id of the chosen case. It stays chosen while the user looks through the other pages. */
-    value: string
-    onChange: (caseId: string) => void
+    /** Ids of the chosen cases. They stay chosen while the user looks through the other pages. */
+    value: string[]
+    onChange: (caseIds: string[]) => void
     /** Reads one case with every value, for the values a page only refers to. */
-    loadCase: (caseId: string) => Promise<TableInputTestCase>
+    loadCase: ReadTestCase<TableInputTestCase>
 }
 
 interface CaseRow {
@@ -42,17 +47,28 @@ const columnValue = (parameter: TraceParameterValue): TraceParameterValue => ({
     description: '',
 })
 
+/** The cases picked after one of them is clicked: the only one, or one more (or one less) of several. */
+const pickOne = (picked: string[], caseId: string, selection: 'single' | 'multiple'): string[] => {
+    if (selection === 'single') {
+        return [caseId]
+    }
+    return picked.includes(caseId) ? picked.filter(id => id !== caseId) : [...picked, caseId]
+}
+
 /**
- * Picks the one case of a test table to execute.
+ * Picks the cases of a test table to execute.
  *
  * The cases are listed by id, one row each, and the row's values read the way the trace window shows the values
  * of a step. A value with inner structure is shown only when the user asks for it, and each value is shown on
  * its own: asking for one reads its case, and the values of that case that are asked for later are already at
  * hand.
  *
- * The chosen case stays chosen while the user pages through the rest.
+ * An action that runs one case takes one; an action that runs several takes as many as are ticked. What is
+ * picked stays picked while the user pages through the rest.
  */
 export const TestCaseSelector: React.FC<TestCaseSelectorProps> = ({
+    tableId,
+    selection,
     testCases,
     total,
     page,
@@ -64,18 +80,7 @@ export const TestCaseSelector: React.FC<TestCaseSelectorProps> = ({
     loadCase,
 }) => {
     const { t } = useTranslation('execution')
-    const readCases = useRef<Record<string, Promise<TableInputTestCase>>>({})
-
-    const load = useCallback(async (caseId: string, index: number): Promise<TraceParameterValue | undefined> => {
-        const reading = readCases.current[caseId] ?? loadCase(caseId).catch(error => {
-            // A case that could not be read is read again on the next request.
-            delete readCases.current[caseId]
-            throw error
-        })
-        readCases.current[caseId] = reading
-        const parameter = (await reading).parameters[index]
-        return parameter && columnValue(parameter)
-    }, [loadCase])
+    const readCase = useTestCase(loadCase)
 
     const rows = useMemo((): CaseRow[] => testCases.map(testCase => ({
         id: testCase.id,
@@ -83,56 +88,100 @@ export const TestCaseSelector: React.FC<TestCaseSelectorProps> = ({
         parameters: testCase.parameters.map(columnValue),
     })), [testCases])
 
-    const columns = useMemo((): ColumnsType<CaseRow> => [
-        { title: t('testCases.id'), dataIndex: 'id', key: 'id', width: 60 },
+    const picked = (row: CaseRow) => value.includes(row.id)
+    const pageIds = rows.map(row => row.id)
+    const allPicked = pageIds.length > 0 && pageIds.every(id => value.includes(id))
+
+    const pickAll = (checked: boolean) => onChange(checked
+        ? [...value, ...pageIds.filter(id => !value.includes(id))]
+        : value.filter(id => !pageIds.includes(id)))
+
+    const columns: ListTableColumn<CaseRow>[] = [
+        {
+            key: 'pick',
+            fit: true,
+            align: 'center',
+            title: selection === 'multiple' && (
+                <Checkbox
+                    checked={allPicked}
+                    data-testid="pick-all-cases"
+                    onChange={event => pickAll(event.target.checked)}
+                />
+            ),
+            // The row itself picks the case, so a click on the box must not pick it a second time.
+            render: (row: CaseRow) => (
+                <>
+                    {selection === 'single'
+                        ? (
+                            <Radio
+                                checked={picked(row)}
+                                data-testid={`pick-case-${row.id}`}
+                                name="test-case"
+                                onChange={() => onChange([row.id])}
+                                onClick={event => event.stopPropagation()}
+                            />
+                        )
+                        : (
+                            <Checkbox
+                                checked={picked(row)}
+                                data-testid={`pick-case-${row.id}`}
+                                onChange={() => onChange(pickOne(value, row.id, selection))}
+                                onClick={event => event.stopPropagation()}
+                            />
+                        )}
+                </>
+            ),
+        },
+        { key: 'id', fit: true, title: t('testCases.id'), render: (row: CaseRow) => row.id },
         ...(rows.some(row => row.description)
-            ? [{ title: t('testCases.description'), dataIndex: 'description', key: 'description', width: 160 }]
+            ? [{
+                key: 'description',
+                fit: true,
+                title: t('testCases.description'),
+                render: (row: CaseRow) => row.description,
+            } as ListTableColumn<CaseRow>]
             : []),
         {
-            title: t('testCases.title'),
             key: 'parameters',
-            render: (_: unknown, row: CaseRow) => (
+            title: t('testCases.title'),
+            render: (row: CaseRow) => (
                 // Reading a value, or opening one, is not a way of picking the case: the click stops here.
                 <div onClick={event => event.stopPropagation()} role="presentation">
                     <ParameterValueList
                         keyPrefix={`case-${row.id}`}
-                        onLoad={index => load(row.id, index)}
+                        onLoad={index => readCase(tableId, row.id).then(read => read.parameters[index])}
                         parameters={row.parameters}
                     />
                 </div>
             ),
         },
-    ], [rows, t, load])
+    ]
 
     return (
-        <Table<CaseRow>
-            bordered
-            columns={columns}
-            data-testid="test-cases"
-            dataSource={rows}
-            loading={loading ?? false}
-            onRow={row => ({ onClick: () => onChange(row.id) })}
-            rowKey="id"
-            scroll={{ y: '40vh' }}
-            size="small"
-            pagination={total > pageSize && {
-                current: page,
-                pageSize,
-                total,
-                size: 'small',
-                showSizeChanger: false,
-                showTotal: count => t('testCases.total', { count }),
-                onChange: onPageChange,
-            }}
-            rowSelection={{
-                type: 'radio',
-                selectedRowKeys: value ? [value] : [],
-                renderCell: (_checked, row, _index, node) => (
-                    <span data-testid={`pick-case-${row.id}`}>{node}</span>
-                ),
-                onChange: keys => onChange(String(keys[0] ?? '')),
-            }}
-        />
+        <Flex vertical gap="small">
+            <ListTable<CaseRow>
+                columns={columns}
+                data-testid="test-cases"
+                loading={loading ?? false}
+                maxHeight="40vh"
+                onRowClick={row => onChange(pickOne(value, row.id, selection))}
+                rowKey={row => row.id}
+                rows={rows}
+                selected={picked}
+            />
+            {total > pageSize && (
+                <Pagination
+                    align="end"
+                    current={page}
+                    onChange={onPageChange}
+                    pageSize={pageSize}
+                    showSizeChanger={false}
+                    showTotal={count => t('testCases.total', { count })}
+                    size="small"
+                    total={total}
+                />
+            )}
+        </Flex>
     )
 }
 

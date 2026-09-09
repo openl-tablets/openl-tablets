@@ -205,144 +205,110 @@ OpenL Studio adds a view navigation link to the appropriate test table and vice 
 
 #### Running Unit Tests
 
-This section provides the methods used to run unit tests. The following topics are included in this section:
+This section describes how a table and its tests are run, and how the results read. The following topics are
+included in this section:
 
--   [Executing All Module Tests at Once](#executing-all-module-tests-at-once)
--   [Executing Tests for a Single Table](#executing-tests-for-a-single-table)
--   [Displaying Failures Only](#displaying-failures-only)
--   [Displaying Compound Result](#displaying-compound-result)
+-   [Running the Tests of a Table](#running-the-tests-of-a-table)
+-   [Running All Tests of a Module](#running-all-tests-of-a-module)
+-   [Reading Test Results](#reading-test-results)
+-   [Running a Table](#running-a-table)
 
-##### Executing All Module Tests at Once
+##### Running the Tests of a Table
 
-The system automatically executes all test runs, test cases, in every unit test in a module, including tests in module dependencies, and displays a summary of results.
+1.  In Rules editor, open the rule table to test and click **Test** in the toolbar above it. The button appears
+    for a table that has test tables. A panel opens under the button; clicking elsewhere on the page closes it.
 
-Test results display resembles the following sample:
+    ![Test button in the table toolbar with the panel open](images/test-start-button.png "Running the tests of a table")
 
-![](images/all-project-tests-results.jpeg)
+    *Running every test of a rule table*
 
-*Results of running all project tests*
+1.  To run only the rules of the current module and skip the modules it depends on, select **Within Current
+    Module Only**. While the project is still loading, or another module has errors, only the current module can
+    be used: the option is selected and cannot be changed.
+1.  **Failures Only** and **Compound Result** say what the results show; they can be changed there as well.
+1.  Click **Test**. Every test table that tests this rule table runs, and the results open in a window over the
+    table. Closing the window returns to the table, so a rule can be corrected and the tests run again.
+    **Test into File** runs them and saves the results as a workbook without showing them.
 
-1.  To run all module tests, click the **Run Tests** ![](images/run-tests-icon.png) icon in the top line menu of Rules Editor.
+To run a test table itself, open it and click **Run**: the panel lists its cases, every one of them runs unless
+some are ticked, and the results open in the same window. Selecting the cases is described in
+[Starting a Trace](#starting-a-trace), which lists them the same way.
 
-    Failed test cases are represented by ![](images/test-failed-mark-icon.png) mark. Passed tests are represented by ![](images/test-passed-mark-icon.png) mark.
+##### Running All Tests of a Module
 
-    By default, all tests are run in multi-module mode, and the system executes all tests of the project, including project dependencies.
+1.  Click **Test** in the module toolbar, above the module tree. The number next to it counts the tests of the
+    project.
+1.  In the panel that opens, leave **Within Current Module Only** clear to run every test of the project,
+    including the modules it depends on, or select it to run the tests of the current module only. **Tests per
+    page**, **Failures Only** and **Compound Result** say what the results show.
+1.  Click **Test**. The results are shown the same way as the tests of a single table, so only one kind of
+    results screen has to be read. **Test into File** saves them as a workbook without showing them.
 
-1.  To run the tests in the current module and its dependent modules only, select the **Within Current Module Only** check box in the button menu or test results page.
+##### Reading Test Results
 
-    ![](images/test-settings-within-module.jpeg)
+The results window lists every test table that ran, with the number of cases it holds and, in red, how many of
+them failed. The name of a table is green when every case of it passed and red when one did not, and it opens
+that test table in the editor. Every case is a row of that table: its id, a column for each value it was given,
+and a column for each value the test compares. A tick or a cross stands next to the case and next to every
+value that was compared, and a case that failed says how many of its comparisons did not match and shows the
+value that was expected under the value that came out.
 
-    *Defining test settings*
+A Run table states no expected values, so its results carry no ticks and no crosses: they only show what every
+run returned.
 
-    In the example above, test results are displayed with five test tables, unit tests, per page. This setting is configured for each user individually in User Profile as **Tests per page** setting.
+![Test results with the options above them](images/test-results.png "Reading test results")
 
-1.  To change the setting for a particular test run without updating user settings, click the arrow to the right of the **Run Tests** ![](images/run-tests-dropdown-icon.png) and choose a required number of **Tests per page**. There is an alternative way: the same setting options are displayed on the top of the window after executing all tests. The following picture provides an illustration:
+*Results of a test run*
 
-    ![](images/tests-per-page-setting.png)
+The options above the list decide what it shows. They apply at once, without running the tests again:
 
-    *Number of tests per page setting*
+-   **Failures Only** — leaves out the cases that passed. **Failures per test** next to it limits how many
+    failures of one test table are listed, so a long list stays readable while a rule is corrected step by step.
+-   **Compound Result** — adds the whole value the rule returned to every case, and not only the values the test
+    compares. It is what a spreadsheet result is read with: the test names a few of its steps, and this option
+    shows all of them.
+-   **Tests per page** — how many test tables one page holds; the pager under the list reaches the rest. **All**
+    puts every test table on one page.
 
-1.  To export test results into an Excel file, in the **Run** or **Test** drop-down menu, select **Run into File** or **Test into File.** The generated file contains both results and input parameters.
+The screen opens with the options as they are saved in **My Settings**, and changing them here applies to this
+run only.
 
-##### Executing Tests for a Single Table
+To save the results, click **Save to Excel**. The workbook holds the same results and the input of every case.
 
-This section describes test execution. Proceed as follows:
+##### Running a Table
 
-1.  To execute all test runs for a particular rule table, select the rule table in the module tree and, in the upper part of the middle pane, click **Test** ![](images/run-tests-for-table-icon.png).
+A rule table can be run on its own, without a test table for it.
 
-    Test results resemble the following:
+1.  Open the table and click **Run** in the toolbar above it. The panel asks for the input the table takes: the
+    parameters as a tree, or the same input as JSON, exactly as
+    [Starting a Trace](#starting-a-trace) describes. A table that takes no parameters runs at once, with no panel.
 
-    ![](images/test-results-single-table.png)
+    ![Run button in the table toolbar with the panel open](images/run-start-button.png "Running a table")
 
-    *Results of executing all test runs for one rule table*
+    *Running a table with the input it takes*
 
-    If the table contains Value types, such as IntValue, the results are clickable and enable a user to view the calculation history.
+1.  Click **Run**. The result opens in a window over the table: one row of what the table was given and what it
+    returned, a column each, with the runtime context first when the project provides one.
 
-1.  To test a rule table even if no tests have been created for the given table yet, proceed as follows:
-2.  In the module tree, select the required rule table and click the green **Run** arrow ![](images/run-arrow-icon.png) above the table.
+    ![The result of running a table](images/run-result.png "Reading a run result")
 
-    The form for entering required values to test rule table appears.
+    *Result of running a table*
 
-    ![](images/testing-rule-without-tests.jpeg)
+    A table that returns a spreadsheet shows it as the table its author wrote: a row per step, a column per
+    spreadsheet column, and the calculated value in every cell.
 
-    *Testing a rule table without tests*
-1.  To run a test for the currently opened module and its dependent modules only, ensure that the **Within Current Module Only** option is selected.
-2.  In the pop-up window, click **Run**.
+1.  To save the result, click **Save to Excel**.
 
-        The results of the testing are displayed.
+To save the result without reading it first, click **Run into File** instead of **Run**. The table runs and the
+result is written straight to a file, which is what a result too large to read on screen is taken with. A test
+table offers **Test into File** in the same place, and saves the results of its cases as a workbook.
 
-    ![](images/virtual-test-result.png)
+Three options above the input decide what the file of a rule table holds:
 
-    *Result of running virtual test*
-3. To export the results to an Excel file, click the "Run Into File" button. This action will generate an Excel file named "test-results.xlsx", which includes two sheets: 'Result' and 'Parameters'. <br/> By default, the 'Parameters' sheet lists each attribute's name and value on separate rows. For a more compact table format, deselect the ***Flat Parameter Layout*** option. <br/>To exclude any empty input values, select the ***Skip Empty Parameters*** checkbox.
-    The following examples illustrate how ***Flat Parameter Layout*** and ***Skip Empty Parameters*** affect the "test-results.xlsx" file:<br/>
-   ![](images/test-export-flat-layout-default.png)<br/>
-   *"Flat Parameter Layout” = ***True***, “Skip Empty Parameters” = ***False*** (***default***)*
-   ![](images/test-export-non-flat-layout.png)<br/>
-   *"Flat Parameter Layout” = ***False***, “Skip Empty Parameters” = ***False**** <br/>
-   ![](images/test-export-skip-empty-params.png)<br/>
-   *"Flat Parameter Layout” = ***True***, “Skip Empty Parameters” = ***True****
-
-
-A test table addresses its cases by the **ID** column. The column is not mandatory: define it and give each test
-case a unique value, or leave it out and OpenL Studio numbers the cases itself.
-
-1.  For test tables, to select test cases to be executed, proceed as follows:
-2.  Navigate to the **Run** button above the Test table and click the small black arrow ![](images/run-dropdown-arrow-icon.png).
-3.  In the pop-up window that appears, select or clear the check boxes for the appropriate IDs, and to run several particular test cases, define them in the **Use the Range** field.
-
-    ![](images/select-test-cases-range.png)
-
-    *Select test cases via Range field to be executed*
-
-1.  If necessary, specify whether the test must be run in the current module only.
-2.  In the pop-up window, click **Run**.
-
-    Only the selected test cases are executed.
-
-    ![](images/selective-test-results.jpeg)
-
-    *Result of selective testing*
-
-1.  To export test results into an Excel file, click **Test** and select **Test into File.**
-
-##### Displaying Failures Only
-
-There are cases when a user wants to examine results of failed test cases only. For example, the project contains a test with more than 50 test cases and a user just needs to know whether project rules are operating correctly, that is, whether all test cases are passed. If a user runs the test, a huge table of results is returned, which is difficult to review and find failures to correct the rule or case. For such situations, OpenL Studio provides an option to display failed test cases only.
-
-This option is configured for each user individually in User Profile as the **Failures Only** setting. There are multiple ways to change the setting for a particular test run without updating user settings:
-
--   Click the arrow to the right of the **Run Tests** ![](images/run-tests-icon.png) and in a pop-up window that appears, clear or select **Failures** **only**.
--   Select the Test table, navigate to the **Run** button above the table, click the **Run** arrow ![](images/run-arrow-with-settings-icon.png), and in the pop-up window that appears, select or clear **Failures only**.
--   Select or clear the **Failures only** setting that appears on the top of the window upon executing all tests at once as displayed in Figure 107: Number of tests per page setting.
-
-Additionally, the number of failed test cases displayed for one unit test can be limited. For example, a user is testing rules iteratively and is interested just in the first several failures in order to analyze and correct them, and re-execute tests, sequentially correcting errors. To do this, change **All** on an appropriate value next to **Failures per test** label or **first** label (for method 3). The setting is available only if **Failures only** is selected.
-
-![](images/failures-only-settings.png)
-
-*Settings for displaying failed test cases only*
-
-##### Displaying Compound Result
-
-The result of a rule table execution can be a single value or compound value such as spreadsheet. A test table specifies what is tested, full result or particular parts of it, and their expected results of each test case. In the following example, *IncomeForecastTest* is intended to check Minimal and Maximal Total Salary values in the resulting spreadsheet:
-
-![](images/test-compound-result-table.png)
-
-*Testing tables with compound result on*
-
-After running the test, OpenL Studio displays each test case with input values and actual results marked as passed or failed.
-
-![](images/test-spreadsheet-result.png)
-
-*Testing spreadsheet result*
-
-In cases when test result is complex (compound), there is an option to display the full result of running test cases as well, not only values which are being tested. It is configured for each user individually in User Profile as “**Compound Result**” setting. If the option is switched on, the result of running *IncomeForecastTest* looks as follows:
-
-![](images/test-compound-result-display.png)
-
-*Displaying compound result*
-
-This setting for a particular test run (without updating user settings) can be changed in the same ways as it is described in [Displaying Failures Only](#displaying-failures-only).
+-   **Skip Empty Parameters** — leaves the input values that are empty out of the workbook.
+-   **Flat Parameter Layout** — writes every field of an input on a row of its own. Clear it for a compact table
+    of the inputs.
+-   **Result in JSON Format** — writes the returned value on its own as JSON, instead of the workbook of the run.
 
 #### Creating a Test
 

@@ -156,6 +156,23 @@ describe('TraceParameters', () => {
             expect(screen.queryByText('value.load')).toBeNull()
         })
 
+        it('starts over when the line comes to stand for another value', async () => {
+            getParameterValue.mockResolvedValue({ name: 'big', description: 'Double', lazy: false, value: 99 })
+            const lazy = (parameterId: number) => param({
+                name: 'big', description: 'Double', lazy: true, parameterId, value: undefined,
+            })
+            const { rerender } = render(<ParameterTree param={lazy(5)} paramKey="k" />)
+
+            await userEvent.click(screen.getByText('value.load'))
+            expect(await screen.findByText('99')).toBeInTheDocument()
+
+            // The same line now stands for the value of another step: what was read before is not its own.
+            rerender(<ParameterTree param={lazy(6)} paramKey="k" />)
+
+            expect(screen.queryByText('99')).toBeNull()
+            expect(screen.getByText('value.load')).toBeInTheDocument()
+        })
+
         it('surfaces an error when the lazy fetch fails', async () => {
             getParameterValue.mockRejectedValue(new Error('boom'))
             render(

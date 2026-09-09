@@ -16,6 +16,7 @@ import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.model.SpreadsheetResultView;
 
 public class RunExecutionResultMapper {
 
@@ -31,7 +32,18 @@ public class RunExecutionResultMapper {
         this.valueMapper = new ExecutionValueMapper(objectMapper, schemaGenerator, sprNamingStrategy);
     }
 
-    public RunExecutionResult mapResult(TestUnitsResults results) {
+    /**
+     * Writes what a run returned.
+     *
+     * <p>The value is written the way OpenL Rule Services publishes it, with the schema that describes it. A
+     * spreadsheet result can also be laid out by its rows and columns, for a caller that shows it as the table
+     * it comes from; that layout repeats the values, so it is written only when it is asked for.
+     *
+     * @param results         what the run produced
+     * @param withSpreadsheet whether to lay a spreadsheet result out by its rows and columns
+     * @return the result of the run
+     */
+    public RunExecutionResult mapResult(TestUnitsResults results, boolean withSpreadsheet) {
         var testUnits = results.getTestUnits();
         if (testUnits.isEmpty()) {
             return baseResult(results)
@@ -47,11 +59,14 @@ public class RunExecutionResultMapper {
         var actualResult = firstUnit.getActualResult();
         JsonNode resultValue = null;
         ObjectNode resultSchema = null;
+        SpreadsheetResultView resultSpreadsheet = null;
         if (!(actualResult instanceof Throwable)) {
             // The schema describes the value as it is written, so that every property of the result is described.
             var convertedResult = valueMapper.convert(actualResult);
             resultValue = valueMapper.writeConverted(convertedResult);
             resultSchema = valueMapper.schemaOf(convertedResult);
+            // A spreadsheet is also laid out by its rows and columns, so that it reads as the table it comes from.
+            resultSpreadsheet = withSpreadsheet ? valueMapper.spreadsheetOf(actualResult) : null;
         }
 
         // Map input parameters
@@ -83,6 +98,7 @@ public class RunExecutionResultMapper {
         return baseResult(results)
                 .result(resultValue)
                 .resultSchema(resultSchema)
+                .resultSpreadsheet(resultSpreadsheet)
                 .parameters(parameters)
                 .contextParameters(contextParameters)
                 .errors(errors)

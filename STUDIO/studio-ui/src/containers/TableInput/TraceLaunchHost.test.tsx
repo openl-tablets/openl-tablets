@@ -108,7 +108,7 @@ describe('TraceLaunchHost', () => {
         render(<TraceLaunchHost />)
 
         await open()
-        await userEvent.click(await screen.findByTestId('trace-module-only'))
+        await userEvent.click(await screen.findByTestId('launch-module-only'))
         await userEvent.click(screen.getByTestId('trace-advanced'))
         await userEvent.click(screen.getByTestId('trace-download'))
 
@@ -123,7 +123,7 @@ describe('TraceLaunchHost', () => {
         await open({ moduleOnlyLocked: true })
 
         expect(inputRead).toHaveBeenCalledWith('real-p1', 't1', { fromModule: 'Main' })
-        const moduleOnly = await screen.findByTestId('trace-module-only')
+        const moduleOnly = await screen.findByTestId('launch-module-only')
         expect(moduleOnly).toBeChecked()
         expect(moduleOnly).toBeDisabled()
         await userEvent.click(screen.getByTestId('trace-start'))
@@ -166,7 +166,7 @@ describe('TraceLaunchHost', () => {
         await open()
         await userEvent.click(await screen.findByTestId('trace-start'))
 
-        expect(await screen.findByTestId('trace-launch-error')).toHaveTextContent('testCases.noCase')
+        expect(await screen.findByTestId('launch-error')).toHaveTextContent('testCases.noCase')
         expect(launch).not.toHaveBeenCalled()
     })
 
@@ -205,7 +205,7 @@ describe('TraceLaunchHost', () => {
         await open()
         await userEvent.click(await screen.findByTestId('trace-start'))
 
-        expect(await screen.findByTestId('trace-launch-error')).toHaveTextContent('compilation in progress')
+        expect(await screen.findByTestId('launch-error')).toHaveTextContent('compilation in progress')
         expect(screen.getByTestId('trace-start')).toBeInTheDocument()
     })
 })
