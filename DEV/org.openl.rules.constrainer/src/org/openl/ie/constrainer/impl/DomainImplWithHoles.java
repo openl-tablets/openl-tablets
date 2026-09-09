@@ -202,8 +202,4 @@ public final class DomainImplWithHoles extends DomainImpl {
         return _values.toString();
     }
 
-    FastVector values() {
-        return _values;
-    }
-
 } // end of DomainImplWithHoles
