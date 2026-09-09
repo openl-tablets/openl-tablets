@@ -58,16 +58,6 @@ var BaseEditor = Class.create({
         this.input.value = value;
     },
 
-    getDisplayValue: function() {
-        var value = this.isCancelled() ? this.initialValue : this.getValue();
-        if (!value.strip()) {
-            value = "&nbsp";
-        } else {
-            value = value.escapeHTML().replace(/\n/g, "<br/>");
-        }
-        return value;
-    },
-
     /**
      * Is responsible for making editor visible and active.
      * In most cases it is not needed to be overridden.
