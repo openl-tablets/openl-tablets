@@ -2,11 +2,11 @@
 
 ## Resume point
 
-- Open PR #2096 on `dead-code/dead-internal-nested-classes` (1 commit, head `3a5520e1`, cut from main ef74952e): maintain it first; a new finding goes there.
-- Every change type has had a repo-wide pass; the swept head is `origin/main` ef74952e (#2095 merge; nothing but this routine's own deletions landed after 5698aad6).
-- Next run: diff `origin/main` against ef74952e; no Java or resource change → no build, no scan; otherwise rerun PMD, the identifier index and the ASM scans on changed files only.
+- No open PR: #2096 merged, so the next finding starts a fresh branch cut from a freshly fetched `origin/main`.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` 3728048e (#2096 merge; nothing but this routine's own deletions landed after 5698aad6).
+- Next run: diff `origin/main` against 3728048e; no Java or resource change → no build, no scan; otherwise rerun PMD, the identifier index and the ASM scans on changed files only.
 - No untried detector is left. A build-requiring run only re-covers changed code; spend the run on PR maintenance and compaction instead.
-- Same-kind finds extend the matching commit of the open PR with `--fixup` + autosquash; a new kind is a new commit there.
+- Once a PR is open again, same-kind finds extend its matching commit with `--fixup` + autosquash; a new kind is a new commit there.
 
 ## Change-type queue
 
@@ -24,14 +24,13 @@
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-09 (1906, 1933, 2056, 2082, 2095) |
 | 11 | TypeScript exports, types, components, imports | done 2026-09-09 (1906, 1909, 2063, 2082); rescan 849 exports: 0 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 (1940, 2088) |
-| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-09 (1913, 2058, 2088, 2092); ctor pass 2026-09-09: 1 pair in PR 2096 |
+| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-09 (1913, 2058, 2088, 2092, 2096) |
 
 Public API is never in the queue: unused public members go to Deferred findings for a human decision.
 
 ## Open PR
 
-- #2096 `dead-code/dead-internal-nested-classes`, head `3a5520e1`, base `main` @ ef74952e; CI running at end of run; no review threads.
-- `3a5520e1` Remove the AOpenIterator wrappers nothing instantiates (type 13, 1 file, −29).
+- None.
 
 ## Merged PRs
 
@@ -47,6 +46,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - 2082 dead increments, MergeModal wire types, openl-yaml and security.standalone deps, 23 locale keys.
 - 2088 uncalled `.impl.` methods (word index + ASM), constrainer TestUtils, 2 protected fields, 18 test .xls; merged with Sonar gate red.
 - 2089 33 commented-out blocks via SonarCloud S125. 2092 4 tableeditor JS members + bundles, `.clickable` CSS, 4 uncalled engine methods. 2095 one ValidationMessages key.
+- 2096 AOpenIterator.IteratorWrapper and SimpleIteratorWrapper; first sweep PR with every check and the Sonar gate green, merged 44 minutes after opening.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour and silently skips the rest.
 
 ## Module coverage
@@ -246,7 +246,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Java PMD (UnusedAssignment, UnusedLocalVariable, UnusedPrivateField, UnusedPrivateMethod, UnusedFormalParameter) over all 4045 files: 46 hits, all FPs or deferred.
 - Java identifier index: non-public methods with global count 1 in main sources = 2 (JAXB hook, @Bean); count-1 fields = 36, all Lombok accessors.
 - ASM scan on main 5698aad6 (5155 classes): 32 hits; 4 removed in #2092, 28 catalogued FPs or deferred; nothing else non-public is unreferenced.
-- ASM ctor scan on main ef74952e: 9 of 830 non-public parameterized ctors and 901 no-arg ones uninvoked; only the pair in #2096 is dead, and 11 production no-arg hits are all reflective or implicit.
+- ASM ctor scan on main ef74952e: 9 of 830 non-public parameterized ctors and 901 no-arg ones uninvoked; only the pair removed in #2096 was dead, and the 11 production no-arg hits are all reflective or implicit.
 - Java: protected members of final classes, public members of .internal. packages: none; pkg-private top-level (246) and nested (318) publics all called.
 - Java: enum constants all alive except XlsProjectionType (deferred); classes with no bytecode reference (22) all reflection fixtures/inheritors/@Delegate excludes.
 - Java: JavaDoc tags, @SuppressWarnings keys, bare super(), empty default constructors, UnnecessaryBooleanAssertion: done; UnnecessaryFullyQualifiedName/UselessParentheses are rewrites, not deletions.
@@ -276,4 +276,4 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 - 2026-09-09 e: #2092 merged (9 files, -84); ledger collapsed, check-ins stopped; no new sweep.
 - 2026-09-09 f: webstudio bundle and .xhtml recheck finished → PR #2095 (1 dead ValidationMessages key); whole-reactor build green.
-- 2026-09-09 g: #2095 merged clean; ctor-reachability scan run → PR #2096 (AOpenIterator wrappers); two whole-reactor builds green; last detector closed.
+- 2026-09-09 g: #2095 merged clean; ctor-reachability scan run → #2096 (AOpenIterator wrappers), CI all green, merged the same run; last detector closed.
