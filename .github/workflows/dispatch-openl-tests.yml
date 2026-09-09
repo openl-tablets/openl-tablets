@@ -1,0 +1,178 @@
+name: Dispatch OpenL Tests
+
+on:
+  workflow_run:
+    workflows:
+      - Quick Build
+    types:
+      - completed
+
+permissions:
+  actions: read
+  contents: read
+  packages: write
+  pull-requests: read
+  statuses: write
+
+concurrency:
+  group: >-
+    dispatch-openl-tests-${{ github.event.workflow_run.head_repository.id }}-${{
+      github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  dispatch:
+    name: Publish images and dispatch tests
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      BUILD_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}
+
+    steps:
+      # Use only the trusted Dockerfile from the default branch. The pull request artifact supplies
+      # the compiled applications, but no pull request code executes with this workflow's credentials.
+      - name: Checkout trusted image definition
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Download pull request metadata
+        uses: actions/download-artifact@v8
+        with:
+          name: openl-e2e-metadata
+          path: e2e-metadata
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Validate pull request metadata
+        id: metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          PR_NUMBER=$(tr -d '\r\n' < e2e-metadata/pr-number)
+          SOURCE_SHA=$(tr -d '\r\n' < e2e-metadata/head-sha)
+          [[ "${PR_NUMBER}" =~ ^[1-9][0-9]*$ ]]
+          [[ "${SOURCE_SHA}" =~ ^[0-9a-f]{40}$ ]]
+
+          PR=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}")
+          test "$(jq -r '.base.repo.full_name' <<< "${PR}")" = "${GITHUB_REPOSITORY}"
+          test "$(jq -r '.head.sha' <<< "${PR}")" = "${SOURCE_SHA}"
+
+          echo "pr_number=${PR_NUMBER}" >> "${GITHUB_OUTPUT}"
+          echo "head_sha=${SOURCE_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "image_tag=pr-${PR_NUMBER}-${SOURCE_SHA}" >> "${GITHUB_OUTPUT}"
+
+      - name: Report failed Quick Build
+        if: github.event.workflow_run.conclusion != 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.metadata.outputs.head_sha }}
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${SOURCE_SHA}" \
+            -f state=failure \
+            -f context=openl-tests \
+            -f description='Quick Build failed before OpenL Tests could start' \
+            -f target_url="${BUILD_RUN_URL}"
+
+      - name: Report OpenL Tests pending
+        if: github.event.workflow_run.conclusion == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.metadata.outputs.head_sha }}
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${SOURCE_SHA}" \
+            -f state=pending \
+            -f context=openl-tests \
+            -f description='Publishing pull request images and starting OpenL Tests' \
+            -f target_url="${BUILD_RUN_URL}"
+
+      - name: Download OpenL Tests image context
+        if: github.event.workflow_run.conclusion == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: openl-e2e-image-context
+          path: e2e-image-context
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Build and publish pull request images
+        if: github.event.workflow_run.conclusion == 'success'
+        env:
+          IMAGE_TAG: ${{ steps.metadata.outputs.image_tag }}
+          REGISTRY: ghcr.io/${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          echo "${{ github.token }}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+          created="org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          revision="org.opencontainers.image.revision=${{ steps.metadata.outputs.head_sha }}"
+
+          docker build \
+            --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp \
+            --file "${GITHUB_WORKSPACE}/Dockerfile" \
+            --label "${created}" \
+            --label "${revision}" \
+            --label 'org.opencontainers.image.title=OpenL Studio' \
+            --tag "${REGISTRY}/webstudio:${IMAGE_TAG}" \
+            e2e-image-context
+          docker push "${REGISTRY}/webstudio:${IMAGE_TAG}"
+
+          docker build \
+            --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp \
+            --file "${GITHUB_WORKSPACE}/Dockerfile" \
+            --label "${created}" \
+            --label "${revision}" \
+            --label 'org.opencontainers.image.title=OpenL Rule Services (All)' \
+            --tag "${REGISTRY}/ws:${IMAGE_TAG}-all" \
+            e2e-image-context
+          docker push "${REGISTRY}/ws:${IMAGE_TAG}-all"
+
+      - name: Create token for OpenL Tests
+        if: github.event.workflow_run.conclusion == 'success'
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.E2E_APP_ID }}
+          private-key: ${{ secrets.E2E_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: openl-tests
+          permission-actions: write
+
+      - name: Dispatch OpenL Tests
+        if: github.event.workflow_run.conclusion == 'success'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          IMAGE_TAG: ${{ steps.metadata.outputs.image_tag }}
+          PR_NUMBER: ${{ steps.metadata.outputs.pr_number }}
+          SOURCE_SHA: ${{ steps.metadata.outputs.head_sha }}
+        run: |
+          jq -n \
+            --arg application_version "${IMAGE_TAG}" \
+            --arg pr_number "${PR_NUMBER}" \
+            --arg source_sha "${SOURCE_SHA}" \
+            '{
+              ref: "main",
+              inputs: {
+                application_version: $application_version,
+                tests_branch: "main",
+                pr_number: $pr_number,
+                source_sha: $source_sha
+              }
+            }' | gh api --method POST \
+              "repos/${GITHUB_REPOSITORY_OWNER}/openl-tests/actions/workflows/openl-tests.yml/dispatches" \
+              --input -
+
+      - name: Report orchestration failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.metadata.outputs.head_sha || github.event.workflow_run.head_sha }}
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${SOURCE_SHA}" \
+            -f state=failure \
+            -f context=openl-tests \
+            -f description='OpenL Tests could not be started' \
+            -f target_url="${BUILD_RUN_URL}"
