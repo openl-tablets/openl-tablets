@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- No open sweep PR: #2092 merged (main head 50d0a663). The next branch is cut from a freshly fetched `origin/main` when a finding survives proof.
+- Open PR #2095 on `dead-code/stale-message-keys` (1 commit, head `f844ee280e`, cut from main 50d0a663): maintain it first; a new finding goes there.
 - Every change type has had a repo-wide pass; the swept head is `origin/main` 50d0a663 (#2092 merge; nothing else landed after 5698aad6 but Docs prose).
 - Next run: diff `origin/main` against 50d0a663; no Java or resource change → no build, no scan; otherwise rerun PMD, the identifier index and the ASM scan on changed files only.
 - Untried vein for the next build-requiring run: add `<init>` invocations to the ASM scan (uncalled non-public constructor overloads; expect Spring `class=`/newInstance FPs).
@@ -21,7 +21,7 @@
 | 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-09 (1906, 1912, 2054, 2058, 2063); rescans 2026-09-09: 0 |
 | 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-09 (2004, 2054, 2056, 2062, 2092) |
 | 9 | Legacy JS functions and .xhtml pages | done 2026-09-09 (1906, 1933, 2062, 2063, 2092); .xhtml all alive |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-08 (1906, 1933, 2056, 2082) |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-08 (1906, 1933, 2056, 2082); webstudio bundles rechecked 2026-09-09: 1 key in PR 2095 |
 | 11 | TypeScript exports, types, components, imports | done 2026-09-09 (1906, 1909, 2063, 2082); rescan 849 exports: 0 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 (1940, 2088) |
 | 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-09 (1913, 2058, 2088, 2092) |
@@ -30,7 +30,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Open PR
 
-- None.
+- #2095 `dead-code/stale-message-keys`, head `f844ee280e`, base `main` @ 50d0a663; CI running at end of run; no review threads.
+- `f844ee280e` Drop the protected-branch merge message no endpoint raises any more (type 10, 1 file, −1).
 
 ## Merged PRs
 
@@ -236,7 +237,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Tableeditor: every CSS/JS source in the concat lists; datepicker helpers vendored; webstudio .xhtml (46-50) all reached; ui:param and xmlns all used.
 - HTML comments in .xhtml/.html: explanations only; f:facet names all standard RichFaces.
 - Images: 703 tracked images outside ITEST all named as a whole word in a text file (Docs, webstudio, tableeditor, Rule Services, Studio static).
-- Message bundles: openapi.properties, messages.properties, ValidationMessages.properties, openl-default.properties all reachable; config property files all have readers.
+- Message bundles: openapi (625), messages (46), ValidationMessages (228) keys all reached by literal, `openl.error.<status>.` suffix, EL enum name or Bean Validation default, except the one key in #2095; sql-errors keyed by vendor error code at runtime; openl-default.properties keys not judged (config, composed prefixes).
 - Resource base-name scan (all `resources/` dirs outside ITEST/test-resources/archetypes): 45 zero-reference hits, all convention files.
 - Spring XML beans (11 non-test files), component-scan entries (24), JSF registrations, web.xml filters/listeners: all alive except tableViewer (deferred).
 - Maven: root/module properties, every profile, root pluginManagement, 177 managed artifact ids, 18 exclusions, plugin config, surefire sysprops, resource dirs: all alive; dependency:analyze-only remaining hits are providers/aggregators/processors/wars.
@@ -266,10 +267,10 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
 - Delete the stale remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods (push --delete is blocked from the sandbox; merged PR branches are auto-deleted).
 - Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
-- Ledger commit cfc0f5a8 is authored `Claude <noreply@anthropic.com>` against the identity rule; the ledger branch is never force-pushed, so it stays.
+- Ledger commits cfc0f5a8 and 98c0ec16 are authored `Claude <noreply@anthropic.com>` against the identity rule; the ledger branch is never force-pushed, so they stay.
 
 ## Run log
 
-- 2026-09-09 c: ledger rebuilt from 20 merged PRs and merged with b's; PMD, identifier index, resource and ASM scans → 4 uncalled methods added to #2092; duplicate #2093 closed.
 - 2026-09-09 d: #2092 unchanged (green, unreviewed); main +1 additive Docs commit, nothing to judge; Jekyll and non-webstudio static veins closed; no build (cold ~/.m2).
 - 2026-09-09 e: #2092 merged (9 files, -84); ledger collapsed, check-ins stopped; no new sweep.
+- 2026-09-09 f: webstudio bundle and .xhtml recheck finished → PR #2095 (1 dead ValidationMessages key); whole-reactor build green.
