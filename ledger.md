@@ -30,7 +30,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Open PR
 
-- #2092 `dead-code/legacy-web-resources`, head c672baed, merge-base 5698aad6; CI restarted by the third commit.
+- #2092 `dead-code/legacy-web-resources`, head c672baed, merge-base 5698aad6; CI green on head c672baed (all jobs and the Sonar gate); waiting on a reviewer.
 - db993d6f Remove table editor script members no page, renderer or script calls (5 files: TableEditor.js saveChanges + GET_CELL_VALUE, BaseEditor.js getDisplayValue, popup.js duplicate hide key, regenerated bundles).
 - a7e76d36 Drop the clickable CSS rules no page applies (common.css `.clickable`, `.clickable:hover`).
 - c672baed Remove methods no caller reaches in internal engine packages (DPOA.makeEvaluator/3, ExpressionImpl static getExpression x2, DomainImplWithHoles.values).
