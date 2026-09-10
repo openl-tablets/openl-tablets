@@ -17,15 +17,11 @@ import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
-import org.openl.rules.webstudio.web.test.Utils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.studio.common.utils.XSSFOptimizer;
@@ -130,37 +126,6 @@ public class TableBean {
 
     public String getMode() {
         return isEditable() ? WebStudioUtils.getRequestParameter("mode") : null;
-    }
-
-    /**
-     * Return test cases for current table.
-     *
-     * @return array of tests for current table.
-     */
-    public TestDescription[] getTests() {
-        return runnableTestMethods;
-    }
-
-    public ParameterWithValueDeclaration[] getTestCaseParams(TestDescription testCase) {
-        ParameterWithValueDeclaration[] params;
-        if (testCase != null) {
-            ParameterWithValueDeclaration[] contextParams = TestUtils
-                    .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
-            Utils.getDb(WebStudioUtils.getProjectModel(), false);
-            var inputParams = testCase.getExecutionParams();
-
-            params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];
-            var n = 0;
-            for (ParameterWithValueDeclaration contextParam : contextParams) {
-                params[n++] = contextParam;
-            }
-            for (ParameterWithValueDeclaration inputParam : inputParams) {
-                params[n++] = inputParam;
-            }
-        } else {
-            params = ParameterWithValueDeclaration.EMPTY_ARRAY;
-        }
-        return params;
     }
 
     /**
