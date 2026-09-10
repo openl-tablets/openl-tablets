@@ -581,13 +581,6 @@ ul.enum li {
 }
 
 /* Deprecated, use .properties instead */
-form .formfields {
-    vertical-align: top;
-    border: none;
-    width: 99%;
-}
-
-/* Deprecated, use .properties instead */
 .label {
     color: #3f3f3f;
     padding-right: 5px;
@@ -696,81 +689,10 @@ table.properties-form.wide .error {
     color: #888;
 }
 
-.test {
-    margin-bottom: 37px;
-}
-
-.test .table > tbody > tr > th {
-    min-width: 91px;
-}
-
-.testSuccess,
-.testError {
-    text-decoration: none;
-    vertical-align: middle;
-    margin-right: 7px;
-}
-
-.testSuccess {
-    color: #2a1;
-}
-
-.testError {
-    color: #f23;
-}
-
-.case-result {
-    display: inline-block;
-}
-
-.case-success,
-.case-error {
-    padding-left: 20px;
-}
-
-.case-success {
-    background: url(webresource/images/ok.png) no-repeat;
-}
-
-.case-error {
-    background: url(webresource/images/error.png) no-repeat;
-}
-
-.case-expected {
-    color: #aaa;
-}
-
-.case-empty {
-    color: #588;
-    font-style: italic;
-}
-
-.te_table i.case-success,
-.te_table i.case-error {
-    padding-left: 16px;
-    background-size: contain;
-}
-
-.param-tree .rf-trn-ico-lf {
-    display: none;
-}
 /* Hide empty nodes in a tree */
 .rf-tr-nd-exp-nc {
     display: none;
 }
-
-.param-tree .rf-trn-sel {
-    font-weight: normal;
-}
-
-.param-tree .rf-trn {
-    padding: 3px 0 !important;
-}
-
-.param-tree > .rf-tr-nd > .rf-trn {
-    padding: 0 !important;
-}
-
 
 .spreadsheet .rf-trn-ico-lf {
     display: none;
