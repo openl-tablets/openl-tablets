@@ -71,6 +71,10 @@ Content-Type: application/json
     },
     {
       "description": "***",
+      "name": "Projects: Benchmark (BETA)"
+    },
+    {
+      "description": "***",
       "name": "Projects: Files (BETA)"
     },
     {
@@ -6967,6 +6971,315 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/benchmarks": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "id",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Benchmark (BETA)"
+        ]
+      },
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BenchmarkResult"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Benchmark (BETA)"
+        ]
+      },
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "testRanges",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fromModule",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Benchmark (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/branches": {
       "get": {
         "operationId": "***",
@@ -12855,7 +13168,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Bad Request"
+            "description": "***"
           },
           "403": {
             "content": {
@@ -12865,7 +13178,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Forbidden"
+            "description": "***"
           },
           "404": {
             "description": "***"
@@ -12881,7 +13194,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Locked"
+            "description": "***"
           },
           "500": {
             "content": {
@@ -12891,7 +13204,7 @@ Content-Type: application/json
                 }
               }
             },
-            "description": "Internal Server Error"
+            "description": "***"
           }
         },
         "summary": "***",
@@ -20469,6 +20782,54 @@ Content-Type: application/json
           }
         }
       },
+      "BenchmarkResult": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "executionTimeMs": {
+            "type": "number",
+            "format": "double",
+            "description": "***"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "parameters": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ParameterValue"
+            }
+          },
+          "runTable": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "runs": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "tableId": {
+            "type": "string",
+            "description": "***"
+          },
+          "testCases": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "testTable": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
       "BreakpointTableView": {
         "type": "object",
         "description": "***",
@@ -21094,10 +21455,10 @@ Content-Type: application/json
           },
           "fileAvailability": {
             "type": "object",
-            "description": "***",
             "additionalProperties": {
               "$ref": "#/components/schemas/ConflictFileAvailability"
-            }
+            },
+            "description": "***"
           },
           "oursRevision": {
             "$ref": "#/components/schemas/RevisionDetails"
@@ -27906,23 +28267,23 @@ Content-Type: application/json
                 "minimum": 0
               },
               "value": {
-                  "description": "***",
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "boolean"
-                    },
-                    {
-                      "$ref": "#/components/schemas/CellValueArraySchema"
-                    }
-                  ]
-                }
+                "description": "***",
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CellValueArraySchema"
+                  }
+                ]
+              }
             }
           }
         ],
