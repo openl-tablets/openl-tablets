@@ -467,13 +467,29 @@ An editable project can be saved and closed directly from Rules Editor as descri
 
 ### Viewing Project Properties
 
-Each rule project has a set of properties displayed in the **Properties** tab when a project is selected.
+Each rule project has a set of properties displayed in the **Overview** tab when a project is selected. The
+project name is displayed above the tabs, and the tab lists the following properties:
 
-![Project properties](images/project-properties-tab.jpeg)
+-   **Status** — the project status, described in [Browsing Design Repository](#browsing-design-repository).
+-   **Repository** — the repository the project belongs to.
+-   **Path** — the location of the project inside the repository.
+-   **Branch** — the branch the project is on, for a branch-capable repository. Selecting another value switches
+    the project to that branch.
+-   **Revision ID** — the revision the project is opened on, shortened. **Copy the full revision** puts the whole
+    identifier on the clipboard.
+-   **Modified** — who committed that revision and when.
+-   **Comment** — the commit comment of that revision.
+-   **Tags** — the tags the project carries, or **Not tagged**.
+
+The tab also displays the **Modules** and **Sources** the project descriptor defines, and **Dependencies** when
+the project declares any.
+
+![Project properties](images/project-properties-tab.png "Project properties on the Overview tab")
 
 *Project properties*
 
-Properties, such as Name and Created At / Created By, are updated automatically by the system, and users cannot edit them in the OpenL Studio UI. However, a user can modify tags in this tab.
+Properties are updated automatically by the system, and users cannot edit them in the OpenL Studio UI. However, a
+user can modify tags by clicking **Edit tags** at the right of the **Tags** heading.
 
 If the user chooses to modify tag values, the project status will change to **In Editing**, unless it is already in this state.
 
@@ -485,7 +501,8 @@ If a tag contains a value that is not permitted, the user can only update it to 
 
 If a tag is used for grouping in a project tree, its value in a tree gets updated only when the project is saved.
 
-Note that in case of the Git repository, in the Modified By field, the user’s display name is used, not the username, and the tooltip for this field displays the user’s email.
+Note that in case of the Git repository, in the **Modified** field, the user’s display name is used, and the
+username only when the display name is not defined.
 
 ### Modifying Project Contents
 
