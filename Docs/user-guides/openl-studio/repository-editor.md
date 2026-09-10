@@ -675,20 +675,24 @@ The selected services version is displayed in **Rules Deploy Configuration** for
 
 ### Comparing Project Revisions
 
-OpenL Studio provides a function for comparing files and sheets in Excel files between two project revisions.
-To compare contents of the currently opened project revision with any other revision, proceed as follows:
+OpenL Studio compares an Excel file of the project as the working copy has it now with the same file as a revision holds it.
+To compare the working copy with another revision, proceed as follows:
 
 1.  In the project tree, select the project.
 2.  In the right pane, click **Compare**.
 
-        A window appears listing contents of the currently opened project version on the left side and contents of another project revision on the right side.
+    The comparison opens in a window of its own, where what to compare is picked: the Excel file of the working copy on the left, and the branch, the revision and the Excel file to compare it with on the right.
 
     ![](images/compare-project-revisions.png)
 
-    *Comparing the current project revision from user workspace to the second project revision*
+    *Picking the working copy on one side and a revision on the other*
 
-1.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
-2.  To compare the current project revision with a different revision, select the branch and revision.
+1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
+2.  Click **Compare**.
+
+    The elements that differ are listed grouped by Excel sheet. Selecting an element displays the two versions of it next to each other, with the cells that read differently highlighted, exactly as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files).
+
+1.  To compare another pair, click **Select other files**.
 
 ### Exporting a Project or a File
 

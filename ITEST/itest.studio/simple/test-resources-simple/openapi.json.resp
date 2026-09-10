@@ -7790,6 +7790,221 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/compare": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompareProjectFilesRequest"
+              }
+            }
+          },
+          "description": "***",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonStartedView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Compare"
+        ]
+      }
+    },
+    "/projects/{projectId}/compare/files": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "revision",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Compare"
+        ]
+      }
+    },
     "/projects/{projectId}/file-copy": {
       "post": {
         "description": "***",
@@ -8890,167 +9105,175 @@ Content-Type: application/json
         ]
       }
     },
-    "/projects/{projectId}/history": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "search",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "techRevs",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "offset",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 0,
-              "minimum": 0
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 0,
-              "minimum": 0
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "size",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 50,
-              "minimum": 1
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "unpaged",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
-                }
+      "/projects/{projectId}/history": {
+        "get": {
+          "description": "***",
+          "operationId": "***",
+          "parameters": [
+            {
+              "description": "***",
+              "in": "path",
+              "name": "projectId",
+              "required": true,
+              "schema": {
+                "type": "string"
               }
             },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
+            {
+              "description": "***",
+              "in": "query",
+              "name": "branch",
+              "schema": {
+                "type": "string"
               }
             },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
+            {
+              "description": "***",
+              "in": "query",
+              "name": "search",
+              "schema": {
+                "type": "string"
               }
             },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
+            {
+              "description": "***",
+              "in": "query",
+              "name": "techRevs",
+              "schema": {
+                "type": "boolean",
+                "default": false
               }
             },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
+            {
+              "description": "***",
+              "in": "query",
+              "name": "offset",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 0,
+                "minimum": 0
               }
             },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
+            {
+              "description": "***",
+              "in": "query",
+              "name": "page",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 0,
+                "minimum": 0
               }
             },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
+            {
+              "description": "***",
+              "in": "query",
+              "name": "size",
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 50,
+                "minimum": 1
               }
             },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects (BETA)"
-        ]
-      }
-    },
+            {
+              "description": "***",
+              "in": "query",
+              "name": "unpaged",
+              "schema": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            {
+              "description": "***",
+              "in": "query",
+              "name": "fields",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
+                  }
+                }
+              },
+              "description": "***"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  }
+                }
+              },
+              "description": "***"
+            },
+            "403": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BaseError"
+                  }
+                }
+              },
+              "description": "***"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BaseError"
+                  }
+                }
+              },
+              "description": "***"
+            },
+            "409": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BaseError"
+                  }
+                }
+              },
+              "description": "***"
+            },
+            "423": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BaseError"
+                  }
+                }
+              },
+              "description": "***"
+            },
+            "500": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BaseError"
+                  }
+                }
+              },
+              "description": "***"
+            }
+          },
+          "summary": "***",
+          "tags": [
+            "Projects (BETA)"
+          ]
+        }
+      },
     "/projects/{projectId}/local-history": {
       "delete": {
         "description": "***",
@@ -21056,6 +21279,21 @@ Content-Type: application/json
           "uri"
         ]
       },
+      "CompareProjectFilesRequest": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "$ref": "#/components/schemas/ComparisonSideRequest"
+          },
+          "second": {
+            "$ref": "#/components/schemas/ComparisonSideRequest"
+          }
+        },
+        "required": [
+          "first",
+          "second"
+        ]
+      },
       "CompareProjectHistoryRequest": {
         "type": "object",
         "properties": {
@@ -21138,6 +21376,27 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "ComparisonSideRequest": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "path"
+        ]
       },
       "ComparisonSideView": {
         "type": "object",

@@ -468,6 +468,8 @@ export interface RevisionQuery {
     techRevs?: boolean
     page?: number
     size?: number
+    /** The branch to read the history on; without it the branch the project is on is read. */
+    branch?: string
 }
 
 /** Default page size for the project history, matching the legacy UI's incremental loading. */
@@ -481,6 +483,9 @@ export function revisionQueryParams(query: RevisionQuery): URLSearchParams {
     }
     if (query.techRevs) {
         params.set('techRevs', 'true')
+    }
+    if (query.branch?.trim()) {
+        params.set('branch', query.branch.trim())
     }
     params.set('page', String(query.page ?? 0))
     params.set('size', String(query.size ?? REVISIONS_PAGE_SIZE))
