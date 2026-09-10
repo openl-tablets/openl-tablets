@@ -812,24 +812,33 @@ To compare contents of the currently opened project revision with any other revi
 
 ### Exporting a Project or a File
 
+A project is exported as a zip archive, and a single file of it is exported as it is stored.
+
 To export a project from Repository Editor, proceed as follows:
 
-1.  In the project tree, select the project.
-2.  In the right pane, click **Export**.
-3.  In the displayed window, select the required project revision, click **Export** and a full project in the selected revision will be exported.
+1.  In the **Projects** tree, select the project.
+2.  In the project header, click **Export**.
+3.  In the **Project Revision** field, select the revision to export.
 
-The default project version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing**.
+    ![Exporting a project](images/export-file-from-project.png "The Export window with the project revision")
 
-To export any revision of a file from Repository, proceed as follows:
+    *Exporting a project*
 
-1.  In the project tree, select the project.
-2.  Expand the project tree and select the file to be exported.
-3.  In the right pane, click **Export file**.
-4.  In the displayed window, select the required file revision and click **Export**.
+    Every revision is listed by its author and the time it was created, and **Load older revisions** at the
+    bottom of the list reads further into the history. For an opened project, the workspace copy leads the list
+    and is selected by default: it is marked **In Editing** when the project has uncommitted changes, and
+    **Viewing** otherwise. A closed project offers its revisions only, the latest one being selected.
 
-![Exporting a file from a project](images/export-file-from-project.png)
+1.  Click **Export**.
 
-*Exporting a file from a project*
+To export a file or a folder of a project, proceed as follows:
+
+1.  In the **Projects** tree, select the project, click the **Files** tab and, in the file tree, select the file
+    or folder to be exported.
+1.  Click **Export**.
+
+    The file is downloaded right away, in the state the project holds now, and a folder is downloaded as a zip
+    archive. To obtain a file as an earlier revision holds it, export the project on that revision instead.
 
 **Note:** If the project is in the Local status, these options are not available.
 
