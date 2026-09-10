@@ -3,11 +3,7 @@ Content-Type: application/json
 
 {
   "rulesXml": {
-    "movableRootModules": [
-      "Legacy.xls",
-      "Main.xlsx"
-    ],
-    "migratable": true
+    "migratable": false
   },
   "rulesDeploy": {
     "migratable": false

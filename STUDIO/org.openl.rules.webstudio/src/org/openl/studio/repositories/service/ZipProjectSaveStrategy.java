@@ -7,11 +7,10 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -21,6 +20,7 @@ import java.util.zip.ZipOutputStream;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.ChangesetType;
@@ -35,6 +35,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -42,6 +43,8 @@ import org.openl.util.ZipUtils;
 
 @Component
 public class ZipProjectSaveStrategy {
+
+    private static final String ROOT_XLSX_MODULE_PATTERN = "*.xlsx";
 
     private final DesignTimeRepository designTimeRepository;
     private final PathFilter zipFilter;
@@ -78,90 +81,95 @@ public class ZipProjectSaveStrategy {
                 Map.of("encoding", charset.name()))) {
 
             final var root = fs.getPath("/");
+            var generatedRulesXml = Files.exists(root.resolve(ProjectDescriptor.FILE_NAME))
+                    ? Optional.<byte[]>empty()
+                    : Optional.of(rulesXml(root, filter, model.getProjectName()));
             if (repository.supports().folders()) {
                 try (var changes = new FileChangesFromFolder(root,
                         projectData.getName(),
                         filter,
                         adaptor)) {
-                    if (checkIfRequiredProjectDescriptorCreation(model, root)) {
-                        var descriptor = createVirtualProjectDescriptor(model, projectData.getName());
-                        Iterable<FileItem> files = () -> concat(changes, Stream.of(descriptor)).iterator();
-                        return repository.save(projectData, files, ChangesetType.FULL);
-                    } else {
-                        return repository.save(projectData, changes, ChangesetType.FULL);
-                    }
+                    var projectChanges = generatedRulesXml.isPresent()
+                            ? appendProjectDescriptor(changes, projectData.getName(), generatedRulesXml.orElseThrow())
+                            : changes;
+                    return repository.save(projectData, projectChanges, ChangesetType.FULL);
                 }
-            } else {
-                Path tmp = FileUtils.createPrivateTempFile(FileUtils.getBaseName(projectData.getName()), ".zip");
-                try {
-                    try (var zos = new ZipOutputStream(Files.newOutputStream(tmp))) {
-                        try (var changes = new FileChangesFromFolder(root, filter, adaptor)) {
-                            for (FileItem fileItem : changes) {
-                                var name = fileItem.getData().getName();
-                                if (name.charAt(0) == '/') {
-                                    name = name.substring(1);
-                                }
-                                var entry = new ZipEntry(name);
-                                zos.putNextEntry(entry);
-                                var is = fileItem.getStream();
-                                if (is != null) {
-                                    is.transferTo(zos);
-                                    IOUtils.closeQuietly(is);
-                                }
-                            }
+            }
+
+            return saveAsArchive(repository, projectData, root, filter, adaptor, generatedRulesXml);
+        }
+    }
+
+    private static FileData saveAsArchive(Repository repository,
+                                          FileData projectData,
+                                          Path projectRoot,
+                                          Predicate<Path> filter,
+                                          ProjectDescriptorNameAdaptor adaptor,
+                                          Optional<byte[]> generatedRulesXml) throws IOException {
+        Path tmp = FileUtils.createPrivateTempFile(FileUtils.getBaseName(projectData.getName()), ".zip");
+        try {
+            try (var zos = new ZipOutputStream(Files.newOutputStream(tmp))) {
+                try (var changes = new FileChangesFromFolder(projectRoot, filter, adaptor)) {
+                    for (FileItem fileItem : changes) {
+                        var name = fileItem.getData().getName();
+                        if (name.charAt(0) == '/') {
+                            name = name.substring(1);
+                        }
+                        var entry = new ZipEntry(name);
+                        zos.putNextEntry(entry);
+                        var is = fileItem.getStream();
+                        if (is != null) {
+                            is.transferTo(zos);
+                            IOUtils.closeQuietly(is);
                         }
                     }
-                    try (InputStream is = Files.newInputStream(tmp)) {
-                        repository.save(projectData, is);
-                        return repository.check(projectData.getName());
-                    }
-                } finally {
-                    FileUtils.deleteQuietly(tmp);
+                }
+                if (generatedRulesXml.isPresent()) {
+                    zos.putNextEntry(new ZipEntry(ProjectDescriptor.FILE_NAME));
+                    zos.write(generatedRulesXml.orElseThrow());
                 }
             }
+            try (InputStream is = Files.newInputStream(tmp)) {
+                repository.save(projectData, is);
+                return repository.check(projectData.getName());
+            }
+        } finally {
+            FileUtils.deleteQuietly(tmp);
         }
     }
 
-    private FileItem createVirtualProjectDescriptor(CreateUpdateProjectModel model, String folderTo) {
+    private static Iterable<FileItem> appendProjectDescriptor(Iterable<FileItem> changes,
+                                                              String projectFolder,
+                                                              byte[] rulesXml) {
+        var descriptor = new FileItem(projectFolder + "/" + ProjectDescriptor.FILE_NAME,
+                new ByteArrayInputStream(rulesXml));
+        return () -> Stream.concat(StreamSupport.stream(changes.spliterator(), false), Stream.of(descriptor))
+                .iterator();
+    }
+
+    private static byte[] rulesXml(Path projectRoot, Predicate<Path> filter, String projectName) throws IOException {
+        var modules = new ArrayList<Module>();
+        modules.add(module(ROOT_XLSX_MODULE_PATTERN));
+        try (var files = Files.list(projectRoot)) {
+            files.filter(Files::isRegularFile)
+                    .filter(filter)
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    .filter(FileTypeHelper::isExcelFile)
+                    .filter(fileName -> !fileName.toLowerCase(Locale.ROOT).endsWith(".xlsx"))
+                    .filter(fileName -> !fileName.startsWith("._"))
+                    .map(ZipProjectSaveStrategy::module)
+                    .forEach(modules::add);
+        }
         var descriptor = new ProjectDescriptor();
-        descriptor.setName(model.getProjectName());
-
-        var name = folderTo + "/" + ProjectDescriptor.FILE_NAME;
-        return new FileItem(name, new ByteArrayInputStream(descriptor.toBytes()));
+        descriptor.setName(projectName);
+        descriptor.setModules(modules);
+        return descriptor.toBytes();
     }
 
-    private boolean checkIfRequiredProjectDescriptorCreation(CreateUpdateProjectModel model, Path projectRoot) {
-        Path p = Path.of(model.getFullPath());
-        var folderName = p.getName(p.getNameCount() - 1).toString();
-        return !folderName.equals(model.getProjectName()) && !Files
-                .exists(projectRoot.resolve(ProjectDescriptor.FILE_NAME));
-    }
-
-    private static <T> Stream<T> concat(Iterable<T> a, Stream<T> b) {
-        Spliterator<? extends T> spA = a.spliterator();
-        Spliterator<? extends T> spB = b.spliterator();
-
-        var s = spA.estimateSize() + spB.estimateSize();
-        if (s < 0) {
-            s = Long.MAX_VALUE;
-        }
-        var ch = spA.characteristics() & spB.characteristics() & (Spliterator.NONNULL | Spliterator.SIZED);
-        ch |= Spliterator.ORDERED;
-
-        return StreamSupport.stream(new Spliterators.AbstractSpliterator<T>(s, ch) {
-            private Spliterator<? extends T> sp1 = spA;
-            private Spliterator<? extends T> sp2 = spB;
-
-            @Override
-            public boolean tryAdvance(Consumer<? super T> action) {
-                Spliterator<? extends T> sp = sp1;
-                if (sp.tryAdvance(action)) {
-                    sp1 = sp2;
-                    sp2 = sp;
-                    return true;
-                }
-                return sp2.tryAdvance(action);
-            }
-        }, false);
+    private static Module module(String path) {
+        var module = new Module();
+        module.setRulesRootPath(path);
+        return module;
     }
 }

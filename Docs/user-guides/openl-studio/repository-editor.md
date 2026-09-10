@@ -189,6 +189,8 @@ Proceed as follows:
 1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create** to complete.
 
+OpenL Studio creates `rules.xml` in the project root and stores all uploaded workbooks in the `rules/` folder.
+
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
 #### Creating a Project from OpenAPI file
@@ -253,6 +255,10 @@ The archive must also arrive in full. OpenL Studio reads the directory the archi
 1.  Click **Create** to complete.
 
     The new project opens in the workspace right away, the same as a project created from a template or Excel files.
+
+If the archive has no `rules.xml` in its root, OpenL Studio creates one without moving any files in the archive. The
+generated descriptor declares `*.xlsx` as the module pattern for workbooks in the project root. Root-level workbooks
+in older Excel formats are declared as individual modules so they remain available.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 

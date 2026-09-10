@@ -63,10 +63,14 @@ Content-Type: application/json
         }
       },
       "pendingChanges": {
-        "total": 2,
+        "total": 3,
         "files": [
           {
             "path": "DESIGN/rules/EPBDS-15998-db/Bank Rating.xlsx",
+            "type": "modified"
+          },
+          {
+            "path": "DESIGN/rules/EPBDS-15998-db/rules.xml",
             "type": "modified"
           },
           {
