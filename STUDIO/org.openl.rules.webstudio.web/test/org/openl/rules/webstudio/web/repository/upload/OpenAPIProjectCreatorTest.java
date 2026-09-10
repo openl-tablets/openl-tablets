@@ -1,8 +1,10 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
@@ -25,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -65,6 +69,7 @@ class OpenAPIProjectCreatorTest {
     private static final String MOCK_ALGORITHM_PATH = "rules/%s.xlsx".formatted(MOCK_ALGORITHM_NAME);
     private static final String DIR = "test-resources/openapi/functionality";
     private static final String OPENAPI_OUT = System.getProperty("openapi.output.dir");
+    private static final Pattern LINE_SEPARATOR_PATTERN = Pattern.compile("\\R");
 
     private UserWorkspace userWorkspaceMock;
     private FileSystemRepository tempRepo;
@@ -112,6 +117,39 @@ class OpenAPIProjectCreatorTest {
         assertFalse(run(DIR), "Test is failed.");
     }
 
+    @Test
+    void normalizesYmlFileName() throws Exception {
+        var source = Path.of(DIR, "EPBDS-11041-openapiDateTime.yaml");
+        var projectFile = new ProjectFile("custom-schema.yml", Files.newInputStream(source));
+
+        var projectFolderPath = createProject("yml-schema", projectFile);
+
+        assertOpenAPIPath(projectFolderPath, "openapi.yaml");
+        assertFalse(Files.exists(projectFolderPath.resolve("custom-schema.yml")));
+    }
+
+    @Test
+    void rejectsFileWithoutExtension() {
+        var projectFile = new ProjectFile("schema", new ByteArrayInputStream(new byte[0]));
+        try {
+            var exception = assertThrows(OpenAPIProjectException.class,
+                    () -> new OpenAPIProjectCreator(projectFile,
+                            REPO_ID,
+                            "schema",
+                            "schema",
+                            userWorkspaceMock,
+                            DEFAULT_COMMENT,
+                            MOCK_MODEL_PATH,
+                            MOCK_ALGORITHM_PATH,
+                            MOCK_MODEL_NAME,
+                            MOCK_ALGORITHM_NAME,
+                            Map.of()));
+            assertEquals("Unsupported OpenAPI file extension.", exception.getMessage());
+        } finally {
+            projectFile.destroy();
+        }
+    }
+
     protected CompiledOpenClass validate(CompiledOpenClass compiledOpenClass,
                                          ProjectDescriptor projectDescriptor,
                                          RulesInstantiationStrategy rulesInstantiationStrategy) {
@@ -153,25 +191,8 @@ class OpenAPIProjectCreatorTest {
                     // The stream-based file mirrors the REST upload path, which has no temporary file upfront.
                     var projectFile = new ProjectFile(sourceFile, new ByteArrayInputStream(out.toByteArray()));
 
-                    OpenAPIProjectCreator projectCreator = null;
-                    try {
-                        projectCreator = new OpenAPIProjectCreator(projectFile,
-                                REPO_ID,
-                                sourceFile,
-                                sourceFile,
-                                userWorkspaceMock,
-                                DEFAULT_COMMENT,
-                                MOCK_MODEL_PATH,
-                                MOCK_ALGORITHM_PATH,
-                                MOCK_MODEL_NAME,
-                                MOCK_ALGORITHM_NAME,
-                                Map.of());
-                        projectCreator.createRulesProject();
-                    } finally {
-                        Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);
-                    }
-                    Path projectFolderPath = Path.of(OPENAPI_OUT, sourceFile);
-                    assertDefaultProjectLayout(projectFolderPath);
+                    Path projectFolderPath = createProject(sourceFile, projectFile);
+                    assertDefaultProjectLayout(projectFolderPath, sourceFile);
                     var engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
                     engineFactoryBuilder.setExecutionMode(false);
                     engineFactoryBuilder.setProject(projectFolderPath.toAbsolutePath().toFile().getPath());
@@ -199,12 +220,10 @@ class OpenAPIProjectCreatorTest {
             if (msgFile.exists()) {
                 try (var input = new FileInputStream(msgFile)) {
                     var content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-                    for (String message : content
-                            .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
-                        if (!StringUtils.isBlank(message)) {
-                            expectedMessages.add(message.trim());
-                        }
-                    }
+                    LINE_SEPARATOR_PATTERN.splitAsStream(content)
+                            .filter(StringUtils::isNotBlank)
+                            .map(String::trim)
+                            .forEach(expectedMessages::add);
                 } catch (IOException exc) {
                     error(messagesCount++,
                             startTime,
@@ -279,13 +298,45 @@ class OpenAPIProjectCreatorTest {
         return testsFailed;
     }
 
-    private static void assertDefaultProjectLayout(Path projectFolderPath) {
+    private Path createProject(String projectName, ProjectFile projectFile) throws ProjectException {
+        OpenAPIProjectCreator projectCreator = null;
+        try {
+            projectCreator = new OpenAPIProjectCreator(projectFile,
+                    REPO_ID,
+                    projectName,
+                    projectName,
+                    userWorkspaceMock,
+                    DEFAULT_COMMENT,
+                    MOCK_MODEL_PATH,
+                    MOCK_ALGORITHM_PATH,
+                    MOCK_MODEL_NAME,
+                    MOCK_ALGORITHM_NAME,
+                    Map.of());
+            projectCreator.createRulesProject();
+            return Path.of(OPENAPI_OUT, projectName);
+        } finally {
+            Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);
+        }
+    }
+
+    private static void assertDefaultProjectLayout(Path projectFolderPath, String sourceFile) {
         var descriptor = ProjectDescriptor.read(projectFolderPath);
         assertNotNull(descriptor);
         assertNull(descriptor.getName());
         assertTrue(descriptor.getModules().isEmpty());
         assertTrue(Files.isRegularFile(projectFolderPath.resolve(MOCK_MODEL_PATH)));
         assertTrue(Files.isRegularFile(projectFolderPath.resolve(MOCK_ALGORITHM_PATH)));
+        assertOpenAPIPath(projectFolderPath, sourceFile.toLowerCase(Locale.ROOT).endsWith(".json")
+                ? "openapi.json"
+                : "openapi.yaml");
+    }
+
+    private static void assertOpenAPIPath(Path projectFolderPath, String expectedPath) {
+        var descriptor = ProjectDescriptor.read(projectFolderPath);
+        assertNotNull(descriptor);
+        assertNotNull(descriptor.getOpenapi());
+        assertEquals(expectedPath, descriptor.getOpenapi().getPath());
+        assertTrue(Files.isRegularFile(projectFolderPath.resolve(expectedPath)));
     }
 
     private void ok(long startTime, String sourceFile) {
