@@ -452,15 +452,16 @@ To save a project, proceed as follows:
 
 1.  In the project tree, select the project, and, in the right pane, click **Save**.
 
-    The **Save changes** window appears:
+    The **Save project** window appears, naming the Design repository the new revision is committed to:
 
-    ![Save changes in a project](images/save-project-changes-dialog.jpeg)
+    ![Save changes in a project](images/save-project-changes-dialog.png "Saving a project")
 
     *Save changes in a project*
 
-    The number of a revision is updated automatically and is specified in the **Next Revision** field.
+1.  If necessary, modify the commit comment in the **Comment** field and click **Save**.
 
-1.  Enter comments if needed and click **Save**.
+    The comment is filled in from the repository settings, and the revision number is assigned by the repository
+    when the changes are committed.
 
 An editable project can be saved and closed directly from Rules Editor as described in [Editing and Saving a Project](rules-editor.md#editing-and-saving-a-project).
 
