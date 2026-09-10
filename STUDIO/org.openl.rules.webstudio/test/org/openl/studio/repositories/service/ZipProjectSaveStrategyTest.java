@@ -1,5 +1,6 @@
 package org.openl.studio.repositories.service;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,16 +24,20 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -165,6 +170,52 @@ class ZipProjectSaveStrategyTest {
     }
 
     @Test
+    void testSaveNotFolderRepoAddsDescriptorWithoutMovingFiles() throws Exception {
+        mockDesignRepository(Repository.class, "design2", builder -> builder.setVersions(true));
+        var model = new CreateUpdateProjectModel("design2",
+                "jsmith",
+                "Project 2",
+                null,
+                null,
+                false);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var actualStream = captureStream(repo);
+
+        var source = Path.of("test-resources/upload/zip/excel-only-project.zip");
+        saveStrategy.save(repo, model, source);
+
+        assertDescriptorAddedWithoutMovingFiles(source, actualStream.get());
+    }
+
+    @Test
+    void testSaveNotFolderRepoKeepsLegacyExcelModules(@TempDir Path tempFolder) throws Exception {
+        mockDesignRepository(Repository.class, "design2", builder -> builder.setVersions(true));
+        var model = new CreateUpdateProjectModel("design2",
+                "jsmith",
+                "Project 2",
+                null,
+                null,
+                false);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var actualStream = captureStream(repo);
+
+        var source = tempFolder.resolve("legacy-project.zip");
+        try (var zip = new ZipOutputStream(Files.newOutputStream(source))) {
+            zip.putNextEntry(new ZipEntry("Main.xlsx"));
+            zip.putNextEntry(new ZipEntry("Legacy.xls"));
+            zip.putNextEntry(new ZipEntry("Macro.xlsm"));
+        }
+        saveStrategy.save(repo, model, source);
+
+        var descriptor = descriptor(actualStream.get());
+        var modulePaths = descriptor.getModules().stream().map(Module::getRulesRootPath).toList();
+        assertEquals(3, modulePaths.size());
+        assertEquals("*.xlsx", modulePaths.getFirst());
+        assertTrue(modulePaths.contains("Legacy.xls"));
+        assertTrue(modulePaths.contains("Macro.xlsm"));
+    }
+
+    @Test
     void testSaveMappedRepoCustomPath() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         var model = new CreateUpdateProjectModel("design1",
@@ -217,9 +268,16 @@ class ZipProjectSaveStrategyTest {
         final var expectedRootFolder = BASE_RULES_LOCATION + "Project 2/";
         var descriptor = actualFileItems
                 .remove(expectedRootFolder + ProjectDescriptor.FILE_NAME);
-        assertProjectDescriptor(expectedRootFolder, "Project 2", descriptor);
-
-        assertSame(expected, expectedRootFolder, actualFileItems);
+        var projectDescriptor = assertProjectDescriptor(expectedRootFolder, "Project 2", descriptor);
+        assertRootXlsxModule(projectDescriptor);
+        var workbook = actualFileItems.remove(expectedRootFolder + "Main.xlsx");
+        assertNotNull(workbook);
+        try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(expected), Map.of());
+             var expectedStream = Files.newInputStream(fs.getPath("/Main.xlsx"));
+             var actualStream = workbook.getStream()) {
+            assertTrue(org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualStream));
+        }
+        assertTrue(actualFileItems.isEmpty());
 
         var actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 2", actualData.getName());
@@ -232,11 +290,56 @@ class ZipProjectSaveStrategyTest {
         assertEquals("custom-name", actualAddData.getInternalPath());
     }
 
-    private void assertProjectDescriptor(String expectedRootFolder, String expectedName, FileItem descriptor) throws Exception {
+    private ProjectDescriptor assertProjectDescriptor(String expectedRootFolder,
+                                                      String expectedName,
+                                                      FileItem descriptor)
+            throws IOException {
         assertNotNull(descriptor);
         assertEquals(expectedRootFolder + ProjectDescriptor.FILE_NAME,
                 descriptor.getData().getName());
-        assertEquals(expectedName, ProjectDescriptor.read(descriptor.getStream()).getName());
+        var projectDescriptor = ProjectDescriptor.read(descriptor.getStream());
+        assertNotNull(projectDescriptor);
+        assertEquals(expectedName, projectDescriptor.getName());
+        return projectDescriptor;
+    }
+
+    private static void assertDescriptorAddedWithoutMovingFiles(Path source, InputStream actual) throws IOException {
+        var actualEntries = new HashMap<String, byte[]>();
+        try (var actualZipStream = new ZipInputStream(actual)) {
+            ZipEntry entry;
+            while ((entry = actualZipStream.getNextEntry()) != null) {
+                if (!entry.isDirectory()) {
+                    actualEntries.put(entry.getName(), actualZipStream.readAllBytes());
+                }
+            }
+        }
+        var descriptor = ProjectDescriptor
+                .read(new ByteArrayInputStream(actualEntries.remove(ProjectDescriptor.FILE_NAME)));
+        assertNotNull(descriptor);
+        assertEquals("Project 2", descriptor.getName());
+        assertRootXlsxModule(descriptor);
+        try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(source), Map.of())) {
+            assertFalse(Files.exists(fs.getPath("/" + ProjectDescriptor.FILE_NAME)));
+            assertArrayEquals(Files.readAllBytes(fs.getPath("/Main.xlsx")),
+                    actualEntries.remove("Main.xlsx"));
+        }
+        assertTrue(actualEntries.isEmpty());
+    }
+
+    private static ProjectDescriptor descriptor(InputStream projectArchive) throws IOException {
+        try (var zipStream = new ZipInputStream(projectArchive)) {
+            ZipEntry entry;
+            while ((entry = zipStream.getNextEntry()) != null) {
+                if (ProjectDescriptor.FILE_NAME.equals(entry.getName())) {
+                    return ProjectDescriptor.read(zipStream);
+                }
+            }
+        }
+        throw new AssertionError("Project descriptor is missing");
+    }
+
+    private static void assertRootXlsxModule(ProjectDescriptor descriptor) {
+        assertEquals(List.of("*.xlsx"), descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
     }
 
     private static void assertSame(Path expectedArchive, InputStream actualStream) throws IOException {

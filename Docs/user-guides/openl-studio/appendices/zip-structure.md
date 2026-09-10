@@ -16,7 +16,10 @@ my-project.zip:
     *.xlsx				                 Excel files with rules
 ```
 
-OpenL Tablets project descriptor and project deployment configuration are optional and can be skipped in a single project structure.
+OpenL Tablets project descriptor and project deployment configuration are optional. When `rules.xml` is omitted,
+OpenL Studio creates it during import without moving any files in the archive. The generated descriptor declares
+`*.xlsx` as the module pattern for workbooks in the project root. Root-level workbooks in older Excel formats are
+declared as individual modules so they remain available.
 
 ### Single Project Structure \#2
 

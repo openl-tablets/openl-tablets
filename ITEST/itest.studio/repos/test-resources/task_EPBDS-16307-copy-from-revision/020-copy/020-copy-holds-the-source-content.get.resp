@@ -20,5 +20,12 @@ Content-Type: application/json
     "type": "file",
     "extension": "xlsx",
     "size": -1
+  },
+  {
+    "path": "rules.xml",
+    "name": "rules.xml",
+    "type": "file",
+    "extension": "xml",
+    "size": -1
   }
 ]

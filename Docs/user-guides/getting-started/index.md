@@ -155,6 +155,8 @@ To do it:
 5. Your new project **Air Ticket Price** appears in the Projects tree with the `Editing` status. This means that you can
    change your project and rules in it in the Rules Editor.
 
+   OpenL Studio creates `rules.xml` in the project root and stores **TicketsPrice.xlsx** in the `rules/` folder.
+
    ![Figure 8: Created Air Ticket Price project](images/created-air-ticket-price-project.png)
 
    *Figure 8: Created Air Ticket Price project*

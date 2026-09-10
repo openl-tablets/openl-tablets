@@ -23,6 +23,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -172,7 +173,7 @@ public class ProjectDescriptor {
                     urls.add(projectUrl);
                     var originalUrls = new ArrayList<URL>(urls);
                     for (String path : processClasspathPathPatterns()) {
-                        path = path.replaceAll("\\\\", "/");
+                        path = path.replace('\\', '/');
                         URL url;
                         URL originalUrl;
                         try {
@@ -489,8 +490,12 @@ public class ProjectDescriptor {
         return false;
     }
 
-    public List<Module> getAllModulesMatchingPathPattern(Module module,
-                                                         String pathPattern) throws IOException {
+    /**
+     * Resolves modules matched by a path pattern.
+     *
+     * <p>Matches are returned in path order so the module order is stable across file systems.
+     */
+    public List<Module> getAllModulesMatchingPathPattern(Module module, String pathPattern) throws IOException {
         var matchedModules = new ArrayList<Module>();
 
         var ptrn = pathPattern.trim();
@@ -521,6 +526,7 @@ public class ProjectDescriptor {
             }
         });
 
+        matchedModules.sort(Comparator.comparing(Module::getRulesRootPath));
         return matchedModules;
     }
 

@@ -25,10 +25,26 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class ProjectDescriptorTest {
 
     private static final Path DESCRIPTOR_ZIP = Path.of("test-resources/descriptor.zip");
+
+    @Test
+    void resolvesWildcardModulesInStablePathOrder(@TempDir Path projectFolder) throws Exception {
+        Files.write(projectFolder.resolve("Zeta.xlsx"), new byte[0]);
+        Files.write(projectFolder.resolve("Alpha.xlsx"), new byte[0]);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(projectFolder);
+        var wildcardModule = new Module();
+        wildcardModule.setRulesRootPath("*.xlsx");
+
+        var modules = descriptor.getAllModulesMatchingPathPattern(wildcardModule, "*.xlsx");
+
+        assertEquals(List.of("Alpha.xlsx", "Zeta.xlsx"),
+                modules.stream().map(Module::getRulesRootPath).toList());
+    }
 
     @Test
     void testRelativeUri() {
