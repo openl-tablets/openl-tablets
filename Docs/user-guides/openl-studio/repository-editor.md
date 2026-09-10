@@ -844,16 +844,27 @@ To export a file or a folder of a project, proceed as follows:
 
 ### Unlocking a Project
 
-OpenL Studio provides a function for a user to unlock a project which is edited and, therefore, locked by another user. Be aware that after unlocking, all unsaved changes made by another user will be lost and the project will be closed. The name of the user who locked the project appears in project summary, next to the project status.
+OpenL Studio provides a function for a user to unlock a project which is edited and, therefore, locked by another user. Be aware that after unlocking, all unsaved changes made by another user will be lost and the project will be closed.
+
+A locked project displays a banner at the top of the **Overview** tab, naming the user who holds the lock and the
+time it was taken. In the project list and tree, a locked project carries the lock icon with the same information
+in its tooltip.
+
+![Unlocking a project](images/unlock-project-banner.png "The lock banner with the Release lock action")
+
+*Unlocking a project*
 
 To unlock a project, proceed as follows:
 
+1.  In the **Projects** tree, select the project.
 1.  Perform one of the following steps as required:
-    -   In the **Projects** tree, select the project and, in the right pane, click **Unlock**.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project that needs to be removed and click the corresponding **Unlock** item ![](images/unlock-project-icon.png) on the right.
-1.  In the confirmation window, click **OK**.
+    -   In the **Overview** tab, click **Release lock** in the lock banner.
+    -   In the project header, click **Actions** and select **Unlock**.
 
-It is recommended to grant permission to the “Unlock” functionality only for administrators.
+1.  In the **Force-release this lock?** confirmation, click **OK**.
+
+Both actions appear only for a user who is allowed to release the lock, so a user without that right sees the
+banner without them. It is recommended to grant permission to the “Unlock” functionality only for administrators.
 
 ### Browsing the Deployment Repository
 
