@@ -62,7 +62,11 @@ Each `index.md` should include content structured as follows:
    - **Known Issues** - Known problems in this release
 4. Do not include migration steps and reference to migration.md in index.md — they belong in migration.md only
 
+The site adds every `migration.md` page to the Migration Notes index automatically. The index uses the release date
+from the version's `index.md` and lists the newest release first.
+
 Optional `migration.md` should include:
+
 1. Front Matter block must have
    ```yaml
    ---

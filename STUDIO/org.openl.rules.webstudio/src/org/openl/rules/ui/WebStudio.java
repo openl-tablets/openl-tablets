@@ -521,7 +521,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public String getCurrentRepositoryType() {
-        return new RepositoryConfiguration(currentRepositoryId, propertyResolver).getType();
+        return RepositoryConfiguration.getType(currentRepositoryId, propertyResolver);
     }
 
     public boolean isAutoCompile() {

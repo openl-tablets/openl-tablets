@@ -66,9 +66,6 @@ class PropertiesTableInExecutionModeTest {
             assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum[]) categoryProperties.get("region"))[0].name());
 
             Map<String, Object> defaultProperties = tableProperties.getDefaultProperties();
-            // assertTrue(defaultProperties.size() == 5);
-            // assertEquals("US",(String) defaultProperties.get("country"));
-
             assertTrue((Boolean) defaultProperties.get("active"));
             assertFalse((Boolean) defaultProperties.get("failOnMiss"));
         } else {

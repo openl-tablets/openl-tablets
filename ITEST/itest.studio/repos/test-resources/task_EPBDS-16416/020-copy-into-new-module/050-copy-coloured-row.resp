@@ -1,0 +1,191 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "source": [
+    [
+      {
+        "cell": "B6",
+        "value": "#",
+        "style": {
+          "background": "#376092",
+          "color": "#ffffff",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 2
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 2
+            },
+            "left": {
+              "style": "solid",
+              "width": 2
+            }
+          }
+        }
+      },
+      {
+        "cell": "C6",
+        "value": "Agency",
+        "style": {
+          "background": "#376092",
+          "color": "#ffffff",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 2
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 2
+            }
+          }
+        }
+      },
+      {
+        "cell": "D6",
+        "value": "Rating of Agency",
+        "style": {
+          "background": "#376092",
+          "color": "#ffffff",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 2
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 2
+            }
+          }
+        }
+      },
+      {
+        "cell": "E6",
+        "value": "Bank Rating Group /\nCountry, Financial Data",
+        "style": {
+          "background": "#376092",
+          "color": "#ffffff",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 2
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 2
+            }
+          }
+        }
+      },
+      {
+        "cell": "F6",
+        "value": "DE, AT, DK, CH, NL, BE",
+        "colspan": 3,
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 2
+            },
+            "right": {
+              "style": "dotted",
+              "width": 1
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "I6",
+        "value": "RU, UA, KZ",
+        "colspan": 3,
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 2
+            },
+            "right": {
+              "style": "dotted",
+              "width": 1
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "cell": "L6",
+        "style": {
+          "background": "#b9cde5",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 2
+            },
+            "right": {
+              "style": "solid",
+              "width": 2
+            },
+            "bottom": {
+              "style": "dotted",
+              "width": 1
+            }
+          }
+        }
+      }
+    ]
+  ]
+}

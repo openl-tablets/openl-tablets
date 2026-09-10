@@ -160,45 +160,62 @@ OpenL Tablets uses **Cache2K** for caching.
 
 **Configuration File**: `STUDIO/org.openl.rules.webstudio/resources/cache2k.xml`
 
+The caches it declares, without the schema header and global settings the file opens with:
+
 ```xml
-<cache2k version="1.2">
-  <defaults>
-    <entryCapacity>6000</entryCapacity>
-    <expireAfterWrite>10m</expireAfterWrite>
-    <loader>
-      <threadCount>2</threadCount>
-    </loader>
-  </defaults>
-
-  <templates>
-    <cache name="default">
-      <entryCapacity>6000</entryCapacity>
-    </cache>
-  </templates>
-
   <caches>
-    <!-- ACL Cache -->
-    <cache name="aclCache" template="default">
-      <entryCapacity>6000</entryCapacity>
+    <cache>
+      <name>aclCache</name>
       <expireAfterWrite>2m</expireAfterWrite>
     </cache>
-
-    <!-- User Info OAuth2 Cache -->
-    <cache name="userInfoOAuth2Cache" template="default">
+    <cache>
+      <name>missingAclCache</name>
+      <entryCapacity>60_000</entryCapacity>
+      <expireAfterWrite>15s</expireAfterWrite>
+    </cache>
+    <cache>
+      <name>userInfoOAuth2Cache</name>
       <entryCapacity>100</entryCapacity>
       <expireAfterWrite>30m</expireAfterWrite>
     </cache>
+    <cache>
+      <name>projectTags</name>
+      <expireAfterWrite>30m</expireAfterWrite>
+    </cache>
+    <cache>
+      <name>projectDescriptors</name>
+      <expireAfterWrite>30m</expireAfterWrite>
+    </cache>
   </caches>
-</cache2k>
 ```
+
+A cache that names no `entryCapacity` takes the file's default of 6,000 entries. A name the file does not
+declare is refused at start-up rather than answered with nothing.
+
+### What the ACL Caches Hold
+
+- **`aclCache`** — the permission entries an identity carries.
+- **`missingAclCache`** — the identities that carry no entries of their own, so that the walk to the parent
+  identity skips a read that would only fail. Permissions granted on a repository rather than on single projects
+  make this the common case: every project path reaches the grant through its parents.
+
+A permission change made by this node evicts the affected identity from both caches at once, so it takes effect
+immediately. `expireAfterWrite` bounds only how long a change made by *another* node against the same database
+stays unseen.
+
+The two caches are deliberately not given the same window. A stale `aclCache` entry answers from permissions that
+have since changed, while a stale `missingAclCache` entry answers from the parent identity and so withholds a
+permission that was just granted, which reaches the user as a refused operation. `missingAclCache` is therefore
+kept short-lived.
 
 ### Tuning Cache Settings
 
 #### Increase Cache Size
 
 ```xml
-<cache name="aclCache">
-  <entryCapacity>10000</entryCapacity>  <!-- Increased from 6000 -->
+<cache>
+  <name>aclCache</name>
+  <entryCapacity>10_000</entryCapacity>  <!-- Increased from the 6,000 default -->
   <expireAfterWrite>5m</expireAfterWrite>
 </cache>
 ```
@@ -206,12 +223,10 @@ OpenL Tablets uses **Cache2K** for caching.
 #### Add Project Cache
 
 ```xml
-<cache name="projectCache">
+<cache>
+  <name>projectCache</name>
   <entryCapacity>100</entryCapacity>
   <expireAfterWrite>1h</expireAfterWrite>
-  <loader>
-    <threadCount>4</threadCount>
-  </loader>
 </cache>
 ```
 

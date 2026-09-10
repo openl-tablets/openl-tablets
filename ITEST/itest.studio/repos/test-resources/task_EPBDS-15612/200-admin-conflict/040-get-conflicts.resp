@@ -11,6 +11,13 @@ Content-Type: application/json
       ]
     }
   ],
+  "fileAvailability": {
+    "EPBDS-15612/Qwerty.xlsx": {
+      "ours": true,
+      "theirs": true,
+      "base": true
+    }
+  },
   "oursRevision": {
     "commit": "*",
     "author": "Admin",

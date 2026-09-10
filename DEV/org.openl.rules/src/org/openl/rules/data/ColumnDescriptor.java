@@ -351,7 +351,7 @@ public class ColumnDescriptor {
 
         // get height of table without empty cells at the end
         //
-        var valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/* logicalTable.getHeight(); */
+        var valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);
         var values = new ArrayList<Object>(valuesTableHeight);
 
         for (var i = 0; i < valuesTableHeight; i++) {

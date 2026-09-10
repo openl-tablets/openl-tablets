@@ -13,12 +13,6 @@ export type CheckMergeStatus = 'mergeable' | 'up-to-date'
 // Merge result status
 export type MergeResultStatus = 'success' | 'conflicts'
 
-// API Request: Check merge or perform merge
-export interface MergeRequest {
-    mode: MergeMode
-    otherBranch: string
-}
-
 /**
  * What stands between the user and the merge they asked about. Reported next to the status: whether the
  * branches differ is one question, whether this user may merge them is another.
@@ -58,31 +52,20 @@ export interface RevisionInfo {
     exists: boolean
 }
 
+export interface ConflictFileAvailability {
+    ours: boolean
+    theirs: boolean
+    base: boolean
+}
+
 // API Response: Conflict details with revision info
 export interface ConflictDetails {
     conflictGroups: ConflictGroup[]
+    fileAvailability: Record<string, ConflictFileAvailability>
     oursRevision: RevisionInfo
     theirsRevision: RevisionInfo
     baseRevision: RevisionInfo
     defaultMessage: string
-}
-
-// File conflict resolution for API request
-export interface FileConflictResolution {
-    filePath: string
-    strategy: ConflictResolutionStrategy
-}
-
-// API Request: Resolve conflicts (multipart/form-data)
-export interface ResolveConflictsRequest {
-    resolutions: FileConflictResolution[]
-    message?: string
-}
-
-// API Response: Resolve conflicts result
-export interface ResolveConflictsResponse {
-    status: 'success'
-    resolvedFiles: string[]
 }
 
 // Branch info for dropdown

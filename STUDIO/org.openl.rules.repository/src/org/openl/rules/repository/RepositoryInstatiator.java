@@ -2,9 +2,13 @@ package org.openl.rules.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.function.Function;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.ObjectUtils;
@@ -23,11 +27,38 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public class RepositoryInstatiator {
 
+    /**
+     * The repository factories declared on the class path, looked up once.
+     *
+     * <p>The answer cannot change while the class loader holding them lives, so every question about a
+     * repository type is answered from the same factories.
+     *
+     * <p>A factory that cannot be created is left out, and the repository types the remaining ones serve
+     * keep working.
+     */
+    private static final List<RepositoryFactory> FACTORIES = loadFactories();
+
+    private static List<RepositoryFactory> loadFactories() {
+        var factories = new ArrayList<RepositoryFactory>();
+        var providers = ServiceLoader.load(RepositoryFactory.class, RepositoryFactory.class.getClassLoader())
+                .stream()
+                .toList();
+        for (var provider : providers) {
+            try {
+                factories.add(provider.get());
+            } catch (ServiceConfigurationError e) {
+                log.warn("Repository factory '{}' cannot be created, so it is skipped.",
+                        provider.type().getName(),
+                        e);
+            }
+        }
+        return List.copyOf(factories);
+    }
+
     public static Repository newRepository(String prefix, Function<String, String> props) {
-        var factories = ServiceLoader.load(RepositoryFactory.class,
-                RepositoryFactory.class.getClassLoader());
         var factoryId = props.apply(prefix + ".factory");
         if (Objects.isNull(factoryId)) {
             throw new IllegalArgumentException(
@@ -37,7 +68,7 @@ public class RepositoryInstatiator {
             );
         }
         var repos = new ArrayList<String>();
-        for (RepositoryFactory factory : factories) {
+        for (RepositoryFactory factory : FACTORIES) {
             repos.add(factory.getRefID());
             if (factory.accept(factoryId)) {
                 return new PathCheckedRepository(factory.create(key -> {
@@ -61,12 +92,10 @@ public class RepositoryInstatiator {
     }
 
     public static String getRefID(String factoryId) {
-        var factories = ServiceLoader.load(RepositoryFactory.class,
-                RepositoryFactory.class.getClassLoader());
         if (factoryId == null) {
             return null;
         }
-        for (RepositoryFactory factory : factories) {
+        for (RepositoryFactory factory : FACTORIES) {
             if (factory.accept(factoryId)) {
                 return factory.getRefID();
             }

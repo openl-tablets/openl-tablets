@@ -28,6 +28,11 @@ public final class PoiExcelHelper {
      */
     private static final short MAX_STYLES = 4030;
 
+    /**
+     * The alpha of a colour that hides nothing, which is the only one a cell style uses.
+     */
+    private static final byte OPAQUE = (byte) 0xFF;
+
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         var row = sheet.getRow(rowIndex);
         if (row != null) {
@@ -328,14 +333,61 @@ public final class PoiExcelHelper {
         }
     }
 
+    /**
+     * Gives the style the fill colours it is asked for, as colours of the given workbook.
+     *
+     * <p>A colour that is {@code null} is left as the style already has it.
+     */
+    public static void setCellFillColors(CellStyle style, short[] foreground, short[] background, Workbook workbook) {
+        if (style instanceof HSSFCellStyle) {
+            var hssfWorkbook = (HSSFWorkbook) workbook;
+            if (foreground != null) {
+                style.setFillForegroundColor(getOrAddColorIndex(foreground, hssfWorkbook));
+            }
+            if (background != null) {
+                style.setFillBackgroundColor(getOrAddColorIndex(background, hssfWorkbook));
+            }
+        } else if (style instanceof XSSFCellStyle xssfStyle) {
+            var xssfWorkbook = (XSSFWorkbook) workbook;
+            if (foreground != null) {
+                xssfStyle.setFillForegroundColor(getColor(foreground, xssfWorkbook));
+            }
+            if (background != null) {
+                xssfStyle.setFillBackgroundColor(getColor(background, xssfWorkbook));
+            }
+        }
+    }
+
+    /**
+     * Gives the font the colour it is asked for, as a colour of the given workbook.
+     *
+     * <p>A colour that is {@code null} is left as the font already has it.
+     */
+    public static void setFontColor(Font font, short[] color, Workbook workbook) {
+        if (color == null) {
+            return;
+        }
+        if (font instanceof XSSFFont xssfFont) {
+            xssfFont.setColor(getColor(color, (XSSFWorkbook) workbook));
+        } else {
+            font.setColor(getOrAddColorIndex(color, (HSSFWorkbook) workbook));
+        }
+    }
+
+    /**
+     * The given colour as a colour of the workbook.
+     *
+     * <p>It is written with the alpha the format asks for: a colour of three bytes is not one a workbook
+     * can hold, and a spreadsheet application reads a file holding one as damaged content.
+     */
     public static XSSFColor getColor(short[] color, XSSFWorkbook workbook) {
-        byte rgb[] = new byte[3];
+        byte[] argb = {OPAQUE, 0, 0, 0};
         for (var i = 0; i < 3; i++) {
-            rgb[i] = (byte) (color[i] & 0xFF);
+            argb[i + 1] = (byte) (color[i] & 0xFF);
         }
         var indexedColors = workbook.getStylesSource().getIndexedColors();
         var xssfColor = new XSSFColor(indexedColors);
-        xssfColor.setRGB(rgb);
+        xssfColor.setRGB(argb);
         return xssfColor;
     }
 

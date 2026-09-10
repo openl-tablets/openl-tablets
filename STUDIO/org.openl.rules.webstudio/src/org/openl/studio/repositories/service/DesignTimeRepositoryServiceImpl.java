@@ -41,7 +41,7 @@ public class DesignTimeRepositoryServiceImpl implements DesignTimeRepositoryServ
                                 .build())
                         .id(repo.getId())
                         .name(repo.getName())
-                        .type(new RepositoryConfiguration(repo.getId(), propertyResolver).getType())
+                        .type(RepositoryConfiguration.getType(repo.getId(), propertyResolver))
                         .capabilities(repositoryAccessService.computeCapabilities(repo, AclRepositoryType.DESIGN))
                         .features(new RepositoryFeatures(repo.supports()))
                         .build())

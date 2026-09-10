@@ -1,0 +1,20 @@
+POST /rest/projects/{PROJECT_NAME}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "SideBranchChange",
+    "returnType": "SpreadsheetResult",
+    "steps": [
+      {
+        "name": "RET",
+        "value": "This table exists only in the side branch"
+      }
+    ]
+  }
+}

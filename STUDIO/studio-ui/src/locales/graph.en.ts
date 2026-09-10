@@ -50,7 +50,6 @@ i18next.addResourceBundle('en', 'graph', {
         external: 'Belongs to {{project}}. Open that project to edit this table.',
     },
     meta: {
-        identity: 'Identity',
         signature: 'Signature',
         returns: 'Returns',
         file: 'File',

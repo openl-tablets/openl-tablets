@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +55,57 @@ class ProjectAccessServiceTest {
         for (Permission permission : permissions) {
             when(aclProjectsHelper.hasPermission(project, permission)).thenReturn(true);
         }
+    }
+
+    @Test
+    void a_permission_is_asked_only_where_the_state_leaves_the_answer_open() {
+        // A project whose state allows nothing: reading it is still open to question, because a shared
+        // project may be compared, exported and its history read whatever else its state forbids.
+        service.computeCapabilities(project);
+
+        // Reading and managing a shared project are open to question whatever its state; writing to it,
+        // and deleting it, are already settled by the state and are never asked about.
+        verify(aclProjectsHelper).hasPermission(project, BasePermission.READ);
+        verify(aclProjectsHelper).hasPermission(project, BasePermission.ADMINISTRATION);
+        verify(aclProjectsHelper, never()).hasPermission(project, BasePermission.WRITE);
+        verify(aclProjectsHelper, never()).hasPermission(project, BasePermission.DELETE);
+    }
+
+    @Test
+    void a_local_project_is_not_asked_about_at_all() {
+        when(project.isLocalOnly()).thenReturn(true);
+
+        service.computeCapabilities(project);
+
+        // Nothing a local copy offers is decided by a permission on a design repository.
+        verify(aclProjectsHelper, never()).hasPermission(any(UserWorkspaceProject.class), any(Permission.class));
+    }
+
+    @Test
+    void a_permission_several_capabilities_weigh_is_asked_once() {
+        grant(BasePermission.WRITE);
+        when(project.isOpenedForEditing()).thenReturn(true);
+        when(stateValidator.canModify(project)).thenReturn(true);
+        when(stateValidator.canSave(project)).thenReturn(true);
+        when(project.isSupportsBranches()).thenReturn(true);
+
+        var caps = service.computeCapabilities(project);
+
+        // canWrite, canSave and canManageBranches all weigh the same permission.
+        assertEquals(Boolean.TRUE, caps.project().canWrite());
+        assertEquals(Boolean.TRUE, caps.canSave());
+        assertEquals(Boolean.TRUE, caps.canManageBranches());
+        verify(aclProjectsHelper, times(1)).hasPermission(project, BasePermission.WRITE);
+    }
+
+    @Test
+    void a_project_that_is_not_a_workspace_copy_is_not_asked_about_at_all() {
+        var plain = mock(org.openl.rules.project.abstraction.AProject.class);
+
+        assertNull(service.computeCapabilities(plain).canOpen());
+
+        verify(aclProjectsHelper, never()).hasPermission(any(org.openl.rules.project.abstraction.AProject.class),
+                any(Permission.class));
     }
 
     @Test

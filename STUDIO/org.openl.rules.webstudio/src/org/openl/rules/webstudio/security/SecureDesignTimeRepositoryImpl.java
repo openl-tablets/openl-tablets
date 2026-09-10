@@ -18,6 +18,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
+import org.openl.rules.workspace.dtr.DesignProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -54,7 +55,22 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     private boolean isGrantedToAnyProject(String repoId, List<Permission> permissions) {
         return designTimeRepository.getProjects(repoId).stream()
-                .anyMatch(project -> secureVisibleProject(project, permissions).isPresent());
+                .anyMatch(project -> isVisibleProject(project, permissions));
+    }
+
+    /**
+     * Whether any view of the project is reachable, without building one.
+     *
+     * <p>The answer is a single bit, so the readable branches are not gathered into a project of their own
+     * and no secured view is made of them.
+     */
+    private boolean isVisibleProject(AProject project, List<Permission> permissions) {
+        var branched = designTimeRepository.getBranchedProject(project.getRepository().getId(), project.getName());
+        if (branched.isPresent() && !designRepositoryAclService
+                .filterGranted(projectsOf(branched.get()), permissions).isEmpty()) {
+            return true;
+        }
+        return designRepositoryAclService.isGranted(project, permissions);
     }
 
     @Override
@@ -74,9 +90,9 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     @Override
     public AProject getProject(String repositoryId, String name) throws ProjectException {
-        var branchedProject = getBranchedProject(repositoryId, name);
-        if (branchedProject.isPresent()) {
-            return branchedProject.get().homeEntry().project();
+        var home = readableHome(repositoryId, name, List.of(BasePermission.READ));
+        if (home.isPresent()) {
+            return secureProject(home.get());
         }
         var project = designTimeRepository.getProject(repositoryId, name);
         if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
@@ -115,6 +131,36 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
                 .toList();
     }
 
+    /**
+     * Every project the caller may reach, each with the branches of it they may reach.
+     *
+     * <p>The permissions of a project are asked once and answer both halves: the home the listing shows and
+     * the branch entries behind it. Resolving them apart asked the same questions twice for every project.
+     */
+    @Override
+    public Collection<DesignProject> getDesignProjects() {
+        return designTimeRepository.getDesignProjects()
+                .stream()
+                .map(this::secureVisibleProject)
+                .flatMap(Optional::stream)
+                .toList();
+    }
+
+    private Optional<DesignProject> secureVisibleProject(DesignProject designProject) {
+        var branches = designProject.branches();
+        if (branches == null) {
+            var project = designProject.project();
+            return designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))
+                    ? Optional.of(new DesignProject(secureProject(project), null))
+                    : Optional.empty();
+        }
+        // A listed project is the view of its home branch, so asking about it again once every branch has
+        // refused would repeat a question already answered, for every project the caller cannot see.
+        return readableEntries(branches, List.of(BasePermission.READ))
+                .map(entries -> entries.mapProjects(this::secureProject))
+                .map(readable -> new DesignProject(readable.homeEntry().project(), readable));
+    }
+
     @Override
     public List<? extends AProject> getProjects(String repositoryId) {
         return designTimeRepository.getProjects(repositoryId)
@@ -144,7 +190,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
 
     @Override
     public Optional<BranchedProject> getBranchedProject(String repositoryId, String name) {
-        return getBranchedProject(repositoryId, name, List.of(BasePermission.READ));
+        return securedBranchedProject(repositoryId, name, List.of(BasePermission.READ));
     }
 
     /**
@@ -177,14 +223,39 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
         return designTimeRepository.containsProject(repositoryId, name, branch);
     }
 
-    private Optional<BranchedProject> getBranchedProject(String repositoryId,
-                                                         String name,
-                                                         List<Permission> permissions) {
+    /**
+     * The branch entries of one project the caller may reach, and the readable home chosen among them.
+     *
+     * <p>Every entry is asked about once per ACL identity rather than once per branch. An identity is a
+     * repository and an internal path, and the index keeps one logical project in one folder, so the
+     * branches of a project normally share a single answer. Branches whose mapped paths differ keep
+     * their own.
+     */
+    private Optional<BranchedProject> securedBranchedProject(String repositoryId,
+                                                             String name,
+                                                             List<Permission> permissions) {
+        return readableEntries(repositoryId, name, permissions)
+                .map(readable -> readable.mapProjects(this::secureProject));
+    }
+
+    /**
+     * The branch entries of one project the caller may reach, and the home chosen among them, still holding the
+     * repository views of the index.
+     */
+    private Optional<BranchedProject> readableEntries(String repositoryId,
+                                                      String name,
+                                                      List<Permission> permissions) {
         return designTimeRepository.getBranchedProject(repositoryId, name)
-                .flatMap(project -> project
-                        .filter(entry -> designRepositoryAclService
-                                .isGranted(entry.project(), permissions))
-                        .map(filtered -> filtered.mapProjects(this::secureProject)));
+                .flatMap(project -> readableEntries(project, permissions));
+    }
+
+    private Optional<BranchedProject> readableEntries(BranchedProject project, List<Permission> permissions) {
+        var readable = designRepositoryAclService.filterGranted(projectsOf(project), permissions);
+        return project.filter(entry -> readable.contains(entry.project()));
+    }
+
+    private static List<AProject> projectsOf(BranchedProject project) {
+        return project.entries().values().stream().map(BranchedProject.BranchEntry::project).toList();
     }
 
     @Override
@@ -234,13 +305,23 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     private Optional<AProject> secureVisibleProject(AProject project, List<Permission> permissions) {
-        var branched = getBranchedProject(project.getRepository().getId(), project.getName(), permissions);
-        if (branched.isPresent()) {
-            return Optional.of(branched.get().homeEntry().project());
+        var home = readableHome(project.getRepository().getId(), project.getName(), permissions);
+        if (home.isPresent()) {
+            return Optional.of(secureProject(home.get()));
         }
         return designRepositoryAclService.isGranted(project, permissions)
                 ? Optional.of(secureProject(project))
                 : Optional.empty();
+    }
+
+    /**
+     * The home the caller may reach among the branches that hold a project, chosen among the readable ones.
+     *
+     * <p>Only that one entry is built into a secured view. Listing projects asks about each of them in turn and
+     * reads nothing but its home, while a project of a many-branch repository carries hundreds of entries.
+     */
+    private Optional<AProject> readableHome(String repositoryId, String name, List<Permission> permissions) {
+        return readableEntries(repositoryId, name, permissions).map(readable -> readable.homeEntry().project());
     }
 
     private AProject secureProject(AProject project) {

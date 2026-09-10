@@ -25,7 +25,6 @@ i18next.addResourceBundle('en', 'merge', {
 
     status: {
         checking: 'Checking merge status...',
-        merging: 'Merging branches...',
         up_to_date_receive: 'You have all their updates. Nothing to merge.',
         up_to_date_send: 'They have all your updates. Nothing to merge.',
     },
@@ -68,27 +67,18 @@ i18next.addResourceBundle('en', 'merge', {
         download_yours: 'Download your version',
         download_theirs: 'Download their version',
         download_base: 'Download base version',
+        deleted_yours: 'Deleted in your version',
+        deleted_theirs: 'Deleted in their version',
+        deleted_base: 'Deleted in base version',
     },
 
     upload: {
-        title: 'Upload Merged File',
-        description: 'Upload the manually merged file to resolve this conflict.',
         select_file: 'Select file',
-        selected: 'Selected: {{filename}}',
-        apply: 'Apply',
     },
 
     buttons: {
         cancel: 'Cancel',
-        close: 'Close',
         resolve: 'Save and Resolve',
-        download: 'Download',
-    },
-
-    messages: {
-        merge_success: 'Branches merged successfully.',
-        resolve_success: 'Conflicts resolved successfully.',
-        cancelled: 'Merge cancelled.',
     },
 
     errors: {

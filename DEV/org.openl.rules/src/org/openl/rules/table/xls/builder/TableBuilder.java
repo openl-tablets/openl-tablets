@@ -1,7 +1,7 @@
 package org.openl.rules.table.xls.builder;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
@@ -66,9 +67,18 @@ public class TableBuilder {
     private CellStyle defaultDateCellStyle;
 
     /**
-     * Mapping for style to style transformation.
+     * The style carried into this workbook for each style of another one.
+     *
+     * <p>Styles are held by identity: two workbooks describe a style the same way while the numbers in that
+     * description mean different things in each, so a style of this workbook answers equal to one of another.
      */
     private final Map<CellStyle, CellStyle> style2style;
+
+    /**
+     * Carries the styles of other workbooks into this one, built when the first such style is written.
+     */
+    @Nullable
+    private CellStyleCarrier styleCarrier;
 
     private final MetaInfoWriter metaInfoWriter;
 
@@ -83,7 +93,7 @@ public class TableBuilder {
 
     public TableBuilder(XlsSheetGridModel gridModel, MetaInfoWriter metaInfoWriter) {
         this.gridModel = Objects.requireNonNull(gridModel, "gridModel cannot be null");
-        style2style = new HashMap<>();
+        style2style = new IdentityHashMap<>();
         this.metaInfoWriter = metaInfoWriter;
     }
 
@@ -216,7 +226,8 @@ public class TableBuilder {
      * @param style  cell style
      */
     private void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
-        var cellStyle = analyseCellStyle(style);
+        var source = style instanceof XlsCellStyle xlsStyle ? xlsStyle : null;
+        var cellStyle = source != null ? source.getXlsStyle() : getDefaultCellStyle();
         x += region.getLeft();
         y += region.getTop();
         var x2 = x + width - 1;
@@ -228,32 +239,16 @@ public class TableBuilder {
         gridModel.setCellValue(x, y, value);
         for (var col = x; col <= x2; col++) {
             for (var row = y; row <= y2; row++) {
-                setCellStyle(PoiExcelHelper.getOrCreateCell(col, row, sheet), cellStyle);
+                setCellStyle(PoiExcelHelper.getOrCreateCell(col, row, sheet), cellStyle, source);
             }
         }
         if (value instanceof Date) {
             // Excel stores a date as a number, and it is read back as a date only while the cell holding it carries
             // a date format. A merged cell holds its value in the one it opens with.
             var cell = PoiExcelHelper.getOrCreateCell(x, y, sheet);
-            setCellStyle(cell, cellStyle == getDefaultCellStyle() ? getDefaultDateCellStyle() : getDateCellStyle(cell));
+            var dateStyle = cellStyle == getDefaultCellStyle() ? getDefaultDateCellStyle() : getDateCellStyle(cell);
+            setCellStyle(cell, dateStyle, null);
         }
-    }
-
-    /**
-     * Analyse the type of cell style.
-     *
-     * @param style Incoming cell style.
-     * @return CellStyle according to its type. If income value was <code>NULL</code> returns {@link #defaultCellStyle}.
-     * @author DLiauchuk
-     */
-    private CellStyle analyseCellStyle(ICellStyle style) {
-        CellStyle returnStyle;
-        if (style instanceof XlsCellStyle cellStyle) {
-            returnStyle = cellStyle.getXlsStyle();
-        } else {
-            returnStyle = getDefaultCellStyle();
-        }
-        return returnStyle;
     }
 
     /**
@@ -271,59 +266,37 @@ public class TableBuilder {
         return cell.getCellStyle();
     }
 
-    private void setCellStyle(Cell cell, CellStyle cellStyle) {
+    /**
+     * Gives the cell the style asked for, carrying it into this workbook when it belongs to another one.
+     *
+     * <p>A style is written as it stands when this workbook already holds it. A style of another workbook is
+     * carried over instead, which keeps the colours it shows: they are held as numbers a palette of its own
+     * gives meaning to, and this workbook reads the same numbers as other colours.
+     */
+    private void setCellStyle(Cell cell, CellStyle cellStyle, @Nullable XlsCellStyle source) {
         var newStyle = style2style.get(cellStyle);
         if (newStyle != null) {
             cellStyle = newStyle;
         }
         try {
             cell.setCellStyle(cellStyle);
-        } catch (Exception e) {
-            var style = findWorkbookCellStyle(cellStyle);
-            if (style != null) {
-                style2style.put(cellStyle, style);
-            } else {
-                var workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-                style = PoiExcelHelper.createCellStyle(workbook);
-                try {
-                    style.cloneStyleFrom(cellStyle);
-                } catch (IllegalArgumentException ex) {
-                    // FIXME: remove try.. catch
-                }
-                style2style.put(cellStyle, style);
+        } catch (RuntimeException e) {
+            // A style of another workbook is refused, and by which exception depends on the two formats. One
+            // that came from this workbook was refused for a reason of its own, which stands.
+            if (source == null) {
+                throw e;
             }
-            cell.setCellStyle(style);
+            var carried = carrier().carry(source);
+            style2style.put(cellStyle, carried);
+            cell.setCellStyle(carried);
         }
     }
 
-    private CellStyle findWorkbookCellStyle(CellStyle cellStyle) {
-        var workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
-        var numCellStyles = workbook.getNumCellStyles();
-        for (var i = 0; i < numCellStyles; i++) {
-            var cellStyleAt = workbook.getCellStyleAt((short) i);
-            if (equalsStyle(cellStyleAt, cellStyle)) {
-                return cellStyleAt;
-            }
+    private CellStyleCarrier carrier() {
+        if (styleCarrier == null) {
+            styleCarrier = new CellStyleCarrier(gridModel.getSheetSource().getWorkbookSource().getWorkbook());
         }
-        return null;
-    }
-
-    private boolean equalsStyle(CellStyle cs1, CellStyle cs2) {
-        return cs1.getAlignment() == cs2.getAlignment() && cs1.getHidden() == cs2.getHidden() && cs1.getLocked() == cs2
-                .getLocked() && cs1.getWrapText() == cs2.getWrapText() && cs1
-                .getBorderBottom() == cs2.getBorderBottom() && cs1.getBorderLeft() == cs2.getBorderLeft() && cs1
-                .getBorderRight() == cs2.getBorderRight() && cs1.getBorderTop() == cs2.getBorderTop() && cs1
-                .getBottomBorderColor() == cs2.getBottomBorderColor() && cs1
-                .getFillBackgroundColor() == cs2.getFillBackgroundColor() && cs1
-                .getFillForegroundColor() == cs2.getFillForegroundColor() && cs1
-                .getFillPattern() == cs2.getFillPattern() && cs1
-                .getIndention() == cs2.getIndention() && cs1
-                .getLeftBorderColor() == cs2.getLeftBorderColor() && cs1
-                .getRightBorderColor() == cs2.getRightBorderColor() && cs1
-                .getRotation() == cs2.getRotation() && cs1
-                .getTopBorderColor() == cs2.getTopBorderColor() && cs1
-                .getVerticalAlignment() == cs2.getVerticalAlignment() && cs1
-                .getDataFormat() == cs2.getDataFormat();
+        return styleCarrier;
     }
 
     /**

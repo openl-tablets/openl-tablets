@@ -80,8 +80,15 @@ public final class XSSFOptimizer {
             // 2) Compact <cellStyleXfs> (styleXfs) based on xfId references from remaining <cellXfs>.
             compactStyleXfsAndNamedStyles(cellXfs, styleXfs, cellStyles, existingNamedStyles);
 
+            // A workbook either names its styles or carries no list of them. An empty list is content a
+            // spreadsheet application reads as damaged, offering to recover the file.
+            var namedStyles = cellStyles.sizeOfCellStyleArray();
+            if (namedStyles == 0) {
+                ct.unsetCellStyles();
+            }
+
             log.info("Finished style optimization. Result: cellXfs={}, styleXfs={}, namedStyles={}",
-                    cellXfs.size(), styleXfs.size(), cellStyles.sizeOfCellStyleArray());
+                    cellXfs.size(), styleXfs.size(), namedStyles);
 
         } catch (ReflectiveOperationException | RuntimeException e) {
             // POI internals may change. In that case: do not partially modify the workbook further.

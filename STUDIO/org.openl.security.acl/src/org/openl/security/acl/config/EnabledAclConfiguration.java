@@ -1,9 +1,11 @@
 package org.openl.security.acl.config;
 
+import java.util.Objects;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +45,12 @@ public class EnabledAclConfiguration {
 
     private static final String ACL_CACHE_NAME = "aclCache";
 
+    /**
+     * Identities that carry no ACL of their own. It expires faster than {@link #ACL_CACHE_NAME}, because a
+     * stale answer here withholds a permission granted on another node rather than granting one.
+     */
+    private static final String MISSING_ACL_CACHE_NAME = "missingAclCache";
+
     private static final boolean ALC_CLASS_ID_SUPPORTED = true;
 
     private static final GrantedAuthoritySid RELEVANT_SYSTEM_WIDE_SID = new GrantedAuthoritySid("ADMIN");
@@ -59,11 +67,25 @@ public class EnabledAclConfiguration {
     public AclCache aclCache(CacheManager cacheManager,
                              AclAuthorizationStrategy aclAuthorizationStrategy,
                              PermissionGrantingStrategy permissionGrantingStrategy) {
-        var cache = cacheManager.getCache(ACL_CACHE_NAME);
-
-        return new SpringCacheBasedAclCache(cache,
+        return new SpringCacheBasedAclCache(cache(cacheManager, ACL_CACHE_NAME),
                 permissionGrantingStrategy,
                 aclAuthorizationStrategy);
+    }
+
+    /**
+     * A cache the permissions are answered from, refused at start-up when it is not configured.
+     *
+     * <p>An unconfigured name is handed back as {@code null}, which would otherwise surface much later as
+     * a failure to answer a permission.
+     */
+    private static Cache cache(CacheManager cacheManager, String name) {
+        return Objects.requireNonNull(cacheManager.getCache(name),
+                () -> "Cache '%s' is not configured. See cache2k.xml.".formatted(name));
+    }
+
+    @Bean
+    public Cache missingAclCache(CacheManager cacheManager) {
+        return cache(cacheManager, MISSING_ACL_CACHE_NAME);
     }
 
     @Bean
@@ -151,11 +173,13 @@ public class EnabledAclConfiguration {
 
     @Bean
     public RepositoryAclService designRepositoryAclService(AclCache aclCache,
+                                                           Cache missingAclCache,
                                                            JdbcMutableAclService repositoryJdbcMutableAclService,
                                                            SidRetrievalStrategy sidRetrievalStrategy) {
         var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.ProjectArtifact.class,
                 DESIGN_REPO_ROOT_ID);
         return new RepositoryAclServiceImpl(aclCache,
+                missingAclCache,
                 repositoryJdbcMutableAclService,
                 RELEVANT_SYSTEM_WIDE_SID,
                 sidRetrievalStrategy,
@@ -164,11 +188,13 @@ public class EnabledAclConfiguration {
 
     @Bean
     public SimpleRepositoryAclService productionRepositoryAclService(AclCache aclCache,
+                                                                     Cache missingAclCache,
                                                                      JdbcMutableAclService repositoryJdbcMutableAclService,
                                                                      SidRetrievalStrategy sidRetrievalStrategy) {
         var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.RepositoryObjectIdentity.class,
                 PROD_REPO_ROOT_ID);
         return new SimpleRepositoryAclServiceImpl(aclCache,
+                missingAclCache,
                 repositoryJdbcMutableAclService,
                 RELEVANT_SYSTEM_WIDE_SID,
                 sidRetrievalStrategy,

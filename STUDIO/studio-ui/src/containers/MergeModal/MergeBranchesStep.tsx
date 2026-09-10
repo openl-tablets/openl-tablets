@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Button, Checkbox, Form, Modal, Space, Spin, Tooltip } from 'antd'
 import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
+import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import type { ApiCallOptions } from '../../services'
 import { apiCall, ApiHttpError, isApiHttpError } from '../../services'
@@ -14,6 +15,31 @@ import { getProjectBranches } from '../../services/repositories'
 const MERGE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
 
 const BYPASS_REQUIRED_CODE = 'openl.error.409.protected.branch.bypass.required'
+
+const useStyles = createStyles(({ css }) => ({
+    form: css`
+        .ant-form-item-row {
+            flex-wrap: nowrap;
+        }
+
+        .ant-form-item-label {
+            flex: 0 0 ${WIDTH_OF_FORM_LABEL_MODAL};
+            max-width: ${WIDTH_OF_FORM_LABEL_MODAL};
+        }
+
+        .ant-form-item-control {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+    `,
+    branchField: css`
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+    `,
+}))
 
 const isBypassRequired = (err: unknown): err is ApiHttpError => {
     if (!isApiHttpError(err)) {
@@ -50,6 +76,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     onCheckCommitInfo,
 }) => {
     const { t } = useTranslation()
+    const { styles } = useStyles()
     const [form] = Form.useForm()
     const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined)
     const autoCheckedBranch = useRef<string | null>(null)
@@ -291,11 +318,12 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         <Space orientation="vertical" size="middle" style={{ width: '100%', paddingTop: 8 }}>
             <Form
                 labelWrap
+                className={styles.form}
                 form={form}
                 labelAlign="right"
                 labelCol={{ flex: WIDTH_OF_FORM_LABEL_MODAL }}
                 name="merge_branches_form"
-                wrapperCol={{ flex: 1 }}
+                wrapperCol={{ flex: 1, style: { minWidth: 0 } }}
             >
                 <Form.Item label={t('merge:branches.current')}>
                     <MergeBranchLabel
@@ -306,7 +334,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                     />
                 </Form.Item>
                 <Form.Item label={t('merge:branches.target')} style={{ marginBottom: 0 }}>
-                    <Space orientation="vertical" size={8} style={{ display: 'flex' }}>
+                    <div className={styles.branchField} data-testid="merge-target-branch-field">
                         <BranchSelect
                             branchNames={branchNames}
                             data-testid="merge-target-branch"
@@ -329,7 +357,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                                 {t('merge:branches.show_all')}
                             </Checkbox>
                         </Tooltip>
-                    </Space>
+                    </div>
                 </Form.Item>
             </Form>
             {branchesError && (

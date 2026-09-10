@@ -12,7 +12,7 @@ public class IntRangeDomainAdaptor implements IDomainAdaptor {
 
     @Override
     public int getIndex(Object value) {
-        return (Integer) value;// - irange.getMin();
+        return (Integer) value;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class IntRangeDomainAdaptor implements IDomainAdaptor {
 
     @Override
     public Object getValue(int index) {
-        return index; // irange.getMin();// + index;
+        return index;
     }
 
     @Override

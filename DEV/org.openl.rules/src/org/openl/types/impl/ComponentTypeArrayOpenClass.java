@@ -13,7 +13,6 @@ import org.openl.meta.IMetaInfo;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -22,7 +21,6 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     @Getter
     protected final IOpenClass componentClass;
     protected final HashMap<String, IOpenField> fieldMap;
-    protected IOpenIndex index;
     @Getter
     private final String javaName;
     private static final Collection<IOpenClass> OBJECT_CLASS = Set.of(JavaOpenClass.OBJECT);

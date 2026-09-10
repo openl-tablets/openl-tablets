@@ -217,10 +217,6 @@ class GitRepositoryTest {
         assertContains(files, "rules/project1/file2");
         assertContains(files, "rules/project1/folder/file3");
 
-        // Each file has last modified project version, to performance improve
-        // FileData file1Rev3 = find(files, "rules/project1/file1");
-        // assertEquals("Rules_2", file1Rev3.getVersion()); // The file has not been modified in second commit
-
         var file2Rev3 = find(files, "rules/project1/file2");
         assertEquals("Rules_3", file2Rev3.getVersion());
         assertEquals("User 2", file2Rev3.getAuthor().getName());

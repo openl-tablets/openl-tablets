@@ -28,7 +28,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -379,12 +378,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (style instanceof XlsCellStyle cellStyle) {
             newPoiStyle = cellStyle.getXlsStyle();
             newPoiStyle.cloneStyleFrom(newPoiStyle);
-        } /*
-         * else if (style instanceof org.openl.rules.table.ui.CellStyle) { styleToClone = poiCell.getCellStyle();
-         * newPoiStyle.cloneStyleFrom(styleToClone);
-         *
-         * setCellStyle(newPoiStyle, style); }
-         */ else {
+        } else {
             newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
@@ -460,9 +454,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         // Xlsx
         if (dest instanceof XSSFCellStyle style) {
             var workbook = (XSSFWorkbook) getSheet().getWorkbook();
-            var indexedColors = workbook.getStylesSource().getIndexedColors();
-            var color = new XSSFColor(convertRGB(rgb), indexedColors);
-            style.setFillForegroundColor(color);
+            style.setFillForegroundColor(PoiExcelHelper.getColor(rgb, workbook));
 
             // Xls
         } else {
@@ -497,9 +489,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         if (color != null) {
             // Xlsx
             if (newFont instanceof XSSFFont font) {
-                var indexedColors = ((XSSFWorkbook) workbook).getStylesSource().getIndexedColors();
-                var color1 = new XSSFColor(convertRGB(color), indexedColors);
-                font.setColor(color1);
+                font.setColor(PoiExcelHelper.getColor(color, (XSSFWorkbook) workbook));
 
                 // Xls
             } else {
@@ -612,10 +602,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private Sheet getSheet() {
         return sheetSource.getSheet();
-    }
-
-    private byte[] convertRGB(short[] rgb) {
-        return new byte[]{(byte) rgb[0], (byte) rgb[1], (byte) rgb[2]};
     }
 
     public SpreadsheetConstants getSpreadsheetConstants() {

@@ -276,6 +276,13 @@ stateDiagram-v2
       ]
     }
   ],
+  "fileAvailability": {
+    "rules/BusinessRules.xlsx": {
+      "ours": false,
+      "theirs": true,
+      "base": true
+    }
+  },
   "oursRevision": {
     "branch": "main",
     "commit": "abc1234567890def",
@@ -305,6 +312,7 @@ stateDiagram-v2
 - `oursRevision`: Metadata about the current branch version
 - `theirsRevision`: Metadata about the merging branch version
 - `baseRevision`: Metadata about the common ancestor version
+- `fileAvailability`: Whether each conflicted file exists in the current, merging, and base revisions
 - `defaultMessage`: Auto-generated merge commit message (can be overridden during resolution)
 
 **RevisionInfo Fields**:
@@ -312,7 +320,11 @@ stateDiagram-v2
 - `commit`: Full commit hash
 - `author`: Commit author name
 - `modifiedAt`: ISO 8601 timestamp of the commit
-- `exists`: Boolean indicating if the file exists in this revision (for detecting added/deleted files)
+- `exists`: Boolean indicating if the revision contains at least one conflicted file
+
+The `ours`, `theirs`, and `base` fields under each `fileAvailability` entry provide the per-file state. Clients must
+use these fields, rather than the revision-level `exists` field, to decide whether a particular version can be
+downloaded.
 
 **File Ordering**:
 - Excel files (`.xls`, `.xlsx`) appear first (prioritized for business logic importance)
@@ -348,13 +360,16 @@ stateDiagram-v2
 - Content-Disposition: `attachment; filename="filename.ext"`
 - Body: Binary file content
 
+If the file does not exist on the requested side of the conflict, the endpoint returns `404 Not Found`. Clients can
+avoid requesting missing versions by checking `fileAvailability` in the conflict-details response.
+
 **Example**:
 ```bash
 GET /projects/MyProject/merge/conflicts/files?file=rules/BusinessRules.xlsx&side=OURS
 ```
 
 **Errors**:
-- `404 Not Found`: No conflict information found OR file not in conflict list
+- `404 Not Found`: No conflict information found, file not in conflict list, or file missing in the requested revision
 - `400 Bad Request`: Invalid side parameter
 
 ---

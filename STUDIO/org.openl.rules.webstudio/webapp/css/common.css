@@ -1255,16 +1255,6 @@ option[value=""]:disabled + option[value=""]:disabled {
     line-height: 16px;
 }
 
-.clickable {
-    cursor:pointer;
-}
-
-.clickable:hover {
-    text-shadow: 1px 1px 2px #00000040;
-    text-decoration: none;
-    filter: saturate(80%);
-}
-
 .dropdown {
     position: relative;
     display: inline-block;

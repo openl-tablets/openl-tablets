@@ -69,12 +69,6 @@ import org.openl.types.impl.ParameterDeclaration;
  */
 class DependentParametersOptimizedAlgorithm {
 
-    static IConditionEvaluator makeEvaluator(ICondition condition,
-                                             IMethodSignature signature,
-                                             IBindingContext bindingContext) {
-        return makeEvaluator(condition, signature, bindingContext, new ICondition[]{condition});
-    }
-
     /**
      * Builds an evaluator for the condition, looking the column parameters up in every column of the table.
      */

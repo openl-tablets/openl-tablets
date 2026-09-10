@@ -20140,11 +20140,36 @@ Content-Type: application/json
           "defaultMessage": {
             "type": "string"
           },
+          "fileAvailability": {
+            "type": "object",
+            "description": "***",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ConflictFileAvailability"
+            }
+          },
           "oursRevision": {
             "$ref": "#/components/schemas/RevisionDetails"
           },
           "theirsRevision": {
             "$ref": "#/components/schemas/RevisionDetails"
+          }
+        }
+      },
+      "ConflictFileAvailability": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "base": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "ours": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "theirs": {
+            "type": "boolean",
+            "description": "***"
           }
         }
       },

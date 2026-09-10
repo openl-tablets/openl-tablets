@@ -1,0 +1,40 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "conflictGroups": [
+    {
+      "projectName": "EPBDS-16462",
+      "projectPath": "EPBDS-16462",
+      "files": [
+        "EPBDS-16462/Main.xlsx"
+      ]
+    }
+  ],
+  "fileAvailability": {
+    "EPBDS-16462/Main.xlsx": {
+      "ours": false,
+      "theirs": true,
+      "base": true
+    }
+  },
+  "oursRevision": {
+    "commit": "*",
+    "branch": "master",
+    "exists": false
+  },
+  "theirsRevision": {
+    "commit": "*",
+    "branch": "EPBDS-16462-side",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "baseRevision": {
+    "commit": "*",
+    "author": "*",
+    "modifiedAt": "*",
+    "exists": true
+  },
+  "defaultMessage": "*"
+}

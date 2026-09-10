@@ -24,6 +24,9 @@ public class XlsCellStyle implements ICellStyle {
 
     @Getter
     private final CellStyle xlsStyle;
+
+    /** The workbook that gives the style's colours their meaning. */
+    @Getter
     private final Workbook workbook;
 
     @Override

@@ -140,6 +140,14 @@ your version**, **Download their version** and **Download base version** save a 
 
 *Comparing conflicting versions*
 
+Download links are available only for versions in which the conflicted file exists. The **Compare** column marks a
+deleted file as **Deleted in your version**, **Deleted in their version**, or **Deleted in base version** instead
+of offering a download. Deleted files can still be compared.
+
+![Deleted file status in the Compare column](images/resolve-conflicts-deleted-file.png "Deleted file in the Resolve Conflicts dialog")
+
+*A deleted version is shown as a status instead of a download action*
+
 Once every conflicting file has a resolution, click **Save and Resolve**.
 
 ### Using Protected Branches

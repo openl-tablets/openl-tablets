@@ -1165,8 +1165,4 @@ public class CastFactory implements ICastFactory {
         return !toClass.isPrimitive() && !Modifier.isFinal(toClass.getModifiers()) && from.isInterface();
 
     }
-
-    public IMethodFactory getMethodFactory() {
-        return methodFactory;
-    }
 }
