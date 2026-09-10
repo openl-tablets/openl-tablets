@@ -1,17 +1,23 @@
-POST /rest/projects/{PROJECT_NAME}/files/rules.xml HTTP/1.1
+PUT /rest/projects/{PROJECT_NAME}/files/rules.xml HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
-Content-Type: application/xml
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="rules.xml"
+Content-Type: application/octet-stream
 
 <project>
     <name>EPBDS-16462</name>
     <modules>
         <module>
             <name>Main</name>
-            <rules-root path="Main.xlsx"/>
+            <rules-root path="rules/Main.xlsx"/>
         </module>
         <module>
             <name>Secondary</name>
-            <rules-root path="Secondary.xlsx"/>
+            <rules-root path="rules/Secondary.xlsx"/>
         </module>
     </modules>
 </project>
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
