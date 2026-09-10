@@ -616,19 +616,30 @@ Deleting a folder or a file changes the opened project. Save the project to stor
 
 #### Copying a File
 
-A user can create a copy of a file using the Repository Editor. The current revision of the file or any revision stored in the repository can be used for copying. Proceed as follows:
+A user can create a copy of a file or a folder using the Repository Editor. The copy is made from the contents the
+project holds now. Proceed as follows:
 
-1.  Select a project that contains a file to copy and in the files tree, select the required file.
-2.  In the upper left corner of the page, click **Copy file** ![](images/copy-file-icon.png).
-3.  In the window that appears, select the **Current Revision** or clear it and in the **File Revision** field, select a value.
-4.  Optionally, enter the **New File Path** property value.
-5.  In the **New File Name** field, enter the file name.
+1.  Select a project that contains a file to copy, click the **Files** tab and, in the file tree, select the
+    required file or folder.
+1.  Perform one of the following steps as required:
+    -   For a folder, click **Copy** in the toolbar above the tree contents.
+    -   For a file, click **More actions** and select **Copy**.
 
-    ![Copying a file in Repository Editor](images/copy-file-in-repository-dialog.png)
+1.  In the **New File Name** field, enter the file name.
+
+    The field is prefilled with the name of the original file and the `-copy` suffix before its extension, such
+    as `Corporate Rating-copy.xlsx`. For a folder, the field is called **New Folder Name**.
+
+    ![Copying a file in Repository Editor](images/copy-file-in-repository-dialog.png "The Copy file window")
 
     *Copying a file in Repository Editor*
 
-1.  Click **Copy**.
+1.  In the **Path** field, select the folder to place the copy into.
+
+    The field is prefilled with the folder the original file sits in, and an empty value places the copy in the
+    root of the project.
+
+1.  Click **OK**.
 
 The newly created file appears in the file tree.
 
