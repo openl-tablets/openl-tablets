@@ -31,8 +31,9 @@ Public API is never in the queue: unused public members go to Deferred findings 
 ## Open PR
 
 - #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions.
-- CodeRabbit: no actionable comments, 5/5 pre-merge checks passed. IT (services-data) red on the kafka-native
-  startup flake; stood down in one comment, re-run still unspent while the run was in progress.
+- CodeRabbit: no actionable comments, 5/5 pre-merge checks passed. Every check green except IT (services-data),
+  red on both attempts from the kafka-native setup segfault; root-caused and stood down in two comments, re-run
+  budget spent. Awaiting a maintainer decision: merge red, or fix the image flake separately.
 - Commits in order: ObjectViewer + 3 grid filters + web.test Utils; 2 Constants fields; 15 common.css rules;
   3 icons; studio-ui `valuesOf`; 6 execution locale keys. The CSS commit must stay after the Java one and the
   icon commit after the CSS one — each removal strands the next.
@@ -198,9 +199,12 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - studio-ui vitest CPU starvation under -T1C: OverviewPanel.test.tsx (15000ms timeout, act() warning via vitest-fail-on-console).
 - UserDatailsTab.test.tsx "rejects an empty email and display name": findByText timeout when the vitest run takes ~680s; rerun once.
 - OpenLTableLogicTest.detectsErrorsInRulesTestedByTable: `expected true was false`; getMethod right after async setModuleInfo compile; rerun once.
-- IT (services-data): apache/kafka-native:latest fails to come up in a random Kafka suite's `setUp`, either a
-  segfault in Pwd.getpwuid at ~0.01s or a 62s `Timed out waiting for ... RECOVERY to RUNNING` (seen in
-  itest.tracing RunTracingITest). Kafka Smoke passing in the same job proves it transient; rerun clears; never pin the tag.
+- IT (services-data): apache/kafka-native:latest segfaults in its own `setup` entrypoint at VM uptime ~0.007s —
+  Pwd.getpwuid <- PosixSystemPropertiesSupport.userNameValue <- PerfManager$PerfDataThread resolving `user.name`.
+  Container exits 1, so the visible error is `Timed out waiting for ... RECOVERY to RUNNING`. It picks a random
+  Kafka module per attempt (itest.tracing one attempt, itest.kafka.smoke the next), so a rerun does NOT reliably
+  clear it — two attempts on one SHA both failed. Never pin the tag; no in-repo fix; escalate rather than spend
+  more reruns.
 - IT (studio-acl): OracleRdbmsTest upgrade `Failed requests expected <0> but was <N>` with ORA-12516; also on main; rerun once.
 - IT (studio-acl): testcontainers/ryuk pull failure → all 4 variants error at upgrade:53 (runner degraded); rerun.
 - IT (studio): WebStudioTest.simple failed requests at ~10002ms (client timeout); Jetty hang; rerun.
@@ -267,7 +271,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - site.webmanifest names `android-chrome-512x512.pngs` (trailing s): the 512px icon is unreachable; one-character bug.
 - Policy: Jira prefix for sweep commits (maintainer view: exemption excludes production deletions); public-API removal needs a ticket.
 - Confirm EPBDS-16309 authorises the OpenL2TextUtils removal (decision came from a sweep state file, not Jira).
-- CI health: LockTest load tolerance; OracleRdbmsTest ORA-12516; itest.studio.repos createdAt tiebreaker; kafka-native:latest segfault; jacoco aggregate overlap.
+- CI health: LockTest load tolerance; OracleRdbmsTest ORA-12516; itest.studio.repos createdAt tiebreaker; jacoco aggregate overlap. kafka-native:latest `setup` segfault (Pwd.getpwuid) now blocks PRs — it failed 2 of 2 attempts on one SHA; needs a real fix, reruns no longer clear it.
 - OverviewPanel.tsx floating promise into a state setter (~lines 799/1231) is a real test defect at any speed.
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
 - Delete the stale remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods; push --delete is 403 from the sandbox, retried and still blocked.
