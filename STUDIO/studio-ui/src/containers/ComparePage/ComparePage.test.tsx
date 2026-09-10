@@ -8,6 +8,7 @@ import {
     getComparisonTable,
     startFileComparison,
     startLocalHistoryComparison,
+    startProjectComparison,
 } from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
@@ -28,6 +29,7 @@ vi.mock('services/compare', () => ({
     comparisonStatusTopic: (id: string) => `/user/topic/compare/${id}/status`,
     startFileComparison: vi.fn(),
     startLocalHistoryComparison: vi.fn(),
+    startProjectComparison: vi.fn(),
     getComparison: vi.fn(),
     getComparisonTable: vi.fn(),
     dropComparison: vi.fn(),
@@ -37,6 +39,19 @@ const unsubscribe = vi.fn()
 const subscribe = vi.fn((_destination: string, _onBody: (body: string) => void) => ({ unsubscribe }))
 vi.mock('services/stompTopic', () => ({
     subscribeTopic: (destination: string, onBody: (body: string) => void) => subscribe(destination, onBody),
+}))
+
+const SIDES = {
+    first: { path: 'rules/Main.xlsx' },
+    second: { path: 'rules/Main.xlsx', branch: 'master', revision: 'rev-1' },
+}
+
+// The picker of a project reads branches, revisions and files of its own; the page is asked here only
+// about what it does with the pair it is told about.
+vi.mock('./RevisionPicker', () => ({
+    RevisionPicker: ({ onChange, projectId }: any) => (
+        <button data-testid="revision-picker" onClick={() => onChange(SIDES)}>{projectId}</button>
+    ),
 }))
 
 // What the window was opened with; a window opened for two versions carries them in the address.
@@ -273,6 +288,30 @@ describe('ComparePage', () => {
 
         expect(await screen.findByTestId('compare-error')).toHaveTextContent('The version is not found')
         expect(screen.queryByTestId('compare-files')).toBeNull()
+    })
+
+    it('compares two files of the project the window was opened for', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1' })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        await openPage()
+
+        // The files are picked out of the project rather than uploaded.
+        expect(screen.getByTestId('revision-picker')).toHaveTextContent('p1')
+        expect(screen.queryByTestId('compare-files')).toBeNull()
+        expect(screen.getByTestId('compare-start')).toBeDisabled()
+
+        await userEvent.click(screen.getByTestId('revision-picker'))
+        expect(screen.getByTestId('compare-start')).toBeEnabled()
+        await userEvent.click(screen.getByTestId('compare-start'))
+
+        await waitFor(() => expect(startProjectComparison)
+            .toHaveBeenCalledWith('p1', SIDES.first, SIDES.second))
+        push('COMPLETED')
+
+        expect(await screen.findByText('Rules')).toBeInTheDocument()
+        // The pickers are a click away, so another pair is compared in the same window.
+        expect(screen.getByTestId('compare-back')).toBeInTheDocument()
     })
 
     it('lists only the elements that differ, and the equal ones when they were asked for', async () => {

@@ -1,4 +1,4 @@
-import apiCall from './apiCall'
+import apiCall, { asArray } from './apiCall'
 import { toUrlSafeId } from './projectId'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
@@ -41,6 +41,61 @@ export const startLocalHistoryComparison = async (
 ): Promise<string> => {
     const query = moduleName ? `?module=${encodeURIComponent(moduleName)}` : ''
     const response = await apiCall(`/projects/${toUrlSafeId(projectId)}/local-history/compare${query}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first, second }),
+    }, API_OPTIONS) as { id: string }
+    return response.id
+}
+
+/** One side of a comparison of a project: which file, and where it is read from. */
+export interface ProjectFileSide {
+    /** Path of the file inside the project. */
+    path: string
+    /** Branch the revision belongs to; left out for the working copy. */
+    branch?: string | undefined
+    /** Revision to read the file from; left out for the working copy. */
+    revision?: string | undefined
+}
+
+/**
+ * The Excel files of the project that can be compared.
+ *
+ * @param projectId the project to read
+ * @param where     the branch and the revision to read them at, or nothing for the working copy
+ * @returns the paths of the files inside the project
+ */
+export const getProjectCompareFiles = async (
+    projectId: string,
+    where: { branch?: string | undefined; revision?: string | undefined } = {}
+): Promise<string[]> => {
+    const query = new URLSearchParams()
+    if (where.branch) {
+        query.set('branch', where.branch)
+    }
+    if (where.revision) {
+        query.set('revision', where.revision)
+    }
+    const suffix = query.size > 0 ? `?${query}` : ''
+    const response = await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/compare/files${suffix}`,
+        undefined,
+        API_OPTIONS
+    )
+    return asArray<string>(response)
+}
+
+/**
+ * Starts comparing two Excel files of a project, each taken from the working copy or from a revision.
+ *
+ * @returns the identifier the comparison is read and watched by
+ */
+export const startProjectComparison = async (
+    projectId: string,
+    first: ProjectFileSide,
+    second: ProjectFileSide
+): Promise<string> => {
+    const response = await apiCall(`/projects/${toUrlSafeId(projectId)}/compare`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ first, second }),

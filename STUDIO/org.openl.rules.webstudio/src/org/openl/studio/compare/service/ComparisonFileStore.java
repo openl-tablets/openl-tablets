@@ -19,6 +19,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
 
 /**
  * Holds the files a comparison reads.
@@ -99,6 +100,30 @@ public class ComparisonFileStore {
     }
 
     /**
+     * Takes files that were read from somewhere else - a revision of a project, its working copy.
+     * Nothing is left behind when one of them cannot be written, and what is not written is not read.
+     *
+     * @param files the content to write, in the order it is given
+     * @return where each of them was written to
+     * @throws IOException when a file cannot be written
+     */
+    public List<Path> store(List<ComparisonContent> files) throws IOException {
+        var stored = new ArrayList<Path>(files.size());
+        for (int index = 0; index < files.size(); index++) {
+            try {
+                stored.add(write(files.get(index)));
+            } catch (Exception e) {
+                delete(stored);
+                // What was not written is not read either, the one that failed included: a file could
+                // not be made for it before its content was taken over.
+                files.subList(index, files.size()).forEach(rest -> IOUtils.closeQuietly(rest.content()));
+                throw e;
+            }
+        }
+        return stored;
+    }
+
+    /**
      * Deletes files a comparison no longer reads.
      *
      * @param files the files to delete
@@ -126,6 +151,18 @@ public class ComparisonFileStore {
         try (var content = upload.getInputStream()) {
             Files.copy(content, file, StandardCopyOption.REPLACE_EXISTING);
             verifyArrivedInFull(name, file);
+            return file;
+        } catch (Exception e) {
+            Files.deleteIfExists(file);
+            throw e;
+        }
+    }
+
+    /** Writes content that was read elsewhere, keeping the extension its format is read by. */
+    private Path write(ComparisonContent source) throws IOException {
+        var file = scratchFile(source.name());
+        try (var content = source.content()) {
+            Files.copy(content, file, StandardCopyOption.REPLACE_EXISTING);
             return file;
         } catch (Exception e) {
             Files.deleteIfExists(file);

@@ -17,9 +17,11 @@ import {
     getComparisonTable,
     startFileComparison,
     startLocalHistoryComparison,
+    startProjectComparison,
 } from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
 import { ComparisonPanes } from './ComparisonPanes'
+import { RevisionPicker, type ProjectComparisonSides } from './RevisionPicker'
 import { ComparisonTree } from './ComparisonTree'
 import { isFinished, useComparisonProgress } from './useComparisonProgress'
 import { useStyles } from './ComparePage.styles'
@@ -58,12 +60,18 @@ const versionsRequestOf = (params: URLSearchParams): VersionsRequest | null => {
  * A screen that already knows what to compare opens the window on the comparison itself, naming what
  * it wants in the address: two versions of a module, as Local Changes does. There are no files to
  * pick then, and the comparison starts as the window opens.
+ *
+ * A window opened for a project alone picks instead of files: which file of the working copy stands
+ * against which file of which revision.
  */
 export const ComparePage: React.FC = () => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
     const [params] = useSearchParams()
     const versions = useMemo(() => versionsRequestOf(params), [params])
+    // A project without versions named is a project to pick two files of; with them, the files are known.
+    const projectId = versions ? null : params.get('projectId')
+    const [sides, setSides] = useState<ProjectComparisonSides | null>(null)
 
     const [files, setFiles] = useState<File[]>([])
 
@@ -201,20 +209,25 @@ export const ComparePage: React.FC = () => {
         }
     }, [])
 
+    // Two files of a project are picked; without a project, two files are uploaded.
+    const ready = projectId ? sides !== null : files.length === FILES_TO_COMPARE
+
     const compare = useCallback(async () => {
-        if (files.length !== FILES_TO_COMPARE) {
+        if (!ready) {
             return
         }
         setStarting(true)
         setError(null)
         try {
-            setComparisonId(await startFileComparison(files[0]!, files[1]!))
+            setComparisonId(projectId && sides
+                ? await startProjectComparison(projectId, sides.first, sides.second)
+                : await startFileComparison(files[0]!, files[1]!))
         } catch (failure) {
             setError(errorMessage(failure) || t('failed'))
         } finally {
             setStarting(false)
         }
-    }, [files, t])
+    }, [ready, projectId, sides, files, t])
 
     /** Back to the files, leaving the comparison behind: another pair is compared from here. */
     const pickOtherFiles = useCallback(() => {
@@ -252,36 +265,39 @@ export const ComparePage: React.FC = () => {
         <div className={styles.page}>
             {!comparing && (
                 <div className={styles.step}>
-                    <div className={styles.picker}>
-                        <Upload.Dragger
-                            multiple
-                            accept={ACCEPTED}
-                            beforeUpload={pick}
-                            data-testid="compare-files"
-                            fileList={[]}
-                            showUploadList={false}
-                        >
-                            <p className="ant-upload-drag-icon"><InboxOutlined /></p>
-                            <p className="ant-upload-text">{t('select')}</p>
-                            <p className="ant-upload-hint">{t('select_hint')}</p>
-                        </Upload.Dragger>
-                        <ul className={styles.files} data-testid="compare-file-list">
-                            {files.map((file, index) => (
-                                <li key={`${index}-${file.name}`} className={styles.file}>
-                                    <PaperClipOutlined />
-                                    <span className={styles.fileName}>{file.name}</span>
-                                    <Button
-                                        data-testid="compare-file-clear"
-                                        onClick={() => setFiles(rest => rest.filter((_, at) => at !== index))}
-                                        size="small"
-                                        type="link"
-                                    >
-                                        {t('clear')}
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    {projectId && <RevisionPicker onChange={setSides} projectId={projectId} />}
+                    {!projectId && (
+                        <div className={styles.picker}>
+                            <Upload.Dragger
+                                multiple
+                                accept={ACCEPTED}
+                                beforeUpload={pick}
+                                data-testid="compare-files"
+                                fileList={[]}
+                                showUploadList={false}
+                            >
+                                <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+                                <p className="ant-upload-text">{t('select')}</p>
+                                <p className="ant-upload-hint">{t('select_hint')}</p>
+                            </Upload.Dragger>
+                            <ul className={styles.files} data-testid="compare-file-list">
+                                {files.map((file, index) => (
+                                    <li key={`${index}-${file.name}`} className={styles.file}>
+                                        <PaperClipOutlined />
+                                        <span className={styles.fileName}>{file.name}</span>
+                                        <Button
+                                            data-testid="compare-file-clear"
+                                            onClick={() => setFiles(rest => rest.filter((_, at) => at !== index))}
+                                            size="small"
+                                            type="link"
+                                        >
+                                            {t('clear')}
+                                        </Button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                     <Checkbox
                         checked={showEqualElements}
                         data-testid="compare-show-equal-elements"
@@ -292,7 +308,7 @@ export const ComparePage: React.FC = () => {
                     <div>
                         <Button
                             data-testid="compare-start"
-                            disabled={files.length !== FILES_TO_COMPARE}
+                            disabled={!ready}
                             loading={starting}
                             onClick={() => void compare()}
                             type="primary"

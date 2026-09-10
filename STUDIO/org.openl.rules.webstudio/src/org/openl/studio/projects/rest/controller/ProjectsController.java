@@ -340,10 +340,11 @@ public class ProjectsController {
     @Operation(summary = "projects.history.list.summary", description = "projects.history.list.desc")
     @JsonView(UserInfoModel.View.Short.class)
     public PageResponse<ProjectRevision> getHistory(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                    @Parameter(description = "repo.param.branch-name.desc") @RequestParam(value = "branch", required = false) String branch,
                                                     @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String search,
                                                     @Parameter(description = "repo.param.techRevs.desc") @RequestParam(value = "techRevs", required = false, defaultValue = "false") boolean techRevs,
                                                     @PaginationDefault Pageable page) throws IOException {
-        return projectRevisionService.getProjectRevision(project, search, techRevs, page);
+        return projectRevisionService.getProjectRevision(project, branch, search, techRevs, page);
     }
 
     @GetMapping("/{projectId}/branches")

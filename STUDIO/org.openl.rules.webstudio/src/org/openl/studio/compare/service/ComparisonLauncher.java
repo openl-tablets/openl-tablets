@@ -56,6 +56,18 @@ public class ComparisonLauncher {
         return start(fileStore.copy(files));
     }
 
+    /**
+     * Starts comparing two files that are read rather than kept on disk - a revision of a project, its
+     * working copy.
+     *
+     * @param files the content of the two files to compare
+     * @return the name the comparison is read and watched by
+     * @throws IOException when the content cannot be written
+     */
+    public ComparisonStartedView startContentOf(List<ComparisonContent> files) throws IOException {
+        return start(fileStore.store(files));
+    }
+
     /** Runs the comparison of the files the store has taken over. */
     private ComparisonStartedView start(List<Path> files) {
         var comparisonId = UUID.randomUUID().toString();

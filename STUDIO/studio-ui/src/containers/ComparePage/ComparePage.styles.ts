@@ -48,6 +48,26 @@ export const useStyles = createStyles(({ css, token }) => ({
         gap: ${token.margin}px;
         padding: ${token.padding}px;
     `,
+    // The window says which project is compared, because it opens away from the screen that asked for it.
+    pickerTitle: css`
+        flex: none;
+        font-size: ${token.fontSizeLG}px;
+        font-weight: 600;
+    `,
+    // The two files to compare, each picked on its own side, as the old page had them side by side.
+    sides: css`
+        display: flex;
+        flex: none;
+        flex-wrap: wrap;
+        gap: ${token.marginLG}px;
+    `,
+    side: css`
+        display: flex;
+        flex-direction: column;
+        gap: ${token.marginXS}px;
+        min-width: 320px;
+        flex: 1 1 320px;
+    `,
     // The comparison: the tree beside the two files, each column headed on the same line.
     result: css`
         flex: 1;

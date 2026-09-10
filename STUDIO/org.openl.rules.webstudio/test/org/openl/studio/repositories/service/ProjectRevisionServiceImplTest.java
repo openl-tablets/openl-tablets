@@ -18,9 +18,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
 
@@ -130,6 +133,47 @@ class ProjectRevisionServiceImplTest {
         service.getProjectRevision(project, null, false, Pageable.unpaged());
 
         assertSame(branchOfTheProject, askedRepository.get());
+    }
+
+    @Test
+    void theHistoryOfAnotherBranchIsReadUnderTheNameThatBranchMapsTheProjectTo() throws IOException {
+        var onTheBranch = mock(MappedBranchRepository.class);
+        var repository = mock(MappedBranchRepository.class);
+        var project = publishedProject(repository);
+        when(project.getRealPath()).thenReturn("DESIGN/rules/Rates");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        when(repository.branchExists("release")).thenReturn(true);
+        when(repository.forBranch("release")).thenReturn(onTheBranch);
+        when(onTheBranch.supports()).thenReturn(new FeaturesBuilder(onTheBranch).setMappedFolders(true).build());
+        when(onTheBranch.findMappedName("DESIGN/rules/Rates")).thenReturn("DESIGN/rules/Rates:c3d4");
+
+        service.getProjectRevision(project, "release", null, false, Pageable.unpaged());
+
+        assertSame(onTheBranch, askedRepository.get());
+        // The name the project carries is the one its own branch maps it to, which another branch does not.
+        verify(mapper).getProjectHistory("DESIGN/rules/Rates:c3d4", null, false, Pageable.unpaged());
+    }
+
+    @Test
+    void aBranchThatDoesNotHoldTheProjectHasNoHistoryOfIt() throws IOException {
+        var onTheBranch = mock(MappedBranchRepository.class);
+        var repository = mock(MappedBranchRepository.class);
+        var project = publishedProject(repository);
+        when(project.getRealPath()).thenReturn("DESIGN/rules/Rates");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        when(repository.branchExists("release")).thenReturn(true);
+        when(repository.forBranch("release")).thenReturn(onTheBranch);
+        when(onTheBranch.supports()).thenReturn(new FeaturesBuilder(onTheBranch).setMappedFolders(true).build());
+        when(onTheBranch.findMappedName("DESIGN/rules/Rates")).thenReturn(null);
+
+        var revisions = service.getProjectRevision(project, "release", null, false, Pageable.unpaged());
+
+        assertTrue(revisions.getContent().isEmpty());
+        verifyNoInteractions(mapper);
+    }
+
+    /** A repository that both branches and maps folders, as a design repository of a branched kind does. */
+    private interface MappedBranchRepository extends BranchRepository, FolderMapper {
     }
 
     /** A published project the given repository holds under {@link #DESIGN_FOLDER}. */
