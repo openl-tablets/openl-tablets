@@ -573,12 +573,25 @@ To upload a file to a project folder, proceed as follows:
 
 #### Updating a File
 
-To update a file of a project via Repository Editor, proceed as follows:
+Updating a file replaces its contents with a file from the file system, keeping the name and location the file has
+in the project. To update a file of a project via Repository Editor, proceed as follows:
 
-1.  In the project tree, select the file to be updated and, in the right pane, click **Update file**.
-2.  In the window that displays, click **Add** and choose the required file for updating.
-3.  Click the **Upload** button to load the file.
-4.  Click **Update** to end the action.
+1.  Click the **Files** tab and, in the file tree, select the file to be updated.
+1.  Click **More actions** and select **Update**.
+
+    The **Update file** window appears, naming the file being replaced.
+
+1.  Click the upload area and select the file, or drag it onto the area.
+
+    ![Updating a file](images/update-file-dialog.png "The Update file window with a differently named file")
+
+    *Updating a file*
+
+    A file named differently from the one being replaced is accepted, but a warning is displayed, so that a
+    wrong file is noticed before the update rather than after it. The delete icon next to the name removes the
+    file from the list, and selecting another file replaces it.
+
+1.  Click **Update**.
 
 #### Deleting a Folder or a File
 
