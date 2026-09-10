@@ -685,47 +685,48 @@ The project is deployed to the selected deployment repository.
 
 The following topics are included in this section:
 
--   [Configuring Rules Deploy Configuration Settings](#configuring-rules-deploy-configuration-settings)
+-   [Configuring Deploy Configuration Settings](#configuring-deploy-configuration-settings)
 -   [Defining Rule Service Version](#defining-rule-service-version)
 
-#### Configuring Rules Deploy Configuration Settings
+#### Configuring Deploy Configuration Settings
 
-Deployment rules can be added before deploying a project to deployment repository. If a project already has the `rules-deploy.xml` configuration file, it can be edited via the **Rules Deploy Configuration** menu.
+Deployment rules can be added before deploying a project to deployment repository. They are stored in the
+`rules-deploy.xml` configuration file of the project and are edited in the **Deploy Configuration** tab. The tab
+displays the current values, and a project without `rules-deploy.xml` states that the file does not exist yet and
+is created from the values entered here.
 
 Proceed as follows:
 
-1.  In the top line menu, click **Rules Deploy Configuration**.
-2.  Click **Create rules deploy configuration**.
-3.  In the window that appears, enter the following information about the rules:
-    -   Provide runtime context.
-    -   Use the Rule Service runtime context.
-    -   Create services specifying the versions of web services to support.
-    -   Enter the service name.
+1.  In the **Projects** tree, select a project and click the **Deploy Configuration** tab.
+2.  Click **Edit**.
+3.  Enter the following information about the rules:
+    -   Switch **Provide Runtime Context** on to pass the Rule Service runtime context to the deployed rules.
+    -   In **Publishers**, select the publisher types the service is exposed through, such as `RESTFUL`.
+    -   Enter the **Service Name**.
 
         The service name is displayed for a deployed project only in the embedded mode.
 
-    -   Define the service class.
-    -   Define the service version.
+    -   Define the **Service Class**.
+    -   Define the **Version**.
 
         For more information on service version definition, see [Defining Rule Service Version](#defining-rule-service-version).
 
-    -   Enter URL of the service.
-    -   In the **Template class** field, define **Annotation template class**.
+    -   Enter the **URL** of the service.
+    -   In the **Annotation Template Class** field, define the annotation template class.
 
-        **Note:** In OpenL Tablets versions prior to 5.24.1, separate fields for **Intercepting template class** and **Annotation template class** are supported. Since **Annotation template class** completely covers **Intercepting template class** and have a higher priority, from 5.24.1, only **Annotation template class** is displayed in the **Template class** field. If the existing configuration have both **Annotation template class** and **Intercepting template class**, only **Annotation template class** is displayed on UI and saved in the file after editing.
+        **Note:** In OpenL Tablets versions prior to 5.24.1, separate fields for **Intercepting template class** and **Annotation template class** are supported. Since **Annotation template class** completely covers **Intercepting template class** and have a higher priority, from 5.24.1, only **Annotation Template Class** is displayed. If the existing configuration have both **Annotation template class** and **Intercepting template class**, only **Annotation template class** is displayed on UI and saved in the file after editing.
 
-        **Exception:** For projects with **OpenL version compatibility** and version prior to 5.16, only the **Intercepting template class:** field is displayed instead of **Template class**.
+    -   Define comma separated service **Groups**.
+    -   Add configuration description to the XML file in **Configuration (XML)**.
 
-    -   Define comma separated service groups.
-    -   Add configuration description to the XML file.
+        For more information on the **Deploy Configuration** tab settings configuration, see [OpenL Tablets Rule Services Usage and Customization Guide > Service Configurer](../rule-services/configuration.md#service-configurer).
 
-        For more information on the **Rules Deploy Configuration** tab settings configuration, see [OpenL Tablets Rule Services Usage and Customization Guide > Service Configurer](../rule-services/configuration.md#service-configurer).
+1.  Click **Save**.
 
-1.  Click **Save Configuration**.
+    The saved values are displayed in the **Deploy Configuration** tab, and the deployments the project already
+    has are listed under **Existing deployments**.
 
-    The selected rules are displayed in the **Rules Deploy Configuration** tab.
-
-    ![Defining rules deploy configuration settings](images/rules-deploy-configuration-settings.png)
+    ![Defining rules deploy configuration settings](images/rules-deploy-configuration-settings.png "The Deploy Configuration tab")
 
     *Defining rules deploy configuration settings*
 
@@ -741,24 +742,15 @@ To check the services version deployment, in OpenL Tablets Rule Services, find t
 
 To define the rule service version, proceed as follows:
 
-1.  In the **Projects** tree, select a project.
-2.  In the top line menu, click **Rules Deploy Configuration**.
-3.  In the window that appears, click the **Version** field.
+1.  In the **Projects** tree, select a project and click the **Deploy Configuration** tab.
+1.  Click **Edit**.
+1.  In the **Version** field, enter the services version, for example, `1.0`.
 
-    By default, the **Major 0, Minor 0** scroll list appears.
+    For more information on how to configure deployment configuration settings, see [Configuring Deploy Configuration Settings](#configuring-deploy-configuration-settings).
 
-1.  For more information on how to configure deployment configuration settings, see [Configuring Rules Deploy Configuration Settings](#configuring-rules-deploy-configuration-settings).
-2.  In the scroll list, select the services version.
+1.  Click **Save**.
 
-    For example, to create the services version 1.0, Major = 1 and Minor = 0 must be selected.
-
-    ![Defining services versioning](images/services-versioning-settings.png)
-
-    *Defining services versioning*
-
-1.  Click **Save Configuration**.
-
-The selected services version is displayed in **Rules Deploy Configuration** for the selected project. For the example displayed in this section, the project version is 1.0.
+The entered services version is displayed in the **Deploy Configuration** tab for the selected project. For the example displayed in this section, the project version is 1.0.
 
 ### Comparing Project Revisions
 

@@ -210,7 +210,7 @@ The OpenL OpenAPI generation functionality can transform invalid table names int
 
 Original paths are stored in the generated service interface and OpenL Rule Services will provide the endpoint with the same URL as in the original OpenAPI structure.
 
-The annotation template class will be applied by OpenL Tablets Rule Services due to automatically generated property in the rules-deploy.xml available at **Repository \> Project \> Rules Deploy Configuration.**
+The annotation template class will be applied by OpenL Tablets Rule Services due to automatically generated property in the rules-deploy.xml available at **Projects \> Project \> Deploy Configuration.**
 
 ![](../images/openapi-gen-annotation-template-class-props.png)
 
