@@ -263,6 +263,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-10 b: main moved one commit (dependabot maven.plugin.version bump, property alive, nothing scannable); no open PR; branch delete still 403.
-- 2026-09-10 c: scanned EPBDS-16416 (CellStyleCarrier, TableBuilder, PoiExcelHelper): every member referenced, nothing dead; branch delete still 403.
-- 2026-09-10 d: main moved one docs-only commit (EPBDS-16265 configuration.md, no image refs dropped); closed the openl-default.properties vein; branch delete still 403.
+- 2026-09-10 c: scanned EPBDS-16416 (CellStyleCarrier, TableBuilder, PoiExcelHelper): every member referenced, nothing dead.
+- 2026-09-10 d: main moved one docs-only commit (EPBDS-16265 configuration.md, no image refs dropped); closed the openl-default.properties vein.
+- 2026-09-10 e: main unchanged at 62d8637b and no open dead-code PR; nothing to scan, no code touched.
