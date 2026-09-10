@@ -18,6 +18,7 @@ import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.GroovyScriptFile;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
+import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
@@ -45,7 +46,6 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private final String comment;
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
     private final Repository repository;
-    private final String projectName;
     private final String modelsPath;
     private final String algorithmsPath;
     private final String modelsModuleName;
@@ -151,7 +151,6 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
         this.uploadedOpenAPIFile = projectFile;
         this.comment = comment;
-        this.projectName = projectName;
         this.modelsPath = normalizedModelsPath;
         this.algorithmsPath = normalizedAlgorithmsPath;
         this.modelsModuleName = modelsModuleName;
@@ -264,24 +263,16 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         openAPI.setModelModuleName(modelsModuleName);
         openAPI.setMode(OpenAPI.Mode.GENERATION);
 
-        descriptor.setName(projectName);
-        var modules = new ArrayList<Module>();
-        var rulesModule = new Module();
-        rulesModule.setRulesRootPath(algorithmsPath);
-        rulesModule.setName(algorithmsModuleName);
         var filter = new ExposedMethods();
         filter.setIncludes(algorithmsInclude);
         descriptor.setExposedMethods(filter);
-        modules.add(rulesModule);
-
-        var modelsModule = new Module();
-        modelsModule.setName(modelsModuleName);
-        modelsModule.setRulesRootPath(modelsPath);
-        modules.add(modelsModule);
 
         openAPI.setPath(uploadedOpenAPIFile.getName());
         descriptor.setOpenapi(openAPI);
-        descriptor.setModules(modules);
+
+        var descriptorManager = new ProjectDescriptorManager();
+        descriptorManager.registerModule(descriptor, module(algorithmsModuleName, algorithmsPath));
+        descriptorManager.registerModule(descriptor, module(modelsModuleName, modelsPath));
 
         var classpath = new ArrayList<String>();
         if (genJavaClasses) {
@@ -289,6 +280,13 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
         descriptor.setClasspath(classpath);
         return descriptor;
+    }
+
+    private static Module module(String name, String path) {
+        var module = new Module();
+        module.setName(name);
+        module.setRulesRootPath(path);
+        return module;
     }
 
     @Override

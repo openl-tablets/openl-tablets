@@ -1,6 +1,9 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -168,6 +171,7 @@ class OpenAPIProjectCreatorTest {
                         Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);
                     }
                     Path projectFolderPath = Path.of(OPENAPI_OUT, sourceFile);
+                    assertDefaultProjectLayout(projectFolderPath);
                     var engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object>();
                     engineFactoryBuilder.setExecutionMode(false);
                     engineFactoryBuilder.setProject(projectFolderPath.toAbsolutePath().toFile().getPath());
@@ -273,6 +277,15 @@ class OpenAPIProjectCreatorTest {
             }
         }
         return testsFailed;
+    }
+
+    private static void assertDefaultProjectLayout(Path projectFolderPath) {
+        var descriptor = ProjectDescriptor.read(projectFolderPath);
+        assertNotNull(descriptor);
+        assertNull(descriptor.getName());
+        assertTrue(descriptor.getModules().isEmpty());
+        assertTrue(Files.isRegularFile(projectFolderPath.resolve(MOCK_MODEL_PATH)));
+        assertTrue(Files.isRegularFile(projectFolderPath.resolve(MOCK_ALGORITHM_PATH)));
     }
 
     private void ok(long startTime, String sourceFile) {
