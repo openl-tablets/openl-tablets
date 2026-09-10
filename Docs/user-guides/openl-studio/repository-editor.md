@@ -523,12 +523,21 @@ upload larger than 1000 MB is refused rather than checked.
 
 To create a new folder in the project structure, proceed as follows:
 
-1.  In the project tree, select the parent folder in which the new folder must be created.
+1.  Click the **Files** tab and, in the file tree, select the folder in which the new folder must be created.
 
-    To create a root level folder, the project name must be selected in the project tree.
+    The selection only prefills the path in the next step, so it can be left out and the whole path typed instead.
 
-1.  In the right pane, click **Add Folder**.
-2.  In the **Add Folder** window, enter the folder name and click **Add**.
+1.  Click **Add** and select **New folder**.
+1.  In the **New folder** window, enter the **Path** of the folder and click **OK**.
+
+    The field is prefilled with the selected folder and expects the path of the new folder inside the project, so
+    a folder at the root level is named on its own. Several levels can be created at once by entering the whole
+    path, such as `rules/generated`, and the field suggests the folders the project already holds. **OK** stays
+    unavailable until the path is filled in.
+
+A new folder is added to the file tree only. An empty folder cannot be stored in the repository, so selecting it
+displays the **This folder is empty. Add a file to save it.** hint, and the folder is saved together with the
+first file placed inside it. **Remove empty folder** discards it again.
 
 #### Uploading a File
 
