@@ -13,7 +13,6 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
     private final IDecisionTableAlgorithm ha;
 
     TwoDimensionalAlgorithm(IDecisionTableAlgorithm va, IDecisionTableAlgorithm ha) {
-        super();
         this.va = va;
         this.ha = ha;
     }

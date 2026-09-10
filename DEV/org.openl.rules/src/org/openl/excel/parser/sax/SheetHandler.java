@@ -39,8 +39,8 @@ public class SheetHandler extends DefaultHandler {
 
     @Getter
     private CellAddress start = CellAddress.A1;
-    private CellAddress effectiveStart = null;
-    private CellAddress effectiveEnd = null;
+    private CellAddress effectiveStart;
+    private CellAddress effectiveEnd;
     private CellAddress current;
 
     // Set when V start element is seen

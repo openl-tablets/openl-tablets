@@ -24,7 +24,7 @@ class MatchedDefinition {
     final Map<String, String> methodParametersToRename;
     @Getter
     final DTColumnsDefinition dtColumnsDefinition;
-    boolean parametersRenamingIsUsed = false;
+    boolean parametersRenamingIsUsed;
     @Getter
     final boolean mayHaveCompilationErrors;
 
@@ -35,7 +35,6 @@ class MatchedDefinition {
                              List<ExpressionIdentifier> identifiers,
                              MatchType matchType,
                              boolean mayHaveCompilationErrors) {
-        super();
         this.dtColumnsDefinition = dtColumnsDefinition;
         this.statement = statement;
         this.usedMethodParameterIndexes = usedMethodParameterIndexes;

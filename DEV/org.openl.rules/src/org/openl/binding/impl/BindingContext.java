@@ -48,13 +48,7 @@ public class BindingContext implements IBindingContext {
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
     private final LinkedList<Collection<OpenLMessage>> messagesStack = new LinkedList<>();
 
-    private boolean executionMode = false;
-
-    /*
-     * // NOTE: A temporary implementation of multi-module feature.
-     *
-     * private Set<IOpenClass> imports = new LinkedHashSet<IOpenClass>();
-     */
+    private boolean executionMode;
 
     public BindingContext(IOpenBinder binder, IOpenClass returnType, OpenL openl) {
         this.binder = binder;

@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,20 +65,39 @@ class DeploymentRepositoryServiceImplTest {
         return repository;
     }
 
+    /**
+     * Offers the repositories the way the secured service does: one at a time, until one accepts.
+     */
+    private void repositories(RepositoryConfiguration... configs) {
+        var offered = List.of(configs);
+        when(deploymentRepositoryService.getRepositories()).thenReturn(offered);
+        when(deploymentRepositoryService.anyRepository(any())).thenAnswer(invocation -> {
+            Predicate<RepositoryConfiguration> accepted = invocation.getArgument(0);
+            return offered.stream().anyMatch(accepted);
+        });
+    }
+
     @Test
     void a_broken_repository_does_not_hide_a_deployable_one_behind_it() {
-        var broken = config("broken", null);
-        var valid = config("valid", plainRepository());
-        when(deploymentRepositoryService.getRepositories()).thenReturn(List.of(broken, valid));
+        repositories(config("broken", null), config("valid", plainRepository()));
 
         assertTrue(service.canDeployToAnyRepository());
     }
 
     @Test
     void nothing_is_deployable_when_every_repository_is_broken() {
-        var broken = config("broken", null);
-        when(deploymentRepositoryService.getRepositories()).thenReturn(List.of(broken));
+        repositories(config("broken", null));
 
         assertFalse(service.canDeployToAnyRepository());
+    }
+
+    @Test
+    void the_question_is_settled_by_the_first_repository_that_answers_it() {
+        repositories(config("first", plainRepository()), config("second", plainRepository()));
+
+        assertTrue(service.canDeployToAnyRepository());
+
+        // Reading a repository's configuration is not free, so the ones behind the answer are left alone.
+        verify(deploymentManager, never()).getDeployRepository("second");
     }
 }

@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, CSSProperties, useEffect, useState } from 'react'
+import { FC, ReactNode, CSSProperties, useEffect, useState } from 'react'
 import { Select as AntdSelect, Form, SelectProps as AntdSelectProps } from 'antd'
 import type { FormRule } from 'antd'
 import type { DefaultOptionType } from 'antd/es/select'

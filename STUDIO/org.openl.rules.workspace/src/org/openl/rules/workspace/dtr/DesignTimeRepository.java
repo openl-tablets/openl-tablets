@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.dtr;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -67,6 +68,20 @@ public interface DesignTimeRepository extends ProjectsContainer {
      */
     default Optional<BranchedProject> getBranchedProject(String repositoryId, String name) {
         return Optional.empty();
+    }
+
+    /**
+     * Returns every project of every repository together with the branches that hold it.
+     *
+     * <p>Answers what {@link #getProjects()} answers, and pairs each project with the resolution its home
+     * branch was chosen from. A caller that needs both reads them at once instead of resolving every project
+     * a second time, which on a secured view means asking the permissions of every branch again.
+     */
+    default Collection<DesignProject> getDesignProjects() {
+        return getProjects().stream()
+                .map(project -> new DesignProject(project,
+                        getBranchedProject(project.getRepository().getId(), project.getName()).orElse(null)))
+                .toList();
     }
 
     /**

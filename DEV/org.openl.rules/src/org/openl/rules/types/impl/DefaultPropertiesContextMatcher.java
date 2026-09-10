@@ -24,11 +24,6 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
         return mc.match(props, context);
     }
 
-    @Override
-    public void addConstraint(String propertyName, MatchingConstraint<?, ?> ctr) {
-        constraints.put(propertyName, ctr);
-    }
-
     protected void initialize() {
         // <<< INSERT >>>
         constraints.put("effectiveDate", new MatchingConstraint<java.util.Date, java.util.Date>() {

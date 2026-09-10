@@ -3,8 +3,13 @@ package org.openl.security.acl.config;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +48,8 @@ public class DisabledAclConfiguration {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class DisabledAclServiceHandler implements InvocationHandler {
 
+        private static final String FILTER_GRANTED = "filterGranted";
+
         private final String typeName;
 
         @Override
@@ -54,6 +61,14 @@ public class DisabledAclConfiguration {
             } else if ("toString".equals(method.getName()) && method.getParameterCount() == 0) {
                 return "Disabled%s@%s".formatted(typeName,
                         Integer.toHexString(System.identityHashCode(proxy)));
+            }
+
+            if (FILTER_GRANTED.equals(method.getName())) {
+                // Nothing is withheld here, so every artefact asked about is answered. An artefact that is
+                // not there is still refused, as it is when the permissions are enforced.
+                Set<Object> granted = Collections.newSetFromMap(new IdentityHashMap<>());
+                ((Collection<?>) args[0]).stream().filter(Objects::nonNull).forEach(granted::add);
+                return granted;
             }
 
             Class<?> returnType = method.getReturnType();

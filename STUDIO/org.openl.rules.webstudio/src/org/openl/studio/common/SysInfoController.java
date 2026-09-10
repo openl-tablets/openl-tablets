@@ -23,25 +23,25 @@ import org.openl.info.SysInfo;
 public class SysInfoController {
 
     @Operation(summary = "info.get-sys-info.summary", description = "info.get-sys-info.desc")
-    @GetMapping(value = "/public/info/sys.json")
+    @GetMapping("/public/info/sys.json")
     public Map<String, Object> getSysInfo() {
         return SysInfo.get();
     }
 
     @Operation(summary = "info.get-openl-info.summary", description = "info.get-openl-info.desc")
-    @GetMapping(value = "/public/info/openl.json")
+    @GetMapping("/public/info/openl.json")
     public Map<String, String> getOpenLInfo() {
         return OpenLVersion.get();
     }
 
     @Operation(summary = "info.get-build-info.summary", description = "info.get-build-info.desc")
-    @GetMapping(value = "/public/info/build.json")
+    @GetMapping("/public/info/build.json")
     public Map<Object, Object> getBuildInfo() {
         return OpenLVersion.getBuildInfo();
     }
 
     @Operation(summary = "info.get-http-info.summary", description = "info.get-http-info.desc")
-    @RequestMapping(value = "/public/info/http.json")
+    @RequestMapping("/public/info/http.json")
     public Map<Object, Object> getHttpInfo(HttpServletRequest request,
                                            @Parameter(hidden = true) @RequestHeader HttpHeaders headers) {
         var info = new LinkedHashMap<Object, Object>();

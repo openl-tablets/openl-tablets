@@ -14,7 +14,7 @@ import org.springframework.core.annotation.AliasFor;
  * Acts as a shortcut for {@code @Scope("view")} with the default {@link #proxyMode} set to
  * {@link ScopedProxyMode#TARGET_CLASS TARGET_CLASS}
  */
-@Scope(value = "view")
+@Scope("view")
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

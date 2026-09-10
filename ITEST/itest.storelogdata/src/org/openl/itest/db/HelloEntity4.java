@@ -67,9 +67,6 @@ public class HelloEntity4 {
 
     private String result;
 
-    public HelloEntity4() {
-    }
-
     public Long getId() {
         return id;
     }

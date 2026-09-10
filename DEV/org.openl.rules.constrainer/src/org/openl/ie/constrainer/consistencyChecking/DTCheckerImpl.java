@@ -111,7 +111,7 @@ public class DTCheckerImpl implements DTChecker {
     private CDecisionTable _dt;
     private final CompletenessChecker _cpChecker = new CompletenessCheckerImpl();
 
-    private final OverlappingChecker _opChecker; // = new OverlappingCheckerImpl();
+    private final OverlappingChecker _opChecker;
 
     private final List<Uncovered> _uncoveredRegions = new ArrayList<>();
 

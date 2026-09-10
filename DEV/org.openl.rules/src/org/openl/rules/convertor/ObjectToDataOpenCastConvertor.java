@@ -9,7 +9,7 @@ import org.openl.util.ClassUtils;
 
 public class ObjectToDataOpenCastConvertor {
 
-    private ICastFactory castFactory = null;
+    private ICastFactory castFactory;
 
     private ICastFactory getCastFactory() {
         if (castFactory == null) {

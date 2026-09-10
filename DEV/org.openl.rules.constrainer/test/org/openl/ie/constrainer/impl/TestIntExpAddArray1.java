@@ -19,7 +19,7 @@ class TestIntExpAddArray1 {
     void testAttachDetachObserver() {
         var sum = new IntExpAddArray1(C, new IntExpArray(C, C.addIntVar(-5, 5)));
         class TestObserver extends Observer {
-            private int counter = 0;
+            private int counter;
 
             @Override
             public Object master() {

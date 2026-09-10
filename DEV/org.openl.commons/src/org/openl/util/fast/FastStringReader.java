@@ -9,8 +9,8 @@ public class FastStringReader extends Reader {
 
     private String str;
     private final int length;
-    private int next = 0;
-    private int mark = 0;
+    private int next;
+    private int mark;
 
     /**
      * Creates a new string reader.

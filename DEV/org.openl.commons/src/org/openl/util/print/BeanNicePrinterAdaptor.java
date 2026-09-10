@@ -53,7 +53,7 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
 
     private static boolean isToStringSpecified(Class<?> clazz) {
         try {
-            return clazz.getMethod("toString", new Class<?>[]{}).getDeclaringClass() != Object.class;
+            return clazz.getMethod("toString").getDeclaringClass() != Object.class;
         } catch (NoSuchMethodException e) {
             return false;
         }

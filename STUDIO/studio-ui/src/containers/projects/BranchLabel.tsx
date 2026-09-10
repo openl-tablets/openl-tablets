@@ -19,7 +19,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     /**
      * The branch as the subject of the screen rather than a note about one: the name reads in the normal
-     * text colour and is never clipped, so a dialog shows all of it.
+     * text colour and is shown in full unless its context requests truncation.
      */
     prominent: css`
         color: ${token.colorText};
@@ -27,6 +27,9 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     prominentName: css`
         color: ${token.colorText};
+    `,
+    singleLine: css`
+        flex-wrap: nowrap;
     `,
     /** Breadcrumb tone: the branch reads like the other breadcrumb links, not as faint metadata. */
     secondary: css`
@@ -50,6 +53,8 @@ interface BranchLabelProps {
      * what the screen is about — a dialog field — instead of metadata beside something else.
      */
     prominent?: boolean | undefined
+    /** Keep the branch on one line and expose its full name as a tooltip. */
+    truncate?: boolean | undefined
     /** Colour tone. `secondary` makes the branch read like a breadcrumb link rather than faint metadata. */
     tone?: BranchTone | undefined
     /**
@@ -67,15 +72,38 @@ interface BranchLabelProps {
  * This is the single rendering of a branch across the workspace: the project list, the breadcrumb, the
  * Overview tab and every entry of the branch switcher, so a branch always reads the same way.
  */
-export const BranchLabel = ({ name, isDefault, isProtected, withIcon, prominent, tone, testId, className }: BranchLabelProps) => {
+export const BranchLabel = ({
+    name,
+    isDefault,
+    isProtected,
+    withIcon,
+    prominent,
+    truncate,
+    tone,
+    testId,
+    className,
+}: BranchLabelProps) => {
     const { styles, cx } = useStyles()
     const secondary = !prominent && tone === 'secondary'
     const toneClassName = secondary ? styles.secondary : undefined
     const nameClassName = prominent ? styles.prominentName : toneClassName
     return (
-        <span className={cx(styles.label, prominent && styles.prominent, secondary && styles.secondary, className)} data-testid={testId}>
+        <span
+            data-testid={testId}
+            className={cx(
+                styles.label,
+                prominent && styles.prominent,
+                truncate && styles.singleLine,
+                secondary && styles.secondary,
+                className
+            )}
+        >
             {withIcon && <BranchesOutlined />}
-            <ValueText ellipsis={!prominent} {...(nameClassName ? { className: nameClassName } : {})}>
+            <ValueText
+                ellipsis={truncate || !prominent}
+                {...(nameClassName ? { className: nameClassName } : {})}
+                {...(truncate ? { title: name } : {})}
+            >
                 {name}
             </ValueText>
             <BranchMarks isDefault={isDefault} isProtected={isProtected} testId={testId} />

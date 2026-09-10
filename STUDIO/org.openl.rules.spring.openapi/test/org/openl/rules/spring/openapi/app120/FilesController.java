@@ -31,7 +31,7 @@ public class FilesController {
         return null;
     }
 
-    @PostMapping(value = "/{*path}")
+    @PostMapping("/{*path}")
     public ResponseEntity<Void> createRaw(
             @PathVariable("folder") String folder,
             @PathVariable @Parameter(description = "File path") String path,

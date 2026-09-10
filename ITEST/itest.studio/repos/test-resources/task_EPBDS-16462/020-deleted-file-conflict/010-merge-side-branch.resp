@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "conflicts",
+  "conflictGroups": [
+    {
+      "projectName": "EPBDS-16462",
+      "projectPath": "EPBDS-16462",
+      "files": [
+        "EPBDS-16462/Main.xlsx"
+      ]
+    }
+  ]
+}

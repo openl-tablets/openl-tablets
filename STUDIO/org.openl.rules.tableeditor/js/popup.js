@@ -17,8 +17,6 @@ var Popup = Class.create({
     },
 
     show: function() {
-        var self = this;
-
         if (!this.popup) {
             this.popup = this.createPopup();
 
@@ -47,10 +45,6 @@ var Popup = Class.create({
         }
 
         return popupDiv;
-    },
-
-    hide: function() {
-        this.hide(0);
     },
 
     hide: function(timeout) {

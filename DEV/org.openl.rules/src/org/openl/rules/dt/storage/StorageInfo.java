@@ -8,10 +8,10 @@ import lombok.Getter;
 
 public class StorageInfo {
     @Getter
-    private int numberOfSpaces = 0;
+    private int numberOfSpaces;
     @Getter
-    private int numberOfFormulas = 0;
-    private int numberOfElses = 0;
+    private int numberOfFormulas;
+    private int numberOfElses;
 
     @Getter(AccessLevel.PACKAGE)
     private final Map<Object, Integer> uniqueIndex = new HashMap<>();

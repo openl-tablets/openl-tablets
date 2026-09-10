@@ -37,7 +37,7 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
     @Setter
     private ClassLoader serviceClassLoader;
     private SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy;
-    private volatile boolean initialized = false;
+    private volatile boolean initialized;
 
     protected SpreadsheetResultBeanPropertyNamingStrategy getSpreadsheetResultBeanPropertyNamingStrategy() {
         if (!initialized) {

@@ -1,6 +1,5 @@
 package org.openl.rules.runtime;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,7 +116,7 @@ public class InterfaceClassGenerator {
         return generateAndLoad(className, classLoader, classBuilder);
     }
 
-    private static Class<?> generateAndLoad(String className, ClassLoader classLoader, InterfaceByteCodeBuilder builder) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException {
+    private static Class<?> generateAndLoad(String className, ClassLoader classLoader, InterfaceByteCodeBuilder builder) throws ClassNotFoundException {
         var bytecode = builder.buildJava().byteCode();
 
         // Create class object.

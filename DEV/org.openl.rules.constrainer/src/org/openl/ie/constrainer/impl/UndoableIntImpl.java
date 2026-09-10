@@ -11,8 +11,6 @@ import org.openl.ie.tools.ReusableFactory;
 /**
  * A generic implementation of the UndoableInt.
  */
-// public final class UndoableIntImpl extends UndoableOnceImpl implements
-// UndoableInt
 public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
     /**
      * Undo Class for UndoUndoableInt.

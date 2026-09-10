@@ -17,7 +17,6 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
     private final List<Comparator<ITableProperties>> maxMinPriorityRules = new ArrayList<>();
     private final List<Comparator<ITableProperties>> tablesPriorityRules = new ArrayList<>();
 
-    @Getter
     private Comparator<IOpenMethod> methodsComparator;
 
     public DefaultTablePropertiesSorter() {

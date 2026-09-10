@@ -53,7 +53,7 @@ public class TestDownloadController {
     private final Environment environment;
 
     @Operation(summary = "test.download.summary", description = "test.download.desc")
-    @GetMapping(value = "/testcase")
+    @GetMapping("/testcase")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
             @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
@@ -98,7 +98,7 @@ public class TestDownloadController {
     }
 
     @Operation(summary = "test.manual.summary", description = "test.manual.desc")
-    @GetMapping(value = "/rule")
+    @GetMapping("/rule")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
             @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
@@ -127,7 +127,7 @@ public class TestDownloadController {
 
     @Hidden
     @Operation(summary = "Run table and get JSON result", description = "Run table and get result in JSON format")
-    @GetMapping(value = "/rule/json")
+    @GetMapping("/rule/json")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
             @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = "application/octet-stream", schema = @Schema(format = "binary", type = "string")))

@@ -8,7 +8,6 @@ public class MethodNotFoundException extends RuntimeException {
     private static final long serialVersionUID = -8445338558999623680L;
 
     public MethodNotFoundException() {
-        super();
     }
 
     public MethodNotFoundException(String message,

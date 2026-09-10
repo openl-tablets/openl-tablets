@@ -41,7 +41,7 @@ public class PetController {
      * @return Invalid input (status code 405)
      */
     @Operation(summary = "Add a new pet to the store", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Invalid input")})
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Pet object that needs to be added to the store", required = true, content = @Content(schema = @Schema(implementation = Pet.class)))
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
@@ -60,10 +60,10 @@ public class PetController {
     @Parameters({
             @Parameter(in = ParameterIn.PATH, description = "Pet id to delete", name = "petId", required = true, schema = @Schema(type = "integer", format = "int64")),
             @Parameter(in = ParameterIn.HEADER, name = "api_key", schema = @Schema(type = "string"))})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found")})
-    @DeleteMapping(value = "/{petId}")
+    @DeleteMapping("/{petId}")
     public ResponseEntity<?> deletePet(@PathVariable("petId") Long petId,
                                        @RequestHeader(value = "api_key", required = false) String apiKey) {
         return ResponseEntity.ok().build();
@@ -77,7 +77,7 @@ public class PetController {
      */
     @Operation(summary = "Finds Pets by status", description = "Multiple status values can be provided with comma separated strings", tags = {
             "pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pet.class)))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid status value")})
     @GetMapping(value = "/findByStatus", produces = {MediaType.APPLICATION_JSON_VALUE,
@@ -86,7 +86,7 @@ public class PetController {
             "available",
             "pending",
             "sold"})))
-    public ResponseEntity<List<Pet>> findPetsByStatus(@RequestParam(value = "status") List<String> status) {
+    public ResponseEntity<List<Pet>> findPetsByStatus(@RequestParam("status") List<String> status) {
         return ResponseEntity.ok().build();
     }
 
@@ -99,12 +99,12 @@ public class PetController {
      * @deprecated
      */
     @Operation(summary = "Finds Pets by tags", description = "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.", deprecated = true)
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pet.class)))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid tag value")})
     @GetMapping(value = "/findByTags", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     @Parameter(description = "Tags to filter by", in = ParameterIn.QUERY, name = "tags", required = true, array = @ArraySchema(schema = @Schema(type = "string")))
-    public ResponseEntity<List<Pet>> findPetsByTags(@RequestParam(value = "tags") List<String> tags) {
+    public ResponseEntity<List<Pet>> findPetsByTags(@RequestParam("tags") List<String> tags) {
         return ResponseEntity.ok().build();
     }
 
@@ -116,7 +116,7 @@ public class PetController {
      * code 404)
      */
     @Operation(summary = "Find pet by ID", description = "Returns a single pet", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Pet.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found")})
@@ -134,7 +134,7 @@ public class PetController {
      * code 405)
      */
     @Operation(summary = "Update an existing pet", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Validation exception")})
@@ -153,7 +153,7 @@ public class PetController {
      * @return Invalid input (status code 405)
      */
     @Operation(summary = "Updates a pet in the store with form data", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Invalid input")})
     @Parameter(description = "ID of pet that needs to be updated", in = ParameterIn.PATH, name = "petId", required = true, schema = @Schema(type = "integer", format = "int64"))
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/x-www-form-urlencoded", schema = @Schema()))
@@ -172,7 +172,7 @@ public class PetController {
      * @return successful operation (status code 200)
      */
     @Operation(summary = "uploads an image", tags = {"pet"})
-    @ApiResponses(value = {
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = ApiResponse.class)))})
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/octet-stream", schema = @Schema(format = "binary", type = "string")))
     @PostMapping(value = "/{petId}/uploadImage", produces = {"application/json"}, consumes = {

@@ -23,7 +23,7 @@ class TestIntExpCard {
         try {
             var expcard = new IntExpCard(C, new IntExpArray(C, 10, 0, 5, "array"), 4);
             class TestObserver extends Observer {
-                private int counter = 0;
+                private int counter;
 
                 @Override
                 public Object master() {

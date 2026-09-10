@@ -30,20 +30,6 @@ public abstract class IntersectionConstraint<P> {
         return matchNotNulls(firstValue, secondValue);
     }
 
-    protected static <T> IntersectionType intersectionForLE(Comparable<T> firstValue, Comparable<T> secondValue) {
-        @SuppressWarnings("unchecked")
-        var comparison = firstValue.compareTo((T) secondValue);
-        return comparison == 0 ? IntersectionType.EQUALS
-                : comparison < 0 ? IntersectionType.CONTAINS : IntersectionType.NESTED;
-    }
-
-    protected static <T> IntersectionType intersectionForGE(Comparable<T> firstValue, Comparable<T> secondValue) {
-        @SuppressWarnings("unchecked")
-        var comparison = firstValue.compareTo((T) secondValue);
-        return comparison == 0 ? IntersectionType.EQUALS
-                : comparison > 0 ? IntersectionType.CONTAINS : IntersectionType.NESTED;
-    }
-
     @SuppressWarnings("unchecked")
     protected static <T> IntersectionType intersectionForEQ(Comparable<T> firstValue, Comparable<T> secondValue) {
         return firstValue.compareTo((T) secondValue) == 0 ? IntersectionType.EQUALS : IntersectionType.NO_INTERSECTION;

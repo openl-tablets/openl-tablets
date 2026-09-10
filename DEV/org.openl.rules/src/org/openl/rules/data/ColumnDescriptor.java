@@ -339,7 +339,7 @@ public class ColumnDescriptor {
 
     private Object getSingleValue(ILogicalTable logicalTable,
                                   OpenlToolAdaptor toolAdapter,
-                                  IOpenClass paramType) throws SyntaxNodeException {
+                                  IOpenClass paramType) {
         String fieldName = field == null ? RuleRowHelper.CONSTRUCTOR : field.getName();
         return RuleRowHelper.loadSingleParam(paramType, fieldName, null, logicalTable, toolAdapter);
     }
@@ -351,7 +351,7 @@ public class ColumnDescriptor {
 
         // get height of table without empty cells at the end
         //
-        var valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);/* logicalTable.getHeight(); */
+        var valuesTableHeight = RuleRowHelper.calculateHeight(logicalTable);
         var values = new ArrayList<Object>(valuesTableHeight);
 
         for (var i = 0; i < valuesTableHeight; i++) {

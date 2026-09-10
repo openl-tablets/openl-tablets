@@ -66,10 +66,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     public static final String SPREADSHEET_RESULT_CLASS_NAME = SpreadsheetResult.class.getName();
     public static final String GET_PREFIX = "get";
 
-    public OpenAPIScaffoldingConverter() {
-        // default constructor
-    }
-
     @Override
     public ProjectModel extractProjectModel(String pathTo) {
         ParseOptions options = OpenLOpenAPIUtils.getParseOptions();

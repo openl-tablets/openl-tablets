@@ -69,12 +69,6 @@ import org.openl.types.impl.ParameterDeclaration;
  */
 class DependentParametersOptimizedAlgorithm {
 
-    static IConditionEvaluator makeEvaluator(ICondition condition,
-                                             IMethodSignature signature,
-                                             IBindingContext bindingContext) {
-        return makeEvaluator(condition, signature, bindingContext, new ICondition[]{condition});
-    }
-
     /**
      * Builds an evaluator for the condition, looking the column parameters up in every column of the table.
      */
@@ -950,7 +944,6 @@ class DependentParametersOptimizedAlgorithm {
         RelationRangeAdaptor(EvaluatorFactory evaluatorFactory,
                              ITypeAdaptor<?, C> typeAdaptor,
                              ConditionCasts conditionCasts) {
-            super();
             this.evaluatorFactory = evaluatorFactory;
             this.typeAdaptor = (ITypeAdaptor<Object, C>) typeAdaptor;
             this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionsCasts cannot be null");
@@ -1094,7 +1087,6 @@ class DependentParametersOptimizedAlgorithm {
         final String expression;
 
         EvaluatorFactory(IParameterDeclaration signatureParam, String expression) {
-            super();
             this.signatureParam = signatureParam;
             this.expression = expression;
         }

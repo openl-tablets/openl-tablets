@@ -12,9 +12,6 @@ public class BeanA {
     protected transient int Ba = 16;
     protected int xB = 64;
 
-    public BeanA() {
-    }
-
     public int getA() {
         return a;
     }

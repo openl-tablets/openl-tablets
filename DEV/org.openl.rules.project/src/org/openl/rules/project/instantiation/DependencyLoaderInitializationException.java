@@ -12,7 +12,6 @@ public class DependencyLoaderInitializationException extends OpenlNotCheckedExce
     private static final long serialVersionUID = 1L;
 
     public DependencyLoaderInitializationException() {
-        super();
     }
 
     public DependencyLoaderInitializationException(String message,

@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
+import org.openl.studio.projects.model.merge.ConflictDetailsResponse.ConflictFileAvailability;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse.RevisionDetails;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
@@ -55,7 +57,6 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 @Service
-@Slf4j
 public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflictsService {
 
     private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
@@ -66,7 +67,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     }
 
     @Override
-    public ConflictDetailsResponse getConflictDetails(MergeConflictInfo mergeConflictInfo) {
+    public ConflictDetailsResponse getConflictDetails(MergeConflictInfo mergeConflictInfo) throws IOException {
         var builder = ConflictDetailsResponse.builder()
                 .conflictGroups(getMergeConflicts(mergeConflictInfo));
         var conflictDetails = mergeConflictInfo.details();
@@ -95,14 +96,25 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         var oursBranch = getYourBranch(mergeConflictInfo);
         var theirsBranch = getTheirBranch(mergeConflictInfo);
 
-        // Find first conflicted file to get revision details
-        String firstFile = conflictDetails.getConflictedFiles().isEmpty()
-                ? null
-                : conflictDetails.getConflictedFiles().iterator().next();
+        var conflictedFiles = conflictDetails.getConflictedFiles();
+        var oursFiles = getRevisionFiles(rawRepository, oursCommit, conflictedFiles);
+        var theirsFiles = getRevisionFiles(rawRepository, theirsCommit, conflictedFiles);
+        var baseFiles = getRevisionFiles(rawRepository, baseCommit, conflictedFiles);
 
-        builder.oursRevision(getRevisionDetails(rawRepository, firstFile, oursCommit, oursBranch))
-                .theirsRevision(getRevisionDetails(rawRepository, firstFile, theirsCommit, theirsBranch))
-                .baseRevision(getRevisionDetails(rawRepository, firstFile, baseCommit, null));
+        builder.oursRevision(getRevisionDetails(getFirstFile(oursFiles, conflictedFiles), oursCommit, oursBranch))
+                .theirsRevision(getRevisionDetails(getFirstFile(theirsFiles, conflictedFiles),
+                        theirsCommit,
+                        theirsBranch))
+                .baseRevision(getRevisionDetails(getFirstFile(baseFiles, conflictedFiles), baseCommit, null));
+
+        var fileAvailability = new LinkedHashMap<String, ConflictFileAvailability>();
+        for (var file : conflictDetails.getConflictedFiles()) {
+            fileAvailability.put(file,
+                    new ConflictFileAvailability(oursFiles.containsKey(file),
+                            theirsFiles.containsKey(file),
+                            baseFiles.containsKey(file)));
+        }
+        builder.fileAvailability(fileAvailability);
 
         // Generate default merge message
         var unresolvedFiles = mergeConflictInfo.details().getConflictedFiles().stream()
@@ -113,27 +125,48 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         return builder.build();
     }
 
-    private RevisionDetails getRevisionDetails(Repository repository, String file, String commit, String branch) {
-        if (commit == null || file == null) {
+    private Map<String, FileData> getRevisionFiles(Repository repository,
+                                                   @Nullable String commit,
+                                                   Collection<String> conflictedFiles) throws IOException {
+        if (commit == null || conflictedFiles.isEmpty()) {
+            return Map.of();
+        }
+
+        var files = new HashMap<String, FileData>();
+        for (var path : conflictedFiles) {
+            var file = repository.checkHistory(path, commit);
+            if (file != null) {
+                files.put(path, file);
+            }
+        }
+        return files;
+    }
+
+    @Nullable
+    private FileData getFirstFile(Map<String, FileData> files, Iterable<String> conflictedFiles) {
+        for (var path : conflictedFiles) {
+            var file = files.get(path);
+            if (file != null) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    private RevisionDetails getRevisionDetails(@Nullable FileData fileData,
+                                               @Nullable String commit,
+                                               @Nullable String branch) {
+        if (commit == null || fileData == null) {
             return RevisionDetails.notExists(commit, branch);
         }
 
-        try {
-            var fileData = repository.checkHistory(file, commit);
-            if (fileData != null) {
-                var author = Optional.ofNullable(fileData.getAuthor())
-                        .map(UserInfo::getName)
-                        .orElse(null);
-                var modifiedAt = Optional.ofNullable(fileData.getModifiedAt())
-                        .map(java.util.Date::toInstant)
-                        .orElse(null);
-                return RevisionDetails.of(commit, branch, author, modifiedAt);
-            }
-        } catch (IOException e) {
-            log.debug("Failed to get revision details for file {} at commit {}", file, commit, e);
-        }
-
-        return RevisionDetails.notExists(commit, branch);
+        var author = Optional.ofNullable(fileData.getAuthor())
+                .map(UserInfo::getName)
+                .orElse(null);
+        var modifiedAt = Optional.ofNullable(fileData.getModifiedAt())
+                .map(java.util.Date::toInstant)
+                .orElse(null);
+        return RevisionDetails.of(commit, branch, author, modifiedAt);
     }
 
     @Override
@@ -196,7 +229,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         };
         var fileItem = repository.readHistory(realPath, commitRev);
         if (fileItem == null) {
-            throw new NotFoundException("project.merge.conflict.file.revision.not.found", path, commitRev);
+            throw new NotFoundException("project.merge.conflict.file.revision.not.found", commitRev, path);
         }
         return fileItem;
     }

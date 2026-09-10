@@ -22,7 +22,7 @@ public class H2CacheDB {
     JdbcConnectionPool cp = JdbcConnectionPool.create(jdbcDataSource);
 
     private final String cacheName;
-    private boolean initialized = false;
+    private boolean initialized;
 
     protected Connection getDBConnection() throws IOException {
         try {

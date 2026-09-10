@@ -70,12 +70,12 @@ public class TestMethodNodeBinder extends DataNodeBinder {
     }
 
     private static class TestedMethodBindingDetails {
-        TestMethodBoundNode testMethodBoundNode = null;
-        IOpenMethod testedMethod = null;
-        TestMethodOpenClass testMethodOpenClass = null;
-        ITable dataTable = null;
-        Collection<OpenLMessage> messages = null;
-        List<SyntaxNodeException> errors = null;
+        TestMethodBoundNode testMethodBoundNode;
+        IOpenMethod testedMethod;
+        TestMethodOpenClass testMethodOpenClass;
+        ITable dataTable;
+        Collection<OpenLMessage> messages;
+        List<SyntaxNodeException> errors;
     }
 
     @Override

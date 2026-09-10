@@ -9,6 +9,8 @@ main:
     url: /user-guides
   - title: "Release Notes"
     url: /release-notes
+  - title: "Migration Notes"
+    url: /migration-notes
   - title: "Supported Platforms"
     url: /supported-platforms
   - title: "Apologia"

@@ -11,11 +11,11 @@ public class KafkaServiceConfig extends BaseKafkaConfig {
     @Setter
     private String inTopic;
     @Getter
-    @JsonProperty(value = "out.topic.name")
+    @JsonProperty("out.topic.name")
     @Setter
     private String outTopic;
     @Getter
-    @JsonProperty(value = "dlt.topic.name")
+    @JsonProperty("dlt.topic.name")
     @Setter
     private String dltTopic;
 }

@@ -107,7 +107,7 @@ public final class Constrainer implements Serializable {
     private long _number_of_notifications;
 
     private final boolean _print_information;
-    private long _execution_time = 0;
+    private long _execution_time;
 
     private final Queue _propagation_queue;
 

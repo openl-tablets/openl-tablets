@@ -36,13 +36,6 @@ public abstract class IntEvent extends EventOfInterest {
     }
 
     /**
-     * Returns the expression for which this event is.
-     */
-    public IntExp exp() {
-        return _exp;
-    }
-
-    /**
      * Sets the expression for which this event is.
      */
     public void exp(IntExp e) {

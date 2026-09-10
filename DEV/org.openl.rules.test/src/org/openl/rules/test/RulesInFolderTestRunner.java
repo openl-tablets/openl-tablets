@@ -77,7 +77,7 @@ public class RulesInFolderTestRunner {
                 try {
                     new FileInputStream(file).close();
                 } catch (Exception ex) {
-                    error(messagesCount++, startTime, sourceFile, "Failed to read the excel file.", ex);
+                    error(messagesCount, startTime, sourceFile, "Failed to read the excel file.", ex);
                     testsFailed = true;
                     continue;
                 }
@@ -113,7 +113,7 @@ public class RulesInFolderTestRunner {
                         throw new IllegalStateException("Failed to create an instance of the rules engine.");
                     }
                 } catch (Exception e) {
-                    error(messagesCount++, startTime, sourceFile, "Compilation fails.", e);
+                    error(messagesCount, startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
                     continue;
                 }

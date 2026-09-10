@@ -307,7 +307,6 @@ class ModuleTest {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */
-        // Object obj = executeOpenLGetExpression(order, MATH_OPENL);
         // XXX: workaround: have to specify expected return type for arithmetic
         // expressions - not good for BLS engine
         var obj = executeOpenLExprression(order, MATH_OPENL, JavaOpenClass.getOpenClass(Double.class)); // <--
@@ -327,7 +326,6 @@ class ModuleTest {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */
-        // Object obj = executeOpenLGetExpression(order, MATH_OPENL);
         // XXX: workaround: have to specify expected return type for arithmetic
         // expressions - not good for BLS engine
         var obj = executeOpenLOGNLExprression(order, MATH_OGNL); // <--

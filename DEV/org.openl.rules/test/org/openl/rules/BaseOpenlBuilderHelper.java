@@ -19,7 +19,6 @@ import org.openl.types.IOpenMethod;
 @Deprecated
 public abstract class BaseOpenlBuilderHelper {
 
-    protected Object instance;
     @Getter
     private final CompiledOpenClass compiledOpenClass;
 

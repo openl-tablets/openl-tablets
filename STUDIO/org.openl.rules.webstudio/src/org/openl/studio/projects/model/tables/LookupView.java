@@ -130,9 +130,6 @@ public class LookupView extends ExecutableView {
         private List<LookupHeaderView> headers;
         private List<LinkedHashMap<String, Object>> rows;
 
-        public Builder() {
-        }
-
         public Builder collect(Boolean collect) {
             this.collect = collect;
             return this;

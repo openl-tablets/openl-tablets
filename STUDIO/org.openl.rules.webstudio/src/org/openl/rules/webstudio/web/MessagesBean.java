@@ -25,9 +25,6 @@ public class MessagesBean {
 
     private UIRepeat messages;
 
-    public MessagesBean() {
-    }
-
     public UIRepeat getMessages() {
         return messages;
     }

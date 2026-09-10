@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.security;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,6 +48,11 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
         return getRepositories(BasePermission.READ)
                 .sorted(RepositoryConfiguration.COMPARATOR)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean anyRepository(Predicate<RepositoryConfiguration> accepted) {
+        return getRepositories(BasePermission.READ).anyMatch(accepted);
     }
 
     @Override

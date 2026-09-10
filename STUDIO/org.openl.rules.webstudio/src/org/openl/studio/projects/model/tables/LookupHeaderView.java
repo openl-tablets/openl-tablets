@@ -80,9 +80,6 @@ public class LookupHeaderView extends ARuleHeaderView {
 
         private List<LookupHeaderView> children;
 
-        public Builder() {
-        }
-
         public Builder children(List<LookupHeaderView> children) {
             this.children = children;
             return this;

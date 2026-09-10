@@ -12,7 +12,7 @@ public class WorkbookHandler extends DefaultHandler {
     private final List<SAXSheetDescriptor> sheetDescriptors = new ArrayList<>();
     // The default value for attribute date1904 is false.
     @Getter
-    private boolean use1904Windowing = false;
+    private boolean use1904Windowing;
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {

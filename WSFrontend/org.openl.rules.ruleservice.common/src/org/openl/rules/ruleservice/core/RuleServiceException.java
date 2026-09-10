@@ -16,7 +16,6 @@ public class RuleServiceException extends Exception {
      * Constructs a new RuleServiceSystemException.
      */
     public RuleServiceException() {
-        super();
     }
 
     /**

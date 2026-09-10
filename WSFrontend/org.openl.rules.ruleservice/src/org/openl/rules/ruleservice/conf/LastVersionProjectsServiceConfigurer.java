@@ -40,10 +40,10 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     @Getter
     @Setter
-    private boolean provideRuntimeContext = false;
+    private boolean provideRuntimeContext;
     @Getter
     @Setter
-    private String supportedGroups = null;
+    private String supportedGroups;
     private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
     private Collection<String> defaultPublishers = List.of();
 

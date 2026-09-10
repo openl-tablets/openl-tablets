@@ -114,7 +114,7 @@ class Context {
 
     @Getter
     @Setter
-    private boolean yaml = false;
+    private boolean yaml;
 
     @Getter
     @Setter

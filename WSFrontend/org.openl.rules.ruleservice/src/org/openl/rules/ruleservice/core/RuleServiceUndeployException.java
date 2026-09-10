@@ -15,7 +15,6 @@ public class RuleServiceUndeployException extends RuleServiceException {
      * Constructs a new RuleServiceUndeployException.
      */
     public RuleServiceUndeployException() {
-        super();
     }
 
     /**

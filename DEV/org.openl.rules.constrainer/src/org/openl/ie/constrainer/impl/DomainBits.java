@@ -93,26 +93,6 @@ public final class DomainBits extends DomainImpl {
         return _min;
     }
 
-    String printBits() {
-        var buf = new StringBuilder();
-        for (var i = 0; i < _bits.length; ++i) {
-            if (_bits[i]) {
-                if (_initial_min + i < _min || _initial_min + i > _max) {
-                    buf.append('x');
-                } else {
-                    buf.append('X');
-                }
-            } else {
-                if (_initial_min + i < _min || _initial_min + i > _max) {
-                    buf.append('o');
-                } else {
-                    buf.append('O');
-                }
-            }
-        }
-        return buf.toString();
-    }
-
     String printIntervals() {
         var buf = new StringBuilder();
         for (var i = _min; i <= _max; ) {

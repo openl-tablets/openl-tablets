@@ -6,7 +6,6 @@ import org.openl.binding.INodeBinder;
 import org.openl.binding.NodeBinders;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.util.MessageUtils;
@@ -185,17 +184,6 @@ public abstract class ANodeBinder implements INodeBinder {
         }
 
         return cast;
-    }
-
-    public static String getIdentifier(ISyntaxNode node) {
-        return ((IdentifierNode) node).getIdentifier();
-    }
-
-    protected static IOpenClass[] replace(int index, IOpenClass[] oldArray, IOpenClass newValue) {
-        IOpenClass[] newArray = new IOpenClass[oldArray.length];
-        System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
-        newArray[index] = newValue;
-        return newArray;
     }
 
     protected static IBoundNode makeErrorNode(String message, ISyntaxNode node, IBindingContext bindingContext) {

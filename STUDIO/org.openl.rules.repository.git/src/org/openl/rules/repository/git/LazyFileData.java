@@ -22,8 +22,8 @@ class LazyFileData extends FileData {
     private RevCommit fileCommit;
     private ObjectId fileId;
 
-    private boolean loaded = false;
-    private boolean deleteStatusLoaded = false;
+    private boolean loaded;
+    private boolean deleteStatusLoaded;
 
     LazyFileData(String branch,
                  String fullPath,

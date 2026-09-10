@@ -53,7 +53,6 @@ class IdentifiedMethodTest {
         List<Constraint> constraints = TablePropertyDefinitionUtils.getPropertyByName("id").getConstraints().getAll();
         for (Constraint constraint : constraints) {
             if (constraint instanceof UniqueInModuleConstraint) {
-                assertTrue(true);
                 return;
             }
         }

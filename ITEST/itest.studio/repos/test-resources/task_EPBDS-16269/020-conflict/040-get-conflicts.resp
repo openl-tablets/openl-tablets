@@ -11,6 +11,13 @@ Content-Type: application/json
       ]
     }
   ],
+  "fileAvailability": {
+    "EPBDS-16269/rules.xml": {
+      "ours": true,
+      "theirs": true,
+      "base": true
+    }
+  },
   "oursRevision": {
     "commit": "*",
     "author": "*",

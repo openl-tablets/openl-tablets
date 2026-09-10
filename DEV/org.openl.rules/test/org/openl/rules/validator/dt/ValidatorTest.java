@@ -40,22 +40,6 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
         var tableName = "Rules String validationOK(TestValidationEnum1 value1, TestValidationEnum2 value2)";
         var domains = new HashMap<String, IDomainAdaptor>();
 
-        // EnumDomain<TestValidationEnum1> enumDomain1 = new
-        // EnumDomain<TestValidationEnum1>(new
-        // TestValidationEnum1[]{TestValidationEnum1.V1,
-        // TestValidationEnum1.V2});
-        // EnumDomainAdaptor enumDomainAdaptor1 = new
-        // EnumDomainAdaptor(enumDomain1);
-        // domains.put("value1", enumDomainAdaptor1);
-        //
-        // EnumDomain<TestValidationEnum2> enumDomain2 = new
-        // EnumDomain<TestValidationEnum2>(new
-        // TestValidationEnum2[]{TestValidationEnum2.V1,
-        // TestValidationEnum2.V2});
-        // EnumDomainAdaptor enumDomainAdaptor2 = new
-        // EnumDomainAdaptor(enumDomain2);
-        // domains.put("value2", enumDomainAdaptor2);
-
         var dtValidResult = testTable(tableName, domains);
         assertFalse(dtValidResult.hasProblems());
     }
@@ -98,14 +82,10 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
 
             var dt = (IDecisionTable) resultTsn.getMember();
             try {
-                // System.out.println("Validating <" + tableName+ ">");
                 result = DecisionTableValidator.validateTable(dt, domains, getCompiledOpenClass().getOpenClass());
 
                 if (result.hasProblems()) {
                     resultTsn.setValidationResult(result);
-                    // System.out.println("There are problems in table!!\n");
-                } else {
-                    // System.out.println("NO PROBLEMS IN TABLE!!!!\n");
                 }
             } catch (Exception t) {
                 fail();

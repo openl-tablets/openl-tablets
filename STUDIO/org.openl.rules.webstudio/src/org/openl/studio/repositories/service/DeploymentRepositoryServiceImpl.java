@@ -29,8 +29,7 @@ public class DeploymentRepositoryServiceImpl implements DeploymentRepositoryServ
 
     @Override
     public boolean canDeployToAnyRepository() {
-        return deploymentRepositoryService.getRepositories().stream()
-                .anyMatch(this::canDeployTo);
+        return deploymentRepositoryService.anyRepository(this::canDeployTo);
     }
 
     // Instantiating a production repository can fail (unreachable/misconfigured). This runs for every

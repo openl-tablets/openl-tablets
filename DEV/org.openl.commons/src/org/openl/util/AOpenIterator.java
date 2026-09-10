@@ -6,11 +6,7 @@
 
 package org.openl.util;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author snshor
@@ -33,31 +29,6 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
         @Override
         public int size() {
             return 0;
-        }
-
-    }
-
-    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-    abstract static class IteratorWrapper<T, C> extends AOpenIterator<C> {
-        protected final Iterator<T> it;
-
-        @Override
-        public boolean hasNext() {
-            return it.hasNext();
-        }
-
-        @Override
-        public abstract C next();
-    }
-
-    static class SimpleIteratorWrapper<T> extends IteratorWrapper<T, T> {
-        SimpleIteratorWrapper(Iterator<T> it) {
-            super(it);
-        }
-
-        @Override
-        public T next() {
-            return it.next();
         }
 
     }

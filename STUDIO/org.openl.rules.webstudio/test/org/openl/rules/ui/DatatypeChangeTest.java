@@ -34,8 +34,6 @@ class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
 
         WebStudio ws = mock(WebStudio.class);
 
-        // EhCacheUtils.createCache();
-
         pm = new ProjectModel(ws);
         for (Module module : modules) {
             if (module.getName().equals("ExpenseModule")) {

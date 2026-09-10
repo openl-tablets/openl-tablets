@@ -6,6 +6,7 @@ interface MergeBranchLabelProps {
     branches: BranchInfo[]
     name: string
     withIcon?: boolean | undefined
+    truncate?: boolean | undefined
     testId?: string | undefined
 }
 
@@ -13,10 +14,10 @@ interface MergeBranchLabelProps {
  * A branch of the merged project, marked as it is everywhere else: the Default badge for the repository
  * main branch and the shield for a protected one. The marks are looked up in the project's branch list.
  *
- * The dialog is about these branches, so the name reads as a value here — in full and in the normal text
- * colour — rather than as the note it is beside a project.
+ * The dialog is about these branches, so the name reads as a value here in the normal text colour rather
+ * than as the note it is beside a project. Constrained contexts can truncate it with a tooltip.
  */
-export const MergeBranchLabel = ({ branches, name, withIcon, testId }: MergeBranchLabelProps) => {
+export const MergeBranchLabel = ({ branches, name, withIcon, truncate, testId }: MergeBranchLabelProps) => {
     const info = branches.find(item => item.name === name)
     return (
         <BranchLabel
@@ -25,6 +26,7 @@ export const MergeBranchLabel = ({ branches, name, withIcon, testId }: MergeBran
             isProtected={info?.protected ?? false}
             name={name}
             testId={testId}
+            truncate={truncate}
             withIcon={withIcon ?? false}
         />
     )

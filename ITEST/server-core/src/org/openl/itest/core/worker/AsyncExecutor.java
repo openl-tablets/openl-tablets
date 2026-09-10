@@ -98,7 +98,7 @@ public class AsyncExecutor {
      */
     private static final class Wrapper implements Runnable {
 
-        private volatile boolean error = false;
+        private volatile boolean error;
         private final Runnable delegate;
         private volatile boolean run = true;
 

@@ -13,6 +13,7 @@ Jekyll 3.10 + Minimal Mistakes 4.28.0 remote theme on GitHub Pages.
 
 - **`_config.yml`** — site config, layout defaults, `nav: "auto"` for user-guides
 - **`_data/navigation.yml`** — header nav bar only (`main:` key)
+- **`migration-notes.md`** — lists every migration note dynamically, ordered by release date from newest to oldest
 - **`_includes/nav_list`** — theme override, routes `"auto"` → `nav_auto.html`
 - **`_includes/nav_auto.html`** — generates sidebar from `user-guides/` folder tree
 - **`_layouts/release-notes.html`** — auto ToC from `##` headings + auto-includes `migration.md`
@@ -31,6 +32,7 @@ Auto-generated from folder structure. Triggered by `nav: "auto"` in `_config.yml
 - Section landing pages: `<dir>/index.md`
 - Sub-pages: `kebab-case.md` or `NN-kebab-case.md`
 - Release notes: `release-notes/<semver>/index.md` + optional `migration.md`
+- Migration notes added under a release are linked automatically from `migration-notes.md`
 - Images: `images/<name>.png` co-located with the page
 
 ## Front Matter

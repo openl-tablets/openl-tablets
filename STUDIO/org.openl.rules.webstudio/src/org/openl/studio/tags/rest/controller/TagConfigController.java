@@ -42,7 +42,7 @@ import org.openl.studio.tags.service.TagTypeService;
 import org.openl.util.StringUtils;
 
 @RestController
-@RequestMapping(value = "/admin/tag-config")
+@RequestMapping("/admin/tag-config")
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Tags")
 @AdminPrivilege
 public class TagConfigController {

@@ -25,13 +25,6 @@ i18next.addResourceBundle('en', 'security', {
         saml: 'SSO: SAML',
         oauth2: 'SSO: OIDC (OAuth2)',
     },
-    user_mode_description: {
-        'single': '',
-        'multi': '',
-        'ad': '',
-        'saml': '',
-        'oauth2': '',
-    },
     // Form fields
     user_mode: 'User Mode',
     administrators: 'Administrators',
