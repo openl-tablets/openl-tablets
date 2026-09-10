@@ -4,6 +4,7 @@ Content-Type: application/json
 
 {
   "projectHistoryCount": -1,
+  "detectProjectsByExcelFiles": null,
   "updateSystemProperties": null,
   "datePattern": "string",
   "timeFormat": "string",

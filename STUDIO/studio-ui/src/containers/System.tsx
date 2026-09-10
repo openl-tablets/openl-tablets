@@ -1,4 +1,4 @@
-import { Button, Divider, Form, Typography, Row, Modal, notification } from 'antd'
+import { Button, Col, Divider, Form, Typography, Row, Modal, notification } from 'antd'
 import React, { useEffect } from 'react'
 import { WarningFilled } from '@ant-design/icons'
 import { Trans, useTranslation } from 'react-i18next'
@@ -10,6 +10,7 @@ interface SystemSettings {
     autoCompile: boolean
     datePattern: string
     dispatchingValidationEnabled: boolean
+    detectProjectsByExcelFiles: boolean
     projectHistoryCount: number
     testRunThreadCount: number
     timeFormat: string
@@ -127,14 +128,23 @@ export const System: React.FC = () => {
                 label={t('system:thread_number_for_tests')}
                 name="testRunThreadCount"
             />
-            <Divider titlePlacement="start">{t('system:history')}</Divider>
-            <InputNumber
-                label={t('system:maximum_count_of_changes')}
-                name="projectHistoryCount"
-            />
-            <Row justify="end">
-                <Button onClick={showDeleteAllHistoryConfirm}>{t('system:clear_all_history')}</Button>
+            <Divider titlePlacement="start">{t('system:projects')}</Divider>
+            <Row data-testid="project-history-settings" gutter={8} wrap={false}>
+                <Col flex="auto">
+                    <InputNumber
+                        label={t('system:maximum_count_of_changes')}
+                        name="projectHistoryCount"
+                    />
+                </Col>
+                <Col flex="none">
+                    <Button onClick={showDeleteAllHistoryConfirm}>{t('system:clear_all_history')}</Button>
+                </Col>
             </Row>
+            <Checkbox
+                label={t('system:detect_projects_by_excel_files')}
+                name="detectProjectsByExcelFiles"
+                tooltip={t('system:detect_projects_by_excel_files_info')}
+            />
             <Divider titlePlacement="start">{t('system:other')}</Divider>
             <Checkbox
                 label={t('system:update_table_properties')}

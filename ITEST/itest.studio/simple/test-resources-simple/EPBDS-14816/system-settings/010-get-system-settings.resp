@@ -3,6 +3,7 @@ Content-Type: application/json
 
 {
   "projectHistoryCount": 100,
+  "detectProjectsByExcelFiles": false,
   "updateSystemProperties": false,
   "datePattern": "MM/dd/yyyy",
   "timeFormat": "hh:mm:ss a",

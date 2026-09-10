@@ -6,6 +6,10 @@ Content-Type: application/json
     "value": 99,
     "readOnly": true
   },
+  "detectProjectsByExcelFiles": {
+    "value": true,
+    "readOnly": true
+  },
   "updateSystemProperties": {
     "value": true,
     "readOnly": true

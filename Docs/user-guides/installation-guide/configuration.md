@@ -136,7 +136,8 @@ Described in [Managing System Settings][system].
 | Core                   | Dispatching Validation                      | `dispatching.validation`     |
 | Core                   | Verify on Edit                              | `compile.auto`               |
 | Testing                | Thread Number for Tests                     | `test.run.thread.count`      |
-| History                | Maximum count of saved changes per user     | `project.history.count`      |
+| Projects               | Maximum count of saved changes per user     | `project.history.count`         |
+| Projects               | Detect projects by Excel files              | `project.detect-by-excel-files` |
 | Other                  | Update table properties                     | `update.system.properties`   |
 | Other                  | Date Format                                 | `data.format.date`           |
 | Other                  | Time Format                                 | `data.format.time`           |
