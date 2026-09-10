@@ -228,6 +228,13 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   with a `force` flag.
 - After a write that changes compiled state, trigger the server-side reset/recompile and, if the JSF shell
   shows stale data (tree, breadcrumbs), refresh it.
+- For work that cannot answer within a request — comparing two workbooks, running rules — use three steps
+  instead of one long call: a `POST` that starts the work and answers with its identifier, a WebSocket topic
+  named by that identifier that reports how it is going, and a `GET` that reads the result once it has
+  completed. The work runs on an executor of its own, and what it holds stays in a session-scoped registry
+  that releases it when another one starts or the session ends. Compare (`POST /compare/files` →
+  `/topic/compare/{id}/status` → `GET /compare/{id}`) and Run (`POST /projects/{id}/run` →
+  `/topic/projects/{id}/tables/{tableId}/run/status`) are built this way.
 
 ## Migration recipe
 

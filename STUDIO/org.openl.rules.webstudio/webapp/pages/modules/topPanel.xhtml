@@ -175,12 +175,9 @@
                     <li><a tabindex="-1" href="#"
                            onclick="window.dispatchEvent(new CustomEvent('openTableGraphModal', {detail: {projectId: '#{studio.currentProjectId}', projectName: '#{utils.toJSText(project.name)}', module: '#{utils.toJSText(module.name)}'}})); return false;">Table Dependencies</a></li>
                     </h:panelGroup>
-                    <li><a tabindex="-1" target="_blank"
-                        onclick="topPanelCompareWindowOpen(); return false;"
-                        href="#">Compare Excel files</a></li>
+                    <li><a tabindex="-1" href="#"
+                           onclick="window.open('#{contextPath}/compare','Compare','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes'); return false;">Compare Excel files</a></li>
                 </ul>
-                <a4j:jsFunction name="topPanelCompareWindowOpen" action="#{uploadExcelDiffController.reset()}"
-                                oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');"/>
             </h:panelGroup>
         </div>
 
