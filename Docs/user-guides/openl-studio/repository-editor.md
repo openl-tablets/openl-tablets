@@ -872,18 +872,19 @@ banner without them. It is recommended to grant permission to the “Unlock” f
 
 To browse a deployment repository, proceed as follows:
 
-1.  Switch from the **Design repository** view to the **Deployment repositories** view by clicking **Deployment** in the top of the left pane.
-2.  In the project tree, select the deployment repository to be browsed (repositories are marked by ![](images/deployment-repository-icon.png) icon).
+1.  In the top menu, click **Deployments**.
+1.  In the **Repositories** panel on the left, select the deployment repository to be browsed.
 
-    The list of project deployments in the selected deployment repository are displayed in the middle pane.
+    The deployments it holds are listed on the right, with their number above the list. **Search deployments**
+    narrows the list by name.
 
-1.  If needed, expand the repository tree and browse project deployments.
+1.  Click a deployment to display the projects it deploys.
 
 OpenL Studio displays only the latest revisions of each deployment in the deployment repository.
 
 When browsing deployments in the deployment repository, users can see their content, namely what rules projects are deployed.
 
-For every deployed project, the list displays the following information:
+For every deployed project, the **Projects** tab displays the following information:
 
 -   **Revision in Design Repository** — the revision the project has in the design repository it was built from, named by who committed it and, underneath, when
 -   **Modified By** and **Modified At** — who deployed the project and when
@@ -895,7 +896,7 @@ A deployed project keeps no reference back to where it came from, so its design 
 
 The indexing is controlled by the `repository.cache.monitor.enabled` property. Switching it off leaves the **Revision in Design Repository** column empty for every deployed project.
 
-![Deployment repository with deployed projects](images/deployment-repository-deployed-projects.png)
+![Deployment repository with deployed projects](images/deployment-repository-deployed-projects.png "The projects of a deployment and their design revisions")
 
 *Deployment repository with deployed projects*
 
