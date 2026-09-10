@@ -112,7 +112,7 @@ globalThis.dispatchEvent(new CustomEvent('openDeleteFileModal', { detail: { proj
 
 Worked examples: `DeleteFileModal` (`openDeleteFileModal`), `MergeModal` (`openMergeModal`), `DeployModal`
 (`openDeployModal`), `TableGraphModal`, `TraceLaunchHost` (`openTraceLaunch`), `RunLaunchHost`
-(`openRunLaunch`), `TestsLaunchHost` (`openTestsLaunch`).
+(`openRunLaunch`), `TestsLaunchHost` (`openTestsLaunch`), `BenchmarkLaunchHost` (`openBenchmarkLaunch`).
 
 A dialog that replaces a legacy drop-down keeps its place under the button: the event carries the button's
 viewport rectangle (`event.currentTarget.getBoundingClientRect()`), and the React side hangs an Ant Design
@@ -123,14 +123,15 @@ Worked example: `TableInputPopover` used by `TraceLaunchHost`.
 Every action of the table toolbar asks for the same things, so one panel serves them all:
 `TableInputLauncher` reads what the table takes, shows the parameter form of a rule table or the cases of a
 test table, offers "Within Current Module Only", and hands what it collected to the buttons the action
-supplies. Trace, Run and Test differ only in those buttons and in the options next to the checkbox, which the
-panel renders through the same render props so an action offers only what applies to the table it is on.
+supplies. Trace, Run, Test and Benchmark differ only in those buttons and in the options next to the checkbox,
+which the panel renders through the same render props so an action offers only what applies to the table it is
+on.
 
 ### Showing what an action produced
 
 A result belongs to the editor, so it is shown in a modal over the table rather than in a window of its own:
-the host that started the action swaps its panel for the result modal (`RunResultModal`, `TestsResultModal`)
-and closes both together. Closing the modal returns to the table with the action still in view, which the
+the host that started the action swaps its panel for the result modal (`RunResultModal`, `TestsResultModal`,
+`BenchmarkResultModal`) and closes both together. Closing the modal returns to the table with the action still in view, which the
 legacy pages could not do - they replaced it.
 
 A trace is the exception: it is a session the user works in, not a result to read, so it keeps a window of its
@@ -157,6 +158,12 @@ the response, so a caller that does not show a table is not sent it. The value i
 describes it never change shape - a field whose meaning turns on a query parameter would leave its schema
 describing something else, and the "Result in JSON Format" download would quietly stop being the JSON a
 deployed service answers with.
+
+An action whose results accumulate keeps them on the server, not in the screen. A benchmark joins the
+measurements of the session (`ExecutionBenchmarkResultRegistry`), which `GET /projects/{id}/benchmarks` reports
+newest first and `DELETE` forgets, so the window shows what the session has measured however often it is opened
+and closed. The registry holds the running measurement the way every execution registry does, and folds its
+result into the list once, when the list is first read after it ends.
 
 ### Reusing a Projects tab dialog
 

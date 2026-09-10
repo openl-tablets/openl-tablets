@@ -11,6 +11,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.types.IOpenMethod;
+import org.openl.util.StringUtils;
 
 /**
  * Abstract base for asynchronous method executor services (run, trace, etc.).
@@ -51,14 +52,24 @@ public abstract class AbstractMethodExecutorService {
 
         // If runtime context is provided, get project-level method
         if (runtimeContext != null) {
-            CompiledOpenClass compiledOpenClass = currentOpenedModule
-                    ? projectModel.getOpenedModuleCompiledOpenClass()
-                    : projectModel.getCompiledOpenClass();
-            method = compiledOpenClass.getOpenClassWithErrors()
+            method = compiledOpenClass(projectModel, currentOpenedModule).getOpenClassWithErrors()
                     .getMethod(method.getName(), method.getSignature().getParameterTypes());
         }
 
         return method;
+    }
+
+    /**
+     * The compiled state an execution runs against: the whole project, or only the module that is open.
+     *
+     * @param projectModel        project model
+     * @param currentOpenedModule if true, use the currently opened module
+     * @return the compiled state to execute against
+     */
+    protected static CompiledOpenClass compiledOpenClass(ProjectModel projectModel, boolean currentOpenedModule) {
+        return currentOpenedModule
+                ? projectModel.getOpenedModuleCompiledOpenClass()
+                : projectModel.getCompiledOpenClass();
     }
 
     /**
@@ -72,10 +83,7 @@ public abstract class AbstractMethodExecutorService {
         if (projectModel == null) {
             return null;
         }
-        CompiledOpenClass compiledOpenClass = currentOpenedModule
-                ? projectModel.getOpenedModuleCompiledOpenClass()
-                : projectModel.getCompiledOpenClass();
-        var moduleClass = compiledOpenClass.getOpenClassWithErrors();
+        var moduleClass = compiledOpenClass(projectModel, currentOpenedModule).getOpenClassWithErrors();
         if (moduleClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             return xlsModuleOpenClass.getDataBase();
         }
@@ -111,7 +119,10 @@ public abstract class AbstractMethodExecutorService {
                 listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
                 return CompletableFuture.completedFuture(null);
             }
-            listener.onError(e.getMessage(), e);
+            // A listener is told why it failed; an exception that says nothing is named by its own type, so
+            // that the reason is never missing.
+            var reason = StringUtils.isBlank(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
+            listener.onError(reason, e);
             return CompletableFuture.failedFuture(e);
         }
     }

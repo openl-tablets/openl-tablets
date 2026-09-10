@@ -524,31 +524,42 @@ Turn on the **Profiling** switch to keep the whole calculation and measure how l
 
 ### Using Benchmarking Tools
 
-OpenL Studio provides benchmarking tools for measuring execution time for all appropriate OpenL Tablets elements. In OpenL Tablets, everything that can be run can be benchmarked too. Benchmarking is useful for optimizing the rule structure and identifying critical paths in rule calculation.
+OpenL Studio measures how fast rules run. A benchmark is taken over the cases of a test table, so the rules it
+tests are measured with the input the table author wrote for them. It is useful for optimizing the rule
+structure and identifying critical paths in rule calculation. The following topics are included in this
+section:
 
-The benchmarking icon is displayed above the table to be traced.
+-   [Taking a Benchmark](#taking-a-benchmark)
+-   [Reading Benchmark Results](#reading-benchmark-results)
 
-![](images/benchmarking-controls.png)
+#### Taking a Benchmark
 
-*Controls for measuring performance*
+1.  Open the test table to measure and click **Benchmark** in the toolbar above it. The button appears above a
+    test table and above a Run table, over whose cases the measurement is taken. A panel opens under the
+    button; clicking elsewhere on the page closes it.
 
-For a test table, select the test cases as follows:
+    ![Benchmark button in the table toolbar with the panel open](images/benchmarking-controls.png "Taking a benchmark")
 
-1.  Open the required test table.
-2.  Navigate to the **Benchmark** button above the test table and click the small right-hand black arrow to open a pop-up with test cases as needed.
-3.  Select or deselect the test cases as needed.
+    *Measuring a test table over its cases*
 
-    By default, all cases are selected. All test cases can be also checked or unchecked by using the checkbox on the left of **Test Parameter(s)**.
+1.  The panel lists the cases of the table. Leave **All cases** selected to measure the table the way it runs,
+    over every case at once, or tick the cases to measure each of them on its own. Selecting the cases is
+    described in [Starting a Trace](#starting-a-trace), which lists them the same way.
+1.  To measure only the rules of the current module and skip the modules it depends on, select **Within Current
+    Module Only**.
+1.  Click **Benchmark**. The table runs over and over until the measurement lasts long enough to be meaningful,
+    so it takes a few seconds. The results then open in a window over the table.
 
-1.  Click the **Benchmark** button within the pop-up.
+#### Reading Benchmark Results
 
-Clicking the benchmarking icon runs the corresponding method or set of methods and displays the results in a table.
+Every measurement is a row of the results.
 
-![](images/benchmarking-results.png)
+![Benchmark results](images/benchmarking-results.png "Reading benchmark results")
 
-*Benchmarking results*
+*Benchmark results*
 
-Benchmark is displayed using the following parameters:
+A row reports the measured table, the number of test cases one run covered, the input of the measured case, and
+the following numbers:
 
 | Parameter      | Description                                                                             |
 |----------------|-----------------------------------------------------------------------------------------|
@@ -558,10 +569,15 @@ Benchmark is displayed using the following parameters:
 | Runs (ms)      | Time required for all test cases of the table, or rule set, execution, in milliseconds. |
 | Runs/sec       | Number of such rule sets that can be executed per second.                               |
 
-OpenL Studio remembers all benchmarking runs executed within one session. Every time a new benchmark is run, a new row is added to the results table.
-Benchmarking results can be compared to identify the most time consuming methods. Select the required check boxes and click **Compare** to compare results in the results table.
-Comparison results are displayed below the benchmarking table.
+OpenL Studio remembers every benchmark taken within one session, the newest first, so measurements of different
+tables and cases stand side by side. Measuring another project starts a new list.
 
-![](images/benchmarking-compare-results.png)
+Tick the rows and click **Compare** to find the most time consuming of them. The comparison is shown under the
+results: it places the measurements by speed, the fastest first, and says how many times slower each of the
+others is.
 
-*Comparing benchmarking results*
+![Comparing benchmark results](images/benchmarking-compare-results.png "Comparing benchmark results")
+
+*Comparing benchmark results*
+
+**Delete** forgets the rows that are ticked.

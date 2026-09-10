@@ -32,6 +32,7 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_PROJECTS_TABLES_TESTS = "/topic/projects/%s/tables/%s/tests";
     private static final String TOPIC_PROJECTS_TABLES_TRACE = "/topic/projects/%s/tables/%s/trace";
     private static final String TOPIC_PROJECTS_TABLES_RUN = "/topic/projects/%s/tables/%s/run";
+    private static final String TOPIC_PROJECTS_TABLES_BENCHMARKS = "/topic/projects/%s/tables/%s/benchmarks";
     private static final String TOPIC_PROJECTS_STATUS = "/topic/projects/%s/status";
     private static final String TOPIC_PROJECTS_BRANCHES_STATUS = "/topic/projects/%s/branches/%s/status";
     private static final String TOPIC_WORKSPACE_CHANGED = "/topic/workspace/changed";
@@ -123,9 +124,31 @@ public class ProjectSocketNotificationService {
      * @param status    new run execution status
      */
     public void notifyRunExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
-        messagingTemplate.convertAndSendToUser(user.getUserName(),
-                TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
-                status.name());
+        notifyExecutionStatus(user, TOPIC_PROJECTS_TABLES_RUN, projectId, tableId, status);
+    }
+
+    /**
+     * Notifies user about benchmark execution status change for a specific table.
+     *
+     * @param user      user to notify
+     * @param projectId project id
+     * @param tableId   table id
+     * @param status    new benchmark execution status
+     */
+    public void notifyBenchmarkExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
+        notifyExecutionStatus(user, TOPIC_PROJECTS_TABLES_BENCHMARKS, projectId, tableId, status);
+    }
+
+    /**
+     * Notifies user about benchmark execution error for a specific table.
+     *
+     * @param user         user to notify
+     * @param projectId    project id
+     * @param tableId      table id
+     * @param errorMessage error message
+     */
+    public void notifyBenchmarkExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
+        notifyExecutionError(user, TOPIC_PROJECTS_TABLES_BENCHMARKS, projectId, tableId, errorMessage);
     }
 
     /**
@@ -137,9 +160,27 @@ public class ProjectSocketNotificationService {
      * @param errorMessage error message
      */
     public void notifyRunExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
+        notifyExecutionError(user, TOPIC_PROJECTS_TABLES_RUN, projectId, tableId, errorMessage);
+    }
+
+    /**
+     * Sends the status of an execution of a table on the topic that execution is reported on.
+     */
+    private void notifyExecutionStatus(CommonUser user, String topic, ProjectIdModel projectId, String tableId,
+                                       ExecutionStatus status) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
-                TOPIC_PROJECTS_TABLES_RUN.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
-                Map.of("status", "ERROR", "message", errorMessage));
+                topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                status.name());
+    }
+
+    /**
+     * Sends the reason an execution of a table failed on the topic that execution is reported on.
+     */
+    private void notifyExecutionError(CommonUser user, String topic, ProjectIdModel projectId, String tableId,
+                                      String errorMessage) {
+        messagingTemplate.convertAndSendToUser(user.getUserName(),
+                topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                Map.of("status", ExecutionStatus.ERROR.name(), "message", errorMessage));
     }
 
     /**

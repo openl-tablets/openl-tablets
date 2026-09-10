@@ -77,6 +77,25 @@ export interface TestsSummary {
     numberOfFailures: number
 }
 
+/** One measurement of a benchmark: how fast a table ran, and what was measured. */
+export interface BenchmarkResult {
+    id: string
+    tableId: string
+    name: string
+    /** The measured table is a test table, whose test cases were run. */
+    testTable: boolean
+    /** The measured table is a Run table, which states no expected values. */
+    runTable?: boolean
+    /** How many test cases one run covers. */
+    testCases: number
+    /** How many times the table ran during the measurement. */
+    runs: number
+    /** How long every run took together. */
+    executionTimeMs: number
+    /** The input of the measured test case. A whole test table is measured without one. */
+    parameters?: TraceParameterValue[]
+}
+
 /**
  * What a run or a test run is reported as while it goes on.
  *

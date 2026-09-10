@@ -1,4 +1,4 @@
-import type { RunResult, TestsSummary, TestUnitResult } from 'types/execution'
+import type { BenchmarkResult, RunResult, TestsSummary, TestUnitResult } from 'types/execution'
 import apiCall, { asArray, isApiHttpError } from './apiCall'
 import { toUrlSafeId } from './projectId'
 
@@ -205,6 +205,55 @@ export const getTestCaseResult = async (projectId: string, tableId: string, case
         AS_JSON,
         EXECUTION_API_OPTIONS
     ) as TestUnitResult
+
+/**
+ * Starts a benchmark of a table: the cases of a test table, or the input the panel collected.
+ *
+ * The measurement goes on in the background and reports on its own topic. It runs the table over and over, so
+ * it takes a few seconds at the least.
+ */
+export const startBenchmark = async (
+    projectId: string,
+    tableId: string,
+    options: { testRanges?: string, fromModule?: string, inputJson?: string } = {}
+): Promise<void> => {
+    const params = withModule(new URLSearchParams({ tableId }), options.fromModule)
+    if (options.testRanges) {
+        params.set('testRanges', options.testRanges)
+    }
+    await apiCall(
+        projectUrl(projectId, `/benchmarks?${params}`),
+        {
+            method: 'POST',
+            ...(options.inputJson !== undefined && {
+                headers: { 'Content-Type': 'application/json' },
+                body: options.inputJson,
+            }),
+        },
+        { ...EXECUTION_API_OPTIONS, skipWorkspaceEvent: true }
+    )
+}
+
+/** Reads the measurements taken in this session, the newest first. */
+export const getBenchmarks = async (projectId: string): Promise<BenchmarkResult[]> =>
+    asArray<BenchmarkResult>(await apiCall(projectUrl(projectId, '/benchmarks'), AS_JSON, EXECUTION_API_OPTIONS))
+
+/** Reads the measurements of a benchmark that has just ended, waiting out the moment it needs to publish them. */
+export const readBenchmarks = (projectId: string): Promise<BenchmarkResult[]> =>
+    readSettled(() => getBenchmarks(projectId))
+
+/** Forgets the measurements named, or every one of them when none is named. */
+export const deleteBenchmarks = async (projectId: string, ids: string[] = []): Promise<void> => {
+    const params = new URLSearchParams()
+    ids.forEach(id => params.append('id', id))
+    const query = params.toString()
+    const suffix = query ? `?${query}` : ''
+    await apiCall(
+        projectUrl(projectId, `/benchmarks${suffix}`),
+        { method: 'DELETE' },
+        { ...EXECUTION_API_OPTIONS, skipWorkspaceEvent: true }
+    )
+}
 
 /** Reads the test results as the workbook the user saves. */
 export const getTestsSummaryWorkbook = async (projectId: string, query: TestsQuery = {}): Promise<Blob> =>

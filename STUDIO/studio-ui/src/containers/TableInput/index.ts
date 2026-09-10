@@ -1,5 +1,6 @@
 export { TraceLaunchHost } from './TraceLaunchHost'
 export type { TraceLaunchDetail } from './TraceLaunchHost'
+export { BenchmarkLaunchHost } from './BenchmarkLaunchHost'
 export { RunLaunchHost } from './RunLaunchHost'
 export { TestsLaunchHost } from './TestsLaunchHost'
 export type { TestsLaunchDetail } from './TestsLaunchHost'

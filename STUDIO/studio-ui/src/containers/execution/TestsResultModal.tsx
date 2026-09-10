@@ -4,9 +4,9 @@ import { CheckOutlined, CloseOutlined, DownloadOutlined } from '@ant-design/icon
 import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
+import { TableLink } from 'components/TableLink'
 import { ValueCell } from 'components/values/ParameterValues'
 import { useTestCase } from 'hooks/useTestCase'
-import { openTableInEditor, tableUrl } from 'services/tableNavigation'
 import {
     ALL_TESTS_ON_A_PAGE,
     FAILURES_PER_TEST,
@@ -29,7 +29,7 @@ import { errorMessage } from 'utils/errorMessage'
 import { isFinished, useExecutionProgress } from './useExecutionProgress'
 import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
 
-const { Link, Text, Title } = Typography
+const { Text, Title } = Typography
 
 /** What the results say a case, or one comparison of it, ended as. */
 const STATUS: Record<TestStatus, string> = {
@@ -164,20 +164,6 @@ const TestTable: React.FC<{
     onOpenTable: () => void
 }> = ({ table, compoundResult, readCase, onOpenTable }) => {
     const { t } = useTranslation('execution')
-    // The name is a link to the table, so it carries the address the editor opens it at.
-    const [url, setUrl] = useState<string | null>(null)
-
-    useEffect(() => {
-        let active = true
-        void tableUrl(table.tableId).then(address => {
-            if (active) {
-                setUrl(address)
-            }
-        })
-        return () => {
-            active = false
-        }
-    }, [table.tableId])
 
     // A test table holds test cases; a Run table holds runs, because it states no expected values.
     const kind = table.runTable ? 'runs' : 'cases'
@@ -191,22 +177,14 @@ const TestTable: React.FC<{
                 {/* The name carries the outcome of the whole table, green when every case passed. A Run table
                     states no expected values, so nothing there can pass or fail. */}
                 <Title level={5} style={{ margin: 0 }}>
-                    <Link
+                    <TableLink
                         data-testid={`test-table-${table.tableId}`}
-                        onClick={event => {
-                            // The address is known: the browser follows it, and the window steps aside.
-                            if (url !== null) {
-                                onOpenTable()
-                                return
-                            }
-                            event.preventDefault()
-                            void openTableInEditor(table.tableId).then(opened => opened && onOpenTable())
-                        }}
-                        {...(url !== null && { href: url })}
+                        onOpen={onOpenTable}
+                        tableId={table.tableId}
                         {...(!table.runTable && { type: table.numberOfFailures > 0 ? 'danger' : 'success' })}
                     >
                         {table.name}
-                    </Link>
+                    </TableLink>
                 </Title>
                 <Tag>{cases}</Tag>
                 {table.numberOfFailures > 0 && <Tag color="error">{table.numberOfFailures}</Tag>}
