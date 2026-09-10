@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,8 +38,8 @@ import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
 
 /**
- * Project creator from OpenAPI files, generates models, spreadsheets, rules.xml, rules-deploy and compiled annotation
- * template files.
+ * Creates a project from an OpenAPI file. Generates models, spreadsheets, rules.xml, rules-deploy and compiled
+ * annotation template files. Stores the OpenAPI file under its standard name in the project root.
  */
 public class OpenAPIProjectCreator extends AProjectCreator {
 
@@ -50,6 +51,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private final String algorithmsPath;
     private final String modelsModuleName;
     private final String algorithmsModuleName;
+    private final String openAPIPath;
 
     public OpenAPIProjectCreator(ProjectFile projectFile,
                                  String repositoryId,
@@ -88,6 +90,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                                  Map<String, String> tags) throws ProjectException {
         super(projectName, projectFolder, userWorkspace, tags);
         this.repository = repository;
+        var normalizedOpenAPIPath = normalizeOpenAPIPath(projectFile.getName());
         // Save a streamed upload to disk first, so the size check below sees the real size and the spec
         // can be parsed from a file path later.
         try {
@@ -110,10 +113,6 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         if (!NameChecker.checkName(modelsModuleName) || !NameChecker.checkName(algorithmsModuleName)) {
             throw new OpenAPIProjectException("Module " + NameChecker.BAD_NAME_MSG);
         }
-        if (!NameChecker.checkName(FileUtils.getName(projectFile.getName()))) {
-            throw new OpenAPIProjectException("OpenAPI File " + NameChecker.BAD_NAME_MSG);
-        }
-
         if (modelsModuleName.equalsIgnoreCase(algorithmsModuleName)) {
             throw new OpenAPIProjectException("Module names cannot be the same.");
         }
@@ -155,6 +154,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         this.algorithmsPath = normalizedAlgorithmsPath;
         this.modelsModuleName = modelsModuleName;
         this.algorithmsModuleName = algorithmsModuleName;
+        this.openAPIPath = normalizedOpenAPIPath;
     }
 
     @Override
@@ -194,7 +194,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
             addFile(projectBuilder,
                     uploadedOpenAPIFile.getInput(),
-                    uploadedOpenAPIFile.getName(),
+                    openAPIPath,
                     "Error uploading openAPI file.");
 
             var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -267,7 +267,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         filter.setIncludes(algorithmsInclude);
         descriptor.setExposedMethods(filter);
 
-        openAPI.setPath(uploadedOpenAPIFile.getName());
+        openAPI.setPath(openAPIPath);
         descriptor.setOpenapi(openAPI);
 
         var descriptorManager = new ProjectDescriptorManager();
@@ -280,6 +280,18 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
         descriptor.setClasspath(classpath);
         return descriptor;
+    }
+
+    private static String normalizeOpenAPIPath(String fileName) throws OpenAPIProjectException {
+        var extension = FileUtils.getExtension(fileName);
+        if (extension == null) {
+            throw new OpenAPIProjectException("Unsupported OpenAPI file extension.");
+        }
+        return switch (extension.toLowerCase(Locale.ROOT)) {
+            case "json" -> OpenAPI.Type.JSON.getDefaultFileName();
+            case "yaml", "yml" -> OpenAPI.Type.YAML.getDefaultFileName();
+            default -> throw new OpenAPIProjectException("Unsupported OpenAPI file extension.");
+        };
     }
 
     private static Module module(String name, String path) {
