@@ -1,7 +1,6 @@
 package org.openl.studio.compare.rest;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,15 +25,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.compare.messaging.SocketComparisonProgressListenerFactory;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.model.ComparisonTableView;
 import org.openl.studio.compare.model.ComparisonView;
-import org.openl.studio.compare.service.ComparisonFileStore;
+import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.compare.service.ComparisonMapper;
 import org.openl.studio.compare.service.ComparisonRegistry;
-import org.openl.studio.compare.service.ExcelComparisonService;
-import org.openl.studio.security.CurrentUserInfo;
 
 /**
  * REST controller for comparing Excel files.
@@ -55,12 +51,9 @@ public class CompareController {
     private static final String XLSX_MEDIATYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private static final String XLS_MEDIATYPE = "application/vnd.ms-excel";
 
-    private final ExcelComparisonService comparisonService;
+    private final ComparisonLauncher launcher;
     private final ComparisonRegistry registry;
-    private final ComparisonFileStore fileStore;
     private final ComparisonMapper mapper;
-    private final SocketComparisonProgressListenerFactory listenerFactory;
-    private final CurrentUserInfo currentUserInfo;
 
     @Operation(summary = "compare.files.summary", description = "compare.files.desc")
     @ApiResponse(responseCode = "202", description = "compare.files.202.desc")
@@ -75,19 +68,7 @@ public class CompareController {
                     @Encoding(contentType = XLSX_MEDIATYPE + ", " + XLS_MEDIATYPE)}))
             @RequestPart("file2") MultipartFile file2) throws IOException {
 
-        var comparisonId = UUID.randomUUID().toString();
-        var files = fileStore.store(file1, file2);
-        try {
-            var listener = listenerFactory.create(currentUserInfo.getUserName(), comparisonId);
-            registry.register(comparisonId, files,
-                    comparisonService.compare(listener, files.get(0), files.get(1)));
-        } catch (RuntimeException e) {
-            // Nothing owns the files until the comparison is registered. A comparison that could not
-            // be started - the executor is full, the Studio is stopping - takes them with it.
-            fileStore.delete(files);
-            throw e;
-        }
-        return new ComparisonStartedView(comparisonId);
+        return launcher.start(file1, file2);
     }
 
     @Operation(summary = "compare.get-result.summary", description = "compare.get-result.desc")

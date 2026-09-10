@@ -112,20 +112,16 @@ export const LocalChangesView = ({ projectId, moduleName }: LocalChangesViewProp
             : previous.filter(selectedId => selectedId !== id))
     }
 
+    // The two versions are compared in the comparison window, which is told what to compare rather
+    // than asked for files: it starts the comparison itself, so no window waits on a request.
     const compare = () => {
-        const [version1, version2] = selected
-        if (!version1 || !version2) {
+        const [first, second] = selected
+        if (!first || !second) {
             return
         }
-        const params = new URLSearchParams({
-            disableUpload: 'true',
-            projectId,
-            module: moduleName,
-            version1,
-            version2,
-        })
+        const params = new URLSearchParams({ projectId, module: moduleName, first, second })
         window.open(
-            `${CONFIG.CONTEXT}/faces/pages/modules/compare.xhtml?${params}`,
+            `${CONFIG.CONTEXT}/compare?${params}`,
             'Compare',
             'width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes'
         )

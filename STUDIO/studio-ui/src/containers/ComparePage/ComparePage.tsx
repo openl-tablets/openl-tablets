@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Button, Checkbox, Spin, Splitter, Upload } from 'antd'
 import {
     ArrowLeftOutlined,
@@ -8,9 +8,16 @@ import {
     PaperClipOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { isApiHttpError } from 'services'
 import { errorMessage } from 'utils/errorMessage'
-import { dropComparison, getComparison, getComparisonTable, startFileComparison } from 'services/compare'
+import {
+    dropComparison,
+    getComparison,
+    getComparisonTable,
+    startFileComparison,
+    startLocalHistoryComparison,
+} from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
 import { ComparisonPanes } from './ComparisonPanes'
 import { ComparisonTree } from './ComparisonTree'
@@ -22,6 +29,24 @@ const ACCEPTED = '.xls,.xlsx,.xlsm'
 const ASK_AGAIN = 2000
 const FILES_TO_COMPARE = 2
 
+/** Two versions of a module, named by the screen that opened the window. */
+interface VersionsRequest {
+    projectId: string
+    moduleName: string | undefined
+    first: string
+    second: string
+}
+
+/** What the window was opened to compare, or null when it opens on the files to pick. */
+const versionsRequestOf = (params: URLSearchParams): VersionsRequest | null => {
+    const projectId = params.get('projectId')
+    const first = params.get('first')
+    const second = params.get('second')
+    if (!projectId || !first || !second) {
+        return null
+    }
+    return { projectId, moduleName: params.get('module') ?? undefined, first, second }
+}
 
 /**
  * Compares two Excel files, in a window of its own.
@@ -29,10 +54,16 @@ const FILES_TO_COMPARE = 2
  * The page has two steps: the files to compare are picked first, and the comparison is shown after
  * that - what the two files hold, element by element, and the two versions of the element the user
  * picks. The step of the files is a click away, so another pair can be compared in the same window.
+ *
+ * A screen that already knows what to compare opens the window on the comparison itself, naming what
+ * it wants in the address: two versions of a module, as Local Changes does. There are no files to
+ * pick then, and the comparison starts as the window opens.
  */
 export const ComparePage: React.FC = () => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
+    const [params] = useSearchParams()
+    const versions = useMemo(() => versionsRequestOf(params), [params])
 
     const [files, setFiles] = useState<File[]>([])
 
@@ -67,8 +98,21 @@ export const ComparePage: React.FC = () => {
 
     const progress = useComparisonProgress(comparisonId)
     // The comparison is on screen from the moment it is started; until it answers, its progress is.
-    const comparing = !!comparisonId
+    // A window opened for two versions has nothing else to show, so it is on screen at once.
+    const comparing = !!comparisonId || !!versions
     const running = comparing && !comparison && !error
+
+    // The comparison the window was opened for is started once, however often the effect is run.
+    const requested = useRef(false)
+    useEffect(() => {
+        if (!versions || requested.current) {
+            return
+        }
+        requested.current = true
+        startLocalHistoryComparison(versions.projectId, versions.moduleName, versions.first, versions.second)
+            .then(setComparisonId)
+            .catch((failure: unknown) => setError(errorMessage(failure) || t('failed')))
+    }, [versions, t])
 
     // The result is read when the comparison says it has finished, and again as soon as the page is
     // listening: a comparison of two small files can be over before then, and what was pushed to the
@@ -191,8 +235,9 @@ export const ComparePage: React.FC = () => {
     }, [comparisonId])
 
     // The way back to the files never hides with the list of elements: it heads the list while the
-    // list is shown, and joins the control that brings it back when it is not.
-    const back = (
+    // list is shown, and joins the control that brings it back when it is not. A window opened for
+    // two versions of a module has no files to go back to.
+    const back = versions ? null : (
         <Button
             data-testid="compare-back"
             icon={<ArrowLeftOutlined />}

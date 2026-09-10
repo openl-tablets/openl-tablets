@@ -112,8 +112,9 @@ describe('LocalChangesView', () => {
         expect(compare).toBeEnabled()
         await userEvent.click(compare)
 
+        // The comparison window is told what to compare and starts it itself.
         expect(open).toHaveBeenCalledWith(
-            expect.stringContaining('projectId=p1&module=Pricing&version1=100&version2=200_current'),
+            expect.stringContaining('/compare?projectId=p1&module=Pricing&first=100&second=200_current'),
             'Compare',
             expect.stringContaining('width=1240')
         )
