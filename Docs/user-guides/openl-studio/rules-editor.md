@@ -188,15 +188,15 @@ To compare module versions, proceed as follows:
 
     *Comparing module versions*
 
-    The system displays the module in a separate browser window where changed tables are marked as displayed in the following example.
+    The comparison opens in a window of its own and lists the elements that differ, grouped by Excel sheet, as displayed in the following example.
 
     ![](images/tables-with-changes-comparison.jpeg)
 
     *Tables with changes*
 
-1. To view the changes, click the required table.
+1. To view the changes, click the required element.
 
-    The result of the comparison is displayed in the bottom of the window.
+    The two versions of the element are displayed next to each other, with the cells that read differently highlighted. The window is the one described in [Comparing Excel Files](#comparing-excel-files), except that it has no files to pick: it opens on the comparison of the two versions.
 
     ![](images/module-version-comparison-result.jpeg)
 

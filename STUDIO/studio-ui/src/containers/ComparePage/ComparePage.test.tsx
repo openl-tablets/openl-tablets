@@ -2,7 +2,13 @@ import React from 'react'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ComparePage } from './ComparePage'
-import { dropComparison, getComparison, getComparisonTable, startFileComparison } from 'services/compare'
+import {
+    dropComparison,
+    getComparison,
+    getComparisonTable,
+    startFileComparison,
+    startLocalHistoryComparison,
+} from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
 class HttpError extends Error {
@@ -21,6 +27,7 @@ vi.mock('services', () => ({
 vi.mock('services/compare', () => ({
     comparisonStatusTopic: (id: string) => `/user/topic/compare/${id}/status`,
     startFileComparison: vi.fn(),
+    startLocalHistoryComparison: vi.fn(),
     getComparison: vi.fn(),
     getComparisonTable: vi.fn(),
     dropComparison: vi.fn(),
@@ -30,6 +37,12 @@ const unsubscribe = vi.fn()
 const subscribe = vi.fn((_destination: string, _onBody: (body: string) => void) => ({ unsubscribe }))
 vi.mock('services/stompTopic', () => ({
     subscribeTopic: (destination: string, onBody: (body: string) => void) => subscribe(destination, onBody),
+}))
+
+// What the window was opened with; a window opened for two versions carries them in the address.
+let searchParams = new URLSearchParams()
+vi.mock('react-router-dom', () => ({
+    useSearchParams: () => [searchParams, vi.fn()],
 }))
 
 // Whether the socket is up; the screen hears a comparison only over a connection that is.
@@ -161,6 +174,7 @@ describe('ComparePage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         connected = true
+        searchParams = new URLSearchParams()
         vi.mocked(startFileComparison).mockResolvedValue('cmp-1')
         vi.mocked(getComparison).mockResolvedValue(COMPARISON)
         vi.mocked(getComparisonTable).mockResolvedValue(TABLE)
@@ -226,6 +240,39 @@ describe('ComparePage', () => {
         // Nothing will say when it ends, so the screen asks again on its own.
         expect(await screen.findByText('Rules', undefined, { timeout: 5000 })).toBeInTheDocument()
         expect(getComparison).toHaveBeenCalledTimes(2)
+    })
+
+    it('compares the two versions the window was opened for, with no files to pick', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1',
+            module: 'Pricing',
+            first: '100',
+            second: '200_current',
+        })
+        vi.mocked(startLocalHistoryComparison).mockResolvedValue('cmp-1')
+
+        await openPage()
+
+        await waitFor(() => expect(startLocalHistoryComparison)
+            .toHaveBeenCalledWith('p1', 'Pricing', '100', '200_current'))
+        expect(screen.queryByTestId('compare-files')).toBeNull()
+
+        await screen.findByTestId('compare-tree')
+        push('COMPLETED')
+
+        expect(await screen.findByText('Rules')).toBeInTheDocument()
+        // There are no files this window could go back to.
+        expect(screen.queryByTestId('compare-back')).toBeNull()
+    })
+
+    it('says why the comparison of two versions could not be started', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', first: '100', second: '200_current' })
+        vi.mocked(startLocalHistoryComparison).mockRejectedValue(new Error('The version is not found'))
+
+        await openPage()
+
+        expect(await screen.findByTestId('compare-error')).toHaveTextContent('The version is not found')
+        expect(screen.queryByTestId('compare-files')).toBeNull()
     })
 
     it('lists only the elements that differ, and the equal ones when they were asked for', async () => {

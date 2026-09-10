@@ -1,4 +1,5 @@
 import apiCall from './apiCall'
+import { toUrlSafeId } from './projectId'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
 const API_OPTIONS = { throwError: true, suppressErrorPages: true }
@@ -20,6 +21,30 @@ export const startFileComparison = async (first: File, second: File): Promise<st
     body.append('file1', first, first.name)
     body.append('file2', second, second.name)
     const response = await apiCall('/compare/files', { method: 'POST', body }, API_OPTIONS) as { id: string }
+    return response.id
+}
+
+/**
+ * Starts comparing two versions of a module from its local history.
+ *
+ * @param projectId  the project the module belongs to
+ * @param moduleName the module, or nothing for the first module of the project
+ * @param first      the version shown on the first side
+ * @param second     the version shown on the second side
+ * @returns the identifier the comparison is read and watched by
+ */
+export const startLocalHistoryComparison = async (
+    projectId: string,
+    moduleName: string | undefined,
+    first: string,
+    second: string
+): Promise<string> => {
+    const query = moduleName ? `?module=${encodeURIComponent(moduleName)}` : ''
+    const response = await apiCall(`/projects/${toUrlSafeId(projectId)}/local-history/compare${query}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first, second }),
+    }, API_OPTIONS) as { id: string }
     return response.id
 }
 

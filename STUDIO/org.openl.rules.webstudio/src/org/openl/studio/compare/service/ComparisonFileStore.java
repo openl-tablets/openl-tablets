@@ -78,6 +78,27 @@ public class ComparisonFileStore {
     }
 
     /**
+     * Takes files that are already on disk, copying each of them. Nothing is left behind when one of
+     * them cannot be copied.
+     *
+     * @param files the files to copy
+     * @return where each of them was copied to, in the order they were given
+     * @throws IOException when a file cannot be copied
+     */
+    public List<Path> copy(List<Path> files) throws IOException {
+        var stored = new ArrayList<Path>(files.size());
+        try {
+            for (Path file : files) {
+                stored.add(copyOne(file));
+            }
+        } catch (Exception e) {
+            delete(stored);
+            throw e;
+        }
+        return stored;
+    }
+
+    /**
      * Deletes files a comparison no longer reads.
      *
      * @param files the files to delete
@@ -101,8 +122,7 @@ public class ComparisonFileStore {
         if (!FileTypeHelper.isExcelFile(name)) {
             throw new BadRequestException("compare.file.not-excel.message");
         }
-        var scratch = Files.createDirectories(Path.of(openlHome, "tmp", "compare"));
-        var file = Files.createTempFile(scratch, "openl-cmp", "." + FileUtils.getExtension(name));
+        var file = scratchFile(name);
         try (var content = upload.getInputStream()) {
             Files.copy(content, file, StandardCopyOption.REPLACE_EXISTING);
             verifyArrivedInFull(name, file);
@@ -111,6 +131,30 @@ public class ComparisonFileStore {
             Files.deleteIfExists(file);
             throw e;
         }
+    }
+
+    /** Writes a copy of a file, keeping the extension its format is read by. */
+    private Path copyOne(Path source) throws IOException {
+        var file = scratchFile(source.getFileName().toString());
+        try {
+            Files.copy(source, file, StandardCopyOption.REPLACE_EXISTING);
+            return file;
+        } catch (Exception e) {
+            Files.deleteIfExists(file);
+            throw e;
+        }
+    }
+
+    /**
+     * An empty file of its own in the scratch directory, named after nothing the user chose.
+     *
+     * <p>The extension of the given name is kept, and a name without one gives a file without one:
+     * a local history version is stored under a name that has no extension at all.
+     */
+    private Path scratchFile(String name) throws IOException {
+        var scratch = Files.createDirectories(Path.of(openlHome, "tmp", "compare"));
+        var extension = FileUtils.getExtension(name);
+        return Files.createTempFile(scratch, "openl-cmp", extension.isEmpty() ? "" : "." + extension);
     }
 
     /**

@@ -235,6 +235,10 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   that releases it when another one starts or the session ends. Compare (`POST /compare/files` →
   `/topic/compare/{id}/status` → `GET /compare/{id}`) and Run (`POST /projects/{id}/run` →
   `/topic/projects/{id}/tables/{tableId}/run/status`) are built this way.
+- When such work is shown in a window of its own, let **the new window start it**, telling it what to do in
+  the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
+  window afterwards opens it after an `await`, when the click no longer counts as user activation and a
+  blocker can refuse it silently — and the window misses whatever the topic reported meanwhile.
 
 ## Migration recipe
 

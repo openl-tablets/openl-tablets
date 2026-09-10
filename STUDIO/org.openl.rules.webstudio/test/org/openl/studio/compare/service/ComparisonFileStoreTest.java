@@ -3,6 +3,7 @@ package org.openl.studio.compare.service;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -88,6 +89,31 @@ class ComparisonFileStoreTest {
 
         assertEquals("The disk is full", failure.getMessage());
         assertTrue(storedFiles().isEmpty(), "nothing is left behind when a file cannot be written");
+    }
+
+    @Test
+    void copiesFilesThatAreAlreadyOnDisk() throws IOException {
+        var content = workbook();
+        var source = Files.write(home.resolve("1700000000000"), content);
+
+        var copies = store.copy(List.of(source));
+
+        var copy = copies.getFirst();
+        assertEquals(home.resolve("tmp").resolve("compare"), copy.getParent());
+        assertNotEquals(source, copy, "the comparison reads a copy, not the file it was given");
+        assertArrayEquals(content, Files.readAllBytes(copy));
+        assertFalse(copy.getFileName().toString().contains("."),
+                "a version stored without an extension is copied without one: " + copy.getFileName());
+        assertTrue(Files.exists(source), "the file it was given stays where it is");
+    }
+
+    @Test
+    void leavesNothingBehindWhenAFileCannotBeCopied() throws IOException {
+        var source = Files.write(home.resolve("1700000000000"), workbook());
+
+        assertThrows(IOException.class, () -> store.copy(List.of(source, home.resolve("gone"))));
+
+        assertTrue(storedFiles().isEmpty(), "nothing is left behind when a file cannot be copied");
     }
 
     @Test
