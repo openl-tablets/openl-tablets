@@ -174,25 +174,30 @@ To create a new project from template, proceed as follows:
 
 ##### Creating a Project Using a Custom Template
 
-A custom project template can be created and then used during new projects definition. To create a new custom project template, proceed as follows:
+Besides the templates bundled with OpenL Studio, a project can be created from a custom template kept in the OpenL
+Studio home directory `<OPENL_HOME>`, by default the `.openl` folder of the user home directory and configurable
+through the `openl.home` property. To define a custom template, proceed as follows:
 
-1.  If the OpenL Studio home directory `\<OPENL_HOME>,` create the following directory:
+1.  In `<OPENL_HOME>`, create the `project-templates` directory.
+1.  In it, create a subfolder named after the template category, such as
+    `<OPENL_HOME>/project-templates/My Custom Templates`.
+1.  In the category folder, create a subfolder per template and place the project files into it.
 
-    ```
-    \<OPENL_HOME>\project-templates
-    ```
+    Files in nested folders keep their relative paths, so a template can carry a whole project structure.
 
-1.  Create a subfolder with a template category name.
+    For example, `<OPENL_HOME>/project-templates/My Custom Templates/MyRule1/rating.xlsx` defines the **MyRule1**
+    template in the **My Custom Templates** category, and a project created from it contains the `rating.xlsx` file.
 
-    An example is `\<OPENL_HOME>\project-templates\My Custom Templates`.
+The category appears in the **From template** list next to the built-in ones, marked **custom** and followed by the
+number of templates it holds. Click the category to display its templates and select the one to create a project from.
 
-1.  For project templates that store files with project rules, create subfolders.
+![The Create project dialog with a custom template category next to the built-in ones](images/create-custom-project-template.png "Creating a project from a custom template")
 
-    For example, `\<OPENL_HOME>\project-templates\My Custom Templates\MyRule1\rating.xlsx` will be presented as the **MyRule1** template project in the `My Custom Templates` category containing the `rating.xlsx` file.
+*Creating a project from a custom template*
 
-    ![Creating a custom project template](images/create-custom-project-template.jpeg)
-
-    *Creating a custom project template*
+> [!Note]
+> OpenL Studio reads the custom template folders once and keeps the resulting list until it is restarted. Restart
+> OpenL Studio to make a template added to a running instance available.
 
 #### Creating a Project from Excel Files
 
