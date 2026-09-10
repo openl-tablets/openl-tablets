@@ -159,7 +159,9 @@ To create a new project from template, proceed as follows:
 1.  Select a repository.
 
     If there is only one repository, it is selected by default. Otherwise, a list of repositories is displayed.
-    If a Git repository with non-flat structure is selected, the **Path** field with the / default value is displayed and can be modified as required. The path is defined inside the repository and can start with or without /.
+    If the selected repository keeps projects in folders, a Git or Azure Blob Storage repository for example,
+    the **Path** field with the `/` default value is displayed and can be modified as required. The path is
+    defined inside the repository and can start with or without `/`.
 
 1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create**.
