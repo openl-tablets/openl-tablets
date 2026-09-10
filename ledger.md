@@ -3,8 +3,8 @@
 ## Resume point
 
 - No open PR. The next finding starts a fresh branch cut from a freshly fetched `origin/main`.
-- Every change type has had a repo-wide pass; the swept head is `origin/main` 3728048e. No untried detector is left.
-- Next run: diff `origin/main` against 3728048e; no Java or resource change → no build, no scan, no notification.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` 61ed572b. No untried detector is left.
+- Next run: diff `origin/main` against 61ed572b; no Java or resource change → no build, no scan, no notification.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
 - Once a PR is open again, same-kind finds extend its matching commit with `--fixup` + autosquash; a new kind is a new commit there.
 
@@ -260,6 +260,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-09 f: webstudio bundle and .xhtml recheck finished → PR #2095 (1 dead ValidationMessages key); whole-reactor build green.
 - 2026-09-09 g: #2095 merged clean; ctor-reachability scan run → #2096 (AOpenIterator wrappers), CI all green, merged the same run; last detector closed.
 - 2026-09-10 a: main unmoved at 3728048e, no open PR, no new code to scan; compaction only (279 → 265 lines); branch delete retried, still 403.
+- 2026-09-10 b: main moved one commit (dependabot maven.plugin.version bump, property alive, nothing scannable); no open PR; branch delete still 403.
