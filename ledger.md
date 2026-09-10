@@ -31,6 +31,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 ## Open PR
 
 - #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions.
+- CodeRabbit: no actionable comments, 5/5 pre-merge checks passed. IT (services-data) red on the kafka-native
+  startup flake; stood down in one comment, re-run still unspent while the run was in progress.
 - Commits in order: ObjectViewer + 3 grid filters + web.test Utils; 2 Constants fields; 15 common.css rules;
   3 icons; studio-ui `valuesOf`; 6 execution locale keys. The CSS commit must stay after the Java one and the
   icon commit after the CSS one — each removal strands the next.
@@ -196,7 +198,9 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - studio-ui vitest CPU starvation under -T1C: OverviewPanel.test.tsx (15000ms timeout, act() warning via vitest-fail-on-console).
 - UserDatailsTab.test.tsx "rejects an empty email and display name": findByText timeout when the vitest run takes ~680s; rerun once.
 - OpenLTableLogicTest.detectsErrorsInRulesTestedByTable: `expected true was false`; getMethod right after async setModuleInfo compile; rerun once.
-- IT (services-data): apache/kafka-native:latest segfault in Pwd.getpwuid at ~0.01s in `setup`; random Kafka suite; rerun clears; never pin the tag.
+- IT (services-data): apache/kafka-native:latest fails to come up in a random Kafka suite's `setUp`, either a
+  segfault in Pwd.getpwuid at ~0.01s or a 62s `Timed out waiting for ... RECOVERY to RUNNING` (seen in
+  itest.tracing RunTracingITest). Kafka Smoke passing in the same job proves it transient; rerun clears; never pin the tag.
 - IT (studio-acl): OracleRdbmsTest upgrade `Failed requests expected <0> but was <N>` with ORA-12516; also on main; rerun once.
 - IT (studio-acl): testcontainers/ryuk pull failure → all 4 variants error at upgrade:53 (runner degraded); rerun.
 - IT (studio): WebStudioTest.simple failed requests at ~10002ms (client timeout); Jetty hang; rerun.
