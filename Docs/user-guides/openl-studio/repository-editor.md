@@ -769,11 +769,17 @@ Proceed as follows:
 
 OpenL Studio supports versioning definition for rule services. This functionality allows specifying a version for the project revision to be deployed. The required version of the deployed project can be called from deployment repository. All specified versions of the project appear on the OpenL Tablets Rule Services page with a version number defined in brackets.
 
-To check the services version deployment, in OpenL Tablets Rule Services, find the name of the deployed project. Services version is set both in the services header and in the services URL.
+To check the services version deployment, in OpenL Tablets Rule Services, find the name of the deployed project
+and open it. Services version is set both in the services header and in the services URL, and the **Select a
+definition** list names every deployed version.
 
-![Services header and URL with the version number](images/services-version-header.png)
+![Services header and URL with the version number](images/services-version-header.png "The service name with its version in the Rule Services header")
 
 *Services header and URL with the version number*
+
+The version becomes part of the service name, so a version defined for a project makes it a service of its own,
+and several versions of one project are published side by side. When the **Service Name** field is filled in, the
+version is added to that name instead of the deployment and project names.
 
 To define the rule service version, proceed as follows:
 
