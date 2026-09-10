@@ -3,6 +3,6 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "sourcePath": "Main.xlsx",
-  "destinationPath": "Secondary.xlsx"
+  "sourcePath": "rules/Main.xlsx",
+  "destinationPath": "rules/Secondary.xlsx"
 }

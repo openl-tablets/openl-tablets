@@ -101,6 +101,9 @@ While creating a project from template, use the following template types:
 | **Examples**         | Provide several simple projects demonstrating how OpenL Tablets can be used in various business domains.                                                                                                                                           |
 | **Tutorials**        | Represents projects designed to familiarize users with OpenL Tablets step-by-step, from simple features and concepts to more complex ones.                                                                                                         |
 
+Every built-in template uses the standard project layout. It contains `rules.xml` in the project root, stores rule
+workbooks in `rules/`, and stores test workbooks, when present, in `tests/`.
+
 Projects represented as Examples and Tutorials can be used not only to learn how they are organized and work, but also to create user’s own projects from them.
 
 To create a new project from template, proceed as follows:
