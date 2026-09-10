@@ -3,8 +3,8 @@
 ## Resume point
 
 - No open PR. The next finding starts a fresh branch cut from a freshly fetched `origin/main`.
-- Every change type has had a repo-wide pass; the swept head is `origin/main` 61ed572b. No untried detector is left.
-- Next run: diff `origin/main` against 61ed572b; no Java or resource change → no build, no scan, no notification.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` 57781051. No untried detector is left.
+- Next run: diff `origin/main` against 57781051; no Java or resource change → no build, no scan, no notification.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
 - Once a PR is open again, same-kind finds extend its matching commit with `--fixup` + autosquash; a new kind is a new commit there.
 
@@ -128,6 +128,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Prove non-reference with `grep -rIwF <name>` over all file types excluding target/ node_modules/ .git/ studio-ui/coverage studio-ui/dist, plus `grep -ra` for binaries, plus accessor forms and the extension-less stem.
 - Search workbooks: `unzip -p *.xlsx | grep -wF`, .xls as raw bytes; rule tables can name Java methods. Include the maven-plugin `it/` sources in every search.
 - Build an identifier-frequency index over all tracked text files: global count 1 = declaration only; scope test types to their own module.
+- A handful of changed files is scanned by listing their declared members and grepping each, not by building: ~/.m2 is cold every session.
 - Track enclosing types for effective visibility: a public member of a private or package-private type is internal.
 - ASM scan of target/classes + target/test-classes (all reactor modules, ITEST, maven-plugin): invokes, method handles, lambda bootstrap args, field get/put.
 - ASM filters: drop @Override, any annotation, name in non-Java text or Java string literal, record accessors; skip compile-time-constant fields.
@@ -260,6 +261,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-09 g: #2095 merged clean; ctor-reachability scan run → #2096 (AOpenIterator wrappers), CI all green, merged the same run; last detector closed.
 - 2026-09-10 a: main unmoved at 3728048e, no open PR, no new code to scan; compaction only (279 → 265 lines); branch delete retried, still 403.
 - 2026-09-10 b: main moved one commit (dependabot maven.plugin.version bump, property alive, nothing scannable); no open PR; branch delete still 403.
+- 2026-09-10 c: scanned EPBDS-16416 (CellStyleCarrier, TableBuilder, PoiExcelHelper): every member referenced, nothing dead; branch delete still 403.
