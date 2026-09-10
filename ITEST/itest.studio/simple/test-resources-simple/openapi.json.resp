@@ -20510,6 +20510,10 @@ Content-Type: application/json
           "db": {
             "$ref": "#/components/schemas/DBSettings"
           },
+          "detectProjectsByExcelFiles": {
+            "type": "boolean",
+            "description": "***"
+          },
           "dispatchingValidationEnabled": {
             "type": "boolean",
             "description": "***"

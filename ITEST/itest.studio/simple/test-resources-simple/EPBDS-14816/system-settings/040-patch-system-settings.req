@@ -4,6 +4,7 @@ Content-Type: application/merge-patch+json
 
 {
   "projectHistoryCount": 10,
+  "detectProjectsByExcelFiles": true,
   "updateSystemProperties": true,
   "datePattern": "yyyy-MM-dd",
   "timeFormat": "ss:mm:hh a",

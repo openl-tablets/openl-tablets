@@ -23,6 +23,7 @@ class WebStudioTest {
                     .withInitParam("security.allow-project-create-delete", "false")
                     // system settings
                     .withInitParam("project.history.count", "99")
+                    .withInitParam("project.detect-by-excel-files", "true")
                     .withInitParam("data.format.date", "MM/dd/yyyy")
                     .withInitParam("data.format.time", "hh:mm:ss a")
                     .withInitParam("update.system.properties", "true")
