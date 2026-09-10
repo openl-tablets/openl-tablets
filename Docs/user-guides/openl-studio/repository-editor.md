@@ -272,13 +272,20 @@ The archive must also arrive in full. OpenL Studio reads the directory the archi
 
 1.  Click **+ New Project**.
 1.  In the **Create project** dialog, click **From archive**.
-1.  Choose **Archive** or **Folder**, click the **Add** button, locate the necessary zip archive or project folder, and click **Open**.
+1.  Select **Archive** to load a zip archive, or **Folder** to load a project folder.
+1.  Click the upload area and select the archive or folder, or drag it onto the area.
+
+    An added archive is listed under the area with a delete icon that removes it. For a folder, the number of
+    selected files is displayed instead, and picking another folder replaces the previous selection. OpenL Studio
+    checks the content as soon as it is added and reports an error when it is not an OpenL project.
 
     ![Configuring an archive project and its target branch](images/create-project-from-zip-dialog.png "Creating a project from a ZIP file")
 
     *Creating a project from ZIP file*
 
-    **Project Name** text box is automatically populated with the project name defined in `rules.xml,` if the uploaded ZIP file contains `rules.xml,` or with the file name.
+    The **Project Name** field is populated automatically with the project name defined in `rules.xml`. When the
+    project has no `rules.xml`, the name of the folder wrapping the project inside the archive is used, and
+    otherwise the archive file name.
 
 1.  If necessary, modify the project name.
 
@@ -289,6 +296,8 @@ The archive must also arrive in full. OpenL Studio reads the directory the archi
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
 1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
+1.  If the selected repository keeps projects in folders, specify the target folder in the **Path** field.
+1.  If necessary, modify the commit comment in the **Comment** field.
 1.  Click **Create** to complete.
 
     The new project opens in the workspace right away, the same as a project created from a template or Excel files.
@@ -396,14 +405,19 @@ To open a project revision using the **Revisions** tab, proceed as follows:
 1.  In the **Projects** tree, select a project.
 2.  Click the **Revisions** tab.
 
-    A list of revisions appears.
+    A list of revisions appears, the most recent one first.
 
-    ![List of project revisions](images/project-revisions-list.jpeg)
+    ![List of project revisions](images/project-revisions-list.png "List of project revisions")
 
     *List of project revisions*
 
-1.  Navigate to the revision that needs to be opened and click the corresponding magnifier icon in the **Action** column.
-2.  In the information message, click **OK**.
+1.  Navigate to the revision that needs to be opened, clicking **Load more** at the bottom when the list does
+    not reach it yet.
+1.  Click **Open Revision** ![](images/open-revision-icon.png) at the right of the revision.
+
+    The button is displayed for every revision except the one the project is opened on and the technical ones.
+    When the project has uncommitted changes, a confirmation appears, because opening another revision discards
+    them.
 
 If a project has the **Viewing Revision** status, the opened project revision becomes available for viewing and modifying, not the latest revision.
 
@@ -411,12 +425,13 @@ If user tries to modify an old revision of the project, the system displays the 
 
 Revisions can also be accessed through Editor by selecting **More \> Revisions** for a project.
 
-The features **Technical Revision** and **Search Filter** are available in OpenL Studio when the repository
-type is Git.
+The **Show technical revisions** toggle and the **Search history** box above the list are available in OpenL
+Studio when the repository type is Git.
 
--   **Technical Revisions**, when checked, allows users to see revisions that are not directly related to the
-    current project, for example, changes related to code updates or changes in other projects.
--   **Search Filter** helps users quickly locate specific revisions by searching through the comments, modified
+-   **Show technical revisions**, when switched on, adds the revisions that are not directly related to the
+    current project, for example, changes related to code updates or changes in other projects. Each of them
+    carries the **technical** mark, and it cannot be opened.
+-   **Search history** helps users quickly locate specific revisions by searching through the comments, modified
     by, and revision IDs.
 
 ### Closing a Project
