@@ -19,7 +19,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@stomp/stompjs": "^7.3.0",
     "@uiw/react-codemirror": "^4.25.11",
-    "antd": "6.5.2",
+    "antd": "6.6.3",
     "antd-style": "^4.1.0",
     "cytoscape": "^3.34.3",
     "cytoscape-dagre": "^4.0.1",
