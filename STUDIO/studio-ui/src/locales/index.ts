@@ -1,4 +1,5 @@
 import './common.en'
+import './compare.en'
 import './deploy.en'
 import './email.en'
 import './execution.en'

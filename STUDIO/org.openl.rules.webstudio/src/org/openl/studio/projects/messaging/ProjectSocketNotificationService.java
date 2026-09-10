@@ -34,6 +34,7 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_PROJECTS_TABLES_RUN = "/topic/projects/%s/tables/%s/run";
     private static final String TOPIC_PROJECTS_TABLES_BENCHMARKS = "/topic/projects/%s/tables/%s/benchmarks";
     private static final String TOPIC_PROJECTS_STATUS = "/topic/projects/%s/status";
+    private static final String TOPIC_COMPARE = "/topic/compare/%s";
     private static final String TOPIC_PROJECTS_BRANCHES_STATUS = "/topic/projects/%s/branches/%s/status";
     private static final String TOPIC_WORKSPACE_CHANGED = "/topic/workspace/changed";
     private static final String TOPIC_PROJECTS_CHANGED = "/topic/projects/changed";
@@ -181,6 +182,32 @@ public class ProjectSocketNotificationService {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
                 topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
                 Map.of("status", ExecutionStatus.ERROR.name(), "message", errorMessage));
+    }
+
+    /**
+     * Notifies user about the progress of a comparison.
+     *
+     * @param userName     destination user
+     * @param comparisonId identifier of the comparison
+     * @param status       new comparison status
+     */
+    public void notifyComparisonStatus(String userName, String comparisonId, ExecutionStatus status) {
+        messagingTemplate.convertAndSendToUser(userName,
+                TOPIC_COMPARE.formatted(encodePathSegment(comparisonId)) + STATUS,
+                status.name());
+    }
+
+    /**
+     * Notifies user that a comparison could not be made.
+     *
+     * @param userName     destination user
+     * @param comparisonId identifier of the comparison
+     * @param errorMessage what went wrong
+     */
+    public void notifyComparisonError(String userName, String comparisonId, String errorMessage) {
+        messagingTemplate.convertAndSendToUser(userName,
+                TOPIC_COMPARE.formatted(encodePathSegment(comparisonId)) + STATUS,
+                Map.of("status", "ERROR", "message", errorMessage));
     }
 
     /**

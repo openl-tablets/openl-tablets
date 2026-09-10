@@ -1,0 +1,36 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "*",
+  "identical": false,
+  "sheets": [
+    {
+      "id": "0",
+      "name": "Rules",
+      "type": "sheet",
+      "status": "changed",
+      "children": [
+        {
+          "id": "0-0",
+          "name": "Datatype Person",
+          "type": "table",
+          "status": "changed"
+        },
+        {
+          "id": "0-1",
+          "name": "Datatype Contact",
+          "type": "table",
+          "status": "removed"
+        },
+        {
+          "id": "0-2",
+          "name": "Datatype Address",
+          "type": "table",
+          "status": "added"
+        }
+      ]
+    }
+  ]
+}
+

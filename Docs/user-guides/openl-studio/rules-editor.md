@@ -754,7 +754,7 @@ also be changed in the window.
 
 ### Comparing Excel Files
 
-OpenL Studio supports comparing contents of Excel files displaying tables and Excel elements that are modified. To compare two Excel files, proceed as follows:
+OpenL Studio compares two Excel files and shows the tables and other elements that differ. To compare two Excel files, proceed as follows:
 
 1.  In OpenL Studio Rules Editor, in the top line menu, select **More \> Compare Excel Files.**
 
@@ -762,29 +762,33 @@ OpenL Studio supports comparing contents of Excel files displaying tables and Ex
 
     *Initiating Excel comparison functionality*
 
-1.  In the window that appears, click **Add** and select two Excel files to compare.
-2.  Click **Upload** and wait until file status is changed to **Done.**
+    The comparison opens in a window of its own.
+
+1.  Drag the two files to compare into the box, or click it and select them.
 
     ![](images/excel-files-ready-for-comparison.png)
 
     *Excel files ready for comparison*
 
-1.  To display tables and other Excel file elements that differ in the selected Excel files, click **Compare.**
+1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
+2.  Click **Compare.**
 
-    The list of tables and Excel elements is displayed, grouped by Excel sheets. Clicking on the table or element in the list displays the changes in the section below.
+    The elements of the two files are listed grouped by Excel sheet. Selecting an element displays it as it stands in each of the files, one next to the other, with the cells that differ highlighted.
 
     ![](images/excel-comparison-results.jpeg)
 
     *Excel file comparison results*
 
-    Elements and tables that changed the location or contents are marked with the asterisk icon ![](images/excel-compare-changed-icon.png). Added elements are marked with the plus sign icon ![](images/excel-compare-added-icon.png). Removed elements or tables are marked with the deletion icon ![](images/excel-compare-removed-icon.png).
+    Elements that changed their location or their contents are marked with the change icon ![](images/excel-compare-changed-icon.png). Elements that the second file adds are marked with the plus icon ![](images/excel-compare-added-icon.png), and elements that it no longer holds with the minus icon ![](images/excel-compare-removed-icon.png).
 
-1.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
-2.  To display all equal tables and Excel file elements in the selected Excel files, select **Show equal elements** check box and click **Compare.**
+    The list of elements, the first file and the second one are separated by dividers. Drag a divider to give
+    either side more room. The button above the list hides it and leaves the tables alone; while the list is
+    hidden, the button that brings it back and **Select other files** are above the first file.
 
-All elements that are equal in the selected Excel files are displayed, grouped by Excel sheets. Elements that are relocated, added, or removed are marked with an appropriate icon.
+1.  To display the rows that read the same in both files, select the **Show equal rows** check box. Without it, an element shows only the rows that differ.
+2.  To compare another pair of files, click **Select other files**.
 
-If contents of two Excel files with different names is completely identical, the **File elements are identical** message is displayed.
+If the two files hold the same elements with the same contents, the **File elements are identical** message is displayed.
 
 ### Viewing and Editing Project-Related OpenAPI Details
 

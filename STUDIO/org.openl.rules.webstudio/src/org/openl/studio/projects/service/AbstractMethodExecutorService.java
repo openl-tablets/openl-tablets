@@ -11,7 +11,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.types.IOpenMethod;
-import org.openl.util.StringUtils;
 
 /**
  * Abstract base for asynchronous method executor services (run, trace, etc.).
@@ -103,41 +102,13 @@ public abstract class AbstractMethodExecutorService {
      */
     protected <T> CompletableFuture<T> executeWithLifecycle(ExecutionProgressListener listener,
                                                             Callable<T> task) {
-        listener.onStatusChanged(ExecutionStatus.STARTED);
-        try {
-            var result = task.call();
-
-            if (Thread.currentThread().isInterrupted()) {
-                listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
-                return CompletableFuture.completedFuture(result);
-            }
-
-            listener.onStatusChanged(ExecutionStatus.COMPLETED);
-            return CompletableFuture.completedFuture(result);
-        } catch (Exception e) {
-            if (isInterruptedException(e)) {
-                listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
-                return CompletableFuture.completedFuture(null);
-            }
-            // A listener is told why it failed; an exception that says nothing is named by its own type, so
-            // that the reason is never missing.
-            var reason = StringUtils.isBlank(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-            listener.onError(reason, e);
-            return CompletableFuture.failedFuture(e);
-        }
+        return ExecutionLifecycle.execute(listener, task);
     }
 
     /**
      * Checks if the exception is caused by thread interruption.
      */
     protected static boolean isInterruptedException(Throwable e) {
-        var cause = e;
-        while (cause != null) {
-            if (cause instanceof InterruptedException) {
-                return true;
-            }
-            cause = cause.getCause();
-        }
-        return false;
+        return ExecutionLifecycle.isInterrupted(e);
     }
 }
