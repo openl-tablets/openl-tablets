@@ -206,24 +206,26 @@ A rule project in the Design repository can be created by loading one or more Ex
 Proceed as follows:
 
 1.  Click **+ New Project**.
-2.  In the **Create project** dialog, click **From Excel files**.
-3.  Click the **Add** button, locate the necessary Excel file in a file system and click **Open**.
-4.  If required, repeat the previous step to add more files for the project.
+1.  In the **Create project** dialog, click **From Excel files**.
+1.  Click the upload area and select the required files, or drag them onto the area.
 
-    All files are listed in the **File** area.
+    Only `.xlsx` and `.xls` files are accepted, and several of them can be added at once. The added files are
+    listed under the upload area, and clicking the area again appends more files to that list.
 
     ![Configuring an Excel project and its target branch](images/create-project-from-excel-files.png "Creating a project from Excel files")
 
     *Creating a project from Excel files*
 
-    A file can be removed from the list by clicking the corresponding **Clear** link. To delete all files, click **Clear All**.
+    To remove a file from the list, click the delete icon next to its name.
 
 1.  In the **Project Name** field, enter the name by which the project must be represented in Design repository.
-2.  Select a repository.
+1.  Select a repository.
 
     For more information on available repositories, see [Creating a Project from Template](#creating-a-project-from-template).
 
 1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
+1.  If the selected repository keeps projects in folders, specify the target folder in the **Path** field.
+1.  If necessary, modify the commit comment in the **Comment** field.
 1.  Click **Create** to complete.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
