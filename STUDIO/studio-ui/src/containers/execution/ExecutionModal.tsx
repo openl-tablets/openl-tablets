@@ -4,15 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useListPageStyles } from 'styles/listPageStyles'
 import type { MessageDescription, TraceParameterValue } from 'types/trace'
 
-/**
- * The values of an execution, labelled by the column or the parameter they came from.
- *
- * A value is shown under the name the table author wrote for it, and the declared type is left out: the values
- * are read, not edited.
- */
-export const valuesOf = (values?: TraceParameterValue[] | undefined): TraceParameterValue[] =>
-    (values ?? []).map(value => ({ ...value, name: value.description || value.name, description: '' }))
-
 /** The name a value is shown under: the column the table author wrote, or the name of the parameter. */
 export const nameOf = (value: TraceParameterValue): string => value.description || value.name
 
