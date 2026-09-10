@@ -2,11 +2,11 @@
 
 ## Resume point
 
-- No open PR. The next finding starts a fresh branch cut from a freshly fetched `origin/main`.
-- Every change type has had a repo-wide pass; the swept head is `origin/main` 62d8637b. No untried detector is left.
-- Next run: diff `origin/main` against 62d8637b; no Java or resource change → no build, no scan, no notification.
+- PR #2101 is open on `dead-code/react-run-residue`; maintain it before any new sweep.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` ba11551eb. No untried detector is left.
+- Next run: diff `origin/main` against ba11551eb; no Java or resource change → no build, no scan, no notification.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
-- Once a PR is open again, same-kind finds extend its matching commit with `--fixup` + autosquash; a new kind is a new commit there.
+- Same-kind finds extend #2101's matching commit with `--fixup` + autosquash; a new kind is a new commit there.
 
 ## Change-type queue
 
@@ -14,28 +14,31 @@
 |---|-------------|--------|
 | 1 | Commented-out code (Java, CSS, JS) | done 2026-09-09; 39 prose/TODO/reasoned blocks kept |
 | 2 | Never-read assignments, dead stores | done 2026-09-09; PMD rerun: 0 new |
-| 3 | Unused locals, private fields/methods/params | done 2026-09-09; PMD rerun: 0 new |
+| 3 | Unused locals, private fields/methods/params | done 2026-09-10; 2 unread Constants fields in #2101 |
 | 4 | Unused Maven dependency declarations | done 2026-09-07; the rest are providers |
 | 5 | Pom metadata: managed entries, exclusions, plugin config, properties | done 2026-09-07 |
 | 6 | Redundant constructs, dead suppressions, VCS/build settings | done 2026-09-07 |
-| 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-09; rescans: 0 |
-| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-09 |
+| 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-10; 3 icons in #2101 |
+| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-10; 15 rules in #2101 |
 | 9 | Legacy JS functions and .xhtml pages | done 2026-09-09; .xhtml all alive |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-09 |
-| 11 | TypeScript exports, types, components, imports | done 2026-09-09; rescan of 849 exports: 0 |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-10; 6 execution keys in #2101 |
+| 11 | TypeScript exports, types, components, imports | done 2026-09-10; 1 export in #2101 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 |
-| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-09 |
+| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-10; 5 types in #2101 |
 
 Public API is never in the queue: unused public members go to Deferred findings for a human decision.
 
 ## Open PR
 
-- None.
+- #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions.
+- Commits in order: ObjectViewer + 3 grid filters + web.test Utils; 2 Constants fields; 15 common.css rules;
+  3 icons; studio-ui `valuesOf`; 6 execution locale keys. The CSS commit must stay after the Java one and the
+  icon commit after the CSS one — each removal strands the next.
 
 ## Merged PRs
 
-- 1906, 1909, 1911, 1912, 1913, 1915, 1918, 1933, 1940, 2004, 2054, 2056, 2058, 2060, 2062, 2063, 2082, 2088, 2089,
-  2092, 2095, 2096 — every one merged; what each removed is covered by Exhausted veins.
+- 1906, 1909, 1911-1913, 1915, 1918, 1933, 1940, 2004, 2054, 2056, 2058, 2060, 2062-2063, 2082, 2088-2089, 2092,
+  2095-2096 — all merged; what each removed is covered by Exhausted veins.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
 
 ## Module coverage
@@ -79,6 +82,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - DEV/org.openl.rules/doc/Table Properties Design Points.docx: unreferenced historical design material.
 - revisions.xhtml: React residue stranding WebStudio.getProjectVersions/setProjectVersion/canOpenOtherVersion; recheck when React finishes.
 - Docs/architecture/dependencies.md row for org.openl.rules.diff says `commons`, pom says org.openl.rules.
+- `.spreadsheet .rf-trn-ico-lf` in common.css: no class-applying use even before the React run/test migration, so not its residue.
 
 ## False-positive shapes
 
@@ -104,6 +108,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - EL-composed keys: `#{msg['ws.project.openapi.mode.'.concat(mode.name().toLowerCase())]}`; repo-default.<type>.<suffix>.
 - studio.url('page') drops .xhtml; index.xhtml crossroads routes add ".xhtml" → search extension-less base names.
 - Runtime CSS classes: 'tooltip_'+position, "tooltip_skin-"+skin, ui-layout-* (jquery.layout.js), te_toolbar_*, table id = clientId+suffix.
+- A React `data-testid` is not a class: a CSS token surviving only as a test id (param-tree) is dead CSS.
+- A React rewrite copies a legacy helper rather than calling it (getDb, isCollection): a same-named method in another file is not a caller — check the qualifier.
 - `gradient` in common.css is a filter value, not a class; jquery-popup-close-icon / clock-icon.png are substring hits, not uses.
 - Legacy JS common-word method names (show, hide, focus, getValue, save) are reached through `this.editor.<name>` in TableEditor.js; confirm there first.
 - PMD UnusedAssignment blind spots: constructor early return (CellStyle), try/catch pairs (GitRepository), field read back through a callback (DynamicPropertySource.settings via resolver).
@@ -207,7 +213,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - `git push --delete <branch>` is refused by the proxy (HTTP 403, "remote end hung up"); branch deletion is a human follow-up.
 - Cold ~/.m2 at session start: the first `-T1C` build needs the network (~30 min) and -Daether.syncContext.named.time=600, or resolution fails with "Could not acquire lock(s)"; never -o before that build.
 - After a -T1C failure, `mvn -rf :<module>` cannot resolve the banned siblings or the never-installed rules.test → rerun the whole `mvn install` (no clean, ~10 min warm).
-- Container presets gpg.format=ssh, commit.gpgsign=true, gpg.ssh.program=/tmp/code-sign; JGit has no ssh signer → repository.git tests die; unset commit.gpgsign and gpg.format before the build; env overrides do not reach JGit.
+- Container presets gpg.format=ssh, commit.gpgsign=true; JGit has no ssh signer → repository.git tests die and every module after it is skipped. Unset both **globally** (`git config --global --unset`) before the build; a local unset in the clone is not enough and env overrides do not reach JGit.
 - The container rewrites ~/.gitconfig back to the Claude identity mid-session, silently reverting `git config --global user.*`. Set `git config --local user.*` in the clone instead (worktrees share it) and re-check `git log -1 --pretty='%an|%cn'` before every push, not only after the first commit.
 - No locale set: run builds with LANG=C.UTF-8 (one archive test uses a non-ASCII fixture name).
 - 4-core container: -T1C starves vitest (UserDetailsTab fails); use -T2 for whole-reactor builds when studio-ui tests run; never run npm in studio-ui while Maven runs.
@@ -246,6 +252,9 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - .gitignore/.gitconfig/.gitattributes/.editorconfig, package.json fields, eslint/vite/vitest config imports: done.
 - DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
 - Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
+- EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js deleted): swept for Java types, CSS, JS,
+  images, message bundles and studio-ui exports/locales; everything found is in #2101, nothing else left.
+- common.js declarations and all 46 messages.properties / 662 openapi.properties / 230 ValidationMessages keys re-checked after that migration: 0 dead.
 
 ## Human follow-ups
 
@@ -263,6 +272,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-10 c: scanned EPBDS-16416 (CellStyleCarrier, TableBuilder, PoiExcelHelper): every member referenced, nothing dead.
 - 2026-09-10 d: main moved one docs-only commit (EPBDS-16265 configuration.md, no image refs dropped); closed the openl-default.properties vein.
 - 2026-09-10 e: main unchanged at 62d8637b and no open dead-code PR; nothing to scan, no code touched.
+- 2026-09-10 f: main moved 9 commits (EPBDS-16560 React run/test/benchmark); swept its residue, opened #2101 with 6 commits, 393 deletions.
