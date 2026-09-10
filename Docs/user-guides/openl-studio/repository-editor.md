@@ -543,22 +543,33 @@ first file placed inside it. **Remove empty folder** discards it again.
 
 To upload a file to a project folder, proceed as follows:
 
-1.  In the project tree, select the folder where the file should be uploaded.
+1.  Click the **Files** tab and, in the file tree, select the folder where the file should be uploaded.
 
-    To upload a file to the root level, the project name must be selected in the project tree.
+    The selection only prefills the path in the dialog, so it can be corrected there.
 
-1.  In the right pane, click **Upload File**.
+1.  Click **Add** and select **Upload**.
 
-    The **Upload File** window appears:
+    The **Upload** window appears:
 
-    ![Uploading a file](images/upload-file-dialog.png)
+    ![Uploading a file](images/upload-file-dialog.png "The Upload window with a selected file")
 
     *Uploading a file*
 
-1.  Click **Add** in the **File** area and select the file to be uploaded.
-2.  Click the upper **Upload** button (with a green arrow).
-3.  In the **File name** field, enter or modify the name of the file to be used in Design repository.
-4.  Click the **Upload** button at the bottom.
+1.  Click the upload area and select the files, or drag them onto the area.
+
+    Several files can be uploaded at once, and they are stored in one action. Clicking the area again adds more
+    files to the list instead of replacing it, and the delete icon next to a name removes that file from the list.
+
+1.  For a single file, enter or modify the name to be used in Design repository in the **Name** field.
+
+    The field is prefilled with the name of the selected file and is not displayed when several files are
+    uploaded, because each of them keeps its own name.
+
+1.  If necessary, correct the target folder in the **Path** field.
+
+    An empty path uploads to the root level of the project.
+
+1.  Click **OK**.
 
 #### Updating a File
 
