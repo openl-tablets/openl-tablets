@@ -3,8 +3,8 @@
 ## Resume point
 
 - No open PR. The next finding starts a fresh branch cut from a freshly fetched `origin/main`.
-- Every change type has had a repo-wide pass; the swept head is `origin/main` 57781051. No untried detector is left.
-- Next run: diff `origin/main` against 57781051; no Java or resource change → no build, no scan, no notification.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` 62d8637b. No untried detector is left.
+- Next run: diff `origin/main` against 62d8637b; no Java or resource change → no build, no scan, no notification.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
 - Once a PR is open again, same-kind finds extend its matching commit with `--fixup` + autosquash; a new kind is a new commit there.
 
@@ -227,7 +227,9 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Tableeditor: every CSS/JS source in the concat lists; datepicker helpers vendored; webstudio .xhtml (46-50) all reached; ui:param and xmlns all used.
 - HTML comments in .xhtml/.html: explanations only; f:facet names all standard RichFaces.
 - Images: 703 tracked images outside ITEST all named as a whole word in a text file (Docs, webstudio, tableeditor, Rule Services, Studio static).
-- Message bundles: openapi (625), messages (46), ValidationMessages (228) keys all reached by literal, `openl.error.<status>.` suffix, EL enum name or Bean Validation default, except the one already removed; sql-errors keyed by vendor error code at runtime; openl-default.properties keys not judged (config, composed prefixes).
+- Message bundles: openapi (625), messages (46), ValidationMessages (228) keys all reached by literal, `openl.error.<status>.` suffix, EL enum name or Bean Validation default, except the one already removed; sql-errors keyed by vendor error code at runtime.
+- Config defaults: all 199 keys of the 10 openl-default.properties files are named outside their own file (Java
+  @Value/getProperty, Docs configuration guides, ITEST application.properties); none dead.
 - Resource base-name scan (all `resources/` dirs outside ITEST/test-resources/archetypes): 45 zero-reference hits, all convention files.
 - Spring XML beans (11 non-test files), component-scan entries (24), JSF registrations, web.xml filters/listeners: all alive except tableViewer (deferred).
 - Maven: root/module properties, every profile, root pluginManagement, 177 managed artifact ids, 18 exclusions, plugin config, surefire sysprops, resource dirs: all alive; dependency:analyze-only remaining hits are providers/aggregators/processors/wars.
@@ -261,6 +263,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-10 a: main unmoved at 3728048e, no open PR, no new code to scan; compaction only (279 → 265 lines); branch delete retried, still 403.
 - 2026-09-10 b: main moved one commit (dependabot maven.plugin.version bump, property alive, nothing scannable); no open PR; branch delete still 403.
 - 2026-09-10 c: scanned EPBDS-16416 (CellStyleCarrier, TableBuilder, PoiExcelHelper): every member referenced, nothing dead; branch delete still 403.
+- 2026-09-10 d: main moved one docs-only commit (EPBDS-16265 configuration.md, no image refs dropped); closed the openl-default.properties vein; branch delete still 403.
