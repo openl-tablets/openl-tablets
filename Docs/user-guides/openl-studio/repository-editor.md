@@ -573,20 +573,19 @@ To update a file of a project via Repository Editor, proceed as follows:
 
 To delete a folder or a file in the project structure, proceed as follows:
 
-1.  Perform one of the following steps as required:
-    -   Expand the project tree, select the folder or file to be deleted and, in the right pane, click **Delete**.
+1.  Click the **Files** tab and, in the file tree, select the folder or file to be deleted.
 
-    ![Deleting a project element](images/delete-project-element-button.png)
+    **Search files** above the tree narrows it when the project holds many files.
+
+1.  Perform one of the following steps as required:
+    -   For a folder, click **Delete** in the toolbar above the tree contents.
+    -   For a file, click **More actions** and select **Delete**.
+
+    ![Deleting a project element from the Files tab](images/delete-project-element.png "Deleting a file from the Files tab")
 
     *Deleting a project element*
 
-    -   To delete an element inside the parent folder, select that folder, click **Elements** to expand the folder and then click **Delete** ![](images/delete-element-icon.png)at the right of the item to be deleted.
-
-    ![Deleting project elements from the Elements tab](images/delete-project-element-from-elements-tab.png)
-
-    *Deleting project elements from the* **Elements** *tab*
-
-2.  In the confirmation window, click **Delete**.
+1.  In the **Confirm Delete** window, click **Delete**.
 
 Deleting a folder or a file changes the opened project. Save the project to store the deletion in Design repository.
 
