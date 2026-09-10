@@ -1,6 +1,10 @@
 ## Appendix B: OpenAPI Project Generation Algorithm
 
-OpenAPI document describes all API endpoints, their parameters, request bodies, responses, and so on. Based on this document, OpenL Tablets generates the corresponding spreadsheets and data type models. The result of generation is two modules, Algorithms and Modules, with Excel files inside. These two models are always generated even if there are no rules or modules in the project.
+OpenAPI document describes all API endpoints, their parameters, request bodies, responses, and so on. Based on this
+document, OpenL Tablets generates the corresponding spreadsheets and data type models. The result of generation is two
+modules, Algorithms and Models, with Excel files inside. By default, both files are stored in the `rules/` folder and
+are discovered through the standard project layout, so `rules.xml` does not repeat their module declarations. These two
+modules are always generated even if there are no rules or models in the project.
 
 The following topics are included:
 

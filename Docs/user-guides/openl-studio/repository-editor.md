@@ -223,6 +223,10 @@ To create a project from the OpenAPI file, proceed as follows:
 1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create**.
 
+With the default file locations, OpenL Studio stores the generated Models and Algorithms workbooks in the `rules/`
+folder. The generated `rules.xml` relies on the standard module layout and omits redundant project and module
+declarations. Nonstandard module names or file locations are declared explicitly.
+
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
 #### Creating a Project from ZIP Archive
