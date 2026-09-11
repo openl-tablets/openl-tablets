@@ -358,7 +358,7 @@ If a tag type is defined as optional, the project can remain with the tag value 
 
 An opened project is copied to user's workspace and becomes available for selection in Rules Editor. The project is opened for viewing and can be modified if it is not locked by another user. When a user modifies a project, its status is set to **In Editing** and it becomes locked for other users who now can only view it.
 
-To open a project, in the project tree, select the project and, in the right pane, click one of the following buttons as required:
+To open a project, in the project tree, select the project and, in the project header, click one of the following buttons as required:
 
 | Button            | Description                                                                   |
 |-------------------|-------------------------------------------------------------------------------|
@@ -442,7 +442,7 @@ Studio when the repository type is Git.
 
 Closing a project deletes it from the user's workspace. No changes made to the project will be applied and stored. From that point, the project is not available for selection in Rules Editor. Users can still browse closed projects in Repository Editor.
 
-To close a project, in the project tree, select the project and, in the right pane, click **Close**.
+To close a project, in the project tree, select the project and, in the project header, click **Close**.
 
 ### Saving a Project
 
@@ -454,7 +454,7 @@ Design repository revision to update; import it as described in
 
 To save a project, proceed as follows:
 
-1.  In the project tree, select the project, and, in the right pane, click **Save**.
+1.  In the project tree, select the project, and, in the project header, click **Save**.
 
     The **Save project** window appears, naming the Design repository the new revision is committed to:
 
@@ -708,7 +708,7 @@ OpenL Studio allows deploying a project directly to a deployment repository.
 To deploy a project, proceed as follows:
 
 1.  In the **Projects** tree, select the project to deploy.
-2.  In the top menu, click **Deploy**.
+2.  In the project header, click **Deploy**.
 
     **Note:** The **Deploy** button is disabled if the selected project has the **Local** status or is currently being edited.
 
@@ -806,9 +806,9 @@ OpenL Studio provides a function for comparing files and sheets in Excel files b
 To compare contents of the currently opened project revision with any other revision, proceed as follows:
 
 1.  In the project tree, select the project.
-2.  In the right pane, click **Compare**.
+2.  In the project header, click **Compare**.
 
-        A window appears listing contents of the currently opened project version on the left side and contents of another project revision on the right side.
+    A window appears listing contents of the currently opened project version on the left side and contents of another project revision on the right side.
 
     ![Comparing the current project revision from user workspace to the second project revision](images/compare-project-revisions.png)
 
