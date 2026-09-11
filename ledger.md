@@ -2,7 +2,8 @@
 
 ## Resume point
 
-- PR #2101 is open on `dead-code/react-run-residue`; maintain it before any new sweep.
+- PR #2101 is open on `dead-code/react-run-residue`; maintain it before any new sweep. Its only blocker is the
+  kafka-native flake, stood down with the re-run budget spent — do not comment on it a third time.
 - Every change type has had a repo-wide pass; the swept head is `origin/main` ba11551eb. No untried detector is left.
 - Next run: diff `origin/main` against ba11551eb; no Java or resource change → no build, no scan, no notification.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
@@ -30,10 +31,10 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Open PR
 
-- #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions.
-- CodeRabbit: no actionable comments, 5/5 pre-merge checks passed. Every check green except IT (services-data),
-  red on both attempts from the kafka-native setup segfault; root-caused and stood down in two comments, re-run
-  budget spent. Awaiting a maintainer decision: merge red, or fix the image flake separately.
+- #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions —
+  re-derived from the merge base, description matches. No review threads; mergeable, base still ba11551eb.
+- CodeRabbit: no actionable comments, 5/5 pre-merge checks passed. Every check green except IT (services-data).
+  Awaiting a maintainer decision: merge red, or fix the kafka-native image flake separately.
 - Commits in order: ObjectViewer + 3 grid filters + web.test Utils; 2 Constants fields; 15 common.css rules;
   3 icons; studio-ui `valuesOf`; 6 execution locale keys. The CSS commit must stay after the Java one and the
   icon commit after the CSS one — each removal strands the next.
@@ -260,9 +261,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - .gitignore/.gitconfig/.gitattributes/.editorconfig, package.json fields, eslint/vite/vitest config imports: done.
 - DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
 - Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
-- EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js deleted): swept for Java types, CSS, JS,
-  images, message bundles and studio-ui exports/locales; everything found is in #2101, nothing else left.
-- common.js declarations and all 46 messages.properties / 662 openapi.properties / 230 ValidationMessages keys re-checked after that migration: 0 dead.
+- EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js deleted): swept for Java types, CSS, JS, images,
+  message bundles, common.js and studio-ui exports/locales; everything found is in #2101, nothing else left.
 
 ## Human follow-ups
 
@@ -280,6 +280,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-10 d: main moved one docs-only commit (EPBDS-16265 configuration.md, no image refs dropped); closed the openl-default.properties vein.
 - 2026-09-10 e: main unchanged at 62d8637b and no open dead-code PR; nothing to scan, no code touched.
 - 2026-09-10 f: main moved 9 commits (EPBDS-16560 React run/test/benchmark); swept its residue, opened #2101 with 6 commits, 393 deletions.
+- 2026-09-11 a: main unchanged at ba11551eb; #2101 re-verified (commits distinct, numbers match, no new comments); ledger compacted only.
