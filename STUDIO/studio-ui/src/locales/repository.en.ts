@@ -501,7 +501,7 @@ i18next.addResourceBundle('en', 'repository', {
             subject_type: 'Subject Type',
             subject_user_label: 'Username',
             subject_group_label: 'Group Name',
-            subject_user_ph: 'user@company.com',
+            subject_user_ph: 'username',
             subject_group_ph: 'rules-editors',
             role: 'Role',
             grant: 'Grant access',
