@@ -9,6 +9,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "CoverageForm",
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
+      "sheet": "CoverageForm",
       "pos": "B4:C6"
     },
     {
@@ -17,6 +18,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "CoverageFormData",
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
+      "sheet": "CoverageFormData",
       "pos": "B5:D11"
     },
     {
@@ -27,6 +29,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
+      "sheet": "CoverageRate",
       "pos": "B4:G11"
     },
     {
@@ -35,6 +38,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "CoverageRateTest",
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
+      "sheet": "CoverageRateTest",
       "pos": "B6:E13"
     },
     {
@@ -45,6 +49,7 @@ Content-Type: application/json
       "returnType": "String",
       "signature": "Greeting1 (Integer hour)",
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
+      "sheet": "Sheet5",
       "pos": "B4:D12"
     },
     {
@@ -53,6 +58,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "Greeting1Test",
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
+      "sheet": "Sheet5",
       "pos": "B20:C26"
     },
     {
@@ -63,6 +69,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "IsAdequateMaxCreditRiskScore (String countryCode, Boolean isAdequateMaxCreditRisk)",
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
+      "sheet": "Sheet6",
       "pos": "B4:D7"
     },
     {
@@ -71,6 +78,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "IsAdequateMaxCreditRiskScoreTest",
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
+      "sheet": "Sheet6",
       "pos": "B21:D27"
     }
   ],

@@ -9,5 +9,6 @@ Content-Type: application/json
   "returnType": "Integer[]",
   "signature": "collectSmartLookup(String region, String category)",
   "file": "EPBDS-15701/Main.xlsx",
+  "sheet": "collectSmartLookup",
   "pos": "*"
 }

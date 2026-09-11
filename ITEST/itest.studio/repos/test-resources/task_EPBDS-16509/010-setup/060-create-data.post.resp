@@ -7,5 +7,6 @@ Content-Type: application/json
   "kind": "Data",
   "name": "ratings",
   "file": "***",
+  "sheet": "Data",
   "pos": "B2:D5"
 }

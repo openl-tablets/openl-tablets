@@ -11,6 +11,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "doRuntimeError()",
       "file": "*",
+      "sheet": "doRuntimeError",
       "pos": "*"
     }
   ],
