@@ -228,7 +228,9 @@ folder. The generated `rules.xml` relies on the standard module layout and omits
 declarations. Nonstandard module names or file locations are declared explicitly.
 
 The uploaded OpenAPI file is stored in the project root. Its name is normalized to `openapi.json` for a JSON file or
-`openapi.yaml` for a YAML or YML file, regardless of the uploaded file name.
+`openapi.yaml` for a YAML or YML file, regardless of the uploaded file name. The generated `rules.xml` does not contain
+an `openapi` block. The normalized file is discovered automatically in the default reconciliation mode, so it validates
+the project without continuing to regenerate the workbooks and overwrite subsequent edits.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
