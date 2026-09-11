@@ -103,35 +103,23 @@ All changes are saved in the project `rules.xml` file. For more information on t
 
 #### Updating and Exporting a Project
 
-To update or export a project, proceed as follows:
+To update a project directly in Rules Editor, proceed as follows:
 
-1.  To update a project directly in Rules Editor, in the top line menu, click **Update**.
+1.  In the Rules Editor toolbar, click **Update**.
 
     The **Update** button is available for projects in the **In Editing** status.
 
-    In the dialog that appears, upload a `.zip` archive with the project content, or switch to **Folder** and select a folder with the project files. The upload replaces the project content: files with the same path are overwritten, new files are added, and project files absent from the upload are deleted.
+2.  In the dialog that appears, upload a `.zip` archive with the project content, or switch to **Folder** and select a folder with the project files.
 
-1.  To export the project to the user’s local machine, for a project, in the top line menu, click **Export** and select a project revision.
+    The upload replaces the project content: files with the same path are overwritten, new files are added, and project files absent from the upload are deleted.
 
-The default project version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing.**
-
-The most recent revisions are offered first; older ones are loaded on demand through **Load older revisions**.
-
-Exported project is downloaded as a `.zip` archive.
+To export the project to the user’s local machine, in the Rules Editor toolbar, click **Export** and select a project revision. The exported project is downloaded as a `.zip` archive. For a description of the revision list and the **Load older revisions** control, see [Managing Projects > Exporting a Project or a File](repository-editor.md#exporting-a-project-or-a-file).
 
 #### Copying a Project
 
-To create a copy of a project, proceed as follows:
+To create a copy of the project currently open, in the Rules Editor toolbar, click **Copy**. Rules Editor opens the same dialog as the **Projects** page. For the procedure, see [Managing Projects > Copying a Project](repository-editor.md#copying-a-project).
 
-1.  In the top line menu, click **Copy**.
-2.  Select **Create a New Project** if the dialog initially offers to create a project branch.
-3.  Enter the new project name and select the target repository.
-4.  In **Branch**, select an existing target-repository branch or enter a valid new branch name.
-5.  Modify **Path** and **Comment** if needed.
-6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
-7.  Click **Copy**.
-
-The new project appears in the project list with the selected branch as its home branch.
+#### Exporting, Updating, and Editing a Module
 
 #### Exporting, Updating, and Editing a Module
 
