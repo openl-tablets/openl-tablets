@@ -2,8 +2,7 @@
 
 ## Resume point
 
-- PR #2101 is open on `dead-code/react-run-residue`; maintain it before any new sweep. Its only blocker is the
-  kafka-native flake, stood down with the re-run budget spent — do not comment on it a third time.
+- PR #2101 is open on `dead-code/react-run-residue`, green and unreviewed; maintain it before any new sweep.
 - Every change type has had a repo-wide pass; the swept head is `origin/main` ba11551eb. No untried detector is left.
 - Next run: diff `origin/main` against ba11551eb; no Java or resource change → no build, no scan, no notification.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
@@ -32,9 +31,9 @@ Public API is never in the queue: unused public members go to Deferred findings 
 ## Open PR
 
 - #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions —
-  re-derived from the merge base, description matches. No review threads; mergeable, base still ba11551eb.
-- All 17 checks green: IT (services-data) passed on attempt 3 (maintainer-triggered), SonarCloud gate passed
-  with 0 new issues, CodeRabbit no actionable comments and 5/5 pre-merge checks. Waiting on human review only.
+  re-derived from the merge base, description matches. No reviews or threads; base still ba11551eb.
+- All 17 checks green (dependabot skipped), SonarCloud gate 0 new issues, CodeRabbit no actionable comments.
+  Waiting on human review only; the kafka-native flake that cost 3 attempts is settled — never comment on it again.
 - Commits in order: ObjectViewer + 3 grid filters + web.test Utils; 2 Constants fields; 15 common.css rules;
   3 icons; studio-ui `valuesOf`; 6 execution locale keys. The CSS commit must stay after the Java one and the
   icon commit after the CSS one — each removal strands the next.
@@ -197,8 +196,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 ## CI flakes
 
 - LockTest.testSimultaneousMultiThreadsWithWaiting (STUDIO repository): `expected <800> but was <79x>` under load; stabilized on main; rerun once.
-- studio-ui vitest CPU starvation under -T1C: OverviewPanel.test.tsx (15000ms timeout, act() warning via vitest-fail-on-console).
-- UserDatailsTab.test.tsx "rejects an empty email and display name": findByText timeout when the vitest run takes ~680s; rerun once.
+- studio-ui vitest CPU starvation under -T1C: OverviewPanel.test.tsx (15000ms timeout, act() warning via
+  vitest-fail-on-console) and UserDatailsTab.test.tsx findByText timeout when the run takes ~680s; rerun once.
 - OpenLTableLogicTest.detectsErrorsInRulesTestedByTable: `expected true was false`; getMethod right after async setModuleInfo compile; rerun once.
 - IT (services-data): apache/kafka-native:latest segfaults in its own `setup` entrypoint at VM uptime ~0.007s —
   Pwd.getpwuid <- PosixSystemPropertiesSupport.userNameValue <- PerfManager$PerfDataThread resolving `user.name`.
@@ -275,10 +274,10 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
 - Delete the stale remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods; push --delete is 403 from the sandbox, retried and still blocked.
 - Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
-- Ledger commits cfc0f5a8, 98c0ec16 and f83357bf are authored `Claude <noreply@anthropic.com>` against the identity rule; the branch is never force-pushed, so they stay.
+- Three early ledger commits are authored `Claude <noreply@anthropic.com>` against the identity rule; the branch is never force-pushed, so they stay.
 
 ## Run log
 
-- 2026-09-10 f: main moved 9 commits (EPBDS-16560 React run/test/benchmark); swept its residue, opened #2101 with 6 commits, 393 deletions.
 - 2026-09-11 a: main unchanged at ba11551eb; #2101 re-verified (commits distinct, numbers match); ledger compacted only.
 - 2026-09-11 b: #2101 went green on CI attempt 3; corrected the "reruns do not clear the kafka flake" claim on the PR and here.
+- 2026-09-11 c: main still ba11551eb, #2101 still green and unreviewed; nothing to fix, nothing to sweep; ledger only.
