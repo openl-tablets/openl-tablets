@@ -20,6 +20,7 @@ vi.mock('services/tables', () => ({
 
 vi.mock('services/traceLaunch', () => ({
     launchTrace: vi.fn(),
+    TRACE_WINDOW_BLOCKED: 'trace.windowBlocked',
 }))
 
 // The static `notification` renders into a global holder outside the component tree and schedules an
@@ -207,5 +208,17 @@ describe('TraceLaunchHost', () => {
 
         expect(await screen.findByTestId('launch-error')).toHaveTextContent('compilation in progress')
         expect(screen.getByTestId('trace-start')).toBeInTheDocument()
+    })
+
+    it('says so when the browser would not open the trace window', async () => {
+        // The launch names the refusal; only the screen knows how to put it to the user.
+        inputRead.mockResolvedValue(ruleTable)
+        launch.mockRejectedValueOnce(new Error('trace.windowBlocked'))
+        render(<TraceLaunchHost />)
+
+        await open()
+        await userEvent.click(await screen.findByTestId('trace-start'))
+
+        expect(await screen.findByTestId('launch-error')).toHaveTextContent('launch.windowBlocked')
     })
 })
