@@ -12,6 +12,7 @@ The following topics are included in this chapter:
 -   [Saving a Project](#saving-a-project)
 -   [Synchronizing a Project](#synchronizing-a-project)
 -   [Viewing Project Properties](#viewing-project-properties)
+-   [Migrating a Project to the Current Layout](#migrating-a-project-to-the-current-layout)
 -   [Modifying Project Contents](#modifying-project-contents)
 -   [Copying a Project](#copying-a-project)
 -   [Removing a Project](#removing-a-project)
@@ -519,6 +520,24 @@ Note that in case of the Git repository, in the **Modified** field, the user’s
 username only when the display name is not defined.
 
 ### Modifying Project Contents
+### Migrating a Project to the Current Layout
+
+A project created by an earlier version of OpenL Studio can keep its rules in the project root or carry settings
+that the current version writes differently. The **Overview** tab offers **Migrate** for such a project, and the
+action states what it is about to do before it runs:
+
+-   Rules kept in the project root are moved into the `rules` folder, and a `rules.xml` is created so that the
+    modules are still found. Migration is refused when a workbook of the project root would become a module that
+    `rules.xml` does not declare, and the message names the workbooks to declare or remove first.
+-   An existing `rules.xml` is rewritten to its current minimal form, keeping the behavior of the project.
+-   The `rules-deploy.xml` file, described in [Configuring Deploy Configuration
+    Settings](#configuring-deploy-configuration-settings), is brought to its current minimal form: the default
+    runtime context flag is dropped and the legacy template class setting is renamed.
+
+> [!Note]
+> A migrated file is written anew, so the comments and the layout it had are not kept. Migration changes the
+> opened project, so save the project to store the change in Design repository.
+
 
 This section describes modifying the physical structure of the project and includes the following topics:
 
