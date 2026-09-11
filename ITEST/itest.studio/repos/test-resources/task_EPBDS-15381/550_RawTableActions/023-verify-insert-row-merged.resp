@@ -162,5 +162,6 @@ Content-Type: application/json
         "value": "Good Night"
       }
     ]
-  ]
+  ],
+  "headerHeight": 4
 }

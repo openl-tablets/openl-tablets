@@ -22,5 +22,6 @@ Content-Type: application/json
     }
   ],
   "pos": "D9:G21",
-  "source": "*"
+  "source": "*",
+  "headerHeight": 2
 }

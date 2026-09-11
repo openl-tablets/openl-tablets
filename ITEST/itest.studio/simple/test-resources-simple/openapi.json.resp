@@ -5050,275 +5050,275 @@ Content-Type: application/json
         ]
       }
     },
-      "/compare/{comparisonId}": {
-        "delete": {
-          "description": "***",
-          "operationId": "***",
-          "parameters": [
-            {
-              "description": "***",
-              "in": "path",
-              "name": "comparisonId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
+    "/compare/{comparisonId}": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "comparisonId",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
-          ],
-          "responses": {
-            "204": {
-              "description": "***"
-            },
-            "400": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ValidationError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "403": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "404": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "409": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "423": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "500": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "***"
           },
-          "summary": "***",
-          "tags": [
-            "Compare"
-          ]
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
         },
-        "get": {
-          "description": "***",
-          "operationId": "***",
-          "parameters": [
-            {
-              "description": "***",
-              "in": "path",
-              "name": "comparisonId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "fields",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ComparisonView"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "400": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ValidationError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "403": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "404": {
-              "description": "***"
-            },
-            "409": {
-              "description": "***"
-            },
-            "423": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "500": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
+        "summary": "***",
+        "tags": [
+          "Compare"
+        ]
+      },
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "comparisonId",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
-          "summary": "***",
-          "tags": [
-            "Compare"
-          ]
-        }
-      },
-      "/compare/{comparisonId}/tables/{tableId}": {
-        "get": {
-          "description": "***",
-          "operationId": "***",
-          "parameters": [
-            {
-              "description": "***",
-              "in": "path",
-              "name": "comparisonId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "path",
-              "name": "tableId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "fields",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
-          ],
-          "responses": {
-            "200": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ComparisonTableView"
-                  }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonView"
                 }
-              },
-              "description": "***"
+              }
             },
-            "400": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ValidationError"
-                  }
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
                 }
-              },
-              "description": "***"
+              }
             },
-            "403": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
-              },
-              "description": "***"
+              }
             },
-            "404": {
-              "description": "***"
-            },
-            "409": {
-              "description": "***"
-            },
-            "423": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
+            "description": "***"
+          },
+          "404": {
+            "description": "***"
+          },
+          "409": {
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
-              },
-              "description": "***"
+              }
             },
-            "500": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
                 }
-              },
-              "description": "***"
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Compare"
+        ]
+      }
+    },
+    "/compare/{comparisonId}/tables/{tableId}": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "comparisonId",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
-          "summary": "***",
-          "tags": [
-            "Compare"
-          ]
-        }
-      },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonTableView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "description": "***"
+          },
+          "409": {
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Compare"
+        ]
+      }
+    },
     "/compile/table/{tableId}": {
       "get": {
         "description": "***",
@@ -9105,175 +9105,175 @@ Content-Type: application/json
         ]
       }
     },
-      "/projects/{projectId}/history": {
-        "get": {
-          "description": "***",
-          "operationId": "***",
-          "parameters": [
-            {
-              "description": "***",
-              "in": "path",
-              "name": "projectId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "branch",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "search",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "techRevs",
-              "schema": {
-                "type": "boolean",
-                "default": false
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "offset",
-              "schema": {
-                "type": "integer",
-                "format": "int32",
-                "default": 0,
-                "minimum": 0
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "page",
-              "schema": {
-                "type": "integer",
-                "format": "int32",
-                "default": 0,
-                "minimum": 0
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "size",
-              "schema": {
-                "type": "integer",
-                "format": "int32",
-                "default": 50,
-                "minimum": 1
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "unpaged",
-              "schema": {
-                "type": "boolean",
-                "default": false
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "fields",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "400": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ValidationError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "403": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "404": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "409": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "423": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "500": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
+    "/projects/{projectId}/history": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
-          "summary": "***",
-          "tags": [
-            "Projects (BETA)"
-          ]
-        }
-      },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "techRevs",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/local-history": {
       "delete": {
         "description": "***",
@@ -10874,6 +10874,15 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "reset",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -12292,6 +12301,14 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -13480,6 +13497,127 @@ Content-Type: application/json
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TablePropertiesView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/tests": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableTestView"
+                  }
                 }
               }
             },
@@ -26042,6 +26180,11 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "formula": {
+            "type": "string",
+            "description": "***",
+            "readOnly": true
+          },
           "rowspan": {
             "type": "integer",
             "format": "int32",
@@ -26212,6 +26355,12 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "headerHeight": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "readOnly": true
+              },
               "id": {
                 "type": "string",
                 "description": "***"
@@ -27869,6 +28018,24 @@ Content-Type: application/json
         "required": [
           "name"
         ]
+      },
+      "TableTestView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "info": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "TableTestsInfo": {
         "type": "object",

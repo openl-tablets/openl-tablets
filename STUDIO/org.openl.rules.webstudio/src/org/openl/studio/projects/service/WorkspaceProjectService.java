@@ -7,6 +7,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -56,6 +57,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.ProjectState;
+import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
@@ -72,6 +74,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
@@ -111,6 +114,7 @@ import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
@@ -1754,8 +1758,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * @param project    project owning the module
      * @param moduleName module to compile
+     * @param reset      compile it again from the workbook, dropping what was compiled before
      */
-    public void compileModule(RulesProject project, String moduleName) {
+    public void compileModule(RulesProject project, String moduleName, boolean reset) {
         var projectDescriptor = getProjectDescriptor(project);
         var module = projectDescriptor.getModules()
                 .stream()
@@ -1766,8 +1771,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // up and the work carries them along.
         var webStudio = getWebStudio();
         var registry = getCompilationJobRegistry();
-        moduleCompilationLauncher.launch(moduleName,
-                () -> openProject(webStudio, registry, projectDescriptor, project, module));
+        moduleCompilationLauncher.launch(moduleName, () -> {
+            var handle = openProject(webStudio, registry, projectDescriptor, project, module);
+            if (reset) {
+                // Opening a module already open compiles nothing, so a request to compile it again has to say
+                // so: the dependencies are dropped and the module is built from the workbook once more.
+                try {
+                    handle.project().reset(ReloadType.RELOAD, module);
+                } catch (Exception e) {
+                    throw RuntimeExceptionWrapper.wrap(e);
+                }
+                registry.acquire(projectIdentifierMapper.map(project), handle.project());
+            }
+        });
     }
 
     private ProjectHandle openProject(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
@@ -1799,8 +1815,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId table id
      * @return table data
      */
-    public TableView getTable(RulesProject project, String tableId) {
-        var context = getOpenLTable(project, tableId);
+    public TableView getTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTable(project, tableId, moduleName);
         var table = context.table();
         var reader = readers.stream()
                 .filter(r -> r.supports(table))
@@ -1826,7 +1842,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, null, null, false);
+        return getTableRaw(project, tableId, null, null, false, null);
     }
 
     /**
@@ -1845,8 +1861,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data, with {@code totalRows} set when the window omits rows
      */
     public RawTableView getTableRaw(RulesProject project, String tableId, @Nullable Integer startRow,
-            @Nullable Integer maxRows, boolean withStyles) {
-        var context = getOpenLTable(project, tableId);
+            @Nullable Integer maxRows, boolean withStyles, @Nullable String moduleName) {
+        var context = getOpenLTable(project, tableId, moduleName);
         var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles);
         tableView.messages = mapMessages(context);
         return tableView;
@@ -1901,7 +1917,51 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return metadataService.getSheets(project, module.getRulesRootPath());
     }
 
+    /**
+     * The tests and runs that exercise the given table.
+     *
+     * <p>Each is a table of its own, named by the id the Tables API addresses it by, so the screen showing them can
+     * open one as it opens any other table.
+     *
+     * @param project project owning the table
+     * @param tableId table the tests are asked about
+     * @return the tests and runs covering it, by name
+     */
+    public List<TableTestView> getTableTests(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTable(project, tableId, moduleName);
+        var tests = context.module().getTestAndRunMethods(context.table().getUri(), false);
+        if (tests == null) {
+            return List.of();
+        }
+        return Arrays.stream(tests)
+                .map(test -> TableTestView.builder()
+                        .id(((TableSyntaxNode) test.getInfo().getSyntaxNode()).getId())
+                        .name(TableSyntaxNodeUtils.getTestName(test))
+                        .info(ProjectHelper.getTestInfo(test))
+                        .build())
+                .sorted(Comparator.comparing(TableTestView::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
+        return getOpenLTable(project, tableId, false);
+    }
+
+    /**
+     * Resolve a table that is asked for through one named module.
+     *
+     * <p>Opening the module compiles it, so the table is there to be read as soon as that is done — the modules
+     * after it are of no interest to the answer and are not waited for. A table the module turns out not to hold
+     * falls back to the project-wide lookup, which waits as it always has.
+     */
+    private OpenLTableContext getOpenLTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        if (moduleName != null) {
+            var moduleModel = openProject(project, moduleName).project();
+            var table = moduleModel.getTableById(tableId);
+            if (table != null && moduleModel.getModuleInfo().containsTable(table.getUri())) {
+                return new OpenLTableContext(table, moduleModel);
+            }
+        }
         return getOpenLTable(project, tableId, false);
     }
 

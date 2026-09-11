@@ -241,11 +241,30 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   is `POST /projects/{id}/modules/{name}/compile`, which answers `202` the moment the work is handed over, and
   the screen follows the channel it already subscribes to. The session-scoped collaborators the work needs are
   out of reach of a background thread, so the request thread looks them up and the task carries them along.
+- **A read that waits has to be found in every path, not just the obvious one.** The tables *list* was the
+  visible one; the body of a single table went through `getOpenLTable`, which opened the project's first module
+  and joined the whole compilation — so the editor let the reader in on time and then hung on the first table it
+  drew. Every read the screen makes takes the module: the list, the table, and the tests that cover it.
+- **What the user set for themselves still applies — and the screen, not the server, applies it.** The Editor
+  has always obeyed the profile's Table Settings, so the new screen obeys them too: Default Order picks the
+  grouping the tree opens on, Show Formulas draws the formula a cell was written with, Show Header puts the
+  header away. None of them is a request parameter: a display choice that changes nothing about what the server
+  knows does not belong in the contract, and a read per setting is a read too many. What the server owes the
+  screen is where things are — every cell carries both its `value` and the `formula` behind it, and the table
+  says in `headerHeight` how many rows its header takes (the header line, a properties section, the service rows
+  of a decision table — read from the engine's own business view of that table). The screen chooses; when
+  editing arrives it sends back whichever of the two the author edited.
+- **A tall table arrives a window at a time.** The read takes `startRow` and `maxRows` and answers `totalRows`,
+  so the screen draws the first window and fetches the rest as the reader asks for it.
 - **Read what is ready, not what is finished.** Opening a module compiles that module before the rest of the
   project, so `GET /projects/{id}/tables?module={name}` answers as soon as that module is done and never waits
   for the modules after it — on a large project, minutes of waiting for work nobody asked about. The editor
   renders on the first status naming its module, while the rest go on compiling behind the open screen. The
   same read without `module` still waits for the whole project, so no existing caller changes.
+- **Refreshing is compiling again, not asking again.** Opening a module already open compiles nothing, so
+  Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
+  workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a
+  module means.
 - When such work is shown in a window of its own, let **the new window start it**, telling it what to do in
   the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
   window afterwards opens it after an `await`, when the click no longer counts as user activation and a
