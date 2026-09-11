@@ -39,6 +39,40 @@ describe('ComparisonPanes', () => {
         expect(screen.getByTestId('compare-pane-second')).toHaveTextContent('double')
     })
 
+    it('draws in grey the cells that do not differ', () => {
+        const coloured: ComparisonTable = {
+            ...TABLE,
+            first: {
+                source: [
+                    [{ cell: 'A1', value: 'Datatype Person', style: { background: '#ffff00' } }],
+                    [{ cell: 'A2', value: 'int', style: { background: '#ffff00' } }],
+                ],
+                changedCells: ['A2'],
+            },
+        }
+
+        render(<ComparisonPanes showEqualRows error={null} loading={false} table={coloured} />)
+
+        const cells = screen.getByTestId('compare-pane-first').querySelectorAll('td')
+        // What does not differ steps back into grey, so that what does is what the eye lands on.
+        expect((cells[0] as HTMLElement).style.background).toContain('rgb(136, 136, 136)')
+        // The cell that differs is painted by the screen, so it carries no Excel background at all.
+        expect((cells[1] as HTMLElement).style.background).toBe('')
+    })
+
+    it('keeps the colours of a table that differs in nothing', () => {
+        const equal: ComparisonTable = {
+            ...TABLE,
+            first: { source: [[{ cell: 'A1', value: 'Datatype Person', style: { background: '#ffff00' } }]] },
+            second: { source: [[{ cell: 'A1', value: 'Datatype Person', style: { background: '#ffff00' } }]] },
+        }
+
+        render(<ComparisonPanes showEqualRows error={null} loading={false} table={equal} />)
+
+        const cell = screen.getByTestId('compare-pane-first').querySelector('td') as HTMLElement
+        expect(cell.style.background).toContain('rgb(255, 255, 0)')
+    })
+
     it('shows every row when the equal ones are asked for', () => {
         render(<ComparisonPanes showEqualRows error={null} loading={false} table={TABLE} />)
 

@@ -49,6 +49,35 @@ describe('RawTableGrid', () => {
         expect(marked.style.fontWeight).toBe('bold')
     })
 
+    it('draws a muted cell in grey, at the brightness of its own colour', () => {
+        render(
+            <RawTableGrid
+                decorate={cell => (cell.cell === 'A2' ? { muted: true } : undefined)}
+                rows={rows}
+                testId="grid"
+            />
+        )
+
+        // Yellow averages to 170, and four fifths of that is the grey it steps back to.
+        const muted = screen.getByTestId('grid').querySelectorAll('td')[1] as HTMLElement
+        expect(muted.style.background).toContain('rgb(136, 136, 136)')
+        // The cell keeps everything the colour does not decide.
+        expect(muted.style.fontWeight).toBe('bold')
+    })
+
+    it('leaves an unfilled cell unfilled when it is muted', () => {
+        render(
+            <RawTableGrid
+                decorate={() => ({ muted: true })}
+                rows={rows}
+                testId="grid"
+            />
+        )
+
+        const plain = screen.getByTestId('grid').querySelectorAll('td')[2] as HTMLElement
+        expect(plain.style.background).toBe('')
+    })
+
     it('draws an empty table without a row', () => {
         render(<RawTableGrid rows={[]} testId="grid" />)
 
