@@ -109,13 +109,17 @@ This configuration can be applied to projects using the `rules.xml` file. An exa
 </project>
 ```
 
-For filtering methods, define the `method`-filter tag in the `rules.xml` file. This tag contains the `includes` and `excludes` tags. The algorithm is as follows:
+For filtering methods, define the `exposed-methods` element in the `rules.xml` file. This element belongs to the project and contains the `include` and `exclude` elements. Each of them holds an ant-style pattern matched against the method name, where `*` stands for any number of characters and `?` stands for a single character. The algorithm is as follows:
 
--   If the `method`-filter tag is not defined in the `rules.xml`, the system generates a dynamic interface with all methods provided in the module or modules for multimodule.
--   If the `includes` tag is defined for method filtering, the system uses the methods which names match a regular expression of defined patterns.
--   If the `includes` tag is not defined, the system includes all methods.
--   If the `excludes` tag is defined for method filtering, the system uses methods which method names do not match a regular expression for defined patterns.
--   If the excludes tag is not defined, the system does not exclude the methods.
+-   If the `exposed-methods` element is not defined in the `rules.xml`, the system generates a dynamic interface with all methods provided in the module or modules for multimodule.
+-   If at least one `include` element is defined, the system uses the methods which names match one of the defined patterns.
+-   If no `include` element is defined, the system includes all methods.
+-   If at least one `exclude` element is defined, the system removes the methods which names match one of the defined patterns.
+-   If no `exclude` element is defined, the system does not exclude the methods.
+
+Exposed methods can also be managed in OpenL Studio, in the **Project** page. For more information, see the [OpenL Studio User Guide > Managing Exposed Methods](../openl-studio/rules-editor.md#managing-exposed-methods).
+
+**Note:** The module-level `method-filter` element, which matches regular expressions against the whole method signature, is deprecated and kept for backward compatibility. Use the project-level `exposed-methods` element instead.
 
 If OpenL Tablets Dynamic Interface feature is used, a client interface can also be generated dynamically at runtime. Apache CXF supports the dynamic client feature. For more information on dynamic interface support by Apache CXF, see <http://cxf.apache.org/docs/dynamic-clients.html>.
 
