@@ -11839,6 +11839,14 @@ Content-Type: application/json
           },
           {
             "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
             "explode": true,
             "in": "query",
             "name": "properties",

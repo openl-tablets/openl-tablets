@@ -25,12 +25,14 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -81,6 +83,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
@@ -96,6 +99,8 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.project.compile.CompilationJob;
+import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -1415,6 +1420,91 @@ class WorkspaceProjectServiceTest {
         var selector = forClass(Predicate.class);
         verify(projectModel).search(selector.capture(), eq(SearchScope.CURRENT_MODULE));
         assertTrue(selector.getValue().test(datatypeNode("Datatype " + longName)));
+    }
+
+    @Test
+    void tables_of_one_module_are_answered_without_waiting_for_the_rest_of_the_project() throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                summaryTableReader));
+        var projectModel = mock(ProjectModel.class);
+        var job = mock(CompilationJob.class);
+        var registry = mock(CompilationJobRegistry.class);
+        var openLTable = mock(IOpenLTable.class);
+        var expected = SummaryTableView.builder().id("id").name("Greeting").build();
+        var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        when(registry.acquire(any(), any())).thenReturn(job);
+        when(projectModel.search(any(), eq(SearchScope.CURRENT_MODULE))).thenReturn(List.of(openLTable));
+        when(summaryTableReader.read(openLTable)).thenReturn(expected);
+
+        var tables = service.getTables(project,
+                ProjectTableCriteriaQuery.builder().module("Claims").build(),
+                Pageable.unpaged());
+
+        assertEquals(List.of(expected), tables.getContent());
+        // The module asked for is compiled by opening it, so its tables are ready. Joining the project's
+        // compilation would hold the answer back for every other module of the project as well.
+        verify(job, never()).future();
+        verify(webStudio).init("design", "main", "Pricing", "Claims");
+    }
+
+    @Test
+    void tables_of_an_unknown_module_are_not_found() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class));
+        var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
+
+        var query = ProjectTableCriteriaQuery.builder().module("Absent").build();
+
+        var error = assertThrows(NotFoundException.class,
+                () -> service.getTables(project, query, Pageable.unpaged()));
+        assertEquals("openl.error.404.project.module.identifier.message", error.getErrorCode());
+        verify(webStudio, never()).init(any(), any(), any(), any());
+    }
+
+    /**
+     * An opened project the session answers for, declaring the named modules. The model it opens into is the one
+     * given, so a test can say what its search finds.
+     */
+    private static RulesProject openedProject(WebStudio webStudio,
+                                              ProjectModel projectModel,
+                                              String projectName,
+                                              String... moduleNames) {
+        var project = mock(RulesProject.class);
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(project.getRepository()).thenReturn(repository);
+        when(project.getName()).thenReturn(projectName);
+        when(project.getBranch()).thenReturn("main");
+        when(project.isOpened()).thenReturn(true);
+
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName(projectName);
+        descriptor.setModules(Arrays.stream(moduleNames).map(name -> {
+            var module = new Module();
+            module.setName(name);
+            return module;
+        }).collect(Collectors.toCollection(ArrayList::new)));
+        when(webStudio.getProjectByName("design", projectName)).thenReturn(descriptor);
+        when(webStudio.getModel()).thenReturn(projectModel);
+        return project;
     }
 
     /** A syntax node the table selector can read a Datatype header from. */
