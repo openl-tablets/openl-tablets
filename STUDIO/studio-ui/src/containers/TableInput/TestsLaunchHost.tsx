@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Alert, Button, Checkbox, Select, Space, Tooltip, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
@@ -7,6 +7,7 @@ import { testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
 import {
     ALL_TESTS_ON_A_PAGE,
+    isStillRunning,
     readTestsSummaryWorkbook,
     runTests,
     TESTS_PAGE_SIZE,
@@ -50,6 +51,16 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
     const [starting, setStarting] = useState(false)
     const [ran, setRan] = useState(false)
     const [savingFile, setSavingFile] = useState(false)
+    // Whether the results are still being saved, as the reads waiting their turn below see it: one of them
+    // may come up after another has already saved the workbook.
+    const saving = useRef(false)
+    const setSaving = useCallback((what: boolean) => {
+        saving.current = what
+        setSavingFile(what)
+    }, [])
+    // The reads of the results, one after another. A signal arriving while a read is on its way waits for
+    // it: two reads could both find the results, and the workbook would be saved twice.
+    const reads = useRef<Promise<unknown>>(Promise.resolve())
 
     // The panel listens from the moment it opens, so a run it starts cannot end unheard.
     const progress = useExecutionProgress(testsTopics(project.id, detail.tableId).status)
@@ -63,7 +74,7 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
         runTests(project.id, { ...table, ...(moduleOnly && { fromModule: detail.moduleName }) })
             .then(() => {
                 if (intoFile) {
-                    setSavingFile(true)
+                    setSaving(true)
                 } else {
                     setRan(true)
                 }
@@ -75,31 +86,42 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
     }
 
     /** Saves the results as the workbook, once the tests have ended. */
-    const saveResults = useCallback(() => {
-        readTestsSummaryWorkbook(project.id, options)
+    const saveResults = useCallback((): Promise<void> => {
+        return readTestsSummaryWorkbook(project.id, options)
             .then(workbook => saveFile(workbook, 'test-results.xlsx', XLSX_MEDIA_TYPE))
-            .then(onClose)
-            .catch(saveError => setError(errorMessage(saveError)))
-            .finally(() => {
-                setSavingFile(false)
+            .then(() => {
+                setSaving(false)
+                setStarting(false)
+                onClose()
+            })
+            .catch(saveError => {
+                // Tests that are still running have produced no results to save yet. The panel goes on
+                // waiting for them rather than reporting a failure that has not happened.
+                if (isStillRunning(saveError)) {
+                    return
+                }
+                setError(errorMessage(saveError))
+                setSaving(false)
                 setStarting(false)
             })
-    }, [project.id, options, onClose])
+    }, [project.id, options, onClose, setSaving])
 
     useEffect(() => {
-        if (!savingFile || !isFinished(progress.status)) {
+        if (!savingFile) {
             return
         }
-        if (progress.status === 'COMPLETED') {
-            saveResults()
+        if (isFinished(progress.status) && progress.status !== 'COMPLETED') {
+            // A run that was stopped produced no results to save; it says so instead.
+            setError(progress.error ?? t('tests.startFailed'))
+            setSaving(false)
+            setStarting(false)
             return
         }
-        // A run that was stopped produced no results to save; it says so instead.
-        setError(progress.error ?? t('tests.startFailed'))
-        setSavingFile(false)
-        setStarting(false)
-        // The tests have ended: their results are there to be saved.
-    }, [savingFile, progress.status])
+        // The results are asked for when the tests say they have ended, and whenever the panel starts or
+        // stops hearing them — a run may have ended before the panel started saving, and a connection that
+        // drops takes the message with it. Tests still running leave the panel waiting.
+        reads.current = reads.current.then(() => (saving.current ? saveResults() : undefined))
+    }, [savingFile, progress.status, progress.subscribed])
 
     if (ran) {
         return <TestsResultModal onClose={onClose} options={options} projectId={project.id} tableId={detail.tableId} />
