@@ -33,8 +33,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 - #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions —
   re-derived from the merge base, description matches. No review threads; mergeable, base still ba11551eb.
-- CodeRabbit: no actionable comments, 5/5 pre-merge checks passed. Every check green except IT (services-data).
-  Awaiting a maintainer decision: merge red, or fix the kafka-native image flake separately.
+- All 17 checks green: IT (services-data) passed on attempt 3 (maintainer-triggered), SonarCloud gate passed
+  with 0 new issues, CodeRabbit no actionable comments and 5/5 pre-merge checks. Waiting on human review only.
 - Commits in order: ObjectViewer + 3 grid filters + web.test Utils; 2 Constants fields; 15 common.css rules;
   3 icons; studio-ui `valuesOf`; 6 execution locale keys. The CSS commit must stay after the Java one and the
   icon commit after the CSS one — each removal strands the next.
@@ -203,9 +203,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - IT (services-data): apache/kafka-native:latest segfaults in its own `setup` entrypoint at VM uptime ~0.007s —
   Pwd.getpwuid <- PosixSystemPropertiesSupport.userNameValue <- PerfManager$PerfDataThread resolving `user.name`.
   Container exits 1, so the visible error is `Timed out waiting for ... RECOVERY to RUNNING`. It picks a random
-  Kafka module per attempt (itest.tracing one attempt, itest.kafka.smoke the next), so a rerun does NOT reliably
-  clear it — two attempts on one SHA both failed. Never pin the tag; no in-repo fix; escalate rather than spend
-  more reruns.
+  Kafka module per attempt (itest.tracing, then itest.kafka.smoke), and took 3 attempts on one SHA to pass, so
+  budget more than one rerun before calling it real. Never pin the tag; no in-repo fix.
 - IT (studio-acl): OracleRdbmsTest upgrade `Failed requests expected <0> but was <N>` with ORA-12516; also on main; rerun once.
 - IT (studio-acl): testcontainers/ryuk pull failure → all 4 variants error at upgrade:53 (runner degraded); rerun.
 - IT (studio): WebStudioTest.simple failed requests at ~10002ms (client timeout); Jetty hang; rerun.
@@ -271,7 +270,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - site.webmanifest names `android-chrome-512x512.pngs` (trailing s): the 512px icon is unreachable; one-character bug.
 - Policy: Jira prefix for sweep commits (maintainer view: exemption excludes production deletions); public-API removal needs a ticket.
 - Confirm EPBDS-16309 authorises the OpenL2TextUtils removal (decision came from a sweep state file, not Jira).
-- CI health: LockTest load tolerance; OracleRdbmsTest ORA-12516; itest.studio.repos createdAt tiebreaker; jacoco aggregate overlap. kafka-native:latest `setup` segfault (Pwd.getpwuid) now blocks PRs — it failed 2 of 2 attempts on one SHA; needs a real fix, reruns no longer clear it.
+- CI health: LockTest load tolerance; OracleRdbmsTest ORA-12516; itest.studio.repos createdAt tiebreaker; jacoco aggregate overlap; kafka-native:latest `setup` segfault (Pwd.getpwuid), which cost 3 CI attempts on one SHA and burns runner time on every PR.
 - OverviewPanel.tsx floating promise into a state setter (~lines 799/1231) is a real test defect at any speed.
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
 - Delete the stale remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods; push --delete is 403 from the sandbox, retried and still blocked.
@@ -280,6 +279,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-10 e: main unchanged at 62d8637b and no open dead-code PR; nothing to scan, no code touched.
 - 2026-09-10 f: main moved 9 commits (EPBDS-16560 React run/test/benchmark); swept its residue, opened #2101 with 6 commits, 393 deletions.
-- 2026-09-11 a: main unchanged at ba11551eb; #2101 re-verified (commits distinct, numbers match, no new comments); ledger compacted only.
+- 2026-09-11 a: main unchanged at ba11551eb; #2101 re-verified (commits distinct, numbers match); ledger compacted only.
+- 2026-09-11 b: #2101 went green on CI attempt 3; corrected the "reruns do not clear the kafka flake" claim on the PR and here.
