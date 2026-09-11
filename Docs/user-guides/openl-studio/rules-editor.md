@@ -587,170 +587,177 @@ As a result, the system displays the tables matching the search criteria along w
 
 ### Creating Tables
 
-The **Create Table** action opens one window that holds the whole table: a settings strip for the type, the name and
-the destination, and below it the sheet itself. The skeleton is rebuilt the moment the table type changes, and the
-header cell at the top of the sheet shows the exact OpenL header the table will be written with.
+The **Create Table** action opens a single window that contains the whole table: a settings area for the table type,
+name, and destination, and the table sheet below it. OpenL Studio rebuilds the table skeleton every time the table
+type changes. The header cell at the top of the sheet displays the exact OpenL header that the table is written with.
 
 ![Create Table Window](images/create-table-window.png)
 
 *The Create Table window*
 
-To create a table:
+To create a table, proceed as follows:
 
-1. In OpenL Studio, click **Create Table**.
-2. In **Table Type**, select one of the supported types:
+1.  In OpenL Studio, click **Create Table**.
+2.  In **Table Type**, select one of the supported types.
 
-   ![Table Type List](images/create-table-type-list.png)
+    ![Table Type List](images/create-table-type-list.png)
 
-   *Selecting the table type*
+    *Selecting the table type*
 
-   - **Datatype** — Type, Name, Default Value, Mandatory, Description, and Examples. Type accepts a value directly or
-     a value selected from simple types, vocabularies, and datatypes visible to the module. **Extends** suggests only
-     the project's complex datatypes and writes the selected parent into the header; it does not offer
-     `SpreadsheetResult`. Select the **Mandatory** check box to write `true`; clear it to leave the cell empty.
-   - **Vocabulary** — one value column and a simple **Base Type**, written in angle brackets in the Datatype header.
-     The value cells use that type's editor.
-   - **Constants** — Type, Name, and Default Value. Type is selected from simple types, and Default Value uses the
-     selected type's editor. A Constants table carries no name of its own, so the **Table Name** field is not shown.
-   - **Spreadsheet** — Steps and Formula, returning `SpreadsheetResult` unless another type is chosen. A
-     Spreadsheet names its own columns in the first row of the table, so those names are cells to edit and more
-     columns can be added beside them.
-   - **Smart Rules** and **Simple Rules** — one column for each input argument. A simple result adds an Output column;
-     a Datatype result adds one output column for each Datatype field.
-   - **Smart Lookup** and **Simple Lookup** — a two-dimensional table, read where a row and a column cross. The
-     leading arguments run down the left, one column each, and the trailing ones across the top, one row each. The
-     corner where the two meet is kept as square as it can be and gains a row before a column: two arguments give
-     one of each, three give two rows and one column, five give three and two. That corner is written as a merged
-     cell, because its height is what tells OpenL how many arguments run across the top.
+    The following table types are supported:
 
-     A lookup of one argument has no second axis to spread over, so it is laid out exactly like a Simple Rules
-     table — the argument down the left, the result beside it, and no corner at all. Every row is a rule from
-     the first one, so no title row is written above them.
+    -   **Datatype** — contains the Type, Name, Default Value, Mandatory, Description, and Examples columns. Type
+        accepts a value entered directly or selected from the simple types, vocabularies, and datatypes visible to the
+        module. **Extends** suggests the complex datatypes of the project and writes the selected parent into the
+        header; it does not offer `SpreadsheetResult`. Select the **Mandatory** check box to write `true`, or clear it
+        to leave the cell empty.
+    -   **Vocabulary** — contains one value column and a simple **Base Type** written in angle brackets in the Datatype
+        header. The value cells use the editor of that type.
+    -   **Constants** — contains the Type, Name, and Default Value columns. Type is selected from the simple types, and
+        Default Value uses the editor of the selected type. A Constants table has no name of its own, so the **Table
+        Name** field is not displayed.
+    -   **Spreadsheet** — contains the Steps and Formula columns and returns `SpreadsheetResult` unless another type is
+        selected. A Spreadsheet table defines its own column names in the first row, so these names are editable cells,
+        and more columns can be added next to them.
+    -   **Smart Rules** and **Simple Rules** — contain one column for each input argument. A simple result adds an
+        Output column, and a Datatype result adds one output column for each Datatype field.
+    -   **Smart Lookup** and **Simple Lookup** — contain a two-dimensional table where a value is read at the
+        intersection of a row and a column. The leading arguments are placed down the left side, one column per
+        argument, and the remaining arguments are placed across the top, one row per argument. OpenL Studio keeps the
+        corner where the two areas meet as square as possible and adds a row before a column: two arguments produce one
+        row and one column, three arguments produce two rows and one column, and five arguments produce three rows and
+        two columns. The corner is written as a merged cell because its height defines how many arguments OpenL reads
+        as horizontal.
 
-     ![Smart Lookup Skeleton](images/create-table-lookup.png)
+        A lookup table with one argument has no second dimension and is laid out as a Simple Rules table: the argument
+        on the left, the result next to it, and no corner. All rows are rules, so no title row is written above them.
 
-     *A lookup with one argument down the left and one across the top*
+        ![Smart Lookup Skeleton](images/create-table-lookup.png)
 
-   - **Rules** — Condition and Output.
-   - **Test** and **Run** — columns generated from the signature of the selected executable table: one for every
-     value a call has to supply, plus `_res_` for the expected result, which Run omits. An argument of a datatype
-     contributes one column per field, named by the path OpenL reads it back with — `policy.mainDriver.age` — as
-     deep as the datatypes nest. An argument of any other type, a collection included, stays one column. The target
-     can be any executable table in the project, whichever module holds it. Test excludes a table that returns
-     nothing because there would be no result to assert; Run includes it because Run only calls the table. The new
-     table opens named after the table it exercises — `PremiumTest`, `PremiumRun` — and can be renamed. A Test or Run
-     table is placed with the project's tests: selecting the type moves the destination to a module under `tests/`,
-     and a module created for it goes under `tests/` too.
-     Select **Transposed** to put the generated fields down rows and test or run cases across columns.
-   - **Data** — columns generated from the selected Datatype. Select **Transposed** to put fields down rows and data
-     records across columns. Test, Run and Data display every word in generated titles in Title Case, such as
-     **Main Driver Age**.
-   - **Environment** — Key and Value. Key is suggested from the three keywords OpenL acts on — `dependency`,
-     `import` and `include`. An Environment table carries no name of its own.
-   - **Properties** — Property and Value. Property is suggested from the properties that may appear in a Properties
-     table. Its value uses the editor declared for that property: text, date picker, Boolean check box, or enum
-     dropdown. Single-value enum dropdowns do not accept typed text. Enum lists show display values and write their
-     codes. Multiple selected values wrap onto additional lines within the value column. Dates follow the user's
-     locale in the date picker and are written as ISO 8601 `yyyy-MM-dd`. The skeleton starts with the mandatory
-     `scope` property set to `Module`; change it to `Global` or to `Category` — adding a `category` row to name the
-     category — as required. A Properties table carries no name of its own.
-   - **Free Form Table** — a plain grid, with the sheet's own column letters over it and nothing else. It has no
-     header cell and no name: OpenL does not recognize such a table, and names it after whatever its first cell
-     says. It is written exactly as it stands. Only that first cell is required — OpenL reads a table from it.
+        *A lookup with one argument down the left and one across the top*
 
-3. Enter the table name, where the table type has one. The field opens empty and is required wherever it is shown.
+    -   **Rules** — contains the Condition and Output columns.
+    -   **Test** and **Run** — contain columns generated from the signature of the selected executable table: one
+        column for every value that a call must supply, plus the `_res_` column for the expected result, which Run
+        omits. An argument of a datatype contributes one column per field, named by the path that OpenL uses to read
+        the field back, such as `policy.mainDriver.age`, as deep as the datatypes are nested. An argument of any other
+        type, including a collection, occupies one column. The target can be any executable table in the project,
+        regardless of the module that contains it. Test excludes a table that returns nothing because there is no
+        result to assert, while Run includes such a table because Run only calls it. The new table is named after the
+        table it exercises, such as `PremiumTest` or `PremiumRun`, and can be renamed. A Test or Run table is placed
+        with the project tests: selecting the type moves the destination to a module under `tests/`, and a module
+        created for it is also placed under `tests/`. Select **Transposed** to place the generated fields in rows and
+        the test or run cases in columns.
+    -   **Data** — contains columns generated from the selected Datatype. Select **Transposed** to place the fields in
+        rows and the data records in columns. In Test, Run, and Data tables, every word in the generated titles is
+        displayed in Title Case, such as **Main Driver Age**.
+    -   **Environment** — contains the Key and Value columns. Key is suggested from the three keywords that OpenL
+        processes: `dependency`, `import`, and `include`. An Environment table has no name of its own.
+    -   **Properties** — contains the Property and Value columns. Property is suggested from the properties that can
+        appear in a Properties table. The value uses the editor declared for that property: text, date picker, Boolean
+        check box, or enum drop-down list. Single-value enum drop-down lists do not accept typed text. Enum lists
+        display the display values and write their codes. Multiple selected values wrap onto additional lines within
+        the value column. Dates follow the user locale in the date picker and are written as ISO 8601 `yyyy-MM-dd`. The
+        skeleton starts with the mandatory `scope` property set to `Module`. Change it to `Global`, or to `Category`
+        and add a `category` row to name the category, as required. A Properties table has no name of its own.
+    -   **Free Form Table** — contains a plain grid with the column letters of the sheet above it and nothing else. It
+        has no header cell and no name: OpenL does not recognize such a table and names it after the contents of its
+        first cell. The table is written exactly as it is entered. Only the first cell is required, because OpenL reads
+        a table starting from it.
 
-   The name must be a valid identifier — letters, digits, `_` and `$`, not starting with a digit — because it
-   becomes the name OpenL compiles. It may match an existing table name: signatures and properties supplied by the
-   file name, a Properties table, or the table's own properties section distinguish table overloads and versions.
-   Constants, Environment, Properties and Free Form tables carry no name and do not show the field.
+3.  Enter the table name, where the table type has one. The field is empty when the window opens and is required
+    wherever it is displayed.
 
-4. In **Module**, choose the module that receives the table, then choose the sheet. Both fields suggest what the
-   project already has and accept anything else typed into them. The sheets offered are the ones the chosen
-   module's own workbook holds, and choosing a module selects its first sheet, since a sheet belongs to a module.
-   The module decides only where the table is written — it does not change what a Test or Run table may target.
+    The name must be a valid identifier that consists of letters, digits, `_`, and `$` and does not start with a
+    digit, because it becomes the name that OpenL compiles. The name can match an existing table name: table overloads
+    and versions are distinguished by signatures and by properties supplied by the file name, a Properties table, or
+    the properties section of the table. Constants, Environment, Properties, and Free Form tables have no name and do
+    not display the field.
 
-   A module name the project does not declare creates a module. OpenL Studio derives its project-relative `.xlsx`
-   path — `rules/` for a rules table, `tests/` for a Test or Run table — creates the workbook, and registers it in
-   `rules.xml` when the path is not already covered by a module wildcard. For a simple project without `rules.xml`,
-   OpenL Studio creates the descriptor and keeps all existing root modules registered.
+4.  In **Module**, select the module that receives the table, and then select the sheet. Both fields suggest the
+    values that the project already contains and accept any other value typed into them. The offered sheets are the
+    ones contained in the workbook of the selected module, and selecting a module selects its first sheet, because a
+    sheet belongs to a module. The module defines only where the table is written; it does not change the tables that
+    a Test or Run table can target.
 
-   A sheet name that the chosen module does not have creates a sheet.
+    A module name that the project does not declare creates a module. OpenL Studio derives the project-relative
+    `.xlsx` path, `rules/` for a rules table and `tests/` for a Test or Run table, creates the workbook, and registers
+    it in `rules.xml` if the path is not already covered by a module wildcard. For a simple project without
+    `rules.xml`, OpenL Studio creates the descriptor and keeps all existing root modules registered.
 
-   The sheet name cannot contain `/ \ * ? [ ] :`, which Excel does not allow in a worksheet name.
+    A sheet name that the selected module does not contain creates a sheet.
 
-   ![Module and Sheet Suggestions](images/create-table-destination.png)
+    The sheet name cannot contain the `/ \ * ? [ ] :` characters, which Excel does not allow in a worksheet name.
 
-   *Choosing the module that receives the table*
+    ![Module and Sheet Suggestions](images/create-table-destination.png)
 
-5. For Spreadsheet, Rules, Smart Rules, Simple Rules, Smart Lookup, and Simple Lookup, set **Result Type** and
-   **Arguments**. A type can be a simple type, a vocabulary, or a datatype visible to the selected module;
-   `SpreadsheetResult` is offered here as well, because only a signature can name it. The header cell at the top of
-   the sheet updates as the signature is filled in.
+    *Choosing the module that receives the table*
 
-   ![Result Type and Arguments](images/create-table-signature.png)
+5.  For the Spreadsheet, Rules, Smart Rules, Simple Rules, Smart Lookup, and Simple Lookup types, set **Result Type**
+    and **Arguments**. A type can be a simple type, a vocabulary, or a datatype visible to the selected module.
+    `SpreadsheetResult` is offered here as well, because only a signature can name it. The header cell at the top of
+    the sheet is updated as the signature is filled in.
 
-   *A signature builds the header cell and the columns*
+    ![Result Type and Arguments](images/create-table-signature.png)
 
-6. Edit the skeleton cells.
+    *A signature builds the header cell and the columns*
 
-   - Every body cell can be edited. The header cell at the top is a read-only preview generated from the settings.
-     A Datatype parent is set with **Extends**, which builds a header such as `Datatype Policy extends Base`.
-   - The first row opens filled in as an example. It is a placeholder to write over: every cell holds a value of
-     the type its column declares — `1` for an Integer, `TRUE` for a Boolean, `2026-06-15` for a Date, `1-10` for
-     an IntRange, and for a vocabulary the first value that vocabulary offers — so a table created untouched is a
-     table that works. A cell whose value no single cell can spell out, such as another datatype or a collection,
-     opens on `<field>_id_1`, the way a Data table row holding that value is referenced.
-   - A value cell uses the editor for the type its table definition gives it. Boolean cells offer `TRUE`, `FALSE`
-     and an empty value. Vocabulary cells use a closed dropdown that offers their declared values and empty, without
-     accepting typed text. Numeric cells use a number input, Date cells a date picker that displays the user's locale
-     and stores ISO 8601 `yyyy-MM-dd`, and Character cells accept one character. Byte, Short, Integer and Long
-     values must stay within the range of the selected type. This applies to Datatype defaults and examples,
-     Constants and Vocabulary values, and generated Rules, lookup, Test, Run and Data cells, except for the
-     condition cells described below.
-   - A condition cell of a Smart Rules, Simple Rules, Smart Lookup or Simple Lookup table is matched by range as
-     readily as by equality, so a condition of a numeric, Character, String or Date type is typed rather than
-     picked: it takes `18-30`, `>=18`, `[18 .. 30)` or `18 and more` as well as a single value, it is not held to
-     the range of its type, and a Character condition is not capped at one character. What OpenL cannot read is
-     reported when the table compiles. A Boolean or Vocabulary condition has no range of its own and keeps the
-     dropdown its type gives it.
-   - Filling the last row automatically adds an empty row below it.
-   - Point at a row to reveal its actions: insert a row above or below it, or delete it. A Free Form Table reveals
-     the same actions for its columns, above the grid.
+6.  Edit the skeleton cells. Consider the following rules:
 
-     ![Row Actions](images/create-table-row-actions.png)
+    -   Every body cell can be edited. The header cell at the top is a read-only preview generated from the settings.
+        A Datatype parent is set with **Extends**, which builds a header such as `Datatype Policy extends Base`.
+    -   The first row opens filled in as an example. It is a placeholder to write over: every cell contains a value of
+        the type declared by its column, such as `1` for an Integer, `TRUE` for a Boolean, `2026-06-15` for a Date,
+        `1-10` for an IntRange, and the first offered value for a vocabulary. As a result, a table created without any
+        changes is a working table. A cell whose value cannot be expressed by a single cell, such as another datatype
+        or a collection, opens with `<field>_id_1`, the way a Data table row that holds this value is referenced.
+    -   A value cell uses the editor for the type that the table definition gives it. Boolean cells offer `TRUE`,
+        `FALSE`, and an empty value. Vocabulary cells use a closed drop-down list that offers the declared values and
+        an empty value and does not accept typed text. Numeric cells use a number input, Date cells use a date picker
+        that displays the user locale and stores ISO 8601 `yyyy-MM-dd`, and Character cells accept one character.
+        Byte, Short, Integer, and Long values must stay within the range of the selected type. This applies to Datatype
+        defaults and examples, Constants and Vocabulary values, and generated Rules, lookup, Test, Run, and Data cells,
+        except for the condition cells described below.
+    -   A condition cell of a Smart Rules, Simple Rules, Smart Lookup, or Simple Lookup table is matched by range as
+        readily as by equality. Therefore, a condition of a numeric, Character, String, or Date type is typed rather
+        than selected: it accepts `18-30`, `>=18`, `[18 .. 30)`, or `18 and more` as well as a single value, it is not
+        limited to the range of its type, and a Character condition is not limited to one character. A value that
+        OpenL cannot read is reported when the table compiles. A Boolean or Vocabulary condition has no range of its
+        own and keeps the drop-down list of its type.
+    -   Filling the last row automatically adds an empty row below it.
+    -   Point at a row to display its actions: insert a row above or below it, or delete the row. A Free Form Table
+        displays the same actions for its columns, above the grid.
 
-     *Actions revealed for the row under the pointer*
+        ![Row Actions](images/create-table-row-actions.png)
 
-   - Columns controlled by a table signature, Datatype, or tested table change when that definition changes.
-   - Where a table type has no fixed set of columns — a Free Form Table, a Spreadsheet, a lookup — filling the last
-     column adds an empty column to the right. A table wider than the dialog scrolls sideways rather than widening
-     it.
-   - Blank rows are not written. OpenL reads a blank row as the end of a table, so an empty row left in the middle of
-     the skeleton is dropped together with the trailing one kept for input.
-   - While **Create** is unavailable, the dialog names what is missing, one thing at a time and in the order the
-     fields are laid out, so the first thing shown is the first thing to fix.
-   - A Spreadsheet needs at least one filled row, because OpenL rejects a table with no body. **Create** stays
-     disabled until one is entered.
-   - A lookup of two or more arguments needs a value in every row of its top band — one for each argument running
-     across the top — and at least one row below to look up by. A blank row is never written, so a top row left
-     empty would shorten the merged corner and change how many arguments OpenL reads as horizontal. **Create**
-     stays disabled until both are filled. A lookup of one argument has no band, so it needs only a filled row.
-   - A lookup's top band and the argument titles beside it belong to the table type and carry no row controls.
+        *Actions revealed for the row under the pointer*
 
-7. Click **Create**.
+    -   Columns controlled by a table signature, a Datatype, or a tested table change when that definition changes.
+    -   Where a table type has no fixed set of columns, such as a Free Form Table, a Spreadsheet, or a lookup table,
+        filling the last column adds an empty column to the right. A table wider than the window scrolls sideways
+        instead of widening the window.
+    -   Blank rows are not written. OpenL reads a blank row as the end of a table, so an empty row left in the middle
+        of the skeleton is dropped together with the trailing row kept for input.
+    -   While **Create** is unavailable, the window names what is missing, one item at a time and in the order the
+        fields are laid out, so the first displayed item is the first one to fix.
+    -   A Spreadsheet table requires at least one filled row, because OpenL rejects a table with no body. **Create**
+        stays disabled until a row is entered.
+    -   A lookup table with two or more arguments requires a value in every row of its top band, one for each argument
+        running across the top, and at least one row below to look up by. A blank row is never written, so a top row
+        left empty would shorten the merged corner and change the number of arguments that OpenL reads as horizontal.
+        **Create** stays disabled until both are filled. A lookup table with one argument has no band and requires
+        only a filled row.
+    -   The top band of a lookup table and the argument titles next to it belong to the table type and have no row
+        controls.
 
-The table is created in the selected module and opens in the Rules Editor. Its availability to other modules depends
-on project and module dependencies. For more information, see
+7.  Click **Create**.
+
+The table is created in the selected module and opens in Rules Editor. Its availability to other modules depends on
+project and module dependencies. For more information, see
 [OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md).
 
-For an executable table, **Create Test** opens the same window with a Test table skeleton generated from the selected
-table signature. The generated columns contain every input parameter and the expected result. The tested table can
-also be changed in the window.
-
-![Generated Test Table Skeleton](images/create-table-test.png)
-
-*A Test table generated from the tested table*
+For an executable table, the **Create Test** action opens the same window with a Test table skeleton generated from the
+signature of the selected table. For more information, see [Editing and Testing Functionality > Creating a Test](editing-testing.md#creating-a-test).
 
 ### Comparing Excel Files
 
