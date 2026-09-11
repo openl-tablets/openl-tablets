@@ -13,6 +13,8 @@ export interface ModuleCompilation {
     total: number
     /** Set when the compilation could not even be asked for; nothing will arrive on the channel. */
     failure: string | null
+    /** How many tests the compiled project holds, as the channel reports them. */
+    tests: number
 }
 
 const modulesOf = (status: ProjectStatusUpdate | null) => status?.compilation?.modules
@@ -25,8 +27,9 @@ const modulesOf = (status: ProjectStatusUpdate | null) => status?.compilation?.m
  * module as it finishes. The editor renders as soon as this module is named — the modules after it go on compiling
  * behind the open screen.
  *
- * A module already compiled when the screen opens is ready at once, and no compilation is asked for. Asking for a
- * refresh compiles it again even so, because that is what a refresh is for.
+ * A module already compiled when the screen opens is ready at once, and no compilation is asked for. A refresh
+ * asks for it to be built again from the workbook, dropping what was compiled before — that is what a refresh is
+ * for.
  *
  * Nothing is asked for at all while {@code enabled} is false — of a project nobody has opened there is no copy to
  * compile, and the screen asks the reader to open it first.
@@ -57,7 +60,7 @@ export const useModuleCompilation = (
         }
         asked.current = key
         setFailure(null)
-        startModuleCompilation(projectId, moduleName).catch((error: unknown) => {
+        startModuleCompilation(projectId, moduleName, reloadToken > 0).catch((error: unknown) => {
             const failed = error instanceof Error ? error : new Error(String(error))
             errorHandler.logError(failed)
             setFailure(failed.message)
@@ -69,5 +72,6 @@ export const useModuleCompilation = (
         compiled: modulesOf(status)?.compiled ?? 0,
         total: modulesOf(status)?.total ?? 0,
         failure,
+        tests: status?.compilation?.tests?.total ?? 0,
     }
 }

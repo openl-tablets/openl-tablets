@@ -13,6 +13,8 @@ const rows: RawTableCell[][] = [
     ],
 ]
 
+const computed: RawTableCell[][] = [[{ cell: 'A1', value: 3, formula: '=1+2' }, { cell: 'B1', value: 'plain' }]]
+
 describe('RawTableGrid', () => {
     it('draws the cells with their merges, leaving the covered ones out', () => {
         render(<RawTableGrid rows={rows} testId="grid" />)
@@ -82,5 +84,17 @@ describe('RawTableGrid', () => {
         render(<RawTableGrid rows={[]} testId="grid" />)
 
         expect(screen.getByTestId('grid').querySelectorAll('td')).toHaveLength(0)
+    })
+
+    it('draws what a cell computed, and the formula behind it when the screen asks', () => {
+        const { rerender } = render(<RawTableGrid rows={computed} testId="grid" />)
+        expect(screen.getByTestId('grid').querySelectorAll('td')[0]).toHaveTextContent('3')
+
+        rerender(<RawTableGrid formulas rows={computed} testId="grid" />)
+
+        const cells = screen.getByTestId('grid').querySelectorAll('td')
+        expect(cells[0]).toHaveTextContent('=1+2')
+        // A cell written as a plain value has no formula to show, so it reads the same either way.
+        expect(cells[1]).toHaveTextContent('plain')
     })
 })

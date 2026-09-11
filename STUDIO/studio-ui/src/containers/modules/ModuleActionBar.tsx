@@ -1,101 +1,124 @@
-import type { ReactNode } from 'react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Space, Tooltip } from 'antd'
-import {
-    DashboardOutlined,
-    DownloadOutlined,
-    ExperimentOutlined,
-    PlayCircleOutlined,
-    RadarChartOutlined,
-} from '@ant-design/icons'
-import type { ModuleTable } from 'types/tables'
+import { Badge, Button, Dropdown, Modal, Space, Tooltip } from 'antd'
+import { DownOutlined } from '@ant-design/icons'
 import type { Project } from '../../types/projects'
-import { downloadFile } from '../../services/files'
+import { toUrlSafeId } from '../../services/projectId'
+import { runTests } from '../../services/execution'
+import { errorHandler } from '../../utils/errorHandling'
+import { TestsResultModal } from '../execution/TestsResultModal'
+import { LocalChangesView } from '../projects/LocalChangesView'
+import { openCompareWindow } from '../projects/compare'
 
-/** What one action of the open table asks for, and the panel of EPBDS-16560 that answers it. */
-interface TableAction {
-    key: string
-    labelKey: string
-    icon: ReactNode
-    event: string
-    /** Only a test table runs its tests; everything else is offered for any executable table. */
-    testsOnly?: boolean
-}
-
-const TABLE_ACTIONS: TableAction[] = [
-    { key: 'run', labelKey: 'browser.module.run', icon: <PlayCircleOutlined />, event: 'openRunLaunch' },
-    {
-        key: 'tests',
-        labelKey: 'browser.module.run_tests',
-        icon: <ExperimentOutlined />,
-        event: 'openTestsLaunch',
-        testsOnly: true,
-    },
-    { key: 'trace', labelKey: 'browser.module.trace', icon: <RadarChartOutlined />, event: 'openTraceLaunch' },
-    { key: 'benchmark', labelKey: 'browser.module.benchmark', icon: <DashboardOutlined />, event: 'openBenchmarkLaunch' },
-]
-
-/** The families of table that can be executed at all; the rest are read, not run. */
-const EXECUTABLE = new Set(['Rules', 'Spreadsheet', 'Method', 'Test', 'TBasic', 'Column Match', 'Run'])
+/** The actions that arrive with the editing phase; they stand in their old places, saying so. */
+const PLANNED = ['copy', 'update', 'createTable'] as const
 
 interface ModuleActionBarProps {
     project: Project
     moduleName: string
-    /** The table on screen. The actions that run one belong to it, and are offered only while it is open. */
-    table?: ModuleTable | null
     /** The workbook the module is written in, so it can be exported. */
     modulePath?: string | undefined
+    /** How many tests the module holds, as the status channel reports them. */
+    testCount?: number | undefined
+    /** Nothing here acts on a project nobody has opened, so everything stands disabled until it is. */
+    disabled?: boolean
 }
 
 /**
- * What can be done to the open module and to the table shown in it, in the place the project's own actions sit.
+ * What can be done to the open module, in the place the project's own actions sit — arranged as the old Editor
+ * arranged them, so the row reads the same.
  *
- * Running a table, its tests, a trace or a benchmark belong to the table rather than to the module, so they stand
- * beside it and are offered only for a table that can be executed — as the old toolbar offered them. Reading a
- * module changes nothing, so the only module-wide actions are the two harmless ones.
+ * Exporting the module, running its tests and the More menu are answered here; the rest belong to editing and
+ * stand disabled, naming the phase they arrive with. What can be done to the table on screen belongs to the
+ * table, and stands in a band above it.
  */
-export const ModuleActionBar = ({ project, moduleName, table, modulePath }: ModuleActionBarProps) => {
+export const ModuleActionBar = ({ project, moduleName, modulePath, testCount, disabled = false }: ModuleActionBarProps) => {
     const { t } = useTranslation('repository')
+    const navigate = useNavigate()
+    const [testsOpen, setTestsOpen] = useState(false)
+    const [localChangesOpen, setLocalChangesOpen] = useState(false)
 
-    const launch = (event: string) => {
-        if (!table) {
-            return
-        }
-        window.dispatchEvent(new CustomEvent(event, {
-            detail: {
-                projectId: project.id,
-                tableId: table.id,
-                moduleName,
-                anchor: { top: 0, left: 0, width: 0, height: 0 },
-            },
-        }))
+    const planned = (key: string) => (
+        <Tooltip key={key} title={t('browser.module.planned')}>
+            <Button disabled data-testid={`module-${key}`}>{t(`browser.module.${key}`)}</Button>
+        </Tooltip>
+    )
+
+    const runModuleTests = () => {
+        setTestsOpen(true)
+        runTests(project.id, { fromModule: moduleName }).catch((error: unknown) => {
+            errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
+        })
     }
 
-    const executable = table !== null && table !== undefined && EXECUTABLE.has(table.kind)
-    const offered = TABLE_ACTIONS.filter(action => !action.testsOnly || table?.kind === 'Test')
+    // What the old More menu offered: the project's own history first, then what is about its tables.
+    const more = [
+        { key: 'revisions', label: t('browser.module.revisions') },
+        { key: 'localChanges', label: t('browser.module.local_changes') },
+        { type: 'divider' as const },
+        { key: 'dependencies', label: t('browser.module.dependencies') },
+        { key: 'compare', label: t('browser.module.compare') },
+    ]
+
+    const chooseMore = (key: string) => {
+        if (key === 'revisions') {
+            navigate(`/projects/${toUrlSafeId(project.id)}?tab=history`)
+        } else if (key === 'localChanges') {
+            setLocalChangesOpen(true)
+        } else if (key === 'dependencies') {
+            window.dispatchEvent(new CustomEvent('openTableGraphModal', {
+                detail: { projectId: project.id, projectName: project.name, module: moduleName },
+            }))
+        } else if (key === 'compare') {
+            openCompareWindow({ id: project.id })
+        }
+    }
 
     return (
         <Space data-testid="module-actions">
-            {executable && offered.map(action => (
-                <Button
-                    key={action.key}
-                    data-testid={`module-${action.key}`}
-                    icon={action.icon}
-                    onClick={() => launch(action.event)}
-                >
-                    {t(action.labelKey)}
-                </Button>
-            ))}
+            {planned(PLANNED[0])}
+            {planned(PLANNED[1])}
             <Tooltip title={modulePath ? undefined : t('browser.module.export_unavailable')}>
                 <Button
                     data-testid="module-export"
-                    disabled={!modulePath}
-                    icon={<DownloadOutlined />}
-                    onClick={() => modulePath && downloadFile(project.id, modulePath)}
+                    disabled={disabled || !modulePath}
+                    onClick={() => window.dispatchEvent(new CustomEvent('openExportProjectModal', {
+                        detail: { projectId: project.id, filePath: modulePath },
+                    }))}
                 >
                     {t('browser.module.export')}
                 </Button>
             </Tooltip>
+            <Button data-testid="module-test" disabled={disabled || !testCount} onClick={runModuleTests}>
+                {t('browser.module.test')}
+                {!!testCount && (
+                    <Badge color="blue" count={testCount} data-testid="module-test-count" />
+                )}
+            </Button>
+            {planned(PLANNED[2])}
+            <Dropdown
+                disabled={disabled}
+                menu={{ items: more, onClick: ({ key }) => chooseMore(key) }}
+                trigger={['click']}
+            >
+                <Button data-testid="module-more" disabled={disabled}>
+                    {t('browser.module.more')} <DownOutlined />
+                </Button>
+            </Dropdown>
+            {testsOpen && (
+                <TestsResultModal onClose={() => setTestsOpen(false)} projectId={project.id} />
+            )}
+            <Modal
+                destroyOnHidden
+                footer={null}
+                onCancel={() => setLocalChangesOpen(false)}
+                open={localChangesOpen}
+                title={t('browser.module.local_changes')}
+                width={900}
+            >
+                <LocalChangesView moduleName={moduleName} projectId={project.id} />
+            </Modal>
         </Space>
     )
 }

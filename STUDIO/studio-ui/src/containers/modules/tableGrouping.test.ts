@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { ModuleTable } from 'types/tables'
-import { DEFAULT_VIEW, TABLE_VIEWS, treeOf } from './tableGrouping'
+import { DEFAULT_VIEW, loadView, saveView, TABLE_VIEWS, treeOf } from './tableGrouping'
 
 const table = (name: string, extra: Partial<ModuleTable> = {}): ModuleTable => ({
     id: `id-${name}`,
@@ -74,5 +74,24 @@ describe('tableGrouping', () => {
 
         expect(nodes.map(node => node.title)).toEqual(['Alpha', 'beta'])
         expect(nodes.every(node => node.table !== undefined)).toBe(true)
+    })
+
+    describe('the view the tree opens on', () => {
+        beforeEach(() => localStorage.clear())
+
+        it('follows the Default Order of the user\'s own settings when this browser has chosen none', () => {
+            expect(loadView('type')).toEqual('type')
+        })
+
+        it('falls back to the engine\'s own default when the settings name no view it knows', () => {
+            expect(loadView(undefined)).toEqual(DEFAULT_VIEW)
+            expect(loadView('whatever the settings hold')).toEqual(DEFAULT_VIEW)
+        })
+
+        it('keeps what this browser chose, which was chosen later than the settings were written', () => {
+            saveView('category')
+
+            expect(loadView('type')).toEqual('category')
+        })
     })
 })

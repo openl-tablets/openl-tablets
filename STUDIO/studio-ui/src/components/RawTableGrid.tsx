@@ -19,6 +19,8 @@ interface RawTableGridProps {
     rows: RawTableCell[][]
     /** How each cell is marked; a cell the screen says nothing about is drawn as the workbook has it. */
     decorate?: (cell: RawTableCell) => CellDecoration | undefined
+    /** Draw the formula a cell was written with rather than the value it computed, where it has one. */
+    formulas?: boolean
     testId?: string
 }
 
@@ -72,12 +74,13 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
 
 /**
  * Draws a table the way its author wrote it in Excel: the same cells, the same merges, the same
- * styling, with the values already evaluated.
+ * styling, with the values already evaluated — or, where the screen asks for it, with the formulas the
+ * cells were written with, which every cell carries beside its value.
  *
  * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
  * this component and only says how its own cells are marked, so a table looks the same everywhere.
  */
-export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, testId }) => {
+export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, formulas, testId }) => {
     const { styles, cx } = useStyles()
 
     return (
@@ -97,7 +100,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, test
                                     rowSpan={cell.rowspan}
                                     style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
                                 >
-                                    {decoration?.content ?? formatValue(cell.value)}
+                                    {decoration?.content
+                                        ?? formatValue(formulas && cell.formula ? cell.formula : cell.value)}
                                 </td>
                             )
                         })}
