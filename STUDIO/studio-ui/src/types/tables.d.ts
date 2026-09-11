@@ -22,6 +22,8 @@ export interface RawTableCell {
     cell?: string
     /** Typed cell value (number, string, boolean), or absent when empty */
     value?: string | number | boolean | null
+    /** The formula the cell was written with, as Excel writes it (`=B2*C2`); absent for a plain value */
+    formula?: string
     /** Number of columns this cell spans (>= 2), when merged */
     colspan?: number
     /** Number of rows this cell spans (>= 2), when merged */
@@ -134,6 +136,8 @@ export interface RawTableView {
     source: RawTableCell[][]
     /** Full row count when the response was truncated by maxRows; absent when the whole table is returned */
     totalRows?: number
+    /** How many rows at the top of the table its header takes, which a screen hiding the header leaves out */
+    headerHeight?: number
 }
 
 /** One field a Datatype table declares. */

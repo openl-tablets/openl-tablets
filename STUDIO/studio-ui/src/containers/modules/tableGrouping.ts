@@ -17,7 +17,12 @@ const STORAGE_KEY = 'openl.module.tableView'
 const isView = (value: unknown): value is TableView =>
     typeof value === 'string' && (TABLE_VIEWS as string[]).includes(value)
 
-export const loadView = (): TableView => readJson(STORAGE_KEY, DEFAULT_VIEW, isView)
+/**
+ * The view the tree opens on: the one this browser last chose, or — having chosen none — the Default Order of
+ * the user's own settings, which is what the Editor has always obeyed.
+ */
+export const loadView = (preferred?: string): TableView =>
+    readJson(STORAGE_KEY, isView(preferred) ? preferred : DEFAULT_VIEW, isView)
 
 export const saveView = (view: TableView): void => writeJson(STORAGE_KEY, view)
 

@@ -52,7 +52,8 @@ describe('useModuleCompilation', () => {
         const push = captureUpdates()
         const { getByTestId } = render(<Probe />)
 
-        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims')
+        // Opening a module compiles what is not compiled yet; it does not throw away what is.
+        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', false)
         push(compiling(3, 12, 'Pricing'))
 
         expect(getByTestId('state').textContent?.trim()).toEqual('waiting 3/12 -')
@@ -83,7 +84,8 @@ describe('useModuleCompilation', () => {
 
         rerender(<Probe initial={compiling(12, 12, 'Claims')} reloadToken={1} />)
 
-        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims')
+        // A refresh builds the module again from the workbook rather than keeping what is compiled.
+        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', true)
     })
 
     it('asks once, however many statuses arrive', async () => {

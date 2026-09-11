@@ -7,12 +7,19 @@ import { createStyles } from 'antd-style'
 import type { ModuleTable, RawTableView } from 'types/tables'
 import type { Project } from '../types/projects'
 import { getProject, setProjectStatus } from '../services/repositories'
-import { getModuleTables, getRawTable, listModules, type ModuleInfo } from '../services/modules'
+import {
+    getModuleTables,
+    getRawTable,
+    listModules,
+    TABLE_PAGE_ROWS,
+    type ModuleInfo,
+} from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { toUrlSafeId } from '../services/projectId'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
 import { useLoadGeneration } from '../hooks'
+import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { RawTableGrid } from '../components/RawTableGrid'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
@@ -22,6 +29,7 @@ import { BranchSwitcher } from './projects/BranchSwitcher'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { ModuleActionBar } from './modules/ModuleActionBar'
+import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -64,13 +72,19 @@ const useStyles = createStyles(({ css, token }) => ({
     crumbValue: css`
         color: ${token.colorTextSecondary};
     `,
-    /** The table is drawn at the width its own text needs, and the canvas scrolls around it. */
+    /**
+     * The table is drawn at the width its own text needs, and the canvas scrolls around it.
+     *
+     * The canvas is the grey of the Projects page, so the table reads as a sheet laid on it rather than as part
+     * of the page — its own white cells stay its own.
+     */
     canvas: css`
         flex: 1;
         min-width: 0;
         min-height: 0;
         overflow: auto;
         padding: 16px;
+        background: ${token.colorBgLayout};
     `,
     centered: css`
         display: flex;
@@ -85,6 +99,12 @@ const useStyles = createStyles(({ css, token }) => ({
     progress: css`
         width: 320px;
         max-width: 100%;
+    `,
+    /** The invitation to read further, under the rows already drawn. */
+    more: css`
+        display: flex;
+        justify-content: center;
+        padding: 12px 0;
     `,
 }))
 
@@ -111,12 +131,19 @@ export const ModuleWorkspace = () => {
     const [loadError, setLoadError] = useState<string | null>(null)
     const [opening, setOpening] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[]>([])
-    const [tables, setTables] = useState<ModuleTable[] | null>(null)
+    const [loaded, setLoaded] = useState<{ module: string, tables: ModuleTable[] } | null>(null)
     const [table, setTable] = useState<RawTableView | null>(null)
     const [tableError, setTableError] = useState<string | null>(null)
+    const [moreLoading, setMoreLoading] = useState(false)
+    // The table settings the user keeps for themselves, which the Editor has always obeyed.
+    const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
+    const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
     // Bumped by Refresh, so the module is compiled again and its tables read afresh.
     const [reloadToken, setReloadToken] = useState(0)
     const tableLoads = useLoadGeneration()
+
+    // Only the tables read for the module now open count as this screen's.
+    const tables = loaded?.module === moduleName ? loaded.tables : null
 
     // The table on screen rides in the address, so a link to it opens it again, Back steps between tables, and
     // a refresh keeps the reader where they were.
@@ -184,36 +211,48 @@ export const ModuleWorkspace = () => {
     }, [projectId, closed, reloadToken])
 
     // The tables are read once the module is compiled, so the read answers at once instead of waiting for the
-    // compilation to reach it.
+    // compilation to reach it. They are kept under the module they belong to: moving to another module of the
+    // same project keeps this screen mounted, and the tables left behind are none of the new module's.
     useEffect(() => {
-        if (!projectId || !compilation.ready || tables !== null) {
+        if (!projectId || !compilation.ready || loaded?.module === moduleName) {
             return
         }
         getModuleTables(projectId, moduleName)
-            .then(setTables)
+            .then(found => setLoaded({ module: moduleName, tables: found }))
             .catch((error: unknown) => setLoadError(errorMessage(error)))
-    }, [projectId, moduleName, compilation.ready, tables])
+    }, [projectId, moduleName, compilation.ready, loaded])
 
-    // A module opens on a table rather than on an empty canvas: the first one the list carries.
+    // A module opens on a table rather than on an empty canvas: the first one the list carries. The same
+    // correction moves off a table named in the address that this module does not hold — the one the module
+    // left behind was showing.
     useEffect(() => {
-        const first = tables?.[0]
-        if (first === undefined || selectedId !== null) {
+        if (tables === null || tables.length === 0) {
             return
         }
-        setSearch(params => {
-            const next = new URLSearchParams(params)
-            next.set('table', first.id)
-            return next
-        }, { replace: true })
-    }, [tables, selectedId, setSearch])
+        if (selectedId !== null && tables.some(candidate => candidate.id === selectedId)) {
+            return
+        }
+        navigate(
+            `/projects/${toUrlSafeId(projectId ?? '')}/modules/${encodeURIComponent(moduleName)}`
+            + `?table=${encodeURIComponent((tables[0] as ModuleTable).id)}`,
+            { replace: true }
+        )
+    }, [tables, selectedId, moduleName, navigate, projectId])
 
     // Refresh compiles the module again and re-reads its tables. What the reader was looking at is kept: the
     // address still names it, and it is drawn again as soon as the tables are back.
     const refresh = useCallback(() => {
-        setTables(null)
+        setLoaded(null)
         setTableError(null)
         setReloadToken(token => token + 1)
     }, [])
+
+    // Another module of the same project opens in the same screen, on its own first table.
+    const openModule = useCallback((picked: string) => {
+        if (picked !== moduleName) {
+            navigate(`/projects/${toUrlSafeId(projectId ?? '')}/modules/${encodeURIComponent(picked)}`)
+        }
+    }, [moduleName, navigate, projectId])
 
     const openTable = useCallback((picked: ModuleTable) => {
         setSearch(params => {
@@ -232,7 +271,8 @@ export const ModuleWorkspace = () => {
         const { generation } = tableLoads.start(false)
         setTable(null)
         setTableError(null)
-        getRawTable(projectId, selectedId)
+        // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it.
+        getRawTable(projectId, selectedId, { module: moduleName, maxRows: TABLE_PAGE_ROWS })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
                     setTable(loaded)
@@ -243,7 +283,26 @@ export const ModuleWorkspace = () => {
                     setTableError(errorMessage(error))
                 }
             })
-    }, [projectId, selectedId, tableLoads, reloadToken])
+    }, [projectId, selectedId, moduleName, tableLoads, reloadToken])
+
+    // The next window of the same table, appended to what is already drawn.
+    const showMoreRows = useCallback(() => {
+        if (!projectId || selectedId === null || table === null || moreLoading) {
+            return
+        }
+        setMoreLoading(true)
+        getRawTable(projectId, selectedId, {
+            module: moduleName,
+            startRow: table.source.length,
+            maxRows: TABLE_PAGE_ROWS,
+        })
+            .then(next => setTable(shown => (shown === null ? next : {
+                ...shown,
+                source: [...shown.source, ...next.source],
+            })))
+            .catch((error: unknown) => setTableError(errorMessage(error)))
+            .finally(() => setMoreLoading(false))
+    }, [projectId, selectedId, moduleName, table, moreLoading])
 
     if (loadError) {
         return (
@@ -268,6 +327,7 @@ export const ModuleWorkspace = () => {
     }
 
     const modulePath = modules.find(declared => declared.name === moduleName)?.path
+    const testCount = compilation.tests
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && !!project.branch
 
     const crumbs = (
@@ -361,10 +421,36 @@ export const ModuleWorkspace = () => {
         if (!table) {
             return <div className={styles.canvas}><Skeleton active data-testid="module-table-loading" /></div>
         }
+        // "Show Header" puts away the rows the table's header takes, which the read names — the header
+        // line, a properties section, the service rows of a decision table.
+        const rows = showHeader ? table.source : table.source.slice(table.headerHeight ?? 0)
+        const shown = table.source.length
+        const total = table.totalRows ?? shown
         return (
-            <div className={styles.canvas}>
-                <RawTableGrid rows={table.source} testId="module-table" />
-            </div>
+            <>
+                {selected !== null && (
+                    <TableToolbar
+                        moduleName={moduleName}
+                        projectCompiled={compilation.total > 0 && compilation.compiled >= compilation.total}
+                        projectId={project.id}
+                        table={selected}
+                    />
+                )}
+                <div className={styles.canvas}>
+                    <RawTableGrid formulas={showFormulas} rows={rows} testId="module-table" />
+                    {shown < total && (
+                        <div className={styles.more}>
+                            <Button
+                                data-testid="module-table-more"
+                                loading={moreLoading}
+                                onClick={showMoreRows}
+                            >
+                                {t('browser.module.show_more_rows', { shown, total })}
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            </>
         )
     }
 
@@ -372,9 +458,12 @@ export const ModuleWorkspace = () => {
         <div className={styles.page} data-testid="module-workspace">
             <div className={styles.withTree}>
                 <ModuleTablesTree
+                    currentModule={moduleName}
+                    modules={modules}
+                    onSelectModule={openModule}
                     onSelectTable={openTable}
                     selectedTableId={selected?.id}
-                    tables={tables ?? []}
+                    tables={tables}
                 />
                 <div className={styles.body}>
                     <WorkspaceHeader
@@ -383,10 +472,11 @@ export const ModuleWorkspace = () => {
                         title={moduleName}
                         actions={(
                             <ModuleActionBar
+                                disabled={closed}
                                 moduleName={moduleName}
                                 modulePath={modulePath}
                                 project={project}
-                                table={selected}
+                                testCount={testCount}
                             />
                         )}
                         titleAfter={(
@@ -394,6 +484,7 @@ export const ModuleWorkspace = () => {
                                 <Button
                                     aria-label={t('browser.module.refresh')}
                                     data-testid="module-refresh"
+                                    disabled={closed}
                                     icon={<ReloadOutlined />}
                                     onClick={refresh}
                                     type="text"
