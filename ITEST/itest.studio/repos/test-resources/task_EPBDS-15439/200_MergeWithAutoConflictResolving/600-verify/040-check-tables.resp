@@ -11,6 +11,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "BranchOneAssetsCompare()",
       "file": "EPBDS-15439/Main.xlsx",
+      "sheet": "BranchOne",
       "pos": "B2:C4"
     },
     {
@@ -21,6 +22,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "BranchTwoAssetsCompare()",
       "file": "EPBDS-15439/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B2:C4"
     }
   ],

@@ -9,5 +9,6 @@ Content-Type: application/json
   "returnType": "Double",
   "signature": "IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
   "file": "EPBDS-15409/Main.xlsx",
+  "sheet": "BankRating",
   "pos": "B22:D25"
 }

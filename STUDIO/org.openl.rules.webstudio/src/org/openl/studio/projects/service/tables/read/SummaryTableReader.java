@@ -46,6 +46,7 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         } catch (IOException e) {
             throw new RuntimeException("Failed to resolve module location", e);
         }
+        builder.sheet(url.getWsName());
         builder.pos(url.getRange());
 
         var tsn = table.getSyntaxNode();

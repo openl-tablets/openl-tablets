@@ -10,6 +10,7 @@ Content-Type: application/json
       "name": "Root",
       "pos": "A1:B4",
       "returnType": "SpreadsheetResult",
+      "sheet": "Rules",
       "signature": "Root ( )",
       "tableType": "SimpleSpreadsheet"
     },
@@ -20,6 +21,7 @@ Content-Type: application/json
       "name": "SubCalc",
       "pos": "A6:B9",
       "returnType": "SpreadsheetResult",
+      "sheet": "Rules",
       "signature": "SubCalc ( Integer x )",
       "tableType": "SimpleSpreadsheet"
     }

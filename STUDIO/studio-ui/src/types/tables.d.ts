@@ -118,6 +118,8 @@ export interface ModuleTable extends ProjectTable {
     kind: string
     /** Workbook the table is written in, relative to the workspace. */
     file?: string
+    /** Excel sheet the table is written on — what the tree groups by when it opens. */
+    sheet?: string
     /** Where the table sits in the workbook, in A1 notation: `B3:D8`. */
     pos?: string
     /** The properties the table declares, `category` among them. */

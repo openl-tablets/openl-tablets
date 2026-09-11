@@ -9,6 +9,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Foo",
       "file": "EPBDS-15612/Qwerty.xlsx",
+      "sheet": "Sheet1",
       "pos": "B7:C8"
     },
     {
@@ -19,6 +20,7 @@ Content-Type: application/json
       "returnType": "String",
       "signature": "Hello (Integer hour)",
       "file": "EPBDS-15612/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B3:E11"
     }
   ],
