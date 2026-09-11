@@ -278,6 +278,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-11 a: main unchanged at ba11551eb; #2101 re-verified (commits distinct, numbers match); ledger compacted only.
 - 2026-09-11 b: #2101 went green on CI attempt 3; corrected the "reruns do not clear the kafka flake" claim on the PR and here.
 - 2026-09-11 c: main still ba11551eb, #2101 still green and unreviewed; nothing to fix, nothing to sweep; ledger only.
+- 2026-09-11 d: third consecutive verification-only run — main ba11551eb, #2101 green, no new threads; ledger only.
