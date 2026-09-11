@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.studio.compare.messaging.SocketComparisonProgressListenerFactory;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.security.CurrentUserInfo;
@@ -71,13 +73,21 @@ public class ComparisonLauncher {
     /** Runs the comparison of the files the store has taken over. */
     private ComparisonStartedView start(List<Path> files) {
         var comparisonId = UUID.randomUUID().toString();
+        CompletableFuture<DiffTreeNode> comparison;
         try {
             var listener = listenerFactory.create(currentUserInfo.getUserName(), comparisonId);
-            registry.register(comparisonId, files,
-                    comparisonService.compare(listener, files.get(0), files.get(1)));
+            comparison = comparisonService.compare(listener, files.get(0), files.get(1));
         } catch (RuntimeException e) {
-            // Nothing owns the files until the comparison is registered. A comparison that could not
-            // be started - the executor is full, the Studio is stopping - takes them with it.
+            // Nothing was started, so nothing owns the files. A comparison that could not be started -
+            // the executor is full, the Studio is stopping - takes them with it.
+            fileStore.delete(files);
+            throw e;
+        }
+        try {
+            registry.register(comparisonId, files, comparison);
+        } catch (RuntimeException e) {
+            // The comparison is reading the files by now, so it is stopped before they are deleted.
+            comparison.cancel(true);
             fileStore.delete(files);
             throw e;
         }

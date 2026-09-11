@@ -17,11 +17,17 @@ import type { Comparison, ComparisonTable } from 'types/compare'
 class HttpError extends Error {
     status: number
 
-    constructor(status: number) {
+    payload: unknown
+
+    constructor(status: number, payload?: unknown) {
         super('http ' + status)
         this.status = status
+        this.payload = payload
     }
 }
+
+/** The refusal the server answers with while the comparison is still being made. */
+const stillRunning = () => new HttpError(409, { code: 'openl.error.409.compare.not-completed.message' })
 
 vi.mock('services', () => ({
     isApiHttpError: (error: unknown) => error instanceof HttpError,
@@ -254,7 +260,7 @@ describe('ComparePage', () => {
         // The connection comes up after the comparison was started, so its COMPLETED is never heard;
         // the first ask, made while it was still running, was answered with 409.
         connected = false
-        vi.mocked(getComparison).mockRejectedValueOnce(new HttpError(409))
+        vi.mocked(getComparison).mockRejectedValueOnce(stillRunning())
         const page = await openPage()
         await startComparison()
 
@@ -269,11 +275,26 @@ describe('ComparePage', () => {
         expect(await screen.findByText('Rules')).toBeInTheDocument()
     })
 
+    it('says that a comparison stopped before it found anything is over', async () => {
+        // Both a comparison still being made and one that was stopped are refused the same way; only
+        // what the refusal says tells them apart.
+        connected = false
+        vi.mocked(getComparison).mockRejectedValue(
+            new HttpError(409, { code: 'openl.error.409.compare.interrupted.message' })
+        )
+
+        await openPage()
+        await startComparison()
+
+        expect(await screen.findByTestId('compare-error')).toBeInTheDocument()
+        expect(getComparison).toHaveBeenCalledTimes(1)
+    })
+
     it('asks for the result again while it cannot hear the topic at all', async () => {
         // The connection never opens, so COMPLETED is never heard and the first ask meets a comparison
         // that is still running.
         connected = false
-        vi.mocked(getComparison).mockRejectedValueOnce(new HttpError(409))
+        vi.mocked(getComparison).mockRejectedValueOnce(stillRunning())
         await openPage()
         await startComparison()
 
@@ -494,7 +515,7 @@ describe('ComparePage', () => {
 
     it('waits for the comparison that is still running', async () => {
         // A comparison that has not finished answers 409, however often it is asked.
-        vi.mocked(getComparison).mockRejectedValue(new HttpError(409))
+        vi.mocked(getComparison).mockRejectedValue(stillRunning())
         await openPage()
         await startComparison()
         await waitFor(() => expect(getComparison).toHaveBeenCalledWith('cmp-1'))
@@ -509,7 +530,7 @@ describe('ComparePage', () => {
 
     it('says why the files could not be compared', async () => {
         // While the comparison runs it has no result to give; then it says it could not be made.
-        vi.mocked(getComparison).mockRejectedValue(new HttpError(409))
+        vi.mocked(getComparison).mockRejectedValue(stillRunning())
         await openPage()
         await startComparison()
 

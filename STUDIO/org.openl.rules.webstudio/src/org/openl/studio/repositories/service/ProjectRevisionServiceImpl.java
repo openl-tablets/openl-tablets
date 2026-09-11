@@ -81,14 +81,6 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
 
     @Override
     public PageResponse<ProjectRevision> getProjectRevision(RulesProject project,
-                                                            String searchTerm,
-                                                            boolean techRevs,
-                                                            Pageable page) throws IOException {
-        return getProjectRevision(project, null, searchTerm, techRevs, page);
-    }
-
-    @Override
-    public PageResponse<ProjectRevision> getProjectRevision(RulesProject project,
                                                             String branch,
                                                             String searchTerm,
                                                             boolean techRevs,
@@ -125,8 +117,8 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
         }
         var filePath = path.startsWith("/") ? path.substring(1) : path;
         if (filePath.isEmpty() || "/".equals(filePath)) {
-            // No file named: the history asked for is the project's own.
-            return getProjectRevision(project, searchTerm, techRevs, page);
+            // No file named: the history asked for is the project's own, on the branch it is on.
+            return getProjectRevision(project, null, searchTerm, techRevs, page);
         }
         // Reject absolute paths and parent traversal before they are anchored to the project folder. The
         // container already refuses most of them, but the repository contract is enforced here rather than

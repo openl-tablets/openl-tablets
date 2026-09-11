@@ -53,5 +53,5 @@ export interface ComparisonTable {
     second?: ComparisonSide
 }
 
-/** How a comparison is going, as the server reports it over the WebSocket. */
-export type ComparisonStatus = 'PENDING' | 'STARTED' | 'COMPLETED' | 'INTERRUPTED' | 'ERROR'
+/** How a comparison is going, as the server reports it over the WebSocket: as any other work. */
+export type ComparisonStatus = ExecutionStatus

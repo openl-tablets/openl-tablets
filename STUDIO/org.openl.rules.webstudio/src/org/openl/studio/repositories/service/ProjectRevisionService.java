@@ -32,25 +32,6 @@ public interface ProjectRevisionService {
                                                      Pageable page) throws IOException, ProjectException;
 
     /**
-     * Retrieves the revision history of the given project, in the branch the project is on.
-     *
-     * <p>A project that lives only in the workspace has never been published, so it answers with an empty page.
-     *
-     * <p>Read access is not checked here: the project arrives already resolved for a caller allowed to read it.
-     *
-     * @param project the project to read the history of
-     * @param searchTerm optional search term to filter revisions
-     * @param techRevs whether to include technical revisions
-     * @param page pagination parameters
-     * @return paginated project revision history
-     * @throws IOException if an I/O error occurs
-     */
-    PageResponse<ProjectRevision> getProjectRevision(RulesProject project,
-                                                     String searchTerm,
-                                                     boolean techRevs,
-                                                     Pageable page) throws IOException;
-
-    /**
      * Retrieves the revision history of the given project on the branch asked for.
      *
      * <p>The project is read under the folder its repository holds it in, which is the same folder on every

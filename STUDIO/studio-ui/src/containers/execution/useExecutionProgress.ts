@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWebSocket } from 'hooks/useWebSocket'
+import { readStatus } from 'services/executionStatus'
 import type { ExecutionStatus } from 'types/execution'
+
+export { isFinished } from 'services/executionStatus'
 
 /** What the server reports while a run or a test run goes on: a status, and why it failed when it did. */
 export interface ExecutionProgress {
@@ -13,46 +16,6 @@ export interface ExecutionProgress {
     /** Forgets what the last execution reported, so that the next one is followed from its start. */
     reset: () => void
 }
-
-const STATUSES = new Set<ExecutionStatus>(['PENDING', 'STARTED', 'COMPLETED', 'INTERRUPTED', 'ERROR'])
-
-const TERMINAL = new Set<ExecutionStatus>(['COMPLETED', 'INTERRUPTED', 'ERROR'])
-
-/** What a frame carries, read as JSON. A frame that is not JSON is the bare name of a status. */
-const bodyOf = (body: string): unknown => {
-    try {
-        return JSON.parse(body)
-    } catch {
-        return body
-    }
-}
-
-/** The status a frame reports, when it reports one this screen knows. */
-const statusOf = (value: unknown): { status?: ExecutionStatus } =>
-    typeof value === 'string' && STATUSES.has(value as ExecutionStatus)
-        ? { status: value as ExecutionStatus }
-        : {}
-
-/**
- * What a reported status says.
- *
- * A status of its own arrives as its name, quoted as JSON text or bare; a status with a reason arrives as an
- * object carrying both. A frame that carries neither says nothing, and the screen keeps what it knows.
- */
-const readStatus = (body: string): { status?: ExecutionStatus, message?: string } => {
-    const reported = bodyOf(body)
-    if (reported === null || typeof reported !== 'object') {
-        return statusOf(reported)
-    }
-    const frame = reported as { status?: unknown, message?: unknown }
-    return {
-        ...statusOf(frame.status),
-        ...(typeof frame.message === 'string' && { message: frame.message }),
-    }
-}
-
-/** Whether a run that reports this status has ended, whatever the outcome. */
-export const isFinished = (status: ExecutionStatus | null): boolean => status !== null && TERMINAL.has(status)
 
 /**
  * Follows a run, or a test run, while it goes on.
