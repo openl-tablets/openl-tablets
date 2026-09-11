@@ -164,6 +164,7 @@ i18next.addResourceBundle('en', 'trace', {
         advanced: 'Advanced tracer',
         advancedHint: 'Trace in the advanced step debugger instead of the business view',
         startFailed: 'Failed to start trace',
+        windowBlocked: 'The trace window did not open. Allow pop-up windows for this site and try again.',
         loadFailed: 'Failed to load the table to trace',
     },
 })
