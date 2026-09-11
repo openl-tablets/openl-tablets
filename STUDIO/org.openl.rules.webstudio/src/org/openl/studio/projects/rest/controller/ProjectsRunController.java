@@ -143,9 +143,11 @@ public class ProjectsRunController {
     @GetMapping(value = "/result", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
     public ResponseEntity<?> getResult(
             @ProjectId @PathVariable("projectId") RulesProject project,
-            @RequestParam(value = "skipEmptyParameters", defaultValue = "false")
+            // Asked for neither, the workbook is the one the download this endpoint replaced produced:
+            // the values ResultExport writes without being told otherwise.
+            @RequestParam(value = "skipEmptyParameters", defaultValue = "true")
             @Parameter(description = "run.param.skip-empty-parameters.desc") boolean skipEmptyParameters,
-            @RequestParam(value = "flattenParameters", defaultValue = "true")
+            @RequestParam(value = "flattenParameters", defaultValue = "false")
             @Parameter(description = "run.param.flatten-parameters.desc") boolean flattenParameters,
             @RequestParam(value = "spreadsheet", defaultValue = "false")
             @Parameter(description = "run.param.spreadsheet.desc") boolean spreadsheet,
