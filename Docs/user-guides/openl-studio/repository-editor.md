@@ -127,7 +127,7 @@ This is the easiest way to create a rule project in the Design repository that m
 
 While creating a project from template, use the following template types:
 
--   **Simple Templates** — include the following:
+-   **Templates** — include the following:
     -   **Sample Project** is a very simple project consisting of one rule table and hence, one Excel file.
     -   **Empty Project** allows creating a project with an empty Excel file. Open the project and create
         tables as needed.
@@ -146,11 +146,14 @@ To create a new project from template, proceed as follows:
 
 1.  Click **From template**.
 
-    All project templates are organized into three areas: Simple Templates, Examples and Tutorials described above in this topic.
+    The templates are grouped into the categories described above in this topic, each category displaying the
+    number of templates it holds. A category of custom templates is marked **custom**, as described in
+    [Creating a Project Using a Custom Template](#creating-a-project-using-a-custom-template).
 
-1.  Navigate to the required template and click its name.
+1.  Click the required category and then click the template.
 
-    The name appears in the **Project Name** field. The following example demonstrates creating a project based on the example.
+    The template name appears in the **Project Name** field, and the link above the templates returns to the
+    categories. The following example demonstrates creating a project based on the example.
 
     ![Configuring a template project and its target branch](images/create-project-from-template-dialog.png "Creating a project from a template")
 
@@ -160,8 +163,9 @@ To create a new project from template, proceed as follows:
 
     If there is only one repository, it is selected by default. Otherwise, a list of repositories is displayed.
     If the selected repository keeps projects in folders, a Git or Azure Blob Storage repository for example,
-    the **Path** field with the `/` default value is displayed and can be modified as required. The path is
-    defined inside the repository and can start with or without `/`.
+    the **Path** field is displayed and can be modified as required. The field is empty by default, which
+    creates the project in the root of the repository, and the button at its right selects an existing folder.
+    The path is defined inside the repository and can start with or without `/`.
 
 1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create**.
