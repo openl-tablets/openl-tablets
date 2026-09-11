@@ -161,6 +161,36 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex: 1;
         padding-right: ${token.paddingSM}px;
     `,
+    // What the signs leading the rows mean, beside the control that picks the view: both are about how
+    // the table below is read rather than about a file, so both keep to the end of the line.
+    headTail: css`
+        display: flex;
+        align-items: center;
+        margin-left: auto;
+        gap: ${token.marginSM}px;
+    `,
+    legend: css`
+        display: flex;
+        gap: ${token.marginSM}px;
+        color: ${token.colorTextSecondary};
+        font-size: ${token.fontSizeSM}px;
+        white-space: nowrap;
+    `,
+    legendSign: css`
+        margin-right: ${token.marginXXS}px;
+        color: ${token.colorTextTertiary};
+    `,
+    // The sign a row of the combined view is read by, in a column of its own before the table.
+    combinedLead: css`
+        width: 1.5em;
+        color: ${token.colorTextTertiary};
+        text-align: center;
+    `,
+    // What the first file had, beside what the second one has in its place.
+    combinedBefore: css`
+        color: ${token.colorTextTertiary};
+        text-decoration: line-through;
+    `,
     // The cells that read differently in the other file, in the colour the rest of Studio marks a change with.
     changed: css`
         background: ${token.colorWarningBg};

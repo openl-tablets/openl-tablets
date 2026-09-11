@@ -10,6 +10,8 @@ export interface CellDecoration {
     painted?: boolean
     /** The cell is beside the point on this screen, so its colours are drawn in grey. */
     muted?: boolean
+    /** What the cell shows, when the screen has more to say about it than the workbook does. */
+    content?: React.ReactNode
 }
 
 interface RawTableGridProps {
@@ -95,7 +97,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, test
                                     rowSpan={cell.rowspan}
                                     style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
                                 >
-                                    {formatValue(cell.value)}
+                                    {decoration?.content ?? formatValue(cell.value)}
                                 </td>
                             )
                         })}

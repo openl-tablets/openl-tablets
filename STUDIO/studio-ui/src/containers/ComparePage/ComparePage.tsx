@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Button, Checkbox, Empty, Spin, Splitter, Upload } from 'antd'
+import { Alert, Button, Checkbox, Empty, Segmented, Spin, Splitter, Upload } from 'antd'
 import {
     ArrowLeftOutlined,
     InboxOutlined,
@@ -23,7 +23,7 @@ import {
 } from 'services/compare'
 import type { ConflictFileStatus } from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
-import { ComparisonPanes } from './ComparisonPanes'
+import { ComparisonPanes, type DiffView } from './ComparisonPanes'
 import { ConflictHead } from './ConflictHead'
 import { ConflictTextView } from './ConflictTextView'
 import { RevisionPicker, type ProjectComparisonSides } from './RevisionPicker'
@@ -131,6 +131,8 @@ export const ComparePage: React.FC = () => {
     const [starting, setStarting] = useState(false)
     const [showEqualElements, setShowEqualElements] = useState(false)
     const [showEqualRows, setShowEqualRows] = useState(false)
+    // Two versions read side by side, as the old page read them, or drawn as one table.
+    const [view, setView] = useState<DiffView>('sides')
     // The width the list of elements was last given, and whether it is shown at all. The list is
     // hidden and brought back by a button of its own rather than by the divider, so the control is
     // always in sight. A window that heads the list with both controls starts wider, so that neither
@@ -482,6 +484,7 @@ export const ComparePage: React.FC = () => {
                             loading={tableLoading}
                             showEqualRows={showEqualRows}
                             table={table}
+                            view={view}
                             leading={treeHidden && (
                                 <>
                                     <Button
@@ -498,6 +501,19 @@ export const ComparePage: React.FC = () => {
                             titles={conflict
                                 ? { first: t('their_version'), second: t('your_version') }
                                 : undefined}
+                            trailing={comparison && (
+                                <Segmented<DiffView>
+                                    aria-label={t('view_label')}
+                                    data-testid="compare-view"
+                                    onChange={setView}
+                                    size="small"
+                                    value={view}
+                                    options={[
+                                        { label: t('view_sides'), value: 'sides' },
+                                        { label: t('view_combined'), value: 'combined' },
+                                    ]}
+                                />
+                            )}
                         />
                     </Splitter.Panel>
                 </Splitter>
