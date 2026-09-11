@@ -9,6 +9,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Address",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B99:D105"
     },
     {
@@ -17,6 +18,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "addresses",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B88:G93"
     },
     {
@@ -27,6 +29,7 @@ Content-Type: application/json
       "returnType": "Integer",
       "signature": "AmPmTo24(Integer ampmHr, String ampm)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B2:D7"
     },
     {
@@ -37,6 +40,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "AssetsCompare()",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B24:C29"
     },
     {
@@ -45,6 +49,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "CountryCode",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "BankRating",
       "pos": "B2:B20"
     },
     {
@@ -53,6 +58,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "CoverageForm",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B111:D113"
     },
     {
@@ -63,6 +69,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B16:G23"
     },
     {
@@ -73,6 +80,7 @@ Content-Type: application/json
       "returnType": "Boolean",
       "signature": "Eligibility()",
       "file": "EPBDS-15409/rules/NewRules.xlsx",
+      "sheet": "Eligibility",
       "pos": "B2:C4"
     },
     {
@@ -83,6 +91,7 @@ Content-Type: application/json
       "returnType": "String",
       "signature": "Greeting1 (Integer hour)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B2:D10"
     },
     {
@@ -93,6 +102,7 @@ Content-Type: application/json
       "returnType": "String",
       "signature": "Greeting4(Integer hour)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B9:D14"
     },
     {
@@ -103,6 +113,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "IncomeForecast(Double bonusRate, Double sharePrice)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B31:F39"
     },
     {
@@ -111,6 +122,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "IncomeForecastTest",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B57:E62"
     },
     {
@@ -121,6 +133,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "BankRating",
       "pos": "B22:D25"
     },
     {
@@ -129,6 +142,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "IsAdequateMaxCreditRiskScoreTest",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "BankRating",
       "pos": "B27:D33"
     },
     {
@@ -137,6 +151,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Loss",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B19:D22"
     },
     {
@@ -145,6 +160,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "lossData",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B9:E17"
     },
     {
@@ -155,6 +171,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LossFreeDiscount(Double liabLosses)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B2:C7"
     },
     {
@@ -165,6 +182,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LossFreeDiscountCalc(Loss[] losses, Date currentDate)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B50:C55"
     },
     {
@@ -173,6 +191,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "LossFreeDiscountCalc",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "LossFreeDiscountCalc",
       "pos": "B2:E10"
     },
     {
@@ -181,6 +200,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "LossFreeDiscountCalcTest",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B64:D70"
     },
     {
@@ -189,6 +209,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "states",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B25:C86"
     },
     {
@@ -199,6 +220,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "TotalAssets()",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B41:E48"
     },
     {
@@ -207,6 +229,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "USState",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B95:D97"
     },
     {
@@ -215,6 +238,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "ZipCode",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B107:D109"
     }
   ],

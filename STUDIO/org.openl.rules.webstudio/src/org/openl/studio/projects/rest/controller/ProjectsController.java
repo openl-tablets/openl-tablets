@@ -92,6 +92,7 @@ import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
@@ -395,15 +396,17 @@ public class ProjectsController {
                             "Other"
                     })),
             @Parameter(name = "name", description = "projects.tables.list.param.name.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "module", description = "projects.tables.list.param.module.desc", in = ParameterIn.QUERY),
             @Parameter(name = "properties", description = "projects.tables.list.param.properties.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
     public PageResponse<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
                                                     @Parameter(hidden = true) @RequestParam Map<String, String> params,
                                                     @RequestParam(value = "kind", required = false) Set<String> kinds,
                                                     @RequestParam(value = "name", required = false) String name,
+                                                    @RequestParam(value = "module", required = false) String module,
                                                     @PaginationDefault Pageable page) {
 
-        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name);
+        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name).module(module);
         params.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))
@@ -469,6 +472,18 @@ public class ProjectsController {
         getWebStudio().reset();
     }
 
+    @PostMapping("/{projectId}/modules/{moduleName}/compile")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "projects.modules.compile.summary", description = "projects.modules.compile.desc")
+    public void compileModule(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("moduleName") @Parameter(description = "projects.modules.param.module-name.desc")
+            String moduleName,
+            @RequestParam(value = "reset", defaultValue = "false")
+            @Parameter(description = "projects.modules.compile.param.reset.desc") boolean reset) {
+        projectService.compileModule(project, moduleName, reset);
+    }
+
     @GetMapping("/{projectId}/modules/{moduleName}/sheets")
     @Operation(summary = "projects.modules.sheets.summary")
     public List<String> getModuleSheets(
@@ -497,11 +512,22 @@ public class ProjectsController {
                                       @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "projects.table.get.param.raw.desc") boolean raw,
                                       @RequestParam(value = "startRow", required = false) @Min(0) @Parameter(description = "projects.table.get.param.start-row.desc") Integer startRow,
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
-                                      @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles) {
+                                      @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
+                                      @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         if (raw) {
-            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles);
+            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles, module);
         }
-        return (EditableTableView) projectService.getTable(project, tableId);
+        return (EditableTableView) projectService.getTable(project, tableId, module);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/tests")
+    @Operation(summary = "projects.table.tests.summary", description = "projects.table.tests.desc")
+    public List<TableTestView> getTableTests(@ProjectId @PathVariable("projectId") RulesProject project,
+                                             @PathVariable("tableId") String tableId,
+                                             @RequestParam(value = "module", required = false)
+                                             @Parameter(description = "projects.table.get.param.module.desc")
+                                             String module) {
+        return projectService.getTableTests(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/properties")

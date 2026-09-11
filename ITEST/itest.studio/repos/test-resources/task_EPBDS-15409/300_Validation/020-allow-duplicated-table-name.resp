@@ -7,5 +7,6 @@ Content-Type: application/json
   "kind": "Data",
   "name": "LossFreeDiscountCalc",
   "file": "EPBDS-15409/Main.xlsx",
+  "sheet": "LossFreeDiscountCalc",
   "pos": "B2:E10"
 }

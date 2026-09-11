@@ -11,6 +11,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LossFreeDiscount343(Double liabLosses)",
       "file": "EPBDS-15439/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B2:C7"
     }
   ],

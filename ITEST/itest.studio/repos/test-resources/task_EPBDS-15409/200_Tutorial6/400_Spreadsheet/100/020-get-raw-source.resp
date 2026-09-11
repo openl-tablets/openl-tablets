@@ -109,5 +109,6 @@ Content-Type: application/json
         "value": "= round(($TotalAssets2012 - $TotalAssets2011) / $TotalAssets2011 * 100, 2)"
       }
     ]
-  ]
+  ],
+  "headerHeight": 1
 }

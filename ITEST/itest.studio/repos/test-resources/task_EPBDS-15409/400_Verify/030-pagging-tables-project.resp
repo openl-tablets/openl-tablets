@@ -11,6 +11,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "IncomeForecast(Double bonusRate, Double sharePrice)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B31:F39"
     },
     {
@@ -19,6 +20,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "IncomeForecastTest",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B57:E62"
     },
     {
@@ -29,6 +31,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "IsAdequateMaxCreditRiskScore(CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "BankRating",
       "pos": "B22:D25"
     },
     {
@@ -37,6 +40,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "IsAdequateMaxCreditRiskScoreTest",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "BankRating",
       "pos": "B27:D33"
     },
     {
@@ -45,6 +49,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Loss",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B19:D22"
     },
     {
@@ -53,6 +58,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "lossData",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B9:E17"
     },
     {
@@ -63,6 +69,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LossFreeDiscount(Double liabLosses)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B2:C7"
     },
     {
@@ -73,6 +80,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LossFreeDiscountCalc(Loss[] losses, Date currentDate)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B50:C55"
     },
     {
@@ -81,6 +89,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "LossFreeDiscountCalc",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "LossFreeDiscountCalc",
       "pos": "B2:E10"
     },
     {
@@ -89,6 +98,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "LossFreeDiscountCalcTest",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B64:D70"
     }
   ],

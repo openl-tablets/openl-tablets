@@ -148,5 +148,6 @@ Content-Type: application/json
         "value": "updated-col-9"
       }
     ]
-  ]
+  ],
+  "headerHeight": 4
 }

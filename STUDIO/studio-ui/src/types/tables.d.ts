@@ -22,6 +22,8 @@ export interface RawTableCell {
     cell?: string
     /** Typed cell value (number, string, boolean), or absent when empty */
     value?: string | number | boolean | null
+    /** The formula the cell was written with, as Excel writes it (`=B2*C2`); absent for a plain value */
+    formula?: string
     /** Number of columns this cell spans (>= 2), when merged */
     colspan?: number
     /** Number of rows this cell spans (>= 2), when merged */
@@ -105,6 +107,37 @@ export interface ProjectTable {
     returnType?: string
     /** The header text after the return type, as the compiler reads it: `Premium(Policy policy, Integer age)`. */
     signature?: string
+}
+
+/**
+ * A table of one module, as the editor's tree reads it.
+ *
+ * The tree is grouped in the browser, so the list carries everything a grouping can be built from rather than a
+ * shape the server chose.
+ */
+export interface ModuleTable extends ProjectTable {
+    /** The family the table belongs to: `Rules`, `Spreadsheet`, `Datatype`, `Test`, ... */
+    kind: string
+    /** Workbook the table is written in, relative to the workspace. */
+    file?: string
+    /** Excel sheet the table is written on — what the tree groups by when it opens. */
+    sheet?: string
+    /** Where the table sits in the workbook, in A1 notation: `B3:D8`. */
+    pos?: string
+    /** The properties the table declares, `category` among them. */
+    properties?: Record<string, unknown>
+}
+
+/** A table in raw tabular form: a 2D matrix of cells with merge geometry. */
+export interface RawTableView {
+    id: string
+    name: string
+    /** The table body as a 2D matrix indexed source[row][col] */
+    source: RawTableCell[][]
+    /** Full row count when the response was truncated by maxRows; absent when the whole table is returned */
+    totalRows?: number
+    /** How many rows at the top of the table its header takes, which a screen hiding the header leaves out */
+    headerHeight?: number
 }
 
 /** One field a Datatype table declares. */

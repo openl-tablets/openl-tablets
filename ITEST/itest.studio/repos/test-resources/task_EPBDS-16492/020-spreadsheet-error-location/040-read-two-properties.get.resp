@@ -53,6 +53,7 @@ Content-Type: application/json
       {"cell": "C7", "value": "Test"},
       {"cell": "D7"}
     ]
-  ]
+  ],
+  "headerHeight": 3
 }
 

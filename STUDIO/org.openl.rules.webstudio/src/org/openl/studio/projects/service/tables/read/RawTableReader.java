@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
@@ -27,6 +28,7 @@ import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.util.StringUtils;
 
 /**
  * Reads any table in raw format as a 2D matrix with explicit merge information.
@@ -136,10 +138,30 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
             source = source.subList(0, maxRows);
         }
         builder.source(source);
+        builder.headerHeight(headerHeightOf(openLTable));
         // Report the full height whenever the window omits rows (a non-zero offset or a top cap).
         if ((startRow != null && startRow > 0) || source.size() < fullHeight) {
             builder.totalRows(fullHeight);
         }
+    }
+
+    /**
+     * How many rows at the top of the table its header takes.
+     *
+     * <p>The engine keeps a business view of every table it knows — the same table without its header line, its
+     * properties section and, in a decision table, the service rows. What that view leaves out at the top is
+     * what a screen hiding the header leaves out, so the two agree without the screen knowing any table's shape.
+     *
+     * <p>A table with no business view of its own — one the engine could not bind, or one whose whole body is
+     * its header — has nothing to hide, and the answer is 0.
+     */
+    private static int headerHeightOf(IOpenLTable openLTable) {
+        var business = openLTable.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+        var whole = openLTable.getGridTable();
+        if (business == null || business == whole) {
+            return 0;
+        }
+        return Math.max(0, whole.getHeight() - business.getHeight());
     }
 
     /** Crop the table to the rows at and below {@code startRow}, or {@code null} when the offset is past the end. */
@@ -197,6 +219,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 // Extract cell value
                 var cell = tableModel.getGridTable().getCell(cm.getColumn(), cm.getRow());
                 var value = cellValueReader.apply(cell);
+                // A cell carries both what it computes and what it was written with, so a screen showing
+                // formulas chooses between them without asking for the table again.
+                var formula = cell.getFormula();
                 // Cell address in A1 notation, matching the address reported by compilation messages
                 var cellAddress = cell.getUri();
 
@@ -207,6 +232,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 var rawCell = RawTableCell.builder()
                         .cell(cellAddress)
                         .value(value)
+                        .formula(StringUtils.isBlank(formula) ? null : "=" + formula)
                         .colspan(colspan)
                         .rowspan(rowspan)
                         .style(withStyles ? styleOf(cm) : null)

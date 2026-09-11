@@ -9,5 +9,6 @@ Content-Type: application/json
   "returnType": "SpreadsheetResult",
   "signature": "doWithError()",
   "file": "*",
+  "sheet": "doWithError",
   "pos": "*"
 }

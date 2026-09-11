@@ -11,6 +11,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "calc1 (Type1 originalValue)",
       "file": "EPBDS-16344/BugReproducing.xlsx",
+      "sheet": "Alg",
       "pos": "C25:D28"
     },
     {
@@ -19,6 +20,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "calc1Test",
       "file": "EPBDS-16344/BugReproducing.xlsx",
+      "sheet": "calc1",
       "pos": "B2:D5"
     },
     {
@@ -29,6 +31,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "calc2 (Type1 someInputValue, Type1[] originalValues)",
       "file": "EPBDS-16344/BugReproducing.xlsx",
+      "sheet": "Alg",
       "pos": "C14:D18"
     },
     {
@@ -39,6 +42,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "calc3 (Type3 originalValue, Type3 overriddenValuess)",
       "file": "EPBDS-16344/BugReproducing.xlsx",
+      "sheet": "Alg",
       "pos": "C3:D6"
     },
     {
@@ -47,6 +51,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Type1",
       "file": "EPBDS-16344/BugReproducing.xlsx",
+      "sheet": "Alg",
       "pos": "C52:D53"
     },
     {
@@ -55,6 +60,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Type3",
       "file": "EPBDS-16344/BugReproducing.xlsx",
+      "sheet": "Alg",
       "pos": "C35:D37"
     }
   ],

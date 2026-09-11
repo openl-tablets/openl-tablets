@@ -14,6 +14,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "BalanceDynamicIndexCalculation (FinancialData currentFinancialData, FinancialData previousFinancialData)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Rating Algorithm",
       "pos": "D54:G68"
     },
     {
@@ -27,6 +28,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "BalanceQualityIndexCalculation (FinancialData currentFinancialData)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Rating Algorithm",
       "pos": "D26:G49"
     },
     {
@@ -35,6 +37,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Bank",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Domain",
       "pos": "C5:E12"
     },
     {
@@ -43,6 +46,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "bankData",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Test Data",
       "pos": "B5:H9"
     },
     {
@@ -51,6 +55,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "bankFinancialData",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Test Data",
       "pos": "B12:S16"
     },
     {
@@ -61,6 +66,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "BankLimitIndex (Bank bank, RatingGroup bankRatingGroup)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Limit",
       "pos": "C8:M24"
     },
     {
@@ -69,6 +75,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "BankLimitIndexTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Limit Test",
       "pos": "C5:E9"
     },
     {
@@ -82,6 +89,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "BankQualitativeIndexCalculation (Bank bank)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Rating Algorithm",
       "pos": "D73:G83"
     },
     {
@@ -98,6 +106,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "BankRatingCalculation (Bank bank)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Rating Algorithm",
       "pos": "D9:G22"
     },
     {
@@ -108,6 +117,7 @@ Content-Type: application/json
       "returnType": "RatingGroup",
       "signature": "BankRatingGroup (Double bankRating)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Rating Groups",
       "pos": "C8:D14"
     },
     {
@@ -116,6 +126,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "BankRatingGroupTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Rating Groups Test",
       "pos": "C6:D13"
     },
     {
@@ -124,6 +135,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "bankRatingList",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Test Data",
       "pos": "B25:D90"
     },
     {
@@ -132,6 +144,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "BankRatingTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Algorithm Tests",
       "pos": "C6:E10"
     },
     {
@@ -142,6 +155,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "CapitalAdequacyScore (Double capitalAdequacy)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality",
       "pos": "C8:D15"
     },
     {
@@ -150,6 +164,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "CapitalAdequacyScoreTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality Tests",
       "pos": "C6:D12"
     },
     {
@@ -160,6 +175,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "CapitalDynamicScore (Double capitalDynamic)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality in Dynamic",
       "pos": "C8:D13"
     },
     {
@@ -170,6 +186,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "ClaimsOnCustomerRatioScore (Double claimsOnCustomerRatio)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality",
       "pos": "C19:D25"
     },
     {
@@ -178,6 +195,7 @@ Content-Type: application/json
       "kind": "Constants",
       "name": "Constants",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Max Limit",
       "pos": "C7:E8"
     },
     {
@@ -186,6 +204,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "CountryCode",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Vocabulary",
       "pos": "D59:D77"
     },
     {
@@ -196,6 +215,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "CreditPortfolioQualityScore (Double creditPortfolioQuality)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality",
       "pos": "C29:D36"
     },
     {
@@ -206,6 +226,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "DowngradesOfBankRatingScore (Boolean downgradesOfBankRating)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Bank Qualitative factors",
       "pos": "C36:D39"
     },
     {
@@ -214,6 +235,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "DynamicIndexTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Algorithm Tests",
       "pos": "C22:E26"
     },
     {
@@ -224,6 +246,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "EquityScore (CountryCode countryCode, Double equity)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Central Bank Req",
       "pos": "C29:F32"
     },
     {
@@ -232,6 +255,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "EquityScoreTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Central Bank Req Tests",
       "pos": "C16:E22"
     },
     {
@@ -240,6 +264,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "FinancialData",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Domain",
       "pos": "C15:E32"
     },
     {
@@ -250,6 +275,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "HighLiquidityRatioScore (Double highLiquidityRatio)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality",
       "pos": "C75:D82"
     },
     {
@@ -260,6 +286,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "IsAdequateCoreCapitalRatioScore (Boolean isAdequateCoreCapitalRatio)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Central Bank Req",
       "pos": "C8:D11"
     },
     {
@@ -270,6 +297,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "IsAdequateLiquidityRatioScore (Boolean isAdequateLiquidityRatio)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Central Bank Req",
       "pos": "C15:D18"
     },
     {
@@ -280,6 +308,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "IsAdequateMaxCreditRiskScore (CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Central Bank Req",
       "pos": "C22:E25"
     },
     {
@@ -288,6 +317,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "IsAdequateMaxCreditRiskScoreTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Central Bank Req Tests",
       "pos": "C6:E12"
     },
     {
@@ -301,6 +331,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "IsAdequateNormativeIndexCalculation (Bank bank)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Rating Algorithm",
       "pos": "D88:G96"
     },
     {
@@ -309,6 +340,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "IsAdequateNormativeIndexTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Algorithm Tests",
       "pos": "C38:D42"
     },
     {
@@ -319,6 +351,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LiabilitiesToCustomersDynamicScore (Double LiabToCustDynamic)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality in Dynamic",
       "pos": "C37:D42"
     },
     {
@@ -329,6 +362,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LiabilitiesToCustomersOnDemandRatioScore (Double liabilitiesToCustOnDemand)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality",
       "pos": "C97:D105"
     },
     {
@@ -339,6 +373,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LiquidityDynamicScore (Double liquidityDynamic)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality in Dynamic",
       "pos": "C17:D22"
     },
     {
@@ -349,6 +384,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LiquidityRatioScore (Double liquidityRatio)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality",
       "pos": "C63:D71"
     },
     {
@@ -357,6 +393,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "LongTermRating",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Vocabulary",
       "pos": "D12:D56"
     },
     {
@@ -367,6 +404,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "LossesInThisYearScore (Boolean lossesInThisYear)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Bank Qualitative factors",
       "pos": "C8:D11"
     },
     {
@@ -375,6 +413,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "LossesInThisYearScoreTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Qualitat Factors Tests",
       "pos": "C6:D10"
     },
     {
@@ -385,6 +424,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "NegativeHistoryRelationsScore (Boolean negativeHistoryRelations)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Bank Qualitative factors",
       "pos": "C15:D18"
     },
     {
@@ -395,6 +435,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "NegativeInfoShareHoldersOrManagementScore (Boolean negativeManagInfo)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Bank Qualitative factors",
       "pos": "C29:D32"
     },
     {
@@ -405,6 +446,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "NegativeMassMediaScore (Boolean negativeMassMedia)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Bank Qualitative factors",
       "pos": "C22:D25"
     },
     {
@@ -415,6 +457,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "NetMoneyMarketLiabilitiesScore (Double  netMoneyMarketLiabilities)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality",
       "pos": "C86:D93"
     },
     {
@@ -425,6 +468,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "NonZeroValues (Double value)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Set NonZero Values",
       "pos": "C17:D20"
     },
     {
@@ -435,6 +479,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "OtherAssetsRatioScore (Double otherAssetsRatio)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality",
       "pos": "C109:D116"
     },
     {
@@ -445,6 +490,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "ProfitDynamicScore (Double profitDynamic, Double profit)",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance Quality in Dynamic",
       "pos": "C26:E33"
     },
     {
@@ -453,6 +499,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "ProfitDynamicScoreTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Balance in Dynamic Tests",
       "pos": "C6:E12"
     },
     {
@@ -461,6 +508,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "QualitativeIndexTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Algorithm Tests",
       "pos": "C30:D34"
     },
     {
@@ -469,6 +517,7 @@ Content-Type: application/json
       "kind": "Test",
       "name": "QualityIndexTest",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Algorithm Tests",
       "pos": "C14:D18"
     },
     {
@@ -477,6 +526,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "QualityIndicators",
       "file": "EPBDS-15551/Bank Rating.xlsx",
+      "sheet": "Domain",
       "pos": "C35:E44"
     }
   ],

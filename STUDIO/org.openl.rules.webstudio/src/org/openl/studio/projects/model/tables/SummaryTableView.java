@@ -20,6 +20,9 @@ public class SummaryTableView extends TableView {
     @Schema(description = "File where the table is located")
     public final String file;
 
+    @Schema(description = "Excel sheet the table is written on")
+    public final String sheet;
+
     @Schema(description = "Position of the table within the file")
     public final String pos;
 
@@ -28,6 +31,7 @@ public class SummaryTableView extends TableView {
         this.returnType = builder.returnType;
         this.signature = builder.signature;
         this.file = builder.file;
+        this.sheet = builder.sheet;
         this.pos = builder.pos;
     }
 
@@ -49,6 +53,7 @@ public class SummaryTableView extends TableView {
         private String returnType;
         private String signature;
         private String file;
+        private String sheet;
         private String pos;
 
         private Builder() {
@@ -71,6 +76,11 @@ public class SummaryTableView extends TableView {
 
         public Builder file(String file) {
             this.file = file;
+            return this;
+        }
+
+        public Builder sheet(String sheet) {
+            this.sheet = sheet;
             return this;
         }
 

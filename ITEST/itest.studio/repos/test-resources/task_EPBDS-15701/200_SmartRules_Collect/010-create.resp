@@ -9,5 +9,6 @@ Content-Type: application/json
   "returnType": "String[]",
   "signature": "collectGreeting(Integer hour)",
   "file": "EPBDS-15701/Main.xlsx",
+  "sheet": "collectGreeting",
   "pos": "*"
 }
