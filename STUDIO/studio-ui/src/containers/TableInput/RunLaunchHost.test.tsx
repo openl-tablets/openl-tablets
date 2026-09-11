@@ -175,9 +175,11 @@ describe('RunLaunchHost', () => {
         render(<RunLaunchHost />)
 
         await open()
-        await userEvent.click(await screen.findByTestId('run-skipEmptyParameters'))
+        await userEvent.click(await screen.findByTestId('run-flattenParameters'))
         await userEvent.click(screen.getByTestId('run-into-file'))
 
+        // The panel starts out asking for the sheet the endpoint writes when nothing is asked for; ticking
+        // an option asks for the other one.
         await waitFor(() => expect(workbook).toHaveBeenCalledWith('real-p1', {
             skipEmptyParameters: true,
             flattenParameters: true,
