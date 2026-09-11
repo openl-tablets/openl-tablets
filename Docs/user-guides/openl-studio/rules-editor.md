@@ -779,7 +779,7 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 
     *Excel file comparison results*
 
-    Elements that changed their location or their contents are marked with the change icon ![Changed](images/excel-compare-changed-icon.png). Elements that the second file adds are marked with the plus icon ![Added](images/excel-compare-added-icon.png), and elements that it no longer holds with the minus icon ![Removed](images/excel-compare-removed-icon.png).
+    Every element is marked with what became of it. An element that changed its location or its contents carries the changed file icon ![Changed](images/excel-compare-changed-icon.png), one that the second file adds carries the added file icon ![Added](images/excel-compare-added-icon.png), one that it no longer holds carries the removed file icon ![Removed](images/excel-compare-removed-icon.png), and one that reads the same in both files carries a plain file icon.
 
     The list of elements, the first file and the second one are separated by dividers. Drag a divider to give
     either side more room. The button above the list hides it and leaves the tables alone; while the list is

@@ -1,6 +1,12 @@
 import React, { useState } from 'react'
 import { Empty, Tree } from 'antd'
-import { EditOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import {
+    FileAddOutlined,
+    FileExcelOutlined,
+    FileExclamationOutlined,
+    FileTextOutlined,
+    TagOutlined,
+} from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { Comparison, ComparisonNode, ComparisonPropertyChange } from 'types/compare'
 import { useStyles } from './ComparePage.styles'
@@ -23,17 +29,23 @@ export const ComparisonTree: React.FC<ComparisonTreeProps> = ({ comparison, show
     /** The nodes the reader closed; every other one is open. */
     const [closed, setClosed] = useState<string[]>([])
 
-    /** The icon an element carries, saying how the second file holds it. */
+    /**
+     * The icon an element carries, saying how the second file holds it.
+     *
+     * Every element is a file of the workbook, drawn as one and marked with what became of it, as the
+     * old window drew them: a file gained, a file lost, a file that reads differently, a file that
+     * reads the same.
+     */
     const statusIcon = (node: ComparisonNode) => {
         switch (node.status) {
             case 'added':
-                return <PlusCircleOutlined className={styles.added} title={t('status_added')} />
+                return <FileAddOutlined className={styles.added} title={t('status_added')} />
             case 'removed':
-                return <MinusCircleOutlined className={styles.removed} title={t('status_removed')} />
+                return <FileExcelOutlined className={styles.removed} title={t('status_removed')} />
             case 'changed':
-                return <EditOutlined className={styles.changedIcon} title={t('status_changed')} />
+                return <FileExclamationOutlined className={styles.changedIcon} title={t('status_changed')} />
             default:
-                return null
+                return <FileTextOutlined className={styles.equalIcon} title={t('status_equal')} />
         }
     }
 
@@ -46,11 +58,17 @@ export const ComparisonTree: React.FC<ComparisonTreeProps> = ({ comparison, show
     /** What a property of the table says in each file, as it reads under the table. */
     const change = (element: ComparisonNode, property: ComparisonPropertyChange, index: number) => ({
         key: `${element.id}:${index}`,
-        title: t('change', {
-            property: property.property,
-            first: property.first ?? t('change_absent'),
-            second: property.second ?? t('change_absent'),
-        }),
+        title: (
+            <span>
+                <TagOutlined className={styles.changedIcon} title={t('status_changed')} />
+                {' '}
+                {t('change', {
+                    property: property.property,
+                    first: property.first ?? t('change_absent'),
+                    second: property.second ?? t('change_absent'),
+                })}
+            </span>
+        ),
         selectable: false,
         isLeaf: true,
     })
