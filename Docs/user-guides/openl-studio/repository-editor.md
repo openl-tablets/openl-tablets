@@ -19,6 +19,7 @@ The following topics are included in this chapter:
 -   [Deploying a Project](#deploying-a-project)
 -   [Comparing Project Revisions](#comparing-project-revisions)
 -   [Exporting a Project or a File](#exporting-a-project-or-a-file)
+-   [Managing Project Access](#managing-project-access)
 -   [Unlocking a Project](#unlocking-a-project)
 -   [Browsing the Deployment Repository](#browsing-the-deployment-repository)
 -   [User Data for Git Commits](#user-data-for-git-commits)
@@ -471,8 +472,6 @@ To save a project, proceed as follows:
 
 An editable project can be saved and closed directly from Rules Editor as described in [Editing and Saving a Project](rules-editor.md#editing-and-saving-a-project).
 
-### Viewing Project Properties
-
 ### Synchronizing a Project
 
 **Sync** moves the changes of a project between the branches of its Design repository: **Receive their updates**
@@ -481,6 +480,8 @@ changes of the project to another branch. The action is available for a reposito
 
 For a description of the dialog and of the conflicts that a merge can raise, see [Working with
 Branches](project-branches.md#working-with-branches).
+
+### Viewing Project Properties
 
 Each rule project has a set of properties displayed in the **Overview** tab when a project is selected. The
 project name is displayed above the tabs, and the tab lists the following properties:
@@ -519,7 +520,6 @@ If a tag is used for grouping in a project tree, its value in a tree gets update
 Note that in case of the Git repository, in the **Modified** field, the user’s display name is used, and the
 username only when the display name is not defined.
 
-### Modifying Project Contents
 ### Migrating a Project to the Current Layout
 
 A project created by an earlier version of OpenL Studio can keep its rules in the project root or carry settings
@@ -538,6 +538,7 @@ action states what it is about to do before it runs:
 > A migrated file is written anew, so the comments and the layout it had are not kept. Migration changes the
 > opened project, so save the project to store the change in Design repository.
 
+### Modifying Project Contents
 
 This section describes modifying the physical structure of the project and includes the following topics:
 
@@ -877,6 +878,47 @@ To export a file or a folder of a project, proceed as follows:
     archive. To obtain a file as an earlier revision holds it, export the project on that revision instead.
 
 **Note:** If the project is in the Local status, these options are not available.
+
+### Managing Project Access
+
+Access to a single project is granted in the **Management** tab, without an administrator changing the access
+rights of a whole repository. The tab is displayed for a project stored in a Design repository when user
+management is enabled and the current user is allowed to manage the project, so a user who cannot grant access
+does not see it.
+
+The tab lists every user and group that has access to the project:
+
+-   **Subject** — the username or the group name.
+-   **Type** — whether the subject is a **User** or a **Group**.
+-   **Role** — the role the subject has on the project, one of **Viewer**, **Contributor**, and **Manager**. For
+    more information on what each role allows, see
+    [Understanding Roles](administration/04-user-information/01-groups.md#understanding-roles).
+-   **Source** — **Project** for a role granted here, and **Repository** for a role the subject has on the whole
+    repository the project belongs to.
+
+![Per-project access in the Management tab](images/project-management-access.png "The Management tab of a project")
+
+*Managing project access*
+
+A role with the **Repository** source is displayed for information only. It is managed in the repository access
+rights, as described in [Managing Groups](administration/04-user-information/01-groups.md#managing-groups), so it
+cannot be changed or revoked in this tab.
+
+To grant access to a project, proceed as follows:
+
+1.  In the **Projects** tree, select the project and click the **Management** tab.
+1.  Click **Add access**.
+1.  In the **Username** field, enter the user the access is granted to.
+
+    The matching users are suggested as the name is typed. When group management is configured, the **Subject
+    Type** switch offers **User** and **Group**, and the field becomes **Group Name** for a group.
+
+1.  In the **Role** field, select the role to assign.
+1.  Click **Grant access**.
+
+To change a role already granted on the project, select another value in the **Role** field of the corresponding
+row. To revoke it, click **Remove** at the right of the row and confirm the revocation. Users cannot revoke their
+own access, so the action is not displayed in their own row.
 
 ### Unlocking a Project
 
