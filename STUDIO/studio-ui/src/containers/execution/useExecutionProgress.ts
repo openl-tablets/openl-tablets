@@ -79,7 +79,9 @@ export const useExecutionProgress = (statusTopic: string | null, resultsTopic?: 
         setProgress(current => ({
             ...current,
             status: reported.status ?? current.status,
-            error: reported.message ?? null,
+            // The reason is kept the way the status is: a message carrying none says nothing about why an
+            // execution failed, and the next execution clears it by starting.
+            error: reported.message ?? current.error,
         }))
     }, [])
 

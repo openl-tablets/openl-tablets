@@ -62,6 +62,19 @@ describe('useExecutionProgress', () => {
         expect(result.current.error).toBeNull()
     })
 
+    it('keeps the reason a run failed for whatever is reported after it', () => {
+        const { result } = renderHook(() => useExecutionProgress('/topic/run/status'))
+
+        report(JSON.stringify({ status: 'ERROR', message: 'Division by zero' }))
+        // A frame carrying no reason — a bare status, or one this screen does not know — says nothing about
+        // why the run failed, so the window keeps showing it.
+        report('"ERROR"')
+        report(JSON.stringify({ status: 'ERROR' }))
+        report('null')
+
+        expect(result.current.error).toBe('Division by zero')
+    })
+
     it('forgets what the last run reported when it is asked to', () => {
         const { result } = renderHook(() => useExecutionProgress('/topic/run/status'))
 
