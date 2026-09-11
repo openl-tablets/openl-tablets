@@ -38,8 +38,10 @@ export interface TreeContext {
     setEditing: (path: string | null) => void
     /** Expands a node that was just created, so its fields show at once. */
     expand: (path: string) => void
-    /** Keeps the open elements of a list, or of a map, right after the one at the given position is removed. */
+    /** Keeps the open elements of a list right after the one at the given position is removed. */
     afterRemove: (path: string, index: number) => void
+    /** Follows the open nodes of a map entry when it is renamed, or forgets them when it is removed. */
+    entryMoved: (from: string, to: string | null) => void
 }
 
 interface NodeSpec {
@@ -271,20 +273,30 @@ export const buildNode = (spec: NodeSpec): TreeDataNode => {
         const record = asRecord(value)
         const entries = Object.entries(record)
         const valueSchema = mapValueSchema(resolved)
-        children = entries.map(([key, item], index) => buildNode({
-            name: key,
-            schema: valueSchema,
-            value: item,
-            path: `${path}[${index}]`,
-            onChange: next => onChange({ ...record, [key]: next ?? null }),
-            onRemove: () => {
-                onChange(withField(record, key, undefined))
-                context.afterRemove(path, index)
-            },
-            onRename: renamed => onChange(Object.fromEntries(entries.map(([k, v]) => [k === key ? renamed : k, v]))),
-            takenKeys: entries.map(([k]) => k).filter(k => k !== key),
-            context,
-        }))
+        // An entry is addressed by its key. Renaming one rebuilds the map, and a map lists a key that reads
+        // as a whole number before the others: addressed by position, the rows would move under the user.
+        children = entries.map(([key, item]) => {
+            // The key is the user's own text and may hold the characters a path is written with. Encoded, a
+            // key cannot be read as the path of another row.
+            const entryPath = `${path}[${encodeURIComponent(key)}]`
+            return buildNode({
+                name: key,
+                schema: valueSchema,
+                value: item,
+                path: entryPath,
+                onChange: next => onChange({ ...record, [key]: next ?? null }),
+                onRemove: () => {
+                    onChange(withField(record, key, undefined))
+                    context.entryMoved(entryPath, null)
+                },
+                onRename: renamed => {
+                    onChange(Object.fromEntries(entries.map(([k, v]) => [k === key ? renamed : k, v])))
+                    context.entryMoved(entryPath, `${path}[${encodeURIComponent(renamed)}]`)
+                },
+                takenKeys: entries.map(([k]) => k).filter(k => k !== key),
+                context,
+            })
+        })
     }
     return { key: path, title, isLeaf: children.length === 0, children }
 }

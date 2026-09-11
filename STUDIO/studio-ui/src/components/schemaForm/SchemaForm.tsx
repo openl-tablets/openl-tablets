@@ -70,9 +70,20 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({ parameters, value, onCha
         return at === index ? [] : [key.replace(`${prefix}${at}]`, `${prefix}${at - 1}]`)]
     })), [])
 
+    // A map entry is addressed by its key, so renaming one carries what is open under it to the new key, and
+    // removing one forgets it. Nothing else moves: the other entries keep the keys they had.
+    const entryMoved = useCallback((from: string, to: string | null) => setExpanded(keys => keys.flatMap(key => {
+        const under = typeof key === 'string'
+            && (key === from || key.startsWith(`${from}.`) || key.startsWith(`${from}[`))
+        if (!under) {
+            return [key]
+        }
+        return to === null ? [] : [`${to}${(key as string).slice(from.length)}`]
+    })), [])
+
     const treeData = useMemo((): TreeDataNode[] => parameters.map(parameter => {
         const root = rootSchema(parameter)
-        const context: TreeContext = { root, editing, setEditing, expand, afterRemove }
+        const context: TreeContext = { root, editing, setEditing, expand, afterRemove, entryMoved }
         return buildNode({
             name: parameter.name,
             label: parameter.label,
@@ -86,7 +97,7 @@ export const SchemaForm: React.FC<SchemaFormProps> = ({ parameters, value, onCha
             },
             context,
         })
-    }), [parameters, value, onChange, editing, expand, afterRemove])
+    }), [parameters, value, onChange, editing, expand, afterRemove, entryMoved])
 
     return (
         // The expand animation is off. While it runs, a structure created by a click would not show its fields.

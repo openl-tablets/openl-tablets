@@ -26,6 +26,13 @@ const policy: SchemaFormParameter = {
     },
 }
 
+/** A map of structures: an entry holds fields of its own, under the entry's key. */
+const quotes: SchemaFormParameter = {
+    name: 'quotes',
+    type: 'Quotes',
+    schema: { type: 'object', additionalProperties: { type: 'object', properties: { b: { type: 'string' } } } },
+}
+
 const Harness: React.FC<{ parameters: SchemaFormParameter[], initial?: Record<string, unknown>, onChange: (value: unknown) => void }> = ({
     parameters, initial, onChange,
 }) => {
@@ -155,17 +162,54 @@ describe('SchemaForm', () => {
         await userEvent.click(screen.getByTestId('create-policy.limits'))
         await userEvent.click(screen.getByTestId('add-policy.limits'))
         expect(onChange).toHaveBeenLastCalledWith({ policy: { limits: { '': null } } })
-        await userEvent.type(screen.getByTestId('key-policy.limits[0]'), 'max')
-        await userEvent.click(screen.getByTestId('edit-policy.limits[0]'))
-        await userEvent.type(screen.getByTestId('input-policy.limits[0]'), '5{enter}')
+        // An entry is addressed by the key it carries, so naming it moves what is open under it with it.
+        await userEvent.type(screen.getByTestId('key-policy.limits[]'), 'max{enter}')
+        await userEvent.click(screen.getByTestId('edit-policy.limits[max]'))
+        await userEvent.type(screen.getByTestId('input-policy.limits[max]'), '5{enter}')
         expect(onChange).toHaveBeenLastCalledWith({ policy: { limits: { max: 5 } } })
 
         // A second entry comes under a name of its own, and a name another entry carries is refused.
         await userEvent.click(screen.getByTestId('add-policy.limits'))
         expect(onChange).toHaveBeenLastCalledWith({ policy: { limits: { max: 5, '': null } } })
-        await userEvent.type(screen.getByTestId('key-policy.limits[1]'), 'max')
-        await userEvent.click(screen.getByTestId('edit-policy.limits[1]'))
+        await userEvent.type(screen.getByTestId('key-policy.limits[]'), 'max')
+        await userEvent.click(screen.getByTestId('edit-policy.limits[]'))
         expect(onChange).toHaveBeenLastCalledWith({ policy: { limits: { max: 5, '': null } } })
+    })
+
+    it('keeps an entry with its key when naming one reorders the map', async () => {
+        const onChange = vi.fn()
+        render(<Harness onChange={onChange} parameters={[policy]} />)
+
+        await open('policy')
+        await userEvent.click(screen.getByTestId('create-policy.limits'))
+        await userEvent.click(screen.getByTestId('add-policy.limits'))
+        await userEvent.type(screen.getByTestId('key-policy.limits[]'), '10{enter}')
+        await userEvent.click(screen.getByTestId('edit-policy.limits[10]'))
+        await userEvent.type(screen.getByTestId('input-policy.limits[10]'), '1{enter}')
+
+        // A map lists a key that reads as a whole number first, so naming this one rebuilds the map with the
+        // rows in another order. Each entry still answers under its own key, with its own value.
+        await userEvent.click(screen.getByTestId('add-policy.limits'))
+        await userEvent.type(screen.getByTestId('key-policy.limits[]'), '2{enter}')
+        await userEvent.click(screen.getByTestId('edit-policy.limits[2]'))
+        await userEvent.type(screen.getByTestId('input-policy.limits[2]'), '2{enter}')
+
+        expect(onChange).toHaveBeenLastCalledWith({ policy: { limits: { 2: 2, 10: 1 } } })
+        expect(screen.getByTestId('value-policy.limits[10]')).toHaveTextContent('1')
+        expect(screen.getByTestId('value-policy.limits[2]')).toHaveTextContent('2')
+    })
+
+    it('keeps the rows apart when a key is written with the characters a path is made of', async () => {
+        const onChange = vi.fn()
+        const limits = { 'a].b': { b: 'of the entry named a].b' }, a: { b: 'of the entry named a' } }
+        render(<Harness initial={{ quotes: limits }} onChange={onChange} parameters={[quotes]} />)
+
+        await open('quotes')
+        await open('quotes[a]')
+
+        // Read as a path, the key `a].b` names the field `b` of the entry `a`. The two rows are still two.
+        expect(screen.getByTestId('value-quotes[a].b')).toHaveTextContent('of the entry named a')
+        expect(screen.getByTestId('value-quotes[a%5D.b]')).toBeInTheDocument()
     })
 
     it('edits a value without a schema as JSON text and reports text that does not parse', async () => {
