@@ -101,6 +101,7 @@ import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
+import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -1479,6 +1480,61 @@ class WorkspaceProjectServiceTest {
         verify(webStudio, never()).init(any(), any(), any(), any());
     }
 
+    @Test
+    void compiling_a_module_hands_the_work_over_instead_of_doing_it_on_the_spot() throws Exception {
+        var launcher = mock(ModuleCompilationLauncher.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(serviceCompilingWith(webStudio, launcher));
+        var registry = mock(CompilationJobRegistry.class);
+        var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
+        doReturn(registry).when(service).getCompilationJobRegistry();
+
+        service.compileModule(project, "Claims");
+
+        // Compiling a module takes minutes, so the request is answered as soon as the work is handed over.
+        verify(webStudio, never()).init(any(), any(), any(), any());
+        var work = forClass(Runnable.class);
+        verify(launcher).launch(eq("Claims"), work.capture());
+
+        // The collaborators the work opens the module against were resolved here, where the session is in reach.
+        work.getValue().run();
+        verify(webStudio).init("design", "main", "Pricing", "Claims");
+        verify(registry).acquire(any(), any());
+    }
+
+    @Test
+    void compiling_an_unknown_module_is_not_found() throws Exception {
+        var launcher = mock(ModuleCompilationLauncher.class);
+        var webStudio = mock(WebStudio.class);
+        var service = serviceCompilingWith(webStudio, launcher);
+        var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
+
+        var error = assertThrows(NotFoundException.class, () -> service.compileModule(project, "Absent"));
+
+        assertEquals("openl.error.404.project.module.identifier.message", error.getErrorCode());
+        verify(launcher, never()).launch(any(), any());
+    }
+
+    /** A service that hands the module compiles it is asked for to the given launcher. */
+    private static WorkspaceProjectService serviceCompilingWith(WebStudio webStudio,
+                                                                ModuleCompilationLauncher launcher)
+            throws ProjectException {
+        return newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class),
+                mock(ApplicationEventPublisher.class),
+                mock(MultiUserWorkspaceManager.class),
+                mock(TableCopyService.class),
+                mock(TablePropertiesService.class),
+                launcher);
+    }
+
     /**
      * An opened project the session answers for, declaring the named modules. The model it opens into is the one
      * given, so a test can say what its search finds.
@@ -1679,6 +1735,25 @@ class WorkspaceProjectServiceTest {
                                                       TableCopyService tableCopyService,
                                                       TablePropertiesService tablePropertiesService)
             throws ProjectException {
+        return newService(acl, bypassService, userWorkspace, projectStateValidator, webStudio, aclProjectsHelper,
+                tableCreatorService, summaryTableReader, eventPublisher, workspaceManager, tableCopyService,
+                tablePropertiesService, mock(ModuleCompilationLauncher.class));
+    }
+
+    private static WorkspaceProjectService newService(RepositoryAclService acl,
+                                                      ProtectedBranchBypassService bypassService,
+                                                      UserWorkspace userWorkspace,
+                                                      ProjectStateValidator projectStateValidator,
+                                                      WebStudio webStudio,
+                                                      AclProjectsHelper aclProjectsHelper,
+                                                      TableCreatorService tableCreatorService,
+                                                      SummaryTableReader summaryTableReader,
+                                                      ApplicationEventPublisher eventPublisher,
+                                                      MultiUserWorkspaceManager workspaceManager,
+                                                      TableCopyService tableCopyService,
+                                                      TablePropertiesService tablePropertiesService,
+                                                      ModuleCompilationLauncher moduleCompilationLauncher)
+            throws ProjectException {
         var dependencyResolver = mock(ProjectDependencyResolver.class);
         when(dependencyResolver.getProjectDependencies(any(RulesProject.class))).thenReturn(List.of());
         doReturn(List.of()).when(dependencyResolver).getDependsOnProject(any(RulesProject.class));
@@ -1711,6 +1786,7 @@ class WorkspaceProjectServiceTest {
                 environment(),
                 new ProjectTagsCache(mock(CacheManager.class)),
                 new ProjectListingContext(),
+                moduleCompilationLauncher,
                 () -> userWorkspace) {
 
             @Override

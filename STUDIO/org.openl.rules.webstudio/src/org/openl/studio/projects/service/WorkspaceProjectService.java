@@ -115,6 +115,7 @@ import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
+import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -158,6 +159,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
             Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
+    private final ModuleCompilationLauncher moduleCompilationLauncher;
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
     private final SummaryTableReader summaryTableReader;
@@ -212,8 +214,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             Environment environment,
             ProjectTagsCache projectTagsCache,
             ProjectListingContext listingContext,
+            ModuleCompilationLauncher moduleCompilationLauncher,
             ObjectFactory<UserWorkspace> userWorkspaceFactory) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
+        this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;
@@ -1741,14 +1745,50 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return projectDescriptor;
     }
 
+    /**
+     * Starts a module's compilation and answers at once.
+     *
+     * <p>Opening the module is what compiles it, and on a large project that takes minutes. The work is handed to a
+     * background thread so the caller is not held for it; how far the compilation has come is reported on the
+     * project's status channel, which names every module as it finishes.
+     *
+     * @param project    project owning the module
+     * @param moduleName module to compile
+     */
+    public void compileModule(RulesProject project, String moduleName) {
+        var projectDescriptor = getProjectDescriptor(project);
+        var module = projectDescriptor.getModules()
+                .stream()
+                .filter(declared -> moduleName.equals(declared.getName()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+        // Session-scoped collaborators are out of reach of a background thread, so the request thread looks them
+        // up and the work carries them along.
+        var webStudio = getWebStudio();
+        var registry = getCompilationJobRegistry();
+        moduleCompilationLauncher.launch(moduleName,
+                () -> openProject(webStudio, registry, projectDescriptor, project, module));
+    }
+
     private ProjectHandle openProject(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
+        return openProject(getWebStudio(), getCompilationJobRegistry(), projectDescriptor, project, module);
+    }
+
+    /**
+     * Opens a module against collaborators the caller has already resolved, so that a thread without a session of
+     * its own can open one too.
+     */
+    private ProjectHandle openProject(WebStudio webstudio,
+                                      CompilationJobRegistry registry,
+                                      ProjectDescriptor projectDescriptor,
+                                      RulesProject project,
+                                      @Nullable Module module) {
         if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
-        var webstudio = getWebStudio();
         webstudio.init(project.getRepository().getId(), project.getBranch(), projectDescriptor.getName(), module.getName());
         var moduleModel = webstudio.getModel();
-        var job = getCompilationJobRegistry().acquire(projectIdentifierMapper.map(project), moduleModel);
+        var job = registry.acquire(projectIdentifierMapper.map(project), moduleModel);
         return ProjectHandle.of(moduleModel, job);
     }
 
