@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Checkbox, notification, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { RunResultModal } from 'containers/execution/RunResultModal'
@@ -7,6 +7,7 @@ import { isFinished, useExecutionProgress } from 'containers/execution/useExecut
 import { runStatusTopic, testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
 import {
+    isStillRunning,
     readRunResult,
     readRunResultWorkbook,
     readTestsSummaryWorkbook,
@@ -47,6 +48,16 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
     const [starting, setStarting] = useState(false)
     const [results, setResults] = useState<RunResults | null>(null)
     const [savingFile, setSavingFile] = useState<RunResults | null>(null)
+    // What is being saved, as the reads waiting their turn below see it: one of them may come up after
+    // another has already saved the file.
+    const saving = useRef<RunResults | null>(null)
+    const setSaving = useCallback((what: RunResults | null) => {
+        saving.current = what
+        setSavingFile(what)
+    }, [])
+    // The reads of a result, one after another. A signal arriving while a read is on its way waits for it:
+    // two reads could both find the result, and the file would be saved twice.
+    const reads = useRef<Promise<unknown>>(Promise.resolve())
     const [file, setFile] = useState<RunFileChoice>({
         skipEmptyParameters: false,
         flattenParameters: true,
@@ -94,7 +105,7 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         runProgress.reset()
         testsProgress.reset()
         run(value)
-            .then(setSavingFile)
+            .then(setSaving)
             .catch(runError => {
                 setError(errorMessage(runError))
                 setStarting(false)
@@ -107,7 +118,7 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
      * A rule table gives the workbook of the run, written the way the options ask for, or the returned value
      * on its own in JSON. A test table gives the workbook of the results.
      */
-    const saveResult = useCallback((kind: RunResults) => {
+    const saveResult = useCallback((kind: RunResults): Promise<void> => {
         const write = (): Promise<void> => {
             if (kind === 'tests') {
                 return readTestsSummaryWorkbook(project.id, testsOptions)
@@ -120,34 +131,44 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
             return readRunResultWorkbook(project.id, file)
                 .then(workbook => saveFile(workbook, 'run-result.xlsx', XLSX_MEDIA_TYPE))
         }
-        write()
-            .then(onClose)
-            .catch(saveError => setError(errorMessage(saveError)))
-            .finally(() => {
-                setSavingFile(null)
+        return write()
+            .then(() => {
+                setSaving(null)
+                setStarting(false)
+                onClose()
+            })
+            .catch(saveError => {
+                // An execution that is still going on has produced nothing to save yet. The panel goes on
+                // waiting for it rather than reporting a failure that has not happened.
+                if (isStillRunning(saveError)) {
+                    return
+                }
+                setError(errorMessage(saveError))
+                setSaving(null)
                 setStarting(false)
             })
-    }, [project.id, file, testsOptions, onClose])
+    }, [project.id, file, testsOptions, onClose, setSaving])
 
     // The execution that is being saved reports on its own topic: a rule table on the run's, a test table on
     // the tests'.
     const progress = savingFile === 'tests' ? testsProgress : runProgress
     const finished = isFinished(progress.status)
-
     useEffect(() => {
-        if (!savingFile || !finished) {
+        if (!savingFile) {
             return
         }
-        if (progress.status === 'COMPLETED') {
-            saveResult(savingFile)
+        if (finished && progress.status !== 'COMPLETED') {
+            // A run that failed or was stopped produced nothing to save; it says why instead.
+            setError(progress.error ?? t(savingFile === 'tests' ? 'tests.startFailed' : 'run.startFailed'))
+            setSaving(null)
+            setStarting(false)
             return
         }
-        // A run that failed or was stopped produced nothing to save; it says why instead.
-        setError(progress.error ?? t(savingFile === 'tests' ? 'tests.startFailed' : 'run.startFailed'))
-        setSavingFile(null)
-        setStarting(false)
-        // The execution has ended: what it produced is there to be saved.
-    }, [savingFile, finished])
+        // What the execution produced is asked for when it says it has ended, and whenever the panel starts
+        // or stops hearing it — a run may have ended before the panel started saving, and a connection that
+        // drops takes the message with it. A run still going on leaves the panel waiting.
+        reads.current = reads.current.then(() => (saving.current ? saveResult(saving.current) : undefined))
+    }, [savingFile, finished, progress.subscribed])
 
     const fileOption = (name: keyof RunFileChoice, label: string) => (
         <Checkbox
