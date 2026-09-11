@@ -107,6 +107,16 @@ export interface ProjectTable {
     signature?: string
 }
 
+/** A table in raw tabular form: a 2D matrix of cells with merge geometry. */
+export interface RawTableView {
+    id: string
+    name: string
+    /** The table body as a 2D matrix indexed source[row][col] */
+    source: RawTableCell[][]
+    /** Full row count when the response was truncated by maxRows; absent when the whole table is returned */
+    totalRows?: number
+}
+
 /** One field a Datatype table declares. */
 export interface DatatypeField {
     name: string

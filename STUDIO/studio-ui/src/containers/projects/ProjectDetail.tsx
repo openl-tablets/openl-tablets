@@ -10,7 +10,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
-import { Empty, Skeleton, Tabs, Typography, type TabsProps } from 'antd'
+import { Empty, Skeleton, Tabs, type TabsProps } from 'antd'
 import {
     FileTextOutlined,
     HistoryOutlined,
@@ -25,6 +25,7 @@ import type { FsNode } from '../../types/files'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { StatusMark } from './StatusIndicator'
 import { LiveCompileDot } from './CompileIndicator'
+import { WorkspaceHeader } from '../../components/WorkspaceHeader'
 import { ProjectActionBar, type ProjectActionHandlers } from './ProjectActionBar'
 import type { BusyId } from './projectActions'
 import { FileTree } from './FileTree'
@@ -61,56 +62,9 @@ const useStyles = createStyles(({ css, token }) => ({
         margin: auto;
         padding: ${token.paddingXL}px;
     `,
-    header: css`
-        min-width: 0;
-        padding: 12px 16px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-    `,
-    crumb: css`
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: ${token.colorTextTertiary};
-        font-size: 14px;
-
-        a {
-            color: ${token.colorTextSecondary};
-
-            &:hover {
-                color: ${token.colorPrimary};
-            }
-        }
-    `,
     /** A breadcrumb value (repository, branch): reads like the "Projects" link — secondary colour, crumb size. */
     crumbValue: css`
         color: ${token.colorTextSecondary};
-    `,
-    titleRow: css`
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-width: 0;
-        margin-top: 8px;
-    `,
-    titleLeft: css`
-        display: flex;
-        flex: 1 1 auto;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-    `,
-    title: css`
-        margin: 0 !important;
-        min-width: 0;
-        font-size: 22px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-    `,
-    titleMuted: css`
-        color: ${token.colorTextTertiary};
-        text-decoration: line-through;
     `,
     tabs: css`
         flex: 1;
@@ -249,7 +203,7 @@ export const ProjectDetail = ({
     onBranchSwitching,
     onFilesVisible,
 }: ProjectDetailProps) => {
-    const { styles, cx } = useStyles()
+    const { styles } = useStyles()
     const { t } = useTranslation('repository')
     const { isUserManagementEnabled } = useContext(SystemContext)
     const [searchParams, setSearchParams] = useSearchParams()
@@ -546,48 +500,43 @@ export const ProjectDetail = ({
 
     return (
         <div className={styles.root} data-testid="project-detail">
-            <div className={styles.header}>
-                <div className={styles.crumb}>
-                    {headerPrefix}
-                    <ValueText className={styles.crumbValue}>{repoLabel}</ValueText>
-                    {hasBranches && (
-                        <>
-                            <span aria-hidden>/</span>
-                            <BranchSwitcher
-                                currentBranch={project.branch}
-                                currentBranchDefault={project.branchDefault}
-                                currentBranchProtected={project.branchProtected}
-                                data-testid="crumb-branch"
-                                disabled={pendingId !== null}
-                                onBusyChange={onBranchSwitching}
-                                onSwitched={() => onChanged?.()}
-                                projectId={project.id}
-                                tone="secondary"
-                            />
-                        </>
-                    )}
-                </div>
-                <div className={styles.titleRow}>
-                    <div className={styles.titleLeft}>
-                        <StatusMark status={project.status} testId={`status-${project.id}`} />
-                        <Typography.Title
-                            className={cx(styles.title, muted && styles.titleMuted)}
-                            ellipsis={{ tooltip: project.name }}
-                            level={3}
-                        >
-                            {project.name}
-                        </Typography.Title>
-                        <LiveCompileDot
-                            branch={project.branch ?? null}
-                            compileStatus={project.compileStatus}
-                            projectId={project.id}
-                            status={project.status}
-                            statusReadAt={statusReadAt}
-                        />
-                    </div>
-                    <ProjectActionBar handlers={handlers} pendingId={pendingId} project={project} />
-                </div>
-            </div>
+            <WorkspaceHeader
+                actions={<ProjectActionBar handlers={handlers} pendingId={pendingId} project={project} />}
+                muted={muted}
+                title={project.name}
+                titleBefore={<StatusMark status={project.status} testId={`status-${project.id}`} />}
+                crumbs={(
+                    <>
+                        {headerPrefix}
+                        <ValueText className={styles.crumbValue}>{repoLabel}</ValueText>
+                        {hasBranches && (
+                            <>
+                                <span aria-hidden>/</span>
+                                <BranchSwitcher
+                                    currentBranch={project.branch}
+                                    currentBranchDefault={project.branchDefault}
+                                    currentBranchProtected={project.branchProtected}
+                                    data-testid="crumb-branch"
+                                    disabled={pendingId !== null}
+                                    onBusyChange={onBranchSwitching}
+                                    onSwitched={() => onChanged?.()}
+                                    projectId={project.id}
+                                    tone="secondary"
+                                />
+                            </>
+                        )}
+                    </>
+                )}
+                titleAfter={(
+                    <LiveCompileDot
+                        branch={project.branch ?? null}
+                        compileStatus={project.compileStatus}
+                        projectId={project.id}
+                        status={project.status}
+                        statusReadAt={statusReadAt}
+                    />
+                )}
+            />
             <Tabs activeKey={activeTab} className={styles.tabs} data-testid="project-tabs" items={items} onChange={onTabChange} />
         </div>
     )
