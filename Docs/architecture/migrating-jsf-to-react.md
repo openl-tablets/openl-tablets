@@ -254,6 +254,10 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   says in `headerHeight` how many rows its header takes (the header line, a properties section, the service rows
   of a decision table — read from the engine's own business view of that table). The screen chooses; when
   editing arrives it sends back whichever of the two the author edited.
+- **A rail of hundreds of tables draws the rows it shows.** The tree is virtualised (`height`, `itemHeight`
+  and `scrollWidth` on Ant Design's `Tree`), so scrolling paints a screenful rather than a module. Without it
+  every node sits in the DOM and the widest of them is measured across all of them, which is why a long tree
+  scrolled to a blank page and filled in once the scrolling stopped.
 - **A tall table arrives a window at a time.** The read takes `startRow` and `maxRows` and answers `totalRows`,
   so the screen draws the first window and fetches the rest as the reader asks for it.
 - **Read what is ready, not what is finished.** Opening a module compiles that module before the rest of the
