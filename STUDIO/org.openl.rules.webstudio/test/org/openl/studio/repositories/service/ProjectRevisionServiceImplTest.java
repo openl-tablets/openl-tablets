@@ -54,7 +54,7 @@ class ProjectRevisionServiceImplTest {
         var project = mock(RulesProject.class);
         when(project.isLocalOnly()).thenReturn(true);
 
-        var revisions = service.getProjectRevision(project, null, false, Pageable.unpaged());
+        var revisions = service.getProjectRevision(project, null, null, false, Pageable.unpaged());
 
         assertTrue(revisions.getContent().isEmpty());
         assertEquals(0L, revisions.getTotal());
@@ -69,7 +69,7 @@ class ProjectRevisionServiceImplTest {
         var project = publishedProject(mock(Repository.class));
 
         var page = Pageable.unpaged();
-        service.getProjectRevision(project, "fix", true, page);
+        service.getProjectRevision(project, null, "fix", true, page);
 
         verify(mapper).getProjectHistory(DESIGN_FOLDER, "fix", true, page);
     }
@@ -130,7 +130,7 @@ class ProjectRevisionServiceImplTest {
         var branchOfTheProject = mock(Repository.class);
         var project = publishedProject(branchOfTheProject);
 
-        service.getProjectRevision(project, null, false, Pageable.unpaged());
+        service.getProjectRevision(project, null, null, false, Pageable.unpaged());
 
         assertSame(branchOfTheProject, askedRepository.get());
     }

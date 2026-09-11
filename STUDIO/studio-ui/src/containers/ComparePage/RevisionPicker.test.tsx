@@ -158,6 +158,30 @@ describe('RevisionPicker', () => {
         }))
     })
 
+    it('keeps the failure of a read that was abandoned off the screen', async () => {
+        // The branch is switched while the revision of the old branch is still being read, and that
+        // read answers last, with a revision the new branch does not have.
+        let refuseTheOldRevision!: () => void
+        vi.mocked(getProjectCompareFiles).mockImplementation((_id: string, where: any) => {
+            if (where?.branch === 'master' && where?.revision) {
+                return new Promise<string[]>((_resolve, reject) => {
+                    refuseTheOldRevision = () => reject(new Error('The requested version is not found'))
+                })
+            }
+            return Promise.resolve(['rules/Main.xlsx'])
+        })
+
+        await renderPicker()
+        await act(async () => {
+            fireEvent.change(screen.getByTestId('compare-branch'), { target: { value: 'dev' } })
+        })
+        await act(async () => {
+            refuseTheOldRevision()
+        })
+
+        expect(screen.queryByTestId('compare-picker-error')).toBeNull()
+    })
+
     it('leaves the failure behind once the files are read', async () => {
         vi.mocked(getProjectCompareFiles).mockRejectedValue(new Error('The revision is not found'))
         await renderPicker()

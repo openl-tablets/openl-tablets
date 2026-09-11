@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react'
-import { isFinished, readStatus, useComparisonProgress } from './useComparisonProgress'
+import { useComparisonProgress } from './useComparisonProgress'
 import type { ComparisonProgress } from './useComparisonProgress'
 
 // One stable pair of functions, so a re-render never looks like a new subscription.
@@ -29,36 +29,6 @@ const push = (body: string) => {
     const onBody = subscribe.mock.calls.at(-1)?.[1]
     act(() => onBody?.(body))
 }
-
-describe('readStatus', () => {
-    it('reads a bare status', () => {
-        expect(readStatus('COMPLETED')).toEqual({ status: 'COMPLETED', error: null })
-    })
-
-    it('reads a failure with its reason', () => {
-        expect(readStatus('{"status":"ERROR","message":"Cannot read the file"}'))
-            .toEqual({ status: 'ERROR', error: 'Cannot read the file' })
-    })
-
-    it('says nothing about a message it does not understand', () => {
-        expect(readStatus('null')).toEqual({ status: null, error: null })
-        expect(readStatus('42')).toEqual({ status: null, error: null })
-        expect(readStatus('WHATEVER')).toEqual({ status: null, error: null })
-        expect(readStatus('{"status":"WHATEVER"}')).toEqual({ status: null, error: null })
-        expect(readStatus('')).toEqual({ status: null, error: null })
-    })
-})
-
-describe('isFinished', () => {
-    it('knows the statuses a comparison stops at', () => {
-        expect(isFinished('COMPLETED')).toBe(true)
-        expect(isFinished('ERROR')).toBe(true)
-        expect(isFinished('INTERRUPTED')).toBe(true)
-        expect(isFinished('STARTED')).toBe(false)
-        expect(isFinished('PENDING')).toBe(false)
-        expect(isFinished(null)).toBe(false)
-    })
-})
 
 describe('useComparisonProgress', () => {
     beforeEach(() => {

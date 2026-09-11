@@ -38,7 +38,6 @@ i18next.addResourceBundle('en', 'compare', {
     failed: 'The files could not be compared',
     table_failed: 'The element could not be read',
     interrupted: 'The comparison was stopped before it finished',
-    changes: 'What differs',
     change: '{{property}}: {{first}} → {{second}}',
     change_absent: 'not set',
     status_equal: 'Equal',

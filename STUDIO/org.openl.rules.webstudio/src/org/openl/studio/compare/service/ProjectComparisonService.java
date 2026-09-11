@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import org.openl.util.StringUtils;
  * <p>A file is read either from the working copy - the project as its own user has it now - or from a
  * revision the repository holds, on the branch that revision belongs to.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectComparisonService {
@@ -102,6 +104,9 @@ public class ProjectComparisonService {
                             project.getRealPath(),
                             StringUtils.trimToNull(revision));
         } catch (Exception e) {
+            // Whatever stopped the read - the revision is gone, the repository refused it - the user is
+            // told the same thing, so what it really was is left in the log.
+            log.warn("Cannot read revision '{}' of '{}' on branch '{}'", revision, project.getName(), branch, e);
             throw new NotFoundException("file.version.not.found.message");
         }
     }

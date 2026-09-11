@@ -87,20 +87,37 @@ export const RevisionPicker: React.FC<RevisionPickerProps> = ({ projectId, onCha
         }
     }, [projectId])
 
-    const readFiles = useCallback((where: { branch?: string | undefined; revision?: string | undefined })
-    : Promise<string[]> => {
-        // What failed last time belongs to the files read last time, so it goes before these are read.
-        setError(null)
-        return getProjectCompareFiles(projectId, where).catch((readError: unknown) => {
+    /**
+     * Reads the files of one side, telling the caller what came of it.
+     *
+     * What failed is reported by the read that is still wanted, never by one that was abandoned: a
+     * branch that is switched leaves a read of the revision behind, and its answer - a revision the new
+     * branch does not have - must not land on top of what the reader is looking at.
+     */
+    const readFiles = useCallback(async (
+        where: { branch?: string | undefined; revision?: string | undefined },
+        wanted: () => boolean
+    ): Promise<string[] | null> => {
+        try {
+            const files = await getProjectCompareFiles(projectId, where)
+            if (!wanted()) {
+                return null
+            }
+            setError(null)
+            return files
+        } catch (readError: unknown) {
+            if (!wanted()) {
+                return null
+            }
             setError(errorMessage(readError) || t('failed'))
             return []
-        })
+        }
     }, [projectId, t])
 
     useEffect(() => {
         let cancelled = false
-        void readFiles({}).then(files => {
-            if (!cancelled) {
+        void readFiles({}, () => !cancelled).then(files => {
+            if (files) {
                 setWorkingFiles(files)
                 setWorkingFile(current => (current && files.includes(current) ? current : files[0]))
             }
@@ -124,8 +141,8 @@ export const RevisionPicker: React.FC<RevisionPickerProps> = ({ projectId, onCha
             return undefined
         }
         let cancelled = false
-        void readFiles({ branch, revision }).then(files => {
-            if (!cancelled) {
+        void readFiles({ branch, revision }, () => !cancelled).then(files => {
+            if (files) {
                 setRevisionFiles(files)
             }
         })

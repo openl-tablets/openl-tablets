@@ -34,6 +34,20 @@ import { useStyles } from './ComparePage.styles'
 const ACCEPTED = '.xls,.xlsx,.xlsm'
 /** How long a screen that cannot hear the topic waits before asking again, in milliseconds. */
 const ASK_AGAIN = 2000
+
+/** What the server answers with while the comparison it was asked for is still being made. */
+const STILL_RUNNING = 'openl.error.409.compare.not-completed.message'
+
+/**
+ * Whether the comparison is still being made.
+ *
+ * A comparison that is not ready and one that was stopped before it found anything are both refused,
+ * so what the refusal says decides whether there is anything left to wait for.
+ */
+const stillRunning = (failure: unknown): boolean =>
+    isApiHttpError(failure)
+    && failure.status === 409
+    && (failure.payload as { code?: string } | null | undefined)?.code === STILL_RUNNING
 const FILES_TO_COMPARE = 2
 const EXCEL_FILE = /\.(xlsx?|xlsm)$/i
 
@@ -167,6 +181,10 @@ export const ComparePage: React.FC = () => {
     const [treeWidth, setTreeWidth] = useState<number | string>(versions || conflict ? '36%' : '30%')
     const [treeHidden, setTreeHidden] = useState(false)
 
+    useEffect(() => {
+        document.title = t('title')
+    }, [t])
+
     const progress = useComparisonProgress(comparisonId)
     // The comparison is on screen from the moment it is started; until it answers, its progress is.
     // A window opened for a comparison of its own has nothing else to show, so it is on screen at once.
@@ -240,9 +258,9 @@ export const ComparePage: React.FC = () => {
                 if (cancelled) {
                     return
                 }
-                if (isApiHttpError(readError) && readError.status === 409) {
-                    // Still running. The topic says when it ends; a screen that is not listening to it -
-                    // a connection that never opened - would wait for a word that never comes, so it asks.
+                if (stillRunning(readError)) {
+                    // The topic says when it ends; a screen that is not listening to it - a connection
+                    // that never opened - would wait for a word that never comes, so it asks again.
                     if (!progress.subscribed) {
                         asking = window.setTimeout(() => setAttempt(count => count + 1), ASK_AGAIN)
                     }
