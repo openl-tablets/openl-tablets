@@ -7,7 +7,7 @@ To add a repository, proceed as follows:
 
     A new repository form opens with default Git settings pre-filled.
 
-3.  In the **Name** field, enter the repository name to be displayed in the Repository Editor.
+3.  In the **Name** field, enter the repository name to be displayed on the **Projects** page.
 4.  In the **Type** field, select the connection type.
 
     | Type                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |

@@ -1,6 +1,6 @@
-## Using Repository Editor
+## Managing Projects
 
-This chapter describes tasks that can be performed in Repository Editor. For general information on Repository Editor, see [Introducing Repository Editor](getting-started.md#introducing-repository-editor).
+This chapter describes tasks that can be performed on the **Projects** page. For general information on the page, see [Introducing the Projects Page](getting-started.md#introducing-the-projects-page).
 
 The following topics are included in this chapter:
 
@@ -23,7 +23,7 @@ The following topics are included in this chapter:
 
 ### Browsing Design Repository
 
-Repository Editor displays all projects in user's workspace and Design repository. Projects from all repositories
+The **Projects** page displays all projects in user's workspace and Design repository. Projects from all repositories
 are displayed in a common list that is sorted alphabetically.
 
 The status of each project in the tree is identified by a specific icon:
@@ -440,7 +440,7 @@ Studio when the repository type is Git.
 
 ### Closing a Project
 
-Closing a project deletes it from the user's workspace. No changes made to the project will be applied and stored. From that point, the project is not available for selection in Rules Editor. Users can still browse closed projects in Repository Editor.
+Closing a project deletes it from the user's workspace. No changes made to the project will be applied and stored. From that point, the project is not available for selection in Rules Editor. Users can still browse closed projects on the **Projects** page.
 
 To close a project, in the project tree, select the project and, in the project header, click **Close**.
 
@@ -578,7 +578,7 @@ To upload a file to a project folder, proceed as follows:
 #### Updating a File
 
 Updating a file replaces its contents with a file from the file system, keeping the name and location the file has
-in the project. To update a file of a project via Repository Editor, proceed as follows:
+in the project. To update a file of a project on the **Projects** page, proceed as follows:
 
 1.  Click the **Files** tab and, in the file tree, select the file to be updated.
 1.  Click **More actions** and select **Update**.
@@ -620,7 +620,7 @@ Deleting a folder or a file changes the opened project. Save the project to stor
 
 #### Copying a File
 
-A user can create a copy of a file or a folder using the Repository Editor. The copy is made from the contents the
+A user can create a copy of a file or a folder on the **Projects** page. The copy is made from the contents the
 project holds now. Proceed as follows:
 
 1.  Select a project that contains a file to copy, click the **Files** tab and, in the file tree, select the
@@ -634,9 +634,9 @@ project holds now. Proceed as follows:
     The field is prefilled with the name of the original file and the `-copy` suffix before its extension, such
     as `Corporate Rating-copy.xlsx`. For a folder, the field is called **New Folder Name**.
 
-    ![Copying a file in Repository Editor](images/copy-file-in-repository-dialog.png "The Copy file window")
+    ![Copying a file on the Projects page](images/copy-file-in-repository-dialog.png "The Copy file window")
 
-    *Copying a file in Repository Editor*
+    *Copying a file on the Projects page*
 
 1.  In the **Path** field, select the folder to place the copy into.
 
@@ -821,7 +821,7 @@ To compare contents of the currently opened project revision with any other revi
 
 A project is exported as a zip archive, and a single file of it is exported as it is stored.
 
-To export a project from Repository Editor, proceed as follows:
+To export a project from the **Projects** page, proceed as follows:
 
 1.  In the **Projects** tree, select the project.
 2.  In the project header, click **Export**.

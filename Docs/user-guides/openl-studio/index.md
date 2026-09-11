@@ -16,7 +16,7 @@ This guide is organized into the following sections:
 
 - [Using Rules Editor](rules-editor.md) - Comprehensive guide to filtering, viewing, modifying tables, searching, and creating tables
 - [Editing and Testing Functionality](editing-testing.md) - Tools for editing and testing rules
-- [Using Repository Editor](repository-editor.md) - Managing projects in Design repository
+- [Managing Projects](repository-editor.md) - Managing projects in Design repository
 - [Working with Project Branches](project-branches.md) - Branch management and workflows
 
 ### Administration

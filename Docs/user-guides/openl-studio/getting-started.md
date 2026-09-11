@@ -7,7 +7,7 @@ This chapter explains logging into OpenL Studio and briefly introduces the user 
 -   [Displaying the OpenL Studio Help](#displaying-the-openl-studio-help)
 -   [Signing Out of OpenL Studio](#signing-out-of-openl-studio)
 -   [Introducing Rules Editor](#introducing-rules-editor)
--   [Introducing Repository Editor](#introducing-repository-editor)
+-   [Introducing the Projects Page](#introducing-the-projects-page)
 
 ### Signing In to OpenL Studio
 
@@ -31,7 +31,7 @@ authentication. Enter the required details and click **Save** to continue to Ope
 optional. The display name can be entered directly or generated from them. The same check runs when OpenL Studio
 automatically signs in the single user account in single-user mode.
 
-For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing Repository Editor](#introducing-repository-editor). For more information on the single and multi-user modes, see [Security Overview](introduction.md#security-overview).
+For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing the Projects Page](#introducing-the-projects-page). For more information on the single and multi-user modes, see [Security Overview](introduction.md#security-overview).
 
 ### Modifying User Profile
 
@@ -240,7 +240,7 @@ The following table describes the Rules Editor toolbar controls:
 | ![](images/toolbar-copy-project-icon.png)                                                                  | Copies the project. For more information on project copying, see [Copying a Project](rules-editor.md#copying-a-project).                                                                                                                                                                                                              |
 | ![](images/toolbar-save-icon.png)                                                                  | Saves the changes and sets the project status to **No Changes**.                                                                                                                                                                                                                                                       |
 | ![](images/toolbar-search-icon.png) ![](images/toolbar-export-icon.png) | Updates the current module or project with uploaded file or zip file. Exports the current version of the module or project.                                                                                                                                                                                            |
-| ![](images/toolbar-repository-editor-icon.png)                                                                  | Switches user interface to Repository Editor. For more information on Repository Editor, see [Introducing Repository Editor](#introducing-repository-editor).                                                                                                                                                          |
+| ![](images/toolbar-repository-editor-icon.png)                                                                  | Switches user interface to the **Projects** page. For more information on the page, see [Introducing the Projects Page](#introducing-the-projects-page).                                                                                                                                                          |
 | ![](images/toolbar-rules-editor-icon.png)                                                                  | Switches user interface to Rules Editor. For more information on Rules Editor, see [Using Rules Editor](rules-editor.md#using-rules-editor).                                                                                                                                                                                          |
 | ![](images/toolbar-admin-mode-icon.png)                                                                  | Switches user interface to the **Administration** mode. For more information on administrative functions, see [Using Administration Tools](administration/index.md#using-administration-tools).                                                                                                                                               |
 
@@ -285,17 +285,17 @@ The two following modes display a project in a way convenient to experienced use
 | **By Type** | An example of a module tree displayed in extended view and sorted by type is as follows: <br/>![](images/module-tree-sorted-by-type.png) <br/>*Module tree sorted by type* |
 | **By Excel Sheet** | The following tree is sorted by the order the tables are stored in the Excel file: <br/>![](images/module-tree-sorted-by-excel-sheet.png) <br/>*Module tree sorted by order in the Excel file*         |
 
-### Introducing Repository Editor
+### Introducing the Projects Page
 
-**Repository Editor** provides controls for browsing and managing Design repository. A user can switch to Repository Editor by clicking the **Projects** control. Repository Editor resembles the following:
+The **Projects** page provides controls for browsing and managing Design repository. A user opens it by clicking the **Projects** control. The page resembles the following:
 
-![OpenL Studio Repository Editor](images/repository-editor-overview.jpeg)
+![The OpenL Studio Projects page](images/repository-editor-overview.jpeg)
 
-*OpenL Studio Repository Editor*
+*The OpenL Studio Projects page*
 
-Repository Editor is organized as follows:
+The page is organized as follows:
 
--   **Left panel** — switches between **Filters**, which narrow the project list by repository, branch, and status, and **Tree**, which displays projects stored in Design repository and user's workspace. Unlike Rules Editor, Repository Editor displays physical project contents in terms of files and folders.
+-   **Left panel** — switches between **Filters**, which narrow the project list by repository, branch, and status, and **Tree**, which displays projects stored in Design repository and user's workspace. Unlike Rules Editor, the **Projects** page displays physical project contents in terms of files and folders.
 -   **Project list** — displays the projects that match the filters, as a list or as cards. For each project, the following actions are available:
     -   copying a project ![](images/repo-action-copy-project-icon.png)
     -   opening a project ![](images/repo-action-open-project-icon.png)
@@ -307,4 +307,4 @@ Copying, opening, and closing a project appear as buttons in the project row, an
 
 A user can switch to Rules Editor by clicking the **Editor** control.
 
-For more information on tasks that can be performed in Repository Editor, see [Using Repository Editor](repository-editor.md#using-repository-editor).
+For more information on tasks that can be performed on the page, see [Managing Projects](repository-editor.md#managing-projects).
