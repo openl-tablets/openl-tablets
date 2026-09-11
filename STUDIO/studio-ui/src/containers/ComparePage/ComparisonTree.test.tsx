@@ -115,6 +115,29 @@ describe('ComparisonTree', () => {
         expect(screen.queryByText('Data Customer customers')).toBeNull()
     })
 
+    it('marks an element with what became of it', () => {
+        const { container } = render(<ComparisonTree showEqualElements comparison={COMPARISON} onSelect={vi.fn()} />)
+
+        // The same marks the old window used: a file lost, one that reads differently, one that reads
+        // the same - and, where a file is gained, one gained.
+        const marks = [...container.querySelectorAll('[title]')].map(node => node.getAttribute('title'))
+        expect(marks).toContain('status_removed')
+        expect(marks).toContain('status_changed')
+        expect(marks).toContain('status_equal')
+    })
+
+    it('marks an element the second file adds', () => {
+        const added: Comparison = {
+            ...COMPARISON,
+            sheets: [{ ...COMPARISON.sheets[0]!, children: [{ id: '0-3', name: 'New', type: 'table', status: 'added' }]}],
+        }
+
+        const { container } = render(<ComparisonTree comparison={added} onSelect={vi.fn()} showEqualElements={false} />)
+
+        const marks = [...container.querySelectorAll('[title]')].map(node => node.getAttribute('title'))
+        expect(marks).toContain('status_added')
+    })
+
     it('says what a property of a changed element reads in each file', () => {
         render(<ComparisonTree comparison={COMPARISON} onSelect={vi.fn()} showEqualElements={false} />)
 

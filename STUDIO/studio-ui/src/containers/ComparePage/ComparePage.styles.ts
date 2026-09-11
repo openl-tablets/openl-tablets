@@ -210,6 +210,10 @@ export const useStyles = createStyles(({ css, token }) => ({
     changedIcon: css`
         color: ${token.colorWarning};
     `,
+    // An element both files read the same is there to be found, not to be looked at.
+    equalIcon: css`
+        color: ${token.colorTextQuaternary};
+    `,
     center: css`
         display: flex;
         height: 100%;
