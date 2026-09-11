@@ -61,10 +61,10 @@ The first opened module page is displayed right after the module is loaded, whil
 
 If a module is modified during loading, this module is re-compiled and project loading continues. When the loading is complete, the progress bar is displayed for ten more seconds and then disappears.
 
-The loading progress bar is not displayed for newly opened projects if a project has only one module or multiple small modules which loading takes less than one second. The loading progress bar is also not displayed if the project is already opened and fully compiled and the following actions happen:
+The loading progress bar is not displayed for newly opened projects if a project has only one module or multiple small modules that take less than one second to load. The loading progress bar is also not displayed if the project is already opened and fully compiled and the following actions happen:
 
 -   A page is refreshed using the browser refresh button.
--   A user leaves the project by switching to the main Editor or Repository page and then returns to the project without opening other projects in the meantime.
+-   A user leaves the project by switching to Rules Editor or to the **Projects** page and then returns to the project without opening other projects in the meantime.
 -   A user switches between modules of the same project.
 
 If a user clicks the refresh button in OpenL Studio, loading restarts and progress bar appears again. While loading in process, the **Run, Trace, Test,** and **Benchmark** actions work only for currently opened module. That is why the **Within Current Module Only** check box is selected and cannot be edited in the menu of these actions while loading is in progress.
@@ -90,14 +90,15 @@ A project can be opened for editing and saved directly in Rules Editor.
 
     **Note:** If a project is in the **Local** status, this option is not available in Rules Editor.
 
-2.  To modify the project in the **Project** page, modify the values as described in the following table:
+2.  To modify the project in the **Project** page, modify the values as follows:
 
-| Project details                                                                                                                               | Available actions                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|-----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| General project information <br/>and configuration, <br/>such as OpenL version compatibility, <br/>description, project name, <br/>and custom file name processor | Put the mouse cursor over the project name and click **Edit** ![](images/edit-icon.png) . <br/>Project name can be edited only for projects in a non-flat Git repository. <br/>The project name will be changed in OpenL Studio only, while the folder name remains unchanged. <br/>For more information on properties pattern for the file name, see <br/>[OpenL Tablets Reference Guide > Properties Defined in the File Name](../reference-guide/02-working-with-openl-tables/04-table-properties/08-properties-defined-in-the-file-name.md). |
-| Project sources                                                                                                                               | Put the mouse cursor over the **Sources** label and click **Manage Sources** ![](images/edit-icon.png) .                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Modules configuration                                                                                                                         | Put the mouse cursor over the **Modules** label or a particular module name and click **Add Module** ![](images/add-module-icon.png) or **Edit Module** ![](images/edit-icon.png) <br/>or **Remove Module** ![](images/remove-module-icon.png).                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Project dependencies                                                                                                                          | Manage dependencies as described in [Defining Project Dependencies](#defining-project-dependencies).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+    -   **General project information and configuration**, such as OpenL version compatibility, description, project name, and custom file name processor — put the mouse cursor over the project name and click **Edit** ![](images/edit-icon.png).
+
+        The project name can be edited only for projects in a non-flat Git repository. The project name is changed in OpenL Studio only, while the folder name remains unchanged. For more information on the properties pattern for the file name, see [OpenL Tablets Reference Guide > Properties Defined in the File Name](../reference-guide/02-working-with-openl-tables/04-table-properties/08-properties-defined-in-the-file-name.md).
+
+    -   **Project sources** — put the mouse cursor over the **Sources** label and click **Manage Sources** ![](images/edit-icon.png).
+    -   **Modules configuration** — put the mouse cursor over the **Modules** label or a particular module name and click **Add Module** ![](images/add-module-icon.png), **Edit Module** ![](images/edit-icon.png), or **Remove Module** ![](images/remove-module-icon.png).
+    -   **Project dependencies** — manage dependencies as described in [Defining Project Dependencies](#defining-project-dependencies).
 
 All changes are saved in the project `rules.xml` file. For more information on this XML file, see the [OpenL Tablets Developers Guide](../../developer-guides/index.md).
 
@@ -121,19 +122,17 @@ To create a copy of the project currently open, in the Rules Editor toolbar, cli
 
 #### Exporting, Updating, and Editing a Module
 
-#### Exporting, Updating, and Editing a Module
-
 A user can export, update, or edit a module directly in Rules Editor. Proceed as follows:
 
-1.  To upload a changed module file, for a module, in the top line menu, click **Update** and select an Excel file. The uploaded file replaces the module file. When the selected file name differs from the current module file name, a warning is displayed.
-2.  To export the module to the user’s local machine, for a module, in the top line menu, click **Export** and select a module revision.
+1.  To upload a changed module file, for a module, in the Rules Editor toolbar, click **Update** and select an Excel file. The uploaded file replaces the module file. When the selected file name differs from the current module file name, a warning is displayed.
+2.  To export the module to the user’s local machine, for a module, in the Rules Editor toolbar, click **Export** and select a module revision.
 
     The default module version for export is the one that a user has currently open in Rules Editor. If it contains unsaved changes, it is marked as **In Editing,** otherwise, it is called **Viewing**.
 
     The list offers the revisions of the module file itself, so a project revision that did not change the
     module is not proposed. Older revisions are loaded on demand through **Load older revisions**.
 
-1.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](images/edit-icon.png).
+3.  To modify module configuration, such as module name, path, and included or excluded methods, in the **Module** page place the mouse cursor over the module name and click **Edit** ![](images/edit-icon.png).
 
     ![Initiating module editing](images/initiate-module-editing.png)
 
@@ -143,11 +142,11 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 
     *Editing module information*
 
-1.  To save the changes, click **Save** ![](images/toolbar-save-icon.png).
+4.  To save the changes, click **Save** ![](images/toolbar-save-icon.png).
 
-**Notes:** The 'Included Methods' and 'Excluded Methods' on this UI has been deprecated and kept for backward
-compatibility. The new fields for filterring exposed methods are located on the project info UI.
-For more information, refer to the [Rule Services and Customization Guide > Dynamic Interface Support](../rule-services/advanced-configuration.md#dynamic-interface-support)
+**Note:** The **Included Methods** and **Excluded Methods** fields of this window are deprecated and kept for backward
+compatibility. The fields that filter the exposed methods are located in the project information window.
+For more information, see the [Rule Services and Customization Guide > Dynamic Interface Support](../rule-services/advanced-configuration.md#dynamic-interface-support).
 
 #### Comparing and Reverting Module Changes
 
@@ -155,7 +154,7 @@ OpenL Studio allows comparing module versions and rolling back module changes ag
 To compare module versions, proceed as follows:
 
 1.  In the **Projects** tree, select the module.
-2.  In the top line menu, select **More** **\>** **Local** **Changes**.
+2.  In the Rules Editor toolbar, select **More** **\>** **Local** **Changes**.
     The **Local** **Changes** page appears displaying the selected module's local versions, with the latest
     versions on the top. In a multi-module project, switching modules shows the local history stored for that
     module only.
@@ -170,7 +169,7 @@ To compare module versions, proceed as follows:
 
     *Clicking Save to complete project update and save changes as a revision version*
 
-1. To compare the changes, select check boxes for two required versions and click **Compare**.
+3.  To compare the changes, select check boxes for two required versions and click **Compare**.
 
     ![Comparing module versions](images/compare-module-versions.jpeg)
 
@@ -182,7 +181,7 @@ To compare module versions, proceed as follows:
 
     *Tables with changes*
 
-1. To view the changes, click the required table.
+4.  To view the changes, click the required table.
 
     The result of the comparison is displayed in the bottom of the window.
 
@@ -190,13 +189,13 @@ To compare module versions, proceed as follows:
 
     *The result of the module version comparison*
 
-1.  To revert module changes, for the required module version, click the **Restore** link and confirm the changes.
+5.  To revert module changes, for the required module version, click the **Restore** link and confirm the changes.
 
     When **Restore** is clicked, the corresponding changes are restored but this action is not added to the history as a change.
 
 #### Copying a Module
 
-OpenL Studio allows creating a copy of the existing module, in Editor, in either **Project** page, or in the **Module** page. The following topics are included in this section:
+OpenL Studio allows creating a copy of the existing module, in Rules Editor, in either the **Project** page or the **Module** page. The following topics are included in this section:
 
 -   [Copying a Simple Module](#copying-a-simple-module)
 -   [Copying a Module Defined Using the File Path Pattern](#copying-a-module-defined-using-the-file-path-pattern)
@@ -208,19 +207,19 @@ To create a copy of a module, proceed as follows:
 1.  Do one of the following:
     -   To create a copy of a module using the **Project** page, in the project tree, select a project which module must be copied, in the modules list, put the mouse cursor over the selected module name, and click **Copy Module** ![](images/copy-module-icon.png).
     -   To create a copy of a module using the **Module** page, in the project tree, select a module to be copied, put the mouse cursor over the module name, and click **Copy Module** ![](images/copy-module-icon.png).
-1.  In the window that appears, enter the new module name.
+2.  In the window that appears, enter the new module name.
 
     When the new module name is entered, the **Copy** button becomes enabled.
 
-1.  Optionally, edit the **New File Name** field value.
+3.  Optionally, edit the **New File Name** field value.
 
     The file name can differ from the module name.
 
-1.  Optionally, to copy the module to the specific folder, in the **New File Name** field, enter the file name and its location.
+4.  Optionally, to copy the module to the specific folder, in the **New File Name** field, enter the file name and its location.
 
     The original path cannot be modified other than by entering the specific path in the **New File Name** field. For example, if the original module is located in `folder1`, the new module will be copied to `folder1`. `Folder1` cannot be changed, but a user can define a new file name, such as `folder2/Bank Rating ver2.xlsx,` and then the new module will be created in `folder1/folder2/Bank Rating ver2.xlsx`.
 
-1.  Click **Copy**.
+5.  Click **Copy**.
 
 A new simple module is displayed in the modules list.
 
@@ -235,9 +234,9 @@ If the module is defined using **File Path Pattern**, to copy such module, proce
 1.  Do one of the following:
     -   To create a copy of a module using the **Project** page, put the mouse cursor over multiple modules, click **Copy Module** ![](images/copy-module-icon.png), in the window that appears, click **Select module,** and in the **File Path** drop-down list, select the name of the module to copy.
     -   To create a copy of a module using the **Module** page, in the project tree, select a module to copy, put the mouse cursor over the module name, and click **Copy Module** ![](images/copy-module-icon.png).
-1.  Click **Select module** and in the **File Path** drop-down list, select the name of the module to copy.
-2.  Enter the new module name.
-3.  Click **Copy**.
+2.  Click **Select module** and in the **File Path** drop-down list, select the name of the module to copy.
+3.  Enter the new module name.
+4.  Click **Copy**.
 
 The new module is displayed in the modules list.
 
@@ -310,8 +309,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     *Table opened in OpenL Studio*
 
-1.  To switch between simple and extended view, in **My Settings**, select or clear the **Show Header** and **Show Formula** options as required.
-2.  To switch the table to the edit mode, perform one of the following steps:
+2.  To switch between simple and extended view, in **My Settings**, select or clear the **Show Header** and **Show Formula** options as required.
+3.  To switch the table to the edit mode, perform one of the following steps:
     -   Above the table, click **Edit**.
     -   Right-click anywhere in the table and click **Edit**.
     -   Double click the cell to edit.
@@ -346,12 +345,12 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
 
-1.  To modify a cell value, double click it or press **Enter** while the cell is selected.
-2.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
+4.  To modify a cell value, double click it or press **Enter** while the cell is selected.
+5.  To enter a formula in the cell, double click it, perform a right click, and select **Formula Editor.**
 
     Now a user can enter formulas in the selected cell.
 
-1.  To save changes, click **Save** ![](images/edit-save-icon.png).
+6.  To save changes, click **Save** ![](images/edit-save-icon.png).
 
     If a table contains an error, the appropriate message is displayed.
 
@@ -381,7 +380,7 @@ Links to the rule tables are underlined and marked blue. When a mouse cursor is 
 
 *A tooltip for the linked method to a decision table*
 
-Links to the data and datatype tables are underlined with a dotted line and has an appropriate tooltip with description.
+Links to the data and datatype tables are underlined with a dotted line and have an appropriate tooltip with a description.
 
 ![Links to the datatype tables from the decision and datatype table](images/datatype-table-links.png)
 
@@ -415,7 +414,7 @@ The following example displays the decision table with data represented as a ran
 
 *Decision table with a range data type*
 
-In this table, the **Hour** column contains hours with the IntRange Data type. All range sells are filled except for the last one. This example is used further in this section to demonstrate how Range Editor works.
+In this table, the **Hour** column contains hours with the IntRange data type. All range cells are filled except for the last one. This example is used further in this section to demonstrate how Range Editor works.
 
 The following controls are available in Range Editor:
 
@@ -437,13 +436,13 @@ To create a range, proceed as follows:
 
     *Creating a range in Range Editor*
 
-1.  In the **From** field, enter the left border of the range, which is 22 for the example described in this section.
-2.  In the **To** field, enter the right border of the range.
+2.  In the **From** field, enter the left border of the range, which is 22 for the example described in this section.
+3.  In the **To** field, enter the right border of the range.
 
     In this example, the **To** value must be 24, but an erroneous value 23 is entered for further editing of this border.
 
-1.  Clear the **Include** check box.
-2.  Click **Done** to complete.
+4.  Clear the **Include** check box.
+5.  Click **Done** to complete.
 
     The last cell in the **Hour** column is filled as follows:
 
@@ -451,7 +450,7 @@ To create a range, proceed as follows:
 
     *New range created in Range Editor*
 
-1.  To modify the range in Range Editor, double click the cell with the [22-23) range.
+6.  To modify the range in Range Editor, double click the cell with the [22-23) range.
 
     The table resembles the following:
 
@@ -459,8 +458,8 @@ To create a range, proceed as follows:
 
     *Editing a range in Range Editor*
 
-1.  Select the **To** field, set the right border to 24, and select **Include**.
-2.  Click **Done** to save the work.
+7.  Select the **To** field, set the right border to 24, and select **Include**.
+8.  Click **Done** to save the work.
 
     The range resembles the following:
 
@@ -468,7 +467,7 @@ To create a range, proceed as follows:
 
     *The range edited in Range Editor*
 
-A range can also be modified using ‘\>’, ‘\<’ and ‘=’ controls as described in the beginning of this section.
+A range can also be modified using the ‘\>’, ‘\<’, and ‘=’ controls as described at the beginning of this section.
 
 ### Copying a Table
 
@@ -482,13 +481,13 @@ To create a table as a copy of the existing table, proceed as follows:
 
     *Copying an existing table*
 
-1.  Enter a valid OpenL identifier in **Table Name**. It may match an existing table name when the table is
+3.  Enter a valid OpenL identifier in **Table Name**. It may match an existing table name when the table is
     distinguished by its signature or properties. A name of any other shape is refused, by the window and by the
     server alike.
-2.  Select or enter the destination **Module**.
-3.  Select or enter the destination **Sheet**. The sheet is the table's category, so a new sheet name creates a new
+4.  Select or enter the destination **Module**.
+5.  Select or enter the destination **Sheet**. The sheet is the table's category, so a new sheet name creates a new
     category.
-4.  Review the property name and value rows. The names are the properties applicable to the copied table's type,
+6.  Review the property name and value rows. The names are the properties applicable to the copied table's type,
     offered the way the **Table Details** editor lists them — by display name, under the **Info**, **Business
     Dimension**, **Version** and **Dev** groups, so the dimensional properties are presented rather than guessed:
     - complete the last row to add another property, or delete a row with its row control;
@@ -502,7 +501,7 @@ To create a table as a copy of the existing table, proceed as follows:
     - **Version** is entered as its three numbers — major, minor and variant — with the version the copied table
       stands for named beside them. It opens on the first version the table's versions leave free, and a version
       one of them already carries is refused.
-5.  Click **Copy** to save your changes.
+7.  Click **Copy** to save your changes.
 
 The copy is stamped as created: OpenL Studio records **Created By** and **Created On** on it, as it does for a table
 created from scratch, provided **Update table properties** is selected in the system settings.
@@ -545,27 +544,27 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 
     *Initiating the advanced search*
 
-1.  In the **Search** field on the top, select whether search must be performed within the current module, or within the project, or within the current project and its dependent projects.
+2.  In the **Search** field on the top, select whether search must be performed within the current module, or within the project, or within the current project and its dependent projects.
 
     ![Specifying search area](images/advanced-search-area-selection.png)
 
     *Specifying search area*
 
-1.  In the filter form, click the **Table Types** field and select the required table type or select **Select All** to search in all table types.
-2.  In the **Header contains** field, enter the word or phrase to search for.
-3.  Expand the **Table Properties** list, select the required table property, and then click the **Add** button on the right.
+3.  In the filter form, click the **Table Types** field and select the required table type or select **Select All** to search in all table types.
+4.  In the **Header contains** field, enter the word or phrase to search for.
+5.  Expand the **Table Properties** list, select the required table property, and then click the **Add** button on the right.
 
     The text field for entering the property name appears.
 
-1.  Enter the property name.
-2.  In the similar way, add as many table properties as required.
-3.  To remove a property, click the cross icon to the right of the property.
+6.  Enter the property name.
+7.  In the similar way, add as many table properties as required.
+8.  To remove a property, click the cross icon to the right of the property.
 
     ![A filled form for advanced search](images/advanced-search-form.png)
 
     *A filled form for advanced search*
 
-1.  Click **Search** to run the search.
+9.  Click **Search** to run the search.
 
 As a result, the system displays the tables matching the search criteria along with links to the relevant Excel files and the **View Table** links leading to the table editing page.
 
@@ -751,20 +750,20 @@ signature of the selected table. For more information, see [Editing and Testing 
 
 OpenL Studio supports comparing contents of Excel files displaying tables and Excel elements that are modified. To compare two Excel files, proceed as follows:
 
-1.  In OpenL Studio Rules Editor, in the top line menu, select **More \> Compare Excel Files.**
+1.  In OpenL Studio Rules Editor, in the toolbar, select **More \> Compare Excel Files.**
 
     ![Initiating Excel comparison functionality](images/excel-comparison-initiate.png)
 
     *Initiating Excel comparison functionality*
 
-1.  In the window that appears, click **Add** and select two Excel files to compare.
-2.  Click **Upload** and wait until file status is changed to **Done.**
+2.  In the window that appears, click **Add** and select two Excel files to compare.
+3.  Click **Upload** and wait until file status is changed to **Done.**
 
     ![Excel files ready for comparison](images/excel-files-ready-for-comparison.png)
 
     *Excel files ready for comparison*
 
-1.  To display tables and other Excel file elements that differ in the selected Excel files, click **Compare.**
+4.  To display tables and other Excel file elements that differ in the selected Excel files, click **Compare.**
 
     The list of tables and Excel elements is displayed, grouped by Excel sheets. Clicking on the table or element in the list displays the changes in the section below.
 
@@ -774,8 +773,8 @@ OpenL Studio supports comparing contents of Excel files displaying tables and Ex
 
     Elements and tables that changed the location or contents are marked with the asterisk icon ![](images/excel-compare-changed-icon.png). Added elements are marked with the plus sign icon ![](images/excel-compare-added-icon.png). Removed elements or tables are marked with the deletion icon ![](images/excel-compare-removed-icon.png).
 
-1.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
-2.  To display all equal tables and Excel file elements in the selected Excel files, select **Show equal elements** check box and click **Compare.**
+5.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
+6.  To display all equal tables and Excel file elements in the selected Excel files, select the **Show equal elements** check box and click **Compare.**
 
 All elements that are equal in the selected Excel files are displayed, grouped by Excel sheets. Elements that are relocated, added, or removed are marked with an appropriate icon.
 
@@ -793,13 +792,13 @@ The generated project contains information about the last file import date, name
 
 It contains the following information:
 
-| Field          | Description                                                                                                                                                                                                                                                                                                                                                                                   |
-|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Last Import At | Date of the last upload of the OpenAPI file. <br/>The OpenAPI file can be replaced in the Repository tab or generated or regenerated from rules tables and datatype tables.                                                                                                                                                                                                                        |
-| OpenAPI File   | Location and name of the OpenAPI file, such as openAPI.json and files/example.json.                                                                                                                                                                                                                                                                                                           |
-| Mode           | Last operation performed with this OpenAPI project. <br/>**- Tables generation** mode means that the last performed operation is generation or regeneration of the project based on the OpenAPI file. <br/>For the **Tables generation** option, project reconciliation is done, too. <br/>**- Reconciliation** mode is set to validate the project against the newly uploaded OpenAPI file with a new name. |
-| Rules Module   | Name of the module that contains rules.                                                                                                                                                                                                                                                                                                                                                       |
-| Data Module    | Name of the module that contains data types.                                                                                                                                                                                                                                                                                                                                                  |
+-   **Last Import At** — date of the last upload of the OpenAPI file. The OpenAPI file can be replaced on the **Projects** page or generated or regenerated from rules tables and datatype tables.
+-   **OpenAPI File** — location and name of the OpenAPI file, such as `openAPI.json` and `files/example.json`.
+-   **Mode** — last operation performed with this OpenAPI project:
+    -   **Tables generation** means that the last performed operation is generation or regeneration of the project based on the OpenAPI file. For this option, project reconciliation is done, too.
+    -   **Reconciliation** means that the mode is set to validate the project against the newly uploaded OpenAPI file with a new name.
+-   **Rules Module** — name of the module that contains rules.
+-   **Data Module** — name of the module that contains data types.
 
 The following topics are described in this section:
 
@@ -819,7 +818,7 @@ If a project is not generated from an OpenAPI file and it is necessary to add th
 
     *Initiating OpenAPI file generation*
 
-1.  If an OpenAPI file does not exist, ensure that the **Generate from Rules and Datatype tables** and **Reconciliation** options are selected.
+3.  If an OpenAPI file does not exist, ensure that the **Generate from Rules and Datatype tables** and **Reconciliation** options are selected.
 
     ![Reviewing settings for the OpenAPI file generation](images/openapi-generation-settings.jpeg)
 
@@ -827,7 +826,7 @@ If a project is not generated from an OpenAPI file and it is necessary to add th
 
     If the OpenAPI file already exists, the **Uploaded in the Repository** option is selected by default and the file name is displayed in the field. If the file must be regenerated according to the current project tables, the **Generate from Rules and Datatype tables** and **Reconciliation** options must be selected.
 
-1.  Click **Import.**
+4.  Click **Import.**
 
 The file creation confirmation message is displayed. The OpenAPI file is added to the project and appears in the OpenAPI section.
 
@@ -841,22 +840,22 @@ Note that successful generation of the OpenAPI file requires that the project ha
 
 If a project is not generated from the OpenAPI file, but it is required to add the OpenAPI file and generate modules from it, proceed as follows:
 
-1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
+1.  Ensure that the OpenAPI file is uploaded to the project on the **Projects** page.
 2.  In Rules Editor, click **Click to Import OpenAPI File.**
 
     ![Initiating OpenAPI file import](images/openapi-import-initiate.png)
 
     *Initiating OpenAPI file import*
 
-1.  Enter the name of the OpenAPI imported file, such as example.json.
-2.  Select the **Tables generation** mode.
+3.  Enter the name of the OpenAPI imported file, such as `example.json`.
+4.  Select the **Tables generation** mode.
 
     ![Selecting the generation mode](images/openapi-select-generation-mode.png)
 
     *Selecting the generation mode*
 
-1.  If necessary, modify the default values for the rules and data modules and click **Import**.
-2.  If no module with the entered name is found, set up the path to the generated file and click **Import.**
+5.  If necessary, modify the default values for the rules and data modules and click **Import**.
+6.  If no module with the entered name is found, set up the path to the generated file and click **Import.**
 
     ![Module settings window, both modules are new](images/openapi-module-settings-new.png)
 
@@ -868,7 +867,7 @@ If a project is not generated from the OpenAPI file, but it is required to add t
 
     *Module settings window, one of modules already exists*
 
-1.  Click on the **Import and overwrite**.
+7.  Click **Import and overwrite**.
 
 The rules and model modules are created or updated. The OpenAPI data is updated.
 
@@ -878,18 +877,18 @@ If a project is initially created from an OpenAPI file, it can be regenerated fr
 
 #### Updating the OpenAPI File
 
-When the project is generated from the OpenAPI file and reconciliation is done, the system automatically validates the generated OpenL Tablets rules and data types. If the file is updated in the **Repository** tab and the name is not changed, reconciliation is completed immediately.
+When the project is generated from the OpenAPI file and reconciliation is done, the system automatically validates the generated OpenL Tablets rules and data types. If the file is updated on the **Projects** page and the name is not changed, reconciliation is completed immediately.
 
 To reconcile a project using an OpenAPI file with a different name, proceed as follows:
 
-1.  Ensure that the OpenAPI file is uploaded to the project via the **Repository** tab.
-2.  In Rules Editor, click **OpenAPI Import icon ![](images/openapi-import-icon.png).**
+1.  Ensure that the OpenAPI file is uploaded to the project on the **Projects** page.
+2.  In Rules Editor, click the **OpenAPI Import** icon ![](images/openapi-import-icon.png).
 
     ![Initiating OpenAPI import](images/openapi-import-dialog.jpeg)
 
     *Initiating OpenAPI import*
 
-1.  In the Import OpenAPI File window, enter the OpenAPI file location, select **Reconciliation,** and click **Import**.
+3.  In the **Import OpenAPI File** window, enter the OpenAPI file location, select **Reconciliation,** and click **Import**.
 
     ![Selecting an OpenAPI file for reconciliation](images/openapi-select-file-for-reconciliation.png)
 
