@@ -102,6 +102,20 @@ vi.mock('antd', () => ({
         </label>
     ),
     Empty: Object.assign(({ description }: any) => <div>{description}</div>, { PRESENTED_IMAGE_SIMPLE: 'simple' }),
+    Segmented: ({ options, value, onChange, size, ...rest }: any) => (
+        <div {...rest}>
+            {options.map((option: any) => (
+                <button
+                    key={option.value}
+                    aria-pressed={option.value === value}
+                    onClick={() => onChange?.(option.value)}
+                    type="button"
+                >
+                    {option.label}
+                </button>
+            ))}
+        </div>
+    ),
     Spin: ({ description }: any) => <div role="status">{description}</div>,
     Splitter: Object.assign(({ children }: any) => <div>{children}</div>, {
         Panel: ({ children }: any) => <div>{children}</div>,
@@ -421,6 +435,22 @@ describe('ComparePage', () => {
         push('COMPLETED')
 
         expect(await screen.findByText('Datatype Address')).toBeInTheDocument()
+    })
+
+    it('reads the two versions side by side, and as one table when that is asked for', async () => {
+        await openPage()
+        await startComparison()
+        push('COMPLETED')
+        await screen.findByText('Rules')
+
+        // Side by side is how a comparison reads unless the reader says otherwise.
+        expect(screen.getByTestId('compare-pane-first')).toBeInTheDocument()
+        expect(screen.queryByTestId('compare-pane-combined')).toBeNull()
+
+        await userEvent.click(screen.getByText('view_combined'))
+
+        expect(screen.getByTestId('compare-pane-combined')).toBeInTheDocument()
+        expect(screen.queryByTestId('compare-pane-first')).toBeNull()
     })
 
     it('goes back to the files and lets the comparison go', async () => {

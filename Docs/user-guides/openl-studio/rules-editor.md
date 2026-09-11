@@ -785,6 +785,16 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
     either side more room. The button above the list hides it and leaves the tables alone; while the list is
     hidden, the button that brings it back and **Select other files** are above the first file.
 
+1.  To read the two versions as one table instead of two, select **Combined** at the end of the line the files are named on.
+
+    Each row is led by the sign that says what became of it, and a cell the two files read differently carries both values, the one the first file has before the one the second file has in its place. The signs the table is read by are listed beside the file names, and each sign in the table says what it means when the pointer rests on it.
+
+    ![](images/excel-comparison-combined.jpeg)
+
+    *The two versions drawn as one table*
+
+    When the two files hold a different number of rows, there is nothing to read one against the other. What the first file holds is shown first, each row marked with a minus, and what the second file holds after it, each row marked with a plus.
+
 1.  To display the rows that read the same in both files, select the **Show equal rows** check box. Without it, an element shows only the rows that differ.
 2.  To compare another pair of files, click **Select other files**.
 
