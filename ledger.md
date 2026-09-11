@@ -2,11 +2,11 @@
 
 ## Resume point
 
-- PR #2101 is open on `dead-code/react-run-residue`, green and unreviewed; maintain it before any new sweep.
-- Every change type has had a repo-wide pass; the swept head is `origin/main` ba11551eb. No untried detector is left.
-- Next run: diff `origin/main` against ba11551eb; no Java or resource change → no build, no scan, no notification.
+- No open PR. The next finding starts a fresh branch cut from a freshly fetched `origin/main`.
+- Every change type has had a repo-wide pass; the swept head is `origin/main` 23b2af95 (the #2101 merge).
+- Unswept vein waiting: EPBDS-16576 "compare Excel files" (2 commits before the merge, 250 files, +10510/-8396,
+  incl. studio-ui legacyCompare.ts removal) — sweep its residue first, the way EPBDS-16560's was swept.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
-- Same-kind finds extend #2101's matching commit with `--fixup` + autosquash; a new kind is a new commit there.
 
 ## Change-type queue
 
@@ -14,41 +14,37 @@
 |---|-------------|--------|
 | 1 | Commented-out code (Java, CSS, JS) | done 2026-09-09; 39 prose/TODO/reasoned blocks kept |
 | 2 | Never-read assignments, dead stores | done 2026-09-09; PMD rerun: 0 new |
-| 3 | Unused locals, private fields/methods/params | done 2026-09-10; 2 unread Constants fields in #2101 |
+| 3 | Unused locals, private fields/methods/params | done 2026-09-11; PMD clean |
 | 4 | Unused Maven dependency declarations | done 2026-09-07; the rest are providers |
 | 5 | Pom metadata: managed entries, exclusions, plugin config, properties | done 2026-09-07 |
 | 6 | Redundant constructs, dead suppressions, VCS/build settings | done 2026-09-07 |
-| 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-10; 3 icons in #2101 |
-| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-10; 15 rules in #2101 |
+| 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-11 |
+| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-11 |
 | 9 | Legacy JS functions and .xhtml pages | done 2026-09-09; .xhtml all alive |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-10; 6 execution keys in #2101 |
-| 11 | TypeScript exports, types, components, imports | done 2026-09-10; 1 export in #2101 |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-11 |
+| 11 | TypeScript exports, types, components, imports | done 2026-09-11 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 |
-| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-10; 5 types in #2101 |
+| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-11 |
 
 Public API is never in the queue: unused public members go to Deferred findings for a human decision.
 
 ## Open PR
 
-- #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions —
-  re-derived from the merge base, description matches. No reviews or threads; base still ba11551eb.
-- All 17 checks green (dependabot skipped), SonarCloud gate 0 new issues, CodeRabbit no actionable comments.
-  `mergeable_state: blocked` is the missing approving review, not a conflict — do not treat it as work to do.
-  The kafka-native flake that cost 3 attempts is settled; never comment on it again.
-- Commits in order: ObjectViewer + 3 grid filters + web.test Utils; 2 Constants fields; 15 common.css rules;
-  3 icons; studio-ui `valuesOf`; 6 execution locale keys. The CSS commit must stay after the Java one and the
-  icon commit after the CSS one — each removal strands the next.
+- None.
 
 ## Merged PRs
 
 - 1906, 1909, 1911-1913, 1915, 1918, 1933, 1940, 2004, 2054, 2056, 2058, 2060, 2062-2063, 2082, 2088-2089, 2092,
   2095-2096 — all merged; what each removed is covered by Exhausted veins.
+- 2101 (EPBDS-16560 residue): 6 commits, 12 files, 393 deletions; rebase-merged, so one commit per change type
+  survived onto main. Confirms a repo-wide single-type commit is accepted as-is.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
 
 ## Module coverage
 
 - All 86 reactor modules, studio-ui, Docs, DEMO and archetypes have been swept for every change type; nothing left open.
 - Only code merged after each pass can yield again: diff `origin/main` against the last swept head before choosing a detector.
+- A big feature merge is the reliable source of new dead code: EPBDS-16560 stranded 393 lines across 5 change types.
 
 ## Deferred findings
 
@@ -279,6 +275,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-11 c: main still ba11551eb, #2101 still green and unreviewed; nothing to fix, nothing to sweep; ledger only.
 - 2026-09-11 d: third consecutive verification-only run — main ba11551eb, #2101 green, no new threads; ledger only.
 - 2026-09-11 e: fourth; #2101's 6-commit grouping and every description number re-derived and still exact; ledger only.
+- 2026-09-11 f: #2101 rebase-merged (393 deletions on main); ledger closed out, EPBDS-16576 left as the next vein.
