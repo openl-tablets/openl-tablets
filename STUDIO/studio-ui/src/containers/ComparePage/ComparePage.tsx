@@ -56,6 +56,38 @@ const versionsRequestOf = (params: URLSearchParams): VersionsRequest | null => {
     return { projectId, moduleName: params.get('module') ?? undefined, first, second }
 }
 
+/** What the window was opened to compare, read from the address it was opened with. */
+interface ComparisonRequest {
+    /** Two versions of a module, when the window was opened for them. */
+    versions: VersionsRequest | null
+    /** The project the window was opened for, whether to pick its files or to read its conflict. */
+    projectId: string | null
+    /** The conflicted file of that project, when the window was opened for one. */
+    conflict: string | null
+    /** That file when it is not a workbook, and so reads line by line rather than as a comparison. */
+    conflictText: string | null
+    /** The project whose two files are picked, or null when there is nothing to pick. */
+    pickedProject: string | null
+}
+
+/**
+ * What the address says the window is for.
+ *
+ * A window is opened for two versions of a module, for a project whose files are picked, or for a
+ * conflicted file of a project. Reading them apart in one place keeps the screen itself to what it
+ * draws.
+ */
+const requestOf = (params: URLSearchParams): ComparisonRequest => {
+    const versions = versionsRequestOf(params)
+    const projectId = versions ? null : params.get('projectId')
+    // A conflicted file of a project is named on its own; a project named without one is a project to
+    // pick two files of.
+    const conflict = projectId ? params.get('conflict') : null
+    // A file that is not a workbook is not compared as one: it reads line by line, in this window.
+    const conflictText = conflict && !EXCEL_FILE.test(conflict) ? conflict : null
+    return { versions, projectId, conflict, conflictText, pickedProject: conflict ? null : projectId }
+}
+
 /** The comparison the window was opened for, or null when it opens on something to pick. */
 const startOf = (
     versions: VersionsRequest | null,
@@ -95,14 +127,9 @@ export const ComparePage: React.FC = () => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
     const [params] = useSearchParams()
-    const versions = useMemo(() => versionsRequestOf(params), [params])
-    const projectId = versions ? null : params.get('projectId')
-    // A conflicted file of a project is named on its own; a project named without one is a project to
-    // pick two files of.
-    const conflict = projectId ? params.get('conflict') : null
-    // A file that is not a workbook is not compared as one: it reads line by line, in this window.
-    const conflictText = conflict && !EXCEL_FILE.test(conflict) ? conflict : null
-    const pickedProject = conflict ? null : projectId
+    const { versions, projectId, conflict, conflictText, pickedProject } = useMemo(
+        () => requestOf(params), [params]
+    )
     const [sides, setSides] = useState<ProjectComparisonSides | null>(null)
     const [conflictStatus, setConflictStatus] = useState<ConflictFileStatus | null>(null)
 
@@ -185,7 +212,7 @@ export const ComparePage: React.FC = () => {
         requested.current = true
         start()
             .then(setComparisonId)
-            .catch((failure: unknown) => setError(errorMessage(failure) || t('failed')))
+            .catch((startError: unknown) => setError(errorMessage(startError) || t('failed')))
     }, [versions, projectId, conflict, conflictText, conflictStatus, t])
 
     // The result is read when the comparison says it has finished, and again as soon as the page is
@@ -209,11 +236,11 @@ export const ComparePage: React.FC = () => {
             .then(result => {
                 if (!cancelled) setComparison(result)
             })
-            .catch((failure: unknown) => {
+            .catch((readError: unknown) => {
                 if (cancelled) {
                     return
                 }
-                if (isApiHttpError(failure) && failure.status === 409) {
+                if (isApiHttpError(readError) && readError.status === 409) {
                     // Still running. The topic says when it ends; a screen that is not listening to it -
                     // a connection that never opened - would wait for a word that never comes, so it asks.
                     if (!progress.subscribed) {
@@ -221,7 +248,7 @@ export const ComparePage: React.FC = () => {
                     }
                     return
                 }
-                setError(errorMessage(failure) || t('failed'))
+                setError(errorMessage(readError) || t('failed'))
             })
         return () => {
             cancelled = true
@@ -242,8 +269,8 @@ export const ComparePage: React.FC = () => {
             .then(result => {
                 if (!cancelled) setTable(result)
             })
-            .catch((failure: unknown) => {
-                if (!cancelled) setTableError(errorMessage(failure) || t('table_failed'))
+            .catch((tableReadError: unknown) => {
+                if (!cancelled) setTableError(errorMessage(tableReadError) || t('table_failed'))
             })
             .finally(() => {
                 if (!cancelled) setTableLoading(false)
@@ -288,8 +315,8 @@ export const ComparePage: React.FC = () => {
             setComparisonId(pickedProject && sides
                 ? await startProjectComparison(pickedProject, sides.first, sides.second)
                 : await startFileComparison(files[0]!, files[1]!))
-        } catch (failure) {
-            setError(errorMessage(failure) || t('failed'))
+        } catch (startError) {
+            setError(errorMessage(startError) || t('failed'))
         } finally {
             setStarting(false)
         }
@@ -403,7 +430,7 @@ export const ComparePage: React.FC = () => {
                             {t('compare')}
                         </Button>
                     </div>
-                    {error && <Alert showIcon data-testid="compare-error" message={error} type="error" />}
+                    {error && <Alert showIcon data-testid="compare-error" title={error} type="error" />}
                 </div>
             )}
             {comparing && (
@@ -453,12 +480,12 @@ export const ComparePage: React.FC = () => {
                                     />
                                 </div>
                                 <div className={styles.body} data-testid="compare-tree">
-                                    {error && <Alert showIcon data-testid="compare-error" message={error} type="error" />}
+                                    {error && <Alert showIcon data-testid="compare-error" title={error} type="error" />}
                                     {comparison?.identical && (
                                         <Alert
                                             showIcon
                                             data-testid="compare-identical"
-                                            message={t('identical')}
+                                            title={t('identical')}
                                             type="info"
                                         />
                                     )}

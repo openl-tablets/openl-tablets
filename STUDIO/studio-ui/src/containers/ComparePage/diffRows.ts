@@ -23,7 +23,10 @@ const changedRowsOf = (side: ComparisonSide): number[] => {
  */
 export const rowsToShow = (table: ComparisonTable, showEqualRows: boolean): ReadonlySet<number> | null => {
     const { first, second } = table
-    if (showEqualRows || !first || !second || first.source.length !== second.source.length) {
+    if (showEqualRows || !first || !second) {
+        return null
+    }
+    if (first.source.length !== second.source.length) {
         return null
     }
     const rows = new Set([...changedRowsOf(first), ...changedRowsOf(second)])

@@ -7,7 +7,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
@@ -29,7 +29,7 @@ import org.openl.util.StringUtils;
  * <p>A file is read either from the working copy - the project as its own user has it now - or from a
  * revision the repository holds, on the branch that revision belongs to.
  */
-@Component
+@Service
 @RequiredArgsConstructor
 public class ProjectComparisonService {
 

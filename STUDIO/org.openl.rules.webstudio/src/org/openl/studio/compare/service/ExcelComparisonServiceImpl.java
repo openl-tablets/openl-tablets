@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import jakarta.validation.constraints.NotNull;
 
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.diff.tree.DiffTreeNode;
@@ -20,7 +20,7 @@ import org.openl.studio.projects.service.ExecutionProgressListener;
  * returns at once and the screen follows the progress the listener reports.
  */
 @Validated
-@Component
+@Service
 public class ExcelComparisonServiceImpl implements ExcelComparisonService {
 
     @Override

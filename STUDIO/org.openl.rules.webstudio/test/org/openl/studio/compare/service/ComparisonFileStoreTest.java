@@ -1,6 +1,7 @@
 package org.openl.studio.compare.service;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -53,19 +54,19 @@ class ComparisonFileStoreTest {
 
     @Test
     void refusesAFileThatIsNotAWorkbook() throws IOException {
-        var content = workbook();
+        var workbook = upload("first.xlsx", workbook());
+        var notes = upload("notes.txt", "text".getBytes());
 
-        assertThrows(BadRequestException.class,
-                () -> store.store(upload("first.xlsx", content), upload("notes.txt", "text".getBytes())));
+        assertThrows(BadRequestException.class, () -> store.store(workbook, notes));
 
         assertTrue(storedFiles().isEmpty(), "nothing is left behind when an upload is refused");
     }
 
     @Test
     void refusesAWorkbookThatDidNotArriveInFull() throws IOException {
-        var truncated = Arrays.copyOf(workbook(), 64);
+        var truncated = upload("cut.xlsx", Arrays.copyOf(workbook(), 64));
 
-        assertThrows(BadRequestException.class, () -> store.store(upload("cut.xlsx", truncated)));
+        assertThrows(BadRequestException.class, () -> store.store(truncated));
 
         assertTrue(storedFiles().isEmpty(), "nothing is left behind when an upload is refused");
     }
@@ -128,7 +129,7 @@ class ComparisonFileStoreTest {
 
     @Test
     void saysNothingWhenThereIsNothingToClear() {
-        store.clearScratch();
+        assertDoesNotThrow(store::clearScratch, "a scratch directory that was never written is not an error");
     }
 
     @Test

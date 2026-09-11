@@ -86,7 +86,7 @@ vi.mock('react-i18next', () => {
 // Ant Design's Tree and Upload need layout jsdom does not run; the test is about the comparison flow,
 // so they stand in as the plain elements they are.
 vi.mock('antd', () => ({
-    Alert: ({ message, showIcon, type, ...rest }: any) => <div data-type={type} role="alert" {...rest}>{message}</div>,
+    Alert: ({ title, showIcon, type, ...rest }: any) => <div data-type={type} role="alert" {...rest}>{title}</div>,
     Button: ({ children, onClick, disabled, loading, icon, ...rest }: any) => (
         <button disabled={disabled || loading} onClick={onClick} {...rest}>{icon}{children}</button>
     ),

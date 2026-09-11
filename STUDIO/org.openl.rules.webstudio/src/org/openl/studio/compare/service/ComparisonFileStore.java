@@ -20,6 +20,7 @@ import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Holds the files a comparison reads.
@@ -191,7 +192,7 @@ public class ComparisonFileStore {
     private Path scratchFile(String name) throws IOException {
         var scratch = Files.createDirectories(Path.of(openlHome, "tmp", "compare"));
         var extension = FileUtils.getExtension(name);
-        return Files.createTempFile(scratch, "openl-cmp", extension.isEmpty() ? "" : "." + extension);
+        return Files.createTempFile(scratch, "openl-cmp", StringUtils.isEmpty(extension) ? "" : "." + extension);
     }
 
     /**

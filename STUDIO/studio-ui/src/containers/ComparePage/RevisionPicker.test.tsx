@@ -32,8 +32,8 @@ vi.mock('react-i18next', () => {
 // Ant Design's Select needs layout jsdom does not run; the test is about what the picker asks for and
 // reports, so it stands in as the plain control it is.
 vi.mock('antd', () => ({
-    Alert: ({ message, showIcon: _showIcon, type: _type, ...rest }: any) => (
-        <div role="alert" {...rest}>{message}</div>
+    Alert: ({ title, showIcon: _showIcon, type: _type, ...rest }: any) => (
+        <div role="alert" {...rest}>{title}</div>
     ),
     Select: ({ onChange, options, value, loading: _loading, popupMatchSelectWidth: _width,
         placeholder: _placeholder, ...rest }: any) => (

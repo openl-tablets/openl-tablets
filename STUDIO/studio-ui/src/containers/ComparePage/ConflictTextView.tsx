@@ -41,9 +41,9 @@ export const ConflictTextView: React.FC<ConflictTextViewProps> = ({ projectId, p
                     setVersions({ theirs, ours })
                 }
             })
-            .catch((failure: unknown) => {
+            .catch((readError: unknown) => {
                 if (!cancelled) {
-                    setError(errorMessage(failure) || t('failed'))
+                    setError(errorMessage(readError) || t('failed'))
                 }
             })
         return () => {
@@ -54,7 +54,7 @@ export const ConflictTextView: React.FC<ConflictTextViewProps> = ({ projectId, p
     return (
         <div className={styles.column}>
             <div className={styles.body} data-testid="compare-conflict-text">
-                {error && <Alert showIcon data-testid="compare-error" message={error} type="error" />}
+                {error && <Alert showIcon data-testid="compare-error" title={error} type="error" />}
                 {!error && !versions && (
                     <div className={styles.center}>
                         <Spin description={t('comparing')} />
