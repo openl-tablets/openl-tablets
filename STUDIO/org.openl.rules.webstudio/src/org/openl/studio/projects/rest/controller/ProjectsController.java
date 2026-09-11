@@ -471,6 +471,16 @@ public class ProjectsController {
         getWebStudio().reset();
     }
 
+    @PostMapping("/{projectId}/modules/{moduleName}/compile")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "projects.modules.compile.summary", description = "projects.modules.compile.desc")
+    public void compileModule(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("moduleName") @Parameter(description = "projects.modules.param.module-name.desc")
+            String moduleName) {
+        projectService.compileModule(project, moduleName);
+    }
+
     @GetMapping("/{projectId}/modules/{moduleName}/sheets")
     @Operation(summary = "projects.modules.sheets.summary")
     public List<String> getModuleSheets(
