@@ -395,15 +395,17 @@ public class ProjectsController {
                             "Other"
                     })),
             @Parameter(name = "name", description = "projects.tables.list.param.name.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "module", description = "projects.tables.list.param.module.desc", in = ParameterIn.QUERY),
             @Parameter(name = "properties", description = "projects.tables.list.param.properties.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
     public PageResponse<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
                                                     @Parameter(hidden = true) @RequestParam Map<String, String> params,
                                                     @RequestParam(value = "kind", required = false) Set<String> kinds,
                                                     @RequestParam(value = "name", required = false) String name,
+                                                    @RequestParam(value = "module", required = false) String module,
                                                     @PaginationDefault Pageable page) {
 
-        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name);
+        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name).module(module);
         params.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))

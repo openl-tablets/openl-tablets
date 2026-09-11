@@ -1564,7 +1564,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Get project tables
+     * Get project tables.
+     *
+     * <p>A query naming a module answers with that module's tables alone. Such a read is served as soon as the named
+     * module is compiled, without waiting for the rest of the project: opening a module compiles it before anything
+     * else, and the modules that follow are of no interest to the answer. A query naming no module answers for the
+     * whole project and waits for all of it, as it always has.
      *
      * @param project project
      * @param query   filter query
@@ -1581,10 +1586,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (modules.isEmpty()) {
             return PageResponse.of(List.of(), page, 0L);
         }
-        var moduleModel = openProject(projectDescriptor, project, modules.getFirst()).awaitCompiled();
+        var requestedModule = query.getModule().orElse(null);
+        var scope = requestedModule == null ? SearchScope.CURRENT_PROJECT : SearchScope.CURRENT_MODULE;
+        var module = requestedModule == null ? modules.getFirst() : modules.stream()
+                .filter(declared -> requestedModule.equals(declared.getName()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+
+        var handle = openProject(projectDescriptor, project, module);
+        // Opening the module has already compiled it, so a module-scoped answer is ready. Only the project-wide
+        // answer has to wait for the modules that are still being compiled behind it.
+        var moduleModel = scope == SearchScope.CURRENT_PROJECT ? handle.awaitCompiled() : handle.project();
 
         var selectors = buildTableSelector(query);
-        var allTables = moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
+        var allTables = moduleModel.search(selectors, scope)
                 .stream()
                 .map(summaryTableReader::read)
                 .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
