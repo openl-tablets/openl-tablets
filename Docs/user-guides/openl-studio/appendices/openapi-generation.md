@@ -154,9 +154,9 @@ The result of generation is as follows.
 
 The LostSpreadsheet is generated because it has a reference to the mySpr spreadsheet result, which is converted as a spreadsheet result call. Nevertheless, this LostSpreadsheet is not included in the **Exposed Methods** section not to break full validation of the project.
 
-![](../images/openapi-gen-module-settings.png)
+![Exposed methods of the generated project](../images/openapi-gen-exposed-methods.png)
 
-*Module settings*
+*Exposed methods of the generated project*
 
 #### Spreadsheet Tables and Datatypes
 
