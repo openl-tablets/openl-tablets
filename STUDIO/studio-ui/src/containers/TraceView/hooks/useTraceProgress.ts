@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef } from 'react'
 import { useWebSocket } from 'hooks/useWebSocket'
 import { useTraceStore } from 'store'
 import type { DebugStatus, TraceProgressMessage } from 'types/trace'
+import { traceStatusTopic } from 'containers/execution/topics'
 
 interface UseTraceProgressOptions {
     projectId: string
@@ -44,7 +45,7 @@ export const useTraceProgress = ({
         }
 
         // Subscribe to trace progress topic
-        const topic = `/user/topic/projects/${encodeURIComponent(projectId)}/tables/${encodeURIComponent(tableId)}/trace/status`
+        const topic = traceStatusTopic(projectId, tableId)
 
         subscriptionIdRef.current = subscribe(
             topic,

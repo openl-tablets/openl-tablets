@@ -27,7 +27,7 @@ import org.openl.studio.projects.service.tests.TestExecutionStatus;
 public class ProjectSocketNotificationService {
 
     private static final  String STATUS = "/status";
-    private static final  String RESULTS = "/units";
+    private static final String RESULTS = "/results";
     private static final String TOPIC_PROJECTS_TESTS = "/topic/projects/%s/tests";
     private static final String TOPIC_PROJECTS_TABLES_TESTS = "/topic/projects/%s/tables/%s/tests";
     private static final String TOPIC_PROJECTS_TABLES_TRACE = "/topic/projects/%s/tables/%s/trace";
