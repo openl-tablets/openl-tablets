@@ -38,6 +38,7 @@ Content-Type: application/json
       {"cell": "C7", "value": "group2"},
       {"cell": "D7", "value": "x2"}
     ]
-  ]
+  ],
+  "headerHeight": 1
 }
 

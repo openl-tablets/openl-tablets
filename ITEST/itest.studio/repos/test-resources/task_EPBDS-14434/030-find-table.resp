@@ -11,6 +11,7 @@ Content-Type: application/json
       "returnType": "PaymentToolsFicaDetails",
       "signature": "FicaTaxRates (Integer year, String ficaType, Double rate, Integer threshold)",
       "file": "EPBDS-14434/EPBDS-14434.xlsx",
+      "sheet": "Configs",
       "pos": "B2:E18"
     }
   ],

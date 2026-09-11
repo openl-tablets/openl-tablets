@@ -41,6 +41,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.TableCopyService;
@@ -125,6 +126,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(Environment.class),
                 mock(ProjectTagsCache.class),
                 new ProjectListingContext(),
+                mock(ModuleCompilationLauncher.class),
                 () -> userWorkspace);
     }
 

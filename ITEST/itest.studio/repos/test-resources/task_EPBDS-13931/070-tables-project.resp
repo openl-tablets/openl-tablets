@@ -11,6 +11,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "doSomething_SimpleSpr(Integer aaa, Pet a)",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Sheet1",
       "pos": "B4:C8"
     },
     {
@@ -24,6 +25,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "doSomething_SimpleSpr_HO()",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Sheet1",
       "pos": "B17:E20"
     }
   ],

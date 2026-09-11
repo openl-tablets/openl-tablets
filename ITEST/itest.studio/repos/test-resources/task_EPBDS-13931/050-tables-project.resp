@@ -9,6 +9,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Cat",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B17:C18"
     },
     {
@@ -17,6 +18,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Color",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B28:B32"
     },
     {
@@ -27,6 +29,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "doSomething_SimpleSpr(Integer aaa, Pet a)",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Sheet1",
       "pos": "B4:C8"
     },
     {
@@ -40,6 +43,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "doSomething_SimpleSpr_HO()",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Sheet1",
       "pos": "B17:E20"
     },
     {
@@ -50,6 +54,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "pamPam(Integer aaa)",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Sheet1",
       "pos": "B33:F41"
     },
     {
@@ -61,6 +66,7 @@ Content-Type: application/json
         "description": "Datatype"
       },
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B5:D8"
     },
     {
@@ -71,6 +77,7 @@ Content-Type: application/json
       "returnType": "String",
       "signature": "sayHello(Integer hour)",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Sheet2",
       "pos": "B8:C13"
     }
   ],

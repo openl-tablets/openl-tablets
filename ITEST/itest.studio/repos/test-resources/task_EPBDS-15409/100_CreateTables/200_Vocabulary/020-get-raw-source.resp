@@ -122,5 +122,6 @@ Content-Type: application/json
         "value": "IE"
       }
     ]
-  ]
+  ],
+  "headerHeight": 1
 }

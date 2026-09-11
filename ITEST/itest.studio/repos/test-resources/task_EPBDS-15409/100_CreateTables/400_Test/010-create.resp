@@ -7,5 +7,6 @@ Content-Type: application/json
   "kind": "Test",
   "name": "IsAdequateMaxCreditRiskScoreTest",
   "file": "EPBDS-15409/Main.xlsx",
+  "sheet": "BankRating",
   "pos": "B27:D33"
 }

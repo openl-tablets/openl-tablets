@@ -7,6 +7,7 @@ Content-Type: application/json
   "kind": "Test",
   "name": "helloTest",
   "file": "EPBDS-16459-Blank/Main.xlsx",
+  "sheet": "TestCases",
   "pos": "B2:C6"
 }
 

@@ -14,5 +14,6 @@ Content-Type: application/json
     }
   ],
   "pos": "C6:E10",
-  "source": "*"
+  "source": "*",
+  "headerHeight": 3
 }

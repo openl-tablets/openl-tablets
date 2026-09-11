@@ -63,11 +63,20 @@ public class RawTableView extends TableView implements EditableTableView {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public final Integer totalRows;
 
+    @Schema(description = """
+            Number of rows at the top of the table that its header takes — the header line and, where the \
+            table has one, its properties section and the service rows of a decision table. A screen hiding \
+            the header leaves out that many rows; 0 when the table has no header to hide.""")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public final Integer headerHeight;
+
     private RawTableView(Builder builder) {
         super(builder);
         this.pos = builder.pos;
         this.source = builder.source;
         this.totalRows = builder.totalRows;
+        this.headerHeight = builder.headerHeight;
     }
 
     @Override
@@ -107,6 +116,7 @@ public class RawTableView extends TableView implements EditableTableView {
         private String pos;
         private List<List<RawTableCell>> source;
         private Integer totalRows;
+        private Integer headerHeight;
 
         private Builder() {
             tableType(TABLE_TYPE);
@@ -124,6 +134,11 @@ public class RawTableView extends TableView implements EditableTableView {
 
         public Builder totalRows(Integer totalRows) {
             this.totalRows = totalRows;
+            return this;
+        }
+
+        public Builder headerHeight(Integer headerHeight) {
+            this.headerHeight = headerHeight;
             return this;
         }
 

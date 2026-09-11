@@ -11,6 +11,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "MyRule ()",
       "file": "EPBDS-16160/generalProject.xlsx",
+      "sheet": "Sheet1",
       "pos": "C19:D21"
     }
   ],

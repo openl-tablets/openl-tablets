@@ -12,5 +12,6 @@ Content-Type: application/json
     [{"cell": "B3", "value": "attributes"}, {"cell": "C3", "value": "_res_"}],
     [{"cell": "B4", "value": "Attributes"}, {"cell": "C4", "value": "Result"}],
     [{"cell": "B5", "value": ["row-a", "row-b"]}, {"cell": "C5", "value": "row-a"}]
-  ]
+  ],
+  "headerHeight": 2
 }

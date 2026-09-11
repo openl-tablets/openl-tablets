@@ -7,6 +7,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -56,6 +57,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.ProjectState;
+import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
@@ -72,6 +74,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.SearchScope;
@@ -111,10 +114,12 @@ import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
+import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
@@ -158,6 +163,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
             Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
+    private final ModuleCompilationLauncher moduleCompilationLauncher;
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
     private final SummaryTableReader summaryTableReader;
@@ -212,8 +218,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             Environment environment,
             ProjectTagsCache projectTagsCache,
             ProjectListingContext listingContext,
+            ModuleCompilationLauncher moduleCompilationLauncher,
             ObjectFactory<UserWorkspace> userWorkspaceFactory) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
+        this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;
@@ -1564,7 +1572,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Get project tables
+     * Get project tables.
+     *
+     * <p>A query naming a module answers with that module's tables alone. Such a read is served as soon as the named
+     * module is compiled, without waiting for the rest of the project: opening a module compiles it before anything
+     * else, and the modules that follow are of no interest to the answer. A query naming no module answers for the
+     * whole project and waits for all of it, as it always has.
      *
      * @param project project
      * @param query   filter query
@@ -1581,10 +1594,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (modules.isEmpty()) {
             return PageResponse.of(List.of(), page, 0L);
         }
-        var moduleModel = openProject(projectDescriptor, project, modules.getFirst()).awaitCompiled();
+        var requestedModule = query.getModule().orElse(null);
+        var scope = requestedModule == null ? SearchScope.CURRENT_PROJECT : SearchScope.CURRENT_MODULE;
+        var module = requestedModule == null ? modules.getFirst() : modules.stream()
+                .filter(declared -> requestedModule.equals(declared.getName()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+
+        var handle = openProject(projectDescriptor, project, module);
+        // Opening the module has already compiled it, so a module-scoped answer is ready. Only the project-wide
+        // answer has to wait for the modules that are still being compiled behind it.
+        var moduleModel = scope == SearchScope.CURRENT_PROJECT ? handle.awaitCompiled() : handle.project();
 
         var selectors = buildTableSelector(query);
-        var allTables = moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
+        var allTables = moduleModel.search(selectors, scope)
                 .stream()
                 .map(summaryTableReader::read)
                 .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
@@ -1726,14 +1749,62 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return projectDescriptor;
     }
 
+    /**
+     * Starts a module's compilation and answers at once.
+     *
+     * <p>Opening the module is what compiles it, and on a large project that takes minutes. The work is handed to a
+     * background thread so the caller is not held for it; how far the compilation has come is reported on the
+     * project's status channel, which names every module as it finishes.
+     *
+     * @param project    project owning the module
+     * @param moduleName module to compile
+     * @param reset      compile it again from the workbook, dropping what was compiled before
+     */
+    public void compileModule(RulesProject project, String moduleName, boolean reset) {
+        var projectDescriptor = getProjectDescriptor(project);
+        var module = projectDescriptor.getModules()
+                .stream()
+                .filter(declared -> moduleName.equals(declared.getName()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+        // Session-scoped collaborators are out of reach of a background thread, so the request thread looks them
+        // up and the work carries them along.
+        var webStudio = getWebStudio();
+        var registry = getCompilationJobRegistry();
+        moduleCompilationLauncher.launch(moduleName, () -> {
+            var handle = openProject(webStudio, registry, projectDescriptor, project, module);
+            if (reset) {
+                // Opening a module already open compiles nothing, so a request to compile it again has to say
+                // so: the dependencies are dropped and the module is built from the workbook once more.
+                try {
+                    handle.project().reset(ReloadType.RELOAD, module);
+                } catch (Exception e) {
+                    throw RuntimeExceptionWrapper.wrap(e);
+                }
+                registry.acquire(projectIdentifierMapper.map(project), handle.project());
+            }
+        });
+    }
+
     private ProjectHandle openProject(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
+        return openProject(getWebStudio(), getCompilationJobRegistry(), projectDescriptor, project, module);
+    }
+
+    /**
+     * Opens a module against collaborators the caller has already resolved, so that a thread without a session of
+     * its own can open one too.
+     */
+    private ProjectHandle openProject(WebStudio webstudio,
+                                      CompilationJobRegistry registry,
+                                      ProjectDescriptor projectDescriptor,
+                                      RulesProject project,
+                                      @Nullable Module module) {
         if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
-        var webstudio = getWebStudio();
         webstudio.init(project.getRepository().getId(), project.getBranch(), projectDescriptor.getName(), module.getName());
         var moduleModel = webstudio.getModel();
-        var job = getCompilationJobRegistry().acquire(projectIdentifierMapper.map(project), moduleModel);
+        var job = registry.acquire(projectIdentifierMapper.map(project), moduleModel);
         return ProjectHandle.of(moduleModel, job);
     }
 
@@ -1744,8 +1815,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId table id
      * @return table data
      */
-    public TableView getTable(RulesProject project, String tableId) {
-        var context = getOpenLTable(project, tableId);
+    public TableView getTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTable(project, tableId, moduleName);
         var table = context.table();
         var reader = readers.stream()
                 .filter(r -> r.supports(table))
@@ -1771,7 +1842,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, null, null, false);
+        return getTableRaw(project, tableId, null, null, false, null);
     }
 
     /**
@@ -1790,8 +1861,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data, with {@code totalRows} set when the window omits rows
      */
     public RawTableView getTableRaw(RulesProject project, String tableId, @Nullable Integer startRow,
-            @Nullable Integer maxRows, boolean withStyles) {
-        var context = getOpenLTable(project, tableId);
+            @Nullable Integer maxRows, boolean withStyles, @Nullable String moduleName) {
+        var context = getOpenLTable(project, tableId, moduleName);
         var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles);
         tableView.messages = mapMessages(context);
         return tableView;
@@ -1846,7 +1917,51 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return metadataService.getSheets(project, module.getRulesRootPath());
     }
 
+    /**
+     * The tests and runs that exercise the given table.
+     *
+     * <p>Each is a table of its own, named by the id the Tables API addresses it by, so the screen showing them can
+     * open one as it opens any other table.
+     *
+     * @param project project owning the table
+     * @param tableId table the tests are asked about
+     * @return the tests and runs covering it, by name
+     */
+    public List<TableTestView> getTableTests(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTable(project, tableId, moduleName);
+        var tests = context.module().getTestAndRunMethods(context.table().getUri(), false);
+        if (tests == null) {
+            return List.of();
+        }
+        return Arrays.stream(tests)
+                .map(test -> TableTestView.builder()
+                        .id(((TableSyntaxNode) test.getInfo().getSyntaxNode()).getId())
+                        .name(TableSyntaxNodeUtils.getTestName(test))
+                        .info(ProjectHelper.getTestInfo(test))
+                        .build())
+                .sorted(Comparator.comparing(TableTestView::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
+        return getOpenLTable(project, tableId, false);
+    }
+
+    /**
+     * Resolve a table that is asked for through one named module.
+     *
+     * <p>Opening the module compiles it, so the table is there to be read as soon as that is done — the modules
+     * after it are of no interest to the answer and are not waited for. A table the module turns out not to hold
+     * falls back to the project-wide lookup, which waits as it always has.
+     */
+    private OpenLTableContext getOpenLTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        if (moduleName != null) {
+            var moduleModel = openProject(project, moduleName).project();
+            var table = moduleModel.getTableById(tableId);
+            if (table != null && moduleModel.getModuleInfo().containsTable(table.getUri())) {
+                return new OpenLTableContext(table, moduleModel);
+            }
+        }
         return getOpenLTable(project, tableId, false);
     }
 

@@ -9,6 +9,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Cat",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B17:C18"
     },
     {
@@ -17,6 +18,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Color",
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B28:B32"
     },
     {
@@ -28,6 +30,7 @@ Content-Type: application/json
         "description": "Datatype"
       },
       "file": "EPBDS-13931/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B5:D8"
     }
   ],
