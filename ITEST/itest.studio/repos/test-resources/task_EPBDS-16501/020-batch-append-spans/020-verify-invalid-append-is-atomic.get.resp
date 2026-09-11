@@ -23,6 +23,7 @@ Content-Type: application/json
       }
     ]
   ],
-  "totalRows": 9
+  "totalRows": 9,
+  "headerHeight": 4
 }
 

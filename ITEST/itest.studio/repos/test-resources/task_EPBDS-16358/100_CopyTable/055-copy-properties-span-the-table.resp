@@ -38,5 +38,6 @@ Content-Type: application/json
       }
     ]
   ],
-  "totalRows": 10
+  "totalRows": 10,
+  "headerHeight": 5
 }

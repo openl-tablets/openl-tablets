@@ -16,5 +16,6 @@ Content-Type: application/json
       {"cell": "C5", "value": ["2050-01-02T03:04:05.678", "2051-02-03T04:05:06.789"]},
       {"cell": "D5", "value": ["US", null, "UA"]}
     ]
-  ]
+  ],
+  "headerHeight": 2
 }

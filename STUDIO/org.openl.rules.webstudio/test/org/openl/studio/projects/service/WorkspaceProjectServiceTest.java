@@ -47,12 +47,14 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -98,6 +100,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
@@ -108,6 +111,7 @@ import org.openl.studio.projects.service.protection.ProtectedBranchBypassService
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
@@ -1489,7 +1493,7 @@ class WorkspaceProjectServiceTest {
         var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
         doReturn(registry).when(service).getCompilationJobRegistry();
 
-        service.compileModule(project, "Claims");
+        service.compileModule(project, "Claims", false);
 
         // Compiling a module takes minutes, so the request is answered as soon as the work is handed over.
         verify(webStudio, never()).init(any(), any(), any(), any());
@@ -1503,16 +1507,162 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_refresh_asks_for_the_module_to_be_built_again_rather_than_left_as_it_is() throws Exception {
+        var launcher = mock(ModuleCompilationLauncher.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(serviceCompilingWith(webStudio, launcher));
+        var projectModel = mock(ProjectModel.class);
+        var registry = mock(CompilationJobRegistry.class);
+        var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        when(registry.acquire(any(), any())).thenReturn(mock(CompilationJob.class));
+
+        service.compileModule(project, "Claims", true);
+
+        var work = forClass(Runnable.class);
+        verify(launcher).launch(eq("Claims"), work.capture());
+        work.getValue().run();
+
+        // Opening a module already open compiles nothing, so a refresh has to say that the module is to be
+        // built again from the workbook.
+        verify(projectModel).reset(eq(ReloadType.RELOAD), any(Module.class));
+    }
+
+    @Test
+    void opening_a_module_leaves_what_is_already_compiled_alone() throws Exception {
+        var launcher = mock(ModuleCompilationLauncher.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(serviceCompilingWith(webStudio, launcher));
+        var projectModel = mock(ProjectModel.class);
+        var registry = mock(CompilationJobRegistry.class);
+        var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        when(registry.acquire(any(), any())).thenReturn(mock(CompilationJob.class));
+
+        service.compileModule(project, "Claims", false);
+
+        var work = forClass(Runnable.class);
+        verify(launcher).launch(eq("Claims"), work.capture());
+        work.getValue().run();
+
+        verify(projectModel, never()).reset(any(), any());
+    }
+
+    @Test
     void compiling_an_unknown_module_is_not_found() throws Exception {
         var launcher = mock(ModuleCompilationLauncher.class);
         var webStudio = mock(WebStudio.class);
         var service = serviceCompilingWith(webStudio, launcher);
         var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
 
-        var error = assertThrows(NotFoundException.class, () -> service.compileModule(project, "Absent"));
+        var error = assertThrows(NotFoundException.class, () -> service.compileModule(project, "Absent", false));
 
         assertEquals("openl.error.404.project.module.identifier.message", error.getErrorCode());
         verify(launcher, never()).launch(any(), any());
+    }
+
+    @Test
+    void a_table_asked_for_through_its_module_is_answered_without_joining_the_project() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class)));
+        var moduleModel = mock(ProjectModel.class);
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
+        var handle = mock(ProjectHandle.class);
+        var table = mock(IOpenLTable.class);
+        var moduleInfo = mock(Module.class);
+        when(handle.project()).thenReturn(moduleModel);
+        when(moduleModel.getTableById("claims-id")).thenReturn(table);
+        when(table.getUri()).thenReturn("Pricing/Claims.xlsx?sheet=Rules");
+        when(moduleModel.getModuleInfo()).thenReturn(moduleInfo);
+        when(moduleInfo.containsTable("Pricing/Claims.xlsx?sheet=Rules")).thenReturn(true);
+        doReturn(handle).when(service).openProject(project, "Claims");
+
+        service.getTableTests(project, "claims-id", "Claims");
+
+        // Opening the module is what compiles it, so the table is there to be read. Joining the project's
+        // compilation is what used to hold the editor's first read until every other module was built.
+        verify(handle, never()).awaitCompiled();
+        verify(moduleModel).getTestAndRunMethods("Pricing/Claims.xlsx?sheet=Rules", false);
+    }
+
+    @Test
+    void a_table_the_named_module_does_not_hold_is_looked_up_across_the_project() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class)));
+        var moduleModel = mock(ProjectModel.class);
+        var projectModel = mock(ProjectModel.class);
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
+        var moduleHandle = mock(ProjectHandle.class);
+        var projectHandle = mock(ProjectHandle.class);
+        var table = mock(IOpenLTable.class);
+        when(moduleHandle.project()).thenReturn(moduleModel);
+        when(projectHandle.awaitCompiled()).thenReturn(projectModel);
+        when(projectModel.getTableById("shared-id")).thenReturn(table);
+        when(table.getUri()).thenReturn("Pricing/Shared.xlsx?sheet=Rules");
+        when(projectModel.getModuleInfo()).thenReturn(mock(Module.class));
+        doReturn(moduleHandle).when(service).openProject(project, "Claims");
+        doReturn(projectHandle).when(service).openProject(project);
+
+        service.getTableTests(project, "shared-id", "Claims");
+
+        // The module was asked first and does not hold the table, so the answer comes from the whole project —
+        // which is compiled through, as it always was.
+        verify(projectHandle).awaitCompiled();
+        verify(projectModel).getTestAndRunMethods("Pricing/Shared.xlsx?sheet=Rules", false);
+    }
+
+    @Test
+    void the_tests_covering_a_table_are_named_by_the_id_the_tables_api_addresses_them_by() throws Exception {
+        var moduleModel = TableTestProjects.projectModel(Path.of("test/rules/EPBDS-16463"));
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class)));
+        var project = openedProject(webStudio, moduleModel, "SprTests", "sprTests");
+        var handle = mock(ProjectHandle.class);
+        when(handle.project()).thenReturn(moduleModel);
+        doReturn(handle).when(service).openProject(project, "sprTests");
+        var wrapper = tableNamed(moduleModel, "Wrapper");
+
+        var tests = service.getTableTests(project, wrapper.getId(), "sprTests");
+
+        assertEquals(List.of("WrapperTest"), tests.stream().map(TableTestView::name).toList());
+        var wrapperTest = tests.getFirst();
+        // The id is the one the Tables API answers by, so the screen opens a test as it opens any other table.
+        assertEquals("WrapperTest", moduleModel.getTableById(wrapperTest.id()).getName());
+        assertEquals("1 test case", wrapperTest.info());
+    }
+
+    /** The compiled table of the module carrying the given name. */
+    private static IOpenLTable tableNamed(ProjectModel model, String name) {
+        return model.getAllTableSyntaxNodes()
+                .stream()
+                .map(TableSyntaxNodeAdapter::new)
+                .filter(table -> name.equals(table.getName()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("no table named " + name));
     }
 
     /** A service that hands the module compiles it is asked for to the given launcher. */

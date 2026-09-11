@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -19,6 +20,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
  * Confirms the raw reader caps rows at {@code maxRows} and reports the full count when truncated, while the
@@ -117,6 +119,41 @@ class RawTableReaderTest {
     }
 
     /** The A1 addresses of a matrix row, so a slice can be checked to keep absolute cell addresses. */
+    @Test
+    void aCellCarriesBothWhatItComputedAndWhatItWasWrittenWith(@TempDir Path tempDir) throws Exception {
+        // Showing formulas is the screen's choice, so the read hands it both and asks nothing.
+        var project = TableTestProjects.writeProject(tempDir.resolve("formulas"), "formulas", "Rules", new String[][]{
+                {"Datatype Greeting", null, null},
+                {"String", "code", "alpha"},
+                {"int", "hour", "=1+2"}
+        });
+
+        var read = new RawTableReader().read(firstTable(project));
+
+        var cells = read.source.stream().flatMap(List::stream).toList();
+        var written = cells.stream().filter(cell -> cell.formula() != null).toList();
+        assertEquals(1, written.size(), "only the cell written as a formula carries one");
+        assertEquals("=1+2", written.getFirst().formula(), "the formula reads as Excel writes it");
+        assertNotNull(written.getFirst().value(), "the value the formula computed stays beside it");
+        assertTrue(cells.stream().noneMatch(cell -> String.valueOf(cell.value()).startsWith("=")),
+                "a value is what the cell computed, never the formula behind it");
+    }
+
+    @Test
+    void tellsHowManyRowsTheHeaderTakesSoAScreenCanHideIt(@TempDir Path tempDir) throws Exception {
+        var project = TableTestProjects.writeProject(tempDir.resolve("header"), "header", "Rules", new String[][]{
+                {"Datatype Greeting", null},
+                {"String", "code"},
+                {"int", "hour"}
+        });
+
+        var read = new RawTableReader().read(firstTable(project));
+
+        // The engine's own business view of this table drops the header line, and nothing else.
+        assertEquals(1, read.headerHeight);
+        assertEquals(3, read.source.size(), "the read itself still carries the header");
+    }
+
     private static List<String> cellAddresses(List<RawTableCell> row) {
         return row.stream().map(RawTableCell::cell).toList();
     }
@@ -129,6 +166,17 @@ class RawTableReaderTest {
             }
         }
         throw new IllegalStateException("no plain data row to slice at");
+    }
+
+    /** The first table of a project written for this test. */
+    private static IOpenLTable firstTable(Path project) {
+        for (TableSyntaxNode tsn : TableTestProjects.projectModel(project).getAllTableSyntaxNodes()) {
+            var table = new TableSyntaxNodeAdapter(tsn);
+            if (table.getGridTable(IXlsTableNames.VIEW_DEVELOPER) != null) {
+                return table;
+            }
+        }
+        throw new IllegalStateException("no table resolved in " + project);
     }
 
     /** The first table in the test project with more than one row, so the cap is observable. */

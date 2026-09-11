@@ -239,5 +239,6 @@ Content-Type: application/json
         "value": 88
       }
     ]
-  ]
+  ],
+  "headerHeight": 1
 }
