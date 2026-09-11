@@ -3,6 +3,7 @@ import { Alert, Button, Checkbox, Select, Space, Tooltip, Typography } from 'ant
 import { useTranslation } from 'react-i18next'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
+import { testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
 import {
     ALL_TESTS_ON_A_PAGE,
@@ -50,11 +51,8 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
     const [ran, setRan] = useState(false)
     const [savingFile, setSavingFile] = useState(false)
 
-    const scope = detail.tableId
-        ? `${encodeURIComponent(project.id)}/tables/${encodeURIComponent(detail.tableId)}`
-        : encodeURIComponent(project.id)
     // The panel listens from the moment it opens, so a run it starts cannot end unheard.
-    const progress = useExecutionProgress(`/user/topic/projects/${scope}/tests/status`)
+    const progress = useExecutionProgress(testsTopics(project.id, detail.tableId).status)
 
     const start = (intoFile: boolean) => {
         setStarting(true)

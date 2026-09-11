@@ -27,6 +27,7 @@ import type { TraceParameterValue } from 'types/trace'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
 import { isFinished, useExecutionProgress } from './useExecutionProgress'
+import { testsTopics } from './topics'
 import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
 
 const { Text, Title } = Typography
@@ -250,10 +251,8 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
 
-    const project = encodeURIComponent(projectId)
-    const scope = tableId ? `${project}/tables/${encodeURIComponent(tableId)}` : project
-    const progress = useExecutionProgress(`/user/topic/projects/${scope}/tests/status`,
-        `/user/topic/projects/${scope}/tests/results`)
+    const topics = testsTopics(projectId, tableId)
+    const progress = useExecutionProgress(topics.status, topics.results)
 
     const finished = isFinished(progress.status)
 

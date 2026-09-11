@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { RunResultModal } from 'containers/execution/RunResultModal'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
+import { runStatusTopic, testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
 import {
     readRunResult,
@@ -56,11 +57,10 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         compoundResult: profile?.showComplexResult ?? false,
     })
 
-    const scope = `${encodeURIComponent(project.id)}/tables/${encodeURIComponent(detail.tableId)}`
     // The panel listens from the moment it opens, so a run it starts cannot end unheard. A rule table and a
     // test table report on topics of their own, and only one of the two is ever started from here.
-    const runProgress = useExecutionProgress(`/user/topic/projects/${scope}/run/status`)
-    const testsProgress = useExecutionProgress(`/user/topic/projects/${scope}/tests/status`)
+    const runProgress = useExecutionProgress(runStatusTopic(project.id, detail.tableId))
+    const testsProgress = useExecutionProgress(testsTopics(project.id, detail.tableId).status)
 
     /**
      * Runs what the panel collected.
