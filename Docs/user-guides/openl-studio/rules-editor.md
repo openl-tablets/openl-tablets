@@ -78,6 +78,7 @@ This section explains the following tasks that can be performed on projects in R
 -   [Editing and Saving a Project](#editing-and-saving-a-project)
 -   [Updating and Exporting a Project](#updating-and-exporting-a-project)
 -   [Copying a Project](#copying-a-project)
+-   [Managing Exposed Methods](#managing-exposed-methods)
 -   [Exporting, Updating, and Editing a Module](#exporting-updating-and-editing-a-module)
 -   [Comparing and Reverting Module Changes](#comparing-and-reverting-module-changes)
 -   [Copying a Module](#copying-a-module)
@@ -99,6 +100,7 @@ A project can be opened for editing and saved directly in Rules Editor.
     -   **Project sources** — put the mouse cursor over the **Sources** label and click **Manage Sources** ![](images/edit-icon.png).
     -   **Modules configuration** — put the mouse cursor over the **Modules** label or a particular module name and click **Add Module** ![](images/add-module-icon.png), **Edit Module** ![](images/edit-icon.png), or **Remove Module** ![](images/remove-module-icon.png).
     -   **Project dependencies** — manage dependencies as described in [Defining Project Dependencies](#defining-project-dependencies).
+    -   **Exposed methods** — manage the methods published as a rule service as described in [Managing Exposed Methods](#managing-exposed-methods).
 
 All changes are saved in the project `rules.xml` file. For more information on this XML file, see the [OpenL Tablets Developers Guide](../../developer-guides/index.md).
 
@@ -119,6 +121,52 @@ To export the project to the user’s local machine, in the Rules Editor toolbar
 #### Copying a Project
 
 To create a copy of the project currently open, in the Rules Editor toolbar, click **Copy**. Rules Editor opens the same dialog as the **Projects** page. For the procedure, see [Managing Projects > Copying a Project](repository-editor.md#copying-a-project).
+
+#### Managing Exposed Methods
+
+**Exposed methods** are the methods that the project publishes when it is deployed as a rule service. External
+clients can call only what the list allows. If the list is empty, every method of the project is exposed, which is
+the state of a project that never defines it.
+
+The **Exposed Methods** section of the **Project** page displays the current patterns.
+
+![Exposed methods of a project](images/exposed-methods-section.png)
+
+*Exposed methods of a project*
+
+To manage exposed methods, proceed as follows:
+
+1.  In Rules Editor, in the project tree, select a project name.
+2.  If the project is not editable, make it editable as described in [Editing and Saving a Project](#editing-and-saving-a-project).
+3.  Put the mouse cursor over the **Exposed Methods** label and click **Manage Exposed Methods** ![](images/edit-icon.png).
+
+    For a project that exposes everything, click the **Click to manage exposed methods** link instead.
+
+4.  In the window that appears, enter the patterns for **Included Methods** and **Excluded Methods**.
+
+    ![Managing exposed methods](images/manage-exposed-methods.png)
+
+    *Managing exposed methods*
+
+    Enter one pattern per line. A pattern matches a method name and supports the `*` wildcard for any number of
+    characters and the `?` wildcard for a single character. The two fields are applied in the following order:
+
+    -   If **Included Methods** is empty, all methods are included. Otherwise, only the methods matching at least one
+        of its patterns are included.
+    -   The methods matching a pattern of **Excluded Methods** are removed from the result.
+
+5.  Click **Save**.
+
+The patterns are stored in the project `rules.xml` file, in the `exposed-methods` element, and the project switches
+to the **In Editing** status. Save the project to commit the change to the repository as described in
+[Editing and Saving a Project](#editing-and-saving-a-project).
+
+If the project still defines the deprecated module-level method filters, the section displays the **Migrate Method
+Filters** button. It converts the module-level patterns to project-level exposed methods and removes the original
+entries.
+
+For more information on how exposed methods shape the published service, see the
+[Rule Services and Customization Guide > Dynamic Interface Support](../rule-services/advanced-configuration.md#dynamic-interface-support).
 
 #### Exporting, Updating, and Editing a Module
 
@@ -145,8 +193,8 @@ A user can export, update, or edit a module directly in Rules Editor. Proceed as
 4.  To save the changes, click **Save** ![](images/toolbar-save-icon.png).
 
 **Note:** The **Included Methods** and **Excluded Methods** fields of this window are deprecated and kept for backward
-compatibility. The fields that filter the exposed methods are located in the project information window.
-For more information, see the [Rule Services and Customization Guide > Dynamic Interface Support](../rule-services/advanced-configuration.md#dynamic-interface-support).
+compatibility. The fields that filter the exposed methods are located in the **Project** page, as described in
+[Managing Exposed Methods](#managing-exposed-methods).
 
 #### Comparing and Reverting Module Changes
 

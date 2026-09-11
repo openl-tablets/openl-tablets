@@ -115,7 +115,7 @@ An OpenL Tablets project can be generated from any OpenAPI file. It is also poss
 
     *The enabled option for providing runtime context*
 
-    The DefaultRulesRuntimeContext input parameter is extracted from input parameters for generated spreadsheets. If any path contains RuntimeContext as a parameter, the generated project will have enabled runtime context. If there is any path without runtime context, the generated spreadsheet will be marked as non-OpenL Tablets rule, not included in the included methods regexp, and available only in the generated service AnnotationTemplate class.
+    The DefaultRulesRuntimeContext input parameter is extracted from input parameters for generated spreadsheets. If any path contains RuntimeContext as a parameter, the generated project will have enabled runtime context. If there is any path without runtime context, the generated spreadsheet will be marked as non-OpenL Tablets rule, not included in the exposed methods, and available only in the generated service AnnotationTemplate class.
 
     An example of a schema with partially provided runtime context is as follows.
 
@@ -152,7 +152,7 @@ The result of generation is as follows.
 
 *Lost spreadsheet generation result*
 
-The LostSpreadsheet is generated because it has a reference to the mySpr spreadsheet result, which is converted as a spreadsheet result call. Nevertheless, this LostSpreadsheet is not included in the Included Methods section not to break full validation of the project.
+The LostSpreadsheet is generated because it has a reference to the mySpr spreadsheet result, which is converted as a spreadsheet result call. Nevertheless, this LostSpreadsheet is not included in the **Exposed Methods** section not to break full validation of the project.
 
 ![](../images/openapi-gen-module-settings.png)
 
