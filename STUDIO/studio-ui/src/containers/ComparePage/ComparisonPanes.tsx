@@ -136,9 +136,15 @@ const Side: React.FC<{ side: ComparisonSide; rows: ReadonlySet<number> | null }>
     const { styles } = useStyles()
     const changed = new Set(side.changedCells ?? [])
 
+    // What differs is what the reader came for, so the rest of the table steps back into grey. A table
+    // that differs in nothing has nothing to step back from and keeps the colours the workbook gives it.
     const decorate = (cell: RawTableCell) => {
         const marked = !!cell.cell && changed.has(cell.cell)
-        return { className: marked ? styles.changed : undefined, painted: marked }
+        return {
+            className: marked ? styles.changed : undefined,
+            painted: marked,
+            muted: !marked && changed.size > 0,
+        }
     }
 
     return <RawTableGrid decorate={decorate} rows={rows ? keepRows(side.source, rows) : side.source} />

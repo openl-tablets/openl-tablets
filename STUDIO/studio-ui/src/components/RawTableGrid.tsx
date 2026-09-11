@@ -8,6 +8,8 @@ export interface CellDecoration {
     className?: string | undefined
     /** The screen paints the cell itself, so its Excel background is left out from under that paint. */
     painted?: boolean
+    /** The cell is beside the point on this screen, so its colours are drawn in grey. */
+    muted?: boolean
 }
 
 interface RawTableGridProps {
@@ -26,13 +28,39 @@ const rowKey = (row: RawTableCell[], index: number): string => {
     return address ?? `r${index}`
 }
 
+/** How much of its brightness a muted colour keeps. */
+const MUTED_BRIGHTNESS = 0.8
+
+const HEX_COLOUR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i
+
+/**
+ * The grey a colour reads as when its cell is beside the point: the brightness of the colour itself,
+ * dimmed, so that what the cell is filled with still tells light from dark.
+ *
+ * A colour written in any other way is left alone, and so is a colour the cell does not carry - an
+ * unfilled cell stays unfilled rather than turning grey.
+ */
+const mute = (colour: string | undefined): string | undefined => {
+    if (!colour || !HEX_COLOUR.test(colour)) {
+        return colour
+    }
+    const digits = colour.length === 4
+        ? [...colour.slice(1)].map(digit => digit + digit).join('')
+        : colour.slice(1)
+    const value = Number.parseInt(digits, 16)
+    const average = (((value >> 16) & 0xff) + ((value >> 8) & 0xff) + (value & 0xff)) / 3
+    const grey = Math.round(average * MUTED_BRIGHTNESS)
+    return `rgb(${grey}, ${grey}, ${grey})`
+}
+
 /**
  * The cell's Excel styling. A cell the screen paints keeps its font and alignment but not its own
- * background, which would otherwise sit over the paint.
+ * background, which would otherwise sit over the paint. A muted cell keeps everything but the colours,
+ * which are drawn in grey.
  */
-const cellStyle = (style: RawTableCell['style'], painted: boolean): React.CSSProperties => ({
-    background: painted ? undefined : style?.background,
-    color: style?.color,
+const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean): React.CSSProperties => ({
+    background: painted ? undefined : (muted ? mute(style?.background) : style?.background),
+    color: muted ? mute(style?.color) : style?.color,
     textAlign: style?.align as React.CSSProperties['textAlign'],
     verticalAlign: style?.valign as React.CSSProperties['verticalAlign'],
     fontWeight: style?.bold ? 'bold' : undefined,
@@ -65,7 +93,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, test
                                     colSpan={cell.colspan}
                                     data-cell={cell.cell}
                                     rowSpan={cell.rowspan}
-                                    style={cellStyle(cell.style, !!decoration?.painted)}
+                                    style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
                                 >
                                     {formatValue(cell.value)}
                                 </td>
