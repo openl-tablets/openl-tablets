@@ -33,7 +33,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - #2101 on `dead-code/react-run-residue`, head 411bb376; 6 commits, 12 files, 393 deletions, no insertions —
   re-derived from the merge base, description matches. No reviews or threads; base still ba11551eb.
 - All 17 checks green (dependabot skipped), SonarCloud gate 0 new issues, CodeRabbit no actionable comments.
-  Waiting on human review only; the kafka-native flake that cost 3 attempts is settled — never comment on it again.
+  `mergeable_state: blocked` is the missing approving review, not a conflict — do not treat it as work to do.
+  The kafka-native flake that cost 3 attempts is settled; never comment on it again.
 - Commits in order: ObjectViewer + 3 grid filters + web.test Utils; 2 Constants fields; 15 common.css rules;
   3 icons; studio-ui `valuesOf`; 6 execution locale keys. The CSS commit must stay after the Java one and the
   icon commit after the CSS one — each removal strands the next.
@@ -278,6 +279,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-11 b: #2101 went green on CI attempt 3; corrected the "reruns do not clear the kafka flake" claim on the PR and here.
 - 2026-09-11 c: main still ba11551eb, #2101 still green and unreviewed; nothing to fix, nothing to sweep; ledger only.
 - 2026-09-11 d: third consecutive verification-only run — main ba11551eb, #2101 green, no new threads; ledger only.
+- 2026-09-11 e: fourth; #2101's 6-commit grouping and every description number re-derived and still exact; ledger only.
