@@ -265,6 +265,11 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     // every compile-status push.
     const errors = useMemo(() => errorMessagesOf(status), [status])
     const warnings = useMemo(() => warningMessagesOf(status), [status])
+    // A running compilation reports how many problems it has raised, not which — resolving each to its table
+    // is work it does not do while it runs. The panel stands on those counts, so it does not disappear under
+    // a reader the moment a compilation starts and return only when it ends.
+    const errorCount = status.compilation?.messages?.errors ?? errors.length
+    const warningCount = status.compilation?.messages?.warnings ?? warnings.length
 
     const fold = (next: boolean) => {
         setCollapsed(next)
@@ -288,7 +293,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         window.addEventListener('pointerup', stop)
     }, [])
 
-    if (errors.length === 0 && warnings.length === 0) {
+    if (errorCount === 0 && warningCount === 0 && errors.length === 0 && warnings.length === 0) {
         return null
     }
     const ToggleIcon = collapsed ? UpOutlined : DownOutlined
@@ -314,16 +319,16 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
                 onClick={() => fold(!collapsed)}
                 type="button"
             >
-                {errors.length > 0 && (
+                {errorCount > 0 && (
                     <span className={styles.count} data-testid="compile-problems-errors">
-                        <CloseCircleFilled aria-label={t('browser.compile.error_count', { count: errors.length })} className={styles.errorIcon} />
-                        {errors.length}
+                        <CloseCircleFilled aria-label={t('browser.compile.error_count', { count: errorCount })} className={styles.errorIcon} />
+                        {errorCount}
                     </span>
                 )}
-                {warnings.length > 0 && (
+                {warningCount > 0 && (
                     <span className={styles.count} data-testid="compile-problems-warnings">
-                        <WarningFilled aria-label={t('browser.compile.warning_count', { count: warnings.length })} className={styles.warningIcon} />
-                        {warnings.length}
+                        <WarningFilled aria-label={t('browser.compile.warning_count', { count: warningCount })} className={styles.warningIcon} />
+                        {warningCount}
                     </span>
                 )}
                 <ToggleIcon aria-hidden className={styles.toggle} />
