@@ -314,6 +314,27 @@ describe('ComparisonPanes', () => {
             expect(legend).not.toHaveTextContent('status_changed')
         })
 
+        it('reads two tables of different widths as one dropped and one added', () => {
+            // As many rows, but a row of the first file holds a cell the second one has no place for.
+            const wider: ComparisonTable = {
+                ...TABLE,
+                first: {
+                    source: [
+                        [{ cell: 'A1', value: 'Datatype Person' }, { cell: 'B1', value: 'note' }],
+                        [{ cell: 'A2', value: 'int' }, { cell: 'B2', value: 'kept' }],
+                        [{ cell: 'A3', value: 'name' }, { cell: 'B3', value: 'kept' }],
+                    ],
+                },
+            }
+
+            combined(wider)
+
+            // Nothing is left out: what one file holds is shown whole, then what the other holds.
+            const pane = screen.getByTestId('compare-pane-combined')
+            expect(pane).toHaveTextContent('note')
+            expect(screen.getByTestId('compare-combined').querySelectorAll('tr')).toHaveLength(6)
+        })
+
         it('says for itself that there is nothing to show yet', () => {
             combined(null)
 

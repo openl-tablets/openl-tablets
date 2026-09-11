@@ -135,6 +135,9 @@ class ComparisonMapperTest {
         assertNull(mapper.toTable(tree, "9-0"));
         assertNull(mapper.toTable(tree, "0"));
         assertNull(mapper.toTable(tree, "a-b"));
+        // A place with anything left over is not a place, however the leftover is written.
+        assertNull(mapper.toTable(tree, "0-0-"));
+        assertNull(mapper.toTable(tree, "-0-0"));
     }
 
     private DiffTreeNode compare(String[][] first, String[][] second) throws IOException {

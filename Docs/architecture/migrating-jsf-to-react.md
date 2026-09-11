@@ -233,8 +233,9 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   named by that identifier that reports how it is going, and a `GET` that reads the result once it has
   completed. The work runs on an executor of its own, and what it holds stays in a session-scoped registry
   that releases it when another one starts or the session ends. Compare (`POST /compare/files` →
-  `/topic/compare/{id}/status` → `GET /compare/{id}`) and Run (`POST /projects/{id}/run` →
-  `/topic/projects/{id}/tables/{tableId}/run/status`) are built this way.
+  `/user/topic/compare/{id}/status` → `GET /compare/{id}`) and Run (`POST /projects/{id}/run` →
+  `/topic/projects/{id}/tables/{tableId}/run/status`) are built this way. What is reported to one user
+  is sent to that user, so the client subscribes to it under `/user`.
 - When such work is shown in a window of its own, let **the new window start it**, telling it what to do in
   the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
   window afterwards opens it after an `await`, when the click no longer counts as user activation and a

@@ -9,8 +9,12 @@ import org.openl.util.StringUtils;
  * Runs a task of an asynchronous execution and tells a listener how it went.
  *
  * <p>The listener hears {@link ExecutionStatus#STARTED} before the task runs, and one of
- * {@link ExecutionStatus#COMPLETED}, {@link ExecutionStatus#INTERRUPTED} or an error afterwards. A
- * task abandoned by cancellation ends as interrupted and its future completes with no result.
+ * {@link ExecutionStatus#COMPLETED}, {@link ExecutionStatus#INTERRUPTED} or an error afterwards.
+ *
+ * <p>A task is interrupted in either of two ways, and they end differently. One that gave up on the
+ * interruption has nothing to give, so its future completes with no result. One that reached its end
+ * while it was being asked to stop has a whole result, and its future completes with it - the listener
+ * is told of the interruption all the same, because the work was asked to stop.
  */
 public final class ExecutionLifecycle {
 
@@ -31,6 +35,8 @@ public final class ExecutionLifecycle {
             var result = task.call();
 
             if (Thread.currentThread().isInterrupted()) {
+                // The task ran to its end while it was being asked to stop, so what it found is whole
+                // and is handed over; the listener hears that the stop came too late to take effect.
                 listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
                 return CompletableFuture.completedFuture(result);
             }
