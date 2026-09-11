@@ -37,7 +37,8 @@ import org.openl.studio.compare.service.ComparisonRegistry;
  *
  * <p>A comparison parses both files, so it is started and read in two steps: the start answers with
  * the identifier the comparison is known by, and the result is read once the comparison has
- * finished. Its progress is pushed to the topic {@code /topic/compare/{id}/status}.
+ * finished. Its progress is pushed to the topic {@code /topic/compare/{id}/status} of the user who
+ * asked for it, which the client listens to as {@code /user/topic/compare/{id}/status}.
  *
  * <p>A session holds one comparison at a time. Starting another one releases the previous, and so
  * does closing the screen that shows it.

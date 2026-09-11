@@ -474,6 +474,22 @@ describe('ComparePage', () => {
         expect(screen.queryByTestId('compare-pane-first')).toBeNull()
     })
 
+    it('lets the comparison go when the window is left, and only once', async () => {
+        const page = await openPage()
+        await startComparison()
+        push('COMPLETED')
+        await screen.findByText('Rules')
+
+        page.unmount()
+
+        // The window may be closed or left for another page; the comparison is put down either way.
+        await waitFor(() => expect(dropComparison).toHaveBeenCalledWith('cmp-1'))
+        act(() => {
+            window.dispatchEvent(new Event('pagehide'))
+        })
+        expect(dropComparison).toHaveBeenCalledTimes(1)
+    })
+
     it('goes back to the files and lets the comparison go', async () => {
         await openPage()
         await startComparison()

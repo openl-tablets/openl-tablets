@@ -96,9 +96,18 @@ const aligned = (
  */
 export const combine = (table: ComparisonTable, keep: ReadonlySet<number> | null): CombinedTable => {
     const { first, second } = table
-    return first && second && first.source.length === second.source.length
+    return first && second && sameShape(first.source, second.source)
         ? aligned(first, second, keep)
         : stacked(first, second)
 }
+
+/**
+ * Whether the two tables can be read row against row: as many rows, and as many cells in each of them.
+ *
+ * A row of one file that is wider than the row beside it holds cells the other has no place for, and
+ * drawing the two as one would leave those cells out of the table altogether.
+ */
+const sameShape = (first: RawTableCell[][], second: RawTableCell[][]): boolean =>
+    first.length === second.length && first.every((row, index) => row.length === second[index]?.length)
 
 export default combine

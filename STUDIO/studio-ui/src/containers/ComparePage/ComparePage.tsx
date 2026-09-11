@@ -298,19 +298,28 @@ export const ComparePage: React.FC = () => {
         }
     }, [comparisonId, selectedId, t])
 
-    // A comparison holds both workbooks parsed, so closing the window puts them down at once instead
-    // of leaving them until the session ends.
+    // A comparison holds both workbooks parsed, so a screen that is done with it puts them down at
+    // once instead of leaving them until the session ends. The window may go without a word - closed,
+    // or left for another page - so the comparison is released on both, and only once.
     useEffect(() => {
         if (!comparisonId) {
-            return
+            return undefined
         }
+        let released = false
         const release = () => {
+            if (released) {
+                return
+            }
+            released = true
             void dropComparison(comparisonId).catch(() => {
                 // The comparison is released with the session in any case.
             })
         }
         window.addEventListener('pagehide', release)
-        return () => window.removeEventListener('pagehide', release)
+        return () => {
+            window.removeEventListener('pagehide', release)
+            release()
+        }
     }, [comparisonId])
 
     /** Keeps the width the divider was dragged to, so hiding the list and bringing it back restores it. */
@@ -342,11 +351,8 @@ export const ComparePage: React.FC = () => {
 
     /** Back to the files, leaving the comparison behind: another pair is compared from here. */
     const pickOtherFiles = useCallback(() => {
-        if (comparisonId) {
-            void dropComparison(comparisonId).catch(() => {
-                // The comparison is released with the session in any case.
-            })
-        }
+        // The comparison is released by the effect that holds it, which lets go of what it was told to
+        // hold as soon as the screen stops naming it.
         // The files that were compared are let go with it, so the next pair is the pair that is picked.
         setFiles([])
         setComparisonId(null)

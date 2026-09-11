@@ -151,7 +151,7 @@ The project remains available to the dialog under the identifier issued after th
 The dialog contains the **Compare File Versions** link that opens the two conflicting versions side by side, in a
 window of its own.
 
-![](images/compare-conflicting-versions.jpeg)
+![Comparing the two versions of a conflicted file](images/compare-conflicting-versions.jpeg)
 
 *Comparing conflicting versions*
 

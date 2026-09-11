@@ -184,7 +184,7 @@ To compare module versions, proceed as follows:
 
 1. To compare the changes, select check boxes for two required versions and click **Compare**.
 
-    ![](images/compare-module-versions.jpeg)
+    ![Comparing module versions](images/compare-module-versions.jpeg)
 
     *Comparing module versions*
 
@@ -198,7 +198,7 @@ To compare module versions, proceed as follows:
 
     The two versions of the element are displayed next to each other, with the cells that read differently highlighted. The window is the one described in [Comparing Excel Files](#comparing-excel-files), except that it has no files to pick: it opens on the comparison of the two versions, and the **Show equal elements** check box heads the list of elements instead of standing next to the files.
 
-    ![](images/module-version-comparison-result.jpeg)
+    ![The result of the module version comparison](images/module-version-comparison-result.jpeg)
 
     *The result of the module version comparison*
 
@@ -758,7 +758,7 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 
 1.  In OpenL Studio Rules Editor, in the top line menu, select **More \> Compare Excel Files.**
 
-    ![](images/excel-comparison-initiate.png)
+    ![Initiating Excel comparison](images/excel-comparison-initiate.png)
 
     *Initiating Excel comparison functionality*
 
@@ -766,7 +766,7 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 
 1.  Drag the two files to compare into the box, or click it and select them.
 
-    ![](images/excel-files-ready-for-comparison.png)
+    ![Excel files ready for comparison](images/excel-files-ready-for-comparison.png)
 
     *Excel files ready for comparison*
 
@@ -775,11 +775,11 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 
     The elements of the two files are listed grouped by Excel sheet. Selecting an element displays it as it stands in each of the files, one next to the other, with the cells that differ highlighted. The cells that read the same in both files are drawn in grey, so that the differences are what the eye lands on.
 
-    ![](images/excel-comparison-results.jpeg)
+    ![Excel comparison results](images/excel-comparison-results.jpeg)
 
     *Excel file comparison results*
 
-    Elements that changed their location or their contents are marked with the change icon ![](images/excel-compare-changed-icon.png). Elements that the second file adds are marked with the plus icon ![](images/excel-compare-added-icon.png), and elements that it no longer holds with the minus icon ![](images/excel-compare-removed-icon.png).
+    Elements that changed their location or their contents are marked with the change icon ![Changed](images/excel-compare-changed-icon.png). Elements that the second file adds are marked with the plus icon ![Added](images/excel-compare-added-icon.png), and elements that it no longer holds with the minus icon ![Removed](images/excel-compare-removed-icon.png).
 
     The list of elements, the first file and the second one are separated by dividers. Drag a divider to give
     either side more room. The button above the list hides it and leaves the tables alone; while the list is
@@ -789,7 +789,7 @@ OpenL Studio compares two Excel files and shows the tables and other elements th
 
     Each row is led by the sign that says what became of it, and a cell the two files read differently carries both values, the one the first file has before the one the second file has in its place. The signs the table is read by are listed beside the file names, and each sign in the table says what it means when the pointer rests on it.
 
-    ![](images/excel-comparison-combined.jpeg)
+    ![The two versions drawn as one table](images/excel-comparison-combined.jpeg)
 
     *The two versions drawn as one table*
 

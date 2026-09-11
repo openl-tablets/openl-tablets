@@ -117,7 +117,7 @@ public class ComparisonMapper {
      * {@code <sheet index>-<table index>}.
      */
     private static @Nullable DiffTreeNode findTable(DiffTreeNode root, String tableId) {
-        var position = tableId.split("-");
+        var position = tableId.split("-", -1);
         if (position.length != 2) {
             return null;
         }
