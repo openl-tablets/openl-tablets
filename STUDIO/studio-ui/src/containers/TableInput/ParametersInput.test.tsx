@@ -9,10 +9,11 @@ vi.mock('containers/projects/CodeEditor', () => ({
     ),
 }))
 
-vi.mock('react-i18next', () => {
-    const t = (key: string) => key
-    return { useTranslation: () => ({ t }) }
-})
+// A screen is handed a new `t` when the language changes. It is kept here so that a test can hand out
+// another one, and stays the same between renders otherwise.
+const { translation } = vi.hoisted(() => ({ translation: { t: (key: string) => key } }))
+
+vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: translation.t }) }))
 
 const parameters = [
     { name: 'age', description: 'int', lazy: false, schema: { type: 'integer' } },
@@ -87,5 +88,63 @@ describe('ParametersInput', () => {
         await openNode('policy')
         expect(screen.getByTestId('value-policy.number')).toHaveTextContent('"P-1"')
         expect(parsed(onChange)).toEqual({ params: { age: 9, policy: { number: 'P-1' } } })
+    })
+    it('starts again when the table is described with other parameters', async () => {
+        // Reading a table within the current module only can describe it differently. What was typed for a
+        // parameter that is gone must not be sent, and one that has appeared starts from the value the table
+        // declares for it.
+        const onChange = vi.fn()
+        const { rerender } = render(<ParametersInput onChange={onChange} parameters={parameters} />)
+
+        await userEvent.click(screen.getByTestId('edit-age'))
+        await userEvent.type(screen.getByTestId('input-age'), '42{enter}')
+        expect(parsed(onChange)).toEqual({ params: { age: 42, policy: {} } })
+
+        const other = [{ name: 'limit', description: 'int', lazy: false, schema: { type: 'integer' }, value: 7 }]
+        rerender(<ParametersInput onChange={onChange} parameters={other} />)
+
+        expect(parsed(onChange)).toEqual({ params: { limit: 7 } })
+    })
+
+    it('keeps what is typed when the same parameters are described by another translation', async () => {
+        const onChange = vi.fn()
+        const shown = () => (
+            <ParametersInput onChange={onChange} parameters={parameters} runtimeContext={runtimeContext} />
+        )
+        const { rerender } = render(shown())
+
+        await userEvent.click(screen.getByTestId('edit-age'))
+        await userEvent.type(screen.getByTestId('input-age'), '42{enter}')
+
+        // The language changed: the label of the context is taken from a new translation, while the table
+        // takes the parameters it took before.
+        translation.t = (key: string) => key
+        rerender(shown())
+
+        expect(parsed(onChange)).toEqual({ params: { age: 42, policy: {} } })
+    })
+
+    it('starts the text again too, so what was typed for a parameter that is gone is not sent', async () => {
+        // The text is what is sent while JSON is the input shown. Left as it was, the panel would go on
+        // sending the JSON typed against the parameters the table was described with before.
+        const onChange = vi.fn()
+        const { rerender } = render(<ParametersInput onChange={onChange} parameters={parameters} />)
+
+        await userEvent.click(screen.getByText('input.json'))
+        const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+        await userEvent.clear(text)
+        await userEvent.type(text, '{{"params": {{"age": 42')
+        expect(lastValue(onChange).error).toBe('input.jsonInvalid')
+
+        const other = [{ name: 'limit', description: 'int', lazy: false, schema: { type: 'integer' }, value: 7 }]
+        rerender(<ParametersInput onChange={onChange} parameters={other} />)
+
+        // The text starts again from the new declarations, and the reason the old text did not parse goes
+        // with it.
+        expect(parsed(onChange)).toEqual({ params: { limit: 7 } })
+        expect(lastValue(onChange).error).toBeUndefined()
+        expect((screen.getByTestId('json-editor') as HTMLTextAreaElement).value).toBe(
+            JSON.stringify({ params: { limit: 7 } }, null, 2)
+        )
     })
 })
