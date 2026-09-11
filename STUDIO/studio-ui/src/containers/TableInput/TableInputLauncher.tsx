@@ -96,8 +96,10 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
     const fromModule = moduleOnly ? detail.moduleName : undefined
     const readWithin = useMemo(() => (fromModule ? { fromModule } : {}), [fromModule])
     const testTable = input?.testTable ?? false
-    // The API leaves an empty list out, so a rule table without parameters carries none at all.
-    const declaredParameters = input?.parameters ?? []
+    // The API leaves an empty list out, so a rule table without parameters carries none at all. The list is
+    // the one the table was read with: built anew on every render, it would look like another description of
+    // the table each time, and the form would start again under the user.
+    const declaredParameters = useMemo(() => input?.parameters ?? [], [input])
     const withCases = testTable && caseSelection !== 'none'
     // A table with a runtime context always has something to ask for: the rules read the context even when the
     // table itself takes no parameters, and versions of a rule are chosen by it.
