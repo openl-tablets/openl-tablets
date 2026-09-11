@@ -2,7 +2,8 @@
 
 ## Resume point
 
-- Open PR #2104 (`dead-code/compare-residue`): 4 commits, 13 files, 162 deletions. Keep it green and answered.
+- Open PR #2104 (`dead-code/compare-residue`): 4 commits, 13 files, 162 deletions, one commit per change type, body
+  matches the diff, no review yet. Nothing to do on it until a reviewer answers or `main` moves.
 - Swept head is `origin/main` e01088de. The EPBDS-16576 comparison vein is done; the 8 EPBDS-16415 commits after it
   (97 files, 0 deletions) are additive and stranded nothing. Next vein: whatever merges after e01088de.
 - `origin/main` is red in ITEST and no rerun fixes it (see Human follow-ups) — never this PR's failure.
@@ -36,8 +37,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
   common.css .scrollable and .dropdown-form (8). CodeRabbit: no actionable comments, 5/5 pre-merge checks passed.
 - `IT (studio)` is red on it with the pre-existing main failure; the standing-down comment naming the two stale fixture
   lines is already posted, so never post a second one and never re-run (deterministic assertion, not a flake).
-- #2103 (`dead-code/openapi-layouts-residue`) was a concurrent firing that found a strict subset; closed as superseded.
-  Two overlapping sweep PRs are the real cost of the 4-hourly cron — check open PRs again before pushing.
 
 ## Merged PRs
 
@@ -166,6 +165,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Regroup: one commit per change type per repo-wide pass; fold fixes with --fixup + autosquash; rerun detectors after a removal, because removing a param can leave a caller's param dead.
 - Order the commits so a referrer dies before the resources only it kept alive; an explicit `git rebase -i` todo through GIT_SEQUENCE_EDITOR both reorders and rewords in one pass.
 - Deletion-only PRs: Sonar "New Code" is wider than the diff and may be red for pre-existing findings; state that once, do not patch.
+- Compare the PR run's job list with the base commit's own run: a job red in both is pre-existing, not yours.
 - A "used undeclared" dependency is an addition, not a deletion: it belongs to the separate hygiene PR, never to this sweep.
 
 ## Keep-list
@@ -291,10 +291,9 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
 - Delete the stale remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods; push --delete is 403 from the sandbox, retried and still blocked.
 - Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
-- Three early ledger commits are authored `Claude <noreply@anthropic.com>` against the identity rule; the branch is never force-pushed, so they stay.
 
 ## Run log
 
-- 2026-09-11 f: #2101 rebase-merged (393 deletions on main); ledger closed out, EPBDS-16576 left as the next vein.
 - 2026-09-11 g: swept the EPBDS-16576 vein concurrently with another firing; it opened #2103 (subset).
 - 2026-09-11 h: opened #2104 (4 commits, 13 files, 162 deletions, superset), closed #2103; found main red in ITEST.
+- 2026-09-11 i: main still e01088de, no vein; #2104 body matches its diff and its one red job is red on main too.
