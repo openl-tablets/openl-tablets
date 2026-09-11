@@ -75,10 +75,13 @@ class ComparisonLauncherTest {
         when(comparisonService.compare(any(), any(), any()))
                 .thenThrow(new TaskRejectedException("No room for another comparison"));
 
-        var failure = assertThrows(TaskRejectedException.class,
-                () -> launcher().start(upload("first.xlsx"), upload("second.xlsx")));
+        var launcher = launcher();
+        var first = upload("first.xlsx");
+        var second = upload("second.xlsx");
 
-        assertEquals("No room for another comparison", failure.getMessage());
+        var rejected = assertThrows(TaskRejectedException.class, () -> launcher.start(first, second));
+
+        assertEquals("No room for another comparison", rejected.getMessage());
         // Nothing owns the files until the comparison is registered, so they must not be left behind.
         verify(fileStore).delete(STORED);
         verify(registry, never()).register(any(), any(), any());

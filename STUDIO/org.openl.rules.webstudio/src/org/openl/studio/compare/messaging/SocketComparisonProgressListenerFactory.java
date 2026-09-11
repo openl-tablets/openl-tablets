@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import org.openl.studio.projects.messaging.ProjectSocketNotificationService;
 import org.openl.studio.projects.service.ExecutionProgressListener;
 import org.openl.studio.projects.service.ExecutionStatus;
-import org.openl.util.StringUtils;
 
 /**
  * Creates the listener that tells a user how their comparison is going, over the WebSocket.
@@ -44,7 +43,7 @@ public class SocketComparisonProgressListenerFactory {
      * nothing to show, so it is named by what it is instead.
      */
     private static String reasonOf(@Nullable String message, @Nullable Throwable cause) {
-        if (StringUtils.isNotBlank(message)) {
+        if (message != null && !message.isBlank()) {
             return message;
         }
         return cause == null ? ExecutionStatus.ERROR.name() : cause.getClass().getSimpleName();

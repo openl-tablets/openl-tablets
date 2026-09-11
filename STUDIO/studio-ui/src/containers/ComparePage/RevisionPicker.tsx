@@ -58,9 +58,9 @@ export const RevisionPicker: React.FC<RevisionPickerProps> = ({ projectId, onCha
                     setBranch(project.branch ?? undefined)
                 }
             })
-            .catch((failure: unknown) => {
+            .catch((projectError: unknown) => {
                 if (!cancelled) {
-                    setError(errorMessage(failure) || t('failed'))
+                    setError(errorMessage(projectError) || t('failed'))
                 }
             })
         return () => {
@@ -91,8 +91,8 @@ export const RevisionPicker: React.FC<RevisionPickerProps> = ({ projectId, onCha
     : Promise<string[]> => {
         // What failed last time belongs to the files read last time, so it goes before these are read.
         setError(null)
-        return getProjectCompareFiles(projectId, where).catch((failure: unknown) => {
-            setError(errorMessage(failure) || t('failed'))
+        return getProjectCompareFiles(projectId, where).catch((readError: unknown) => {
+            setError(errorMessage(readError) || t('failed'))
             return []
         })
     }, [projectId, t])
@@ -161,7 +161,7 @@ export const RevisionPicker: React.FC<RevisionPickerProps> = ({ projectId, onCha
                     {t('revisions_title', { name: projectName })}
                 </div>
             )}
-            {error && <Alert showIcon data-testid="compare-picker-error" message={error} type="error" />}
+            {error && <Alert showIcon data-testid="compare-picker-error" title={error} type="error" />}
             <div className={styles.sides}>
                 <div className={styles.side} data-testid="compare-side-working">
                     <FieldRow label={t('revision')} labelWidth={LABEL_WIDTH}>

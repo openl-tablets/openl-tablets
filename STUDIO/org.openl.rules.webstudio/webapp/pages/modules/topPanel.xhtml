@@ -170,7 +170,7 @@
                     <li><a tabindex="-1" href="#"
                            onclick="window.dispatchEvent(new CustomEvent('openTableGraphModal', {detail: {projectId: '#{studio.currentProjectId}', projectName: '#{utils.toJSText(project.name)}', module: '#{utils.toJSText(module.name)}'}})); return false;">Table Dependencies</a></li>
                     </h:panelGroup>
-                    <li><a tabindex="-1" href="#"
+                    <li><a tabindex="-1" href="#{contextPath}/compare" target="compare_win"
                            onclick="window.open('#{contextPath}/compare','compare_win','width=1240,height=800,resizable=yes,scrollbars=yes'); return false;">Compare Excel files</a></li>
                 </ul>
             </h:panelGroup>

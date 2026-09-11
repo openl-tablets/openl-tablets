@@ -11,8 +11,8 @@ vi.mock('react-i18next', () => {
 })
 
 vi.mock('antd', () => ({
-    Alert: ({ message, showIcon: _showIcon, type: _type, ...rest }: any) => (
-        <div role="alert" {...rest}>{message}</div>
+    Alert: ({ title, showIcon: _showIcon, type: _type, ...rest }: any) => (
+        <div role="alert" {...rest}>{title}</div>
     ),
     Empty: Object.assign(({ description }: any) => <div>{description}</div>, { PRESENTED_IMAGE_SIMPLE: 'simple' }),
     Spin: ({ description }: any) => <div role="status">{description}</div>,

@@ -10,6 +10,9 @@ interface ConflictHeadProps {
     status: ConflictFileStatus | null
 }
 
+/** What the merge did to the file, in the words the rest of the comparison uses for it. */
+const statusKey = (status: ConflictFileStatus): string => `status_${status}`
+
 /**
  * Which file is compared and what the merge did to it, as the old comparison window said it.
  *
@@ -23,7 +26,7 @@ export const ConflictHead: React.FC<ConflictHeadProps> = ({ path, status }) => {
     return (
         <div className={styles.conflictHead} data-testid="compare-conflict-head">
             <span>{`${t('file_name')}: ${path.split('/').pop() ?? path}`}</span>
-            {status && <span>{`${t('file_status')}: ${t(`status_${status}`)}`}</span>}
+            {status && <span>{`${t('file_status')}: ${t(statusKey(status))}`}</span>}
         </div>
     )
 }

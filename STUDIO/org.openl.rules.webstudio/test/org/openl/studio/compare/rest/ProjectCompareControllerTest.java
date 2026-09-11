@@ -53,8 +53,9 @@ class ProjectCompareControllerTest {
                 }));
         when(comparisonService.read(project, second)).thenThrow(new NotFoundException("file.not.found.message"));
 
-        assertThrows(NotFoundException.class,
-                () -> controller.compare(project, new CompareProjectFilesRequest(first, second)));
+        var request = new CompareProjectFilesRequest(first, second);
+
+        assertThrows(NotFoundException.class, () -> controller.compare(project, request));
 
         assertTrue(closed.get(), "the file that was already opened is not left open");
     }
