@@ -10,6 +10,7 @@ The following topics are included in this chapter:
 -   [Opening a Project](#opening-a-project)
 -   [Closing a Project](#closing-a-project)
 -   [Saving a Project](#saving-a-project)
+-   [Synchronizing a Project](#synchronizing-a-project)
 -   [Viewing Project Properties](#viewing-project-properties)
 -   [Modifying Project Contents](#modifying-project-contents)
 -   [Copying a Project](#copying-a-project)
@@ -470,6 +471,15 @@ To save a project, proceed as follows:
 An editable project can be saved and closed directly from Rules Editor as described in [Editing and Saving a Project](rules-editor.md#editing-and-saving-a-project).
 
 ### Viewing Project Properties
+
+### Synchronizing a Project
+
+**Sync** moves the changes of a project between the branches of its Design repository: **Receive their updates**
+brings the changes of another branch into the branch the project is on, and **Send your updates** sends the
+changes of the project to another branch. The action is available for a repository that supports branches.
+
+For a description of the dialog and of the conflicts that a merge can raise, see [Working with
+Branches](project-branches.md#working-with-branches).
 
 Each rule project has a set of properties displayed in the **Overview** tab when a project is selected. The
 project name is displayed above the tabs, and the tab lists the following properties:
