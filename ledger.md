@@ -33,9 +33,11 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - #2104 `dead-code/compare-residue`, head 33329ccbe7, cut from `origin/main` e01088de. EPBDS-16576 residue.
 - Four commits, one per change type, ordered so a referrer dies before the resources it alone kept alive:
   UiConst.java (13); simpleLayout.xhtml + messagePopup.xhtml (9); 8 images + css/layout/simple.css (7);
-  common.css .scrollable and .dropdown-form (8). No review threads yet.
-- #2103 (`dead-code/openapi-layouts-residue`) was a concurrent firing that found a strict subset; closed as superseded
-  with a comment. Two overlapping sweep PRs are the real cost of the 4-hourly cron — check open PRs again before pushing.
+  common.css .scrollable and .dropdown-form (8). CodeRabbit: no actionable comments, 5/5 pre-merge checks passed.
+- `IT (studio)` is red on it with the pre-existing main failure; the standing-down comment naming the two stale fixture
+  lines is already posted, so never post a second one and never re-run (deterministic assertion, not a flake).
+- #2103 (`dead-code/openapi-layouts-residue`) was a concurrent firing that found a strict subset; closed as superseded.
+  Two overlapping sweep PRs are the real cost of the 4-hourly cron — check open PRs again before pushing.
 
 ## Merged PRs
 
@@ -57,10 +59,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - TableEditorTag/TableViewerTag: public JSP tag handlers with no .tld, referenced nowhere; 18 write-only ValueExpression fields behind public setters (published artifact).
 - tableViewer tag, UITableViewer component and renderer registration: no page usage; tableeditor is a published artifact.
 - OpenLServiceFactoryBean.setProxyInterface: @Deprecated public, unreferenced; binary-compatibility break.
-- Module.wildcardName: written by 2 callers via Lombok setter, read by none; needs cross-module call-site edits.
-- DecisionTableBuilder.methodName + public setMethodName + call in TableSyntaxNodeDispatcherBuilder: inert chain, public DEV API.
-- SimpleGroup.description: public setter and public 3-arg constructor parameter, read nowhere.
-- XlsProjectionType GRID..CELL_FONT (9 constants, `// TODO do we need the rest?`): public enum, no values()/valueOf use.
+- Module.wildcardName: written by 2 callers via Lombok setter, read by none; needs cross-module call-site edits. DecisionTableBuilder.methodName + setMethodName + its TableSyntaxNodeDispatcherBuilder call: inert chain, public DEV API.
+- SimpleGroup.description: public setter and 3-arg ctor parameter, read nowhere. XlsProjectionType GRID..CELL_FONT (9 constants, `// TODO do we need the rest?`): public enum, no values()/valueOf use.
 - IConditionEvaluator.DECORATOR_CONDITION_PRIORITY, IColorFilter.COLOR_NAMES/COLORS: unread public interface constants; IBoundModuleNode, RuleServicePublisherMapper, HistoryLog: unreferenced public types.
 - ChoicePointLabel: public in DEV constrainer, its only ctor package-private and uninvoked, so the Constrainer/Failure/GoalOr/GoalStack members typed on it always hold null; removal edits public signatures.
 - Extension surface, no caller: protected abstract ADtColumnsDefinitionTableBoundNode.isReturns (3 overrides) and AbstractOpenlTableExporter.getExcelSheetName (4); protected TableBuilder.getGridModel in a public non-final DEV class.
@@ -276,11 +276,11 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Human follow-ups
 
-- `origin/main` e01088de is RED: itest.studio.repos WebStudioTest.repos fails 5 requests. EPBDS-16415 moved uploaded
-  workbooks into a `rules/` folder and rewrote 21 fixtures under itest.studio/repos/test-resources to match, but missed
-  task_EPBDS-16576-conflicts/020-compare/010-merge-side-branch.post.resp, which still expects
-  `EPBDS-16576-Conflicts/Main.xlsx` where the server answers `.../rules/Main.xlsx`; the next request then 404s. Rail 5
-  forbids this routine from editing ITEST fixtures, and no rerun fixes it — it needs the EPBDS-16415 author.
+- `origin/main` e01088de is RED: itest.studio.repos WebStudioTest.repos fails 5 requests. EPBDS-16415 moved workbooks
+  into a `rules/` folder and rewrote 21 fixtures to match but missed task_EPBDS-16576-conflicts/020-compare: `010-merge-
+  side-branch.post.resp:11` and `020-start-comparison.post.req:1` still name the flat path, so the list mismatches, the
+  next request 404s and 3 steps needing {COMPARISON} cascade. Rail 5 bars editing ITEST fixtures — the EPBDS-16415
+  author must insert `rules/` in those two lines.
 - Test bug: JAXRSOpenLServiceEnhancerTest.shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses enhances the wrong fixture interface.
 - Sonar: S2259 (NPE) in ComponentTypeArrayOpenClass.isAssignableFrom/isInstance (null-guard patch proposed in #2088), XlsBinder:523, ProjectModel:1214, TableEditorModel:106, TestDownloadController:144; S6466 CRITICAL WorkbookListener:273.
 - site.webmanifest names `android-chrome-512x512.pngs` (trailing s): the 512px icon is unreachable; one-character bug.
