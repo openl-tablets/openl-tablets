@@ -543,10 +543,17 @@ action states what it is about to do before it runs:
 This section describes modifying the physical structure of the project and includes the following topics:
 
 -   [Creating a Folder](#creating-a-folder)
+-   [Creating a Text File](#creating-a-text-file)
 -   [Uploading a File](#uploading-a-file)
+-   [Editing a Text File](#editing-a-text-file)
 -   [Updating a File](#updating-a-file)
+-   [Renaming or Moving a File](#renaming-or-moving-a-file)
 -   [Deleting a Folder or a File](#deleting-a-folder-or-a-file)
 -   [Copying a File](#copying-a-file)
+
+The **Files** tab displays the project contents as a tree on the left and the selected item on the right. A text
+file is displayed for reading and can be switched to editing, a file of any other type offers to be exported, and
+a folder offers the actions that apply to a folder.
 
 An uploaded Excel workbook or ZIP archive is checked for completeness before it is stored. A file that did not
 arrive in full — an upload interrupted halfway, or content damaged on its way — is rejected with an error, so a
@@ -572,6 +579,35 @@ To create a new folder in the project structure, proceed as follows:
 A new folder is added to the file tree only. An empty folder cannot be stored in the repository, so selecting it
 displays the **This folder is empty. Add a file to save it.** hint, and the folder is saved together with the
 first file placed inside it. **Remove empty folder** discards it again.
+
+#### Creating a Text File
+
+A text file, such as a `.properties` file or an XML configuration, can be created directly in the project instead
+of being prepared on the computer and uploaded. To create a text file, proceed as follows:
+
+1.  Click the **Files** tab and, in the file tree, select the folder in which the file must be created.
+
+    The selection only prefills the path in the dialog, so it can be corrected there.
+
+1.  Click **Add** and select **New text file**.
+
+    The **New text file** window appears:
+
+    ![Creating a text file in a project](images/new-text-file-dialog.png "The New text file window with a file name")
+
+    *Creating a text file*
+
+1.  In the **Name** field, enter the file name together with its extension, such as `tags.properties`.
+1.  If necessary, correct the target folder in the **Path** field.
+
+    The field suggests the folders the project already holds, and the button at its right selects one in the
+    folder tree. An empty path creates the file in the root of the project, and a path naming folders that do not
+    exist yet creates them together with the file.
+
+1.  Click **OK**.
+
+The file is created empty and appears in the file tree. Enter its content as described in [Editing a Text
+File](#editing-a-text-file).
 
 #### Uploading a File
 
@@ -605,6 +641,43 @@ To upload a file to a project folder, proceed as follows:
 
 1.  Click **OK**.
 
+#### Editing a Text File
+
+Text files of a project are edited in OpenL Studio directly, without exporting a file and uploading it back. To
+edit a text file, proceed as follows:
+
+1.  Click the **Files** tab and, in the file tree, select the file to be edited.
+
+    The file contents appear on the right, marked **Read-only**. XML, JSON, YAML, `.properties`, and Groovy files
+    are highlighted according to their syntax, and files of other types are displayed as plain text.
+
+1.  Click **Edit**.
+
+    The mark changes to **Text editor**, and the contents become editable.
+
+    ![Editing a text file of a project](images/edit-text-file.png "The Files tab with a file open in the text editor")
+
+    *Editing a text file*
+
+1.  Modify the contents and click **Save**.
+
+    **Save** stays unavailable until the contents differ from what the file holds, and **Cancel** returns the
+    original contents and leaves the editing mode.
+
+**Edit** is displayed only for a user who is allowed to modify the project.
+
+The editor opens the file types that carry text: `txt`, `md`, `xml`, `json`, `yaml`, `yml`, `properties`,
+`groovy`, `java`, `js`, `jsx`, `ts`, `tsx`, `css`, `scss`, `less`, `html`, `htm`, `csv`, `sql`, `sh`, `bat`,
+`conf`, `ini`, `log`, and `gitignore`, as well as files without an extension. A file of any other type, an Excel
+workbook for example, is marked **Binary** and offers **Export** instead of its contents. Replace such a file as
+described in [Updating a File](#updating-a-file), or edit an Excel workbook as described in [Modifying
+Tables](rules-editor.md#modifying-tables).
+
+Selecting another file while the editor holds unsaved changes displays the **Unsaved changes** window, where
+**Discard changes** drops them and opens the other file, and **Cancel** stays with the edited one.
+
+Saving the file changes the opened project. Save the project to store the change in Design repository.
+
 #### Updating a File
 
 Updating a file replaces its contents with a file from the file system, keeping the name and location the file has
@@ -626,6 +699,27 @@ in the project. To update a file of a project on the **Projects** page, proceed 
     file from the list, and selecting another file replaces it.
 
 1.  Click **Update**.
+
+#### Renaming or Moving a File
+
+A file can be renamed where it is, or moved to another folder keeping its name. Proceed as follows:
+
+1.  Click the **Files** tab and, in the file tree, select the file to be renamed or moved.
+1.  Click **More actions** and select one of the following:
+    -   **Rename** to change the file name.
+    -   **Move** to place the file into another folder.
+
+1.  Perform one of the following steps as required:
+    -   In the **Rename file** window, enter the **New File Name**.
+    -   In the **Move file** window, specify the target folder in the **Path** field.
+
+    The field is prefilled with the current name of the file or with the folder it sits in, and an empty path
+    moves the file to the root of the project.
+
+1.  Click **OK**.
+
+The file keeps its contents, and the pane follows it to its new location. Renaming or moving a file changes the
+opened project. Save the project to store the change in Design repository.
 
 #### Deleting a Folder or a File
 
