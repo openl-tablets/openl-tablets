@@ -6,6 +6,8 @@ import {
     dropComparison,
     getComparison,
     getComparisonTable,
+    getConflictFileStatus,
+    startConflictComparison,
     startFileComparison,
     startLocalHistoryComparison,
     startProjectComparison,
@@ -27,11 +29,13 @@ vi.mock('services', () => ({
 
 vi.mock('services/compare', () => ({
     comparisonStatusTopic: (id: string) => `/user/topic/compare/${id}/status`,
+    startConflictComparison: vi.fn(),
     startFileComparison: vi.fn(),
     startLocalHistoryComparison: vi.fn(),
     startProjectComparison: vi.fn(),
     getComparison: vi.fn(),
     getComparisonTable: vi.fn(),
+    getConflictFileStatus: vi.fn(),
     dropComparison: vi.fn(),
 }))
 
@@ -45,6 +49,14 @@ const SIDES = {
     first: { path: 'rules/Main.xlsx' },
     second: { path: 'rules/Main.xlsx', branch: 'master', revision: 'rev-1' },
 }
+
+// A file that is not a workbook is read and drawn by a view of its own; the page is asked here only
+// whether it opens on that view instead of on a comparison.
+vi.mock('./ConflictTextView', () => ({
+    ConflictTextView: ({ path, projectId }: any) => (
+        <div data-testid="conflict-text">{`${projectId}:${path}`}</div>
+    ),
+}))
 
 // The picker of a project reads branches, revisions and files of its own; the page is asked here only
 // about what it does with the pair it is told about.
@@ -194,6 +206,7 @@ describe('ComparePage', () => {
         vi.mocked(getComparison).mockResolvedValue(COMPARISON)
         vi.mocked(getComparisonTable).mockResolvedValue(TABLE)
         vi.mocked(dropComparison).mockResolvedValue()
+        vi.mocked(getConflictFileStatus).mockResolvedValue('modified')
     })
 
     it('asks for the two files before it compares anything', async () => {
@@ -312,6 +325,84 @@ describe('ComparePage', () => {
         expect(await screen.findByText('Rules')).toBeInTheDocument()
         // The pickers are a click away, so another pair is compared in the same window.
         expect(screen.getByTestId('compare-back')).toBeInTheDocument()
+    })
+
+    it('compares the two versions of a conflicted workbook', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
+        vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
+
+        await openPage()
+
+        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledWith('p1', 'rules/Main.xlsx'))
+        expect(screen.queryByTestId('compare-files')).toBeNull()
+
+        await screen.findByTestId('compare-tree')
+        push('COMPLETED')
+
+        expect(await screen.findByText('Rules')).toBeInTheDocument()
+        // There is nothing to pick here, so there is nowhere to go back to.
+        expect(screen.queryByTestId('compare-back')).toBeNull()
+        // The two sides are the two versions of the merge, not a first and a second file.
+        expect(screen.getByText('their_version')).toBeInTheDocument()
+        expect(screen.getByText('your_version')).toBeInTheDocument()
+    })
+
+    it('names the conflicted file and what the merge did to it', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'Project/rules/Main.xlsx' })
+        vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
+
+        await openPage()
+
+        // The window is opened away from the screen that asked for it, so it says which file this is.
+        const head = await screen.findByTestId('compare-conflict-head')
+        expect(head).toHaveTextContent('file_name: Main.xlsx')
+        expect(head).toHaveTextContent('file_status: status_modified')
+    })
+
+    it('says that one of the versions no longer holds the file', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'Project/rules/Main.xlsx' })
+        vi.mocked(getConflictFileStatus).mockResolvedValue('deleted')
+
+        await openPage()
+
+        expect(await screen.findByTestId('compare-conflict-deleted')).toBeInTheDocument()
+        expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('file_status: status_deleted')
+        // There is nothing to put the surviving version against, so nothing is compared.
+        expect(startConflictComparison).not.toHaveBeenCalled()
+    })
+
+    it('reads a conflicted file that is not a workbook line by line', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/notes.txt' })
+
+        await openPage()
+
+        expect(screen.getByTestId('conflict-text')).toHaveTextContent('p1:rules/notes.txt')
+        // A file of that kind is never handed to the comparison of workbooks.
+        expect(startConflictComparison).not.toHaveBeenCalled()
+    })
+
+    it('does not read a file line by line when one of the versions no longer holds it', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/notes.txt' })
+        vi.mocked(getConflictFileStatus).mockResolvedValue('deleted')
+
+        await openPage()
+
+        expect(await screen.findByTestId('compare-conflict-deleted')).toBeInTheDocument()
+        expect(screen.queryByTestId('conflict-text')).not.toBeInTheDocument()
+    })
+
+    it('offers the equal elements in a window that has no files to pick', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
+        vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
+
+        await openPage()
+        push('COMPLETED')
+
+        // The control heads the list of elements, because the files it usually stands next to are not here.
+        const equal = await screen.findByTestId('compare-show-equal-elements')
+        expect(screen.queryByText('Datatype Address')).toBeNull()
+        await userEvent.click(equal)
+        expect(screen.getByText('Datatype Address')).toBeInTheDocument()
     })
 
     it('lists only the elements that differ, and the equal ones when they were asked for', async () => {

@@ -103,6 +103,60 @@ export const startProjectComparison = async (
     return response.id
 }
 
+/**
+ * Starts comparing the two versions of a conflicted Excel file: the one being merged in against the
+ * one the workspace holds.
+ *
+ * @returns the identifier the comparison is read and watched by
+ */
+export const startConflictComparison = async (projectId: string, path: string): Promise<string> => {
+    const response = await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/compare?file=${encodeURIComponent(path)}`,
+        { method: 'POST' },
+        API_OPTIONS
+    ) as { id: string }
+    return response.id
+}
+
+/** What the merge did to a conflicted file: changed on both sides, or gone from one of them. */
+export type ConflictFileStatus = 'modified' | 'deleted'
+
+/**
+ * What became of a conflicted file, as the merge reports it.
+ *
+ * A file both versions still hold was modified on both sides; one that a version no longer holds was
+ * deleted there, and the two versions cannot be put against each other.
+ */
+export const getConflictFileStatus = async (
+    projectId: string,
+    path: string
+): Promise<ConflictFileStatus> => {
+    const conflicts = await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/merge/conflicts`,
+        undefined,
+        API_OPTIONS
+    ) as { fileAvailability?: Record<string, { ours?: boolean; theirs?: boolean }> }
+    const availability = conflicts.fileAvailability?.[path]
+    return availability && (availability.ours === false || availability.theirs === false)
+        ? 'deleted'
+        : 'modified'
+}
+
+/** One version of a conflicted file, as text: what a file that is not a workbook is compared as. */
+export const getConflictFileText = async (
+    projectId: string,
+    path: string,
+    side: 'OURS' | 'THEIRS'
+): Promise<string> => {
+    const file = await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/files`
+            + `?file=${encodeURIComponent(path)}&side=${side}`,
+        undefined,
+        { ...API_OPTIONS, responseType: 'blob' }
+    ) as Blob
+    return await file.text()
+}
+
 /** What the two compared files hold, grouped by sheet. */
 export const getComparison = async (comparisonId: string): Promise<Comparison> =>
     await apiCall(`/compare/${encodeURIComponent(comparisonId)}`, undefined, API_OPTIONS) as Comparison

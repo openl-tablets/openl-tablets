@@ -126,6 +126,41 @@ export const useStyles = createStyles(({ css, token }) => ({
     panes: css`
         height: 100%;
     `,
+    // Which conflicted file is compared, and what the merge did to it.
+    conflictHead: css`
+        display: flex;
+        flex: none;
+        gap: ${token.marginLG}px;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
+        border-bottom: 1px solid ${token.colorBorderSecondary};
+        color: ${token.colorTextSecondary};
+    `,
+    // A file that is not a workbook reads line by line, in the colours a diff is read in.
+    diff: css`
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        padding: ${token.paddingXS}px 0;
+        font-family: ${token.fontFamilyCode};
+        font-size: ${token.fontSizeSM}px;
+        line-height: 1.5;
+    `,
+    diffLine: css`
+        display: flex;
+        white-space: pre-wrap;
+        word-break: break-word;
+    `,
+    diffNumber: css`
+        flex: 0 0 48px;
+        padding-right: ${token.paddingXS}px;
+        color: ${token.colorTextQuaternary};
+        text-align: right;
+        user-select: none;
+    `,
+    diffText: css`
+        flex: 1;
+        padding-right: ${token.paddingSM}px;
+    `,
     // The cells that read differently in the other file, in the colour the rest of Studio marks a change with.
     changed: css`
         background: ${token.colorWarningBg};
@@ -135,6 +170,12 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     removed: css`
         color: ${token.colorError};
+    `,
+    add: css`
+        background: ${token.colorSuccessBg};
+    `,
+    remove: css`
+        background: ${token.colorErrorBg};
     `,
     changedIcon: css`
         color: ${token.colorWarning};

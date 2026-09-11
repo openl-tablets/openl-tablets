@@ -3,11 +3,11 @@ import { Alert, Button, Checkbox, Empty, Modal, notification, Spin, Typography }
 import { useTranslation } from 'react-i18next'
 import { createStyles } from 'antd-style'
 import { notifyLoadFailure } from '../../services/apiCall'
-import CONFIG from '../../services/config'
 import { getLocalHistory, restoreLocalHistory, type LocalHistoryItem } from '../../services/localHistory'
 import { useListPageStyles } from '../../styles/listPageStyles'
 import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { errorMessage } from '../../utils/errorMessage'
+import { openVersionsCompareWindow } from './compare'
 
 interface LocalChangesViewProps {
     projectId: string
@@ -119,12 +119,7 @@ export const LocalChangesView = ({ projectId, moduleName }: LocalChangesViewProp
         if (!first || !second) {
             return
         }
-        const params = new URLSearchParams({ projectId, module: moduleName, first, second })
-        window.open(
-            `${CONFIG.CONTEXT}/compare?${params}`,
-            'Compare',
-            'width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes'
-        )
+        openVersionsCompareWindow(projectId, moduleName, first, second)
     }
 
     const restore = async () => {

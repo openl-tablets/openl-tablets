@@ -307,7 +307,7 @@ jobs:
             "webstudio"
             "webstudio/healthcheck/startup"
             "webstudio/healthcheck/readiness"
-            "webstudio/faces/pages/public/showDiff.xhtml"
+            "webstudio/compare"
             "webservice"
             "webservice/admin/healthcheck/startup"
             "webservice/admin/healthcheck/readiness"

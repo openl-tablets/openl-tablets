@@ -87,7 +87,6 @@ export interface MergeModalDetail {
     branches: BranchInfo[]
     initialStep?: MergeStep
     onSuccess?: () => void
-    onCompare?: (filePath: string) => void
 }
 
 // Internal state: Conflict file with resolution

@@ -219,9 +219,9 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
 - Identify project and module state in every read and action instead of reading the JSF session. For example, the
   Local Changes island calls `GET /projects/{projectId}/local-history?module={moduleName}` to read history and
   `POST /projects/{projectId}/local-history/restore?module={moduleName}` to restore it. Project-wide deletion uses
-  `DELETE /projects/{projectId}/local-history`. Its legacy comparison page
-  receives the same project ID and module name. This keeps every action scoped to the island after remounts, in a
-  fresh HTTP session, and when another browser tab changes the session's current module.
+  `DELETE /projects/{projectId}/local-history`. Its comparison window is opened with the same project ID and
+  module name. This keeps every action scoped to the island after remounts, in a fresh HTTP session, and when
+  another browser tab changes the session's current module.
 - For editable state, put a REST **façade** in front of the domain service and make it the **source of
   truth** (e.g. `GET`/`PUT /projects/{id}/descriptor`). Guard concurrent edits with an optimistic
   **content hash**: `GET` returns it, `PUT` echoes it, a mismatch returns `409` → the UI confirms and retries
@@ -239,6 +239,10 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
   window afterwards opens it after an `await`, when the click no longer counts as user activation and a
   blocker can refuse it silently — and the window misses whatever the topic reported meanwhile.
+- One window serves every way of reaching such work, told in the address which of them this is: `/compare`
+  compares two uploaded files, two versions of a module, a file of a project against a revision of it, or the
+  two versions of a file a merge could not settle. The screen that opens it names what to compare and nothing
+  else, so a new way of comparing adds a reading of the address rather than a window of its own.
 
 ## Migration recipe
 

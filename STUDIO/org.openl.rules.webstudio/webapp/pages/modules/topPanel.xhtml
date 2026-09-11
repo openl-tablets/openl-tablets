@@ -11,11 +11,6 @@
     <c:set var="project" value="#{studio.currentProjectDescriptor}" />
     <c:set var="module" value="#{studio.currentModule}" />
 
-    <h:panelGroup rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}">
-        <ui:include src="/pages/modules/compareTextFiles.xhtml" />
-    </h:panelGroup>
-    <ui:include src="/pages/modules/compareRevisions.xhtml" />
-
     <h:panelGroup rendered="#{studio.canMerge}">
         <ui:include src="/pages/modules/mergeBranches.xhtml"/>
     </h:panelGroup>
@@ -176,7 +171,7 @@
                            onclick="window.dispatchEvent(new CustomEvent('openTableGraphModal', {detail: {projectId: '#{studio.currentProjectId}', projectName: '#{utils.toJSText(project.name)}', module: '#{utils.toJSText(module.name)}'}})); return false;">Table Dependencies</a></li>
                     </h:panelGroup>
                     <li><a tabindex="-1" href="#"
-                           onclick="window.open('#{contextPath}/compare','Compare','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes'); return false;">Compare Excel files</a></li>
+                           onclick="window.open('#{contextPath}/compare','compare_win','width=1240,height=800,resizable=yes,scrollbars=yes'); return false;">Compare Excel files</a></li>
                 </ul>
             </h:panelGroup>
         </div>

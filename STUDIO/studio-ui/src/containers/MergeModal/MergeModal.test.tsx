@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import { MergeModal } from 'containers/MergeModal/MergeModal'
 import * as services from 'services'
 import { MergeModalDetail } from 'containers/MergeModal/types'
-import { openMergeConflictCompare } from './mergeConflictCompare'
+import { openConflictCompareWindow } from '../projects/compare'
 import type { MockedFunction, Mock } from 'vitest'
 
 // --- Mocks ---
@@ -105,13 +105,13 @@ vi.mock('containers/users/UserProfileCompletionModal', () => ({
     ),
 }))
 
-vi.mock('./mergeConflictCompare', () => ({
-    openMergeConflictCompare: vi.fn(),
+vi.mock('../projects/compare', () => ({
+    openConflictCompareWindow: vi.fn(),
 }))
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 const MockNotFoundError = (services as any).NotFoundError
-const mockOpenMergeConflictCompare = vi.mocked(openMergeConflictCompare)
+const mockOpenConflictCompare = vi.mocked(openConflictCompareWindow)
 
 // --- Helpers ---
 
@@ -126,7 +126,6 @@ const createDetail = (overrides?: Partial<MergeModalDetail>): MergeModalDetail =
         { name: 'feature', protected: false },
     ],
     onSuccess: vi.fn(),
-    onCompare: vi.fn(),
     ...overrides,
 })
 
@@ -498,30 +497,16 @@ describe('MergeModal', () => {
             })
         })
 
-        it('onCompare calls detail.onCompare with file path', async () => {
-            const detail = await openWithConflicts()
+        it('compares a conflicted file in the comparison window', async () => {
+            await openWithConflicts()
 
             const { onCompare } = getLatestProps(conflictResolutionStepProps)
             act(() => {
                 onCompare('Main.xlsx')
             })
 
-            expect(detail.onCompare).toHaveBeenCalledWith('Main.xlsx')
-            expect(mockOpenMergeConflictCompare).not.toHaveBeenCalled()
-        })
-
-        it('onCompare falls back to React compare opener without legacy callback', async () => {
-            mockOpenMergeConflictCompare.mockResolvedValue(undefined)
-            const detail = createDetail()
-            delete detail.onCompare
-            await openWithConflicts(detail)
-
-            const { onCompare } = getLatestProps(conflictResolutionStepProps)
-            act(() => {
-                onCompare('Main.xlsx')
-            })
-
-            expect(mockOpenMergeConflictCompare).toHaveBeenCalledWith('proj-1', 'Main.xlsx')
+            // The same window wherever the merge was started from; it reads both versions itself.
+            expect(mockOpenConflictCompare).toHaveBeenCalledWith('proj-1', 'Main.xlsx')
         })
     })
 

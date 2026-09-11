@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
@@ -40,6 +42,9 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.utils.WebTool;
+import org.openl.studio.compare.model.ComparisonStartedView;
+import org.openl.studio.compare.service.ComparisonContent;
+import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
@@ -58,7 +63,9 @@ import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.merge.ProjectsMergeService;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
 
 @Validated
 @RestController
@@ -72,6 +79,7 @@ public class ProjectsMergeController {
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectsMergeConflictsService mergeConflictsService;
     private final ProjectIdentifierMapper projectIdentifierMapper;
+    private final ComparisonLauncher comparisonLauncher;
 
     @Operation(summary = "projects.merge.check.summary", description = "projects.merge.check.desc")
     @ApiResponse(responseCode = "200", description = "projects.merge.check.200.desc")
@@ -111,6 +119,34 @@ public class ProjectsMergeController {
                 .contentType(MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM))
                 .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
                 .body(output.toByteArray());
+    }
+
+    @Operation(summary = "projects.merge.compare-conflict.summary",
+            description = "projects.merge.compare-conflict.desc")
+    @ApiResponse(responseCode = "202", description = "projects.merge.compare-conflict.202.desc")
+    @ApiResponse(responseCode = "400", description = "compare.file.not-excel.message")
+    @PostMapping("/conflicts/compare")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ComparisonStartedView compareConflictedFile(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @Parameter(description = "projects.merge.param.file.desc", required = true)
+            @RequestParam("file") String filePath) throws IOException {
+        var fileName = FileUtils.getName(filePath);
+        if (!FileTypeHelper.isExcelFile(fileName)) {
+            // A file of any other format is compared line by line, which the screen does itself.
+            throw new BadRequestException("compare.file.not-excel.message");
+        }
+        var conflictInfo = getMergeConflictInfo0(project);
+        var theirs = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, ConflictBase.THEIRS);
+        try {
+            var ours = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, ConflictBase.OURS);
+            return comparisonLauncher.startContentOf(List.of(new ComparisonContent(fileName, theirs.getStream()),
+                    new ComparisonContent(fileName, ours.getStream())));
+        } catch (Exception e) {
+            // The version of the other side is open by now; a side that cannot be read closes it.
+            IOUtils.closeQuietly(theirs.getStream());
+            throw e;
+        }
     }
 
     private MergeConflictInfo getMergeConflictInfo0(RulesProject project) {

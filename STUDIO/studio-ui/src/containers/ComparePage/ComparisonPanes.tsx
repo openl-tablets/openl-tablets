@@ -15,6 +15,8 @@ interface ComparisonPanesProps {
     error: string | null
     /** Put before the name of the first file; carries the controls the hidden list of elements left behind. */
     leading?: React.ReactNode
+    /** What the two sides are called, when they are not simply the first and the second file. */
+    titles?: { first: string; second: string } | undefined
 }
 
 /** The rows of one side that hold a cell reading differently in the other file. */
@@ -86,6 +88,7 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     showEqualRows,
     error,
     leading,
+    titles,
 }) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useStyles()
@@ -120,10 +123,10 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     return (
         <Splitter className={styles.panes}>
             <Splitter.Panel min="20%">
-                {pane(table?.first, t('file_first'), 'compare-pane-first', leading)}
+                {pane(table?.first, titles?.first ?? t('file_first'), 'compare-pane-first', leading)}
             </Splitter.Panel>
             <Splitter.Panel min="20%">
-                {pane(table?.second, t('file_second'), 'compare-pane-second')}
+                {pane(table?.second, titles?.second ?? t('file_second'), 'compare-pane-second')}
             </Splitter.Panel>
         </Splitter>
     )

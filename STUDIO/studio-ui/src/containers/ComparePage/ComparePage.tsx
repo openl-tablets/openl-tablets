@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Button, Checkbox, Spin, Splitter, Upload } from 'antd'
+import { Alert, Button, Checkbox, Empty, Spin, Splitter, Upload } from 'antd'
 import {
     ArrowLeftOutlined,
     InboxOutlined,
@@ -15,12 +15,17 @@ import {
     dropComparison,
     getComparison,
     getComparisonTable,
+    getConflictFileStatus,
+    startConflictComparison,
     startFileComparison,
     startLocalHistoryComparison,
     startProjectComparison,
 } from 'services/compare'
+import type { ConflictFileStatus } from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
 import { ComparisonPanes } from './ComparisonPanes'
+import { ConflictHead } from './ConflictHead'
+import { ConflictTextView } from './ConflictTextView'
 import { RevisionPicker, type ProjectComparisonSides } from './RevisionPicker'
 import { ComparisonTree } from './ComparisonTree'
 import { isFinished, useComparisonProgress } from './useComparisonProgress'
@@ -30,6 +35,7 @@ const ACCEPTED = '.xls,.xlsx,.xlsm'
 /** How long a screen that cannot hear the topic waits before asking again, in milliseconds. */
 const ASK_AGAIN = 2000
 const FILES_TO_COMPARE = 2
+const EXCEL_FILE = /\.(xlsx?|xlsm)$/i
 
 /** Two versions of a module, named by the screen that opened the window. */
 interface VersionsRequest {
@@ -50,6 +56,26 @@ const versionsRequestOf = (params: URLSearchParams): VersionsRequest | null => {
     return { projectId, moduleName: params.get('module') ?? undefined, first, second }
 }
 
+/** The comparison the window was opened for, or null when it opens on something to pick. */
+const startOf = (
+    versions: VersionsRequest | null,
+    projectId: string | null,
+    conflict: string | null,
+    conflictText: string | null,
+    conflictStatus: ConflictFileStatus | null
+): (() => Promise<string>) | null => {
+    if (versions) {
+        return () => startLocalHistoryComparison(versions.projectId, versions.moduleName,
+            versions.first, versions.second)
+    }
+    // A conflicted workbook is compared once what became of it is known: a file one version no longer
+    // holds has nothing to be compared with.
+    if (projectId && conflict && !conflictText && conflictStatus === 'modified') {
+        return () => startConflictComparison(projectId, conflict)
+    }
+    return null
+}
+
 /**
  * Compares two Excel files, in a window of its own.
  *
@@ -62,16 +88,23 @@ const versionsRequestOf = (params: URLSearchParams): VersionsRequest | null => {
  * pick then, and the comparison starts as the window opens.
  *
  * A window opened for a project alone picks instead of files: which file of the working copy stands
- * against which file of which revision.
+ * against which file of which revision. One opened for a conflicted file of a project shows its two
+ * versions: a workbook as a comparison, anything else line by line.
  */
 export const ComparePage: React.FC = () => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
     const [params] = useSearchParams()
     const versions = useMemo(() => versionsRequestOf(params), [params])
-    // A project without versions named is a project to pick two files of; with them, the files are known.
     const projectId = versions ? null : params.get('projectId')
+    // A conflicted file of a project is named on its own; a project named without one is a project to
+    // pick two files of.
+    const conflict = projectId ? params.get('conflict') : null
+    // A file that is not a workbook is not compared as one: it reads line by line, in this window.
+    const conflictText = conflict && !EXCEL_FILE.test(conflict) ? conflict : null
+    const pickedProject = conflict ? null : projectId
     const [sides, setSides] = useState<ProjectComparisonSides | null>(null)
+    const [conflictStatus, setConflictStatus] = useState<ConflictFileStatus | null>(null)
 
     const [files, setFiles] = useState<File[]>([])
 
@@ -100,27 +133,58 @@ export const ComparePage: React.FC = () => {
     const [showEqualRows, setShowEqualRows] = useState(false)
     // The width the list of elements was last given, and whether it is shown at all. The list is
     // hidden and brought back by a button of its own rather than by the divider, so the control is
-    // always in sight.
-    const [treeWidth, setTreeWidth] = useState<number | string>('30%')
+    // always in sight. A window that heads the list with both controls starts wider, so that neither
+    // of them is shortened before the user has touched the divider.
+    const [treeWidth, setTreeWidth] = useState<number | string>(versions || conflict ? '36%' : '30%')
     const [treeHidden, setTreeHidden] = useState(false)
 
     const progress = useComparisonProgress(comparisonId)
     // The comparison is on screen from the moment it is started; until it answers, its progress is.
-    // A window opened for two versions has nothing else to show, so it is on screen at once.
-    const comparing = !!comparisonId || !!versions
+    // A window opened for a comparison of its own has nothing else to show, so it is on screen at once.
+    const comparing = !!comparisonId || !!versions || (!!conflict && !conflictText)
     const running = comparing && !comparison && !error
+
+    useEffect(() => {
+        if (!conflict || !projectId) {
+            return undefined
+        }
+        let cancelled = false
+        getConflictFileStatus(projectId, conflict)
+            .then(status => {
+                if (!cancelled) {
+                    setConflictStatus(status)
+                }
+            })
+            .catch(() => {
+                // What became of the file is told beside the comparison; without it the comparison stands.
+                if (!cancelled) {
+                    setConflictStatus('modified')
+                }
+            })
+        return () => {
+            cancelled = true
+        }
+    }, [conflict, projectId])
 
     // The comparison the window was opened for is started once, however often the effect is run.
     const requested = useRef(false)
     useEffect(() => {
-        if (!versions || requested.current) {
+        if (requested.current) {
+            return
+        }
+        if (conflictStatus === 'deleted') {
+            // One version no longer holds the file: there is nothing to put the other one against.
+            return
+        }
+        const start = startOf(versions, projectId, conflict, conflictText, conflictStatus)
+        if (!start) {
             return
         }
         requested.current = true
-        startLocalHistoryComparison(versions.projectId, versions.moduleName, versions.first, versions.second)
+        start()
             .then(setComparisonId)
             .catch((failure: unknown) => setError(errorMessage(failure) || t('failed')))
-    }, [versions, t])
+    }, [versions, projectId, conflict, conflictText, conflictStatus, t])
 
     // The result is read when the comparison says it has finished, and again as soon as the page is
     // listening: a comparison of two small files can be over before then, and what was pushed to the
@@ -210,7 +274,7 @@ export const ComparePage: React.FC = () => {
     }, [])
 
     // Two files of a project are picked; without a project, two files are uploaded.
-    const ready = projectId ? sides !== null : files.length === FILES_TO_COMPARE
+    const ready = pickedProject ? sides !== null : files.length === FILES_TO_COMPARE
 
     const compare = useCallback(async () => {
         if (!ready) {
@@ -219,15 +283,15 @@ export const ComparePage: React.FC = () => {
         setStarting(true)
         setError(null)
         try {
-            setComparisonId(projectId && sides
-                ? await startProjectComparison(projectId, sides.first, sides.second)
+            setComparisonId(pickedProject && sides
+                ? await startProjectComparison(pickedProject, sides.first, sides.second)
                 : await startFileComparison(files[0]!, files[1]!))
         } catch (failure) {
             setError(errorMessage(failure) || t('failed'))
         } finally {
             setStarting(false)
         }
-    }, [ready, projectId, sides, files, t])
+    }, [ready, pickedProject, sides, files, t])
 
     /** Back to the files, leaving the comparison behind: another pair is compared from here. */
     const pickOtherFiles = useCallback(() => {
@@ -250,7 +314,7 @@ export const ComparePage: React.FC = () => {
     // The way back to the files never hides with the list of elements: it heads the list while the
     // list is shown, and joins the control that brings it back when it is not. A window opened for
     // two versions of a module has no files to go back to.
-    const back = versions ? null : (
+    const back = versions || conflict ? null : (
         <Button
             data-testid="compare-back"
             icon={<ArrowLeftOutlined />}
@@ -261,12 +325,33 @@ export const ComparePage: React.FC = () => {
         </Button>
     )
 
+    if (conflict && conflictStatus === 'deleted') {
+        return (
+            <div className={styles.page}>
+                <ConflictHead path={conflict} status={conflictStatus} />
+                <div className={styles.center} data-testid="compare-conflict-deleted">
+                    <Empty description={t('conflict_deleted')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                </div>
+            </div>
+        )
+    }
+
+    if (conflictText && projectId) {
+        return (
+            <div className={styles.page}>
+                <ConflictHead path={conflictText} status={conflictStatus} />
+                <ConflictTextView path={conflictText} projectId={projectId} />
+            </div>
+        )
+    }
+
     return (
         <div className={styles.page}>
+            {conflict && <ConflictHead path={conflict} status={conflictStatus} />}
             {!comparing && (
                 <div className={styles.step}>
-                    {projectId && <RevisionPicker onChange={setSides} projectId={projectId} />}
-                    {!projectId && (
+                    {pickedProject && <RevisionPicker onChange={setSides} projectId={pickedProject} />}
+                    {!pickedProject && (
                         <div className={styles.picker}>
                             <Upload.Dragger
                                 multiple
@@ -335,6 +420,17 @@ export const ComparePage: React.FC = () => {
                                 two files are named on. */}
                                 <div className={styles.head}>
                                     {back}
+                                    {/* A window that opens on a comparison of its own has no files to
+                                    put this next to, so it is offered here, as the old page offered it. */}
+                                    {comparison && !back && (
+                                        <Checkbox
+                                            checked={showEqualElements}
+                                            data-testid="compare-show-equal-elements"
+                                            onChange={event => setShowEqualElements(event.target.checked)}
+                                        >
+                                            {t('show_equal_elements')}
+                                        </Checkbox>
+                                    )}
                                     {comparison && (
                                         <Checkbox
                                             checked={showEqualRows}
@@ -399,6 +495,9 @@ export const ComparePage: React.FC = () => {
                                     {back}
                                 </>
                             )}
+                            titles={conflict
+                                ? { first: t('their_version'), second: t('your_version') }
+                                : undefined}
                         />
                     </Splitter.Panel>
                 </Splitter>
