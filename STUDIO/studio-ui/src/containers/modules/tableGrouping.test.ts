@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { ModuleTable } from 'types/tables'
-import { DEFAULT_VIEW, loadView, saveView, TABLE_VIEWS, treeOf } from './tableGrouping'
+import { DEFAULT_VIEW, loadView, saveView, TABLE_VIEWS, treeOf, widthOf } from './tableGrouping'
 
 const table = (name: string, extra: Partial<ModuleTable> = {}): ModuleTable => ({
     id: `id-${name}`,
@@ -92,6 +92,21 @@ describe('tableGrouping', () => {
             saveView('category')
 
             expect(loadView('type')).toEqual('category')
+        })
+    })
+
+    describe('how wide the tree scrolls', () => {
+        it('reckons the width from the longest name, deep in the tree', () => {
+            const shallow = treeOf([table('Premium')], 'excelSheet')
+            const deep = treeOf([table('A name far longer than the others', { sheet: 'Rules' })], 'excelSheet')
+
+            expect(widthOf(deep)).toBeGreaterThan(widthOf(shallow))
+            // A row is wider than its own indent and chrome, whatever it is called.
+            expect(widthOf(shallow)).toBeGreaterThan(56)
+        })
+
+        it('is nothing to scroll when there is nothing to show', () => {
+            expect(widthOf([])).toEqual(0)
         })
     })
 })
