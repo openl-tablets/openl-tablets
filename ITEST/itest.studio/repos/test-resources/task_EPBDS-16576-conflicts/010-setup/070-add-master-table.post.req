@@ -1,0 +1,21 @@
+POST /rest/projects/{PROJECT_NAME}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "Greeting",
+    "returnType": "SpreadsheetResult",
+    "steps": [
+      {
+        "name": "RET",
+        "value": "Hello from the main branch"
+      }
+    ]
+  }
+}
+

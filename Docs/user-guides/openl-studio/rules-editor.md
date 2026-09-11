@@ -196,7 +196,7 @@ To compare module versions, proceed as follows:
 
 1. To view the changes, click the required element.
 
-    The two versions of the element are displayed next to each other, with the cells that read differently highlighted. The window is the one described in [Comparing Excel Files](#comparing-excel-files), except that it has no files to pick: it opens on the comparison of the two versions.
+    The two versions of the element are displayed next to each other, with the cells that read differently highlighted. The window is the one described in [Comparing Excel Files](#comparing-excel-files), except that it has no files to pick: it opens on the comparison of the two versions, and the **Show equal elements** check box heads the list of elements instead of standing next to the files.
 
     ![](images/module-version-comparison-result.jpeg)
 

@@ -112,10 +112,11 @@ describe('LocalChangesView', () => {
         expect(compare).toBeEnabled()
         await userEvent.click(compare)
 
-        // The comparison window is told what to compare and starts it itself.
+        // The comparison window is told what to compare and starts it itself. It is the window every
+        // comparison is shown in, because a session holds one comparison at a time.
         expect(open).toHaveBeenCalledWith(
             expect.stringContaining('/compare?projectId=p1&module=Pricing&first=100&second=200_current'),
-            'Compare',
+            'compare_win',
             expect.stringContaining('width=1240')
         )
     })

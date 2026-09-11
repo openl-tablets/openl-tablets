@@ -122,9 +122,16 @@ the branch menu is opened. Proceed as follows:
 
 1.  To view the changes made by another user, compare them to your changes, or view the base version of the file, select a corresponding option in the **Compare** column.
 
+    **Compare File Versions** opens a window that puts the version being merged in against the version of the
+    current branch. The window names the file and says whether the merge modified or deleted it. An Excel file is
+    compared element by element, as described in
+    [Comparing Excel Files](rules-editor.md#comparing-excel-files), with the **Show equal elements** and **Show
+    equal rows** check boxes heading the list of elements; a file of any other format is compared line by line. A
+    file that one of the two versions no longer holds has nothing to be compared with, and the window says so.
+
     Download links are available only for versions in which the conflicted file exists. The **Compare** column marks
     a deleted file as **Deleted in your version**, **Deleted in their version**, or **Deleted in base version** instead
-    of offering a download. Deleted files can still be compared.
+    of offering a download.
 
     ![Deleted file status in the Compare column](images/resolve-conflicts-deleted-file.png "Deleted file in the Resolve Conflicts dialog")
 
@@ -141,7 +148,8 @@ The project remains available to the dialog under the identifier issued after th
 
 *Resolving conflicts upon saving concurrent changes*
 
-The dialog contains the **Compare File Versions** link that allows viewing both conflicting versions for comparison.
+The dialog contains the **Compare File Versions** link that opens the two conflicting versions side by side, in a
+window of its own.
 
 ![](images/compare-conflicting-versions.jpeg)
 

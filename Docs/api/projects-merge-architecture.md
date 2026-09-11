@@ -127,6 +127,11 @@ flowchart TB
    - Map to appropriate HTTP status codes
    - Return user-friendly error messages
 
+5. **Comparison Hand-off**
+   - Read both versions of a conflicted workbook from the stored conflict
+   - Hand them to the Compare API, which runs the comparison and owns its result
+   - Leave a file of any other format to the client, which compares it line by line
+
 #### Key Design Patterns
 
 **Pattern 1: Dependency Injection**
@@ -533,6 +538,8 @@ State: CONFLICTS_STORED
   ├─── GET /conflicts ──────────┐
   │                             │ (read-only, no state change)
   ├─── GET /conflicts/files ────┤
+  │                             │
+  ├─── POST /conflicts/compare ─┤
   │                             │
   ▼                             │
 State: CONFLICTS_STORED <───────┘

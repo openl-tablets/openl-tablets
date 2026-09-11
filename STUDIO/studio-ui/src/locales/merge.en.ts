@@ -86,7 +86,6 @@ i18next.addResourceBundle('en', 'merge', {
         merge_failed: 'Merge operation failed.',
         resolve_failed: 'Failed to resolve conflicts.',
         check_failed: 'Failed to check merge status.',
-        compare_failed: 'Failed to open file comparison.',
         all_conflicts_required: 'Please resolve all conflicts before saving.',
     },
 
