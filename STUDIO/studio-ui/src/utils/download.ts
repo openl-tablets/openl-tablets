@@ -12,6 +12,15 @@ export function triggerDownload(url: string, filename = ''): void {
 }
 
 /**
+ * How long the address of a saved file stays alive after the click.
+ *
+ * The browser reads it when it starts the download, which is not the tick of the click: a browser asking
+ * the user where to save the file reads it only once that is answered. Released before then, the address
+ * names nothing and the download is abandoned; the file is held in memory until it is released.
+ */
+const RELEASE_AFTER_MS = 40_000
+
+/**
  * Saves content the browser already holds to the user's machine, under the given name.
  *
  * The address the download goes through is made and released here, so a caller only says what to save.
@@ -22,6 +31,6 @@ export function saveFile(content: Blob | string, filename: string, type = 'text/
     try {
         triggerDownload(url, filename)
     } finally {
-        URL.revokeObjectURL(url)
+        setTimeout(() => URL.revokeObjectURL(url), RELEASE_AFTER_MS)
     }
 }

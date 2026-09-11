@@ -102,7 +102,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tests/units".formatted(encodedProjectId()),
+                "/topic/projects/%s/tests/results".formatted(encodedProjectId()),
                 result);
     }
 
@@ -120,7 +120,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tables/%s/tests/units".formatted(encodedProjectId(), encodedTableId()),
+                "/topic/projects/%s/tables/%s/tests/results".formatted(encodedProjectId(), encodedTableId()),
                 result);
     }
 

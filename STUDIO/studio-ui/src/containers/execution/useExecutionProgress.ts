@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWebSocket } from 'hooks/useWebSocket'
+import { subscribeTopic, type TopicSubscription } from 'services/stompTopic'
 import type { ExecutionStatus } from 'types/execution'
 
 /** What the server reports while a run or a test run goes on: a status, and why it failed when it did. */
@@ -68,18 +69,20 @@ export const isFinished = (status: ExecutionStatus | null): boolean => status !=
  * @param resultsTopic topic each result is reported on, for a run that reports them
  */
 export const useExecutionProgress = (statusTopic: string | null, resultsTopic?: string | null): ExecutionProgress => {
-    const { isConnected, subscribe, unsubscribe } = useWebSocket({ autoConnect: true })
+    const { isConnected } = useWebSocket({ autoConnect: true })
     const [progress, setProgress] = useState<Omit<ExecutionProgress, 'reset'>>(
         { status: null, error: null, arrived: 0, subscribed: false }
     )
-    const subscriptions = useRef<string[]>([])
+    const subscriptions = useRef<TopicSubscription[]>([])
 
-    const onStatus = useCallback((message: { body: string }) => {
-        const reported = readStatus(message.body)
+    const onStatus = useCallback((body: string) => {
+        const reported = readStatus(body)
         setProgress(current => ({
             ...current,
             status: reported.status ?? current.status,
-            error: reported.message ?? null,
+            // The reason is kept the way the status is: a message carrying none says nothing about why an
+            // execution failed, and the next execution clears it by starting.
+            error: reported.message ?? current.error,
         }))
     }, [])
 
@@ -94,17 +97,19 @@ export const useExecutionProgress = (statusTopic: string | null, resultsTopic?: 
         if (!isConnected || !statusTopic) {
             return undefined
         }
+        // One listener of this screen's own on each topic. Naming a subscription after the topic would give
+        // two screens watching the same execution the same name, and the second would silence the first.
         subscriptions.current = [
-            subscribe(statusTopic, onStatus, `execution-status-${statusTopic}`),
-            ...(resultsTopic ? [subscribe(resultsTopic, onResult, `execution-results-${resultsTopic}`)] : []),
+            subscribeTopic(statusTopic, onStatus),
+            ...(resultsTopic ? [subscribeTopic(resultsTopic, onResult)] : []),
         ]
         setProgress(current => ({ ...current, subscribed: true }))
         return () => {
-            subscriptions.current.forEach(unsubscribe)
+            subscriptions.current.forEach(subscription => subscription.unsubscribe())
             subscriptions.current = []
             setProgress(current => ({ ...current, subscribed: false }))
         }
-    }, [isConnected, statusTopic, resultsTopic, subscribe, unsubscribe, onStatus, onResult])
+    }, [isConnected, statusTopic, resultsTopic, onStatus, onResult])
 
     return { ...progress, reset }
 }

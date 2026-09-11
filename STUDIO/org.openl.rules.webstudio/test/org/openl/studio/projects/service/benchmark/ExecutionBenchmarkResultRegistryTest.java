@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.benchmark;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -70,10 +71,28 @@ class ExecutionBenchmarkResultRegistryTest {
     }
 
     @Test
-    void collect_failedBenchmarkAddsNothing() {
-        registry.setTask(projectId, "t1", CompletableFuture.failedFuture(new IllegalStateException("boom")));
+    void collect_failedBenchmarkSaysWhy() {
+        registry.setTask(projectId, "t1", CompletableFuture.completedFuture(List.of(measurement("m1"))));
+        registry.collect(projectId);
+        registry.setTask(projectId, "t2", CompletableFuture.failedFuture(new IllegalStateException("boom")));
 
-        assertTrue(registry.collect(projectId).isEmpty());
+        // A benchmark that could not be taken is not one that measured nothing: read, it says what went
+        // wrong rather than answering with the rows of the benchmark before it.
+        var failure = assertThrows(RuntimeException.class, () -> registry.collect(projectId));
+        assertTrue(failure.getMessage().contains("boom"), failure.getMessage());
+
+        // Read again, the measurements that were taken are there.
+        assertIterableEquals(List.of("m1"), idsOf(registry.collect(projectId)));
+    }
+
+    @Test
+    void setTask_keepsWhatTheBenchmarkBeforeItMeasured() {
+        // The window was closed before the measurement was read; the next benchmark must not take it away.
+        registry.setTask(projectId, "t1", CompletableFuture.completedFuture(List.of(measurement("m1"))));
+
+        registry.setTask(projectId, "t2", CompletableFuture.completedFuture(List.of(measurement("m2"))));
+
+        assertIterableEquals(List.of("m2", "m1"), idsOf(registry.collect(projectId)));
     }
 
     @Test

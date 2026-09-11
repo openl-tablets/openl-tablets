@@ -22,6 +22,7 @@ vi.mock('services/execution', () => ({
     readRunResult: vi.fn(),
     readRunResultWorkbook: vi.fn(),
     readTestsSummaryWorkbook: vi.fn(),
+    isStillRunning: (error: unknown) => (error as { status?: number })?.status === 409,
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))
 
@@ -29,11 +30,13 @@ vi.mock('services/execution', () => ({
 // The panel forgets what the last run reported before it starts another one.
 const { reset, progress } = vi.hoisted(() => ({
     reset: vi.fn(),
-    progress: { current: { status: 'COMPLETED' as string | null, error: null as string | null } },
+    progress: {
+        current: { status: 'COMPLETED' as string | null, error: null as string | null, subscribed: true },
+    },
 }))
 
 vi.mock('containers/execution/useExecutionProgress', () => ({
-    useExecutionProgress: () => ({ ...progress.current, arrived: 0, subscribed: true, reset }),
+    useExecutionProgress: () => ({ ...progress.current, arrived: 0, reset }),
     isFinished: (status: string | null) => status !== null && ['COMPLETED', 'INTERRUPTED', 'ERROR'].includes(status),
 }))
 
@@ -90,7 +93,7 @@ const open = (detail: Record<string, unknown> = {}) => act(async () => {
 describe('RunLaunchHost', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        progress.current = { status: 'COMPLETED', error: null }
+        progress.current = { status: 'COMPLETED', error: null, subscribed: true }
         projectRead.mockResolvedValue({ id: 'real-p1', name: 'P' })
         run.mockResolvedValue(undefined)
         tests.mockResolvedValue(undefined)
@@ -172,9 +175,11 @@ describe('RunLaunchHost', () => {
         render(<RunLaunchHost />)
 
         await open()
-        await userEvent.click(await screen.findByTestId('run-skipEmptyParameters'))
+        await userEvent.click(await screen.findByTestId('run-flattenParameters'))
         await userEvent.click(screen.getByTestId('run-into-file'))
 
+        // The panel starts out asking for the sheet the endpoint writes when nothing is asked for; ticking
+        // an option asks for the other one.
         await waitFor(() => expect(workbook).toHaveBeenCalledWith('real-p1', {
             skipEmptyParameters: true,
             flattenParameters: true,
@@ -199,7 +204,7 @@ describe('RunLaunchHost', () => {
     })
 
     it('says why a run that failed saved no file', async () => {
-        progress.current = { status: 'ERROR', error: 'Division by zero' }
+        progress.current = { status: 'ERROR', error: 'Division by zero', subscribed: true }
         inputRead.mockResolvedValue(ruleTable)
         render(<RunLaunchHost />)
 
@@ -249,5 +254,48 @@ describe('RunLaunchHost', () => {
         await userEvent.click(screen.getByTestId('run-start'))
 
         await waitFor(() => expect(run).toHaveBeenCalledWith('real-p1', 't1', expect.any(String), { fromModule: 'Main' }))
+    })
+    it('reads the result once, however often the panel is nudged while the read is on its way', async () => {
+        // The connection drops and comes back while the workbook is being read. Another read could find the
+        // result as well, and the file would be saved twice.
+        progress.current = { status: 'STARTED', error: null, subscribed: true }
+        inputRead.mockResolvedValue(ruleTable)
+        workbook.mockImplementation(() => new Promise<Blob>(resolve => {
+            setTimeout(() => resolve(new Blob(['x'])), 20)
+        }))
+        const { rerender } = render(<RunLaunchHost />)
+        await open()
+
+        await userEvent.click(await screen.findByTestId('run-into-file'))
+        expect(workbook).toHaveBeenCalledTimes(1)
+        progress.current = { status: 'COMPLETED', error: null, subscribed: false }
+        rerender(<RunLaunchHost />)
+        progress.current = { status: 'COMPLETED', error: null, subscribed: true }
+        rerender(<RunLaunchHost />)
+
+        await waitFor(() => expect(save).toHaveBeenCalledTimes(1))
+        await act(async () => {
+            await new Promise(resolve => setTimeout(resolve, 40))
+        })
+        expect(workbook).toHaveBeenCalledTimes(1)
+        expect(save).toHaveBeenCalledTimes(1)
+    })
+
+    it('asks for the run result when the panel stops hearing it, and waits while it is not there', async () => {
+        // The run has not said it has ended and the connection carrying that message is gone. The panel asks
+        // for the result; told that the run is still going on, it keeps waiting rather than reporting.
+        progress.current = { status: 'STARTED', error: null, subscribed: true }
+        inputRead.mockResolvedValue(ruleTable)
+        workbook.mockRejectedValue(Object.assign(new Error('still running'), { status: 409 }))
+        render(<RunLaunchHost />)
+        await open()
+        await screen.findByTestId('run-into-file')
+        progress.current = { status: 'STARTED', error: null, subscribed: false }
+
+        await userEvent.click(screen.getByTestId('run-into-file'))
+
+        await waitFor(() => expect(workbook).toHaveBeenCalled())
+        expect(save).not.toHaveBeenCalled()
+        expect(screen.queryByTestId('launch-error')).toBeNull()
     })
 })

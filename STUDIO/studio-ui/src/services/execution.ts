@@ -121,12 +121,16 @@ export interface RunFileOptions {
 
 /** Reads the result of the run as the workbook the user saves. */
 export const getRunResultWorkbook = async (projectId: string, options: RunFileOptions = {}): Promise<Blob> => {
+    // Only what the caller asked for is sent. How a workbook is written when nothing is asked is the
+    // endpoint's to say, and saying it here as well would be a second place to keep it.
     const params = new URLSearchParams({
-        skipEmptyParameters: String(options.skipEmptyParameters ?? false),
-        flattenParameters: String(options.flattenParameters ?? true),
+        ...(options.skipEmptyParameters !== undefined
+            && { skipEmptyParameters: String(options.skipEmptyParameters) }),
+        ...(options.flattenParameters !== undefined && { flattenParameters: String(options.flattenParameters) }),
     })
+    const query = params.toString()
     return await apiCall(
-        projectUrl(projectId, `/run/result?${params}`),
+        projectUrl(projectId, `/run/result${query === '' ? '' : `?${query}`}`),
         { headers: { Accept: XLSX_MEDIA_TYPE } },
         { ...EXECUTION_API_OPTIONS, responseType: 'blob' }
     ) as Blob
