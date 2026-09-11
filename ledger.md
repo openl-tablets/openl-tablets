@@ -2,9 +2,10 @@
 
 ## Resume point
 
-- Open PR on `dead-code/openapi-layouts-residue`; swept head is `origin/main` e01088de.
-- EPBDS-16576 residue is swept. Next vein: whatever merges after e01088de; diff against it before choosing a detector.
-- `origin/main` is red in ITEST (see Human follow-ups) — not this PR's, and no rerun fixes it.
+- Open PR #2104 (`dead-code/compare-residue`): 4 commits, 13 files, 162 deletions. Keep it green and answered.
+- Swept head is `origin/main` e01088de. The EPBDS-16576 comparison vein is done; the 8 EPBDS-16415 commits after it
+  (97 files, 0 deletions) are additive and stranded nothing. Next vein: whatever merges after e01088de.
+- `origin/main` is red in ITEST and no rerun fixes it (see Human follow-ups) — never this PR's failure.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
 
 ## Change-type queue
@@ -17,41 +18,42 @@
 | 4 | Unused Maven dependency declarations | done 2026-09-07; the rest are providers |
 | 5 | Pom metadata: managed entries, exclusions, plugin config, properties | done 2026-09-07 |
 | 6 | Redundant constructs, dead suppressions, VCS/build settings | done 2026-09-07 |
-| 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-11 g |
-| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-11 g |
-| 9 | Legacy JS functions and .xhtml pages | done 2026-09-09; .xhtml all alive |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-11 |
+| 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-11 g; 9 files in #2104 |
+| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-11 g; 2 rules in #2104 |
+| 9 | Legacy JS functions and .xhtml pages | done 2026-09-11 g; 2 pages in #2104, JS clean |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-11 g; 66 candidates all template-composed |
 | 11 | TypeScript exports, types, components, imports | done 2026-09-11 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 |
-| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-11 g |
+| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-11 g; UiConst in #2104 |
 
 Public API is never in the queue: unused public members go to Deferred findings for a human decision.
 
 ## Open PR
 
-- Branch `dead-code/openapi-layouts-residue`, PR #2103, head SHA 2da91787.
-- 5e38d0d0 Remove the diff tree icon constants left without a page (UiConst, type 13).
-- 41f769ce Delete the webstudio images no page or class names (5 diff gifs + 2 arrows, type 7).
-- 2da91787 Drop the common.css rule no page applies (.scrollable, type 8).
-- No review threads yet.
+- #2104 `dead-code/compare-residue`, head 33329ccbe7, cut from `origin/main` e01088de. EPBDS-16576 residue.
+- Four commits, one per change type, ordered so a referrer dies before the resources it alone kept alive:
+  UiConst.java (13); simpleLayout.xhtml + messagePopup.xhtml (9); 8 images + css/layout/simple.css (7);
+  common.css .scrollable and .dropdown-form (8). No review threads yet.
+- #2103 (`dead-code/openapi-layouts-residue`) was a concurrent firing that found a strict subset; closed as superseded
+  with a comment. Two overlapping sweep PRs are the real cost of the 4-hourly cron — check open PRs again before pushing.
 
 ## Merged PRs
 
 - 1906, 1909, 1911-1913, 1915, 1918, 1933, 1940, 2004, 2054, 2056, 2058, 2060, 2062-2063, 2082, 2088-2089, 2092,
-  2095-2096 — all merged; what each removed is covered by Exhausted veins.
-- 2101 (EPBDS-16560 residue): 6 commits, 12 files, 393 deletions; rebase-merged, so one commit per change type
-  survived onto main. Confirms a repo-wide single-type commit is accepted as-is.
+  2095-2096, 2101 — all merged; what each removed is covered by Exhausted veins. 2101 was rebase-merged, so one commit
+  per change type survived onto main: a repo-wide single-type commit is accepted as-is.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
 
 ## Module coverage
 
-- All 86 reactor modules, studio-ui, Docs, DEMO and archetypes have been swept for every change type; nothing left open.
-- Only code merged after each pass can yield again: diff `origin/main` against the last swept head before choosing a detector.
-- A big feature merge is the reliable source of new dead code: EPBDS-16560 stranded 393 lines, EPBDS-16576 a class,
-  7 images and a CSS rule. A war module's classes are application-internal, so rail 2 does not defer them.
+- All 86 reactor modules, studio-ui, Docs, DEMO and archetypes are swept for every change type; nothing left open. Only
+  code merged after a pass can yield again, and a big feature merge is the reliable source: EPBDS-16560 stranded 393
+  lines, EPBDS-16576 another 162. Diff `origin/main` against the last swept head before picking a detector.
 
 ## Deferred findings
 
+- Unreferenced once EPBDS-16576 retired the JSF diff UI, but public in published jars: EmptyCell, RegionGridSelector
+  (DEV); tableeditor grid filters ColorGridFilter, GreyColorFilter, TransparentColorFilter, FontGridFilter, CellStyleGridFilter.
 - TableEditorTag/TableViewerTag: public JSP tag handlers with no .tld, referenced nowhere; 18 write-only ValueExpression fields behind public setters (published artifact).
 - tableViewer tag, UITableViewer component and renderer registration: no page usage; tableeditor is a published artifact.
 - OpenLServiceFactoryBean.setProxyInterface: @Deprecated public, unreferenced; binary-compatibility break.
@@ -59,15 +61,12 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - DecisionTableBuilder.methodName + public setMethodName + call in TableSyntaxNodeDispatcherBuilder: inert chain, public DEV API.
 - SimpleGroup.description: public setter and public 3-arg constructor parameter, read nowhere.
 - XlsProjectionType GRID..CELL_FONT (9 constants, `// TODO do we need the rest?`): public enum, no values()/valueOf use.
-- IConditionEvaluator.DECORATOR_CONDITION_PRIORITY, IColorFilter.COLOR_NAMES/COLORS: unread public interface constants.
-- IBoundModuleNode, RuleServicePublisherMapper: unreferenced public types.
-- GreyColorFilter, ColorGridFilter (tableeditor), RegionGridSelector (DEV): lost their last caller with the JSF
-  comparison pages; all public in published artifacts.
-- MappedRepository.create(Repository,String): the 2-arg overload now forwards `false`; only its own tests call it.
+- IConditionEvaluator.DECORATOR_CONDITION_PRIORITY, IColorFilter.COLOR_NAMES/COLORS: unread public interface constants; IBoundModuleNode, RuleServicePublisherMapper, HistoryLog: unreferenced public types.
 - ChoicePointLabel: public in DEV constrainer, its only ctor package-private and uninvoked, so the Constrainer/Failure/GoalOr/GoalStack members typed on it always hold null; removal edits public signatures.
 - Extension surface, no caller: protected abstract ADtColumnsDefinitionTableBoundNode.isReturns (3 overrides) and AbstractOpenlTableExporter.getExcelSheetName (4); protected TableBuilder.getGridModel in a public non-final DEV class.
 - Same-class or super-forwarding callers only: DependencyOpenClass.getTypes/findType, CastingCustomSpreadsheetResultField.getDeclaringClass, SidExistsValidator.isValid, MethodUtil.printMethod(IOpenMethodHeader,StringBuilder,Function), SpreadsheetCell.isValueCell.
 - Unused class type parameters on public types: ReturnOperation, IStorage, ProjectService.
+- MappedRepository.create(Repository,String): the 2-arg overload now forwards `false`; only its own tests call it.
 - Sonar S1130 16 public/protected throws clauses nothing throws; S1172 229 unused params (159 public/protected, 52 test, 7 pkg-private).
 - MergeResult record: `status` component ignored by the compact constructor; removing it changes a public record signature.
 - ServiceManagerImpl.deploy: second `serviceDescriptionInProcess` write is a no-op only if createService cannot re-enter deploy.
@@ -80,8 +79,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - tooltip.css skins green/red and position top_center: no caller passes them, but tooltip.js still handles them; removing CSS alone is half a removal.
 - Transitive providers, not dead: jaxb-runtime in workspace, spring-core/spring-security-core in security.standalone, kafka-clients in ruleservice.kafka.
 - org.openl.rules.jackson in ruleservice.ws.common: only path to spring-core (BinarySchemaConverter); fix is 2 added declarations.
-- Test-jar executions in ruleservice and ruleservice.deployer include only org/openl/rules/ruleservice/test/* (absent) → publish empty jars.
-- maven-plugin-plugin reporting entry produces no report; site.xml links plugin-info.html and 7 *-mojo.html nobody builds.
+- Test-jar executions in ruleservice and ruleservice.deployer include only org/openl/rules/ruleservice/test/* (absent) → publish empty jars; maven-plugin-plugin's reporting entry produces no report, and site.xml links plugin-info.html and 7 *-mojo.html nobody builds.
 - Not deletions but fixes: eslint react-hooks plugin registered with no rule enabled; RulesUtilsTest @SuppressWarnings("deprecated") misspelled; common.js:127 `!$submit.hasClass('own-loader-handler')` can no longer be false.
 - Not dead, just repetitive: 47 dependency `version` elements repeating the managed version (44 in jacoco-report) are DRY; 153 `/* (non-Javadoc) @see */` markers beside @Override are comment churn; AzureBlobRepository `final` in try-with-resources is author style.
 - `listeners` var in copyModule.xhtml/editOpenAPI.xhtml: dead store, but `new Listeners()` has side effects.
@@ -95,8 +93,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Lombok @Getter/@Setter: field named only via getFoo/isFoo/setFoo/hasFoo/withFoo/addFoo → search capitalized accessor forms first.
 - Jackson wire names: ServiceInfo.getHasManifest → `hasManifest` in static/index.html and ITEST fixtures; check the JSON field name.
 - Spring XML `property name=` binds setters by decapitalized name; `class=` strings instantiate deps; @ImportResource pulls other modules' XML.
-- Spring MVC handlers (@GetMapping and friends) and @Bean/@ExceptionHandler/argument-resolver overrides have no Java
-  caller by design: the annotation is the caller. Whole-repo count 1 on a controller method proves nothing.
 - JAXB private beforeMarshal/afterUnmarshal (RulesDeploy, project.model) run reflectively; library overrides often lack @Override.
 - @Override of an EMPTY base method (CachedOutputStream.onWrite) IS dead: @Override alone is not proof of liveness.
 - Name in any string literal or non-Java text (reflection, EL, JAXB, @MethodSource) keeps a member alive; filter ASM candidates on it.
@@ -104,14 +100,15 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - ASM descriptor match misses generic abstract methods: `abstract T getAvgX()` erases to Number while callers invoke the Double override → match by name too.
 - ASM sees no @MethodSource/@ValueSource providers (annotation values are not ldc strings): filter annotated declarations.
 - ASM override check: a supertype outside the scanned classes (third-party) must count as a possible override; JDK supertypes can be checked by reflection.
-- Jackson MixIn methods (GroovyObject.getMetaClass), empty SubtypeMixin marker.
+- Jackson MixIn methods (GroovyObject.getMetaClass), empty SubtypeMixin marker, @Bean, @ExceptionHandler, argument-resolver overrides.
+- Spring MVC handlers (@GetMapping and friends) have no Java caller at all; the mapping annotation is the only proof of life.
 - Uninvoked ctor FPs: Jackson-bound records (readValue/TypeReference/getForObject/awaitMatching), JAXB XmlAdapter, Jackson MixIn, @Component/@Conditional, ctor params carrying @Autowired/@Value, OpenL String-constructor datatypes, JUnit classes.
 - A private or protected no-arg ctor is the anti-instantiation idiom, never a finding; an implicit default ctor has no source line to delete; a record's canonical ctor cannot be removed.
 - Reflection fixtures: YamlMapperFactoryTest MyBean, FormatterTest, ModuleTest, RulesUtilsTest, JavaOpenClassTest beans, JsonUtilsTest.BindingClasses.
 - Test types alive without reference: @Test classes, abstract-base inheritors, TestRunner* Spring configs, WizardUtilsTest dir-scan beans, JMH.
 - Test fixtures with deliberately private members: epbds6830 BeanA.getAB, AOpenClassTest.C.getC, JavaOpenClassTest.BeanA.gg (asserted by name).
 - Velocity: gen wrappers reached as `$wrapper.asList()` or `$wrapper.PropertyType` → grep .vm for both spellings.
-- i18next: `_one`/`_other` plural suffixes; template keys t(`browser.${id}_confirm`), role., debug.status., notifications.${kind}_deleted.
+- i18next: `_one`/`_other` plural suffixes; template keys t(`browser.${id}_confirm`), role., debug.status., notifications.${kind}_deleted, create_table_modal.types./.blocked., update_project_modal., fill_preview.state., tests.${kind}/tests.no_${kind}.
 - Transformed keys: ValidationMessages `openl.error.<status>.<code>` built by RestRuntimeException.getErrorCode; only the suffix is in Java.
 - EL-composed keys: `#{msg['ws.project.openapi.mode.'.concat(mode.name().toLowerCase())]}`; repo-default.<type>.<suffix>.
 - studio.url('page') drops .xhtml; index.xhtml crossroads routes add ".xhtml" → search extension-less base names.
@@ -140,9 +137,13 @@ Public API is never in the queue: unused public members go to Deferred findings 
 ## Method rules
 
 - Prove non-reference with `grep -rIwF <name>` over all file types excluding target/ node_modules/ .git/ studio-ui/coverage studio-ui/dist, plus `grep -ra` for binaries, plus accessor forms and the extension-less stem.
-- Never truncate a proof grep with `head`: a listing cut at 30 lines hid org.openl.rules.diff's live consumer and nearly cost a wrong pom deletion. Count first, print second.
+- Never truncate a proof grep with `head`: a listing cut short once hid org.openl.rules.diff's live consumer and nearly cost a wrong deletion. Count first, print second.
+- The clone is shallow, so `git log -S` lists boundary commits that touch nothing: confirm a removal by reading the diff of the newest hit (`git show <sha> | grep '^-.*<token>'`), never by the list alone.
 - Search workbooks: `unzip -p *.xlsx | grep -wF`, .xls as raw bytes; rule tables can name Java methods. Include the maven-plugin `it/` sources in every search.
 - Build an identifier-frequency index over all tracked text files: global count 1 = declaration only; scope test types to their own module.
+- A keep-list mechanism can itself die: the images/diff icons were "referenced by literal path" only from UiConst, so they fell with it. Re-check a keep-listed referrer before trusting the keep.
+- Scan a module's types for zero external references, then filter by annotation: in webstudio 59 types had none and 58 carried @Component/@RestController/@Configuration/JSF — the one unannotated class was the only finding.
+- A war module's classes are not published API (webstudio), so a public class there is judged by reference; a jar (DEV/**, tableeditor) is, so its public types go to Deferred.
 - A handful of changed files is scanned by listing their declared members and grepping each, not by building: ~/.m2 is cold every session.
 - Track enclosing types for effective visibility: a public member of a private or package-private type is internal.
 - ASM scan of target/classes + target/test-classes (all reactor modules, ITEST, maven-plugin): invokes, method handles, lambda bootstrap args, field get/put.
@@ -150,7 +151,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Ctor reachability: one ASM pass recording every INVOKESPECIAL, method handle and invokedynamic bootstrap argument naming a constructor, matched on owner+descriptor; intersect owners with target/classes to drop JUnit classes.
 - ASM scanner source lives in no repository: rebuild it (~130 lines on org.ow2.asm from ~/.m2) each run; 5155 classes scan in under a minute.
 - Run PMD standalone (pmd-dist from GitHub releases, not Maven Central; maven-pmd-plugin skips the non-standard `test` roots); absolute paths in `--file-list`; drop hits under target/; rerun on the post-change tree.
-- javac lint (Error Prone): UnusedMethod, UnusedVariable, EffectivelyPrivate, UnusedNestedClass; ignore [NullAway]. EffectivelyPrivate is a visibility refactor, never a deletion.
+- javac lint (Error Prone): UnusedMethod, UnusedVariable, UnusedNestedClass; ignore [NullAway]. EffectivelyPrivate is a visibility refactor, never a deletion.
 - SonarCloud web API (api/issues/search, branch=main) works through the proxy although the dashboard 403s: S125, S1068, S1481, S1854, S1144, S1130, S3626, S1172.
 - Maven deps: `mvn -o dependency:analyze-only` after install; read "used undeclared" too; prove with dependency:tree before/after, `dependency:list -DincludeScope=runtime`, war WEB-INF/lib listing.
 - Pom metadata: `mvn help:effective-pom -Pitest` diff before/after; plugin parameter names from META-INF/maven/plugin.xml in the plugin jar.
@@ -163,6 +164,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Tableeditor: after editing js/*.js or css/*.css regenerate the bundles with compile.js.sh / compile.css.sh and commit them in the same commit.
 - Java gate: never -DskipTests (skips test compile); ITEST needs -Pitest -DskipTestsForQuick=false; full `mvn clean install -Dquick -DnoPerf -T2` before push.
 - Regroup: one commit per change type per repo-wide pass; fold fixes with --fixup + autosquash; rerun detectors after a removal, because removing a param can leave a caller's param dead.
+- Order the commits so a referrer dies before the resources only it kept alive; an explicit `git rebase -i` todo through GIT_SEQUENCE_EDITOR both reorders and rewords in one pass.
 - Deletion-only PRs: Sonar "New Code" is wider than the diff and may be red for pre-existing findings; state that once, do not patch.
 - A "used undeclared" dependency is an addition, not a deletion: it belongs to the separate hygiene PR, never to this sweep.
 
@@ -180,8 +182,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Test classes are invisible cross-module unless the module publishes a test-jar: only org.openl.rules.ruleservice and ruleservice.deployer do.
 - DEV/org.openl.rules.test is never installed (maven.install.skip) → must be in the reactor; bare -pl on its consumers fails.
 - DEV/org.openl.rules.gen: pom packaging + maven.deploy.skip → its public members are not published API.
-- Public members of published DEV/**, STUDIO, WSFrontend artifacts stay; `.impl.`/`.internal.` packages are internal.
-  A `war` module (webstudio) publishes no API: its classes are judged like any internal code.
+- Public members of published DEV/**, STUDIO, WSFrontend jar artifacts stay; `.impl.`/`.internal.` packages are internal.
+- The org.openl.rules.diff module stays whole: org.openl.studio.compare reaches all 23 of its types through XlsDiff2 and DiffTreeBuilder2.
 - The CacheAndWriteOutputStream fork stays; its Javadoc records why it differs from the upstream class.
 - JSF wiring: faces-config.xml, html.taglib.xml, tableeditor.taglib.xml (Facelets), web.xml filters/listeners, ui:include/composition/decorate.
 - Indirect class application: columnClasses/rowClasses/headerClass/footerClass/infoClass/errorClass/nodeClass, EL ternaries.
@@ -196,8 +198,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Members carrying instructions stay: `THIS CONSTRUCTOR MUST BE EMPTY!!!`, GenericComparator "use getInstance()" Javadoc.
 - Out of scope: openl-maven-plugin it/ fixtures, Docs/examples and Docs/production-deployment poms, archetype resources, test-resources gen/.
 - `test-resources/**` in every module (1014 non-workbook files outside ITEST): rail 5 names the pattern and the trees are folder-loaded fixtures; never judge single files. Workbooks under `test/` dirs are judged.
-- Icons named only by a literal path stay while the naming code lives (rules-tree, site.webmanifest); when that code is
-  itself dead the icons go with it — check the namer before honouring this entry.
+- Icons by literal path (rules-tree, diff icons, site.webmanifest); ITEST 001-Get-Static-CSS asserts only status/content-type of common.css.
 - War reachability is WEB-INF/lib, not compile: repositories are instantiated reflectively by class name from production-repository.factory.
 - SLF4J bridge log4j-slf4j2-impl runtime scope pinned by Log4jRoutingTest; swagger-core-jakarta is the deliberate substitute (root excludes swagger-core).
 
@@ -225,19 +226,17 @@ Public API is never in the queue: unused public members go to Deferred findings 
 ## Container facts
 
 - No `gh` CLI: use the GitHub MCP tools (pull_request_read, update_pull_request, add_issue_comment, actions_list, get_job_logs).
-- The clone is shallow (~50 commits) and `origin/*` refs can be stale: `git fetch --prune origin` exceeds a 120s tool timeout, so fetch named branches (`git fetch origin main:refs/remotes/origin/main --force`).
-- `git log` on a file is useless here — the shallow boundary commit shows every old file as newly added; judge by references only.
-- ITEST does run here despite no Docker: the Jetty-based suites (itest.studio.*) execute in a plain `mvn install`.
 - `git push --delete <branch>` is refused by the proxy (HTTP 403, "remote end hung up"); branch deletion is a human follow-up.
-- Cold ~/.m2 at session start: the first build needs the network (~60 min including tests) and -Daether.syncContext.named.time=600, or resolution fails with "Could not acquire lock(s)"; never -o before that build.
-- After a -T2 failure, `mvn -rf :<module>` cannot resolve the banned siblings or the never-installed rules.test → rerun the whole `mvn install` (no clean, ~10 min warm).
+- Cold ~/.m2 at session start: the first `-T2` build needs the network (27 min wall clock with tests) and -Daether.syncContext.named.time=600, or resolution fails with "Could not acquire lock(s)"; never -o before that build.
+- After a build failure, `mvn -rf :<module>` cannot resolve the banned siblings or the never-installed rules.test → rerun the whole `mvn install` (no clean, ~10 min warm).
 - Container presets gpg.format=ssh, commit.gpgsign=true; JGit has no ssh signer → repository.git tests die and every module after it is skipped. Unset both **globally** (`git config --global --unset`) before the build; a local unset in the clone is not enough and env overrides do not reach JGit.
 - The container rewrites ~/.gitconfig back to the Claude identity mid-session, silently reverting `git config --global user.*`. Set `git config --local user.*` in the clone instead (worktrees share it) and re-check `git log -1 --pretty='%an|%cn'` before every push, not only after the first commit.
 - No locale set: run builds with LANG=C.UTF-8 (one archive test uses a non-ASCII fixture name).
 - 4-core container: -T1C starves vitest (UserDetailsTab fails); use -T2 for whole-reactor builds when studio-ui tests run; never run npm in studio-ui while Maven runs.
+- A `git rebase` during a running build is safe only while the reactor is far from the edited modules; otherwise the intermediate checkouts feed Maven a half-applied tree.
 - Never `git switch --orphan` in the working tree while a build runs (it empties the tree): use a separate `git worktree add --detach` for the ledger branch.
 - pmd-dist bin zip is not on Maven Central; download from github.com/pmd/pmd/releases (~130 MB) and run `bin/pmd check --file-list`.
-- No Jira access; sonarcloud.io dashboard 403 but api/issues/search reachable.
+- ITEST does run here despite no Docker: the Jetty-based itest.studio.* suites execute in a plain `mvn install`, so a whole-reactor build is the real CI gate. No Jira; sonarcloud.io dashboard 403 but api/issues/search reachable.
 - npm install --package-lock-only strips libc metadata from 10 optional platform packages; edit package-lock.json by hand, verify with npm ci.
 - opensaml-bom 5.2.3 lives only on build.shibboleth.net: if CONNECT 403 returns, stub an empty BOM in ~/.m2 and skip webstudio with -pl.
 - Two runs of this routine can fire the same day: list open `dead-code/*` PRs and fetch `dead-code/ledger` again right before pushing anything.
@@ -246,14 +245,13 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 - studio-ui: package.json deps, 15 locale namespaces, enum members, Props members, public/ assets, module graph, 849 exports, CSS-in-JS keys, @ts-ignore, React imports.
 - studio-ui exports used only in their own file (~36-70): live; dropping `export` is a visibility refactor, never a deletion.
-- Legacy JS: 382 declarations in 38 files and every whole-file loader; only the four members already removed and jQuery.sub (vendored) are dead.
-- CSS selector tokens in all 17 stylesheets: only `.clickable` and `.scrollable` (both removed) dead outside vendored files and runtime-built names; inline styles all used.
-- Tableeditor: every CSS/JS source in the concat lists; datepicker helpers vendored; webstudio .xhtml (46-50) all reached; ui:param and xmlns all used.
+- Legacy JS: 382 declarations in 38 files and every whole-file loader; only the four already removed and jQuery.sub (vendored) are dead.
+- CSS selector tokens in all 17 stylesheets: only `.clickable`, `.scrollable` and `.dropdown-form` (all removed) dead outside vendored files and runtime-built names; inline styles all used.
+- Tableeditor: every CSS/JS source in the concat lists; datepicker helpers vendored; webstudio .xhtml all reached except the two removed; ui:param and xmlns all used.
 - HTML comments in .xhtml/.html: explanations only; f:facet names all standard RichFaces.
-- Images: every tracked image outside ITEST is named as a whole word in a text file, except the 7 already removed.
+- Images: 683 tracked images outside ITEST all named as a whole word in a text file, except the 8 removed.
 - Message bundles: openapi (625), messages (46), ValidationMessages (228) keys all reached by literal, `openl.error.<status>.` suffix, EL enum name or Bean Validation default, except the one already removed; sql-errors keyed by vendor error code at runtime.
-- Config defaults: all 199 keys of the 10 openl-default.properties files are named outside their own file (Java
-  @Value/getProperty, Docs configuration guides, ITEST application.properties); none dead.
+- Config defaults: all 199 keys of the 10 openl-default.properties files are named outside their own file (Java @Value/getProperty, Docs guides, ITEST application.properties); none dead.
 - Resource base-name scan (all `resources/` dirs outside ITEST/test-resources/archetypes): 45 zero-reference hits, all convention files.
 - Spring XML beans (11 non-test files), component-scan entries (24), JSF registrations, web.xml filters/listeners: all alive except tableViewer (deferred).
 - Maven: root/module properties, every profile, root pluginManagement, 177 managed artifact ids, 18 exclusions, plugin config, surefire sysprops, resource dirs: all alive; dependency:analyze-only remaining hits are providers/aggregators/processors/wars.
@@ -263,24 +261,26 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - ASM ctor scan on main ef74952e: 9 of 830 non-public parameterized ctors and 901 no-arg ones uninvoked; only the removed pair was dead, and the 11 production no-arg hits are all reflective or implicit.
 - Java: protected members of final classes, public members of .internal. packages: none; pkg-private top-level (246) and nested (318) publics all called.
 - Java: enum constants all alive except XlsProjectionType (deferred); classes with no bytecode reference (22) all reflection fixtures/inheritors/@Delegate excludes.
-- Java: JavaDoc tags, @SuppressWarnings keys, bare super(), empty default constructors, UnnecessaryBooleanAssertion: done; UnnecessaryFullyQualifiedName/UselessParentheses are rewrites, not deletions.
+- Java: JavaDoc tags, @SuppressWarnings keys, bare super(), empty default ctors, UnnecessaryBooleanAssertion: done; UnnecessaryFullyQualifiedName/UselessParentheses are rewrites, not deletions. STUDIO type scan (532 non-webstudio + 876 webstudio types): every zero-reference hit is a JUnit class, a Spring bean or a published jar's public type (deferred); only UiConst was deletable.
 - SonarCloud on main: S125 done (39 kept); S1128/S1116/S3985/S1596/css:S4658 zero; S1068/S1481/S1854/S1144/S2094/S1119/S3626 all FP or deferred.
 - Test workbooks outside ITEST/test-resources/it (254): only 3 folder-loaded ones unmentioned; non-workbook test/ files (3) live.
 - Commented-out code: Java main+test, CSS, JS done; XHTML/TS none. Dead suppressions: 137 undecidable (category unchecked).
 - .gitignore/.gitconfig/.gitattributes/.editorconfig, package.json fields, eslint/vite/vitest config imports: done.
 - DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
 - Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
-- EPBDS-16560 and EPBDS-16576 residue (JSF beans, .xhtml, response-monitor.js, the web/diff package): swept for Java
-  types, CSS, JS, images, message bundles, common.js, studio-ui exports and locales. All of it is in #2101 and the open
-  PR; the ws.compare.* keys, compare JS functions and compare CSS classes went with the feature commits themselves.
+- EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js deleted): swept for Java types, CSS, JS, images,
+  message bundles, common.js and studio-ui exports/locales; everything found is in #2101.
+- EPBDS-16576 residue (5 JSF diff pages, 13 controllers, diff2html, legacyCompare.ts deleted): swept for Java types
+  and members, .xhtml, CSS tokens, images, message keys, studio-ui locales and legacy JS; all of it is in #2104. The
+  218 methods the deleted controllers called all keep other callers; the diff module's own types stay reachable.
 
 ## Human follow-ups
 
-- `origin/main` e01088de is red: itest.studio.repos WebStudioTest.repos fails 5 requests. The EPBDS-16415 layout series
-  moved project Excel files under `rules/` and updated ~25 ITEST fixtures but missed
-  task_EPBDS-16576-conflicts/020-compare/010-merge-side-branch.post.resp, still expecting
-  `EPBDS-16576-Conflicts/Main.xlsx` where the server answers `.../rules/Main.xlsx`; the next request then 404s instead
-  of 202. Deterministic, one-path fixture edit; rail 5 bars this routine from touching it.
+- `origin/main` e01088de is RED: itest.studio.repos WebStudioTest.repos fails 5 requests. EPBDS-16415 moved uploaded
+  workbooks into a `rules/` folder and rewrote 21 fixtures under itest.studio/repos/test-resources to match, but missed
+  task_EPBDS-16576-conflicts/020-compare/010-merge-side-branch.post.resp, which still expects
+  `EPBDS-16576-Conflicts/Main.xlsx` where the server answers `.../rules/Main.xlsx`; the next request then 404s. Rail 5
+  forbids this routine from editing ITEST fixtures, and no rerun fixes it — it needs the EPBDS-16415 author.
 - Test bug: JAXRSOpenLServiceEnhancerTest.shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses enhances the wrong fixture interface.
 - Sonar: S2259 (NPE) in ComponentTypeArrayOpenClass.isAssignableFrom/isInstance (null-guard patch proposed in #2088), XlsBinder:523, ProjectModel:1214, TableEditorModel:106, TestDownloadController:144; S6466 CRITICAL WorkbookListener:273.
 - site.webmanifest names `android-chrome-512x512.pngs` (trailing s): the 512px icon is unreachable; one-character bug.
@@ -295,6 +295,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Run log
 
-- 2026-09-11 e: fourth verification-only run; #2101's grouping and description numbers re-derived and still exact.
 - 2026-09-11 f: #2101 rebase-merged (393 deletions on main); ledger closed out, EPBDS-16576 left as the next vein.
-- 2026-09-11 g: EPBDS-16576 residue swept — 3 commits (UiConst, 7 images, .scrollable); found main red in ITEST.
+- 2026-09-11 g: swept the EPBDS-16576 vein concurrently with another firing; it opened #2103 (subset).
+- 2026-09-11 h: opened #2104 (4 commits, 13 files, 162 deletions, superset), closed #2103; found main red in ITEST.
