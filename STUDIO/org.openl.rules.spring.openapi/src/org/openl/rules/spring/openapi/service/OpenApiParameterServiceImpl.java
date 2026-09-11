@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +20,7 @@ import jakarta.validation.constraints.Pattern;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
+import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.util.ParameterProcessor;
 import io.swagger.v3.core.util.ReflectionUtils;
@@ -26,6 +28,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.MediaType;
@@ -48,7 +51,7 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  */
 @Component
-public class OpenApiParameterServiceImpl implements OpenApiParameterService {
+public class OpenApiParameterServiceImpl implements OpenApiParameterService, DisposableBean {
 
     /**
      * Header parameters with these (case-insensitive) names are ignored by the OpenAPI specification; their values are
@@ -58,6 +61,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
 
     private final OpenApiPropertyResolver apiPropertyResolver;
     private final RequestMappingHandlerAdapter mappingHandlerAdapter;
+    private final List<ModelConverter> registeredModelConverters;
 
     @Autowired
     public OpenApiParameterServiceImpl(Optional<List<ModelConverter>> modelConverters,
@@ -65,13 +69,36 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
                                        RequestMappingHandlerAdapter mappingHandlerAdapter) {
         this.apiPropertyResolver = apiPropertyResolver;
         this.mappingHandlerAdapter = mappingHandlerAdapter;
-        modelConverters.ifPresent(converters -> {
-            // iter from last to the first element because ModelConverters::addConverter always add to the first place.
-            // But we need to keep original priority order
-            for (var i = converters.size() - 1; i > -1; i--) {
-                ModelConverters.getInstance().addConverter(converters.get(i));
+        this.registeredModelConverters = modelConverters.orElseGet(List::of)
+                .stream()
+                .map(OpenApiParameterServiceImpl::serviceOwnedConverter)
+                .toList();
+        // iter from last to the first element because ModelConverters::addConverter always add to the first place.
+        // But we need to keep original priority order
+        for (var i = registeredModelConverters.size() - 1; i > -1; i--) {
+            ModelConverters.getInstance().addConverter(registeredModelConverters.get(i));
+        }
+    }
+
+    @Override
+    public void destroy() {
+        registeredModelConverters.forEach(ModelConverters.getInstance()::removeConverter);
+    }
+
+    private static ModelConverter serviceOwnedConverter(ModelConverter delegate) {
+        return new ModelConverter() {
+            @Override
+            public Schema resolve(AnnotatedType type,
+                                  ModelConverterContext context,
+                                  Iterator<ModelConverter> chain) {
+                return delegate.resolve(type, context, chain);
             }
-        });
+
+            @Override
+            public boolean isOpenapi31() {
+                return delegate.isOpenapi31();
+            }
+        };
     }
 
     /**
@@ -203,8 +230,8 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         String defaultValue = null;
         if (pathVar != null) {
             var optional = false;
-            if (paramInfo.getType() instanceof ParameterizedType) {
-                optional = ((ParameterizedType) paramInfo.getType()).getRawType() == Optional.class;
+            if (paramInfo.getType() instanceof ParameterizedType parameterizedType) {
+                optional = parameterizedType.getRawType() == Optional.class;
             }
             if ((optional || !pathVar.required()) && !methodInfo.getPathPattern().contains("{" + pathVar.value() + "}")) {
                 return Optional.empty();
