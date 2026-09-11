@@ -1,66 +1,76 @@
 import type { ModuleTable } from 'types/tables'
 import { readJson, writeJson } from '../../utils/localStore'
 
-/** Group by the family a table belongs to: Rules, Spreadsheet, Datatype, Test. */
-export const GROUP_BY_KIND = '[Kind]'
-
-/** Group by the keyword a table is written with: SimpleRules, SmartLookup, Vocabulary. */
-export const GROUP_BY_TABLE_TYPE = '[Type]'
-
-/** Group by the workbook the table is written in. */
-export const GROUP_BY_FILE = '[File]'
-
-/** Group by the `category` property a table declares. */
-export const GROUP_BY_CATEGORY = 'category'
-
-export const GROUP_BY_NONE = ''
-
-/** What each of the two levels groups by; an empty level groups by nothing. */
-export type TableGroupingLevels = [string, string]
-
-export const NO_GROUPING: TableGroupingLevels = [GROUP_BY_NONE, GROUP_BY_NONE]
-
 /**
- * What the tree opens as: the tables gathered by family, the way the Editor has always shown them.
+ * How the tree gathers the tables, named as the Editor has always named its views.
+ *
+ * The engine's own default is `excelSheet` (`rules.tree.view.default`), so that is what the tree opens as.
  */
-export const DEFAULT_GROUPING: TableGroupingLevels = [GROUP_BY_KIND, GROUP_BY_NONE]
+export type TableView = 'excelSheet' | 'type' | 'category' | 'categoryDetailed' | 'categoryInversed'
 
-const STORAGE_KEY = 'openl.module.tableGrouping'
+export const TABLE_VIEWS: TableView[] = ['type', 'excelSheet', 'category', 'categoryDetailed', 'categoryInversed']
 
-const isGroupingLevels = (value: unknown): value is TableGroupingLevels =>
-    Array.isArray(value) && value.length === 2 && value.every(level => typeof level === 'string')
+export const DEFAULT_VIEW: TableView = 'excelSheet'
 
-export const loadGrouping = (): TableGroupingLevels => readJson(STORAGE_KEY, DEFAULT_GROUPING, isGroupingLevels)
+const STORAGE_KEY = 'openl.module.tableView'
 
-export const saveGrouping = (levels: TableGroupingLevels): void => writeJson(STORAGE_KEY, levels)
+const isView = (value: unknown): value is TableView =>
+    typeof value === 'string' && (TABLE_VIEWS as string[]).includes(value)
 
-/** The levels that actually group, in order; the empty ones are left out. */
-export const activeLevels = (levels: TableGroupingLevels): string[] =>
-    levels.filter(level => level !== GROUP_BY_NONE)
+export const loadView = (): TableView => readJson(STORAGE_KEY, DEFAULT_VIEW, isView)
+
+export const saveView = (view: TableView): void => writeJson(STORAGE_KEY, view)
+
+/** What a level files a table under: the sheet, the kind, or a step of its category. */
+type Level =
+    | { by: 'sheet' }
+    | { by: 'kind' }
+    | { by: 'category' }
+    /** One step of a dotted category, counted from the left; the inversed view reads the steps the other way. */
+    | { by: 'categoryStep', step: number }
+
+/** The levels each view groups by, in order, mirroring the builders of the JSF views. */
+const LEVELS: Record<TableView, Level[]> = {
+    excelSheet: [{ by: 'sheet' }],
+    type: [{ by: 'kind' }],
+    category: [{ by: 'category' }],
+    categoryDetailed: [{ by: 'categoryStep', step: 0 }, { by: 'categoryStep', step: 1 }],
+    categoryInversed: [{ by: 'categoryStep', step: 1 }, { by: 'categoryStep', step: 0 }],
+}
+
+export const levelsOf = (view: TableView): Level[] => LEVELS[view]
 
 /** One node of the tree: a group of tables, or a table itself. */
 export interface TableNode {
     key: string
     /** What the node is called — the group's value, or the table's name. */
     title: string
+    /** What the node groups by, absent on a table leaf; the icon is chosen from it. */
+    groupedBy?: Level['by']
     /** Set on a table leaf. */
     table?: ModuleTable
     children: TableNode[]
 }
 
+const categoryOf = (table: ModuleTable): string | null => {
+    const value = table.properties?.['category']
+    return typeof value === 'string' && value !== '' ? value : null
+}
+
 /** What a table is filed under at a level, or null when it carries no value for it. */
-const valueOf = (table: ModuleTable, level: string): string | null => {
-    if (level === GROUP_BY_KIND) {
+const valueOf = (table: ModuleTable, level: Level): string | null => {
+    if (level.by === 'sheet') {
+        return table.sheet || null
+    }
+    if (level.by === 'kind') {
         return table.kind || null
     }
-    if (level === GROUP_BY_TABLE_TYPE) {
-        return table.tableType || null
+    const category = categoryOf(table)
+    if (level.by === 'category') {
+        return category
     }
-    if (level === GROUP_BY_FILE) {
-        return table.file || null
-    }
-    const property = table.properties?.[level]
-    return typeof property === 'string' && property !== '' ? property : null
+    // A category reads as steps separated by dots, the way the Editor's detailed views read it.
+    return category === null ? null : category.split('.')[level.step] ?? null
 }
 
 const tableNode = (table: ModuleTable, keyPrefix: string): TableNode => ({
@@ -79,18 +89,18 @@ const byLabel = (left: string, right: string): number =>
  * A table carrying no value for a level stays at that level, beside the groups, so a table is never hidden by a
  * property it does not declare.
  *
- * The tree is built from the tables already in the browser, so changing the grouping costs no request.
+ * The tree is built from the tables already in the browser, so changing the view costs no request.
  */
 export const buildTableTree = (
     tables: ModuleTable[],
-    levels: string[],
+    levels: Level[],
     keyPrefix = 'grp'
 ): TableNode[] => {
     if (levels.length === 0) {
         return [...tables].sort((left, right) => byLabel(left.name, right.name))
             .map(table => tableNode(table, keyPrefix))
     }
-    const [level, ...rest] = levels as [string, ...string[]]
+    const [level, ...rest] = levels as [Level, ...Level[]]
     const groups = new Map<string, ModuleTable[]>()
     const ungrouped: ModuleTable[] = []
     for (const table of tables) {
@@ -109,12 +119,17 @@ export const buildTableTree = (
     const nodes: TableNode[] = [...groups.entries()]
         .sort(([left], [right]) => byLabel(left, right))
         .map(([value, grouped]) => {
-            const key = `${keyPrefix}/${level}/${value}`
+            const key = `${keyPrefix}/${level.by}${level.by === 'categoryStep' ? level.step : ''}/${value}`
             return {
                 key,
                 title: value,
+                groupedBy: level.by,
                 children: buildTableTree(grouped, rest, key),
             }
         })
     return [...nodes, ...buildTableTree(ungrouped, rest, `${keyPrefix}/rest`)]
 }
+
+/** The tree of the given view. */
+export const treeOf = (tables: ModuleTable[], view: TableView): TableNode[] =>
+    buildTableTree(tables, levelsOf(view))
