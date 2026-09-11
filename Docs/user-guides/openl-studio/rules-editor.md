@@ -802,13 +802,16 @@ If the two files hold the same elements with the same contents, the **File eleme
 
 ### Viewing and Editing Project-Related OpenAPI Details
 
-When a project is generated from the imported OpenAPI file, it becomes available in Rules Editor.
+When a project is created from an imported OpenAPI file, the normalized file in the project root is used for
+reconciliation by default. The generated `rules.xml` does not store OpenAPI generation settings, so OpenL Studio does
+not regenerate the workbooks automatically and overwrite later edits.
 
-The generated project contains information about the last file import date, name of the OpenAPI file, mode, and modules names in rules.xml. This information is available in OpenL Studio, the OpenAPI section.
+After an explicit OpenAPI import or generation operation stores its settings in `rules.xml`, the OpenAPI section shows
+the last file import date, OpenAPI file name, mode, and module names.
 
-![](images/openapi-project-rules-editor.png)
+![OpenAPI project after explicitly running Tables generation](images/openapi-project-rules-editor.png)
 
-*OpenAPI project in Rules Editor, in the Tables Generation mode*
+*OpenAPI project after explicitly running Tables generation*
 
 It contains the following information:
 
@@ -893,7 +896,10 @@ The rules and model modules are created or updated. The OpenAPI data is updated.
 
 #### Regenerating a Project from Another OpenAPI File
 
-If a project is initially created from an OpenAPI file, it can be regenerated from another OpenAPI file. For project regeneration, follow the steps described in [Adding OpenAPI for Reconciliation to an Existing Project](#adding-openapi-for-reconciliation-to-an-existing-project). The name of the OpenAPI file is preset for regeneration.
+If a project is initially created from an OpenAPI file, it can be regenerated explicitly from another OpenAPI file.
+Follow the steps described in
+[Adding OpenAPI for Reconciliation to an Existing Project](#adding-openapi-for-reconciliation-to-an-existing-project),
+select **Tables generation**, and choose the OpenAPI file. Regeneration overwrites the selected rules and data modules.
 
 #### Updating the OpenAPI File
 

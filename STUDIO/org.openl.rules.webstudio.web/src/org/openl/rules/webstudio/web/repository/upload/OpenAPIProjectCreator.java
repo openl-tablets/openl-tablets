@@ -39,7 +39,8 @@ import org.openl.util.formatters.FileNameFormatter;
 
 /**
  * Creates a project from an OpenAPI file. Generates models, spreadsheets, rules.xml, rules-deploy and compiled
- * annotation template files. Stores the OpenAPI file under its standard name in the project root.
+ * annotation template files. Stores the OpenAPI file under its standard name in the project root. The generated
+ * descriptor uses the default reconciliation behavior and does not enable continued generation.
  */
 public class OpenAPIProjectCreator extends AProjectCreator {
 
@@ -258,17 +259,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     private ProjectDescriptor defineDescriptor(boolean genJavaClasses, Set<String> algorithmsInclude) {
         var descriptor = new ProjectDescriptor();
-        var openAPI = new OpenAPI();
-        openAPI.setAlgorithmModuleName(algorithmsModuleName);
-        openAPI.setModelModuleName(modelsModuleName);
-        openAPI.setMode(OpenAPI.Mode.GENERATION);
 
         var filter = new ExposedMethods();
         filter.setIncludes(algorithmsInclude);
         descriptor.setExposedMethods(filter);
-
-        openAPI.setPath(openAPIPath);
-        descriptor.setOpenapi(openAPI);
 
         var descriptorManager = new ProjectDescriptorManager();
         descriptorManager.registerModule(descriptor, module(algorithmsModuleName, algorithmsPath));

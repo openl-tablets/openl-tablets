@@ -124,7 +124,7 @@ class OpenAPIProjectCreatorTest {
 
         var projectFolderPath = createProject("yml-schema", projectFile);
 
-        assertOpenAPIPath(projectFolderPath, "openapi.yaml");
+        assertOpenAPIFile(projectFolderPath, "openapi.yaml");
         assertFalse(Files.exists(projectFolderPath.resolve("custom-schema.yml")));
     }
 
@@ -323,19 +323,16 @@ class OpenAPIProjectCreatorTest {
         var descriptor = ProjectDescriptor.read(projectFolderPath);
         assertNotNull(descriptor);
         assertNull(descriptor.getName());
+        assertNull(descriptor.getOpenapi());
         assertTrue(descriptor.getModules().isEmpty());
         assertTrue(Files.isRegularFile(projectFolderPath.resolve(MOCK_MODEL_PATH)));
         assertTrue(Files.isRegularFile(projectFolderPath.resolve(MOCK_ALGORITHM_PATH)));
-        assertOpenAPIPath(projectFolderPath, sourceFile.toLowerCase(Locale.ROOT).endsWith(".json")
+        assertOpenAPIFile(projectFolderPath, sourceFile.toLowerCase(Locale.ROOT).endsWith(".json")
                 ? "openapi.json"
                 : "openapi.yaml");
     }
 
-    private static void assertOpenAPIPath(Path projectFolderPath, String expectedPath) {
-        var descriptor = ProjectDescriptor.read(projectFolderPath);
-        assertNotNull(descriptor);
-        assertNotNull(descriptor.getOpenapi());
-        assertEquals(expectedPath, descriptor.getOpenapi().getPath());
+    private static void assertOpenAPIFile(Path projectFolderPath, String expectedPath) {
         assertTrue(Files.isRegularFile(projectFolderPath.resolve(expectedPath)));
     }
 
