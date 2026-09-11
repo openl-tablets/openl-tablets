@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -154,6 +155,15 @@ public class ProjectModel {
         thread.setDaemon(true);
         return thread;
     });
+
+    /**
+     * Set while a status update is on its way to the notifier.
+     *
+     * <p>The notifier reads the status when it runs, not when it was asked to, so changes arriving in a row
+     * are one update rather than one each — a project of fifty modules reports fifty times, not fifty times
+     * fifty.
+     */
+    private final AtomicBoolean statusUpdateHandedOff = new AtomicBoolean();
 
     @Getter
     private Module moduleInfo;
@@ -1307,6 +1317,9 @@ public class ProjectModel {
         clearModuleResources(); // prevent memory leak
         projectRoot = null;
         xlsModuleSyntaxNode = null;
+        // What was compiled belongs to the module being replaced, and the new one is not compiled until the
+        // load below returns. Keeping it would report the module as ready from the moment it was asked for.
+        openedModuleCompiledOpenClass = null;
         prepareWorkspaceDependencyManager(moduleInfo.getProject());
         try {
             CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
@@ -1399,20 +1412,37 @@ public class ProjectModel {
         if (publisher == null) {
             return;
         }
+        if (Thread.holdsLock(this)) {
+            // Opening a module compiles it while this monitor is held, which on a large project is minutes,
+            // and reading the status needs the same monitor — so a hand-off would wait for the very
+            // compilation it reports on and deliver everything once it ended. This thread holds the monitor
+            // already: what it can read without waiting — how far the compilation has come — is published
+            // here, while it is still news. The full status is handed off as well, so it arrives the moment
+            // the monitor is free — a compile that publishes nothing afterwards still tells the whole story.
+            doPublishStatusChanged(publisher, true);
+        }
         // This may run on a compilation worker while the compilation monitor is held (see
         // addCompiledDependency). Publishing inline would acquire this model's monitor via
         // getProject() and deadlock against a foreground setModuleInfo() that holds the model
         // monitor and waits for the compilation monitor. Hand the update off to a dedicated
         // worker so no compilation lock is held while the model status is read and delivered.
+        if (!statusUpdateHandedOff.compareAndSet(false, true)) {
+            // An update is already on its way and will read the state this change leaves behind.
+            return;
+        }
         try {
-            statusNotifier.execute(() -> doPublishStatusChanged(publisher));
+            statusNotifier.execute(() -> {
+                statusUpdateHandedOff.set(false);
+                doPublishStatusChanged(publisher, false);
+            });
         } catch (RejectedExecutionException e) {
+            statusUpdateHandedOff.set(false);
             // The model is being torn down (destroy()); a stale status update is safe to drop.
             log.debug("Project status notifier is shut down; skipping status update", e);
         }
     }
 
-    private void doPublishStatusChanged(ApplicationEventPublisher publisher) {
+    private void doPublishStatusChanged(ApplicationEventPublisher publisher, boolean progressOnly) {
         // The notifier thread has no Spring Security context, and getProject() goes through
         // SecureUserWorkspace, so bind the session's captured Authentication for this call.
         studio.runAsSessionUser(() -> {
@@ -1421,7 +1451,8 @@ public class ProjectModel {
                 if (project == null) {
                     return;
                 }
-                publisher.publishEvent(new ProjectStatusChangedEvent(this, project, studio.getCurrentUsername()));
+                publisher.publishEvent(
+                        new ProjectStatusChangedEvent(this, project, studio.getCurrentUsername(), progressOnly));
             } catch (RuntimeException e) {
                 log.debug("Failed to publish project status changed event", e);
             }
@@ -1537,6 +1568,17 @@ public class ProjectModel {
     public synchronized boolean isCompiledSuccessfully() {
         return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null && !(compiledOpenClass
                 .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
+    }
+
+    /**
+     * Whether the module now open has been compiled, with errors or without.
+     *
+     * <p>Says only that the compilation of that module is over — a module that failed to compile is compiled
+     * too, and what it raised is in the status. Use {@link #isOpenedModuleCompiledSuccessfully()} to ask
+     * whether anything can be run against it.
+     */
+    public boolean isOpenedModuleCompiled() {
+        return openedModuleCompiledOpenClass != null;
     }
 
     public synchronized boolean isOpenedModuleCompiledSuccessfully() {

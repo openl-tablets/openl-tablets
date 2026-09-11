@@ -49,6 +49,8 @@ interface CompileDotProps {
     showLabel?: boolean
     testId?: string
     tooltip?: string
+    /** What the chip says instead of the state's own name — "Compiling 3 of 12", say. */
+    label?: string | undefined
 }
 
 export const getCompileTooltip = (
@@ -78,11 +80,11 @@ export const isNoteworthyCompileState = (state: ProjectCompileState): boolean =>
  * Presentational compilation indicator: a coloured state dot in a rounded pill (optionally labelled),
  * encoding the compile state by hue. The compiling state pulses. Carries no data-fetching of its own.
  */
-export const CompileDot = ({ state, showLabel, testId, tooltip }: CompileDotProps) => {
+export const CompileDot = ({ state, showLabel, testId, tooltip, label: told }: CompileDotProps) => {
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
-    const label = t(`browser.compile.${state}`)
+    const label = told ?? t(`browser.compile.${state}`)
     const title = tooltip ?? label
     return (
         <Tooltip title={title}>

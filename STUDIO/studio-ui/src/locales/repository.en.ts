@@ -394,6 +394,7 @@ i18next.addResourceBundle('en', 'repository', {
             dependencies: 'Table Dependencies',
             compare: 'Compare Excel files',
             compiling: 'Compiling "{{module}}" — {{compiled}} of {{total}} modules done',
+            compile_progress: 'Compiling {{compiled}} of {{total}}',
             compile_failed: 'The module could not be compiled',
             project_closed: 'Open the project to work with its modules.',
             pick_a_table: 'Pick a table to see it',

@@ -143,4 +143,21 @@ describe('CompileProblemsPanel', () => {
         fireEvent.click(showLessButtons.at(-1)!)
         expect(screen.queryByText('Warning 12')).toBeNull()
     })
+
+    it('stands on the counts a running compilation reports, before it can say which messages they are', () => {
+        // What a compilation tells about itself while it runs: how many problems, not which.
+        const compiling: ProjectStatusUpdate = {
+            projectId: 'p1',
+            branch: 'main',
+            compileState: 'compiling',
+            compilation: { messages: { total: 3, errors: 2, warnings: 1 } },
+        }
+
+        render(<CompileProblemsPanel project={{ ...base, compileStatus: compiling }} />)
+
+        // The panel does not disappear under the reader for as long as the compilation lasts.
+        expect(screen.getByTestId('compile-problems')).toBeInTheDocument()
+        expect(screen.getByTestId('compile-problems-errors')).toHaveTextContent('2')
+        expect(screen.getByTestId('compile-problems-warnings')).toHaveTextContent('1')
+    })
 })

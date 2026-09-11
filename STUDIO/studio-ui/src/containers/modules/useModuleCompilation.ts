@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import { startModuleCompilation } from '../../services/modules'
-import type { ProjectStatusUpdate } from '../../services/projectStatus'
+import type { ProjectCompileState, ProjectStatusUpdate } from '../../services/projectStatus'
 import { errorHandler } from '../../utils/errorHandling'
 
 /** How far the project has come, and whether the module the editor is opening is among what is done. */
@@ -15,6 +15,10 @@ export interface ModuleCompilation {
     failure: string | null
     /** How many tests the compiled project holds, as the channel reports them. */
     tests: number
+    /** How the project's own compilation is going, for the screen to show beside the module. */
+    state: ProjectCompileState
+    /** The status behind all of the above, so the screen can phrase what it says about it. */
+    status: ProjectStatusUpdate | null
 }
 
 const modulesOf = (status: ProjectStatusUpdate | null) => status?.compilation?.modules
@@ -73,5 +77,7 @@ export const useModuleCompilation = (
         total: modulesOf(status)?.total ?? 0,
         failure,
         tests: status?.compilation?.tests?.total ?? 0,
+        state: status?.compileState ?? 'idle',
+        status,
     }
 }

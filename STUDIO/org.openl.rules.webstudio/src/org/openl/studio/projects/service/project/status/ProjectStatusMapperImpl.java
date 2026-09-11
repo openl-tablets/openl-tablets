@@ -39,19 +39,54 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     private final PendingChangesResolver pendingChangesResolver;
     private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
 
+    /** How much of the status is asked for, and so how much work building it is worth. */
+    private enum Detail {
+
+        /** Everything the project screens show. */
+        FULL(true, true, true, true),
+        /** What a projects-list row shows: the counts, without the message list or the module names. */
+        SUMMARY(false, false, true, true),
+        /**
+         * What a running compilation can tell about itself: how far it has come.
+         *
+         * <p>Resolving every message to its table reads the model under the same lock the compilation holds,
+         * the changes not committed yet are read from disk, and counting the tests walks every method of what
+         * is compiled so far — none of it is worth waiting for to say that three modules of twelve are built.
+         * What is left out is carried by the full status that follows the compilation.
+         */
+        PROGRESS(false, true, false, false);
+
+        private final boolean messageItems;
+        private final boolean moduleNames;
+        private final boolean pendingChanges;
+        private final boolean tests;
+
+        Detail(boolean messageItems, boolean moduleNames, boolean pendingChanges, boolean tests) {
+            this.messageItems = messageItems;
+            this.moduleNames = moduleNames;
+            this.pendingChanges = pendingChanges;
+            this.tests = tests;
+        }
+    }
+
     @Override
     public ProjectStatusViewModel map(RulesProject project) {
-        return map(project, resolveModel(project), true);
+        return map(project, resolveModel(project), Detail.FULL);
     }
 
     @Override
     public ProjectStatusViewModel mapSummary(RulesProject project) {
-        return map(project, resolveModel(project), false);
+        return map(project, resolveModel(project), Detail.SUMMARY);
     }
 
     @Override
     public ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model) {
-        return map(project, model, true);
+        return map(project, model, Detail.FULL);
+    }
+
+    @Override
+    public ProjectStatusViewModel mapProgress(RulesProject project, @Nullable ProjectModel model) {
+        return map(project, model, Detail.PROGRESS);
     }
 
     // Read-only check: do not initiate any compilation. The status endpoint must only
@@ -64,7 +99,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
                 .orElse(null);
     }
 
-    private ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model, boolean detailed) {
+    private ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model, Detail detail) {
         var projectId = projectIdentifierMapper.map(project);
         var builder = ProjectStatusViewModel.builder()
                 .projectId(projectId);
@@ -80,9 +115,11 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         } else {
             var compilationStatus = model.getCompilationStatus();
             builder.compileState(deriveCompileState(model, compilationStatus));
-            builder.compilation(mapCompilationDetails(model, compilationStatus, detailed));
+            builder.compilation(mapCompilationDetails(model, compilationStatus, detail));
         }
-        builder.pendingChanges(pendingChangesResolver.resolve(project));
+        if (detail.pendingChanges) {
+            builder.pendingChanges(pendingChangesResolver.resolve(project));
+        }
         return builder.build();
     }
 
@@ -127,11 +164,11 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
     private CompilationDetails mapCompilationDetails(ProjectModel projectModel,
                                                      ProjectCompilationStatus compilationStatus,
-                                                     boolean detailed) {
+                                                     Detail detail) {
         return CompilationDetails.builder()
-                .messages(mapMessages(projectModel, compilationStatus, detailed))
-                .modules(mapModules(projectModel, compilationStatus, detailed))
-                .tests(mapTests(projectModel))
+                .messages(mapMessages(projectModel, compilationStatus, detail.messageItems))
+                .modules(mapModules(projectModel, compilationStatus, detail.moduleNames))
+                .tests(detail.tests ? mapTests(projectModel) : null)
                 .build();
     }
 
@@ -177,12 +214,11 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
     private static List<String> resolveCompiledModuleNames(ProjectModel projectModel) {
         var moduleInfo = projectModel.getModuleInfo();
-        // Single-module compile path: only the opened module is in the cycle and it's done
-        // synchronously inside setModuleInfo, so no need to walk the loader graph.
+        // Single-module compile path: the opened module is the whole cycle, so it is named once it is built.
         if (moduleInfo != null
                 && moduleInfo.getWebstudioConfiguration() != null
                 && moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
-            return List.of(moduleInfo.getName());
+            return projectModel.isOpenedModuleCompiled() ? List.of(moduleInfo.getName()) : List.of();
         }
         return collectCompiledModuleNames(projectModel, moduleInfo);
     }
@@ -198,9 +234,10 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         }
         var compiled = new ArrayList<String>();
         var projectCompilationCompleted = projectModel.isProjectCompilationCompleted();
+        var openedModuleCompiled = projectModel.isOpenedModuleCompiled();
         for (IDependencyLoader loader : loaders) {
             if (!loader.isProjectLoader()) {
-                if (isCompiled(loader, currentModule, projectCompilationCompleted)) {
+                if (isCompiled(loader, currentModule, projectCompilationCompleted, openedModuleCompiled)) {
                     compiled.add(loader.getModule().getName());
                 }
             }
@@ -210,7 +247,8 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
     private static boolean isCompiled(IDependencyLoader loader,
                                       Module currentModule,
-                                      boolean projectCompilationCompleted) {
+                                      boolean projectCompilationCompleted,
+                                      boolean openedModuleCompiled) {
         // Once the project-wide flag flips, every module loader has its compiled dependency
         // attached, so the ref-based check below is also true here — kept as an explicit
         // shortcut.
@@ -218,12 +256,12 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
             return true;
         }
         var loaderModule = loader.getModule();
-        // The opened module's compilation finishes synchronously in setModuleInfo and its
-        // result is stored on the model as openedModuleCompiledOpenClass rather than on
-        // the loader, so it is counted via identity match.
+        // The opened module's compilation finishes inside setModuleInfo and its result is stored on the model
+        // as openedModuleCompiledOpenClass rather than on the loader, so the model is asked about it. Until it
+        // answers, that module is being compiled — which is the very thing a reader is waiting to stop.
         if (Objects.equals(loaderModule.getName(), currentModule.getName())
                 && Objects.equals(loader.getProject(), currentModule.getProject())) {
-            return true;
+            return openedModuleCompiled;
         }
         return loader.getRefToCompiledDependency() != null;
     }

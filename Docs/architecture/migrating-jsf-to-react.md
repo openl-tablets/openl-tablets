@@ -261,6 +261,21 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   for the modules after it — on a large project, minutes of waiting for work nobody asked about. The editor
   renders on the first status naming its module, while the rest go on compiling behind the open screen. The
   same read without `module` still waits for the whole project, so no existing caller changes.
+- **A progress report cannot wait for the work it reports on.** Opening a module compiles it while the
+  project model's own monitor is held — minutes, on a large project — and most of the status is read under
+  that same monitor, so a status handed off to another thread waited for the compilation it was reporting on
+  and arrived as one burst at the end. What the compiling thread can read without waiting (the module counts
+  and the names already built) it publishes itself, as a progress-only status; the full one — every message
+  resolved to its table, the tests counted over every method, and what is not committed yet — follows once the
+  monitor is free. Updates handed off are coalesced, since the hand-off reads the status when it runs, not when
+  it was asked to. A screen reading a progress status is therefore told how many problems there are but not
+  which: the problems panel stands on those counts, or it would vanish under its reader for as long as a
+  compilation lasts and come back when it ended.
+- **"Compiled" must mean compiled.** The status names the modules already built, and the module being opened
+  used to be named from the moment it was asked for — its compilation finishes inside `setModuleInfo`, so by
+  the time anyone could read the status it was true. Once the compiling thread reports its own progress it is
+  no longer true, and a screen waiting for its module was let in before the module existed, only to hang on
+  the first read. The model now says whether the opened module is compiled, and the status answers with it.
 - **Refreshing is compiling again, not asking again.** Opening a module already open compiles nothing, so
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a

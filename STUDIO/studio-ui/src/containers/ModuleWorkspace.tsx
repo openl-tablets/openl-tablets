@@ -23,6 +23,7 @@ import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { RawTableGrid } from '../components/RawTableGrid'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
+import { CompileDot, getCompileTooltip } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
 import { ValueText } from './projects/ValueText'
 import { BranchSwitcher } from './projects/BranchSwitcher'
@@ -480,16 +481,30 @@ export const ModuleWorkspace = () => {
                             />
                         )}
                         titleAfter={(
-                            <Tooltip title={t('browser.module.refresh')}>
-                                <Button
-                                    aria-label={t('browser.module.refresh')}
-                                    data-testid="module-refresh"
-                                    disabled={closed}
-                                    icon={<ReloadOutlined />}
-                                    onClick={refresh}
-                                    type="text"
+                            <>
+                                <CompileDot
+                                    showLabel
+                                    state={compilation.state}
+                                    testId="module-compile-state"
+                                    tooltip={getCompileTooltip(compilation.status, compilation.state, t)}
+                                    label={compilation.state === 'compiling' && compilation.total > 0
+                                        ? t('browser.module.compile_progress', {
+                                            compiled: compilation.compiled,
+                                            total: compilation.total,
+                                        })
+                                        : undefined}
                                 />
-                            </Tooltip>
+                                <Tooltip title={t('browser.module.refresh')}>
+                                    <Button
+                                        aria-label={t('browser.module.refresh')}
+                                        data-testid="module-refresh"
+                                        disabled={closed}
+                                        icon={<ReloadOutlined />}
+                                        onClick={refresh}
+                                        type="text"
+                                    />
+                                </Tooltip>
+                            </>
                         )}
                     />
                     {canvas()}
