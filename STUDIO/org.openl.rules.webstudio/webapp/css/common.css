@@ -1088,11 +1088,6 @@ table.properties-form.wide .error {
     margin-right: 5px;
 }
 
-.dropdown-form .dropdown-menu > li > span > span {
-    display: inline-block;
-    min-width: 110px;
-}
-
 /* Disabled-like style for hyperlinks.
    It is used to mark active (currently selected) links, so a User can see where he is now. */
 .selected-link {
@@ -1117,10 +1112,6 @@ table.properties-form.wide .error {
 .stacktrace-hidden:hover,
 .stacktrace-showed:hover{
     opacity: 0.4;
-}
-
-.scrollable {
-    overflow: auto;
 }
 
 .expandable, .expandable-link {
