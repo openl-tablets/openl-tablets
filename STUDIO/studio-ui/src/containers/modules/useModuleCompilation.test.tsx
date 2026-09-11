@@ -16,7 +16,7 @@ const compiling = (compiled: number, total: number, ...names: string[]): Project
     projectId: 'p1',
     branch: 'main',
     compileState: 'compiling',
-    compilation: { modules: { compiled, total, compiledModules: names }},
+    compilation: { modules: { compiled, total, compiledModules: names } },
 })
 
 const Probe = ({ initial, reloadToken }: {

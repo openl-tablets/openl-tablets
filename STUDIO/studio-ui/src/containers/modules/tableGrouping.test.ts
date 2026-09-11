@@ -1,58 +1,57 @@
 import { describe, expect, it } from 'vitest'
 import type { ModuleTable } from 'types/tables'
-import {
-    activeLevels,
-    buildTableTree,
-    DEFAULT_GROUPING,
-    GROUP_BY_CATEGORY,
-    GROUP_BY_KIND,
-    GROUP_BY_NONE,
-    GROUP_BY_TABLE_TYPE,
-} from './tableGrouping'
+import { DEFAULT_VIEW, TABLE_VIEWS, treeOf } from './tableGrouping'
 
 const table = (name: string, extra: Partial<ModuleTable> = {}): ModuleTable => ({
     id: `id-${name}`,
     name,
     kind: 'Rules',
     tableType: 'SimpleRules',
+    sheet: 'Rules',
     ...extra,
 })
 
 describe('tableGrouping', () => {
-    it('lists the tables by name when nothing groups them', () => {
-        const nodes = buildTableTree([table('beta'), table('Alpha')], [])
-
-        expect(nodes.map(node => node.title)).toEqual(['Alpha', 'beta'])
-        expect(nodes.every(node => node.table !== undefined)).toBe(true)
+    it('opens on the view the engine itself defaults to', () => {
+        // rules.tree.view.default = excelSheet
+        expect(DEFAULT_VIEW).toEqual('excelSheet')
+        expect(TABLE_VIEWS).toContain('excelSheet')
     })
 
-    it('gathers the tables by the level asked for', () => {
-        const nodes = buildTableTree(
-            [table('Premium'), table('Policy', { kind: 'Datatype' }), table('Rate')],
-            [GROUP_BY_KIND]
+    it('gathers the tables by the sheet they are written on', () => {
+        const nodes = treeOf(
+            [table('Premium'), table('Policy', { sheet: 'Data' }), table('Rate')],
+            'excelSheet'
         )
 
-        expect(nodes.map(node => node.title)).toEqual(['Datatype', 'Rules'])
+        expect(nodes.map(node => node.title)).toEqual(['Data', 'Rules'])
         expect(nodes[1]?.children.map(child => child.title)).toEqual(['Premium', 'Rate'])
     })
 
-    it('groups one level inside another', () => {
-        const nodes = buildTableTree(
-            [
-                table('Premium', { properties: { category: 'Pricing' }}),
-                table('Discount', { properties: { category: 'Pricing' }, tableType: 'SmartRules' }),
-            ],
-            [GROUP_BY_CATEGORY, GROUP_BY_TABLE_TYPE]
-        )
+    it('gathers the tables by their family in the type view', () => {
+        const nodes = treeOf([table('Premium'), table('Policy', { kind: 'Datatype' })], 'type')
 
-        expect(nodes.map(node => node.title)).toEqual(['Pricing'])
-        expect(nodes[0]?.children.map(child => child.title)).toEqual(['SimpleRules', 'SmartRules'])
+        expect(nodes.map(node => node.title)).toEqual(['Datatype', 'Rules'])
+    })
+
+    it('reads a category in steps, and the inversed view reads the steps the other way', () => {
+        const tables = [
+            table('Premium', { properties: { category: 'Auto.Pricing' } }),
+            table('Discount', { properties: { category: 'Auto.Discounts' } }),
+        ]
+
+        const detailed = treeOf(tables, 'categoryDetailed')
+        expect(detailed.map(node => node.title)).toEqual(['Auto'])
+        expect(detailed[0]?.children.map(child => child.title)).toEqual(['Discounts', 'Pricing'])
+
+        const inversed = treeOf(tables, 'categoryInversed')
+        expect(inversed.map(node => node.title)).toEqual(['Discounts', 'Pricing'])
     })
 
     it('keeps a table that carries no value for the level beside the groups, not hidden under one', () => {
-        const nodes = buildTableTree(
-            [table('Premium', { properties: { category: 'Pricing' }}), table('Loose')],
-            [GROUP_BY_CATEGORY]
+        const nodes = treeOf(
+            [table('Premium', { properties: { category: 'Pricing' } }), table('Loose')],
+            'category'
         )
 
         expect(nodes.map(node => node.title)).toEqual(['Pricing', 'Loose'])
@@ -61,18 +60,19 @@ describe('tableGrouping', () => {
     })
 
     it('gives every node a key of its own, so two tables of the same name never collide', () => {
-        const nodes = buildTableTree(
-            [table('Premium', { id: 'first' }), table('Premium', { id: 'second', kind: 'Datatype' })],
-            [GROUP_BY_KIND]
+        const nodes = treeOf(
+            [table('Premium', { id: 'first' }), table('Premium', { id: 'second', sheet: 'Data' })],
+            'excelSheet'
         )
         const keys = nodes.flatMap(node => [node.key, ...node.children.map(child => child.key)])
 
         expect(new Set(keys).size).toEqual(keys.length)
     })
 
-    it('counts only the levels that group', () => {
-        expect(activeLevels([GROUP_BY_KIND, GROUP_BY_NONE])).toEqual([GROUP_BY_KIND])
-        expect(activeLevels([GROUP_BY_NONE, GROUP_BY_NONE])).toEqual([])
-        expect(activeLevels(DEFAULT_GROUPING)).toEqual([GROUP_BY_KIND])
+    it('lists the tables by name when the view groups by nothing they carry', () => {
+        const nodes = treeOf([table('beta', { sheet: '' }), table('Alpha', { sheet: '' })], 'excelSheet')
+
+        expect(nodes.map(node => node.title)).toEqual(['Alpha', 'beta'])
+        expect(nodes.every(node => node.table !== undefined)).toBe(true)
     })
 })

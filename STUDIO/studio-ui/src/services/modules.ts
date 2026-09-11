@@ -7,6 +7,25 @@ const MODULE_API_OPTIONS = { throwError: true, suppressErrorPages: true }
 const moduleUrl = (projectId: string, moduleName: string): string =>
     `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
 
+/** A module of the project, as the project resolves it: the name it is known by and the workbook it is written in. */
+export interface ModuleInfo {
+    name: string
+    path?: string
+}
+
+/**
+ * The modules the project resolves.
+ *
+ * Read instead of the descriptor because a project whose modules are discovered by pattern declares none of them
+ * by name, and the editor still has to name the workbook a module is written in.
+ */
+export const listModules = async (projectId: string): Promise<ModuleInfo[]> =>
+    asArray(await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/modules`,
+        undefined,
+        MODULE_API_OPTIONS
+    ) as ModuleInfo[] | null)
+
 /**
  * Asks for a module to be compiled and returns as soon as the request is taken.
  *

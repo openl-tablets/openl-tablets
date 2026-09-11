@@ -27,6 +27,9 @@ const modulesOf = (status: ProjectStatusUpdate | null) => status?.compilation?.m
  *
  * A module already compiled when the screen opens is ready at once, and no compilation is asked for. Asking for a
  * refresh compiles it again even so, because that is what a refresh is for.
+ *
+ * Nothing is asked for at all while {@code enabled} is false — of a project nobody has opened there is no copy to
+ * compile, and the screen asks the reader to open it first.
  */
 export const useModuleCompilation = (
     projectId: string,
@@ -34,7 +37,8 @@ export const useModuleCompilation = (
     moduleName: string,
     initial: ProjectStatusUpdate | null,
     initialReadAt = 0,
-    reloadToken = 0
+    reloadToken = 0,
+    enabled = true
 ): ModuleCompilation => {
     const [failure, setFailure] = useState<string | null>(null)
     const status = useLiveProjectStatus(projectId, branch, true, initial, initialReadAt)
@@ -48,7 +52,7 @@ export const useModuleCompilation = (
         const key = `${projectId} ${branch ?? ''} ${moduleName} ${reloadToken}`
         // A module already compiled needs no compiling — unless a refresh asked, which is exactly a request to
         // compile it again.
-        if (asked.current === key || (ready && reloadToken === 0)) {
+        if (!enabled || asked.current === key || (ready && reloadToken === 0)) {
             return
         }
         asked.current = key
@@ -58,7 +62,7 @@ export const useModuleCompilation = (
             errorHandler.logError(failed)
             setFailure(failed.message)
         })
-    }, [projectId, branch, moduleName, reloadToken, ready])
+    }, [projectId, branch, moduleName, reloadToken, ready, enabled])
 
     return {
         ready,
