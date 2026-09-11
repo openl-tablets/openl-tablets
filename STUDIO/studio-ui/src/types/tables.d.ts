@@ -107,6 +107,23 @@ export interface ProjectTable {
     signature?: string
 }
 
+/**
+ * A table of one module, as the editor's tree reads it.
+ *
+ * The tree is grouped in the browser, so the list carries everything a grouping can be built from rather than a
+ * shape the server chose.
+ */
+export interface ModuleTable extends ProjectTable {
+    /** The family the table belongs to: `Rules`, `Spreadsheet`, `Datatype`, `Test`, ... */
+    kind: string
+    /** Workbook the table is written in, relative to the workspace. */
+    file?: string
+    /** Where the table sits in the workbook, in A1 notation: `B3:D8`. */
+    pos?: string
+    /** The properties the table declares, `category` among them. */
+    properties?: Record<string, unknown>
+}
+
 /** A table in raw tabular form: a 2D matrix of cells with merge geometry. */
 export interface RawTableView {
     id: string

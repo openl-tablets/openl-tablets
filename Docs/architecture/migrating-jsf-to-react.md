@@ -236,6 +236,16 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   `/user/topic/compare/{id}/status` → `GET /compare/{id}`) and Run (`POST /projects/{id}/run` →
   `/topic/projects/{id}/tables/{tableId}/run/status`) are built this way. What is reported to one user
   is sent to that user, so the client subscribes to it under `/user`.
+- When the work is a **compilation**, none of that is built again: it already reports on the project's status
+  channel, which names each module as it finishes (`compilation.modules.compiledModules`). So opening a module
+  is `POST /projects/{id}/modules/{name}/compile`, which answers `202` the moment the work is handed over, and
+  the screen follows the channel it already subscribes to. The session-scoped collaborators the work needs are
+  out of reach of a background thread, so the request thread looks them up and the task carries them along.
+- **Read what is ready, not what is finished.** Opening a module compiles that module before the rest of the
+  project, so `GET /projects/{id}/tables?module={name}` answers as soon as that module is done and never waits
+  for the modules after it — on a large project, minutes of waiting for work nobody asked about. The editor
+  renders on the first status naming its module, while the rest go on compiling behind the open screen. The
+  same read without `module` still waits for the whole project, so no existing caller changes.
 - When such work is shown in a window of its own, let **the new window start it**, telling it what to do in
   the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
   window afterwards opens it after an `await`, when the click no longer counts as user activation and a
