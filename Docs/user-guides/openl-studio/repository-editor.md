@@ -692,8 +692,11 @@ opened from those other branches are not removed.
 To delete a project, proceed as follows:
 
 1.  Perform one of the following steps as required:
-    -   In the **Projects** tree, select the project and, in the right pane, click **Delete**.
-    -   Click **Projects** in Navigator to get a list of projects, navigate to the project you want to remove and click the corresponding **Delete** item **![](images/delete-element-icon.png)** on the right.
+    -   In the **Projects** tree, select the project and, in the project header, click **Delete**.
+    -   In the project list, click **Delete** at the right of the project row.
+
+    When the actions do not all fit, the remaining ones are collected under **Actions**.
+
 1.  In the confirmation window, enter a comment.
 2.  Select **I understand that the project will be deleted**.
 3.  Click **Delete**.
