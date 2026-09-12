@@ -258,6 +258,14 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   and `scrollWidth` on Ant Design's `Tree`), so scrolling paints a screenful rather than a module. Without it
   every node sits in the DOM and the widest of them is measured across all of them, which is why a long tree
   scrolled to a blank page and filled in once the scrolling stopped.
+- **What the compiler said about the table is shown with the table.** The read of a table carries its own
+  messages, so they sit in a foldable section above it, the way the legacy editor kept its Problems block —
+  the project's other messages stay in the panel at the foot of the screen. Both draw through one component,
+  so a message reads the same wherever it is shown.
+- **A table is drawn at the width its values need, not the width of the screen.** Squeezing a table of several
+  hundred columns into the page gives each column a few characters and wraps every value into a tower of
+  lines: a table 10,000 x 6,700 px where the same table laid out naturally is 32,000 x 700 — three times the
+  pixels to paint, and unreadable besides. The screen it sits on scrolls instead.
 - **A tall table arrives a window at a time.** The read takes `startRow` and `maxRows` and answers `totalRows`,
   so the screen draws the first window and fetches the rest as the reader asks for it.
 - **Read what is ready, not what is finished.** Opening a module compiles that module before the rest of the
