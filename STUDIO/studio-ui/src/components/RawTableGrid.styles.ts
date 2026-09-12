@@ -15,6 +15,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         max-width: none;
         table-layout: auto;
         font-size: ${token.fontSizeSM}px;
+        /*
+         * The paper the table is written on. A cell the workbook gave no fill to is white in Excel, not the
+         * colour of whatever the table is laid on — and the cells that do carry a fill paint over this.
+         */
+        background: ${token.colorBgContainer};
     `,
     /**
      * A cell keeps the line breaks the author wrote, and wraps a long value instead of widening its column past
