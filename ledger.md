@@ -4,9 +4,10 @@
 
 - Open PR #2104 (`dead-code/compare-residue`), head 33329ccbe7: 4 commits, 13 files, 162 deletions re-derived and
   matching the body, one commit per change type, no review. Nothing to do until a reviewer answers or `main` moves.
-- Swept head is `origin/main` e01088de, unchanged for five runs; no vein exists until something merges past it.
+- Swept head is `origin/main` e01088de, unchanged for six runs; no vein exists until something merges past it.
 - `origin/main` is red in ITEST and no rerun fixes it (Human follow-ups): the verification rail bars cleanup while
-  that stands, and the same failure on #2104 is never this PR's.
+  that stands, and the same failure on #2104 is never this PR's. Blame is settled, so do not re-derive it: 23b2af95,
+  parent of the 8-commit EPBDS-16415 push, is the last green `main` build.
 - The owner was pushed a notification naming the two stale fixture lines; do not send a second one until `main`
   moves or #2104 changes state.
 - When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
@@ -292,6 +293,6 @@
 
 ## Run log
 
-- 2026-09-12 a: main unmoved and still red, so no cleanup; re-verified #2104 against its diff and compacted the ledger.
 - 2026-09-12 b: same standstill; #2104 unchanged and unreviewed, so the blocker went to the owner as a notification.
 - 2026-09-12 c: same standstill; #2104 re-derived as 4/13/162 and correct, no new review, CI unchanged, no notification.
+- 2026-09-12 d: same standstill; 12 of 13 PR jobs green with only the known IT (studio) red, and the blame was pinned.
