@@ -92,13 +92,14 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
  */
 const cellText = (cell: RawTableCell, formulas: boolean, onOpenUsage?: OpenUsage) => {
     const asFormula = formulas && Boolean(cell.formula)
-    return (
-        <RawTableCellText
-            metaInfo={asFormula ? undefined : cell.metaInfo}
-            onOpenUsage={onOpenUsage}
-            text={formatValue(asFormula ? cell.formula : cell.value)}
-        />
-    )
+    const text = formatValue(asFormula ? cell.formula : cell.value)
+    const metaInfo = asFormula ? undefined : cell.metaInfo
+    // Most cells have nothing marked — what the compiler knows about them is the type behind them and the
+    // editor they ask for. Those are drawn as the text they are, rather than through a component of their own.
+    if (!metaInfo?.usages?.length && !metaInfo?.returnCell) {
+        return text
+    }
+    return <RawTableCellText metaInfo={metaInfo} onOpenUsage={onOpenUsage} text={text} />
 }
 
 export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, formulas, onOpenUsage, testId }) => {

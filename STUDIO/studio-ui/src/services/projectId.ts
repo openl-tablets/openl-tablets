@@ -23,6 +23,16 @@ export const encodeProjectId = (repositoryId: string, projectName: string): stri
 }
 
 /**
+ * The address of a module's screen, and of one table read through it.
+ *
+ * Every way into the editor — a module row, a compilation problem, a test result, a graph node, a word in a
+ * cell — leads here, so the address is spelled in one place rather than at each of them.
+ */
+export const moduleRoute = (projectId: string, moduleName: string, tableId?: string): string =>
+    `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
+        + (tableId ? `?table=${encodeURIComponent(tableId)}` : '')
+
+/**
  * Encodes a project-relative path for the `{*path}` mapping. The path keeps its `/` separators; each
  * segment is encoded so reserved characters such as `#` or `%` do not corrupt the URL.
  */

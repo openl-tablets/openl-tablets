@@ -83,7 +83,7 @@ class RawTableMetaInfoTest {
 
     @Test
     void saysNothingAboutCellsUntilItIsAsked() {
-        var read = new RawTableReader().read(table("Person"), null, null, false, false, TableModules.of(null));
+        var read = new RawTableReader().read(table("Person"), null, null, false, false, TableModules.none());
 
         assertTrue(read.source.stream().flatMap(List::stream).allMatch(cell -> cell.metaInfo() == null),
                 "the compiler's knowledge is read only when the read asks for it");
@@ -91,7 +91,7 @@ class RawTableMetaInfoTest {
 
     @Test
     void keepsQuietAboutACellItKnowsNothingAbout() {
-        var read = new RawTableReader().read(table("Person"), null, null, false, true, TableModules.of(null));
+        var read = new RawTableReader().read(table("Person"), null, null, false, true, TableModules.none());
 
         // The header line is the table's own; nothing in it refers anywhere.
         assertNull(cellOf(read.source, "Datatype Person").metaInfo());

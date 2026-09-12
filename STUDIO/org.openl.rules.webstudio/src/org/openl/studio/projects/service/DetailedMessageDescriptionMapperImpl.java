@@ -25,6 +25,7 @@ import org.openl.studio.projects.model.project.status.DetailedMessageDescription
 import org.openl.studio.projects.model.project.status.MessageSource;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
+import org.openl.studio.projects.service.tables.TableModules;
 
 @Service
 @RequiredArgsConstructor
@@ -81,13 +82,16 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         }
 
         private final Map<String, List<TableEntry>> tablesBySheet;
-        private final List<Module> modules;
+        private final TableModules tableModules;
         /** The project each module belongs to — a message can come from a project this one depends on. */
         private final Map<String, ProjectAddress> projectsByModule;
 
         MessageLocator(ProjectModel model, ProjectIdentifierMapper projectIdentifierMapper) {
             tablesBySheet = indexTables(model);
-            modules = indexModules(model);
+            // The workspace is walked once: both answers — which module holds a table, and which project holds
+            // a module — are read from the same modules.
+            var modules = indexModules(model);
+            tableModules = TableModules.of(modules);
             projectsByModule = indexProjects(model, projectIdentifierMapper, modules);
         }
 
@@ -97,7 +101,7 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
                 return null;
             }
             var location = new XlsUrlParser(sourceLocation);
-            var moduleName = resolveModuleName(sourceLocation);
+            var moduleName = tableModules.moduleOf(sourceLocation);
             var project = moduleName == null ? null : projectsByModule.get(moduleName);
             var node = findNode(location);
             if (node != null) {
@@ -128,21 +132,6 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
             for (TableEntry candidate : candidates) {
                 if (location.intersects(candidate.location())) {
                     return candidate.node();
-                }
-            }
-            return null;
-        }
-
-        /**
-         * Walks every module dependency loader in the workspace (current project and any projects it
-         * depends on) and returns the {@link Module#getName() module name} whose rules root contains the
-         * supplied source location. Mirrors the lookup used by {@code WebStudio} and
-         * {@code WorkspaceProjectService} so the result matches what the rest of the UI shows.
-         */
-        private String resolveModuleName(String sourceLocation) {
-            for (Module module : modules) {
-                if (module.containsTable(sourceLocation)) {
-                    return module.getName();
                 }
             }
             return null;

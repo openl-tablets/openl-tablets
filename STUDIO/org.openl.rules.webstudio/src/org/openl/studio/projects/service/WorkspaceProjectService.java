@@ -1859,7 +1859,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table data
      */
     public TableView getTable(RulesProject project, String tableId, @Nullable String moduleName) {
-        var context = getOpenLTable(project, tableId, moduleName);
+        var context = getOpenLTableInModule(project, tableId, moduleName);
         var table = context.table();
         var reader = readers.stream()
                 .filter(r -> r.supports(table))
@@ -1907,7 +1907,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public RawTableView getTableRaw(RulesProject project, String tableId, @Nullable Integer startRow,
             @Nullable Integer maxRows, boolean withStyles, boolean withMetaInfo, @Nullable String moduleName) {
-        var context = getOpenLTable(project, tableId, moduleName);
+        var context = getOpenLTableInModule(project, tableId, moduleName);
         var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles, withMetaInfo,
                 TableModules.ofWorkspace(context.module()));
         tableView.messages = mapMessages(context);
@@ -1989,7 +1989,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the table's details
      */
     public TableDetailsView getTableDetails(RulesProject project, String tableId, @Nullable String moduleName) {
-        return tableDetailsService.read(getOpenLTable(project, tableId, moduleName).table());
+        return tableDetailsService.read(getOpenLTableInModule(project, tableId, moduleName).table());
     }
 
     /**
@@ -2003,7 +2003,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the tests and runs covering it, by name
      */
     public List<TableTestView> getTableTests(RulesProject project, String tableId, @Nullable String moduleName) {
-        var context = getOpenLTable(project, tableId, moduleName);
+        var context = getOpenLTableInModule(project, tableId, moduleName);
         var tests = context.module().getTestAndRunMethods(context.table().getUri(), false);
         if (tests == null) {
             return List.of();
@@ -2029,7 +2029,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * after it are of no interest to the answer and are not waited for. A table the module turns out not to hold
      * falls back to the project-wide lookup, which waits as it always has.
      */
-    private OpenLTableContext getOpenLTable(RulesProject project, String tableId, @Nullable String moduleName) {
+    private OpenLTableContext getOpenLTableInModule(RulesProject project, String tableId,
+                                                    @Nullable String moduleName) {
         if (moduleName != null) {
             var moduleModel = openProject(project, moduleName).project();
             var table = moduleModel.getTableById(tableId);

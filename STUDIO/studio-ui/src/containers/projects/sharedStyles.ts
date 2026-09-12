@@ -185,6 +185,72 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         background: ${MOCKUP.accent};
         color: ${MOCKUP.accentFg};
     `,
+    /**
+     * The frame of a workspace screen: a head across the top and, under it, everything the screen shows.
+     *
+     * The project, a module opened from it and a deployment wear the same frame, so the height under the
+     * application header is reckoned in one place rather than in each of them.
+     */
+    workspacePage: css`
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 64px);
+        overflow: hidden;
+        background: ${token.colorBgContainer};
+    `,
+    /** What a workspace shows under its head: a rail on the left, the screen filling the rest. */
+    workspaceBody: css`
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+    `,
+    /**
+     * A tree read in a rail: rows one line high, a small indent per step, and a name read in full.
+     *
+     * The rail is narrow, so every step of the hierarchy costs width; a name is never wrapped or clipped —
+     * a table or a project is recognised by its full name, and the rail scrolls sideways instead.
+     */
+    railTree: css`
+        background: transparent;
+
+        .ant-tree-treenode {
+            padding-bottom: 0;
+            white-space: nowrap;
+            align-items: center;
+        }
+
+        .ant-tree-indent-unit {
+            width: 12px;
+        }
+
+        .ant-tree-switcher {
+            width: 18px;
+            line-height: 24px;
+        }
+
+        .ant-tree-node-content-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 24px;
+            line-height: 24px;
+            padding: 0 4px;
+            overflow: visible;
+        }
+
+        .ant-tree-title,
+        .ant-tree-node-content-wrapper .ant-tree-title {
+            overflow: visible;
+            text-overflow: clip;
+            white-space: nowrap;
+        }
+
+        .ant-tree-iconEle {
+            width: auto;
+            line-height: 24px;
+        }
+    `,
     /** Everything to the right of the rail. */
     main: css`
         display: flex;

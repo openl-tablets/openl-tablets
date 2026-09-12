@@ -12,10 +12,8 @@ import type {
     TableInputTestCase,
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
-import apiCall, { asArray } from './apiCall'
+import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS } from './apiCall'
 import { toUrlSafeId } from './projectId'
-
-const TABLE_API_OPTIONS = { throwError: true, suppressErrorPages: true }
 
 /** How many cases of a test table a page carries, as the API pages them. */
 export const TEST_CASES_PAGE_SIZE = 25
@@ -40,7 +38,7 @@ const writeTable = async <T>(
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(request),
             },
-            TABLE_API_OPTIONS
+            LOCAL_LOAD_API_OPTIONS
         ) as SummaryTable | null
         // An empty 201 body means the compiled table could not be found again; apiCall turns that into the `true`
         // sentinel, so a plain falsy check would let it through as a success.
@@ -71,7 +69,7 @@ export const getProjectTables = async (projectId: string, kinds: string[]): Prom
     const page = await apiCall(
         `/projects/${toUrlSafeId(projectId)}/tables?${filter}&unpaged=true`,
         undefined,
-        TABLE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     ) as { content?: ProjectTable[] } | null
     return asArray(page?.content)
 }
@@ -87,7 +85,7 @@ export const getDatatype = async (projectId: string, tableId: string): Promise<P
     const table = await apiCall(
         `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}`,
         undefined,
-        TABLE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     ) as {
         extends?: string
         fields?: { name?: string, type?: string }[]
@@ -127,7 +125,7 @@ export const getTableCopyInfo = async (
 ): Promise<TableCopyInfo> => apiCall(
     `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/properties`,
     undefined,
-    TABLE_API_OPTIONS
+    LOCAL_LOAD_API_OPTIONS
 ) as Promise<TableCopyInfo>
 
 /** Copy a table on the server by its id, without sending the table content. */
@@ -163,7 +161,7 @@ export const getTableInput = async (
     options: { fromModule?: string } = {}
 ): Promise<TableInput> => {
     const query = options.fromModule ? `?fromModule=${encodeURIComponent(options.fromModule)}` : ''
-    return await apiCall(inputUrl(projectId, tableId, query), undefined, TABLE_API_OPTIONS)
+    return await apiCall(inputUrl(projectId, tableId, query), undefined, LOCAL_LOAD_API_OPTIONS)
 }
 
 /**
@@ -185,7 +183,7 @@ export const getTableInputCases = async (
     const page = await apiCall(
         inputUrl(projectId, tableId, `/cases?${params}`),
         undefined,
-        TABLE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     ) as TableInputCasesPage | null
     return { ...page, content: asArray(page?.content), total: page?.total ?? 0 }
 }
@@ -205,6 +203,6 @@ export const getTableInputCase = async (
     return await apiCall(
         inputUrl(projectId, tableId, `/cases/${encodeURIComponent(caseId)}${query}`),
         undefined,
-        TABLE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     )
 }

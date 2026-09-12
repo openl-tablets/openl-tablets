@@ -3,7 +3,6 @@ package org.openl.studio.projects.service.tables.read;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
@@ -77,7 +76,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     @Override
     protected void initialize(RawTableView.Builder builder, IOpenLTable openLTable) {
-        initialize(builder, openLTable, null, null, false, false, TableModules.of(null));
+        initialize(builder, openLTable, null, null, false, false, TableModules.none());
     }
 
     /**
@@ -122,8 +121,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         var metaInfoReader = metaInfoReaderOf(openLTable);
         var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), NO_ROW_CAP, metaInfoReader);
         return tableModel == null ? List.of()
-                : convertTableModelToMatrix(tableModel, new CellValueReader(metaInfoReader), withStyles,
-                        metaInfoReader, false, TableModules.of(null));
+                : convertTableModelToMatrix(tableModel, withStyles, metaInfoReader, false, TableModules.none());
     }
 
     /** The table's meta info, or an empty one when the table carries none. */
@@ -146,8 +144,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 : TableModel.initializeTableModel(gridTable, cap, metaInfoReader);
 
         List<List<RawTableCell>> source = tableModel == null ? List.of()
-                : convertTableModelToMatrix(tableModel, new CellValueReader(metaInfoReader), withStyles,
-                        metaInfoReader, withMetaInfo, modules);
+                : convertTableModelToMatrix(tableModel, withStyles, metaInfoReader, withMetaInfo, modules);
         // The grid model keeps one extra row rather than hiding a single row; trim to exactly maxRows so the
         // window size is predictable for paging.
         if (maxRows != null && source.size() > maxRows) {
@@ -206,13 +203,12 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * Covered cells (those within a merged region but not the origin cell) are marked with
      * {@code RawTableCell.COVERED_CELL} to indicate they should be skipped during processing.
      *
-     * @param tableModel      The TableModel containing cell layout and span information
-     * @param cellValueReader Function to extract cell values from ICell instances
+     * @param tableModel The TableModel containing cell layout and span information
      * @return 2D list of RawTableCell objects representing the table matrix
      */
-    private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel,
-            Function<ICell, Object> cellValueReader, boolean withStyles, MetaInfoReader metaInfoReader,
-            boolean withMetaInfo, TableModules modules) {
+    private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel, boolean withStyles,
+            MetaInfoReader metaInfoReader, boolean withMetaInfo, TableModules modules) {
+        var cellValueReader = new CellValueReader(metaInfoReader);
         var matrix = new ArrayList<List<RawTableCell>>();
 
         var cells = tableModel.getCells();

@@ -1,8 +1,6 @@
 import type { ModuleTable, RawTableView } from 'types/tables'
-import apiCall, { asArray } from './apiCall'
+import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS } from './apiCall'
 import { toUrlSafeId } from './projectId'
-
-const MODULE_API_OPTIONS = { throwError: true, suppressErrorPages: true }
 
 const moduleUrl = (projectId: string, moduleName: string): string =>
     `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
@@ -23,7 +21,7 @@ export const listModules = async (projectId: string): Promise<ModuleInfo[]> =>
     asArray(await apiCall(
         `/projects/${toUrlSafeId(projectId)}/modules`,
         undefined,
-        MODULE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     ) as ModuleInfo[] | null)
 
 /**
@@ -38,7 +36,7 @@ export const startModuleCompilation = async (
     reset = false
 ): Promise<void> => {
     const query = reset ? '?reset=true' : ''
-    await apiCall(`${moduleUrl(projectId, moduleName)}/compile${query}`, { method: 'POST' }, MODULE_API_OPTIONS)
+    await apiCall(`${moduleUrl(projectId, moduleName)}/compile${query}`, { method: 'POST' }, LOCAL_LOAD_API_OPTIONS)
 }
 
 /**
@@ -51,7 +49,7 @@ export const getModuleTables = async (projectId: string, moduleName: string): Pr
     const page = await apiCall(
         `/projects/${toUrlSafeId(projectId)}/tables?module=${encodeURIComponent(moduleName)}&unpaged=true`,
         undefined,
-        MODULE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     ) as { content?: ModuleTable[] } | null
     return asArray(page?.content)
 }
@@ -66,7 +64,7 @@ export const cancelModuleCompilation = async (projectId: string, moduleName: str
     await apiCall(
         `${moduleUrl(projectId, moduleName)}/compile`,
         { method: 'DELETE' },
-        MODULE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     )
 }
 
@@ -112,7 +110,7 @@ export const getRawTable = async (
     return await apiCall(
         `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}?${params}`,
         undefined,
-        MODULE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     ) as RawTableView
 }
 
@@ -134,7 +132,7 @@ export const getTableTests = async (projectId: string, tableId: string, module?:
         `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/tests`
         + (module === undefined ? '' : `?module=${encodeURIComponent(module)}`),
         undefined,
-        MODULE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     ) as TableTest[] | null)
 
 /** Where a property that applies to a table is defined, when it is not written on the table itself. */
@@ -179,7 +177,7 @@ export const getTableDetails = async (
         `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/details`
         + (module === undefined ? '' : `?module=${encodeURIComponent(module)}`),
         undefined,
-        MODULE_API_OPTIONS
+        LOCAL_LOAD_API_OPTIONS
     ) as TableDetails | null
     // A table with nothing to say about itself answers without the list at all.
     return { name: read?.name ?? '', groups: asArray(read?.groups) }

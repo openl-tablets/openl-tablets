@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,28 @@ class DetailedMessageDescriptionMapperImplTest {
         when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(null);
     }
 
+    /** A module of the workspace, named and sitting at the location its tables are addressed under. */
+    private static Module module(String name, String uri) {
+        var module = mock(Module.class);
+        when(module.getName()).thenReturn(name);
+        when(module.getRulesRootPath()).thenReturn(uri);
+        when(module.getRelativeUri()).thenReturn(uri);
+        return module;
+    }
+
+    /** A workspace that has compiled the given modules, as the dependency loaders report them. */
+    private static WebStudioWorkspaceRelatedDependencyManager workspaceOf(Module... modules) {
+        var loaders = Arrays.stream(modules).map(module -> {
+            var loader = mock(IDependencyLoader.class);
+            when(loader.isProjectLoader()).thenReturn(false);
+            when(loader.getModule()).thenReturn(module);
+            return loader;
+        }).toList();
+        var dependencyManager = mock(WebStudioWorkspaceRelatedDependencyManager.class);
+        when(dependencyManager.getDependencyLoaders()).thenReturn(List.copyOf(loaders));
+        return dependencyManager;
+    }
+
     private static OpenLMessage message(String sourceLocation) {
         var message = mock(OpenLMessage.class);
         when(message.getSourceLocation()).thenReturn(sourceLocation);
@@ -64,14 +87,7 @@ class DetailedMessageDescriptionMapperImplTest {
 
     @Test
     void resolvesAMessageToItsOwningModule() {
-        var module = mock(Module.class);
-        when(module.getName()).thenReturn("Rating");
-        when(module.containsTable("uri")).thenReturn(true);
-        var loader = mock(IDependencyLoader.class);
-        when(loader.isProjectLoader()).thenReturn(false);
-        when(loader.getModule()).thenReturn(module);
-        var dependencyManager = mock(WebStudioWorkspaceRelatedDependencyManager.class);
-        when(dependencyManager.getDependencyLoaders()).thenReturn(List.of(loader));
+        var dependencyManager = workspaceOf(module("Rating", "uri"));
         when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(dependencyManager);
 
         var result = mapper.mapSorted(List.of(message("uri")), model);
@@ -141,16 +157,10 @@ class DetailedMessageDescriptionMapperImplTest {
         var dependency = new ProjectDescriptor();
         dependency.setName("Shared Rules");
         dependency.setProjectFolder(Path.of("/workspace/design/Shared Rules"));
-        var module = mock(Module.class);
-        when(module.getName()).thenReturn("Shared");
-        when(module.containsTable("uri")).thenReturn(true);
+        var module = module("Shared", "uri");
         when(module.getProject()).thenReturn(dependency);
-        var loader = mock(IDependencyLoader.class);
-        when(loader.isProjectLoader()).thenReturn(false);
-        when(loader.getModule()).thenReturn(module);
-        var dependencyManager = mock(WebStudioWorkspaceRelatedDependencyManager.class);
-        when(dependencyManager.getDependencyLoaders()).thenReturn(List.of(loader));
-        when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(dependencyManager);
+        var workspace = workspaceOf(module);
+        when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(workspace);
         var studio = mock(WebStudio.class);
         var project = mock(RulesProject.class);
         when(studio.getProjects()).thenReturn(Map.of("design", List.of(dependency)));
@@ -171,15 +181,8 @@ class DetailedMessageDescriptionMapperImplTest {
 
     @Test
     void aProjectTheSessionCannotNameLeavesTheMessageWhereItIs() {
-        var module = mock(Module.class);
-        when(module.getName()).thenReturn("Rating");
-        when(module.containsTable("uri")).thenReturn(true);
-        var loader = mock(IDependencyLoader.class);
-        when(loader.isProjectLoader()).thenReturn(false);
-        when(loader.getModule()).thenReturn(module);
-        var dependencyManager = mock(WebStudioWorkspaceRelatedDependencyManager.class);
-        when(dependencyManager.getDependencyLoaders()).thenReturn(List.of(loader));
-        when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(dependencyManager);
+        var workspace = workspaceOf(module("Rating", "uri"));
+        when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(workspace);
 
         var result = mapper.mapSorted(List.of(message("uri")), model);
 

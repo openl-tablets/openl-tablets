@@ -22,7 +22,7 @@ interface RawTableCellTextProps {
  * The cell a decision table returns carries the star the Editor drew for it.
  */
 export const RawTableCellText: React.FC<RawTableCellTextProps> = ({ text, metaInfo, onOpenUsage }) => {
-    const { styles, cx } = useStyles()
+    const { styles } = useStyles()
     const usages = metaInfo?.usages ?? []
 
     if (usages.length === 0 && !metaInfo?.returnCell) {
@@ -42,7 +42,7 @@ export const RawTableCellText: React.FC<RawTableCellTextProps> = ({ text, metaIn
         pieces.push(
             <Tooltip key={`${usage.start}-${index}`} title={usage.description}>
                 <span
-                    className={cx(styles.usage, leads && styles.usageLink)}
+                    className={leads ? styles.usageLink : undefined}
                     data-testid={`cell-usage-${index}`}
                     onClick={leads ? () => onOpenUsage?.(usage) : undefined}
                 >
@@ -58,7 +58,7 @@ export const RawTableCellText: React.FC<RawTableCellTextProps> = ({ text, metaIn
     if (metaInfo?.returnCell) {
         pieces.push(
             <Tooltip key="return" title="RETURN">
-                <span className={styles.usage} data-testid="cell-return"> ★</span>
+                <span data-testid="cell-return"> ★</span>
             </Tooltip>
         )
     }
