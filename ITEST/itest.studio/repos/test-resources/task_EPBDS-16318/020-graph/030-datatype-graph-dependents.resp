@@ -10,6 +10,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B5:C6",
     "project": "EPBDS-16318",
+    "module": "*",
     "dependents": [
       "34539b1f0ec6389a26ac8dffdbf949a1"
     ],
@@ -29,6 +30,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B16:C20",
     "project": "EPBDS-16318",
+    "module": "*",
     "fields": [
       {
         "name": "car",
@@ -58,6 +60,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B1:C3",
     "project": "EPBDS-16318",
+    "module": "*",
     "dependents": [
       "b8f6b32c64ba84aadb482d966b78bcc8"
     ],

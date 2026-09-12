@@ -13,6 +13,7 @@ Content-Type: application/json
     {
       "name": "ProfitDynamicScoreTest",
       "tableId": "3204477e4a9815606f0cbb42284237f2",
+      "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 4,
       "numberOfFailures": 0,
@@ -154,6 +155,7 @@ Content-Type: application/json
     {
       "name": "QualitativeIndexTest",
       "tableId": "8363076eb1ec04e8d7aeb84a06db44e1",
+      "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
       "numberOfFailures": 0,
@@ -402,6 +404,7 @@ Content-Type: application/json
     {
       "name": "QualityIndexTest",
       "tableId": "22dbcb4d8a67e8f4c6ec4267534bddc6",
+      "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
       "numberOfFailures": 0,
@@ -507,6 +510,7 @@ Content-Type: application/json
     {
       "name": "SetNonZeroValuesTest",
       "tableId": "e4ba33fb5e210b214a613ca1f14ff98c",
+      "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
       "numberOfFailures": 0,

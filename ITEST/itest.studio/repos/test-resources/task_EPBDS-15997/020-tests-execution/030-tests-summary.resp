@@ -13,6 +13,7 @@ Content-Type: application/json
     {
       "name": "BankRatingTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 0,
       "numberOfFailures": 1
@@ -20,6 +21,7 @@ Content-Type: application/json
     {
       "name": "BankLimitIndexTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
       "numberOfFailures": 0
@@ -27,6 +29,7 @@ Content-Type: application/json
     {
       "name": "BankRatingGroupTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 5,
       "numberOfFailures": 0
@@ -34,6 +37,7 @@ Content-Type: application/json
     {
       "name": "CapitalAdequacyScoreTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
       "numberOfFailures": 0
@@ -41,6 +45,7 @@ Content-Type: application/json
     {
       "name": "DynamicIndexTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
       "numberOfFailures": 0
@@ -48,6 +53,7 @@ Content-Type: application/json
     {
       "name": "EquityScoreTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
       "numberOfFailures": 0
@@ -55,6 +61,7 @@ Content-Type: application/json
     {
       "name": "IsAdequateMaxCreditRiskScoreTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
       "numberOfFailures": 0
@@ -62,6 +69,7 @@ Content-Type: application/json
     {
       "name": "IsAdequateNormativeIndexTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
       "numberOfFailures": 0
@@ -69,6 +77,7 @@ Content-Type: application/json
     {
       "name": "LossesInThisYearScoreTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 2,
       "numberOfFailures": 0
@@ -76,6 +85,7 @@ Content-Type: application/json
     {
       "name": "ProfitDynamicScoreTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
       "numberOfFailures": 0
@@ -83,6 +93,7 @@ Content-Type: application/json
     {
       "name": "QualitativeIndexTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
       "numberOfFailures": 0
@@ -90,6 +101,7 @@ Content-Type: application/json
     {
       "name": "QualityIndexTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
       "numberOfFailures": 0
@@ -97,6 +109,7 @@ Content-Type: application/json
     {
       "name": "SetNonZeroValuesTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
       "numberOfFailures": 0
@@ -104,6 +117,7 @@ Content-Type: application/json
     {
       "name": "TotalBalanceScoreTest",
       "tableId": "*",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
       "numberOfFailures": 0

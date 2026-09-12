@@ -11,7 +11,8 @@ Content-Type: application/json
     "signature": "*",
     "file": "*",
     "pos": "*",
-    "project": "EPBDS-14621"
+    "project": "EPBDS-14621",
+    "module": "DependencyArrayCall"
   },
   {
     "id": "395575d70541ba84ae2abca44050ef59",
@@ -23,6 +24,7 @@ Content-Type: application/json
     "file": "*",
     "pos": "*",
     "project": "EPBDS-14621",
+    "module": "DependencyArrayCall",
     "dependencies": [
       "688f02b40edd1784db7d348bc77ee299"
     ]

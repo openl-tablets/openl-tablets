@@ -10,6 +10,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "E11",
     "project": "EPBDS-16318",
+    "module": "*",
     "vocabulary": {
       "valueType": "String",
       "valueCount": 0,
@@ -24,6 +25,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B22:C24",
     "project": "EPBDS-16318",
+    "module": "*",
     "returnType": "SpreadsheetResult",
     "signature": "calcPremium(Policy policy)"
   },
@@ -35,6 +37,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B5:C6",
     "project": "EPBDS-16318",
+    "module": "*",
     "dependencies": [
       "2fceeecaa2b6442cb3788a3b7257a93c"
     ],
@@ -54,6 +57,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B8:C10",
     "project": "EPBDS-16318",
+    "module": "*",
     "dependencies": [
       "e92d6feab8e164e94f1f0bad158ce52e"
     ],
@@ -77,6 +81,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B16:C20",
     "project": "EPBDS-16318",
+    "module": "*",
     "dependencies": [
       "4e68c895f5d09029aba13e41928661fa",
       "b8f6b32c64ba84aadb482d966b78bcc8",
@@ -113,6 +118,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B12:B14",
     "project": "EPBDS-16318",
+    "module": "*",
     "vocabulary": {
       "valueType": "String",
       "valueCount": 2,
@@ -131,6 +137,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "E1:E9",
     "project": "EPBDS-16318",
+    "module": "*",
     "vocabulary": {
       "valueType": "Integer",
       "valueCount": 8,
@@ -153,6 +160,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B1:C3",
     "project": "EPBDS-16318",
+    "module": "*",
     "fields": [
       {
         "name": "make",

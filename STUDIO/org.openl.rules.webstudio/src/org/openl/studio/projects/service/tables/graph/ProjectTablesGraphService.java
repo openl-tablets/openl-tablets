@@ -39,6 +39,7 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableGraphNodeKind;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.read.VocabularyTableReader;
 import org.openl.types.IOpenClass;
@@ -116,14 +117,16 @@ public class ProjectTablesGraphService {
                                       GraphLayer layer) {
         // reading the index once serves both passes: it is rebuilt over every table of every module on each call
         var projectByTable = model.getTableSyntaxNodeProjects();
+        // A node says which module its table is read through, so the graph can lead into the editor.
+        var modules = TableModules.ofWorkspace(model);
         Map<String, RawNode> nodes = layer.includesExecutable()
-                ? collectNodes(model, currentModuleOnly, true, projectByTable)
+                ? collectNodes(model, currentModuleOnly, true, projectByTable, modules)
                 : new LinkedHashMap<>();
         // A datatype is reached from another datatype only, so a graph rooted at a callable table never shows one.
         // Collecting them there would read every datatype table's source just to drop it — skip the pass instead.
         // Revisit this when the data model stops being a layer of its own and rules start linking to their types.
         if (layer.includesDatatypes() && (rootTableId == null || !nodes.containsKey(rootTableId))) {
-            collectDatatypeNodes(model, currentModuleOnly, nodes, projectByTable);
+            collectDatatypeNodes(model, currentModuleOnly, nodes, projectByTable, modules);
         }
         if (nodes.isEmpty()) {
             return List.of();
@@ -145,7 +148,8 @@ public class ProjectTablesGraphService {
     private Map<String, RawNode> collectNodes(ProjectModel model,
                                               boolean currentModuleOnly,
                                               boolean withDetails,
-                                              Map<TableSyntaxNode, String> projectByTable) {
+                                              Map<TableSyntaxNode, String> projectByTable,
+                                              TableModules modules) {
         var nodes = new LinkedHashMap<String, RawNode>();
         var compiledOpenClass = currentModuleOnly
                 ? model.getOpenedModuleCompiledOpenClass()
@@ -170,10 +174,10 @@ public class ProjectTablesGraphService {
         while (!queue.isEmpty()) {
             var method = queue.poll();
             if (method instanceof OpenMethodDispatcher dispatcher) {
-                addDispatcherNode(nodes, candidateToDispatcher, dispatcher, projectByTable);
+                addDispatcherNode(nodes, candidateToDispatcher, dispatcher, projectByTable, modules);
                 queue.addAll(dispatcher.getCandidates());
             } else if (method instanceof ExecutableMethod rulesMethod) {
-                addNode(nodes, rulesMethod, projectByTable, methodNodesDictionary, formats, withDetails);
+                addNode(nodes, rulesMethod, projectByTable, modules, methodNodesDictionary, formats, withDetails);
             }
         }
         rewireThroughDispatchers(nodes, candidateToDispatcher);
@@ -191,7 +195,8 @@ public class ProjectTablesGraphService {
     private void addDispatcherNode(Map<String, RawNode> nodes,
                                    Map<String, String> candidateToDispatcher,
                                    OpenMethodDispatcher dispatcher,
-                                   Map<TableSyntaxNode, String> projectByTable) {
+                                   Map<TableSyntaxNode, String> projectByTable,
+                                   TableModules modules) {
         var candidateIds = executableCandidates(dispatcher)
                 .map(candidate -> TableUtils.makeTableId(candidate.getSourceUrl()))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -202,10 +207,20 @@ public class ProjectTablesGraphService {
         candidateIds.forEach(candidateId -> candidateToDispatcher.put(candidateId, id));
         nodes.computeIfAbsent(id, key -> {
             // the dispatcher carries the plain method name; the parameter signature is redundant beside its versions
-            var node = new RawNode(key, dispatcher.getName(), DISPATCHER_KIND, dispatcherProject(dispatcher, projectByTable));
+            var node = new RawNode(key, dispatcher.getName(), DISPATCHER_KIND,
+                    dispatcherProject(dispatcher, projectByTable), dispatcherModule(dispatcher, modules));
             node.dependencies().addAll(candidateIds);
             return node;
         });
+    }
+
+    /** The module the versions behind a dispatcher are written in: the first one that names it. */
+    private static @Nullable String dispatcherModule(OpenMethodDispatcher dispatcher, TableModules modules) {
+        return executableCandidates(dispatcher)
+                .map(candidate -> modules.moduleOf(candidate.getSourceUrl()))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     private static String dispatcherProject(OpenMethodDispatcher dispatcher, Map<TableSyntaxNode, String> projectByTable) {
@@ -252,16 +267,17 @@ public class ProjectTablesGraphService {
     private void addNode(Map<String, RawNode> nodes,
                          ExecutableMethod rulesMethod,
                          Map<TableSyntaxNode, String> projectByTable,
+                         TableModules modules,
                          OverloadedMethodsDictionary methodNodesDictionary,
                          WebStudioFormats formats,
                          boolean withDetails) {
         var tableSyntaxNode = (TableSyntaxNode) rulesMethod.getInfo().getSyntaxNode();
         var id = TableUtils.makeTableId(rulesMethod.getSourceUrl());
         var node = nodes.computeIfAbsent(id, key -> withDetails
-                ? detailedNode(id, tableSyntaxNode, rulesMethod, projectByTable, methodNodesDictionary, formats)
+                ? detailedNode(id, tableSyntaxNode, rulesMethod, projectByTable, modules, methodNodesDictionary, formats)
                 : new RawNode(id, rulesMethod.getName(),
                         OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType()),
-                        projectByTable.get(tableSyntaxNode)));
+                        projectByTable.get(tableSyntaxNode), modules.moduleOf(tableSyntaxNode.getUri())));
         var dependencies = rulesMethod.getDependencies();
         if (dependencies != null && dependencies.getRulesMethods() != null) {
             dependencies.getRulesMethods()
@@ -274,13 +290,14 @@ public class ProjectTablesGraphService {
                                  TableSyntaxNode tableSyntaxNode,
                                  ExecutableMethod rulesMethod,
                                  Map<TableSyntaxNode, String> projectByTable,
+                                 TableModules modules,
                                  OverloadedMethodsDictionary methodNodesDictionary,
                                  WebStudioFormats formats) {
         var displayNames = TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, 0, methodNodesDictionary, formats);
         var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
         var summary = summaryTableReader.read(new TableSyntaxNodeAdapter(tableSyntaxNode));
         return new RawNode(id, displayNames[INamedThing.SHORT], kind, summary, dimensionProperties(rulesMethod),
-                projectByTable.get(tableSyntaxNode), null);
+                projectByTable.get(tableSyntaxNode), modules.moduleOf(tableSyntaxNode.getUri()), null);
     }
 
     /**
@@ -294,7 +311,8 @@ public class ProjectTablesGraphService {
     private void collectDatatypeNodes(ProjectModel model,
                                       boolean currentModuleOnly,
                                       Map<String, RawNode> nodes,
-                                      Map<TableSyntaxNode, String> projectByTable) {
+                                      Map<TableSyntaxNode, String> projectByTable,
+                                      TableModules modules) {
         Collection<TableSyntaxNode> tables = currentModuleOnly
                 ? List.of(model.getTableSyntaxNodes())
                 : model.getAllTableSyntaxNodes();
@@ -302,7 +320,7 @@ public class ProjectTablesGraphService {
             var datatype = datatypeOf(tableSyntaxNode);
             if (datatype != null) {
                 nodes.computeIfAbsent(tableSyntaxNode.getId(),
-                        id -> datatypeNode(id, tableSyntaxNode, datatype, projectByTable));
+                        id -> datatypeNode(id, tableSyntaxNode, datatype, projectByTable, modules));
             }
         });
     }
@@ -324,13 +342,14 @@ public class ProjectTablesGraphService {
     private RawNode datatypeNode(String id,
                                  TableSyntaxNode tableSyntaxNode,
                                  IOpenClass datatype,
-                                 Map<TableSyntaxNode, String> projectByTable) {
+                                 Map<TableSyntaxNode, String> projectByTable,
+                                 TableModules modules) {
         var table = new TableSyntaxNodeAdapter(tableSyntaxNode);
         var summary = summaryTableReader.read(table);
         var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
         var dataModel = dataModelOf(datatype, table);
         var node = new RawNode(id, summary.name, kind, summary, Map.of(), projectByTable.get(tableSyntaxNode),
-                dataModel);
+                modules.moduleOf(tableSyntaxNode.getUri()), dataModel);
         if (dataModel.extendsId() != null) {
             node.dependencies().add(dataModel.extendsId());
         }
@@ -434,7 +453,8 @@ public class ProjectTablesGraphService {
                                          String rootTableId,
                                          GraphDirection direction,
                                          @Nullable Integer maxDepth) {
-        var nodes = collectNodes(model, false, false, model.getTableSyntaxNodeProjects());
+        var nodes = collectNodes(model, false, false, model.getTableSyntaxNodeProjects(),
+                TableModules.ofWorkspace(model));
         if (nodes.isEmpty()) {
             return Set.of();
         }
@@ -522,7 +542,8 @@ public class ProjectTablesGraphService {
         builder.id(node.id())
                 .name(node.name())
                 .kind(TableGraphNodeKind.fromValue(node.kind()))
-                .project(node.project());
+                .project(node.project())
+                .module(node.module());
         if (direction.includesDependencies()) {
             builder.dependencies(retain(node.dependencies(), included));
         }
@@ -556,15 +577,16 @@ public class ProjectTablesGraphService {
     }
 
     private record RawNode(String id, String name, String kind, @Nullable SummaryTableView summary,
-                           Map<String, String> dimensionProperties, String project,
+                           Map<String, String> dimensionProperties, String project, @Nullable String module,
                            Set<String> dependencies, Set<String> dependents, @Nullable DataModel dataModel) {
-        private RawNode(String id, String name, String kind, String project) {
-            this(id, name, kind, null, Map.of(), project, null);
+        private RawNode(String id, String name, String kind, String project, @Nullable String module) {
+            this(id, name, kind, null, Map.of(), project, module, null);
         }
 
         private RawNode(String id, String name, String kind, @Nullable SummaryTableView summary,
-                        Map<String, String> dimensionProperties, String project, @Nullable DataModel dataModel) {
-            this(id, name, kind, summary, dimensionProperties, project,
+                        Map<String, String> dimensionProperties, String project, @Nullable String module,
+                        @Nullable DataModel dataModel) {
+            this(id, name, kind, summary, dimensionProperties, project, module,
                     new LinkedHashSet<>(), new LinkedHashSet<>(), dataModel);
         }
     }

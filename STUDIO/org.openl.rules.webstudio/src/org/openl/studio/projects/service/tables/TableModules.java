@@ -1,11 +1,14 @@
 package org.openl.studio.projects.service.tables;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.ui.ProjectModel;
 
 /**
  * Says which module of a project a table belongs to.
@@ -32,6 +35,29 @@ public final class TableModules {
      */
     public static TableModules of(@Nullable ProjectDescriptor descriptor) {
         return new TableModules(descriptor == null ? List.of() : List.copyOf(descriptor.getModules()));
+    }
+
+    /**
+     * The modules of everything the workspace has compiled: the project being read and the projects it depends
+     * on.
+     *
+     * <p>A table of a dependency belongs to that project's module, and a screen sending a reader to it has to
+     * name that module rather than one of this project's.
+     *
+     * @param model the compiled project
+     * @return the modules to ask, answering nothing for a project that has not been compiled
+     */
+    public static TableModules ofWorkspace(ProjectModel model) {
+        var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
+        if (dependencyManager == null) {
+            return new TableModules(List.of());
+        }
+        return new TableModules(dependencyManager.getDependencyLoaders()
+                .stream()
+                .filter(loader -> !loader.isProjectLoader())
+                .map(IDependencyLoader::getModule)
+                .filter(Objects::nonNull)
+                .toList());
     }
 
     /**
