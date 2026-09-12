@@ -7,5 +7,6 @@ Content-Type: application/json
   "kind": "Datatype",
   "name": "TestType",
   "file": "EPBDS_15621/Main.xlsx",
+  "sheet": "TestType",
   "pos": "*"
 }

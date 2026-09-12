@@ -15,6 +15,8 @@ Content-Type: application/json
         "type": "table",
         "id": "90890ebee17a1feb816a50e276d73f86",
         "name": "ErrorAfterTwoProperties",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY0OTItRXJyb3JMb2NhdGlvbjpjMjgwZGE3OGQ4MTc0NWJhNjY0YjY4NTBlMjVhNzA2NGI5NDc3MmE5NzNiMGVjOTZlMzg0OWMzZjVlOWViOWRj",
+        "project": "EPBDS-16492-ErrorLocation",
         "module": "Main",
         "cell": "C6"
       },
@@ -53,6 +55,7 @@ Content-Type: application/json
       {"cell": "C7", "value": "Test"},
       {"cell": "D7"}
     ]
-  ]
+  ],
+  "headerHeight": 3
 }
 

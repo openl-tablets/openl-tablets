@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import { moduleRoute } from '../../services/projectId'
 import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tooltip, Typography, Upload } from 'antd'
 import {
     ApartmentOutlined,
@@ -476,7 +478,7 @@ const Section = ({ icon, title, action, hint, hintTestId, onHelp, helpLabel, hel
  * A pattern that names no module of its own is read by what it does — it stands for the modules it
  * matched.
  */
-const ModuleCells = ({ module, modulesDefault }: { module: ProjectModule, modulesDefault?: boolean | undefined }) => {
+const ModuleCells = ({ module, modulesDefault, projectId }: { module: ProjectModule, modulesDefault?: boolean | undefined, projectId?: string | undefined }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -488,9 +490,23 @@ const ModuleCells = ({ module, modulesDefault }: { module: ProjectModule, module
         : t('browser.overview.modules_auto')
     const patternHeading = modulesDefault ? autoDiscoveredHeading : t('browser.overview.modules_pattern')
     const name = module.name || (module.modules ? patternHeading : '')
+    // Only a module of its own opens in the editor. A pattern stands for the modules it matched, and those are
+    // the rows that link.
+    const opens = projectId !== undefined && module.name !== undefined && module.name !== '' && !module.modules
     return (
         <>
-            <span className={cx(shared.valueText, shared.ellipsis, styles.moduleName)} title={name}>{name}</span>
+            {opens ? (
+                <Link
+                    className={cx(shared.valueText, shared.ellipsis, styles.moduleName)}
+                    data-testid={`module-open-${name}`}
+                    title={t('browser.overview.module_open')}
+                    to={moduleRoute(projectId, module.name ?? '')}
+                >
+                    {name}
+                </Link>
+            ) : (
+                <span className={cx(shared.valueText, shared.ellipsis, styles.moduleName)} title={name}>{name}</span>
+            )}
             <span className={cx(shared.ellipsis, shared.valueText, styles.modulePath)} title={module.path}>
                 {module.path}
             </span>
@@ -504,7 +520,7 @@ const ModuleCells = ({ module, modulesDefault }: { module: ProjectModule, module
  * A declaration whose path is a pattern stands for the files it matched: they are folded away under it
  * and opened on demand, so the list stays as long as the file is.
  */
-const ModuleRow = ({ module, filter, modulesDefault }: { module: ProjectModule, filter?: MethodFilter | undefined, modulesDefault?: boolean | undefined }) => {
+const ModuleRow = ({ module, filter, modulesDefault, projectId }: { module: ProjectModule, filter?: MethodFilter | undefined, modulesDefault?: boolean | undefined, projectId?: string | undefined }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(false)
@@ -531,7 +547,7 @@ const ModuleRow = ({ module, filter, modulesDefault }: { module: ProjectModule, 
                     // The place of the switcher is kept, so every row starts where the others do.
                     <span className={styles.moduleSwitcherSpace} data-testid={matched ? `module-unmatched-${testId}` : undefined} />
                 )}
-                <ModuleCells module={module} modulesDefault={modulesDefault} />
+                <ModuleCells module={module} modulesDefault={modulesDefault} projectId={projectId} />
             </li>
             {/* The module's own method filter, declared in rules.xml alongside it. */}
             {filter && (
@@ -547,7 +563,7 @@ const ModuleRow = ({ module, filter, modulesDefault }: { module: ProjectModule, 
                     data-testid={`module-matched-item-${matchedModule.path ?? matchedModule.name}`}
                 >
                     <span className={styles.moduleSwitcherSpace} />
-                    <ModuleCells module={matchedModule} />
+                    <ModuleCells module={matchedModule} projectId={projectId} />
                 </li>
             ))}
         </>
@@ -954,12 +970,13 @@ const DescriptionSection = ({ editor }: { editor: DescriptorEditor }) => {
  * The modules: the declared ones are edited only when rules.xml declares them; when they are auto-discovered
  * (empty rules.xml) they are shown read-only, since editing entries the engine derives makes no sense.
  */
-const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRulesXml }: {
+const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRulesXml, projectId }: {
     editor: DescriptorEditor
     modules: ProjectModule[]
     modulesDefault: boolean
     moduleFilters: Record<string, MethodFilter>
     hasRulesXml: boolean
+    projectId: string
 }) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
@@ -1007,6 +1024,7 @@ const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRul
                                     filter={module.path ? moduleFilters[module.path] : undefined}
                                     module={module}
                                     modulesDefault={modulesDefault}
+                                    projectId={projectId}
                                 />
                             ))}
                         </ul>
@@ -1540,6 +1558,7 @@ export const OverviewPanel = ({
                     moduleFilters={descriptor.moduleFilters}
                     modules={project.descriptor?.modules ?? []}
                     modulesDefault={project.descriptor?.modulesDefault ?? false}
+                    projectId={project.id}
                 />
                 <VersionPatternsSection editor={descriptor.editor} onHelp={() => setPatternHelpOpen(true)} />
                 <ProcessorSection editor={descriptor.editor} />

@@ -28,6 +28,7 @@ Content-Type: application/json
       {"cell": "C5", "value": "hour"},
       {"cell": "D5", "value": "gamma"}
     ]
-  ]
+  ],
+  "headerHeight": 1
 }
 

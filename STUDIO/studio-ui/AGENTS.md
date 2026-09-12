@@ -153,6 +153,18 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   Title Case — capitalise every word except `a`/`an`/`the` when it is not first (e.g. `Project Name`, `Service
   Class`, `Provide Runtime Context`). Longer labels stay in sentence case (e.g. `Path for Module with Data
   Types`). Never append `(optional)` to a label — mark required fields instead.
+- **Animate only `transform` and `opacity`.** Those two the compositor moves on its own; everything else —
+  `box-shadow`, `background`, `color`, `width`, `top` — is painted by the page, so an animation of them makes
+  the page recalculate style and repaint on **every frame**, for as long as it runs. While a reader is
+  scrolling, that is what takes the content away and leaves the screen blank behind the scroll: the compositor
+  can no longer scroll by itself. A measured example: the compiling indicator beating with a `box-shadow` cost
+  346 style recalculations and 610 paints over a four-second scroll (the GPU process pegged); the same beat as
+  a ring moved by `transform`/`opacity` cost 6 paints. Animate a pseudo-element rather than the element itself,
+  add `will-change: transform, opacity`, and silence it under `@media (prefers-reduced-motion: reduce)`.
+- **A long list is virtualised.** A tree or table that can hold hundreds of rows is given a height and drawn a
+  screenful at a time (Ant Design's `Tree` takes `height`, `itemHeight` and `scrollWidth`); and a table is laid
+  out at the width its values need rather than squeezed into the screen, which otherwise wraps every value into
+  a tower of lines and multiplies the pixels the browser has to paint.
 - **Names in titles.** When a form or dialog title includes the name of a concrete thing (a project, file,
   user, repository…), wrap that name in double quotes — e.g. `Copy project "{{name}}"`, `Revoke access for
   "{{subject}}"?`.

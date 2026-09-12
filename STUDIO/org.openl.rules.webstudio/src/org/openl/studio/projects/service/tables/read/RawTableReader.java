@@ -3,12 +3,15 @@ package org.openl.studio.projects.service.tables.read;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import org.openl.base.INamedThing;
+import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
@@ -16,6 +19,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ui.BorderStyle;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
@@ -23,10 +27,15 @@ import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellBorder;
 import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
+import org.openl.studio.projects.model.tables.RawTableCellMetaInfo;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
+import org.openl.studio.projects.model.tables.RawTableCellUsage;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
+import org.openl.studio.projects.model.tables.RawTableUsageKind;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.util.StringUtils;
 
 /**
  * Reads any table in raw format as a 2D matrix with explicit merge information.
@@ -62,9 +71,12 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     /** The value that tells {@link TableModel} not to cap rows; used when {@code maxRows} is unspecified. */
     private static final int NO_ROW_CAP = -1;
 
+    /** Picks the editor a cell asks for, the way the Editor picks it. */
+    private static final CellEditorSelector EDITOR_SELECTOR = new CellEditorSelector();
+
     @Override
     protected void initialize(RawTableView.Builder builder, IOpenLTable openLTable) {
-        initialize(builder, openLTable, null, null, false);
+        initialize(builder, openLTable, null, null, false, false, TableModules.none());
     }
 
     /**
@@ -82,13 +94,16 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * @param startRow   the zero-based index of the first row to return; {@code null} starts at the top
      * @param maxRows    the maximum number of rows to return from {@code startRow}; {@code null} returns every
      *                   remaining row
-     * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
+     * @param withStyles   whether to attach each cell's Excel style (background, font, alignment)
+     * @param withMetaInfo whether to attach what the compiler knows about each cell — the pieces of its text
+     *                     that refer to something, the type it holds, the editor it asks for
+     * @param modules      the modules a usage's table is looked up in, so a reader can be sent to it
      * @return the raw table view
      */
     public RawTableView read(IOpenLTable openLTable, @Nullable Integer startRow, @Nullable Integer maxRows,
-            boolean withStyles) {
+            boolean withStyles, boolean withMetaInfo, TableModules modules) {
         RawTableView.Builder builder = RawTableView.builder();
-        initialize(builder, openLTable, startRow, maxRows, withStyles);
+        initialize(builder, openLTable, startRow, maxRows, withStyles, withMetaInfo, modules);
         return builder.build();
     }
 
@@ -106,7 +121,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         var metaInfoReader = metaInfoReaderOf(openLTable);
         var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), NO_ROW_CAP, metaInfoReader);
         return tableModel == null ? List.of()
-                : convertTableModelToMatrix(tableModel, new CellValueReader(metaInfoReader), withStyles);
+                : convertTableModelToMatrix(tableModel, withStyles, metaInfoReader, false, TableModules.none());
     }
 
     /** The table's meta info, or an empty one when the table carries none. */
@@ -116,7 +131,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     }
 
     private void initialize(RawTableView.Builder builder, IOpenLTable openLTable, @Nullable Integer startRow,
-            @Nullable Integer maxRows, boolean withStyles) {
+            @Nullable Integer maxRows, boolean withStyles, boolean withMetaInfo, TableModules modules) {
         super.initialize(builder, openLTable);
         builder.pos(openLTable.getUriParser().getRange());
         var metaInfoReader = metaInfoReaderOf(openLTable);
@@ -129,17 +144,37 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 : TableModel.initializeTableModel(gridTable, cap, metaInfoReader);
 
         List<List<RawTableCell>> source = tableModel == null ? List.of()
-                : convertTableModelToMatrix(tableModel, new CellValueReader(metaInfoReader), withStyles);
+                : convertTableModelToMatrix(tableModel, withStyles, metaInfoReader, withMetaInfo, modules);
         // The grid model keeps one extra row rather than hiding a single row; trim to exactly maxRows so the
         // window size is predictable for paging.
         if (maxRows != null && source.size() > maxRows) {
             source = source.subList(0, maxRows);
         }
         builder.source(source);
+        builder.headerHeight(headerHeightOf(openLTable));
         // Report the full height whenever the window omits rows (a non-zero offset or a top cap).
         if ((startRow != null && startRow > 0) || source.size() < fullHeight) {
             builder.totalRows(fullHeight);
         }
+    }
+
+    /**
+     * How many rows at the top of the table its header takes.
+     *
+     * <p>The engine keeps a business view of every table it knows — the same table without its header line, its
+     * properties section and, in a decision table, the service rows. What that view leaves out at the top is
+     * what a screen hiding the header leaves out, so the two agree without the screen knowing any table's shape.
+     *
+     * <p>A table with no business view of its own — one the engine could not bind, or one whose whole body is
+     * its header — has nothing to hide, and the answer is 0.
+     */
+    private static int headerHeightOf(IOpenLTable openLTable) {
+        var business = openLTable.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+        var whole = openLTable.getGridTable();
+        if (business == null || business == whole) {
+            return 0;
+        }
+        return Math.max(0, whole.getHeight() - business.getHeight());
     }
 
     /** Crop the table to the rows at and below {@code startRow}, or {@code null} when the offset is past the end. */
@@ -168,12 +203,12 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * Covered cells (those within a merged region but not the origin cell) are marked with
      * {@code RawTableCell.COVERED_CELL} to indicate they should be skipped during processing.
      *
-     * @param tableModel      The TableModel containing cell layout and span information
-     * @param cellValueReader Function to extract cell values from ICell instances
+     * @param tableModel The TableModel containing cell layout and span information
      * @return 2D list of RawTableCell objects representing the table matrix
      */
-    private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel,
-            Function<ICell, Object> cellValueReader, boolean withStyles) {
+    private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel, boolean withStyles,
+            MetaInfoReader metaInfoReader, boolean withMetaInfo, TableModules modules) {
+        var cellValueReader = new CellValueReader(metaInfoReader);
         var matrix = new ArrayList<List<RawTableCell>>();
 
         var cells = tableModel.getCells();
@@ -197,6 +232,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 // Extract cell value
                 var cell = tableModel.getGridTable().getCell(cm.getColumn(), cm.getRow());
                 var value = cellValueReader.apply(cell);
+                // A cell carries both what it computes and what it was written with, so a screen showing
+                // formulas chooses between them without asking for the table again.
+                var formula = cell.getFormula();
                 // Cell address in A1 notation, matching the address reported by compilation messages
                 var cellAddress = cell.getUri();
 
@@ -207,9 +245,11 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 var rawCell = RawTableCell.builder()
                         .cell(cellAddress)
                         .value(value)
+                        .formula(StringUtils.isBlank(formula) ? null : "=" + formula)
                         .colspan(colspan)
                         .rowspan(rowspan)
                         .style(withStyles ? styleOf(cm) : null)
+                        .metaInfo(withMetaInfo ? metaInfoOf(cell, metaInfoReader, modules) : null)
                         .build();
 
                 if (colspan > 1 || rowspan > 1) {
@@ -229,6 +269,52 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         }
 
         return matrix;
+    }
+
+    /**
+     * What the compiler knows about the cell, or {@code null} when it knows nothing worth reporting.
+     *
+     * <p>The pieces of text the compiler resolved are reported as ranges over the cell's own text, each with
+     * the table it refers to — by the identifier the Tables API addresses a table by, not the location the
+     * engine knows it at.
+     */
+    private static @Nullable RawTableCellMetaInfo metaInfoOf(ICell cell, MetaInfoReader metaInfoReader,
+            TableModules modules) {
+        CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+        if (metaInfo == null) {
+            return null;
+        }
+        var dataType = metaInfo.getDataType();
+        var editor = EDITOR_SELECTOR.selectEditor(cell, metaInfo);
+        var reported = RawTableCellMetaInfo.builder()
+                .usages(usagesOf(metaInfo, modules))
+                .type(dataType == null ? null : dataType.getDisplayName(INamedThing.SHORT))
+                .returnCell(metaInfo.isReturnCell() ? Boolean.TRUE : null)
+                .editor(editor == null ? null : editor.getEditorTypeAndMetadata().getEditor())
+                .build();
+        return reported.isEmpty() ? null : reported;
+    }
+
+    /** The pieces of the cell's text the compiler resolved, in the order they appear. */
+    private static List<RawTableCellUsage> usagesOf(CellMetaInfo metaInfo, TableModules modules) {
+        var usedNodes = metaInfo.getUsedNodes();
+        if (usedNodes == null) {
+            return List.of();
+        }
+        return usedNodes.stream()
+                .map(node -> {
+                    var where = modules.locationOf(node.getUri());
+                    return RawTableCellUsage.builder()
+                            .start(node.getStart())
+                            .end(node.getEnd())
+                            .description(node.getDescription())
+                            .tableId(node.getUri() == null ? null : TableUtils.makeTableId(node.getUri()))
+                            .module(where == null ? null : where.module())
+                            .projectId(where == null ? null : where.projectId())
+                            .kind(RawTableUsageKind.of(node.getNodeType()))
+                            .build();
+                })
+                .toList();
     }
 
     /** The cell's Excel style, or {@code null} when every attribute is at its default. */

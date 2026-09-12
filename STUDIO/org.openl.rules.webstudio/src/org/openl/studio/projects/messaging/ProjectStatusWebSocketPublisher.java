@@ -35,7 +35,11 @@ public class ProjectStatusWebSocketPublisher {
         }
         try {
             var project = event.getProject();
-            var status = projectStatusMapper.map(project, event.getProjectModel());
+            // While a compilation holds the model, only its progress can be read; the rest follows the
+            // event raised once it lets go.
+            var status = event.isProgressOnly()
+                    ? projectStatusMapper.mapProgress(project, event.getProjectModel())
+                    : projectStatusMapper.map(project, event.getProjectModel());
             var projectId = projectIdentifierMapper.map(project);
             notificationService.notifyProjectStatus(event.getUserName(), projectId, project.getBranch(), status);
             // The same status also rides the user's workspace-wide stream, so the projects list holds

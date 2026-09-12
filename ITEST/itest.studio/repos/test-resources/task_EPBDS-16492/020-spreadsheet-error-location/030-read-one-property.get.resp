@@ -15,6 +15,8 @@ Content-Type: application/json
         "type": "table",
         "id": "9d00a1ca2fe23eafab486ff11137a75e",
         "name": "ErrorAfterOneProperty",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY0OTItRXJyb3JMb2NhdGlvbjpjMjgwZGE3OGQ4MTc0NWJhNjY0YjY4NTBlMjVhNzA2NGI5NDc3MmE5NzNiMGVjOTZlMzg0OWMzZjVlOWViOWRj",
+        "project": "EPBDS-16492-ErrorLocation",
         "module": "Main",
         "cell": "C5"
       },
@@ -48,6 +50,7 @@ Content-Type: application/json
       {"cell": "C6", "value": "Test"},
       {"cell": "D6"}
     ]
-  ]
+  ],
+  "headerHeight": 2
 }
 

@@ -24,6 +24,7 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.service.AbstractMethodExecutorService;
 import org.openl.studio.projects.service.ExecutionProgressListener;
+import org.openl.studio.projects.service.tables.TableModules;
 
 /**
  * Asynchronous implementation of {@link BenchmarkExecutorService}.
@@ -85,6 +86,7 @@ public class BenchmarkExecutorServiceImpl extends AbstractMethodExecutorService 
                                                       boolean currentOpenedModule) throws InterruptedException {
         var openClass = compiledOpenClass(projectModel, currentOpenedModule).getOpenClassWithErrors();
         var measured = new Measured(TableUtils.makeTableId(testSuite.getUri()),
+                moduleOf(projectModel, testSuite.getUri()),
                 nameOf(testSuite, table),
                 testSuite.getTestSuiteMethod() != null,
                 isRunTable(testSuite));
@@ -130,6 +132,7 @@ public class BenchmarkExecutorServiceImpl extends AbstractMethodExecutorService 
             if (executionTime > MIN_NANOS) {
                 return new BenchmarkMeasurement(UUID.randomUUID().toString(),
                         measured.tableId(),
+                        measured.module(),
                         measured.name(),
                         measured.testTable(),
                         measured.runTable(),
@@ -150,7 +153,17 @@ public class BenchmarkExecutorServiceImpl extends AbstractMethodExecutorService 
     }
 
     /** What every measurement of one benchmark says about the table it was taken on. */
-    record Measured(String tableId, String name, boolean testTable, @Nullable Boolean runTable) {
+    record Measured(String tableId,
+                    @Nullable String module,
+                    String name,
+                    boolean testTable,
+                    @Nullable Boolean runTable) {
+    }
+
+    /** The module the measured table is written in, so the results can send a reader to it. */
+    private static @Nullable String moduleOf(ProjectModel projectModel, String tableUri) {
+        var opened = projectModel.getModuleInfo();
+        return TableModules.of(opened == null ? null : opened.getProject()).moduleOf(tableUri);
     }
 
     /** The input of one test case, under the names the table author wrote for them. */

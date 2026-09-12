@@ -10,6 +10,7 @@ Content-Type: application/json
     "file": "EPBDS-16318/DataModel.xlsx",
     "pos": "B22:C24",
     "project": "EPBDS-16318",
+    "module": "*",
     "returnType": "SpreadsheetResult",
     "signature": "calcPremium(Policy policy)"
   }

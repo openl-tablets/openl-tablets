@@ -16,6 +16,7 @@ public class ProjectTableCriteriaQuery {
 
     private final Collection<String> kinds;
     private final String name;
+    private final String module;
     private final Map<String, Object> properties;
     private final boolean includeOther;
 
@@ -23,6 +24,7 @@ public class ProjectTableCriteriaQuery {
         this.kinds = builder.kinds == null ? List.of()
                 : Collections.unmodifiableCollection(builder.kinds);
         this.name = builder.name;
+        this.module = builder.module;
         this.properties = builder.properties == null ? Map.of() : Map.copyOf(builder.properties);
         this.includeOther = builder.includeOther;
     }
@@ -45,6 +47,15 @@ public class ProjectTableCriteriaQuery {
         return Optional.ofNullable(name);
     }
 
+    /**
+     * Module whose tables are asked for, when the search is narrowed to one.
+     *
+     * <p>Empty means the whole project takes part in the search.
+     */
+    public Optional<String> getModule() {
+        return Optional.ofNullable(module);
+    }
+
     public Map<String, Object> getProperties() {
         return properties;
     }
@@ -56,6 +67,7 @@ public class ProjectTableCriteriaQuery {
     public static class Builder {
         private Collection<String> kinds;
         private String name;
+        private String module;
         private Map<String, Object> properties = new HashMap<>();
         private boolean includeOther;
 
@@ -71,6 +83,11 @@ public class ProjectTableCriteriaQuery {
 
         public Builder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder module(String module) {
+            this.module = module;
             return this;
         }
 

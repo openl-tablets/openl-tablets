@@ -1,5 +1,6 @@
 import React from 'react'
 import type { RawTableCell } from 'types/tables'
+import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { useStyles } from './RawTableGrid.styles'
 
 /** How the screen showing a table marks one of its cells. */
@@ -19,6 +20,10 @@ interface RawTableGridProps {
     rows: RawTableCell[][]
     /** How each cell is marked; a cell the screen says nothing about is drawn as the workbook has it. */
     decorate?: (cell: RawTableCell) => CellDecoration | undefined
+    /** Draw the formula a cell was written with rather than the value it computed, where it has one. */
+    formulas?: boolean
+    /** Follows a piece of a cell's text to the table it names; absent when this screen cannot go there. */
+    onOpenUsage?: OpenUsage | undefined
     testId?: string
 }
 
@@ -72,12 +77,32 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
 
 /**
  * Draws a table the way its author wrote it in Excel: the same cells, the same merges, the same
- * styling, with the values already evaluated.
+ * styling, with the values already evaluated — or, where the screen asks for it, with the formulas the
+ * cells were written with, which every cell carries beside its value.
  *
  * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
  * this component and only says how its own cells are marked, so a table looks the same everywhere.
  */
-export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, testId }) => {
+/**
+ * The text of one cell, marked with what the compiler knows about it.
+ *
+ * What it knows describes the value the cell holds, and the ranges it marks are measured over that text. A
+ * cell shown as the formula it was written with is another text altogether, so it is drawn plain — which is
+ * what the legacy editor did, where the formula replaced the marked content.
+ */
+const cellText = (cell: RawTableCell, formulas: boolean, onOpenUsage?: OpenUsage) => {
+    const asFormula = formulas && Boolean(cell.formula)
+    const text = formatValue(asFormula ? cell.formula : cell.value)
+    const metaInfo = asFormula ? undefined : cell.metaInfo
+    // Most cells have nothing marked — what the compiler knows about them is the type behind them and the
+    // editor they ask for. Those are drawn as the text they are, rather than through a component of their own.
+    if (!metaInfo?.usages?.length && !metaInfo?.returnCell) {
+        return text
+    }
+    return <RawTableCellText metaInfo={metaInfo} onOpenUsage={onOpenUsage} text={text} />
+}
+
+export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, formulas, onOpenUsage, testId }) => {
     const { styles, cx } = useStyles()
 
     return (
@@ -97,7 +122,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, test
                                     rowSpan={cell.rowspan}
                                     style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
                                 >
-                                    {decoration?.content ?? formatValue(cell.value)}
+                                    {decoration?.content ?? cellText(cell, !!formulas, onOpenUsage)}
                                 </td>
                             )
                         })}

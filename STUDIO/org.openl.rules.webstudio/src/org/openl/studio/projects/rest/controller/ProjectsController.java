@@ -88,10 +88,12 @@ import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
@@ -395,15 +397,17 @@ public class ProjectsController {
                             "Other"
                     })),
             @Parameter(name = "name", description = "projects.tables.list.param.name.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "module", description = "projects.tables.list.param.module.desc", in = ParameterIn.QUERY),
             @Parameter(name = "properties", description = "projects.tables.list.param.properties.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
     public PageResponse<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
                                                     @Parameter(hidden = true) @RequestParam Map<String, String> params,
                                                     @RequestParam(value = "kind", required = false) Set<String> kinds,
                                                     @RequestParam(value = "name", required = false) String name,
+                                                    @RequestParam(value = "module", required = false) String module,
                                                     @PaginationDefault Pageable page) {
 
-        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name);
+        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name).module(module);
         params.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))
@@ -469,6 +473,28 @@ public class ProjectsController {
         getWebStudio().reset();
     }
 
+    @PostMapping("/{projectId}/modules/{moduleName}/compile")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "projects.modules.compile.summary", description = "projects.modules.compile.desc")
+    public void compileModule(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("moduleName") @Parameter(description = "projects.modules.param.module-name.desc")
+            String moduleName,
+            @RequestParam(value = "reset", defaultValue = "false")
+            @Parameter(description = "projects.modules.compile.param.reset.desc") boolean reset) {
+        projectService.compileModule(project, moduleName, reset);
+    }
+
+    @DeleteMapping("/{projectId}/modules/{moduleName}/compile")
+    @Operation(summary = "projects.modules.compile.cancel.summary", description = "projects.modules.compile.cancel.desc")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void cancelModuleCompilation(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("moduleName") @Parameter(description = "projects.modules.param.module-name.desc")
+            String moduleName) {
+        projectService.cancelModuleCompilation(project, moduleName);
+    }
+
     @GetMapping("/{projectId}/modules/{moduleName}/sheets")
     @Operation(summary = "projects.modules.sheets.summary")
     public List<String> getModuleSheets(
@@ -497,11 +523,23 @@ public class ProjectsController {
                                       @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "projects.table.get.param.raw.desc") boolean raw,
                                       @RequestParam(value = "startRow", required = false) @Min(0) @Parameter(description = "projects.table.get.param.start-row.desc") Integer startRow,
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
-                                      @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles) {
+                                      @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
+                                      @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
+                                      @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         if (raw) {
-            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles);
+            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles, metaInfo, module);
         }
-        return (EditableTableView) projectService.getTable(project, tableId);
+        return (EditableTableView) projectService.getTable(project, tableId, module);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/tests")
+    @Operation(summary = "projects.table.tests.summary", description = "projects.table.tests.desc")
+    public List<TableTestView> getTableTests(@ProjectId @PathVariable("projectId") RulesProject project,
+                                             @PathVariable("tableId") String tableId,
+                                             @RequestParam(value = "module", required = false)
+                                             @Parameter(description = "projects.table.get.param.module.desc")
+                                             String module) {
+        return projectService.getTableTests(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/properties")
@@ -509,6 +547,17 @@ public class ProjectsController {
     public TablePropertiesView getTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
                                                   @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId) {
         return projectService.getTableProperties(project, tableId);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/details")
+    @Operation(summary = "projects.table.details.summary", description = "projects.table.details.desc")
+    public TableDetailsView getTableDetails(@ProjectId @PathVariable("projectId") RulesProject project,
+                                            @PathVariable("tableId") @Parameter(description = "project.table.id.desc")
+                                            String tableId,
+                                            @RequestParam(value = "module", required = false)
+                                            @Parameter(description = "projects.table.get.param.module.desc")
+                                            String module) {
+        return projectService.getTableDetails(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/input")
@@ -677,10 +726,7 @@ public class ProjectsController {
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
         CompletableFuture<List<TestUnitsResults>> testTask;
-        var objectMapper = objectMapperService.createObjectMapper();
-        var schemaGenerator = getSchemaGenerator(objectMapper);
-        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
-                projectService.getSpreadsheetResultNamingStrategy());
+        var mapper = testsSummaryMapper(project);
         if (StringUtils.isBlank(tableId)) {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
@@ -744,10 +790,7 @@ public class ProjectsController {
         var executionResults = completedTests(project);
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            var objectMapper = objectMapperService.createObjectMapper();
-            var schemaGenerator = getSchemaGenerator(objectMapper);
-            var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
-                    projectService.getSpreadsheetResultNamingStrategy());
+            var mapper = testsSummaryMapper(project);
             var query = new TestExecutionSummaryQuery(failuresOnly, failures, compoundResult, lazyValues);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
@@ -782,10 +825,21 @@ public class ProjectsController {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
 
+        return testsSummaryMapper(project).mapToTestUnitResult(testCase, testUnit,
+                TestExecutionSummaryQuery.inFull());
+    }
+
+    /**
+     * The mapper that reads a test run of the given project.
+     *
+     * <p>It is built per request: what it needs — how spreadsheet results are named, and which module holds
+     * each table — belongs to the project as it stands now.
+     */
+    private TestsExecutionSummaryResponseMapper testsSummaryMapper(RulesProject project) {
         var objectMapper = objectMapperService.createObjectMapper();
-        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, getSchemaGenerator(objectMapper),
-                projectService.getSpreadsheetResultNamingStrategy());
-        return mapper.mapToTestUnitResult(testCase, testUnit, TestExecutionSummaryQuery.inFull());
+        return new TestsExecutionSummaryResponseMapper(objectMapper, getSchemaGenerator(objectMapper),
+                projectService.getSpreadsheetResultNamingStrategy(),
+                projectService.getTableModules(project));
     }
 
     /**

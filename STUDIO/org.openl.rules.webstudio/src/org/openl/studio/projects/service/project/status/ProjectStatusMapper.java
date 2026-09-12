@@ -46,4 +46,20 @@ public interface ProjectStatusMapper {
      * @return populated status view
      */
     ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model);
+
+    /**
+     * Build a status view reporting how far a running compilation has come.
+     *
+     * <p>It carries the compile state and the module counts and names, and leaves out what a compilation in
+     * progress cannot answer cheaply: every message resolved to its table, and the changes not committed yet,
+     * which a compilation does not touch anyway.
+     *
+     * <p>This is the flavour raised from a thread that holds the model while it compiles, so the reader sees
+     * the progress as it happens rather than all at once at the end.
+     *
+     * @param project workspace project to inspect
+     * @param model   project model to read compilation info from
+     * @return status view carrying the progress of the compilation
+     */
+    ProjectStatusViewModel mapProgress(RulesProject project, @Nullable ProjectModel model);
 }

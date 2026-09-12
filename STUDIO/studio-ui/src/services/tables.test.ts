@@ -7,6 +7,7 @@ import { copyTable, createTable, getDatatype, getProjectTables, getTableCopyInfo
 vi.mock('./apiCall', () => ({
     default: vi.fn(),
     asArray: (value: unknown) => Array.isArray(value) ? value : [],
+    LOCAL_LOAD_API_OPTIONS: { throwError: true, suppressErrorPages: true },
 }))
 vi.mock('../i18n', () => ({
     default: {

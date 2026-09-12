@@ -7,5 +7,6 @@ Content-Type: application/json
   "kind": "Test",
   "name": "attributesTest",
   "file": "***",
+  "sheet": "TestData",
   "pos": "B2:C5"
 }

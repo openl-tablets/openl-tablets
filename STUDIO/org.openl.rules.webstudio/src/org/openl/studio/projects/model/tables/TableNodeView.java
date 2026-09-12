@@ -60,6 +60,9 @@ public abstract class TableNodeView {
     @Schema(description = "Name of the project that owns the table")
     public final String project;
 
+    @Schema(description = "Module the table is written in, so a reader can be sent to it")
+    public final String module;
+
     @Schema(description = "Identifiers of the tables this table depends on")
     public final Set<String> dependencies;
 
@@ -75,6 +78,7 @@ public abstract class TableNodeView {
         this.file = builder.file;
         this.pos = builder.pos;
         this.project = builder.project;
+        this.module = builder.module;
         this.dependencies = builder.dependencies;
         this.dependents = builder.dependents;
     }
@@ -88,6 +92,7 @@ public abstract class TableNodeView {
         private String file;
         private String pos;
         private String project;
+        private String module;
         private Set<String> dependencies;
         private Set<String> dependents;
 
@@ -130,6 +135,11 @@ public abstract class TableNodeView {
 
         public T project(String project) {
             this.project = project;
+            return self();
+        }
+
+        public T module(String module) {
+            this.module = module;
             return self();
         }
 

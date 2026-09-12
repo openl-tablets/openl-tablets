@@ -313,6 +313,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
+    /**
+     * The workspace of the user this studio belongs to.
+     *
+     * <p>Reachable from any thread: the studio holds the user's session, so work carried out for it — a module
+     * compiled in the background, say — needs no HTTP request of its own to find the workspace.
+     */
+    public UserWorkspace getUserWorkspace() {
+        return rulesUserSession.getUserWorkspace();
+    }
+
     public RulesProject getCurrentProject() {
         if (currentProject != null) {
             String projectFolder = currentProject.getProjectFolder().getFileName().toString();

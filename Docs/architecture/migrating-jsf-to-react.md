@@ -236,6 +236,134 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   `/user/topic/compare/{id}/status` → `GET /compare/{id}`) and Run (`POST /projects/{id}/run` →
   `/topic/projects/{id}/tables/{tableId}/run/status`) are built this way. What is reported to one user
   is sent to that user, so the client subscribes to it under `/user`.
+- When the work is a **compilation**, none of that is built again: it already reports on the project's status
+  channel, which names each module as it finishes (`compilation.modules.compiledModules`). So opening a module
+  is `POST /projects/{id}/modules/{name}/compile`, which answers `202` the moment the work is handed over, and
+  the screen follows the channel it already subscribes to. The session-scoped collaborators the work needs are
+  out of reach of a background thread, so the request thread looks them up and the task carries them along.
+- **A read that waits has to be found in every path, not just the obvious one.** The tables *list* was the
+  visible one; the body of a single table went through `getOpenLTable`, which opened the project's first module
+  and joined the whole compilation — so the editor let the reader in on time and then hung on the first table it
+  drew. Every read the screen makes takes the module: the list, the table, and the tests that cover it.
+- **What the user set for themselves still applies — and the screen, not the server, applies it.** The Editor
+  has always obeyed the profile's Table Settings, so the new screen obeys them too: Default Order picks the
+  grouping the tree opens on, Show Formulas draws the formula a cell was written with, Show Header puts the
+  header away. None of them is a request parameter: a display choice that changes nothing about what the server
+  knows does not belong in the contract, and a read per setting is a read too many. What the server owes the
+  screen is where things are — every cell carries both its `value` and the `formula` behind it, and the table
+  says in `headerHeight` how many rows its header takes (the header line, a properties section, the service rows
+  of a decision table — read from the engine's own business view of that table). The screen chooses; when
+  editing arrives it sends back whichever of the two the author edited.
+- **A rail of hundreds of tables draws the rows it shows.** The tree is virtualised (`height`, `itemHeight`
+  and `scrollWidth` on Ant Design's `Tree`), so scrolling paints a screenful rather than a module. Without it
+  every node sits in the DOM and the widest of them is measured across all of them, which is why a long tree
+  scrolled to a blank page and filled in once the scrolling stopped.
+- **The tree tells the versions of one table apart, and the server is what tells it.** A table written in
+  several versions is several tables carrying one name, and which of them answers a call is decided by its
+  dimension properties. What makes two tables versions of one another is known only to the compiler's own
+  dictionary of overloads, so the list carries the answer: each version says the signature they share
+  (`overloadGroup`) and the name that tells it from the others — `displayName`, which reads
+  `CarPrice [effectiveDate=01/01/2020]`, written out once, by the server, from the property dictionary. The
+  tree then gathers them under a folder of the shared name in whichever view is open, where the legacy Editor
+  kept them — even where a branch holds a single version, so a version is always found in the same place. A
+  table switched off by its `active` property says so (`active: false`, inherited values included) and is drawn
+  faint, as it was drawn there.
+- **Whatever names a table names where it lives — the project and the module, never just the module.** A test
+  that exercises a table is a table of its own, written where its author put it: another module, or a module of
+  a project this one depends on. The same is true of a word in a cell that names a rule, and of a compilation
+  message. So each of them carries the module *and* the project it belongs to, and the screen builds the address
+  from what it was given rather than from the screen it is on — a test written in `AutoPolicyTests` opened under
+  `AutoPolicyCalculation` is a link that looks as if it worked. Where the session cannot address the project —
+  it is not open in the workspace — nothing is offered to click, and the reader is told where the table lives
+  instead.
+- **A read that names a module is answered about that module.** `GET /projects/{id}/tables/{tableId}?module=X`
+  used to fall back to a project-wide lookup when the module did not hold the table, so a wrong link drew one
+  module's table on another module's screen, under the wrong tree and the wrong actions. It now answers "not
+  found in module X", which is what the screen shows. Asked without a module, the lookup spans the project as
+  it always has.
+- **A problem leads to the table it was raised against, and asks nothing to do it.** Every compilation message
+  already carries where it came from — the project, the module, the table and the cell — so the list makes each
+  message a link built from what it already holds: a project raising a thousand of them still costs no request.
+  The project is part of that, because a message can be raised in a project this one depends on, and the reader
+  has to be sent there rather than to the project being compiled. While a module is being compiled the links
+  stand still, for the same reason the module list does.
+- **What the compiler said about the table is shown with the table.** The read of a table carries its own
+  messages, so they sit in a foldable section above it, the way the legacy editor kept its Problems block —
+  the project's other messages stay in the panel at the foot of the screen. Both draw through one component,
+  so a message reads the same wherever it is shown.
+- **What the compiler knows about a cell rides on the read of the table, not on a call of its own.** The raw
+  read already takes `styles=true` and hangs a style on each cell; `metaInfo=true` hangs the same shape beside
+  it — the pieces of the cell's text the compiler resolved as ranges over that text, the type the cell holds,
+  the return-cell mark, and the editor the cell asks for. Read together with the cells, it always describes the
+  very cells that were returned; a call of its own would repeat the window and drift from it. A usage names the
+  table it leads to by the identifier the Tables API addresses a table by — never the location the engine keeps
+  it at, which is what the legacy pages passed around — and the module that table is read through, because the
+  editor opens a module and reads a table through it. The ranges are measured over the value a cell holds, so
+  a cell shown as the formula it was written with is drawn plain — which is what the legacy editor did, where
+  the formula replaced the marked content rather than being marked itself.
+- **A table is described by every property that applies to it, not only by the ones it declares.** A property
+  written on a module's or a category's properties table applies to every table under it, and the engine already
+  works this out while it binds: each table carries what it declares, what it inherits and, for each inherited
+  value, the properties table it came from. `GET /projects/{id}/tables/{tableId}/details` answers that whole
+  picture — the groups the property dictionary names, and for each value whether it is the table's own — so the
+  screen shows it in a panel down the right-hand side, where the legacy Editor kept Table Details, with the
+  inherited ones leading to the properties table they come from. This is what a reader needs most when the
+  table's header is hidden: an inherited value appears nowhere else on screen. Values cross in the same form as
+  the rest of the table API, a date in ISO-8601, so the screen shows them in the reader's own format.
+- **Nothing may animate a painted property while a reader scrolls.** The compiling indicator beat with a
+  `box-shadow`, which the page paints — so every frame recalculated style and repainted, and the browser's own
+  trace of a scroll over a large table showed 346 style recalculations and 610 paints in four seconds, with the
+  GPU process pegged and the screen going blank behind the scroll. The same scroll with the animation silenced
+  cost one style recalculation and one paint. The beat is a ring moved by `transform` and `opacity` now, which
+  is the compositor's own work: 6 paints for the same scroll.
+- **A table is drawn at the width its values need, not the width of the screen.** Squeezing a table of several
+  hundred columns into the page gives each column a few characters and wraps every value into a tower of
+  lines: a table 10,000 x 6,700 px where the same table laid out naturally is 32,000 x 700 — three times the
+  pixels to paint, and unreadable besides. The screen it sits on scrolls instead.
+- **A tall table arrives a window at a time.** The read takes `startRow` and `maxRows` and answers `totalRows`,
+  so the screen draws the first window and fetches the rest as the reader asks for it.
+- **Read what is ready, not what is finished.** Opening a module compiles that module before the rest of the
+  project, so `GET /projects/{id}/tables?module={name}` answers as soon as that module is done and never waits
+  for the modules after it — on a large project, minutes of waiting for work nobody asked about. The editor
+  renders on the first status naming its module, while the rest go on compiling behind the open screen. The
+  same read without `module` still waits for the whole project, so no existing caller changes.
+- **A progress report cannot wait for the work it reports on.** Opening a module compiles it while the
+  project model's own monitor is held — minutes, on a large project — and most of the status is read under
+  that same monitor, so a status handed off to another thread waited for the compilation it was reporting on
+  and arrived as one burst at the end. What the compiling thread can read without waiting (the module counts
+  and the names already built) it publishes itself, as a progress-only status; the full one — every message
+  resolved to its table, the tests counted over every method, and what is not committed yet — follows once the
+  monitor is free. Updates handed off are coalesced, since the hand-off reads the status when it runs, not when
+  it was asked to. A screen reading a progress status is therefore told how many problems there are but not
+  which: the problems panel stands on those counts, or it would vanish under its reader for as long as a
+  compilation lasts and come back when it ended.
+- **"Compiled" must mean compiled.** The status names the modules already built, and the module being opened
+  used to be named from the moment it was asked for — its compilation finishes inside `setModuleInfo`, so by
+  the time anyone could read the status it was true. Once the compiling thread reports its own progress it is
+  no longer true, and a screen waiting for its module was let in before the module existed, only to hang on
+  the first read. The model now says whether the opened module is compiled, and the status answers with it.
+- **Work carried out for a session must not need the session's request.** A compilation handed to a
+  background thread reached for the HTTP session twice — the local repository a module's history is written
+  to, and the path that history is kept at — and found none, so the work failed quietly behind a debug log and
+  a refresh looked like it did nothing. The studio holds the user's session, so the work asks it
+  (`WebStudio.getUserWorkspace()`) instead of the thread it happens to run on.
+- **Asking how a compilation is going must not wait for it.** Reading the status used to take the model's own
+  lock, which a compilation holds from its first module to its last — so the projects list froze for minutes
+  whenever any module was being built. The status is read from what the compilation has already published, so
+  it answers at once; a read a moment before a module finishes simply does not count that module.
+- **A wait the reader did not ask for can be ended.** Compiling a large project takes minutes, so the waiting
+  screen offers to stop it: `DELETE /projects/{id}/modules/{name}/compile` answers at once, the module being
+  compiled at that moment is finished — a module cannot be abandoned halfway — and nothing after it is started.
+  The engine already had the switch (a dependency manager that is no longer active answers every request as an
+  interrupted compilation); what was added is asking for it, and a `cancelled` compile state, since a
+  compilation that stopped is neither running nor finished. What was compiled stays readable — a read waiting
+  on a stopped compilation is answered with it, not with an error — and the next request to compile the module
+  builds it from the workbook, whether or not it asks for a reset: opening a module already open compiles
+  nothing, so a compilation that was stopped would otherwise never start again.
+- **Refreshing is compiling again, not asking again.** Opening a module already open compiles nothing, so
+  Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
+  workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a
+  module means.
 - When such work is shown in a window of its own, let **the new window start it**, telling it what to do in
   the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
   window afterwards opens it after an `await`, when the click no longer counts as user activation and a

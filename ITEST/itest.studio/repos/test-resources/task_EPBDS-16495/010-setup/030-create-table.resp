@@ -9,6 +9,7 @@ Content-Type: application/json
   "returnType": "String",
   "signature": "Categorize(Integer x)",
   "file": "*",
+  "sheet": "Categorize",
   "pos": "B2:C4"
 }
 

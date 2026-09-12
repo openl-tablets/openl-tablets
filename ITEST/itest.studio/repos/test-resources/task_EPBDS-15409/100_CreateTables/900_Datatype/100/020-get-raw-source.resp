@@ -47,5 +47,6 @@ Content-Type: application/json
         "cell": "D97"
       }
     ]
-  ]
+  ],
+  "headerHeight": 1
 }

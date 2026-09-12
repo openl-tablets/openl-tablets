@@ -20,7 +20,7 @@ class ExecutionBenchmarkResultRegistryTest {
     private ProjectIdModel otherProjectId;
 
     private static BenchmarkMeasurement measurement(String id) {
-        return new BenchmarkMeasurement(id, "table1", "Table", true, null, 1, 10, 3_000_000_000L, List.of());
+        return new BenchmarkMeasurement(id, "table1", "Main", "Table", true, null, 1, 10, 3_000_000_000L, List.of());
     }
 
     private static List<String> idsOf(List<BenchmarkMeasurement> measurements) {

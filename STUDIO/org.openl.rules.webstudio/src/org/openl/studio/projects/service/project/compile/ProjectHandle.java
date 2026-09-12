@@ -1,5 +1,8 @@
 package org.openl.studio.projects.service.project.compile;
 
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
+
 import org.openl.rules.ui.ProjectModel;
 
 /**
@@ -35,10 +38,22 @@ public interface ProjectHandle {
     /**
      * Convenience: wait for the compilation to finish and return the (now
      * compiled) project model. Re-throws compilation failures wrapped in a
-     * {@link java.util.concurrent.CompletionException}.
+     * {@link CompletionException}.
+     *
+     * <p>A compilation the reader stopped counts as finished. What was compiled by then stays readable, and it
+     * is the project status that says the rest was never built — a reader who ended the wait is not answered
+     * with an error for every read afterwards.
      */
     default ProjectModel awaitCompiled() {
-        compilation().future().join();
+        try {
+            compilation().future().join();
+        } catch (CancellationException stopped) {
+            // The reader asked for the wait to end; what was compiled by then is the answer.
+        } catch (CompletionException failed) {
+            if (!(failed.getCause() instanceof CancellationException)) {
+                throw failed;
+            }
+        }
         return project();
     }
 }

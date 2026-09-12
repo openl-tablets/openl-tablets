@@ -1,3 +1,5 @@
+import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
+
 import type { TraceParameterValue } from './trace'
 
 /** Excel cell style read from the workbook; every field is optional and absent when it is the default. */
@@ -22,6 +24,8 @@ export interface RawTableCell {
     cell?: string
     /** Typed cell value (number, string, boolean), or absent when empty */
     value?: string | number | boolean | null
+    /** The formula the cell was written with, as Excel writes it (`=B2*C2`); absent for a plain value */
+    formula?: string
     /** Number of columns this cell spans (>= 2), when merged */
     colspan?: number
     /** Number of rows this cell spans (>= 2), when merged */
@@ -30,6 +34,40 @@ export interface RawTableCell {
     covered?: boolean
     /** Excel cell style, present only when the raw table was requested with `styles=true` */
     style?: RawTableCellStyle
+    /** What the compiler knows about the cell, present only when the read asked with `metaInfo=true` */
+    metaInfo?: RawTableCellMetaInfo
+}
+
+/** What a piece of a cell's text refers to, as the compiler read it. */
+export type RawTableUsageKind = 'rule' | 'datatype' | 'data' | 'field' | 'underlined' | 'other'
+
+/** One piece of a cell's text the compiler resolved to something. */
+export interface RawTableCellUsage {
+    /** Index of the first character of the cell's text the usage covers */
+    start: number
+    /** Index after the last character it covers */
+    end: number
+    /** What the compiler says about it, shown as a tooltip */
+    description: string
+    /** The table it refers to, as the Tables API addresses it; absent when it refers to no table */
+    tableId?: string
+    /** The module that table is read through; absent when no module of the workspace holds it */
+    module?: string
+    /** The project that module belongs to, which for a table of a dependency is not the one being read */
+    projectId?: string
+    kind: RawTableUsageKind
+}
+
+/** What the compiler knows about one cell, beside what the cell says. */
+export interface RawTableCellMetaInfo {
+    /** The pieces of the cell's text that refer to something, in the order they appear */
+    usages?: RawTableCellUsage[]
+    /** The type the cell holds, as the compiler names it */
+    type?: string
+    /** True when this is the cell a decision table returns */
+    returnCell?: boolean
+    /** The editor the cell asks for */
+    editor?: string
 }
 
 export interface RawTableCellInput {
@@ -105,6 +143,48 @@ export interface ProjectTable {
     returnType?: string
     /** The header text after the return type, as the compiler reads it: `Premium(Policy policy, Integer age)`. */
     signature?: string
+}
+
+/**
+ * A table of one module, as the editor's tree reads it.
+ *
+ * The tree is grouped in the browser, so the list carries everything a grouping can be built from rather than a
+ * shape the server chose.
+ */
+export interface ModuleTable extends ProjectTable {
+    /** The family the table belongs to: `Rules`, `Spreadsheet`, `Datatype`, `Test`, ... */
+    kind: string
+    /** Workbook the table is written in, relative to the workspace. */
+    file?: string
+    /** Excel sheet the table is written on — what the tree groups by when it opens. */
+    sheet?: string
+    /** Where the table sits in the workbook, in A1 notation: `B3:D8`. */
+    pos?: string
+    /** The properties the table declares, `category` among them. */
+    properties?: Record<string, unknown>
+    /**
+     * The name that tells this version of the table from the others, carrying what they are told apart by:
+     * `CarPrice [effectiveDate=01/01/2020]`. Absent unless the table is written in more than one version.
+     */
+    displayName?: string
+    /** What the versions of one table share, and no other table carries. Absent unless there is more than one. */
+    overloadGroup?: string
+    /** `false` on a table switched off by the `active` property, which takes no part in the rules. */
+    active?: boolean
+}
+
+/** A table in raw tabular form: a 2D matrix of cells with merge geometry. */
+export interface RawTableView {
+    id: string
+    name: string
+    /** The table body as a 2D matrix indexed source[row][col] */
+    source: RawTableCell[][]
+    /** Full row count when the response was truncated by maxRows; absent when the whole table is returned */
+    totalRows?: number
+    /** How many rows at the top of the table its header takes, which a screen hiding the header leaves out */
+    headerHeight?: number
+    /** What the compiler said about this table — the errors and warnings it raised, if any */
+    messages?: ProjectStatusDetailedMessage[]
 }
 
 /** One field a Datatype table declares. */

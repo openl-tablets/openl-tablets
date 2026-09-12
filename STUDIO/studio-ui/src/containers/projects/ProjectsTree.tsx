@@ -53,49 +53,10 @@ const useStyles = createStyles(({ css, token }) => ({
             min-width: max-content;
         }
     `,
+    /** The tree is laid out at the width its names need; the body around it is what scrolls. */
     tree: css`
-        background: transparent;
         width: max-content;
         min-width: 100%;
-
-        .ant-tree-treenode {
-            padding-bottom: 0;
-            white-space: nowrap;
-            align-items: center;
-        }
-
-        /* The rail is narrow: every step of the hierarchy costs width, so it stays small. */
-        .ant-tree-indent-unit {
-            width: 12px;
-        }
-
-        .ant-tree-switcher {
-            width: 18px;
-            line-height: 24px;
-        }
-
-        .ant-tree-node-content-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            min-height: 24px;
-            line-height: 24px;
-            padding: 0 4px;
-            overflow: visible;
-        }
-
-        /* A name is read in full, on one line: the section scrolls sideways instead of clipping it. */
-        .ant-tree-title,
-        .ant-tree-node-content-wrapper .ant-tree-title {
-            overflow: visible;
-            text-overflow: clip;
-            white-space: nowrap;
-        }
-
-        .ant-tree-iconEle {
-            width: auto;
-            line-height: 24px;
-        }
     `,
     node: css`
         display: inline-flex;
@@ -442,7 +403,7 @@ export const ProjectsTree = ({
                 <Tree
                     blockNode
                     showIcon
-                    className={styles.tree}
+                    className={cx(shared.railTree, styles.tree)}
                     data-testid="projects-tree"
                     expandedKeys={openKeys}
                     onExpand={keys => setExpanded(keys as string[])}

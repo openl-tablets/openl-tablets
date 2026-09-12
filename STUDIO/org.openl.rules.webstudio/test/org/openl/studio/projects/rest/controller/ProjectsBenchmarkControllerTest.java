@@ -58,7 +58,7 @@ class ProjectsBenchmarkControllerTest {
     private ProjectsBenchmarkController controller;
 
     private static BenchmarkMeasurement measurement() {
-        return new BenchmarkMeasurement("m1", TABLE_ID, "PolicyTest", true, null, 2, 128, 3_200_000_000L, List.of());
+        return new BenchmarkMeasurement("m1", TABLE_ID, "Main", "PolicyTest", true, null, 2, 128, 3_200_000_000L, List.of());
     }
 
     private void tableIsExecutedBy(IOpenMethod method) {

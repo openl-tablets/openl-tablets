@@ -140,7 +140,13 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
         const kind = row.runTable ? 'runs' : 'cases'
         return (
             <Space size={4}>
-                <TableLink data-testid={`benchmark-table-${row.id}`} onOpen={onClose} tableId={row.tableId}>
+                <TableLink
+                    data-testid={`benchmark-table-${row.id}`}
+                    module={row.module}
+                    onOpen={onClose}
+                    projectId={projectId}
+                    tableId={row.tableId}
+                >
                     {row.name}
                 </TableLink>
                 {row.testTable && <Tag>{t(`tests.${kind}`, { count: row.testCases })}</Tag>}

@@ -91,5 +91,6 @@ Content-Type: application/json
         "value": "Good Night, World!"
       }
     ]
-  ]
+  ],
+  "headerHeight": 1
 }

@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react'
-import { Button, Checkbox, notification, Tooltip } from 'antd'
+import React, { useState } from 'react'
+import { Button, Checkbox, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useEventProject } from 'hooks'
 import { launchTrace } from 'services/traceLaunch'
@@ -33,17 +33,6 @@ const TraceLaunch: React.FC<TraceLaunchProps> = ({ detail, project, onClose }) =
             .finally(() => setStarting(false))
     }
 
-    // A table that asks for nothing is traced at once, so what went wrong has nowhere to be shown but a message.
-    const traceAtOnce = useCallback((value: TableLaunchValue) => {
-        setStarting(true)
-        launchTrace({ projectId: project.id, tableId: detail.tableId, ...value, advanced, showRealNumbers })
-            .then(onClose)
-            .catch(launchError => {
-                notification.error({ title: t('launch.startFailed'), description: errorMessage(launchError) })
-                onClose()
-            })
-    }, [project.id, detail.tableId, advanced, showRealNumbers, onClose, t])
-
     return (
         <TableInputLauncher
             busy={starting}
@@ -52,7 +41,6 @@ const TraceLaunch: React.FC<TraceLaunchProps> = ({ detail, project, onClose }) =
             error={error}
             onClose={onClose}
             onError={setError}
-            onNothingToAsk={traceAtOnce}
             project={project}
             actions={collect => (
                 <>
@@ -102,7 +90,8 @@ const TraceLaunch: React.FC<TraceLaunchProps> = ({ detail, project, onClose }) =
  * Opens the trace launcher under the Trace button of the table page.
  *
  * The page sends the project id, the table and where the button is. A rule table is traced with the input the
- * panel collects, a test table with the one case picked, and a table that takes nothing is traced at once.
+ * panel collects, and a test table with the one case picked. A table that takes no parameters is asked all the
+ * same: the panel carries the settings of the trace and the trace into a file.
  */
 export const TraceLaunchHost: React.FC = () => {
     const { detail, project, close } = useEventProject<TraceLaunchDetail>('openTraceLaunch', 'trace:launch.loadFailed')

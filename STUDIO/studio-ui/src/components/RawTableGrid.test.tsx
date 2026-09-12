@@ -13,6 +13,8 @@ const rows: RawTableCell[][] = [
     ],
 ]
 
+const computed: RawTableCell[][] = [[{ cell: 'A1', value: 3, formula: '=1+2' }, { cell: 'B1', value: 'plain' }]]
+
 describe('RawTableGrid', () => {
     it('draws the cells with their merges, leaving the covered ones out', () => {
         render(<RawTableGrid rows={rows} testId="grid" />)
@@ -82,5 +84,36 @@ describe('RawTableGrid', () => {
         render(<RawTableGrid rows={[]} testId="grid" />)
 
         expect(screen.getByTestId('grid').querySelectorAll('td')).toHaveLength(0)
+    })
+
+    it('draws what a cell computed, and the formula behind it when the screen asks', () => {
+        const { rerender } = render(<RawTableGrid rows={computed} testId="grid" />)
+        expect(screen.getByTestId('grid').querySelectorAll('td')[0]).toHaveTextContent('3')
+
+        rerender(<RawTableGrid formulas rows={computed} testId="grid" />)
+
+        const cells = screen.getByTestId('grid').querySelectorAll('td')
+        expect(cells[0]).toHaveTextContent('=1+2')
+        // A cell written as a plain value has no formula to show, so it reads the same either way.
+        expect(cells[1]).toHaveTextContent('plain')
+    })
+
+    it('leaves the formula unmarked: what the compiler knows describes the value, not the formula', () => {
+        const marked: RawTableCell[][] = [[{
+            cell: 'A1',
+            value: 'Premium',
+            formula: '=B1&C1',
+            metaInfo: { usages: [{ start: 0, end: 7, description: 'Rules Double Premium()', kind: 'rule' }] },
+        }]]
+
+        const { rerender } = render(<RawTableGrid rows={marked} testId="grid" />)
+        expect(screen.getByTestId('cell-usage-0')).toHaveTextContent('Premium')
+
+        rerender(<RawTableGrid formulas rows={marked} testId="grid" />)
+
+        // The ranges are measured over the value, so on the formula they would mark whatever happened to be
+        // at those positions — and lead somewhere else entirely.
+        expect(screen.queryByTestId('cell-usage-0')).toBeNull()
+        expect(screen.getByTestId('grid').querySelectorAll('td')[0]).toHaveTextContent('=B1&C1')
     })
 })

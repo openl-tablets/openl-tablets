@@ -32,7 +32,11 @@ public final class TableTestProjects {
     private TableTestProjects() {
     }
 
-    /** Write a single-sheet workbook holding one table that starts at cell B2. {@code null} cells stay blank. */
+    /**
+     * Write a single-sheet workbook holding one table that starts at cell B2. {@code null} cells stay blank.
+     *
+     * <p>A cell written as {@code =…} becomes an Excel formula, the way it does when it is typed into Excel.
+     */
     public static Path writeProject(Path dir, String name, String sheetName, String[][] grid) throws IOException {
         return writeProject(dir, name, sheetName, grid, false);
     }
@@ -52,13 +56,21 @@ public final class TableTestProjects {
                 var sheetRow = sheet.createRow(r + 1);
                 for (var c = 0; c < grid[r].length; c++) {
                     if (grid[r][c] != null) {
-                        sheetRow.createCell(c + 1).setCellValue(grid[r][c]);
+                        var cell = sheetRow.createCell(c + 1);
+                        if (grid[r][c].startsWith("=")) {
+                            cell.setCellFormula(grid[r][c].substring(1));
+                        } else {
+                            cell.setCellValue(grid[r][c]);
+                        }
                     }
                 }
             }
             if (mergeHeaderRow) {
                 sheet.addMergedRegion(new CellRangeAddress(1, 1, 1, grid[0].length));
             }
+            // Excel saves what a formula computed alongside the formula; evaluating here writes the same,
+            // so a test reads the workbook a user would have saved.
+            workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
             try (OutputStream out = Files.newOutputStream(dir.resolve(name + ".xlsx"))) {
                 workbook.write(out);
             }

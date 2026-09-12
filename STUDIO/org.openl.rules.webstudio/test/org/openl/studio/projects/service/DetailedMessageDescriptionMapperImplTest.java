@@ -8,7 +8,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,17 +20,23 @@ import org.junit.jupiter.api.Test;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
 
 class DetailedMessageDescriptionMapperImplTest {
 
-    private final DetailedMessageDescriptionMapperImpl mapper = new DetailedMessageDescriptionMapperImpl();
+    private final ProjectIdentifierMapper projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
+    private final DetailedMessageDescriptionMapperImpl mapper = new DetailedMessageDescriptionMapperImpl(
+            projectIdentifierMapper);
 
     private ProjectModel model;
 
@@ -36,6 +45,28 @@ class DetailedMessageDescriptionMapperImplTest {
         model = mock(ProjectModel.class);
         when(model.getAllTableSyntaxNodes()).thenReturn(Set.of());
         when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(null);
+    }
+
+    /** A module of the workspace, named and sitting at the location its tables are addressed under. */
+    private static Module module(String name, String uri) {
+        var module = mock(Module.class);
+        when(module.getName()).thenReturn(name);
+        when(module.getRulesRootPath()).thenReturn(uri);
+        when(module.getRelativeUri()).thenReturn(uri);
+        return module;
+    }
+
+    /** A workspace that has compiled the given modules, as the dependency loaders report them. */
+    private static WebStudioWorkspaceRelatedDependencyManager workspaceOf(Module... modules) {
+        var loaders = Arrays.stream(modules).map(module -> {
+            var loader = mock(IDependencyLoader.class);
+            when(loader.isProjectLoader()).thenReturn(false);
+            when(loader.getModule()).thenReturn(module);
+            return loader;
+        }).toList();
+        var dependencyManager = mock(WebStudioWorkspaceRelatedDependencyManager.class);
+        when(dependencyManager.getDependencyLoaders()).thenReturn(List.copyOf(loaders));
+        return dependencyManager;
     }
 
     private static OpenLMessage message(String sourceLocation) {
@@ -56,14 +87,7 @@ class DetailedMessageDescriptionMapperImplTest {
 
     @Test
     void resolvesAMessageToItsOwningModule() {
-        var module = mock(Module.class);
-        when(module.getName()).thenReturn("Rating");
-        when(module.containsTable("uri")).thenReturn(true);
-        var loader = mock(IDependencyLoader.class);
-        when(loader.isProjectLoader()).thenReturn(false);
-        when(loader.getModule()).thenReturn(module);
-        var dependencyManager = mock(WebStudioWorkspaceRelatedDependencyManager.class);
-        when(dependencyManager.getDependencyLoaders()).thenReturn(List.of(loader));
+        var dependencyManager = workspaceOf(module("Rating", "uri"));
         when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(dependencyManager);
 
         var result = mapper.mapSorted(List.of(message("uri")), model);
@@ -126,5 +150,44 @@ class DetailedMessageDescriptionMapperImplTest {
 
         assertEquals(1, result.size());
         assertNull(result.getFirst().location());
+    }
+
+    @Test
+    void aMessageRaisedInADependencyNamesThatProjectAndNotTheOneBeingCompiled() {
+        var dependency = new ProjectDescriptor();
+        dependency.setName("Shared Rules");
+        dependency.setProjectFolder(Path.of("/workspace/design/Shared Rules"));
+        var module = module("Shared", "uri");
+        when(module.getProject()).thenReturn(dependency);
+        var workspace = workspaceOf(module);
+        when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(workspace);
+        var studio = mock(WebStudio.class);
+        var project = mock(RulesProject.class);
+        when(studio.getProjects()).thenReturn(Map.of("design", List.of(dependency)));
+        when(studio.getProject("design", "Shared Rules")).thenReturn(project);
+        when(model.getStudio()).thenReturn(studio);
+        when(projectIdentifierMapper.map(project))
+                .thenReturn(ProjectIdModel.builder().repository("design").projectName("Shared Rules").build());
+
+        var result = mapper.mapSorted(List.of(message("uri")), model);
+
+        // The reader is sent to the project the message was raised in, which a dependency is.
+        var location = (ModuleMessageSource) result.getFirst().location();
+        assertEquals("Shared", location.name());
+        assertEquals("Shared Rules", location.project());
+        assertEquals(ProjectIdModel.builder().repository("design").projectName("Shared Rules").build().encode(),
+                location.projectId());
+    }
+
+    @Test
+    void aProjectTheSessionCannotNameLeavesTheMessageWhereItIs() {
+        var workspace = workspaceOf(module("Rating", "uri"));
+        when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(workspace);
+
+        var result = mapper.mapSorted(List.of(message("uri")), model);
+
+        var location = (ModuleMessageSource) result.getFirst().location();
+        assertEquals("Rating", location.name());
+        assertNull(location.projectId(), "a message names no project when the session cannot address one");
     }
 }

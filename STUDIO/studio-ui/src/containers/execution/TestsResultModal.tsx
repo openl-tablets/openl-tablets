@@ -159,10 +159,11 @@ type ReadCase = (tableId: string, caseId: string) => Promise<TestUnitResult>
 /** The results of the test units of one test table, a case to a row. */
 const TestTable: React.FC<{
     table: TestTableResult
+    projectId: string
     compoundResult: boolean
     readCase: ReadCase
     onOpenTable: () => void
-}> = ({ table, compoundResult, readCase, onOpenTable }) => {
+}> = ({ table, projectId, compoundResult, readCase, onOpenTable }) => {
     const { t } = useTranslation('execution')
 
     // A test table holds test cases; a Run table holds runs, because it states no expected values.
@@ -179,7 +180,9 @@ const TestTable: React.FC<{
                 <Title level={5} style={{ margin: 0 }}>
                     <TableLink
                         data-testid={`test-table-${table.tableId}`}
+                        module={table.module}
                         onOpen={onOpenTable}
+                        projectId={projectId}
                         tableId={table.tableId}
                         {...(!table.runTable && { type: table.numberOfFailures > 0 ? 'danger' : 'success' })}
                     >
@@ -378,6 +381,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                             key={table.tableId}
                             compoundResult={query.compoundResult}
                             onOpenTable={onClose}
+                            projectId={projectId}
                             readCase={readCase}
                             table={table}
                         />

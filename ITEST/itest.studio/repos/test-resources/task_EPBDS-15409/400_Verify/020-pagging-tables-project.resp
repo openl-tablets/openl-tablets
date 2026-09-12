@@ -9,6 +9,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Address",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B99:D105"
     },
     {
@@ -17,6 +18,7 @@ Content-Type: application/json
       "kind": "Data",
       "name": "addresses",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B88:G93"
     },
     {
@@ -27,6 +29,7 @@ Content-Type: application/json
       "returnType": "Integer",
       "signature": "AmPmTo24(Integer ampmHr, String ampm)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B2:D7"
     },
     {
@@ -37,6 +40,7 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "AssetsCompare()",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial6",
       "pos": "B24:C29"
     },
     {
@@ -45,6 +49,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "CountryCode",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "BankRating",
       "pos": "B2:B20"
     },
     {
@@ -53,6 +58,7 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "CoverageForm",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B111:D113"
     },
     {
@@ -63,6 +69,7 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "CoverageRate(CoverageForm coverageForm, Integer numberOfEmployees, String area)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B16:G23"
     },
     {
@@ -73,6 +80,7 @@ Content-Type: application/json
       "returnType": "Boolean",
       "signature": "Eligibility()",
       "file": "EPBDS-15409/rules/NewRules.xlsx",
+      "sheet": "Eligibility",
       "pos": "B2:C4"
     },
     {
@@ -83,6 +91,7 @@ Content-Type: application/json
       "returnType": "String",
       "signature": "Greeting1 (Integer hour)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Rules",
       "pos": "B2:D10"
     },
     {
@@ -93,6 +102,7 @@ Content-Type: application/json
       "returnType": "String",
       "signature": "Greeting4(Integer hour)",
       "file": "EPBDS-15409/Main.xlsx",
+      "sheet": "Tutorial3",
       "pos": "B9:D14"
     }
   ],

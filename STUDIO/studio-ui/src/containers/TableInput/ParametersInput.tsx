@@ -121,6 +121,12 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
         setError(parseText(json).error)
     }
 
+    // A table that declares nothing has nothing to fill in, in either form: the choice between them would be a
+    // choice of which emptiness to look at.
+    if (formParameters.length === 0) {
+        return null
+    }
+
     return (
         <Space orientation="vertical" size="small" style={{ width: '100%' }}>
             <Radio.Group

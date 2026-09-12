@@ -7,5 +7,6 @@ Content-Type: application/json
   "kind": "Datatype",
   "name": "TestType",
   "file": "*",
+  "sheet": "TestType",
   "pos": "*"
 }

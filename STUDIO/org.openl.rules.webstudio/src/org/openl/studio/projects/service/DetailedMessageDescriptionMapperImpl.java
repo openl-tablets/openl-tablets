@@ -7,14 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.project.instantiation.IDependencyLoader;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
@@ -22,9 +21,13 @@ import org.openl.studio.projects.model.project.status.DetailedMessageDescription
 import org.openl.studio.projects.model.project.status.MessageSource;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
+import org.openl.studio.projects.service.tables.TableModules;
 
 @Service
+@RequiredArgsConstructor
 public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDescriptionMapper {
+
+    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     private static final Comparator<DetailedMessageDescription> BY_SEVERITY_AND_ID = Comparator
             .<DetailedMessageDescription, org.openl.message.Severity>comparing(m -> m.source().severity())
@@ -35,7 +38,7 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         // A big project raises thousands of messages. Resolving each one against the model's tables and
         // modules independently rescanned every table twice per message; instead, index the tables and
         // modules once and look each message up against those indexes.
-        var locator = new MessageLocator(model);
+        var locator = new MessageLocator(model, projectIdentifierMapper);
         return messages.stream()
                 .map(message -> map(message, locator))
                 .sorted(BY_SEVERITY_AND_ID)
@@ -71,11 +74,12 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         }
 
         private final Map<String, List<TableEntry>> tablesBySheet;
-        private final List<Module> modules;
+        /** Where a table lives — a message can come from a module of a project this one depends on. */
+        private final TableModules tableModules;
 
-        MessageLocator(ProjectModel model) {
+        MessageLocator(ProjectModel model, ProjectIdentifierMapper projectIdentifierMapper) {
             tablesBySheet = indexTables(model);
-            modules = indexModules(model);
+            tableModules = TableModules.ofWorkspace(model, projectIdentifierMapper);
         }
 
         MessageSource resolve(OpenLMessage message) {
@@ -84,19 +88,25 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
                 return null;
             }
             var location = new XlsUrlParser(sourceLocation);
-            var moduleName = resolveModuleName(sourceLocation);
+            var where = tableModules.locationOf(sourceLocation);
             var node = findNode(location);
             if (node != null) {
                 var tableName = new TableSyntaxNodeAdapter(node).getDisplayName();
                 return TableMessageSource.builder()
                         .id(node.getId())
                         .name(tableName)
-                        .module(moduleName)
+                        .module(where == null ? null : where.module())
+                        .projectId(where == null ? null : where.projectId())
+                        .project(where == null ? null : where.projectName())
                         .cell(location.getCell())
                         .build();
             }
-            return moduleName != null
-                    ? ModuleMessageSource.builder().name(moduleName).build()
+            return where != null
+                    ? ModuleMessageSource.builder()
+                            .name(where.module())
+                            .projectId(where.projectId())
+                            .project(where.projectName())
+                            .build()
                     : null;
         }
 
@@ -113,21 +123,6 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
             return null;
         }
 
-        /**
-         * Walks every module dependency loader in the workspace (current project and any projects it
-         * depends on) and returns the {@link Module#getName() module name} whose rules root contains the
-         * supplied source location. Mirrors the lookup used by {@code WebStudio} and
-         * {@code WorkspaceProjectService} so the result matches what the rest of the UI shows.
-         */
-        private String resolveModuleName(String sourceLocation) {
-            for (Module module : modules) {
-                if (module.containsTable(sourceLocation)) {
-                    return module.getName();
-                }
-            }
-            return null;
-        }
-
         private static Map<String, List<TableEntry>> indexTables(ProjectModel model) {
             var index = new HashMap<String, List<TableEntry>>();
             for (TableSyntaxNode node : model.getAllTableSyntaxNodes()) {
@@ -137,24 +132,6 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
                 }
             }
             return index;
-        }
-
-        private static List<Module> indexModules(ProjectModel model) {
-            var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
-            if (dependencyManager == null) {
-                return List.of();
-            }
-            var modules = new ArrayList<Module>();
-            for (IDependencyLoader loader : dependencyManager.getDependencyLoaders()) {
-                if (loader.isProjectLoader()) {
-                    continue;
-                }
-                var module = loader.getModule();
-                if (module != null) {
-                    modules.add(module);
-                }
-            }
-            return modules;
         }
 
         private static String sheetKey(XlsUrlParser location) {
