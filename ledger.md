@@ -3,10 +3,10 @@
 ## Resume point
 
 - Open PR #2104 (`dead-code/compare-residue`): 4 commits, 13 files, 162 deletions, one commit per change type, body
-  matches the diff, no review yet. Nothing to do on it until a reviewer answers or `main` moves.
-- Swept head is `origin/main` e01088de. The EPBDS-16576 comparison vein is done; the 8 EPBDS-16415 commits after it
-  (97 files, 0 deletions) are additive and stranded nothing. Next vein: whatever merges after e01088de.
-- `origin/main` is red in ITEST and no rerun fixes it (see Human follow-ups) — never this PR's failure.
+  verified against the diff, no review yet. Nothing to do on it until a reviewer answers or `main` moves.
+- Swept head is `origin/main` e01088de, unchanged for three runs; no vein exists until something merges past it.
+- `origin/main` is red in ITEST and no rerun fixes it (Human follow-ups): the verification rail bars cleanup while
+  that stands, and the same failure on #2104 is never this PR's.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
 
 ## Change-type queue
@@ -27,8 +27,6 @@
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 |
 | 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-11 g; UiConst in #2104 |
 
-Public API is never in the queue: unused public members go to Deferred findings for a human decision.
-
 ## Open PR
 
 - #2104 `dead-code/compare-residue`, head 33329ccbe7, cut from `origin/main` e01088de. EPBDS-16576 residue.
@@ -40,9 +38,8 @@ Public API is never in the queue: unused public members go to Deferred findings 
 
 ## Merged PRs
 
-- 1906, 1909, 1911-1913, 1915, 1918, 1933, 1940, 2004, 2054, 2056, 2058, 2060, 2062-2063, 2082, 2088-2089, 2092,
-  2095-2096, 2101 — all merged; what each removed is covered by Exhausted veins. 2101 was rebase-merged, so one commit
-  per change type survived onto main: a repo-wide single-type commit is accepted as-is.
+- 22 sweep PRs merged (1906 through 2101); what each removed is covered by Exhausted veins. 2101 was rebase-merged, so
+  one commit per change type survived onto main: a repo-wide single-type commit is accepted as-is.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
 
 ## Module coverage
@@ -73,9 +70,10 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - ExpressionFactoryImpl.findExpression: compiled out by the constant toggle `_getFromCache = false` (JLS constant variable); a cache switch.
 - ITEST HttpData.writeBodyTo: only a commented-out call in HttpClient, but webstudio AGENTS.md documents toggling it to recapture fixtures.
 - JavaCC-generated BExGrammarTokenManager/SimpleCharStream carry unreferenced members; generated sources are never edited.
-- jQuery.sub in webapp/javascript/vendor/jquery-back-compat.js: no caller, but inside a vendored shim whose other shims are used.
-- Vendored CSS zero-hit tokens: bootstrap.min.css (clearfix, hide-text, input-block-level, pagination-*, typeahead, dropup, navbar-fixed-bottom, dropdown-submenu, pull-right), diff2html.css (selecting-left/-right).
-- tooltip.css skins green/red and position top_center: no caller passes them, but tooltip.js still handles them; removing CSS alone is half a removal.
+- Vendored zero-hit tokens, kept because a vendored file goes whole or not at all: jQuery.sub in jquery-back-compat.js;
+  bootstrap.min.css (clearfix, hide-text, input-block-level, pagination-*, typeahead, dropup, navbar-fixed-bottom,
+  dropdown-submenu, pull-right) and diff2html.css (selecting-left/-right). tooltip.css skins green/red and position
+  top_center stay for another reason: no caller passes them but tooltip.js still handles them, so CSS alone is half.
 - Transitive providers, not dead: jaxb-runtime in workspace, spring-core/spring-security-core in security.standalone, kafka-clients in ruleservice.kafka.
 - org.openl.rules.jackson in ruleservice.ws.common: only path to spring-core (BinarySchemaConverter); fix is 2 added declarations.
 - Test-jar executions in ruleservice and ruleservice.deployer include only org/openl/rules/ruleservice/test/* (absent) → publish empty jars; maven-plugin-plugin's reporting entry produces no report, and site.xml links plugin-info.html and 7 *-mojo.html nobody builds.
@@ -164,7 +162,6 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Java gate: never -DskipTests (skips test compile); ITEST needs -Pitest -DskipTestsForQuick=false; full `mvn clean install -Dquick -DnoPerf -T2` before push.
 - Regroup: one commit per change type per repo-wide pass; fold fixes with --fixup + autosquash; rerun detectors after a removal, because removing a param can leave a caller's param dead.
 - Order the commits so a referrer dies before the resources only it kept alive; an explicit `git rebase -i` todo through GIT_SEQUENCE_EDITOR both reorders and rewords in one pass.
-- Deletion-only PRs: Sonar "New Code" is wider than the diff and may be red for pre-existing findings; state that once, do not patch.
 - Compare the PR run's job list with the base commit's own run: a job red in both is pre-existing, not yours.
 - A "used undeclared" dependency is an addition, not a deletion: it belongs to the separate hygiene PR, never to this sweep.
 
@@ -198,7 +195,7 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - Members carrying instructions stay: `THIS CONSTRUCTOR MUST BE EMPTY!!!`, GenericComparator "use getInstance()" Javadoc.
 - Out of scope: openl-maven-plugin it/ fixtures, Docs/examples and Docs/production-deployment poms, archetype resources, test-resources gen/.
 - `test-resources/**` in every module (1014 non-workbook files outside ITEST): rail 5 names the pattern and the trees are folder-loaded fixtures; never judge single files. Workbooks under `test/` dirs are judged.
-- Icons by literal path (rules-tree, diff icons, site.webmanifest); ITEST 001-Get-Static-CSS asserts only status/content-type of common.css.
+- Icons by literal path (rules-tree, site.webmanifest); ITEST 001-Get-Static-CSS asserts only status/content-type of common.css.
 - War reachability is WEB-INF/lib, not compile: repositories are instantiated reflectively by class name from production-repository.factory.
 - SLF4J bridge log4j-slf4j2-impl runtime scope pinned by Log4jRoutingTest; swagger-core-jakarta is the deliberate substitute (root excludes swagger-core).
 
@@ -269,18 +266,17 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
 - Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
 - EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js deleted): swept for Java types, CSS, JS, images,
-  message bundles, common.js and studio-ui exports/locales; everything found is in #2101.
-- EPBDS-16576 residue (5 JSF diff pages, 13 controllers, diff2html, legacyCompare.ts deleted): swept for Java types
-  and members, .xhtml, CSS tokens, images, message keys, studio-ui locales and legacy JS; all of it is in #2104. The
-  218 methods the deleted controllers called all keep other callers; the diff module's own types stay reachable.
+  message bundles, common.js and studio-ui exports/locales; nothing left.
+- EPBDS-16576 residue (5 JSF diff pages, 13 controllers, diff2html, legacyCompare.ts deleted): swept the same way plus
+  Java members and message keys; all of it is in #2104. The 218 methods the deleted controllers called keep other
+  callers; the diff module's own types stay reachable.
 
 ## Human follow-ups
 
 - `origin/main` e01088de is RED: itest.studio.repos WebStudioTest.repos fails 5 requests. EPBDS-16415 moved workbooks
-  into a `rules/` folder and rewrote 21 fixtures to match but missed task_EPBDS-16576-conflicts/020-compare: `010-merge-
-  side-branch.post.resp:11` and `020-start-comparison.post.req:1` still name the flat path, so the list mismatches, the
-  next request 404s and 3 steps needing {COMPARISON} cascade. Rail 5 bars editing ITEST fixtures — the EPBDS-16415
-  author must insert `rules/` in those two lines.
+  into a `rules/` folder and rewrote 21 fixtures but missed task_EPBDS-16576-conflicts/020-compare, where `010-merge-
+  side-branch.post.resp:11` and `020-start-comparison.post.req:1` still name the flat path; the EPBDS-16415 author must
+  insert `rules/` in those two lines, since this routine may not edit ITEST fixtures.
 - Test bug: JAXRSOpenLServiceEnhancerTest.shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses enhances the wrong fixture interface.
 - Sonar: S2259 (NPE) in ComponentTypeArrayOpenClass.isAssignableFrom/isInstance (null-guard patch proposed in #2088), XlsBinder:523, ProjectModel:1214, TableEditorModel:106, TestDownloadController:144; S6466 CRITICAL WorkbookListener:273.
 - site.webmanifest names `android-chrome-512x512.pngs` (trailing s): the 512px icon is unreachable; one-character bug.
@@ -289,11 +285,11 @@ Public API is never in the queue: unused public members go to Deferred findings 
 - CI health: LockTest load tolerance; OracleRdbmsTest ORA-12516; itest.studio.repos createdAt tiebreaker; jacoco aggregate overlap; kafka-native:latest `setup` segfault (Pwd.getpwuid), which cost 3 CI attempts on one SHA and burns runner time on every PR.
 - OverviewPanel.tsx floating promise into a state setter (~lines 799/1231) is a real test defect at any speed.
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
-- Delete the stale remote branches dead-code/uncalled-methods and dead-code/uncalled-internal-methods; push --delete is 403 from the sandbox, retried and still blocked.
+- Delete the stale remote branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods and dead-code/openapi-layouts-residue (closed #2103); push --delete is 403 from the sandbox and the MCP tools offer no branch delete.
 - Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
 
 ## Run log
 
-- 2026-09-11 g: swept the EPBDS-16576 vein concurrently with another firing; it opened #2103 (subset).
 - 2026-09-11 h: opened #2104 (4 commits, 13 files, 162 deletions, superset), closed #2103; found main red in ITEST.
 - 2026-09-11 i: main still e01088de, no vein; #2104 body matches its diff and its one red job is red on main too.
+- 2026-09-12 a: main unmoved and still red, so no cleanup; re-verified #2104 against its diff and compacted the ledger.
