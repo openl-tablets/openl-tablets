@@ -47,6 +47,8 @@ import org.jspecify.annotations.Nullable;
  * @param colspan Number of columns this cell spans (>= 2 means merging, null if single column or covered)
  * @param rowspan Number of rows this cell spans (>= 2 means merging, null if single row or covered)
  * @param covered Whether this cell is covered by another cell's span (true for masked cells, null otherwise)
+ * @param style   Excel styling of the cell, when the read asked for it
+ * @param metaInfo What the compiler knows about the cell, when the read asked for it
  * @author Vladyslav Pikus
  */
 @Builder
@@ -81,7 +83,14 @@ public record RawTableCell(
         Boolean covered,
 
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        RawTableCellStyle style
+        RawTableCellStyle style,
+
+        @Schema(description = """
+                What the compiler knows about the cell: the pieces of its text that refer to something, the \
+                type it holds, whether a decision table returns it, and the editor it asks for. Read only \
+                when the read asks for it, and absent when the compiler has nothing to say.""")
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        @Nullable RawTableCellMetaInfo metaInfo
 ) {
 
     public static final RawTableCell COVERED_CELL = RawTableCell.builder().covered(true).build();
@@ -94,6 +103,7 @@ public record RawTableCell(
             colspan = null;
             rowspan = null;
             style = null;
+            metaInfo = null;
         } else {
             colspan = (colspan != null && colspan > 1) ? colspan : null;
             rowspan = (rowspan != null && rowspan > 1) ? rowspan : null;

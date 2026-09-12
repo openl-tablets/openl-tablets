@@ -1,5 +1,6 @@
 import React from 'react'
 import type { RawTableCell } from 'types/tables'
+import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { useStyles } from './RawTableGrid.styles'
 
 /** How the screen showing a table marks one of its cells. */
@@ -21,6 +22,8 @@ interface RawTableGridProps {
     decorate?: (cell: RawTableCell) => CellDecoration | undefined
     /** Draw the formula a cell was written with rather than the value it computed, where it has one. */
     formulas?: boolean
+    /** Follows a piece of a cell's text to the table it names; absent when this screen cannot go there. */
+    onOpenUsage?: OpenUsage | undefined
     testId?: string
 }
 
@@ -80,7 +83,25 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
  * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
  * this component and only says how its own cells are marked, so a table looks the same everywhere.
  */
-export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, formulas, testId }) => {
+/**
+ * The text of one cell, marked with what the compiler knows about it.
+ *
+ * What it knows describes the value the cell holds, and the ranges it marks are measured over that text. A
+ * cell shown as the formula it was written with is another text altogether, so it is drawn plain — which is
+ * what the legacy editor did, where the formula replaced the marked content.
+ */
+const cellText = (cell: RawTableCell, formulas: boolean, onOpenUsage?: OpenUsage) => {
+    const asFormula = formulas && Boolean(cell.formula)
+    return (
+        <RawTableCellText
+            metaInfo={asFormula ? undefined : cell.metaInfo}
+            onOpenUsage={onOpenUsage}
+            text={formatValue(asFormula ? cell.formula : cell.value)}
+        />
+    )
+}
+
+export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, formulas, onOpenUsage, testId }) => {
     const { styles, cx } = useStyles()
 
     return (
@@ -100,8 +121,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, form
                                     rowSpan={cell.rowspan}
                                     style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
                                 >
-                                    {decoration?.content
-                                        ?? formatValue(formulas && cell.formula ? cell.formula : cell.value)}
+                                    {decoration?.content ?? cellText(cell, !!formulas, onOpenUsage)}
                                 </td>
                             )
                         })}

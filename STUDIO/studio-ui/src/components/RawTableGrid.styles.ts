@@ -34,4 +34,21 @@ export const useStyles = createStyles(({ css, token }) => ({
         overflow-wrap: anywhere;
         max-width: 420px;
     `,
+    /**
+     * A piece of a cell's text the compiler resolved.
+     *
+     * A formula is read as a sentence, and a rule under every word of it is a sentence that cannot be read —
+     * so a piece that leads nowhere is left as it stands and says what it is in its tooltip alone.
+     */
+    usage: css``,
+    /** A piece that names a table reads as the way into it that it is, and underlines under the pointer. */
+    usageLink: css`
+        cursor: pointer;
+        color: ${token.colorLink};
+
+        &:hover {
+            color: ${token.colorLinkHover};
+            text-decoration: underline;
+        }
+    `,
 }))

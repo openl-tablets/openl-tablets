@@ -268,6 +268,16 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   messages, so they sit in a foldable section above it, the way the legacy editor kept its Problems block —
   the project's other messages stay in the panel at the foot of the screen. Both draw through one component,
   so a message reads the same wherever it is shown.
+- **What the compiler knows about a cell rides on the read of the table, not on a call of its own.** The raw
+  read already takes `styles=true` and hangs a style on each cell; `metaInfo=true` hangs the same shape beside
+  it — the pieces of the cell's text the compiler resolved as ranges over that text, the type the cell holds,
+  the return-cell mark, and the editor the cell asks for. Read together with the cells, it always describes the
+  very cells that were returned; a call of its own would repeat the window and drift from it. A usage names the
+  table it leads to by the identifier the Tables API addresses a table by — never the location the engine keeps
+  it at, which is what the legacy pages passed around — and the module that table is read through, because the
+  editor opens a module and reads a table through it. The ranges are measured over the value a cell holds, so
+  a cell shown as the formula it was written with is drawn plain — which is what the legacy editor did, where
+  the formula replaced the marked content rather than being marked itself.
 - **A table is described by every property that applies to it, not only by the ones it declares.** A property
   written on a module's or a category's properties table applies to every table under it, and the engine already
   works this out while it binds: each table carries what it declares, what it inherits and, for each inherited

@@ -304,6 +304,20 @@ export const ModuleWorkspace = () => {
 
     const openTable = useCallback((picked: ModuleTable) => openTableById(picked.id), [openTableById])
 
+    // A word in a cell that names another table is a way into it: the same screen when the table is one of
+    // this module's, its own module's screen when it lives elsewhere.
+    const openUsage = useCallback((usage: { tableId?: string, module?: string }) => {
+        if (!usage.tableId || !usage.module) {
+            return
+        }
+        if (usage.module === moduleName) {
+            openTableById(usage.tableId)
+            return
+        }
+        navigate(`/projects/${toUrlSafeId(projectId ?? '')}/modules/${encodeURIComponent(usage.module)}`
+            + `?table=${encodeURIComponent(usage.tableId)}`)
+    }, [moduleName, navigate, openTableById, projectId])
+
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
     useEffect(() => {
         if (!projectId || selectedId === null) {
@@ -314,7 +328,7 @@ export const ModuleWorkspace = () => {
         setTable(null)
         setTableError(null)
         // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it.
-        getRawTable(projectId, selectedId, { module: moduleName, maxRows: TABLE_PAGE_ROWS })
+        getRawTable(projectId, selectedId, { module: moduleName, maxRows: TABLE_PAGE_ROWS, metaInfo: true })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
                     setTable(loaded)
@@ -337,6 +351,7 @@ export const ModuleWorkspace = () => {
             module: moduleName,
             startRow: table.source.length,
             maxRows: TABLE_PAGE_ROWS,
+            metaInfo: true,
         })
             .then(next => setTable(shown => (shown === null ? next : {
                 ...shown,
@@ -507,7 +522,12 @@ export const ModuleWorkspace = () => {
                 {toolbar}
                 <TableProblems messages={table.messages ?? []} />
                 <div className={styles.canvas}>
-                    <RawTableGrid formulas={showFormulas} rows={rows} testId="module-table" />
+                    <RawTableGrid
+                        formulas={showFormulas}
+                        onOpenUsage={openUsage}
+                        rows={rows}
+                        testId="module-table"
+                    />
                     {shown < total && (
                         <div className={styles.more}>
                             <Button

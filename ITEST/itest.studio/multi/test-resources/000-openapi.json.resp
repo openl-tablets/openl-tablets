@@ -12583,6 +12583,15 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "metaInfo",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "module",
             "schema": {
               "type": "string"
@@ -27180,6 +27189,9 @@ Content-Type: application/json
             "description": "***",
             "readOnly": true
           },
+          "metaInfo": {
+            "$ref": "#/components/schemas/RawTableCellMetaInfo"
+          },
           "rowspan": {
             "type": "integer",
             "format": "int32",
@@ -27246,6 +27258,31 @@ Content-Type: application/json
           }
         }
       },
+      "RawTableCellMetaInfo": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "editor": {
+            "type": "string",
+            "description": "***"
+          },
+          "returnCell": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          },
+          "usages": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/RawTableCellUsage"
+            }
+          }
+        }
+      },
       "RawTableCellStyle": {
         "type": "object",
         "description": "***",
@@ -27295,6 +27332,45 @@ Content-Type: application/json
               "center",
               "top"
             ]
+          }
+        }
+      },
+      "RawTableCellUsage": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "end": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "rule",
+              "datatype",
+              "data",
+              "field",
+              "underlined",
+              "other"
+            ]
+          },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
+          "start": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "tableId": {
+            "type": "string",
+            "description": "***"
           }
         }
       },

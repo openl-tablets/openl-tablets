@@ -1878,7 +1878,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, null, null, false, null);
+        return getTableRaw(project, tableId, null, null, false, false, null);
     }
 
     /**
@@ -1893,13 +1893,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param startRow   zero-based index of the first row to return, or {@code null} for the top
      * @param maxRows    maximum number of rows to return from {@code startRow}, or {@code null} for every
      *                   remaining row
-     * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
+     * @param withStyles   whether to attach each cell's Excel style (background, font, alignment)
+     * @param withMetaInfo whether to attach what the compiler knows about each cell — the pieces of its text
+     *                     that refer to something, the type it holds, the editor it asks for
      * @return raw table data, with {@code totalRows} set when the window omits rows
      */
     public RawTableView getTableRaw(RulesProject project, String tableId, @Nullable Integer startRow,
-            @Nullable Integer maxRows, boolean withStyles, @Nullable String moduleName) {
+            @Nullable Integer maxRows, boolean withStyles, boolean withMetaInfo, @Nullable String moduleName) {
         var context = getOpenLTable(project, tableId, moduleName);
-        var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles);
+        var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles, withMetaInfo,
+                TableModules.ofWorkspace(context.module()));
         tableView.messages = mapMessages(context);
         return tableView;
     }

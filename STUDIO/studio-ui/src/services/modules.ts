@@ -80,6 +80,10 @@ export const TABLE_PAGE_ROWS = 120
  * tables and only the one being looked at has to be drawn. A tall table arrives a window at a time, and says in
  * `totalRows` how many it has in all.
  *
+ * Asked with `metaInfo`, every cell also carries what the compiler knows about it: the pieces of its text that
+ * refer to something — each with the table and module they lead to — the type it holds, whether a decision table
+ * returns it, and the editor it asks for.
+ *
  * Every cell carries both what it computed and the formula it was written with, and the table says how many
  * rows its header takes — so showing formulas or hiding the header is the screen's own choice, made without
  * asking again.
@@ -90,9 +94,12 @@ export const TABLE_PAGE_ROWS = 120
 export const getRawTable = async (
     projectId: string,
     tableId: string,
-    options: { module?: string, startRow?: number, maxRows?: number } = {}
+    options: { module?: string, startRow?: number, maxRows?: number, metaInfo?: boolean } = {}
 ): Promise<RawTableView> => {
     const params = new URLSearchParams({ raw: 'true', styles: 'true' })
+    if (options.metaInfo) {
+        params.set('metaInfo', 'true')
+    }
     if (options.module !== undefined) {
         params.set('module', options.module)
     }
