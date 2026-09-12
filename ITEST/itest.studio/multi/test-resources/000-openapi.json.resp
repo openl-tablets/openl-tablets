@@ -28962,6 +28962,10 @@ Content-Type: application/json
               "Dispatcher"
             ]
           },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"

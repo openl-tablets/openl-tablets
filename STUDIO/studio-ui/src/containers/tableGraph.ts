@@ -45,6 +45,8 @@ export interface GraphNode {
     name: string
     kind?: string
     project?: string
+    /** The module the table is written in, which the editor opens it through. */
+    module?: string
     dependencies?: string[]
     dependents?: string[]
     // summary meta, shown in the side panel on click
