@@ -370,6 +370,9 @@ export const ModuleWorkspace = () => {
 
     const modulePath = modules.find(declared => declared.name === moduleName)?.path
     const testCount = compilation.tests
+    // A test covering this module's tables may be written in another one, so what covers them is only known
+    // once the project's compilation has finished — however it finished.
+    const projectCompiled = ['ok', 'warnings', 'errors'].includes(compilation.state)
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && !!project.branch
 
     const crumbs = (
@@ -481,7 +484,7 @@ export const ModuleWorkspace = () => {
         const toolbar = selected === null ? null : (
             <TableToolbar
                 moduleName={moduleName}
-                projectCompiled={compilation.total > 0 && compilation.compiled >= compilation.total}
+                projectCompiled={projectCompiled}
                 projectId={project.id}
                 table={selected}
             />
@@ -545,6 +548,7 @@ export const ModuleWorkspace = () => {
                                 modulePath={modulePath}
                                 onRevisionOpened={reopenRevision}
                                 project={project}
+                                projectCompiled={projectCompiled}
                                 testCount={testCount}
                             />
                         )}

@@ -70,8 +70,8 @@ interface TableAction {
     icon: ReactNode
     /** The event the React panel listens on; absent for an action that arrives with the editing phase. */
     event?: string
-    /** Only a test table runs its cases; the rest are offered for any table that can be executed. */
-    testsOnly?: boolean
+    /** Offered only for a table that has tests of its own or is covered by some. */
+    needsTests?: boolean
     /** Offered whatever the table is, not only for one that can be run. */
     always?: boolean
 }
@@ -83,17 +83,18 @@ const ACTIONS: TableAction[] = [
     { key: 'run', labelKey: 'browser.module.run', icon: <PlayCircleOutlined />, event: 'openRunLaunch' },
     { key: 'trace', labelKey: 'browser.module.trace', icon: <RadarChartOutlined />, event: 'openTraceLaunch' },
     {
-        key: 'tests',
-        labelKey: 'browser.module.test',
-        icon: <ExperimentOutlined />,
-        event: 'openTestsLaunch',
-        testsOnly: true,
-    },
-    {
         key: 'benchmark',
         labelKey: 'browser.module.benchmark',
         icon: <DashboardOutlined />,
         event: 'openBenchmarkLaunch',
+    },
+    // Where the old Editor kept it: beside Create Test, and only for a table there is something to run.
+    {
+        key: 'tests',
+        labelKey: 'browser.module.test',
+        icon: <ExperimentOutlined />,
+        event: 'openTestsLaunch',
+        needsTests: true,
     },
     { key: 'createTest', labelKey: 'browser.module.create_test', icon: <FileAddOutlined />, always: true },
 ]
@@ -152,8 +153,10 @@ export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = f
     }
 
     const executable = EXECUTABLE.has(table.kind)
+    // A test table runs its own cases; any other table runs the tests written against it, when there are some.
+    const hasTests = table.kind === 'Test' || tests.length > 0
     const offered = ACTIONS.filter(action =>
-        action.always || (executable && (!action.testsOnly || table.kind === 'Test')))
+        action.always || (executable && (!action.needsTests || hasTests)))
 
     const openTest = (id: string) => navigate(
         `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
