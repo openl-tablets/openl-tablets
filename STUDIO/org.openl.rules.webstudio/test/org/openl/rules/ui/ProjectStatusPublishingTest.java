@@ -2,6 +2,7 @@ package org.openl.rules.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -10,7 +11,10 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
@@ -83,6 +87,35 @@ class ProjectStatusPublishingTest {
         // that publishes nothing more of its own still leaves the reader with everything.
         assertTrue(waitFor(published, status -> !status.progressOnly()),
                 "the status that follows a compilation must carry more than its progress");
+    }
+
+    @Test
+    void the_status_answers_while_a_compilation_holds_the_model() throws Exception {
+        var model = new ProjectModel(studioPublishing(new CopyOnWriteArrayList<>()), null);
+        var holding = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        var compiling = new Thread(() -> {
+            synchronized (model) {
+                holding.countDown();
+                try {
+                    release.await();
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }, "compiling-thread");
+        compiling.start();
+        assertTrue(holding.await(5, TimeUnit.SECONDS), "the compiling thread must take the model first");
+
+        try {
+            // Asking a project how its compilation is going is what every screen does, and a compilation holds
+            // the model for minutes — so the question is answered without waiting for it.
+            var answered = CompletableFuture.supplyAsync(model::getCompilationStatus);
+            assertNotNull(answered.get(5, TimeUnit.SECONDS), "a status read must not wait for the compilation");
+        } finally {
+            release.countDown();
+            compiling.join();
+        }
     }
 
     /** Waits for a status matching the given rule, which the notifier delivers on a thread of its own. */

@@ -1767,45 +1767,47 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .filter(declared -> moduleName.equals(declared.getName()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
-        // Session-scoped collaborators are out of reach of a background thread, so the request thread looks them
-        // up and the work carries them along.
+        // The work runs on a thread of its own, where a session-scoped bean cannot be resolved. The studio is
+        // looked up here, while the request still holds the session, and the work carries it along. The
+        // compilation job is not carried at all: asking the session's registry for one from such a thread fails,
+        // and the status endpoint adopts a compilation started this way the moment it is asked about it.
         var webStudio = getWebStudio();
-        var registry = getCompilationJobRegistry();
         moduleCompilationLauncher.launch(moduleName, () -> {
-            var handle = openProject(webStudio, registry, projectDescriptor, project, module);
+            var moduleModel = openModule(webStudio, projectDescriptor, project, module);
             if (reset) {
                 // Opening a module already open compiles nothing, so a request to compile it again has to say
                 // so: the dependencies are dropped and the module is built from the workbook once more.
                 try {
-                    handle.project().reset(ReloadType.RELOAD, module);
+                    moduleModel.reset(ReloadType.RELOAD, module);
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 }
-                registry.acquire(projectIdentifierMapper.map(project), handle.project());
             }
         });
     }
 
     private ProjectHandle openProject(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
-        return openProject(getWebStudio(), getCompilationJobRegistry(), projectDescriptor, project, module);
+        var moduleModel = openModule(getWebStudio(), projectDescriptor, project, module);
+        return ProjectHandle.of(moduleModel, getCompilationJobRegistry().acquire(projectIdentifierMapper.map(project),
+                moduleModel));
     }
 
     /**
-     * Opens a module against collaborators the caller has already resolved, so that a thread without a session of
-     * its own can open one too.
+     * Opens a module against a studio the caller has already resolved, so that a thread without a session of its
+     * own can open one too.
+     *
+     * <p>Answers the model alone: the compilation job belongs to the session that asks about it, and is registered
+     * there rather than here.
      */
-    private ProjectHandle openProject(WebStudio webstudio,
-                                      CompilationJobRegistry registry,
-                                      ProjectDescriptor projectDescriptor,
-                                      RulesProject project,
-                                      @Nullable Module module) {
+    private ProjectModel openModule(WebStudio webstudio,
+                                    ProjectDescriptor projectDescriptor,
+                                    RulesProject project,
+                                    @Nullable Module module) {
         if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
         webstudio.init(project.getRepository().getId(), project.getBranch(), projectDescriptor.getName(), module.getName());
-        var moduleModel = webstudio.getModel();
-        var job = registry.acquire(projectIdentifierMapper.map(project), moduleModel);
-        return ProjectHandle.of(moduleModel, job);
+        return webstudio.getModel();
     }
 
     /**

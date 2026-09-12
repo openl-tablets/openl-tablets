@@ -1500,10 +1500,12 @@ class WorkspaceProjectServiceTest {
         var work = forClass(Runnable.class);
         verify(launcher).launch(eq("Claims"), work.capture());
 
-        // The collaborators the work opens the module against were resolved here, where the session is in reach.
+        // The studio the work opens the module against was resolved here, where the session is in reach.
         work.getValue().run();
         verify(webStudio).init("design", "main", "Pricing", "Claims");
-        verify(registry).acquire(any(), any());
+        // The session's own registry is not carried along: asking it for a compilation job from a thread with no
+        // session fails, and the status endpoint registers the compilation itself when it is asked about it.
+        verify(registry, never()).acquire(any(), any());
     }
 
     @Test
@@ -1515,7 +1517,6 @@ class WorkspaceProjectServiceTest {
         var registry = mock(CompilationJobRegistry.class);
         var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
         doReturn(registry).when(service).getCompilationJobRegistry();
-        when(registry.acquire(any(), any())).thenReturn(mock(CompilationJob.class));
 
         service.compileModule(project, "Claims", true);
 
@@ -1537,7 +1538,6 @@ class WorkspaceProjectServiceTest {
         var registry = mock(CompilationJobRegistry.class);
         var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
         doReturn(registry).when(service).getCompilationJobRegistry();
-        when(registry.acquire(any(), any())).thenReturn(mock(CompilationJob.class));
 
         service.compileModule(project, "Claims", false);
 

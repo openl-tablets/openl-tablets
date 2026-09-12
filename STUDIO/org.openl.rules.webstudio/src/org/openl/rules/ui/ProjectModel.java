@@ -99,7 +99,6 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -139,7 +138,7 @@ public class ProjectModel {
         return currentCompilation.get();
     }
 
-    private XlsModuleSyntaxNode xlsModuleSyntaxNode;
+    private volatile XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
     private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
 
@@ -166,12 +165,12 @@ public class ProjectModel {
     private final AtomicBoolean statusUpdateHandedOff = new AtomicBoolean();
 
     @Getter
-    private Module moduleInfo;
+    private volatile Module moduleInfo;
     private long moduleLastModified;
 
     private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
     @Getter
-    private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
+    private volatile WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
     private final WebStudio studio;
 
@@ -586,21 +585,35 @@ public class ProjectModel {
         isModified();
     }
 
-    public synchronized ProjectCompilationStatus getCompilationStatus() {
+    /**
+     * How far the compilation of this project has come, and what it has raised.
+     *
+     * <p>Answered without the model's own lock: a compilation holds that lock from its first module to its
+     * last, and a reader asking how it is going must not be made to wait for it to end. What the answer reads
+     * are the results already published by the compilation, so a status read a moment before a module finishes
+     * simply does not count that module — the next read does.
+     */
+    public ProjectCompilationStatus getCompilationStatus() {
+        var moduleInfo = this.moduleInfo;
+        var dependencyManager = this.webStudioWorkspaceDependencyManager;
         ProjectCompilationStatus.Builder compilationStatus = ProjectCompilationStatus.newBuilder();
-        if (moduleInfo != null && moduleInfo.getWebstudioConfiguration() != null && moduleInfo
+        if (moduleInfo == null) {
+            return compilationStatus.build();
+        }
+        if (moduleInfo.getWebstudioConfiguration() != null && moduleInfo
                 .getWebstudioConfiguration()
                 .isCompileThisModuleOnly()) {
-            if (compiledOpenClass != null) {
-                compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+            var compiled = this.compiledOpenClass;
+            if (compiled != null) {
+                compilationStatus.addMessages(compiled.getAllMessages());
             }
             compilationStatus.setModulesCompiled(1);
             compilationStatus.addModulesCount(1);
         } else {
-            if (webStudioWorkspaceDependencyManager == null) {
+            if (dependencyManager == null) {
                 return compilationStatus.build();
             }
-            Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager
+            Collection<IDependencyLoader> dependencyLoaders = dependencyManager
                     .findAllProjectDependencyLoaders(moduleInfo.getProject());
             if (isProjectCompilationCompleted()) {
                 if (compiledOpenClass != null) {
@@ -1018,8 +1031,8 @@ public class ProjectModel {
 
     private void initProjectHistory() {
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            LocalRepository repository = getLocalRepository();
+        LocalRepository repository = getLocalRepository();
+        if (workbookNodes != null && repository != null) {
 
             for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
                 var sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
@@ -1036,9 +1049,10 @@ public class ProjectModel {
         }
     }
 
+    /** Where this project's edits are kept, or nothing when the model stands outside a workspace. */
     private LocalRepository getLocalRepository() {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-        return userWorkspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
+        var workspace = studio.getUserWorkspace();
+        return workspace == null ? null : workspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
     }
 
     public synchronized TableSyntaxNode[] getTableSyntaxNodes() {
@@ -1565,9 +1579,10 @@ public class ProjectModel {
         return new TableEditorModel(table, tableView, false);
     }
 
-    public synchronized boolean isCompiledSuccessfully() {
-        return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null && !(compiledOpenClass
-                .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
+    public boolean isCompiledSuccessfully() {
+        // Read once: opening another module empties this while a reader is in the middle of the answer.
+        var compiled = this.compiledOpenClass;
+        return compiled != null && isUsable(compiled) && xlsModuleSyntaxNode != null;
     }
 
     /**
@@ -1581,21 +1596,27 @@ public class ProjectModel {
         return openedModuleCompiledOpenClass != null;
     }
 
-    public synchronized boolean isOpenedModuleCompiledSuccessfully() {
-        return openedModuleCompiledOpenClass != null && openedModuleCompiledOpenClass
-                .getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
-                .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
+    public boolean isOpenedModuleCompiledSuccessfully() {
+        var compiled = this.openedModuleCompiledOpenClass;
+        return compiled != null && isUsable(compiled) && xlsModuleSyntaxNode != null;
+    }
+
+    /** Whether anything can be run against what was compiled, or the module failed before it had a class. */
+    private static boolean isUsable(CompiledOpenClass compiled) {
+        var openClass = compiled.getOpenClassWithErrors();
+        return openClass != null && !(openClass instanceof NullOpenClass);
     }
 
     private void initHistoryStoragePath() {
-        if (WebStudioUtils.getSession() != null) {
-            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                    .getLocalWorkspace()
-                    .getLocation();
-            this.historyStoragePath = Path
-                    .of(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
-                    .toString();
+        // A model outside a workspace — a project read straight from disk — keeps no history of its edits.
+        var workspace = studio.getUserWorkspace();
+        if (workspace == null) {
+            return;
         }
+        var location = workspace.getLocalWorkspace().getLocation();
+        this.historyStoragePath = Path
+                .of(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
+                .toString();
     }
 
     public synchronized RecentlyVisitedTables getRecentlyVisitedTables() {
