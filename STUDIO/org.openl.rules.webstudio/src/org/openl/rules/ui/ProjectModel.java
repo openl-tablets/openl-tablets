@@ -874,16 +874,16 @@ public class ProjectModel {
      */
     private ProjectTreeNode addToNode(ProjectTreeNode targetNode, Object object, TreeNodeBuilder treeNodeBuilder) {
 
-        // Create key for adding object. It used to check that the same node
-        // exists.
-        //
-        Comparable<?> key = treeNodeBuilder.makeKey(object);
-
         ProjectTreeNode element = null;
 
-        // If key is null the rest of building node process should be skipped.
+        // A builder is asked for a key only once it says it applies to the object: a key it cannot make for an
+        // object it does not group is not a key anyone would use. If the key is null there is nothing to add.
         //
-        if (treeNodeBuilder.isBuilderApplicableForObject(object) && key != null) {
+        Comparable<?> key = treeNodeBuilder.isBuilderApplicableForObject(object)
+                ? treeNodeBuilder.makeKey(object)
+                : null;
+
+        if (key != null) {
 
             // Try to find child node with the same object.
             //
