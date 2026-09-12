@@ -123,6 +123,14 @@ public class ProjectModel {
     private volatile CompiledOpenClass openedModuleCompiledOpenClass;
     @Getter
     private volatile boolean compilationInProgress;
+    /**
+     * Set when the compilation was told to stop, and cleared when one is asked for again.
+     *
+     * <p>Read by the status, which would otherwise report a compilation that stopped as one still running: what
+     * ends it is the absence of further work, not a result.
+     */
+    @Getter
+    private volatile boolean compilationCancelled;
     private volatile ResolvedDependency projectCompilationCompleted;
     /**
      * The most recent registered compilation cycle. A fresh instance is published whenever the
@@ -1172,6 +1180,28 @@ public class ProjectModel {
         return executableNodes;
     }
 
+    /**
+     * Tells the compilation of this project to stop.
+     *
+     * <p>Answered without the model's own lock, which the compilation holds while it runs: the point of asking is
+     * that the compilation is long. The module being compiled at this moment is finished and nothing after it is
+     * started, so the request returns at once and the compilation ends shortly after.
+     *
+     * <p>What is already compiled stays readable, and a reader waiting on this compilation is answered with it.
+     * The next request to compile the module builds it from the workbook.
+     */
+    public void cancelCompilation() {
+        var dependencyManager = this.webStudioWorkspaceDependencyManager;
+        if (dependencyManager == null || !dependencyManager.isActive()) {
+            return;
+        }
+        compilationCancelled = true;
+        dependencyManager.cancel();
+        compilationInProgress = false;
+        currentCompilation.get().future().cancel(false);
+        publishStatusChanged();
+    }
+
     public synchronized void redraw() {
         projectRoot = null;
     }
@@ -1326,6 +1356,7 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
 
+        compilationCancelled = false;
         initHistoryStoragePath();
         isModified();
         clearModuleResources(); // prevent memory leak
@@ -1365,6 +1396,10 @@ public class ProjectModel {
     }
 
     public void compileProject(boolean sync, boolean prepareWorkspaceDependencyManager) {
+        if (compilationCancelled) {
+            // The module that was being compiled ended, and the reader asked for no more.
+            return;
+        }
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final RegisteredCompilation cycle;
         synchronized (this) {
@@ -1522,6 +1557,14 @@ public class ProjectModel {
     }
 
     private void prepareWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
+        if (webStudioWorkspaceDependencyManager != null && !webStudioWorkspaceDependencyManager.isActive()) {
+            // A manager that was told to stop compiles nothing again, so a new compilation gets a new one. The
+            // old one is shut down first: its thread and everything it compiled are held until it is.
+            webStudioWorkspaceDependencyManager.shutdown();
+            webStudioWorkspaceDependencyManager = null;
+            xlsModuleSyntaxNodesPerProject.clear();
+            xlsModuleSyntaxNodes.clear();
+        }
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                     .buildDependencyManager(projectDescriptor);

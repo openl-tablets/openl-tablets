@@ -1774,7 +1774,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var webStudio = getWebStudio();
         moduleCompilationLauncher.launch(moduleName, () -> {
             var moduleModel = openModule(webStudio, projectDescriptor, project, module);
-            if (reset) {
+            // A compilation the reader stopped leaves the module where it got to, and opening it again compiles
+            // nothing — so a request to compile it has to be taken as the request to build it once more.
+            if (reset || moduleModel.isCompilationCancelled()) {
                 // Opening a module already open compiles nothing, so a request to compile it again has to say
                 // so: the dependencies are dropped and the module is built from the workbook once more.
                 try {
@@ -1784,6 +1786,32 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 }
             }
         });
+    }
+
+    /**
+     * Tells the compilation of the given module to stop.
+     *
+     * <p>Compiling a large project takes minutes, and a reader who no longer wants to wait asks for it to stop
+     * rather than sitting it out. The module being compiled at this moment is finished — a module cannot be
+     * abandoned halfway — and nothing after it is started, so this answers at once.
+     *
+     * <p>Nothing is stopped when the session has moved on to another module: what it compiles now is what that
+     * module asked for. What was compiled before the stop stays readable, and the next request to compile the
+     * module builds it from the workbook.
+     *
+     * @param project    project owning the module
+     * @param moduleName module whose compilation is to stop
+     */
+    public void cancelModuleCompilation(RulesProject project, String moduleName) {
+        var webStudio = getWebStudio();
+        var currentModule = webStudio.getCurrentModule();
+        if (currentModule == null || !moduleName.equals(currentModule.getName())) {
+            return;
+        }
+        var moduleModel = webStudio.getModel();
+        if (moduleModel != null) {
+            moduleModel.cancelCompilation();
+        }
     }
 
     private ProjectHandle openProject(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {

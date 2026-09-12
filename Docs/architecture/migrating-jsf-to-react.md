@@ -289,6 +289,15 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   lock, which a compilation holds from its first module to its last — so the projects list froze for minutes
   whenever any module was being built. The status is read from what the compilation has already published, so
   it answers at once; a read a moment before a module finishes simply does not count that module.
+- **A wait the reader did not ask for can be ended.** Compiling a large project takes minutes, so the waiting
+  screen offers to stop it: `DELETE /projects/{id}/modules/{name}/compile` answers at once, the module being
+  compiled at that moment is finished — a module cannot be abandoned halfway — and nothing after it is started.
+  The engine already had the switch (a dependency manager that is no longer active answers every request as an
+  interrupted compilation); what was added is asking for it, and a `cancelled` compile state, since a
+  compilation that stopped is neither running nor finished. What was compiled stays readable — a read waiting
+  on a stopped compilation is answered with it, not with an error — and the next request to compile the module
+  builds it from the workbook, whether or not it asks for a reset: opening a module already open compiles
+  nothing, so a compilation that was stopped would otherwise never start again.
 - **Refreshing is compiling again, not asking again.** Opening a module already open compiles nothing, so
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a

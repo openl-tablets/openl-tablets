@@ -8,6 +8,7 @@ import type { ModuleTable, RawTableView } from 'types/tables'
 import type { Project } from '../types/projects'
 import { getProject, setProjectStatus } from '../services/repositories'
 import {
+    cancelModuleCompilation,
     getModuleTables,
     getRawTable,
     listModules,
@@ -136,6 +137,7 @@ export const ModuleWorkspace = () => {
     const [table, setTable] = useState<RawTableView | null>(null)
     const [tableError, setTableError] = useState<string | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
+    const [cancelling, setCancelling] = useState(false)
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
@@ -239,6 +241,18 @@ export const ModuleWorkspace = () => {
             { replace: true }
         )
     }, [tables, selectedId, moduleName, navigate, projectId])
+
+    // A compilation of a large project takes minutes, and a reader who no longer wants to wait says so. What
+    // was compiled stays readable; Refresh starts it again.
+    const cancelCompilation = useCallback(() => {
+        if (!projectId) {
+            return
+        }
+        setCancelling(true)
+        cancelModuleCompilation(projectId, moduleName)
+            .catch((error: unknown) => setLoadError(errorMessage(error)))
+            .finally(() => setCancelling(false))
+    }, [moduleName, projectId])
 
     // Refresh compiles the module again and re-reads its tables. What the reader was looking at is kept: the
     // address still names it, and it is drawn again as soon as the tables are back.
@@ -383,6 +397,18 @@ export const ModuleWorkspace = () => {
                 </div>
             )
         }
+        if (compilation.state === 'cancelled' && !compilation.ready) {
+            // The reader asked for the wait to end. What was compiled is kept, and Refresh starts it again.
+            return (
+                <div className={styles.centered} data-testid="module-compile-cancelled">
+                    <Empty description={t('browser.module.compile_cancelled', { module: moduleName })}>
+                        <Button icon={<ReloadOutlined />} onClick={refresh} type="primary">
+                            {t('browser.module.refresh')}
+                        </Button>
+                    </Empty>
+                </div>
+            )
+        }
         if (!compilation.ready) {
             // Shown while the compilation works towards this module. The count is what the status channel
             // reports, so it moves as each module finishes rather than sitting at nothing.
@@ -402,6 +428,9 @@ export const ModuleWorkspace = () => {
                             total: compilation.total,
                         })}
                     </span>
+                    <Button data-testid="module-compile-cancel" loading={cancelling} onClick={cancelCompilation}>
+                        {t('browser.module.compile_cancel')}
+                    </Button>
                 </div>
             )
         }

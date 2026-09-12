@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.resolving.ProjectResolver;
 
 /**
@@ -116,6 +117,28 @@ class ProjectStatusPublishingTest {
             release.countDown();
             compiling.join();
         }
+    }
+
+    @Test
+    void a_compilation_told_to_stop_compiles_no_more_until_it_is_asked_for_again() throws Exception {
+        var published = new CopyOnWriteArrayList<Published>();
+        var model = new ProjectModel(studioPublishing(published), null);
+        var modules = ProjectResolver.getInstance().resolve(PROJECT).getModules();
+        model.setModuleInfo(modules.getFirst());
+
+        model.cancelCompilation();
+
+        // Nothing more is compiled, and the status can tell that from a compilation still running.
+        assertTrue(model.isCompilationCancelled(), "a compilation told to stop is marked as stopped");
+        assertFalse(model.isCompilationInProgress(), "a compilation told to stop is no longer running");
+        assertFalse(model.getWebStudioWorkspaceDependencyManager().isActive(), "the manager compiles no more");
+        assertTrue(waitFor(published, status -> true), "the reader is told the compilation stopped");
+
+        // Asking for the module again builds it: what was stopped is replaced rather than reused.
+        model.setModuleInfo(modules.getFirst(), ReloadType.RELOAD);
+
+        assertFalse(model.isCompilationCancelled(), "asking for a compilation clears the stop");
+        assertTrue(model.getWebStudioWorkspaceDependencyManager().isActive(), "the new manager compiles");
     }
 
     /** Waits for a status matching the given rule, which the notifier delivers on a thread of its own. */

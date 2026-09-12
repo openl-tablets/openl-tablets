@@ -102,10 +102,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         if (active) {
                             return loadDependencySync(dependency);
                         } else {
-                            return new CompiledDependency(dependency,
-                                    new CompiledOpenClass(NullOpenClass.the,
-                                            List.of(new CompilationInterruptedOpenLErrorMessage())),
-                                    resolveDependencyType(dependency));
+                            return interrupted(dependency);
                         }
                     } finally {
                         threadVersion.remove();
@@ -117,10 +114,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                                 priority == null ? ThreadPriority.HIGH : priority);
                         return loadDependencySync(dependency);
                     } else {
-                        return new CompiledDependency(dependency,
-                                new CompiledOpenClass(NullOpenClass.the,
-                                        List.of(new CompilationInterruptedOpenLErrorMessage())),
-                                resolveDependencyType(dependency));
+                        return interrupted(dependency);
                     }
                 }
             }
@@ -138,14 +132,44 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     private synchronized CompiledDependency loadDependencySync(ResolvedDependency dependency) throws OpenLCompilationException {
-        while (paused) {
+        while (paused && active) {
             try {
                 this.wait(50);
             } catch (InterruptedException e) {
                 throw new OpenLCompilationException("Compilation is interrupted", e);
             }
         }
+        // A manager told to stop while this one waited starts nothing: the wait ends on the stop as well.
+        if (!active) {
+            return interrupted(dependency);
+        }
         return super.loadDependency(dependency);
+    }
+
+    /** What a request answers once this manager has been told to stop: nothing compiled, and why. */
+    private CompiledDependency interrupted(ResolvedDependency dependency) {
+        return new CompiledDependency(dependency,
+                new CompiledOpenClass(NullOpenClass.the, List.of(new CompilationInterruptedOpenLErrorMessage())),
+                resolveDependencyType(dependency));
+    }
+
+    /**
+     * Stops compiling.
+     *
+     * <p>What is being compiled at this moment is finished — a module cannot be abandoned halfway — and nothing
+     * after it is started: every further request answers as an interrupted compilation, which the caller reports
+     * rather than retries. What is already compiled stays as it is and can still be read.
+     *
+     * <p>A manager told to stop compiles nothing again; asking for a compilation after this builds a new one.
+     */
+    public void cancel() {
+        active = false;
+        version.incrementAndGet();
+    }
+
+    /** Whether this manager still compiles what it is asked for. */
+    public boolean isActive() {
+        return active;
     }
 
     public void pause() {

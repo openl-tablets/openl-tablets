@@ -178,4 +178,17 @@ class ProjectStatusMapperImplTest {
         when(loader.getRefToCompiledDependency()).thenReturn(compiled);
         return loader;
     }
+
+    @Test
+    void aCompilationToldToStopIsNeitherRunningNorFinished() {
+        when(model.isCompilationCancelled()).thenReturn(true);
+        when(model.isProjectCompilationCompleted()).thenReturn(false);
+        when(model.isCompilationInProgress()).thenReturn(false);
+
+        var status = mapper.map(project, model);
+
+        assertEquals(CompileState.CANCELLED, status.compileState());
+        // What was compiled before it stopped is still reported, so the reader sees how far it got.
+        assertEquals(3, status.compilation().messages().total());
+    }
 }
