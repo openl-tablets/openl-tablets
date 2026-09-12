@@ -180,6 +180,8 @@ public class ProjectModel {
     @Getter
     private volatile WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
+    /** The session this model belongs to, which knows the projects of the workspace and how they are addressed. */
+    @Getter
     private final WebStudio studio;
 
     private TreeNode projectRoot;

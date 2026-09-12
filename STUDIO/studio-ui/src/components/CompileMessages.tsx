@@ -35,6 +35,15 @@ const useStyles = createStyles(({ css, token }) => ({
     warning: css`
         border-left-color: ${COMPILE_COLORS.warnings};
     `,
+    /** A message that leads somewhere reads as something to press. */
+    openable: css`
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background: ${token.controlItemBgHover};
+        }
+    `,
     action: css`
         margin-top: 2px;
         padding: 0;
@@ -76,9 +85,12 @@ const MessageText = ({ value }: { value: string }) => {
                 <div>
                     <Button
                         className={styles.action}
-                        onClick={() => setExpanded(current => !current)}
                         size="small"
                         type="link"
+                        onClick={event => {
+                            event.stopPropagation()
+                            setExpanded(current => !current)
+                        }}
                     >
                         {expanded ? t('browser.compile.show_less') : t('browser.compile.show_more_text')}
                     </Button>
@@ -94,6 +106,15 @@ interface CompileMessagesProps {
     severity: 'error' | 'warning'
     /** Prefix of the test id each message row carries, so a screen can find its own. */
     testIdPrefix?: string
+    /**
+     * What opening a message does — usually showing the table it was raised against.
+     *
+     * <p>Every message already says where it came from, so opening one costs no request of its own: a project
+     * raising a thousand of them still asks the server nothing.
+     */
+    onOpen?: (message: ProjectStatusDetailedMessage) => void
+    /** Which messages can be opened at all; the rest are read where they are. */
+    canOpen?: (message: ProjectStatusDetailedMessage) => boolean
 }
 
 /**
@@ -103,7 +124,13 @@ interface CompileMessagesProps {
  * Both the project's problems panel and the problems of a single table are drawn through this, so a message
  * reads the same wherever it is shown.
  */
-export const CompileMessages = ({ messages, severity, testIdPrefix = 'compile-message' }: CompileMessagesProps) => {
+export const CompileMessages = ({
+    messages,
+    severity,
+    testIdPrefix = 'compile-message',
+    onOpen,
+    canOpen,
+}: CompileMessagesProps) => {
     const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -120,15 +147,29 @@ export const CompileMessages = ({ messages, severity, testIdPrefix = 'compile-me
     return (
         <>
             <ul className={styles.list}>
-                {visible.map(message => (
-                    <li
-                        key={message.id}
-                        className={cx(styles.message, styles[severity])}
-                        data-testid={`${testIdPrefix}-${message.id}`}
-                    >
-                        <MessageText value={message.summary} />
-                    </li>
-                ))}
+                {visible.map(message => {
+                    const openable = onOpen !== undefined && (canOpen === undefined || canOpen(message))
+                    return (
+                        <li
+                            key={message.id}
+                            className={cx(styles.message, styles[severity], openable && styles.openable)}
+                            data-testid={`${testIdPrefix}-${message.id}`}
+                            onClick={openable ? () => onOpen(message) : undefined}
+                            role={openable ? 'button' : undefined}
+                            tabIndex={openable ? 0 : undefined}
+                            onKeyDown={openable
+                                ? event => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault()
+                                        onOpen(message)
+                                    }
+                                }
+                                : undefined}
+                        >
+                            <MessageText value={message.summary} />
+                        </li>
+                    )
+                })}
             </ul>
             {(remaining > 0 || visibleCount > PAGE_SIZE) && (
                 <div className={styles.pager}>

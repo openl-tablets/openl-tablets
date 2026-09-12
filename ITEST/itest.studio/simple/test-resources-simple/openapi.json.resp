@@ -24387,6 +24387,14 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
+                "type": "string",
+                "description": "***"
               }
             }
           }
@@ -24402,6 +24410,14 @@ Content-Type: application/json
             "type": "object",
             "properties": {
               "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
                 "type": "string",
                 "description": "***"
               }
@@ -27914,6 +27930,14 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
+                "type": "string",
+                "description": "***"
               }
             }
           }
@@ -27941,6 +27965,14 @@ Content-Type: application/json
                 "description": "***"
               },
               "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
                 "type": "string",
                 "description": "***"
               }

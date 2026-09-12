@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render as renderBare, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CompileProblemsPanel } from './CompileProblemsPanel'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
-import type { ProjectStatusUpdate } from '../../services/projectStatus'
+import type { ProjectStatusDetailedMessage, ProjectStatusUpdate } from '../../services/projectStatus'
 
 vi.mock('../../services/projectStatus', async importOriginal => ({
     ...(await importOriginal<typeof import('../../services/projectStatus')>()),
@@ -15,6 +16,15 @@ vi.mock('react-i18next', () => ({
         t: (key: string, values?: Record<string, unknown>) => (values ? `${key}:${Object.values(values).join(',')}` : key),
     }),
 }))
+
+const navigate = vi.fn()
+vi.mock('react-router-dom', async importOriginal => ({
+    ...(await importOriginal<typeof import('react-router-dom')>()),
+    useNavigate: () => navigate,
+}))
+
+/** The panel sends the reader to a table, so it is drawn where a route can be followed. */
+const render = (element: React.ReactElement) => renderBare(<MemoryRouter>{element}</MemoryRouter>)
 
 const base: Project = {
     id: 'p1',
@@ -28,10 +38,13 @@ const base: Project = {
     status: ProjectStatus.Opened,
 }
 
-const status = (items: { id: number, severity: 'ERROR' | 'WARN', summary: string, stacktrace: boolean }[]): ProjectStatusUpdate => ({
+const status = (
+    items: ProjectStatusDetailedMessage[],
+    compileState?: ProjectStatusUpdate['compileState']
+): ProjectStatusUpdate => ({
     projectId: 'p1',
     branch: 'main',
-    compileState: items.some(item => item.severity === 'ERROR') ? 'errors' : 'warnings',
+    compileState: compileState ?? (items.some(item => item.severity === 'ERROR') ? 'errors' : 'warnings'),
     compilation: {
         messages: {
             total: items.length,
@@ -142,6 +155,52 @@ describe('CompileProblemsPanel', () => {
         const showLessButtons = screen.getAllByRole('button', { name: 'browser.compile.show_less' })
         fireEvent.click(showLessButtons.at(-1)!)
         expect(screen.queryByText('Warning 12')).toBeNull()
+    })
+
+    it('opens the table a problem was raised against, without asking the server for it', () => {
+        render(<CompileProblemsPanel
+            project={{
+                ...base,
+                compileStatus: status([{
+                    id: 7,
+                    severity: 'ERROR' as const,
+                    summary: 'Identifier is not found',
+                    stacktrace: false,
+                    location: {
+                        type: 'table' as const,
+                        id: 'table-9',
+                        name: 'Greeting',
+                        module: 'Bank Rating',
+                        projectId: 'p9',
+                    },
+                }], 'errors'),
+            }}
+        />)
+
+        fireEvent.click(screen.getByTestId('compile-message-7'))
+
+        // The message carried the project, the module and the table, so nothing had to be asked for.
+        expect(navigate).toHaveBeenCalledWith('/projects/p9/modules/Bank%20Rating?table=table-9')
+    })
+
+    it('keeps the reader where they are while a module is being compiled', () => {
+        render(<CompileProblemsPanel
+            project={{
+                ...base,
+                compileStatus: status([{
+                    id: 8,
+                    severity: 'ERROR' as const,
+                    summary: 'Identifier is not found',
+                    stacktrace: false,
+                    location: { type: 'table' as const, id: 'table-9', module: 'Bank Rating' },
+                }], 'compiling'),
+            }}
+        />)
+
+        fireEvent.click(screen.getByTestId('compile-message-8'))
+
+        // One module is compiled at a time; opening another would only queue behind the one running.
+        expect(navigate).not.toHaveBeenCalled()
     })
 
     it('stands on the counts a running compilation reports, before it can say which messages they are', () => {

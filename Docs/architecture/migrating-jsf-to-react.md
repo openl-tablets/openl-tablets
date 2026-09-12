@@ -258,6 +258,12 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   and `scrollWidth` on Ant Design's `Tree`), so scrolling paints a screenful rather than a module. Without it
   every node sits in the DOM and the widest of them is measured across all of them, which is why a long tree
   scrolled to a blank page and filled in once the scrolling stopped.
+- **A problem leads to the table it was raised against, and asks nothing to do it.** Every compilation message
+  already carries where it came from — the project, the module, the table and the cell — so the list makes each
+  message a link built from what it already holds: a project raising a thousand of them still costs no request.
+  The project is part of that, because a message can be raised in a project this one depends on, and the reader
+  has to be sent there rather than to the project being compiled. While a module is being compiled the links
+  stand still, for the same reason the module list does.
 - **What the compiler said about the table is shown with the table.** The read of a table carries its own
   messages, so they sit in a foldable section above it, the way the legacy editor kept its Problems block —
   the project's other messages stay in the panel at the foot of the screen. Both draw through one component,
