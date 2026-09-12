@@ -11,13 +11,15 @@ Content-Type: application/json
     "signature": "*",
     "file": "*",
     "pos": "*",
-    "project": "EPBDS-14622"
+    "project": "EPBDS-14622",
+    "module": "MethodDispatcherTree"
   },
   {
     "id": "dispatcher:0022505ccf87b48c1f6d8eb0cc10c360",
     "kind": "*",
     "name": "mySPR",
     "project": "EPBDS-14622",
+    "module": "MethodDispatcherTree",
     "dependencies": [
       "0022505ccf87b48c1f6d8eb0cc10c360",
       "c4bd742f16c5e9e7c01010657f15f511"
@@ -38,6 +40,7 @@ Content-Type: application/json
     "file": "*",
     "pos": "*",
     "project": "EPBDS-14622",
+    "module": "MethodDispatcherTree",
     "dependencies": [
       "ff067a15cc30e1d50d7c2d18daede2d4"
     ],
@@ -60,6 +63,7 @@ Content-Type: application/json
     "file": "*",
     "pos": "*",
     "project": "EPBDS-14622",
+    "module": "MethodDispatcherTree",
     "dimensionProperties": {
       "US States": "AZ"
     }
@@ -79,6 +83,7 @@ Content-Type: application/json
     "file": "*",
     "pos": "*",
     "project": "EPBDS-14622",
+    "module": "MethodDispatcherTree",
     "dependencies": [
       "dispatcher:0022505ccf87b48c1f6d8eb0cc10c360"
     ],

@@ -12,10 +12,12 @@ import {
     ZoomOutOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import cytoscape, { type Core } from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
-import { apiCall, openTableInEditor, type ApiCallOptions } from '../services'
+import { apiCall, type ApiCallOptions } from '../services'
+import { moduleRoute } from '../services/projectId'
 import {
     bridgeHiddenNodes,
     buildGraphModel,
@@ -269,14 +271,13 @@ export interface TableGraphModalDetail {
 /** The editor keeps the open table in the URL fragment as `…table?id=<tableId>`; read it so the graph can preselect it. */
 const tableIdFromHash = (): string | undefined => /[?&]id=([^&]+)/.exec(globalThis.location.hash)?.[1]
 
-/** Opens the tapped table in the editor and closes the graph, leaving it open when the table has no address. */
-const openTable = (id: string): void => {
-    void openTableInEditor(id).then(opened => {
-        if (opened) {
-            globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
-        }
-    })
-}
+/**
+ * The address of a table in the editor: its module and itself.
+ *
+ * <p>A node that names no module cannot be opened — there is no screen to read the table through.
+ */
+const tableAddress = (projectId: string, node?: GraphNode): string | null =>
+    node?.module ? moduleRoute(projectId, node.module, node.id) : null
 
 /**
  * TableGraphModal renders an interactive dependency graph of the current project's tables with Cytoscape: nodes are
@@ -287,6 +288,7 @@ const openTable = (id: string): void => {
  */
 export const TableGraphModal: React.FC = () => {
     const { t } = useTranslation()
+    const navigate = useNavigate()
     const { detail } = useGlobalEvents<TableGraphModalDetail>('openTableGraphModal')
 
     const [visible, setVisible] = useState(false)
@@ -453,7 +455,7 @@ export const TableGraphModal: React.FC = () => {
             // Double-tap opens the table, but only when it lives in the active project — foreign tables cannot be opened.
             if (id === lastTap.id && now - lastTap.time < 350) {
                 if (canOpenTable(model.byId.get(id), projectNameRef.current)) {
-                    openTable(id)
+                    openTableRef.current(model.byId.get(id))
                 }
                 lastTap = { id: '', time: 0 }
             } else {
@@ -534,6 +536,19 @@ export const TableGraphModal: React.FC = () => {
     const handleClose = useCallback(() => {
         globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
     }, [])
+
+    /** Leaves the graph for the table itself, in the module the editor reads it through. */
+    const openTable = useCallback((node?: GraphNode) => {
+        const address = tableAddress(projectIdRef.current ?? '', node)
+        if (address !== null) {
+            handleClose()
+            navigate(address)
+        }
+    }, [handleClose, navigate])
+
+    // The graph itself is built once and its taps are wired there, so the way out is read when a tap happens.
+    const openTableRef = useRef(openTable)
+    openTableRef.current = openTable
 
     const toggleKind = useCallback((kind: string) => {
         setHiddenKinds(prev => {
@@ -840,8 +855,9 @@ export const TableGraphModal: React.FC = () => {
                     )}
                     {!isDispatcher && !foreign && (
                         <Button
+                            disabled={!node.module}
                             icon={<ExportOutlined />}
-                            onClick={() => openTable(node.id)}
+                            onClick={() => openTable(node)}
                             size="small"
                             style={{ marginBottom: 10 }}
                             type="primary"

@@ -13,6 +13,16 @@ export type ProjectStatusSeverity = 'INFO' | 'WARN' | 'ERROR'
  */
 export type ProjectCompileState = 'idle' | 'compiling' | 'ok' | 'warnings' | 'errors' | 'cancelled'
 
+/**
+ * Whether the project's compilation ran to its end, however it ended.
+ *
+ * What spans the whole project — which tables a test covers, what every module raised — is known only then. A
+ * compilation not started, still running, or stopped by the reader has not answered for the modules it never
+ * reached.
+ */
+export const isCompiled = (state: ProjectCompileState): boolean =>
+    state === 'ok' || state === 'warnings' || state === 'errors'
+
 export interface ProjectStatusMessage {
     id: number
     summary: string

@@ -17,6 +17,7 @@ import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '
 import { useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
+import { useSharedStyles } from './projects/sharedStyles'
 import type { Repository } from '../types/repositories'
 import type { Project } from '../types/projects'
 import type { FsNode } from '../types/files'
@@ -40,20 +41,6 @@ import { toUrlSafeId } from '../services/projectId'
 
 
 const useStyles = createStyles(({ css, token }) => ({
-    page: css`
-        height: calc(100vh - 64px);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        background: ${token.colorBgContainer};
-    `,
-    /** The workspace beside the tree rail: the rail on the left, the project filling the rest. */
-    withRail: css`
-        display: flex;
-        flex: 1;
-        min-width: 0;
-        min-height: 0;
-    `,
     crumb: css`
         display: inline-flex;
         align-items: center;
@@ -100,6 +87,7 @@ const useStyles = createStyles(({ css, token }) => ({
 export const ProjectWorkspace = () => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
     const { projectId } = useParams()
     // Read only when the copy dialog first opens; `null` until then.
@@ -410,7 +398,7 @@ export const ProjectWorkspace = () => {
 
     if (loading && !project && !error) {
         return (
-            <div className={styles.page}>
+            <div className={shared.workspacePage}>
                 <div className={styles.centered} data-testid="project-workspace-loading">
                     <Skeleton active className={styles.skeleton} />
                 </div>
@@ -431,8 +419,8 @@ export const ProjectWorkspace = () => {
     }
 
     return (
-        <div className={styles.page} data-testid="project-workspace">
-            <div className={styles.withRail}>
+        <div className={shared.workspacePage} data-testid="project-workspace">
+            <div className={shared.workspaceBody}>
                 <ProjectsRail
                     currentProjectId={project?.id}
                     initialMode="tree"

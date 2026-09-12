@@ -18,6 +18,9 @@ public record BenchmarkResult(
         @Parameter(description = "benchmark.field.table-id.desc")
         String tableId,
 
+        @Parameter(description = "benchmark.field.module.desc")
+        @Nullable String module,
+
         @Parameter(description = "benchmark.field.name.desc")
         String name,
 

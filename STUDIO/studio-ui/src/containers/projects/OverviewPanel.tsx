@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { toUrlSafeId } from '../../services/projectId'
+import { moduleRoute } from '../../services/projectId'
 import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tooltip, Typography, Upload } from 'antd'
 import {
     ApartmentOutlined,
@@ -500,7 +500,7 @@ const ModuleCells = ({ module, modulesDefault, projectId }: { module: ProjectMod
                     className={cx(shared.valueText, shared.ellipsis, styles.moduleName)}
                     data-testid={`module-open-${name}`}
                     title={t('browser.overview.module_open')}
-                    to={`/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(module.name ?? '')}`}
+                    to={moduleRoute(projectId, module.name ?? '')}
                 >
                     {name}
                 </Link>

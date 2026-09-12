@@ -97,4 +97,23 @@ describe('RawTableGrid', () => {
         // A cell written as a plain value has no formula to show, so it reads the same either way.
         expect(cells[1]).toHaveTextContent('plain')
     })
+
+    it('leaves the formula unmarked: what the compiler knows describes the value, not the formula', () => {
+        const marked: RawTableCell[][] = [[{
+            cell: 'A1',
+            value: 'Premium',
+            formula: '=B1&C1',
+            metaInfo: { usages: [{ start: 0, end: 7, description: 'Rules Double Premium()', kind: 'rule' }] },
+        }]]
+
+        const { rerender } = render(<RawTableGrid rows={marked} testId="grid" />)
+        expect(screen.getByTestId('cell-usage-0')).toHaveTextContent('Premium')
+
+        rerender(<RawTableGrid formulas rows={marked} testId="grid" />)
+
+        // The ranges are measured over the value, so on the formula they would mark whatever happened to be
+        // at those positions — and lead somewhere else entirely.
+        expect(screen.queryByTestId('cell-usage-0')).toBeNull()
+        expect(screen.getByTestId('grid').querySelectorAll('td')[0]).toHaveTextContent('=B1&C1')
+    })
 })

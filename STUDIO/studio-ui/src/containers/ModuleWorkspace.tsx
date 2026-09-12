@@ -16,7 +16,8 @@ import {
     type ModuleInfo,
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
-import { toUrlSafeId } from '../services/projectId'
+import { isCompiled } from '../services/projectStatus'
+import { moduleRoute, toUrlSafeId } from '../services/projectId'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
 import { useLoadGeneration } from '../hooks'
@@ -31,24 +32,13 @@ import { BranchSwitcher } from './projects/BranchSwitcher'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { ModuleActionBar } from './modules/ModuleActionBar'
+import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import { TableProblems } from './modules/TableProblems'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
+import { useSharedStyles } from './projects/sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
-    page: css`
-        height: calc(100vh - 64px);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        background: ${token.colorBgContainer};
-    `,
-    withTree: css`
-        display: flex;
-        flex: 1;
-        min-width: 0;
-        min-height: 0;
-    `,
     body: css`
         position: relative;
         flex: 1;
@@ -57,19 +47,19 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         flex-direction: column;
     `,
-    crumb: css`
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: ${token.colorTextTertiary};
-
-        a {
-            color: ${token.colorTextSecondary};
-
-            &:hover {
-                color: ${token.colorPrimary};
-            }
-        }
+    /** The table and, beside it, what the table says about itself. */
+    withDetails: css`
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+    `,
+    main: css`
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
     `,
     /** A breadcrumb value (the repository): reads like the links beside it. */
     crumbValue: css`
@@ -125,6 +115,7 @@ const useStyles = createStyles(({ css, token }) => ({
 export const ModuleWorkspace = () => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
     const { projectId, moduleName = '' } = useParams()
     const [search, setSearch] = useSearchParams()
@@ -143,7 +134,10 @@ export const ModuleWorkspace = () => {
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
     // Bumped by Refresh, so the module is compiled again and its tables read afresh.
-    const [reloadToken, setReloadToken] = useState(0)
+    // What the reader asked to be compiled again, and how many times. A refresh belongs to the module it was
+    // pressed on: carried over to the next module, it would rebuild that one from the workbook as well.
+    const [reload, setReload] = useState({ module: '', token: 0 })
+    const reloadToken = reload.module === moduleName ? reload.token : 0
     const tableLoads = useLoadGeneration()
 
     // Only the tables read for the module now open count as this screen's.
@@ -238,11 +232,7 @@ export const ModuleWorkspace = () => {
         if (selectedId !== null && tables.some(candidate => candidate.id === selectedId)) {
             return
         }
-        navigate(
-            `/projects/${toUrlSafeId(projectId ?? '')}/modules/${encodeURIComponent(moduleName)}`
-            + `?table=${encodeURIComponent((tables[0] as ModuleTable).id)}`,
-            { replace: true }
-        )
+        navigate(moduleRoute(projectId ?? '', moduleName, (tables[0] as ModuleTable).id), { replace: true })
     }, [tables, selectedId, moduleName, navigate, projectId])
 
     // A compilation of a large project takes minutes, and a reader who no longer wants to wait says so. What
@@ -262,23 +252,55 @@ export const ModuleWorkspace = () => {
     const refresh = useCallback(() => {
         setLoaded(null)
         setTableError(null)
-        setReloadToken(token => token + 1)
-    }, [])
+        setReload(asked => ({ module: moduleName, token: asked.token + 1 }))
+    }, [moduleName])
+
+    // Opening a revision replaces the workspace copy of the project: the project itself is read again, and the
+    // module is compiled from what the revision holds.
+    const reopenRevision = useCallback(() => {
+        load()
+        refresh()
+    }, [load, refresh])
 
     // Another module of the same project opens in the same screen, on its own first table.
     const openModule = useCallback((picked: string) => {
         if (picked !== moduleName) {
-            navigate(`/projects/${toUrlSafeId(projectId ?? '')}/modules/${encodeURIComponent(picked)}`)
+            navigate(moduleRoute(projectId ?? '', picked))
         }
     }, [moduleName, navigate, projectId])
 
-    const openTable = useCallback((picked: ModuleTable) => {
+    // "Show Header" puts away the rows the table's header takes, which the read names — the header line, a
+    // properties section, the service rows of a decision table. Cut once: the screen redraws on every status
+    // the compilation pushes, and a table of thousands of rows is not re-cut for each of them.
+    const rows = useMemo(
+        () => showHeader ? table?.source ?? [] : (table?.source ?? []).slice(table?.headerHeight ?? 0),
+        [table, showHeader]
+    )
+
+    const openTableById = useCallback((picked: string) => {
         setSearch(params => {
             const next = new URLSearchParams(params)
-            next.set('table', picked.id)
+            next.set('table', picked)
             return next
         })
     }, [setSearch])
+
+    const openTable = useCallback((picked: ModuleTable) => openTableById(picked.id), [openTableById])
+
+    // A word in a cell that names another table is a way into it: the same screen when the table is one of
+    // this module's, its own module's screen when it lives elsewhere.
+    const openUsage = useCallback((usage: { tableId?: string, module?: string, projectId?: string }) => {
+        if (!usage.tableId || !usage.module) {
+            return
+        }
+        if (usage.module === moduleName) {
+            openTableById(usage.tableId)
+            return
+        }
+        // A table this one uses may be written in a project this one depends on, and is read through that
+        // project's own screen — the module it names belongs to it, not to the project being read.
+        navigate(moduleRoute(usage.projectId ?? projectId ?? '', usage.module, usage.tableId))
+    }, [moduleName, navigate, openTableById, projectId])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
     useEffect(() => {
@@ -290,7 +312,7 @@ export const ModuleWorkspace = () => {
         setTable(null)
         setTableError(null)
         // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it.
-        getRawTable(projectId, selectedId, { module: moduleName, maxRows: TABLE_PAGE_ROWS })
+        getRawTable(projectId, selectedId, { module: moduleName, maxRows: TABLE_PAGE_ROWS, metaInfo: true })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
                     setTable(loaded)
@@ -313,6 +335,7 @@ export const ModuleWorkspace = () => {
             module: moduleName,
             startRow: table.source.length,
             maxRows: TABLE_PAGE_ROWS,
+            metaInfo: true,
         })
             .then(next => setTable(shown => (shown === null ? next : {
                 ...shown,
@@ -336,7 +359,7 @@ export const ModuleWorkspace = () => {
 
     if (!project) {
         return (
-            <div className={styles.page}>
+            <div className={shared.workspacePage}>
                 <div className={styles.centered} data-testid="module-workspace-loading">
                     <Skeleton active />
                 </div>
@@ -346,10 +369,13 @@ export const ModuleWorkspace = () => {
 
     const modulePath = modules.find(declared => declared.name === moduleName)?.path
     const testCount = compilation.tests
+    // A test covering this module's tables may be written in another one, so what covers them is only known
+    // once the project's compilation has finished — however it finished.
+    const projectCompiled = isCompiled(compilation.state)
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && !!project.branch
 
     const crumbs = (
-        <span className={styles.crumb}>
+        <>
             <Link to="/projects">{t('home.title')}</Link>
             <span aria-hidden>/</span>
             <ValueText className={styles.crumbValue}>
@@ -372,7 +398,7 @@ export const ModuleWorkspace = () => {
             )}
             <span aria-hidden>/</span>
             <Link to={`/projects/${toUrlSafeId(project.id)}`}>{project.name}</Link>
-        </span>
+        </>
     )
 
     const canvas = () => {
@@ -457,7 +483,7 @@ export const ModuleWorkspace = () => {
         const toolbar = selected === null ? null : (
             <TableToolbar
                 moduleName={moduleName}
-                projectCompiled={compilation.total > 0 && compilation.compiled >= compilation.total}
+                projectCompiled={projectCompiled}
                 projectId={project.id}
                 table={selected}
             />
@@ -470,9 +496,6 @@ export const ModuleWorkspace = () => {
                 </>
             )
         }
-        // "Show Header" puts away the rows the table's header takes, which the read names — the header
-        // line, a properties section, the service rows of a decision table.
-        const rows = showHeader ? table.source : table.source.slice(table.headerHeight ?? 0)
         const shown = table.source.length
         const total = table.totalRows ?? shown
         return (
@@ -480,7 +503,12 @@ export const ModuleWorkspace = () => {
                 {toolbar}
                 <TableProblems messages={table.messages ?? []} />
                 <div className={styles.canvas}>
-                    <RawTableGrid formulas={showFormulas} rows={rows} testId="module-table" />
+                    <RawTableGrid
+                        formulas={showFormulas}
+                        onOpenUsage={openUsage}
+                        rows={rows}
+                        testId="module-table"
+                    />
                     {shown < total && (
                         <div className={styles.more}>
                             <Button
@@ -498,8 +526,8 @@ export const ModuleWorkspace = () => {
     }
 
     return (
-        <div className={styles.page} data-testid="module-workspace">
-            <div className={styles.withTree}>
+        <div className={shared.workspacePage} data-testid="module-workspace">
+            <div className={shared.workspaceBody}>
                 <ModuleTablesTree
                     compiling={!closed && !compilation.ready && compilation.state === 'compiling'}
                     currentModule={moduleName}
@@ -519,7 +547,9 @@ export const ModuleWorkspace = () => {
                                 disabled={closed}
                                 moduleName={moduleName}
                                 modulePath={modulePath}
+                                onRevisionOpened={reopenRevision}
                                 project={project}
+                                projectCompiled={projectCompiled}
                                 testCount={testCount}
                             />
                         )}
@@ -550,7 +580,17 @@ export const ModuleWorkspace = () => {
                             </>
                         )}
                     />
-                    {canvas()}
+                    <div className={styles.withDetails}>
+                        <div className={styles.main}>{canvas()}</div>
+                        {compilation.ready && !closed && (
+                            <TableDetailsPanel
+                                moduleName={moduleName}
+                                onOpenTable={openTableById}
+                                projectId={project.id}
+                                tableId={selectedId}
+                            />
+                        )}
+                    </div>
                     <CompileProblemsPanel
                         project={project}
                         statusReadAt={statusReadAt}
@@ -558,15 +598,6 @@ export const ModuleWorkspace = () => {
                     />
                 </div>
             </div>
-            {!projectId && (
-                <div className={styles.centered}>
-                    <Empty description={t('home.not_found')}>
-                        <Button onClick={() => navigate('/projects')} type="primary">
-                            {t('home.back_to_projects')}
-                        </Button>
-                    </Empty>
-                </div>
-            )}
         </div>
     )
 }

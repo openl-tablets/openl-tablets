@@ -14,8 +14,8 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
-import { toUrlSafeId } from '../../services/projectId'
 import { getTableTests, type TableTest } from '../../services/modules'
+import { moduleRoute } from '../../services/projectId'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** A band over the table, carrying what can be done to the table under it. */
@@ -70,8 +70,8 @@ interface TableAction {
     icon: ReactNode
     /** The event the React panel listens on; absent for an action that arrives with the editing phase. */
     event?: string
-    /** Only a test table runs its cases; the rest are offered for any table that can be executed. */
-    testsOnly?: boolean
+    /** Offered only for a table that has tests of its own or is covered by some. */
+    needsTests?: boolean
     /** Offered whatever the table is, not only for one that can be run. */
     always?: boolean
 }
@@ -83,17 +83,18 @@ const ACTIONS: TableAction[] = [
     { key: 'run', labelKey: 'browser.module.run', icon: <PlayCircleOutlined />, event: 'openRunLaunch' },
     { key: 'trace', labelKey: 'browser.module.trace', icon: <RadarChartOutlined />, event: 'openTraceLaunch' },
     {
-        key: 'tests',
-        labelKey: 'browser.module.test',
-        icon: <ExperimentOutlined />,
-        event: 'openTestsLaunch',
-        testsOnly: true,
-    },
-    {
         key: 'benchmark',
         labelKey: 'browser.module.benchmark',
         icon: <DashboardOutlined />,
         event: 'openBenchmarkLaunch',
+    },
+    // Where the old Editor kept it: beside Create Test, and only for a table there is something to run.
+    {
+        key: 'tests',
+        labelKey: 'browser.module.test',
+        icon: <ExperimentOutlined />,
+        event: 'openTestsLaunch',
+        needsTests: true,
     },
     { key: 'createTest', labelKey: 'browser.module.create_test', icon: <FileAddOutlined />, always: true },
 ]
@@ -152,13 +153,21 @@ export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = f
     }
 
     const executable = EXECUTABLE.has(table.kind)
+    // A test table runs its own cases; any other table runs the tests written against it, when there are some.
+    const hasTests = table.kind === 'Test' || tests.length > 0
     const offered = ACTIONS.filter(action =>
-        action.always || (executable && (!action.testsOnly || table.kind === 'Test')))
+        action.always || (executable && (!action.needsTests || hasTests)))
 
-    const openTest = (id: string) => navigate(
-        `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
-        + `?table=${encodeURIComponent(id)}`
-    )
+    // A test is a table of its own, written where its author put it: another module of this project, or a
+    // module of a project this one depends on. It is opened there, not beside the table it exercises.
+    const openTest = (test: TableTest) =>
+        navigate(moduleRoute(test.projectId ?? projectId, test.module ?? moduleName, test.id))
+
+    /** What a test is called in the list, saying where it lives when that is not the module being read. */
+    const testLabel = (test: TableTest) => {
+        const name = test.info ? `${test.name} (${test.info})` : test.name
+        return test.module && test.module !== moduleName ? `${name} — ${test.module}` : name
+    }
 
     return (
         <div className={styles.bar} data-testid="table-toolbar">
@@ -181,15 +190,23 @@ export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = f
                 <div className={styles.tests} data-testid="table-available-tests">
                     <span className={styles.testsTitle}>{t('browser.module.available_tests')}</span>
                     {tests.map(test => (
-                        <Button
+                        <Tooltip
                             key={test.id}
-                            className={styles.testLink}
-                            data-testid={`table-test-${test.id}`}
-                            onClick={() => openTest(test.id)}
-                            type="link"
+                            title={test.project && test.projectId === undefined
+                                ? t('browser.module.test_elsewhere', { project: test.project })
+                                : undefined}
                         >
-                            {test.info ? `${test.name} (${test.info})` : test.name}
-                        </Button>
+                            <Button
+                                className={styles.testLink}
+                                data-testid={`table-test-${test.id}`}
+                                // A project the session cannot address has no screen to open the test on.
+                                disabled={test.module !== undefined && test.projectId === undefined}
+                                onClick={() => openTest(test)}
+                                type="link"
+                            >
+                                {testLabel(test)}
+                            </Button>
+                        </Tooltip>
                     ))}
                 </div>
             )}

@@ -11,7 +11,8 @@ Content-Type: application/json
     "signature": "*",
     "file": "*",
     "pos": "*",
-    "project": "EPBDS-15473"
+    "project": "EPBDS-15473",
+    "module": "*"
   },
   {
     "id": "*",
@@ -23,6 +24,7 @@ Content-Type: application/json
     "file": "*",
     "pos": "*",
     "project": "EPBDS-15473",
+    "module": "*",
     "dependencies": [
       "*"
     ]
