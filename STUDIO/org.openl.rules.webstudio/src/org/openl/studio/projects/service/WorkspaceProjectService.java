@@ -1909,7 +1909,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             @Nullable Integer maxRows, boolean withStyles, boolean withMetaInfo, @Nullable String moduleName) {
         var context = getOpenLTableInModule(project, tableId, moduleName);
         var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles, withMetaInfo,
-                TableModules.ofWorkspace(context.module()));
+                TableModules.ofWorkspace(context.module(), projectIdentifierMapper));
         tableView.messages = mapMessages(context);
         return tableView;
     }
@@ -1996,7 +1996,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * The tests and runs that exercise the given table.
      *
      * <p>Each is a table of its own, named by the id the Tables API addresses it by, so the screen showing them can
-     * open one as it opens any other table.
+     * open one as it opens any other table — and each says where it is written, because a test need not live in
+     * the module it exercises, nor even in this project.
      *
      * @param project project owning the table
      * @param tableId table the tests are asked about
@@ -2008,12 +2009,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (tests == null) {
             return List.of();
         }
+        var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);
         return Arrays.stream(tests)
-                .map(test -> TableTestView.builder()
-                        .id(((TableSyntaxNode) test.getInfo().getSyntaxNode()).getId())
-                        .name(TableSyntaxNodeUtils.getTestName(test))
-                        .info(ProjectHelper.getTestInfo(test))
-                        .build())
+                .map(test -> {
+                    var node = (TableSyntaxNode) test.getInfo().getSyntaxNode();
+                    var where = modules.locationOf(node.getUri());
+                    return TableTestView.builder()
+                            .id(node.getId())
+                            .name(TableSyntaxNodeUtils.getTestName(test))
+                            .info(ProjectHelper.getTestInfo(test))
+                            .module(where == null ? null : where.module())
+                            .project(where == null ? null : where.projectName())
+                            .projectId(where == null ? null : where.projectId())
+                            .build();
+                })
                 .sorted(Comparator.comparing(TableTestView::name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
@@ -2026,19 +2035,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * Resolve a table that is asked for through one named module.
      *
      * <p>Opening the module compiles it, so the table is there to be read as soon as that is done — the modules
-     * after it are of no interest to the answer and are not waited for. A table the module turns out not to hold
-     * falls back to the project-wide lookup, which waits as it always has.
+     * after it are of no interest to the answer and are not waited for.
+     *
+     * <p>A table that module does not hold is not found. Answering with it from wherever else it lives would draw
+     * one module's table on another module's screen, under the wrong tree and the wrong actions — and a link that
+     * named the wrong module would look as if it worked. Asked without a module, the lookup spans the project as
+     * it always has.
      */
     private OpenLTableContext getOpenLTableInModule(RulesProject project, String tableId,
                                                     @Nullable String moduleName) {
-        if (moduleName != null) {
-            var moduleModel = openProject(project, moduleName).project();
-            var table = moduleModel.getTableById(tableId);
-            if (table != null && moduleModel.getModuleInfo().containsTable(table.getUri())) {
-                return new OpenLTableContext(table, moduleModel);
-            }
+        if (moduleName == null) {
+            return getOpenLTable(project, tableId, false);
         }
-        return getOpenLTable(project, tableId, false);
+        var moduleModel = openProject(project, moduleName).project();
+        var table = moduleModel.getTableById(tableId);
+        if (table == null || !moduleModel.getModuleInfo().containsTable(table.getUri())) {
+            throw new NotFoundException("table.in.module.message", moduleName);
+        }
+        return new OpenLTableContext(table, moduleModel);
     }
 
     /**

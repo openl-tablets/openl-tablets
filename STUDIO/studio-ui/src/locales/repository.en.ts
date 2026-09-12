@@ -388,6 +388,7 @@ i18next.addResourceBundle('en', 'repository', {
             create_test: 'Create Test',
             createTable: 'Create Table',
             available_tests: 'Available Tests/Runs',
+            test_elsewhere: 'Written in project "{{project}}", which is not open here',
             problems: 'Problems',
             details: 'Table Details',
             details_show: 'Show table details',

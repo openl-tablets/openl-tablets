@@ -120,12 +120,19 @@ export interface TableTest {
     name: string
     /** What the test holds, as the Editor phrases it — "1 test case"; absent for a run table. */
     info?: string
+    /** Module the test is written in, which need not be the one it exercises. */
+    module?: string
+    /** Name of the project that module belongs to. */
+    project?: string
+    /** Identifier of that project; absent when the session cannot address it, and then the test cannot be opened. */
+    projectId?: string
 }
 
 /**
  * The tests and runs that exercise the given table.
  *
- * Each carries the id the Tables API addresses it by, so the editor opens one as it opens any other table.
+ * Each carries the id the Tables API addresses it by and where it is written — a test is a table of its own,
+ * and its author may have put it in another module, or in a project this one depends on.
  */
 export const getTableTests = async (projectId: string, tableId: string, module?: string): Promise<TableTest[]> =>
     asArray(await apiCall(
