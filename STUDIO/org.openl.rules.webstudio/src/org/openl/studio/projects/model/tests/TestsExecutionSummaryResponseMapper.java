@@ -20,6 +20,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.service.tables.TableModules;
 
 public class TestsExecutionSummaryResponseMapper {
 
@@ -34,12 +35,16 @@ public class TestsExecutionSummaryResponseMapper {
 
     private final ObjectMapper objectMapper;
     private final ExecutionValueMapper valueMapper;
+    /** The modules of the project, so every table reported says which one it is read through. */
+    private final TableModules tableModules;
 
     public TestsExecutionSummaryResponseMapper(ObjectMapper objectMapper,
                                                SchemaGenerator schemaGenerator,
-                                               SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy) {
+                                               SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy,
+                                               TableModules tableModules) {
         this.objectMapper = objectMapper;
         this.valueMapper = new ExecutionValueMapper(objectMapper, schemaGenerator, sprNamingStrategy);
+        this.tableModules = tableModules;
     }
 
     public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {
@@ -72,6 +77,7 @@ public class TestsExecutionSummaryResponseMapper {
         var builder = TestCaseExecutionResult.builder()
                 .name(TableSyntaxNodeUtils.getTestName(testCase.getTestSuite().getTestSuiteMethod()))
                 .tableId(TableUtils.makeTableId(testCase.getTestSuite().getUri()))
+                .module(tableModules.moduleOf(testCase.getTestSuite().getUri()))
                 .description(testCase.getTestSuite().getTestSuiteMethod().getSyntaxNode().getTableProperties().getDescription())
                 .executionTimeMs(testCase.getExecutionTime() / NANOS_IN_MILLISECOND)
                 .numberOfTests(testCase.getNumberOfTestUnits())

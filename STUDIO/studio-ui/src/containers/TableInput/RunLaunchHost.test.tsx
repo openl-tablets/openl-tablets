@@ -222,6 +222,9 @@ describe('RunLaunchHost', () => {
         // The Editor opened this panel whatever the table took: the settings and the run into a file are here.
         expect(await screen.findByTestId('run-start')).toBeInTheDocument()
         expect(screen.getByTestId('run-into-file')).toBeInTheDocument()
+        // There is nothing to fill in, so neither way of filling it in is offered.
+        expect(screen.queryByText('input.form')).toBeNull()
+        expect(screen.queryByText('input.json')).toBeNull()
         expect(run).not.toHaveBeenCalled()
 
         await userEvent.click(screen.getByTestId('run-start'))

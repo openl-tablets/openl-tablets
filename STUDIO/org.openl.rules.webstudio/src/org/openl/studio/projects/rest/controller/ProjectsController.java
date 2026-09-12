@@ -728,7 +728,8 @@ public class ProjectsController {
         var objectMapper = objectMapperService.createObjectMapper();
         var schemaGenerator = getSchemaGenerator(objectMapper);
         var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
-                projectService.getSpreadsheetResultNamingStrategy());
+                projectService.getSpreadsheetResultNamingStrategy(),
+                projectService.getTableModules(project));
         if (StringUtils.isBlank(tableId)) {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
@@ -795,7 +796,8 @@ public class ProjectsController {
             var objectMapper = objectMapperService.createObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
-                    projectService.getSpreadsheetResultNamingStrategy());
+                    projectService.getSpreadsheetResultNamingStrategy(),
+                    projectService.getTableModules(project));
             var query = new TestExecutionSummaryQuery(failuresOnly, failures, compoundResult, lazyValues);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
@@ -832,7 +834,8 @@ public class ProjectsController {
 
         var objectMapper = objectMapperService.createObjectMapper();
         var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, getSchemaGenerator(objectMapper),
-                projectService.getSpreadsheetResultNamingStrategy());
+                projectService.getSpreadsheetResultNamingStrategy(),
+                projectService.getTableModules(project));
         return mapper.mapToTestUnitResult(testCase, testUnit, TestExecutionSummaryQuery.inFull());
     }
 

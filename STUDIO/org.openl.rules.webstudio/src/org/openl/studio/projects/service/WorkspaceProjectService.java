@@ -128,6 +128,7 @@ import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
@@ -1918,6 +1919,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var summary = summaryTableReader.read(table);
         return new TablePropertiesView(summary.name, summary.kind, tablePropertiesService.read(table),
                 tableVersionService.describe(table, context.module().getTableSyntaxNodes()));
+    }
+
+    /**
+     * The modules of the project, ready to say which of them holds a given table.
+     *
+     * <p>A screen that sends a reader to a table needs the module as well: the editor opens a module, and a
+     * table is read through the one that holds it.
+     *
+     * @param project project
+     * @return the modules to ask about a table
+     */
+    public TableModules getTableModules(RulesProject project) {
+        return TableModules.of(getProjectDescriptor(project));
     }
 
     /**

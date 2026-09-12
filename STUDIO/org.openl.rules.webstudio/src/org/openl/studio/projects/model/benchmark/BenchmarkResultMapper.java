@@ -30,6 +30,7 @@ public class BenchmarkResultMapper {
         return BenchmarkResult.builder()
                 .id(measurement.id())
                 .tableId(measurement.tableId())
+                .module(measurement.module())
                 .name(measurement.name())
                 .testTable(measurement.testTable())
                 .runTable(measurement.runTable())
