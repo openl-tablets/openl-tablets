@@ -210,8 +210,10 @@ export const ModuleWorkspace = () => {
         )
     }, [load, project, projectId])
 
+    // Followed by the id the server issued, not the one the address carries: a link written elsewhere may
+    // spell the same project a little differently, and the channel is named after the server's spelling.
     const compilation = useModuleCompilation(
-        projectId ?? '',
+        project?.id ?? '',
         project?.branch ?? null,
         moduleName,
         project?.compileStatus ?? null,

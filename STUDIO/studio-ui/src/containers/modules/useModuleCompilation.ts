@@ -48,7 +48,10 @@ export const useModuleCompilation = (
     enabled = true
 ): ModuleCompilation => {
     const [failure, setFailure] = useState<string | null>(null)
-    const status = useLiveProjectStatus(projectId, branch, true, initial, initialReadAt)
+    // Subscribed only once the project is known, and with it the branch the channel is named after. Listening
+    // before that subscribes to the wrong channel and throws away what it heard when the right one replaces it,
+    // which on a project that compiles in a moment means hearing nothing at all.
+    const status = useLiveProjectStatus(projectId, branch, enabled, initial, initialReadAt)
     const compiledModules = modulesOf(status)?.compiledModules
     const ready = (compiledModules ?? []).includes(moduleName)
 

@@ -19,12 +19,14 @@ const compiling = (compiled: number, total: number, ...names: string[]): Project
     compilation: { modules: { compiled, total, compiledModules: names } },
 })
 
-const Probe = ({ initial, reloadToken }: {
+const Probe = ({ initial, reloadToken, branch, enabled }: {
     initial?: ProjectStatusUpdate | null
     reloadToken?: number
+    branch?: string | null
+    enabled?: boolean
 }) => {
     const { ready, compiled, total, failure } = useModuleCompilation(
-        'p1', 'main', 'Claims', initial ?? null, 0, reloadToken
+        'p1', branch === undefined ? 'main' : branch, 'Claims', initial ?? null, 0, reloadToken, enabled ?? true
     )
     return (
         <span data-testid="state">
@@ -46,6 +48,22 @@ const captureUpdates = () => {
 describe('useModuleCompilation', () => {
     beforeEach(() => {
         vi.mocked(startModuleCompilation).mockResolvedValue(undefined)
+    })
+
+    it('waits for the branch before joining the channel it is named after', () => {
+        const push = captureUpdates()
+        // The project has not been read yet: its branch is unknown, and so is the channel to listen on.
+        const { rerender, getByTestId } = render(<Probe branch={null} enabled={false} />)
+        expect(subscribeProjectStatus).not.toHaveBeenCalled()
+        expect(startModuleCompilation).not.toHaveBeenCalled()
+
+        rerender(<Probe branch="main" enabled />)
+
+        // One channel, joined once: re-joining would throw away what a quick compilation already said.
+        expect(subscribeProjectStatus).toHaveBeenCalledTimes(1)
+        expect(subscribeProjectStatus).toHaveBeenCalledWith('p1', 'main', expect.any(Function))
+        push(compiling(2, 2, 'Claims'))
+        expect(getByTestId('state')).toHaveTextContent('ready 2/2')
     })
 
     it('asks for the compilation and waits, reporting how far it has come', async () => {
