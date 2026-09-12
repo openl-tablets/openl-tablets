@@ -158,7 +158,16 @@ export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = f
     const offered = ACTIONS.filter(action =>
         action.always || (executable && (!action.needsTests || hasTests)))
 
-    const openTest = (id: string) => navigate(moduleRoute(projectId, moduleName, id))
+    // A test is a table of its own, written where its author put it: another module of this project, or a
+    // module of a project this one depends on. It is opened there, not beside the table it exercises.
+    const openTest = (test: TableTest) =>
+        navigate(moduleRoute(test.projectId ?? projectId, test.module ?? moduleName, test.id))
+
+    /** What a test is called in the list, saying where it lives when that is not the module being read. */
+    const testLabel = (test: TableTest) => {
+        const name = test.info ? `${test.name} (${test.info})` : test.name
+        return test.module && test.module !== moduleName ? `${name} — ${test.module}` : name
+    }
 
     return (
         <div className={styles.bar} data-testid="table-toolbar">
@@ -181,15 +190,23 @@ export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = f
                 <div className={styles.tests} data-testid="table-available-tests">
                     <span className={styles.testsTitle}>{t('browser.module.available_tests')}</span>
                     {tests.map(test => (
-                        <Button
+                        <Tooltip
                             key={test.id}
-                            className={styles.testLink}
-                            data-testid={`table-test-${test.id}`}
-                            onClick={() => openTest(test.id)}
-                            type="link"
+                            title={test.project && test.projectId === undefined
+                                ? t('browser.module.test_elsewhere', { project: test.project })
+                                : undefined}
                         >
-                            {test.info ? `${test.name} (${test.info})` : test.name}
-                        </Button>
+                            <Button
+                                className={styles.testLink}
+                                data-testid={`table-test-${test.id}`}
+                                // A project the session cannot address has no screen to open the test on.
+                                disabled={test.module !== undefined && test.projectId === undefined}
+                                onClick={() => openTest(test)}
+                                type="link"
+                            >
+                                {testLabel(test)}
+                            </Button>
+                        </Tooltip>
                     ))}
                 </div>
             )}

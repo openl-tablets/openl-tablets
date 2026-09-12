@@ -302,14 +302,18 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
             return List.of();
         }
         return usedNodes.stream()
-                .map(node -> RawTableCellUsage.builder()
-                        .start(node.getStart())
-                        .end(node.getEnd())
-                        .description(node.getDescription())
-                        .tableId(node.getUri() == null ? null : TableUtils.makeTableId(node.getUri()))
-                        .module(modules.moduleOf(node.getUri()))
-                        .kind(RawTableUsageKind.of(node.getNodeType()))
-                        .build())
+                .map(node -> {
+                    var where = modules.locationOf(node.getUri());
+                    return RawTableCellUsage.builder()
+                            .start(node.getStart())
+                            .end(node.getEnd())
+                            .description(node.getDescription())
+                            .tableId(node.getUri() == null ? null : TableUtils.makeTableId(node.getUri()))
+                            .module(where == null ? null : where.module())
+                            .projectId(where == null ? null : where.projectId())
+                            .kind(RawTableUsageKind.of(node.getNodeType()))
+                            .build();
+                })
                 .toList();
     }
 

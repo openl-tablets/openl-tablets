@@ -53,6 +53,8 @@ export interface RawTableCellUsage {
     tableId?: string
     /** The module that table is read through; absent when no module of the workspace holds it */
     module?: string
+    /** The project that module belongs to, which for a table of a dependency is not the one being read */
+    projectId?: string
     kind: RawTableUsageKind
 }
 

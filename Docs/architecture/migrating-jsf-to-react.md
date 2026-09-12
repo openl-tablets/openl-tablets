@@ -268,6 +268,19 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   kept them — even where a branch holds a single version, so a version is always found in the same place. A
   table switched off by its `active` property says so (`active: false`, inherited values included) and is drawn
   faint, as it was drawn there.
+- **Whatever names a table names where it lives — the project and the module, never just the module.** A test
+  that exercises a table is a table of its own, written where its author put it: another module, or a module of
+  a project this one depends on. The same is true of a word in a cell that names a rule, and of a compilation
+  message. So each of them carries the module *and* the project it belongs to, and the screen builds the address
+  from what it was given rather than from the screen it is on — a test written in `AutoPolicyTests` opened under
+  `AutoPolicyCalculation` is a link that looks as if it worked. Where the session cannot address the project —
+  it is not open in the workspace — nothing is offered to click, and the reader is told where the table lives
+  instead.
+- **A read that names a module is answered about that module.** `GET /projects/{id}/tables/{tableId}?module=X`
+  used to fall back to a project-wide lookup when the module did not hold the table, so a wrong link drew one
+  module's table on another module's screen, under the wrong tree and the wrong actions. It now answers "not
+  found in module X", which is what the screen shows. Asked without a module, the lookup spans the project as
+  it always has.
 - **A problem leads to the table it was raised against, and asks nothing to do it.** Every compilation message
   already carries where it came from — the project, the module, the table and the cell — so the list makes each
   message a link built from what it already holds: a project raising a thousand of them still costs no request.

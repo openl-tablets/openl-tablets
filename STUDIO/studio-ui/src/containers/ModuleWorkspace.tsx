@@ -286,7 +286,7 @@ export const ModuleWorkspace = () => {
 
     // A word in a cell that names another table is a way into it: the same screen when the table is one of
     // this module's, its own module's screen when it lives elsewhere.
-    const openUsage = useCallback((usage: { tableId?: string, module?: string }) => {
+    const openUsage = useCallback((usage: { tableId?: string, module?: string, projectId?: string }) => {
         if (!usage.tableId || !usage.module) {
             return
         }
@@ -294,7 +294,9 @@ export const ModuleWorkspace = () => {
             openTableById(usage.tableId)
             return
         }
-        navigate(moduleRoute(projectId ?? '', usage.module, usage.tableId))
+        // A table this one uses may be written in a project this one depends on, and is read through that
+        // project's own screen — the module it names belongs to it, not to the project being read.
+        navigate(moduleRoute(usage.projectId ?? projectId ?? '', usage.module, usage.tableId))
     }, [moduleName, navigate, openTableById, projectId])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.

@@ -110,7 +110,14 @@ describe('TableToolbar', () => {
     })
 
     it('names what exercises the table and opens it where the tree would', async () => {
-        vi.mocked(getTableTests).mockResolvedValue([{ id: 'test-9', name: 'GreetingTest', info: '2 test cases' }])
+        vi.mocked(getTableTests).mockResolvedValue([{
+            id: 'test-9',
+            name: 'GreetingTest',
+            info: '2 test cases',
+            module: 'Claims',
+            project: 'Pricing',
+            projectId: 'p1',
+        }])
         await draw({ table: table('Spreadsheet') })
 
         expect(getTableTests).toHaveBeenCalledWith('p1', 'table-1', 'Claims')
@@ -120,6 +127,57 @@ describe('TableToolbar', () => {
         await userEvent.click(test)
 
         expect(navigate).toHaveBeenCalledWith('/projects/p1/modules/Claims?table=test-9')
+    })
+
+    it('opens a test written in another module there, and says which module it is', async () => {
+        vi.mocked(getTableTests).mockResolvedValue([{
+            id: 'test-7',
+            name: 'PremiumTest',
+            module: 'ClaimsTests',
+            project: 'Pricing',
+            projectId: 'p1',
+        }])
+        await draw({ table: table('Spreadsheet') })
+
+        const test = await screen.findByTestId('table-test-test-7')
+        // A test is a table of its own: the reader is told where it is before following it.
+        expect(test).toHaveTextContent('PremiumTest — ClaimsTests')
+
+        await userEvent.click(test)
+
+        expect(navigate).toHaveBeenCalledWith('/projects/p1/modules/ClaimsTests?table=test-7')
+    })
+
+    it('opens a test written in another project through that project', async () => {
+        vi.mocked(getTableTests).mockResolvedValue([{
+            id: 'test-5',
+            name: 'SharedTest',
+            module: 'SharedTests',
+            project: 'Shared Rules',
+            projectId: 'p9',
+        }])
+        await draw({ table: table('Spreadsheet') })
+
+        await userEvent.click(await screen.findByTestId('table-test-test-5'))
+
+        expect(navigate).toHaveBeenCalledWith('/projects/p9/modules/SharedTests?table=test-5')
+    })
+
+    it('offers no way into a test whose project the session cannot address', async () => {
+        vi.mocked(getTableTests).mockResolvedValue([{
+            id: 'test-3',
+            name: 'ForeignTest',
+            module: 'ForeignTests',
+            project: 'Closed Rules',
+        }])
+        await draw({ table: table('Spreadsheet') })
+
+        const test = await screen.findByTestId('table-test-test-3')
+        expect(test).toBeDisabled()
+
+        await userEvent.click(test)
+
+        expect(navigate).not.toHaveBeenCalled()
     })
 
     it('reads what exercises the table again once the project is compiled through', async () => {
