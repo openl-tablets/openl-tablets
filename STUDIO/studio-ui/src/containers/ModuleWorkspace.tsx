@@ -280,6 +280,13 @@ export const ModuleWorkspace = () => {
         setReloadToken(token => token + 1)
     }, [])
 
+    // Opening a revision replaces the workspace copy of the project: the project itself is read again, and the
+    // module is compiled from what the revision holds.
+    const reopenRevision = useCallback(() => {
+        load()
+        refresh()
+    }, [load, refresh])
+
     // Another module of the same project opens in the same screen, on its own first table.
     const openModule = useCallback((picked: string) => {
         if (picked !== moduleName) {
@@ -536,6 +543,7 @@ export const ModuleWorkspace = () => {
                                 disabled={closed}
                                 moduleName={moduleName}
                                 modulePath={modulePath}
+                                onRevisionOpened={reopenRevision}
                                 project={project}
                                 testCount={testCount}
                             />
