@@ -17,7 +17,7 @@ import cytoscape, { type Core } from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
-import { toUrlSafeId } from '../services/projectId'
+import { moduleRoute } from '../services/projectId'
 import {
     bridgeHiddenNodes,
     buildGraphModel,
@@ -277,10 +277,7 @@ const tableIdFromHash = (): string | undefined => /[?&]id=([^&]+)/.exec(globalTh
  * <p>A node that names no module cannot be opened — there is no screen to read the table through.
  */
 const tableAddress = (projectId: string, node?: GraphNode): string | null =>
-    node?.module
-        ? `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(node.module)}`
-            + `?table=${encodeURIComponent(node.id)}`
-        : null
+    node?.module ? moduleRoute(projectId, node.module, node.id) : null
 
 /**
  * TableGraphModal renders an interactive dependency graph of the current project's tables with Cytoscape: nodes are

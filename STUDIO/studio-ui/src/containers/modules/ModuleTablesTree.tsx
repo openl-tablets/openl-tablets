@@ -55,48 +55,6 @@ const useStyles = createStyles(({ css, token }) => ({
         overflow: hidden;
         padding: 4px 8px 12px;
     `,
-    tree: css`
-        background: transparent;
-
-        .ant-tree-treenode {
-            padding-bottom: 0;
-            white-space: nowrap;
-            align-items: center;
-        }
-
-        /* The rail is narrow: every step of the hierarchy costs width, so it stays small. */
-        .ant-tree-indent-unit {
-            width: 12px;
-        }
-
-        .ant-tree-switcher {
-            width: 18px;
-            line-height: 24px;
-        }
-
-        .ant-tree-node-content-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            min-height: 24px;
-            line-height: 24px;
-            padding: 0 4px;
-            overflow: visible;
-        }
-
-        /* A name is read in full, on one line: the tree scrolls sideways instead of clipping it. */
-        .ant-tree-title,
-        .ant-tree-node-content-wrapper .ant-tree-title {
-            overflow: visible;
-            text-overflow: clip;
-            white-space: nowrap;
-        }
-
-        .ant-tree-iconEle {
-            width: auto;
-            line-height: 24px;
-        }
-    `,
     /**
      * A table switched off by its `active` property is written in the module but takes no part in the rules.
      * The Editor drew it faint, and the rail keeps that: the row is read as present but out of play.
@@ -120,6 +78,16 @@ interface TreeDataNode {
     'data-testid'?: string
     children: TreeDataNode[]
 }
+
+/** One node of the tree as Ant Design draws it, with the class a switched-off table is drawn faint in. */
+const toTreeNode = (node: TableNode, inactive: string): TreeDataNode => ({
+    key: node.table ? node.table.id : node.key,
+    title: node.title,
+    icon: node.table ? tableIcon(node.table.kind) : groupIcon(node.groupedBy),
+    selectable: node.table !== undefined,
+    ...(node.table?.active === false ? { className: inactive, 'data-testid': 'module-table-inactive' } : {}),
+    children: node.children.map(child => toTreeNode(child, inactive)),
+})
 
 /** The keys of the groups on the way down to the given table, so only that branch stands open. */
 const pathTo = (nodes: TableNode[], tableId: string, trail: string[] = []): string[] | null => {
@@ -214,33 +182,16 @@ export const ModuleTablesTree = ({
         setExpanded(selectedTableId ? pathTo(nodes, selectedTableId) ?? [] : [])
     }, [nodes, selectedTableId])
 
-    const viewOptions = TABLE_VIEWS.map(name => ({ value: name, label: t(`browser.module.view_${name}`) }))
+    const viewOptions = useMemo(
+        () => TABLE_VIEWS.map(name => ({ value: name, label: t(`browser.module.view_${name}`) })),
+        [t]
+    )
 
-    const toTreeNode = (node: TableNode): TreeDataNode => ({
-        key: node.table ? node.table.id : node.key,
-        title: node.title,
-        icon: node.table ? tableIcon(node.table.kind) : groupIcon(node.groupedBy),
-        selectable: node.table !== undefined,
-        ...(node.table?.active === false
-            ? { className: styles.inactive, 'data-testid': 'module-table-inactive' }
-            : {}),
-        children: node.children.map(toTreeNode),
-    })
+    // Built once per tree: the rail redraws on every status the compilation pushes and on every step of a
+    // drag, and a module of hundreds of tables would be rebuilt, icons and all, each time.
+    const treeData = useMemo(() => nodes.map(node => toTreeNode(node, styles.inactive)), [nodes, styles.inactive])
 
-    const findTable = (from: TableNode[], key: string): ModuleTable | undefined => {
-        for (const node of from) {
-            if (node.table?.id === key) {
-                return node.table
-            }
-            const found = findTable(node.children, key)
-            if (found) {
-                return found
-            }
-        }
-        return undefined
-    }
-
-    const moduleNodes = modules.map(module => ({
+    const moduleNodes = useMemo(() => modules.map(module => ({
         key: module.name,
         title: module.name,
         icon: <FileExcelOutlined />,
@@ -248,7 +199,7 @@ export const ModuleTablesTree = ({
         // Only the module already open can be picked while it compiles; the rest would wait behind it.
         disabled: compiling && module.name !== currentModule,
         children: [],
-    }))
+    })), [modules, compiling, currentModule])
 
     return (
         <aside className={cx(shared.rail, styles.resizable)} data-testid="module-rail" style={{ width }}>
@@ -294,7 +245,7 @@ export const ModuleTablesTree = ({
                     <Tree
                         blockNode
                         showIcon
-                        className={styles.tree}
+                        className={shared.railTree}
                         data-testid="module-rail-modules"
                         height={body.height}
                         itemHeight={ROW_HEIGHT}
@@ -312,7 +263,7 @@ export const ModuleTablesTree = ({
                     <Tree
                         blockNode
                         showIcon
-                        className={styles.tree}
+                        className={shared.railTree}
                         data-testid="module-tables-tree"
                         expandedKeys={expanded}
                         height={body.height}
@@ -320,9 +271,10 @@ export const ModuleTablesTree = ({
                         onExpand={keys => setExpanded(keys as string[])}
                         scrollWidth={rowWidth}
                         selectedKeys={selectedTableId ? [selectedTableId] : []}
-                        treeData={nodes.map(toTreeNode) as never}
+                        treeData={treeData as never}
                         onSelect={(_keys, info) => {
-                            const table = findTable(nodes, String(info.node.key))
+                            // Only a table is selectable, and a table row is keyed by its own id.
+                            const table = tables?.find(candidate => candidate.id === String(info.node.key))
                             if (table) {
                                 onSelectTable(table)
                             }

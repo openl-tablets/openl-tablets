@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Typography } from 'antd'
-import { toUrlSafeId } from 'services/projectId'
+import { moduleRoute } from 'services/projectId'
 
 const { Link, Text } = Typography
 
@@ -44,8 +44,7 @@ export const TableLink: React.FC<TableLinkProps> = ({
         return <Text data-testid={rest['data-testid']} {...(type && { type })}>{children}</Text>
     }
 
-    const to = `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(module)}`
-        + `?table=${encodeURIComponent(tableId)}`
+    const to = moduleRoute(projectId, module, tableId)
 
     return (
         <Link

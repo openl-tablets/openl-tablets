@@ -12,13 +12,6 @@ import { useSharedStyles } from './projects/sharedStyles'
 import { AuthorDate } from './projects/AuthorDate'
 
 const useStyles = createStyles(({ css, token }) => ({
-    page: css`
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 64px);
-        overflow: hidden;
-        background: ${token.colorBgContainer};
-    `,
     header: css`
         padding: 12px 16px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
@@ -232,7 +225,7 @@ export const DeploymentWorkspace = () => {
     }
 
     return (
-        <div className={styles.page} data-testid="deployment-workspace">
+        <div className={shared.workspacePage} data-testid="deployment-workspace">
             <div className={styles.header}>
                 <div className={styles.crumb}>
                     <Link to="/deployments">{t('deployments.title')}</Link>

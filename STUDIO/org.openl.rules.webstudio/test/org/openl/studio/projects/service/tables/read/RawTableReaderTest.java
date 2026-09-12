@@ -36,7 +36,7 @@ class RawTableReaderTest {
         IOpenLTable table = multiRowTable();
         var fullHeight = new RawTableReader().read(table).source.size();
 
-        var capped = new RawTableReader().read(table, null, 1, false, false, TableModules.of(null));
+        var capped = new RawTableReader().read(table, null, 1, false, false, TableModules.none());
 
         assertEquals(1, capped.source.size(), "the result must be capped to maxRows");
         assertNotNull(capped.totalRows, "a truncated read must report the full row count");
@@ -51,7 +51,7 @@ class RawTableReaderTest {
         assertNull(full.totalRows, "a full read carries no truncation marker");
 
         // A cap at or above the height is non-regressive: same rows, no marker.
-        var wide = new RawTableReader().read(table, null, full.source.size() + 10, false, false, TableModules.of(null));
+        var wide = new RawTableReader().read(table, null, full.source.size() + 10, false, false, TableModules.none());
         assertEquals(full.source.size(), wide.source.size());
         assertNull(wide.totalRows);
     }
@@ -66,7 +66,7 @@ class RawTableReaderTest {
                 "the default read must carry no cell styles");
 
         // With styles requested, the shape is unchanged and Excel formatting is attached.
-        var styled = new RawTableReader().read(table, null, null, true, false, TableModules.of(null));
+        var styled = new RawTableReader().read(table, null, null, true, false, TableModules.none());
         assertEquals(plain.source.size(), styled.source.size());
         assertTrue(styled.source.stream().flatMap(List::stream).anyMatch(c -> c.style() != null),
                 "a styled read must attach at least one cell style");
@@ -83,7 +83,7 @@ class RawTableReaderTest {
         // Slice from a plain data row, so no merged region is cut at the boundary, and confirm the window
         // lines up one-to-one with the whole-table read while keeping absolute cell addresses.
         var startRow = firstPlainRow(full);
-        var window = reader.read(table, startRow, null, false, false, TableModules.of(null));
+        var window = reader.read(table, startRow, null, false, false, TableModules.none());
 
         assertEquals(fullHeight - startRow, window.source.size(), "the window must skip the rows before startRow");
         assertEquals(cellAddresses(full.get(startRow)), cellAddresses(window.source.getFirst()),
@@ -100,7 +100,7 @@ class RawTableReaderTest {
 
         // startRow and maxRows compose into a bounded slice taken from the middle of the table.
         var startRow = firstPlainRow(full);
-        var oneRow = reader.read(table, startRow, 1, false, false, TableModules.of(null));
+        var oneRow = reader.read(table, startRow, 1, false, false, TableModules.none());
 
         assertEquals(1, oneRow.source.size(), "the window must be capped to maxRows counted from startRow");
         assertEquals(cellAddresses(full.get(startRow)), cellAddresses(oneRow.source.getFirst()));
@@ -113,7 +113,7 @@ class RawTableReaderTest {
         var reader = new RawTableReader();
         var fullHeight = reader.read(table).source.size();
 
-        var beyond = reader.read(table, fullHeight + 5, null, false, false, TableModules.of(null));
+        var beyond = reader.read(table, fullHeight + 5, null, false, false, TableModules.none());
 
         assertTrue(beyond.source.isEmpty(), "an offset past the last row yields an empty matrix");
         assertEquals(fullHeight, beyond.totalRows, "the empty window still reports the full row count");

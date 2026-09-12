@@ -1,7 +1,9 @@
 package org.openl.studio.projects.service.tables;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.jspecify.annotations.Nullable;
 
@@ -21,10 +23,27 @@ import org.openl.rules.ui.ProjectModel;
  */
 public final class TableModules {
 
-    private final List<Module> modules;
+    /**
+     * A module and the location its workbook sits at, which every table of that module is addressed under.
+     *
+     * <p>Working the location out reads the file system, and a table read asks about every cell of a table, so
+     * it is worked out once here rather than on each question.
+     */
+    private record ModuleLocation(String name, String uri) {
+    }
 
-    private TableModules(List<Module> modules) {
+    private final List<ModuleLocation> modules;
+
+    private TableModules(List<ModuleLocation> modules) {
         this.modules = modules;
+    }
+
+    /** Locates the modules that have a workbook to hold tables and a name to be opened by. */
+    private static TableModules locate(Stream<Module> modules) {
+        return new TableModules(modules
+                .filter(module -> module.getName() != null && module.getRulesRootPath() != null)
+                .map(module -> new ModuleLocation(module.getName(), module.getRelativeUri()))
+                .toList());
     }
 
     /**
@@ -34,7 +53,22 @@ public final class TableModules {
      * @return the modules to ask, answering nothing for a project without a descriptor
      */
     public static TableModules of(@Nullable ProjectDescriptor descriptor) {
-        return new TableModules(descriptor == null ? List.of() : List.copyOf(descriptor.getModules()));
+        return descriptor == null ? none() : locate(descriptor.getModules().stream());
+    }
+
+    /** No modules to ask: a table read outside a project, which has no module to be opened through. */
+    public static TableModules none() {
+        return new TableModules(List.of());
+    }
+
+    /**
+     * The given modules, ready to be asked about a table.
+     *
+     * @param modules modules of a project, or of everything the workspace has compiled
+     * @return the modules to ask
+     */
+    public static TableModules of(Collection<Module> modules) {
+        return locate(modules.stream());
     }
 
     /**
@@ -50,14 +84,13 @@ public final class TableModules {
     public static TableModules ofWorkspace(ProjectModel model) {
         var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
         if (dependencyManager == null) {
-            return new TableModules(List.of());
+            return none();
         }
-        return new TableModules(dependencyManager.getDependencyLoaders()
+        return locate(dependencyManager.getDependencyLoaders()
                 .stream()
                 .filter(loader -> !loader.isProjectLoader())
                 .map(IDependencyLoader::getModule)
-                .filter(Objects::nonNull)
-                .toList());
+                .filter(Objects::nonNull));
     }
 
     /**
@@ -71,9 +104,9 @@ public final class TableModules {
             return null;
         }
         return modules.stream()
-                .filter(module -> module.getName() != null && module.containsTable(tableUri))
+                .filter(module -> tableUri.startsWith(module.uri()))
                 .findFirst()
-                .map(Module::getName)
+                .map(ModuleLocation::name)
                 .orElse(null);
     }
 }

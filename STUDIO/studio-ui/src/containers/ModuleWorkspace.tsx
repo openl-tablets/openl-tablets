@@ -16,7 +16,8 @@ import {
     type ModuleInfo,
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
-import { toUrlSafeId } from '../services/projectId'
+import { isCompiled } from '../services/projectStatus'
+import { moduleRoute, toUrlSafeId } from '../services/projectId'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
 import { useLoadGeneration } from '../hooks'
@@ -35,21 +36,9 @@ import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import { TableProblems } from './modules/TableProblems'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
+import { useSharedStyles } from './projects/sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
-    page: css`
-        height: calc(100vh - 64px);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        background: ${token.colorBgContainer};
-    `,
-    withTree: css`
-        display: flex;
-        flex: 1;
-        min-width: 0;
-        min-height: 0;
-    `,
     body: css`
         position: relative;
         flex: 1;
@@ -71,20 +60,6 @@ const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         min-width: 0;
         min-height: 0;
-    `,
-    crumb: css`
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: ${token.colorTextTertiary};
-
-        a {
-            color: ${token.colorTextSecondary};
-
-            &:hover {
-                color: ${token.colorPrimary};
-            }
-        }
     `,
     /** A breadcrumb value (the repository): reads like the links beside it. */
     crumbValue: css`
@@ -140,6 +115,7 @@ const useStyles = createStyles(({ css, token }) => ({
 export const ModuleWorkspace = () => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
     const { projectId, moduleName = '' } = useParams()
     const [search, setSearch] = useSearchParams()
@@ -253,11 +229,7 @@ export const ModuleWorkspace = () => {
         if (selectedId !== null && tables.some(candidate => candidate.id === selectedId)) {
             return
         }
-        navigate(
-            `/projects/${toUrlSafeId(projectId ?? '')}/modules/${encodeURIComponent(moduleName)}`
-            + `?table=${encodeURIComponent((tables[0] as ModuleTable).id)}`,
-            { replace: true }
-        )
+        navigate(moduleRoute(projectId ?? '', moduleName, (tables[0] as ModuleTable).id), { replace: true })
     }, [tables, selectedId, moduleName, navigate, projectId])
 
     // A compilation of a large project takes minutes, and a reader who no longer wants to wait says so. What
@@ -290,9 +262,17 @@ export const ModuleWorkspace = () => {
     // Another module of the same project opens in the same screen, on its own first table.
     const openModule = useCallback((picked: string) => {
         if (picked !== moduleName) {
-            navigate(`/projects/${toUrlSafeId(projectId ?? '')}/modules/${encodeURIComponent(picked)}`)
+            navigate(moduleRoute(projectId ?? '', picked))
         }
     }, [moduleName, navigate, projectId])
+
+    // "Show Header" puts away the rows the table's header takes, which the read names — the header line, a
+    // properties section, the service rows of a decision table. Cut once: the screen redraws on every status
+    // the compilation pushes, and a table of thousands of rows is not re-cut for each of them.
+    const rows = useMemo(
+        () => showHeader ? table?.source ?? [] : (table?.source ?? []).slice(table?.headerHeight ?? 0),
+        [table, showHeader]
+    )
 
     const openTableById = useCallback((picked: string) => {
         setSearch(params => {
@@ -314,8 +294,7 @@ export const ModuleWorkspace = () => {
             openTableById(usage.tableId)
             return
         }
-        navigate(`/projects/${toUrlSafeId(projectId ?? '')}/modules/${encodeURIComponent(usage.module)}`
-            + `?table=${encodeURIComponent(usage.tableId)}`)
+        navigate(moduleRoute(projectId ?? '', usage.module, usage.tableId))
     }, [moduleName, navigate, openTableById, projectId])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
@@ -375,7 +354,7 @@ export const ModuleWorkspace = () => {
 
     if (!project) {
         return (
-            <div className={styles.page}>
+            <div className={shared.workspacePage}>
                 <div className={styles.centered} data-testid="module-workspace-loading">
                     <Skeleton active />
                 </div>
@@ -387,11 +366,11 @@ export const ModuleWorkspace = () => {
     const testCount = compilation.tests
     // A test covering this module's tables may be written in another one, so what covers them is only known
     // once the project's compilation has finished — however it finished.
-    const projectCompiled = ['ok', 'warnings', 'errors'].includes(compilation.state)
+    const projectCompiled = isCompiled(compilation.state)
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && !!project.branch
 
     const crumbs = (
-        <span className={styles.crumb}>
+        <>
             <Link to="/projects">{t('home.title')}</Link>
             <span aria-hidden>/</span>
             <ValueText className={styles.crumbValue}>
@@ -414,7 +393,7 @@ export const ModuleWorkspace = () => {
             )}
             <span aria-hidden>/</span>
             <Link to={`/projects/${toUrlSafeId(project.id)}`}>{project.name}</Link>
-        </span>
+        </>
     )
 
     const canvas = () => {
@@ -512,9 +491,6 @@ export const ModuleWorkspace = () => {
                 </>
             )
         }
-        // "Show Header" puts away the rows the table's header takes, which the read names — the header
-        // line, a properties section, the service rows of a decision table.
-        const rows = showHeader ? table.source : table.source.slice(table.headerHeight ?? 0)
         const shown = table.source.length
         const total = table.totalRows ?? shown
         return (
@@ -545,8 +521,8 @@ export const ModuleWorkspace = () => {
     }
 
     return (
-        <div className={styles.page} data-testid="module-workspace">
-            <div className={styles.withTree}>
+        <div className={shared.workspacePage} data-testid="module-workspace">
+            <div className={shared.workspaceBody}>
                 <ModuleTablesTree
                     compiling={!closed && !compilation.ready && compilation.state === 'compiling'}
                     currentModule={moduleName}
@@ -617,15 +593,6 @@ export const ModuleWorkspace = () => {
                     />
                 </div>
             </div>
-            {!projectId && (
-                <div className={styles.centered}>
-                    <Empty description={t('home.not_found')}>
-                        <Button onClick={() => navigate('/projects')} type="primary">
-                            {t('home.back_to_projects')}
-                        </Button>
-                    </Empty>
-                </div>
-            )}
         </div>
     )
 }

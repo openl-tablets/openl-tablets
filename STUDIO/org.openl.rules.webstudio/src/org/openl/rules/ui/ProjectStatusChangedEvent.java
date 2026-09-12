@@ -31,10 +31,6 @@ public class ProjectStatusChangedEvent extends ApplicationEvent {
      */
     private final boolean progressOnly;
 
-    public ProjectStatusChangedEvent(ProjectModel source, RulesProject project, String userName) {
-        this(source, project, userName, false);
-    }
-
     public ProjectStatusChangedEvent(ProjectModel source,
                                      RulesProject project,
                                      String userName,

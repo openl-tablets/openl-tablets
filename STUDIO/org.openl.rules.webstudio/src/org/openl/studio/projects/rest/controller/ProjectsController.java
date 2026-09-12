@@ -726,11 +726,7 @@ public class ProjectsController {
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
         CompletableFuture<List<TestUnitsResults>> testTask;
-        var objectMapper = objectMapperService.createObjectMapper();
-        var schemaGenerator = getSchemaGenerator(objectMapper);
-        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
-                projectService.getSpreadsheetResultNamingStrategy(),
-                projectService.getTableModules(project));
+        var mapper = testsSummaryMapper(project);
         if (StringUtils.isBlank(tableId)) {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
@@ -794,11 +790,7 @@ public class ProjectsController {
         var executionResults = completedTests(project);
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            var objectMapper = objectMapperService.createObjectMapper();
-            var schemaGenerator = getSchemaGenerator(objectMapper);
-            var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
-                    projectService.getSpreadsheetResultNamingStrategy(),
-                    projectService.getTableModules(project));
+            var mapper = testsSummaryMapper(project);
             var query = new TestExecutionSummaryQuery(failuresOnly, failures, compoundResult, lazyValues);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
@@ -833,11 +825,21 @@ public class ProjectsController {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
 
+        return testsSummaryMapper(project).mapToTestUnitResult(testCase, testUnit,
+                TestExecutionSummaryQuery.inFull());
+    }
+
+    /**
+     * The mapper that reads a test run of the given project.
+     *
+     * <p>It is built per request: what it needs — how spreadsheet results are named, and which module holds
+     * each table — belongs to the project as it stands now.
+     */
+    private TestsExecutionSummaryResponseMapper testsSummaryMapper(RulesProject project) {
         var objectMapper = objectMapperService.createObjectMapper();
-        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, getSchemaGenerator(objectMapper),
+        return new TestsExecutionSummaryResponseMapper(objectMapper, getSchemaGenerator(objectMapper),
                 projectService.getSpreadsheetResultNamingStrategy(),
                 projectService.getTableModules(project));
-        return mapper.mapToTestUnitResult(testCase, testUnit, TestExecutionSummaryQuery.inFull());
     }
 
     /**

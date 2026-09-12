@@ -14,8 +14,8 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
-import { toUrlSafeId } from '../../services/projectId'
 import { getTableTests, type TableTest } from '../../services/modules'
+import { moduleRoute } from '../../services/projectId'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** A band over the table, carrying what can be done to the table under it. */
@@ -158,10 +158,7 @@ export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = f
     const offered = ACTIONS.filter(action =>
         action.always || (executable && (!action.needsTests || hasTests)))
 
-    const openTest = (id: string) => navigate(
-        `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
-        + `?table=${encodeURIComponent(id)}`
-    )
+    const openTest = (id: string) => navigate(moduleRoute(projectId, moduleName, id))
 
     return (
         <div className={styles.bar} data-testid="table-toolbar">

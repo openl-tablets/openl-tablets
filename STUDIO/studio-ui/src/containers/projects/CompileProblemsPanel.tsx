@@ -12,7 +12,7 @@ import {
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
 import { readStored, writeStored } from '../../utils/localStore'
-import { toUrlSafeId } from '../../services/projectId'
+import { moduleRoute } from '../../services/projectId'
 import { CompileMessages } from '../../components/CompileMessages'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
@@ -139,9 +139,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         if (!module) {
             return
         }
-        const target = toUrlSafeId(where.projectId ?? project.id)
-        const table = where.type === 'table' && where.id ? `?table=${encodeURIComponent(where.id)}` : ''
-        navigate(`/projects/${target}/modules/${encodeURIComponent(module)}${table}`)
+        navigate(moduleRoute(where.projectId ?? project.id, module, where.type === 'table' ? where.id : undefined))
     }, [navigate, project.id])
 
     // A module is compiled for one session at a time, so while that is running the reader is kept where they
