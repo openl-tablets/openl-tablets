@@ -262,6 +262,12 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   messages, so they sit in a foldable section above it, the way the legacy editor kept its Problems block —
   the project's other messages stay in the panel at the foot of the screen. Both draw through one component,
   so a message reads the same wherever it is shown.
+- **Nothing may animate a painted property while a reader scrolls.** The compiling indicator beat with a
+  `box-shadow`, which the page paints — so every frame recalculated style and repainted, and the browser's own
+  trace of a scroll over a large table showed 346 style recalculations and 610 paints in four seconds, with the
+  GPU process pegged and the screen going blank behind the scroll. The same scroll with the animation silenced
+  cost one style recalculation and one paint. The beat is a ring moved by `transform` and `opacity` now, which
+  is the compositor's own work: 6 paints for the same scroll.
 - **A table is drawn at the width its values need, not the width of the screen.** Squeezing a table of several
   hundred columns into the page gives each column a few characters and wraps every value into a tower of
   lines: a table 10,000 x 6,700 px where the same table laid out naturally is 32,000 x 700 — three times the

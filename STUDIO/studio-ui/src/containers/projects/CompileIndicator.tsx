@@ -9,10 +9,17 @@ import { type ProjectCompileState, type ProjectStatusUpdate } from '../../servic
 import { COMPILE_COLORS } from './projectsTheme'
 import { useSharedStyles } from './sharedStyles'
 
-// Only the compiling state animates: a soft pulse on its dot — the one state-driven motion moment.
+/**
+ * Only the compiling state animates: a soft pulse on its dot — the one state-driven motion moment.
+ *
+ * It beats with a ring that grows and fades rather than with a shadow that is redrawn. A shadow is painted by
+ * the page, so a shadow that beats makes the page recalculate and repaint on every frame — which, while a
+ * reader is scrolling a large table, is exactly the work that leaves the screen blank behind the scroll. A ring
+ * moved by transform and opacity is the compositor's own work and costs the page nothing.
+ */
 const pulse = keyframes`
-    0%, 100% { box-shadow: 0 0 0 0 ${COMPILE_COLORS.compiling}88; }
-    50% { box-shadow: 0 0 0 5px ${COMPILE_COLORS.compiling}00; }
+    0% { transform: scale(1); opacity: 0.55; }
+    70%, 100% { transform: scale(2.6); opacity: 0; }
 `
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -35,11 +42,26 @@ const useStyles = createStyles(({ css, token }) => ({
         white-space: nowrap;
     `,
     dotPulse: css`
-        animation: ${pulse} 1.4s ease-in-out infinite;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: ${COMPILE_COLORS.compiling};
+            animation: ${pulse} 1.4s ease-out infinite;
+            will-change: transform, opacity;
+            pointer-events: none;
+        }
 
         @media (prefers-reduced-motion: reduce) {
-            animation: none;
             box-shadow: 0 0 0 3px ${COMPILE_COLORS.compiling}4d;
+
+            &::after {
+                animation: none;
+                opacity: 0;
+            }
         }
     `,
 }))

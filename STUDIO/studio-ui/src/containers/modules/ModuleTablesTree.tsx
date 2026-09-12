@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useUserStore } from '../../store'
 import { useTranslation } from 'react-i18next'
-import { Empty, Segmented, Select, Tree } from 'antd'
+import { Alert, Empty, Segmented, Select, Tree } from 'antd'
 import { FileExcelOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
@@ -123,6 +123,14 @@ interface ModuleTablesTreeProps {
     modules: ModuleInfo[]
     /** The module the editor has open, marked in the module list. */
     currentModule: string
+    /**
+     * Whether that module is still being compiled.
+     *
+     * <p>A session compiles one module at a time, so asking for another one while this is running only queues
+     * the request behind it — the reader would be left on an empty screen until the first compilation reached
+     * its end. The list is closed for as long as that lasts, and the screen offers to stop the compilation.
+     */
+    compiling?: boolean
     /** The table shown beside the tree, so the tree marks where the reader is. */
     selectedTableId?: string | undefined
     onSelectTable: (table: ModuleTable) => void
@@ -143,6 +151,7 @@ export const ModuleTablesTree = ({
     tables,
     modules,
     currentModule,
+    compiling = false,
     selectedTableId,
     onSelectTable,
     onSelectModule,
@@ -211,6 +220,8 @@ export const ModuleTablesTree = ({
         title: module.name,
         icon: <FileExcelOutlined />,
         selectable: true,
+        // Only the module already open can be picked while it compiles; the rest would wait behind it.
+        disabled: compiling && module.name !== currentModule,
         children: [],
     }))
 
@@ -244,6 +255,15 @@ export const ModuleTablesTree = ({
                 )}
             </div>
             <div ref={bodyRef} className={styles.body}>
+                {mode === 'modules' && compiling && (
+                    <Alert
+                        showIcon
+                        className={styles.state}
+                        data-testid="module-rail-compiling"
+                        title={t('browser.module.switch_blocked', { module: currentModule })}
+                        type="info"
+                    />
+                )}
                 {mode === 'modules' ? (
                     <Tree
                         blockNode
