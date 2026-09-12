@@ -51,7 +51,7 @@ export interface TableNode {
     /** What the node is called — the group's value, or the table's name. */
     title: string
     /** What the node groups by, absent on a table leaf; the icon is chosen from it. */
-    groupedBy?: Level['by']
+    groupedBy?: Level['by'] | 'overload'
     /** Set on a table leaf. */
     table?: ModuleTable
     children: TableNode[]
@@ -99,13 +99,58 @@ const valueOf = (table: ModuleTable, level: Level): string | null => {
 
 const tableNode = (table: ModuleTable, keyPrefix: string): TableNode => ({
     key: `${keyPrefix}/table/${table.id}`,
-    title: table.name,
+    // A table written in several versions is named by what tells it from the others.
+    title: table.displayName ?? table.name,
     table,
     children: [],
 })
 
 const byLabel = (left: string, right: string): number =>
     left.localeCompare(right, undefined, { sensitivity: 'base' })
+
+/** The name most of the versions are written under, which is what their folder is called. */
+const majorityName = (versions: ModuleTable[]): string => {
+    const counted = new Map<string, number>()
+    for (const version of versions) {
+        counted.set(version.name, (counted.get(version.name) ?? 0) + 1)
+    }
+    return [...counted.entries()].reduce((most, entry) => entry[1] > most[1] ? entry : most)[0]
+}
+
+/**
+ * The tables of a branch, with the versions of one table gathered under a folder of their own.
+ *
+ * Which version of a table answers a call is decided by its dimension properties, and the versions are written
+ * as separate tables carrying one name. The tree files them under that name and calls each version by what
+ * tells it from the others, the way the Editor's tree has always drawn them.
+ *
+ * The folder stands even where a branch holds a single version — the other versions are written on another
+ * sheet, or under another category — so a version is always found in the same place.
+ */
+const tableNodes = (tables: ModuleTable[], keyPrefix: string): TableNode[] => {
+    const versions = new Map<string, ModuleTable[]>()
+    const alone: ModuleTable[] = []
+    for (const table of tables) {
+        const group = table.overloadGroup
+        if (group === undefined) {
+            alone.push(table)
+        } else {
+            versions.set(group, [...versions.get(group) ?? [], table])
+        }
+    }
+    const folders = [...versions.entries()].map(([group, grouped]) => {
+        const key = `${keyPrefix}/versions/${group}`
+        return {
+            key,
+            title: majorityName(grouped),
+            groupedBy: 'overload' as const,
+            children: grouped.map(table => tableNode(table, key))
+                .sort((left, right) => byLabel(left.title, right.title)),
+        }
+    })
+    return [...folders, ...alone.map(table => tableNode(table, keyPrefix))]
+        .sort((left, right) => byLabel(left.title, right.title))
+}
 
 /**
  * Groups the tables into a tree, one level per grouping.
@@ -121,8 +166,7 @@ export const buildTableTree = (
     keyPrefix = 'grp'
 ): TableNode[] => {
     if (levels.length === 0) {
-        return [...tables].sort((left, right) => byLabel(left.name, right.name))
-            .map(table => tableNode(table, keyPrefix))
+        return tableNodes(tables, keyPrefix)
     }
     const [level, ...rest] = levels as [Level, ...Level[]]
     const groups = new Map<string, ModuleTable[]>()

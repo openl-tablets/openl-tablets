@@ -160,6 +160,15 @@ export interface ModuleTable extends ProjectTable {
     pos?: string
     /** The properties the table declares, `category` among them. */
     properties?: Record<string, unknown>
+    /**
+     * The name that tells this version of the table from the others, carrying what they are told apart by:
+     * `CarPrice [effectiveDate=01/01/2020]`. Absent unless the table is written in more than one version.
+     */
+    displayName?: string
+    /** What the versions of one table share, and no other table carries. Absent unless there is more than one. */
+    overloadGroup?: string
+    /** `false` on a table switched off by the `active` property, which takes no part in the rules. */
+    active?: boolean
 }
 
 /** A table in raw tabular form: a 2D matrix of cells with merge geometry. */

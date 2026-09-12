@@ -258,6 +258,16 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   and `scrollWidth` on Ant Design's `Tree`), so scrolling paints a screenful rather than a module. Without it
   every node sits in the DOM and the widest of them is measured across all of them, which is why a long tree
   scrolled to a blank page and filled in once the scrolling stopped.
+- **The tree tells the versions of one table apart, and the server is what tells it.** A table written in
+  several versions is several tables carrying one name, and which of them answers a call is decided by its
+  dimension properties. What makes two tables versions of one another is known only to the compiler's own
+  dictionary of overloads, so the list carries the answer: each version says the signature they share
+  (`overloadGroup`) and the name that tells it from the others — `displayName`, which reads
+  `CarPrice [effectiveDate=01/01/2020]`, written out once, by the server, from the property dictionary. The
+  tree then gathers them under a folder of the shared name in whichever view is open, where the legacy Editor
+  kept them — even where a branch holds a single version, so a version is always found in the same place. A
+  table switched off by its `active` property says so (`active: false`, inherited values included) and is drawn
+  faint, as it was drawn there.
 - **A problem leads to the table it was raised against, and asks nothing to do it.** Every compilation message
   already carries where it came from — the project, the module, the table and the cell — so the list makes each
   message a link built from what it already holds: a project raising a thousand of them still costs no request.
