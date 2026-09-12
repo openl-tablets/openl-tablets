@@ -2,14 +2,14 @@
 
 ## Resume point
 
-- Open PR #2104 (`dead-code/compare-residue`): 4 commits, 13 files, 162 deletions, one commit per change type, body
-  verified against the diff, no review yet. Nothing to do on it until a reviewer answers or `main` moves.
-- Swept head is `origin/main` e01088de, unchanged for four runs; no vein exists until something merges past it.
+- Open PR #2104 (`dead-code/compare-residue`), head 33329ccbe7: 4 commits, 13 files, 162 deletions re-derived and
+  matching the body, one commit per change type, no review. Nothing to do until a reviewer answers or `main` moves.
+- Swept head is `origin/main` e01088de, unchanged for five runs; no vein exists until something merges past it.
 - `origin/main` is red in ITEST and no rerun fixes it (Human follow-ups): the verification rail bars cleanup while
   that stands, and the same failure on #2104 is never this PR's.
 - The owner was pushed a notification naming the two stale fixture lines; do not send a second one until `main`
   moves or #2104 changes state.
-- On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
+- When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
 
 ## Change-type queue
 
@@ -292,6 +292,6 @@
 
 ## Run log
 
-- 2026-09-11 i: main still e01088de, no vein; #2104 body matches its diff and its one red job is red on main too.
 - 2026-09-12 a: main unmoved and still red, so no cleanup; re-verified #2104 against its diff and compacted the ledger.
 - 2026-09-12 b: same standstill; #2104 unchanged and unreviewed, so the blocker went to the owner as a notification.
+- 2026-09-12 c: same standstill; #2104 re-derived as 4/13/162 and correct, no new review, CI unchanged, no notification.
