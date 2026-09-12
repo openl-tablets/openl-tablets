@@ -19,6 +19,7 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
+import org.openl.studio.projects.service.tables.TableModules;
 
 /**
  * Validates the test results of a spreadsheet table against a real execution.
@@ -46,7 +47,7 @@ class TestsExecutionSummaryResponseMapperSpreadsheetTest {
 
         var objectMapper = new ObjectMapper();
         var schemaGenerator = new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper);
-        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator, null);
+        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator, null, TableModules.of(null));
         summary = mapper.mapExecutionSummary(results, new TestExecutionSummaryQuery(false, 5, false, false), Pageable.unpaged());
     }
 

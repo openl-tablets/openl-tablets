@@ -14,7 +14,7 @@ const TABLE_URL_API_OPTIONS = { throwError: true, suppressErrorPages: true }
  * @param tableId the table, as the APIs of the project report it
  * @return the address of the table, or `null` when it has none
  */
-export const tableUrl = async (tableId: string): Promise<string | null> => {
+const tableUrl = async (tableId: string): Promise<string | null> => {
     try {
         const resolved = await apiCall(
             `/compile/table/${tableId}/url`,

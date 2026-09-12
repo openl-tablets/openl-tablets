@@ -1,12 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Typography } from 'antd'
-import { openTableInEditor, tableUrl } from 'services/tableNavigation'
+import { toUrlSafeId } from 'services/projectId'
 
-const { Link } = Typography
+const { Link, Text } = Typography
 
 export interface TableLinkProps {
+    /** The project the table belongs to, as the server issued its id. */
+    projectId: string
     /** The table the link leads to, as the APIs of the project report it. */
     tableId: string
+    /** The module the table is read through; without it there is no screen to open. */
+    module?: string | undefined
     /** How the link reads, when its subject passed or failed. */
     type?: 'success' | 'danger' | undefined
     'data-testid'?: string
@@ -18,40 +23,39 @@ export interface TableLinkProps {
 /**
  * The name of a table, as a link to it in the editor.
  *
- * The address is the server's to give, so it is asked for as the link is shown and the link then carries a
- * real address the browser follows. Until the address is there, and for a table that has none here, the click
- * asks the editor to go to the table instead.
+ * The editor opens a module and reads a table through it, so the link carries both — which the result it
+ * belongs to already names, and no address has to be asked for. The address is a real one, so it can be
+ * copied and opened in a window of its own; following it here keeps the reader in the same page.
+ *
+ * A table whose module is not named is written as its name alone: there is nothing to open it with.
  */
-export const TableLink: React.FC<TableLinkProps> = ({ tableId, type, onOpen, children, ...rest }) => {
-    const [url, setUrl] = useState<string | null>(null)
+export const TableLink: React.FC<TableLinkProps> = ({
+    projectId,
+    tableId,
+    module,
+    type,
+    onOpen,
+    children,
+    ...rest
+}) => {
+    const navigate = useNavigate()
 
-    useEffect(() => {
-        let active = true
-        // The address of the table before it is not this one's; the link waits for its own.
-        setUrl(null)
-        void tableUrl(tableId).then(address => {
-            if (active) {
-                setUrl(address)
-            }
-        })
-        return () => {
-            active = false
-        }
-    }, [tableId])
+    if (!module) {
+        return <Text data-testid={rest['data-testid']} {...(type && { type })}>{children}</Text>
+    }
+
+    const to = `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(module)}`
+        + `?table=${encodeURIComponent(tableId)}`
 
     return (
         <Link
             data-testid={rest['data-testid']}
+            href={to}
             onClick={event => {
-                // The address is known: the browser follows it, and the screen steps aside.
-                if (url !== null) {
-                    onOpen()
-                    return
-                }
                 event.preventDefault()
-                void openTableInEditor(tableId).then(opened => opened && onOpen())
+                onOpen()
+                navigate(to)
             }}
-            {...(url !== null && { href: url })}
             {...(type && { type })}
         >
             {children}

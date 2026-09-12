@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom'
 import React from 'react'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -10,11 +11,6 @@ vi.mock('services/execution', () => ({
     getBenchmarks: vi.fn(),
     deleteBenchmarks: vi.fn(),
     isStillRunning: () => false,
-}))
-
-vi.mock('services/tableNavigation', () => ({
-    tableUrl: vi.fn().mockResolvedValue('#design/Project/Module/table?id=t1'),
-    openTableInEditor: vi.fn(),
 }))
 
 // What the measurement reports while the window is open. A test that follows a measurement to its end sets it.
@@ -56,6 +52,7 @@ const forget = deleteBenchmarks as ReturnType<typeof vi.fn>
 const measurement = (over: Partial<BenchmarkResult> = {}): BenchmarkResult => ({
     id: 'm1',
     tableId: 't1',
+    module: 'Auto Policy',
     name: 'PolicyTest',
     testTable: true,
     testCases: 1,
@@ -68,7 +65,7 @@ const show = async (measurements: BenchmarkResult[]) => {
     read.mockResolvedValue(measurements)
     readAgain.mockResolvedValue(measurements)
     await act(async () => {
-        render(<BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
         await new Promise(resolve => setTimeout(resolve, 20))
     })
 }
@@ -81,7 +78,7 @@ describe('BenchmarkResultModal', () => {
 
     it('waits for the measurement while it is still going on', async () => {
         readAgain.mockReturnValue(new Promise(() => undefined))
-        render(<BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('benchmark.running')).toBeInTheDocument()
     })
@@ -104,6 +101,9 @@ describe('BenchmarkResultModal', () => {
         await show([measurement({ parameters: [driver]})])
 
         expect(screen.getByTestId('benchmark-table')).toHaveTextContent('Driver')
+        // The measured table is opened where it is read: in its module, in the editor.
+        expect(screen.getByTestId('benchmark-table').querySelector('a'))
+            .toHaveAttribute('href', '/projects/p1/modules/Auto%20Policy?table=t1')
         expect(screen.getByText('"Sara"')).toBeInTheDocument()
     })
 
@@ -144,7 +144,7 @@ describe('BenchmarkResultModal', () => {
         read.mockResolvedValue([measurement()])
 
         await act(async () => {
-            render(<BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" />)
+            render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
             await new Promise(resolve => setTimeout(resolve, 20))
         })
 
@@ -160,7 +160,7 @@ describe('BenchmarkResultModal', () => {
         readAgain.mockResolvedValue([measurement()])
 
         await act(async () => {
-            render(<BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" />)
+            render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
             await new Promise(resolve => setTimeout(resolve, 20))
         })
 
@@ -174,7 +174,7 @@ describe('BenchmarkResultModal', () => {
 
     it('says why the measurement could not be read', async () => {
         readAgain.mockRejectedValue(new Error('No benchmark found'))
-        render(<BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('No benchmark found')).toBeInTheDocument()
         expect(screen.getByText('benchmark.failed')).toBeInTheDocument()

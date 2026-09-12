@@ -21289,6 +21289,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -28617,6 +28621,10 @@ Content-Type: application/json
           "executionTimeMs": {
             "type": "number",
             "format": "double",
+            "description": "***"
+          },
+          "module": {
+            "type": "string",
             "description": "***"
           },
           "name": {

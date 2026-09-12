@@ -17,7 +17,7 @@ class BenchmarkExecutorServiceImplTest {
     /** Longer than the shortest measurement the benchmark settles for. */
     private static final long LONG_ENOUGH = 4_000_000_000L;
 
-    private static final Measured MEASURED = new Measured("table1", "Table", true, null);
+    private static final Measured MEASURED = new Measured("table1", "Main", "Table", true, null);
 
     @Test
     void measureRepeatedly_endsOnTheFirstRunThatLastsLongEnough() throws InterruptedException {
