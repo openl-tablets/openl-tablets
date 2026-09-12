@@ -184,7 +184,7 @@ describe('TraceLaunchHost', () => {
         expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
     })
 
-    it('traces a table that takes nothing at once, without asking', async () => {
+    it('still asks a table that takes nothing, since the panel carries more than its parameters', async () => {
         // The API leaves an empty parameter list out altogether.
         const { parameters: _parameters, ...bare } = ruleTable
         inputRead.mockResolvedValue(bare)
@@ -192,9 +192,16 @@ describe('TraceLaunchHost', () => {
 
         await open()
 
+        // The Editor opened this panel whatever the table took: the settings and the trace into a file are here.
+        expect(await screen.findByTestId('trace-start')).toBeInTheDocument()
+        expect(launch).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('trace-start'))
+
         await waitFor(() => expect(launch).toHaveBeenCalledTimes(1))
-        expect(launchRequest()).toMatchObject({ projectId: 'real-p1', inputJson: '{}' })
-        expect(screen.queryByTestId('trace-start')).toBeNull()
+        expect(launchRequest()).toMatchObject({ projectId: 'real-p1' })
+        // A table that declares nothing is traced with an empty set of parameters, which is what it takes.
+        expect(JSON.parse(launchRequest()['inputJson'] as string)).toEqual({ params: {} })
     })
 
     it('keeps the launcher open with the reason when the trace cannot start', async () => {

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Button, Checkbox, notification, Space } from 'antd'
+import { Button, Checkbox, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { RunResultModal } from 'containers/execution/RunResultModal'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
@@ -220,12 +220,6 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
                     </Button>
                 </>
             )}
-            onNothingToAsk={value => {
-                start(value).catch(startError => {
-                    notification.error({ title: t('run.startFailed'), description: errorMessage(startError) })
-                    onClose()
-                })
-            }}
             options={state => (state.testTable
                 ? (
                     <Space wrap size="middle">
@@ -248,7 +242,8 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
  * Opens the run launcher under the Run button of the table page.
  *
  * A rule table is run with the input the panel collects and reports one result. A test table runs the cases
- * that are picked, and reports them as a test run. A table that takes nothing runs at once.
+ * that are picked, and reports them as a test run. A table that takes no parameters is asked all the same: the
+ * panel carries the settings of the run and the run into a file, which the Editor offered for every table.
  *
  * The second button saves what came out without showing it: the workbook of the run or the returned value in
  * JSON for a rule table, the workbook of the results for a test table.

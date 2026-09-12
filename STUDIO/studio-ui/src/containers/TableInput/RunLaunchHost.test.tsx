@@ -212,16 +212,23 @@ describe('RunLaunchHost', () => {
         expect(save).not.toHaveBeenCalled()
     })
 
-    it('runs a table that takes nothing at once, without asking', async () => {
+    it('still asks a table that takes nothing, since the panel carries more than its parameters', async () => {
         const { parameters: _parameters, ...bare } = ruleTable
         inputRead.mockResolvedValue(bare)
         render(<RunLaunchHost />)
 
         await open()
 
+        // The Editor opened this panel whatever the table took: the settings and the run into a file are here.
+        expect(await screen.findByTestId('run-start')).toBeInTheDocument()
+        expect(screen.getByTestId('run-into-file')).toBeInTheDocument()
+        expect(run).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('run-start'))
+
         await waitFor(() => expect(run).toHaveBeenCalledTimes(1))
-        expect(run.mock.calls[0]?.[2]).toBe('{}')
-        expect(screen.queryByTestId('run-start')).toBeNull()
+        // A table that declares nothing is run with an empty set of parameters, which is what it takes.
+        expect(JSON.parse(run.mock.calls[0]?.[2] as string)).toEqual({ params: {} })
     })
 
     it('asks for the runtime context of a table that takes no parameters', async () => {
