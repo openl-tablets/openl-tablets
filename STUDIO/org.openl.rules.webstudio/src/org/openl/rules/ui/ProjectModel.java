@@ -18,8 +18,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -528,17 +529,16 @@ public class ProjectModel {
     }
 
     public TestSuiteMethod[] getAllTestMethods() {
-        if (isCompiledSuccessfully()) {
-            return ProjectHelper.allTesters(compiledOpenClass.getOpenClassWithErrors());
-        }
-        return null;
+        // Read once: opening another module empties this between the question and the answer.
+        var compiled = this.compiledOpenClass;
+        return compiled != null && isCompiledSuccessfully() ? ProjectHelper
+                .allTesters(compiled.getOpenClassWithErrors()) : null;
     }
 
     public TestSuiteMethod[] getOpenedModuleTestMethods() {
-        if (isOpenedModuleCompiledSuccessfully()) {
-            return ProjectHelper.allTesters(openedModuleCompiledOpenClass.getOpenClassWithErrors());
-        }
-        return null;
+        var compiled = this.openedModuleCompiledOpenClass;
+        return compiled != null && isOpenedModuleCompiledSuccessfully() ? ProjectHelper
+                .allTesters(compiled.getOpenClassWithErrors()) : null;
     }
 
     public WorkbookSyntaxNode[] getWorkbookNodes() {
@@ -626,8 +626,9 @@ public class ProjectModel {
             Collection<IDependencyLoader> dependencyLoaders = dependencyManager
                     .findAllProjectDependencyLoaders(moduleInfo.getProject());
             if (isProjectCompilationCompleted()) {
-                if (compiledOpenClass != null) {
-                    compilationStatus.addMessages(compiledOpenClass.getAllMessages());
+                var compiled = this.compiledOpenClass;
+                if (compiled != null) {
+                    compilationStatus.addMessages(compiled.getAllMessages());
                 }
                 dependencyLoaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(e -> {
                     compilationStatus.addModulesCount(e.getProject().getModules().size());
@@ -646,10 +647,11 @@ public class ProjectModel {
                         compilationStatus.addModulesCount(1);
                         boolean isOpenedModule = Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName())
                                 && Objects.equals(dependencyLoader.getProject(), moduleInfo.getProject());
-                        if (isOpenedModule && openedModuleCompiledOpenClass != null) {
+                        var openedModule = this.openedModuleCompiledOpenClass;
+                        if (isOpenedModule && openedModule != null) {
                             // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
                             // rewrite the algorithm to handle with it is required here
-                            compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
+                            compilationStatus.addMessages(openedModule.getAllMessages())
                                     .addModulesCompiled(1);
                         } else {
                             // Fallback path for the opened module BEFORE setModuleInfo publishes
@@ -1402,7 +1404,6 @@ public class ProjectModel {
             // The module that was being compiled ended, and the reader asked for no more.
             return;
         }
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
         final RegisteredCompilation cycle;
         synchronized (this) {
             ProjectDescriptor projectDescriptor = getProjectDescriptor();
@@ -1433,7 +1434,6 @@ public class ProjectModel {
                     }
                     this.projectCompilationCompleted = compiledDependency.getDependency();
                     this.compilationInProgress = false;
-                    countDownLatch.countDown();
                 }
                 if (failure != null) {
                     cycle.future().completeExceptionally(failure);
@@ -1444,10 +1444,12 @@ public class ProjectModel {
         }
         publishStatusChanged();
         if (sync) {
+            // The cycle ends the compilation however it ends — built, failed, or stopped by the reader. Waiting
+            // on the work itself would leave a caller here for good when nothing finishes it.
             try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                cycle.future().join();
+            } catch (CancellationException | CompletionException ended) {
+                // What was compiled stays readable; the status is what says how the compilation ended.
             }
         }
     }

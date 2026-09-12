@@ -1786,18 +1786,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // and the status endpoint adopts a compilation started this way the moment it is asked about it.
         var webStudio = getWebStudio();
         moduleCompilationLauncher.launch(moduleName, () -> {
-            var moduleModel = openModule(webStudio, projectDescriptor, project, module);
-            // A compilation the reader stopped leaves the module where it got to, and opening it again compiles
-            // nothing — so a request to compile it has to be taken as the request to build it once more.
+            var moduleModel = webStudio.getModel();
+            // Opening a module already open compiles nothing, so a request to build it once more has to say so:
+            // the dependencies are dropped and the module is built from the workbook. A compilation the reader
+            // stopped leaves the module where it got to, and asking for it again is the same request.
+            //
+            // It is done before the module is opened: opening it first would compile it, and the reset would
+            // then throw that away and compile it a second time.
             if (reset || moduleModel.isCompilationCancelled()) {
-                // Opening a module already open compiles nothing, so a request to compile it again has to say
-                // so: the dependencies are dropped and the module is built from the workbook once more.
                 try {
                     moduleModel.reset(ReloadType.RELOAD, module);
                 } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 }
             }
+            openModule(webStudio, projectDescriptor, project, module);
         });
     }
 

@@ -134,7 +134,10 @@ export const ModuleWorkspace = () => {
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
     // Bumped by Refresh, so the module is compiled again and its tables read afresh.
-    const [reloadToken, setReloadToken] = useState(0)
+    // What the reader asked to be compiled again, and how many times. A refresh belongs to the module it was
+    // pressed on: carried over to the next module, it would rebuild that one from the workbook as well.
+    const [reload, setReload] = useState({ module: '', token: 0 })
+    const reloadToken = reload.module === moduleName ? reload.token : 0
     const tableLoads = useLoadGeneration()
 
     // Only the tables read for the module now open count as this screen's.
@@ -249,8 +252,8 @@ export const ModuleWorkspace = () => {
     const refresh = useCallback(() => {
         setLoaded(null)
         setTableError(null)
-        setReloadToken(token => token + 1)
-    }, [])
+        setReload(asked => ({ module: moduleName, token: asked.token + 1 }))
+    }, [moduleName])
 
     // Opening a revision replaces the workspace copy of the project: the project itself is read again, and the
     // module is compiled from what the revision holds.

@@ -49,6 +49,10 @@ const useStyles = createStyles(({ css, token }) => ({
     warningMark: css`
         color: ${COMPILE_COLORS.warnings};
     `,
+    /** Holds the messages and the grip that sizes them, so the grip is measured against what it sizes. */
+    resizable: css`
+        position: relative;
+    `,
     /** The messages scroll inside the section, so a table with many of them keeps the table in view. */
     body: css`
         overflow: auto;
@@ -116,13 +120,15 @@ export const TableProblems = ({ messages }: TableProblemsProps) => {
                 />
             </div>
             {open && (
-                <>
+                // The grip is dragged against the box it sizes: measured against the whole section, every drag
+                // would size the messages to the pointer plus the header above them.
+                <div className={styles.resizable}>
                     <div className={styles.body} data-testid="table-problems-body" style={{ height }}>
                         <CompileMessages messages={errors} severity="error" testIdPrefix="table-message" />
                         <CompileMessages messages={warnings} severity="warning" testIdPrefix="table-message" />
                     </div>
                     <ResizeHandle edge="bottom" onPointerDown={startResize} testId="table-problems-resizer" />
-                </>
+                </div>
             )}
         </section>
     )
