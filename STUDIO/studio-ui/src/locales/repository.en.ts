@@ -335,6 +335,7 @@ i18next.addResourceBundle('en', 'repository', {
             ok: 'Compiled',
             warnings: 'Warnings',
             errors: 'Errors',
+            cancelled: 'Compilation stopped',
             error_count_one: '{{count}} error',
             error_count_other: '{{count}} errors',
             warning_count_one: '{{count}} warning',
@@ -387,6 +388,7 @@ i18next.addResourceBundle('en', 'repository', {
             create_test: 'Create Test',
             createTable: 'Create Table',
             available_tests: 'Available Tests/Runs',
+            problems: 'Problems',
             rail_tables: 'Tables',
             rail_modules: 'Modules',
             revisions: 'Revisions',
@@ -394,6 +396,12 @@ i18next.addResourceBundle('en', 'repository', {
             dependencies: 'Table Dependencies',
             compare: 'Compare Excel files',
             compiling: 'Compiling "{{module}}" — {{compiled}} of {{total}} modules done',
+            compile_progress: 'Compiling {{compiled}} of {{total}}',
+            compile_cancel: 'Stop compiling',
+            switch_blocked: 'Another module opens once "{{module}}" is compiled — one module is compiled at a '
+                + 'time. Stop the compilation to open another straight away.',
+            compile_cancelled: 'Compiling "{{module}}" was stopped. What was compiled is shown; Refresh compiles '
+                + 'it again.',
             compile_failed: 'The module could not be compiled',
             project_closed: 'Open the project to work with its modules.',
             pick_a_table: 'Pick a table to see it',

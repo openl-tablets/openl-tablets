@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button } from 'antd'
 import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
@@ -12,11 +12,10 @@ import {
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
 import { readStored, writeStored } from '../../utils/localStore'
+import { toUrlSafeId } from '../../services/projectId'
+import { CompileMessages } from '../../components/CompileMessages'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
 
-const PAGE_SIZE = 10
-const PREVIEW_CHARS = 260
-const PREVIEW_LINES = 4
 
 /** How low and how tall the panel may be dragged, and where it opens the first time. */
 const MIN_HEIGHT = 120
@@ -101,40 +100,6 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: 0 12px 12px;
         border-top: 1px solid ${token.colorBorderSecondary};
     `,
-    list: css`
-        list-style: none;
-        margin: 12px 0 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    `,
-    /** One message, marked by the colour stripe of its severity — the way the legacy editor listed them. */
-    message: css`
-        padding: 4px 8px;
-        border-left: 3px solid transparent;
-        white-space: pre-wrap;
-        word-break: break-word;
-        color: ${token.colorTextSecondary};
-        font-size: 13px;
-    `,
-    messageError: css`
-        border-left-color: ${COMPILE_COLORS.errors};
-    `,
-    messageWarning: css`
-        border-left-color: ${COMPILE_COLORS.warnings};
-    `,
-    messageAction: css`
-        margin-top: 2px;
-        padding: 0;
-        height: auto;
-        font-size: 12px;
-    `,
-    pager: css`
-        display: flex;
-        gap: 8px;
-        margin-top: 8px;
-    `,
 }))
 
 const buildStatus = (project: Project, state: ProjectCompileState, supportsBranches: boolean): ProjectStatusUpdate => ({
@@ -148,90 +113,6 @@ const errorMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMess
 
 const warningMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMessage[] =>
     (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'WARN')
-
-const truncateMessage = (value: string): string => {
-    const lines = value.split(/\r?\n/)
-    const byLines = lines.length > PREVIEW_LINES ? lines.slice(0, PREVIEW_LINES).join('\n') : value
-    return byLines.length > PREVIEW_CHARS ? byLines.slice(0, PREVIEW_CHARS).trimEnd() : byLines
-}
-
-const isLongMessage = (value: string): boolean =>
-    value.length > PREVIEW_CHARS || value.split(/\r?\n/).length > PREVIEW_LINES
-
-const MessageText = ({ value }: { value: string }) => {
-    const { styles } = useStyles()
-    const { t } = useTranslation('repository')
-    const [expanded, setExpanded] = useState(false)
-    const long = isLongMessage(value)
-    const text = !long || expanded ? value : `${truncateMessage(value)}...`
-
-    useEffect(() => {
-        setExpanded(false)
-    }, [value])
-
-    return (
-        <>
-            {text}
-            {long && (
-                <div>
-                    <Button
-                        className={styles.messageAction}
-                        onClick={() => setExpanded(current => !current)}
-                        size="small"
-                        type="link"
-                    >
-                        {expanded ? t('browser.compile.show_less') : t('browser.compile.show_more_text')}
-                    </Button>
-                </div>
-            )}
-        </>
-    )
-}
-
-/** The messages of one severity, paged so a project with hundreds of them stays responsive. */
-const MessageGroup = ({ messages, stripeClassName }: {
-    messages: ProjectStatusDetailedMessage[]
-    stripeClassName: string
-}) => {
-    const { styles, cx } = useStyles()
-    const { t } = useTranslation('repository')
-    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
-
-    useEffect(() => {
-        setVisibleCount(PAGE_SIZE)
-    }, [messages])
-
-    if (messages.length === 0) {
-        return null
-    }
-    const visibleMessages = messages.slice(0, visibleCount)
-    const remaining = messages.length - visibleCount
-    return (
-        <>
-            <ul className={styles.list}>
-                {visibleMessages.map(message => (
-                    <li key={message.id} className={cx(styles.message, stripeClassName)} data-testid={`compile-message-${message.id}`}>
-                        <MessageText value={message.summary} />
-                    </li>
-                ))}
-            </ul>
-            {(remaining > 0 || visibleCount > PAGE_SIZE) && (
-                <div className={styles.pager}>
-                    {remaining > 0 && (
-                        <Button onClick={() => setVisibleCount(count => count + PAGE_SIZE)} size="small" type="link">
-                            {t('browser.compile.show_more', { count: Math.min(PAGE_SIZE, remaining) })}
-                        </Button>
-                    )}
-                    {visibleCount > PAGE_SIZE && (
-                        <Button onClick={() => setVisibleCount(PAGE_SIZE)} size="small" type="link">
-                            {t('browser.compile.show_less')}
-                        </Button>
-                    )}
-                </div>
-            )}
-        </>
-    )
-}
 
 /**
  * The compilation problems of the project, docked to the bottom of its screen the way the legacy editor
@@ -249,6 +130,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
 }) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
+    const navigate = useNavigate()
     const live = COMPILE_RELEVANT_STATUSES.has(project.status)
     const [collapsed, setCollapsed] = useState(() => readStored(COLLAPSED_STORAGE_KEY) === 'yes')
     const [height, setHeight] = useState(loadHeight)
@@ -265,6 +147,37 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     // every compile-status push.
     const errors = useMemo(() => errorMessagesOf(status), [status])
     const warnings = useMemo(() => warningMessagesOf(status), [status])
+    // A running compilation reports how many problems it has raised, not which — resolving each to its table
+    // is work it does not do while it runs. The panel stands on those counts, so it does not disappear under
+    // a reader the moment a compilation starts and return only when it ends.
+    const errorCount = status.compilation?.messages?.errors ?? errors.length
+    const warningCount = status.compilation?.messages?.warnings ?? warnings.length
+
+    // Every message already says where it came from — the project, the module and the table — so opening one
+    // costs no request: a project raising a thousand messages still asks the server nothing to be read.
+    const open = useCallback((message: ProjectStatusDetailedMessage) => {
+        const where = message.location
+        if (!where) {
+            return
+        }
+        const module = where.type === 'table' ? where.module : where.name
+        if (!module) {
+            return
+        }
+        const target = toUrlSafeId(where.projectId ?? project.id)
+        const table = where.type === 'table' && where.id ? `?table=${encodeURIComponent(where.id)}` : ''
+        navigate(`/projects/${target}/modules/${encodeURIComponent(module)}${table}`)
+    }, [navigate, project.id])
+
+    // A module is compiled for one session at a time, so while that is running the reader is kept where they
+    // are: opening another module would only queue behind it. The compiling screen offers to stop it.
+    const canOpen = useCallback((message: ProjectStatusDetailedMessage) => {
+        if (status.compileState === 'compiling') {
+            return false
+        }
+        const where = message.location
+        return !!where && !!(where.type === 'table' ? where.module : where.name)
+    }, [status.compileState])
 
     const fold = (next: boolean) => {
         setCollapsed(next)
@@ -288,7 +201,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         window.addEventListener('pointerup', stop)
     }, [])
 
-    if (errors.length === 0 && warnings.length === 0) {
+    if (errorCount === 0 && warningCount === 0 && errors.length === 0 && warnings.length === 0) {
         return null
     }
     const ToggleIcon = collapsed ? UpOutlined : DownOutlined
@@ -314,24 +227,34 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
                 onClick={() => fold(!collapsed)}
                 type="button"
             >
-                {errors.length > 0 && (
+                {errorCount > 0 && (
                     <span className={styles.count} data-testid="compile-problems-errors">
-                        <CloseCircleFilled aria-label={t('browser.compile.error_count', { count: errors.length })} className={styles.errorIcon} />
-                        {errors.length}
+                        <CloseCircleFilled aria-label={t('browser.compile.error_count', { count: errorCount })} className={styles.errorIcon} />
+                        {errorCount}
                     </span>
                 )}
-                {warnings.length > 0 && (
+                {warningCount > 0 && (
                     <span className={styles.count} data-testid="compile-problems-warnings">
-                        <WarningFilled aria-label={t('browser.compile.warning_count', { count: warnings.length })} className={styles.warningIcon} />
-                        {warnings.length}
+                        <WarningFilled aria-label={t('browser.compile.warning_count', { count: warningCount })} className={styles.warningIcon} />
+                        {warningCount}
                     </span>
                 )}
                 <ToggleIcon aria-hidden className={styles.toggle} />
             </button>
             {!collapsed && (
                 <div className={styles.body} data-testid="compile-problems-body">
-                    <MessageGroup messages={errors} stripeClassName={styles.messageError} />
-                    <MessageGroup messages={warnings} stripeClassName={styles.messageWarning} />
+                    <CompileMessages
+                        canOpen={canOpen}
+                        messages={errors}
+                        onOpen={open}
+                        severity="error"
+                    />
+                    <CompileMessages
+                        canOpen={canOpen}
+                        messages={warnings}
+                        onOpen={open}
+                        severity="warning"
+                    />
                 </div>
             )}
         </section>

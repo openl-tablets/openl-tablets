@@ -15,6 +15,8 @@ Content-Type: application/json
         "type": "table",
         "id": "5d64e98cfb043d16d9aedc659e4b2674",
         "name": "CoverageRateTest",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==",
+        "project": "EPBDS-15381",
         "module": "EPBDS-15381",
         "cell": "B14"
       },
