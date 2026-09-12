@@ -176,18 +176,18 @@ export const ModuleTablesTree = ({
     const [expanded, setExpanded] = useState<string[]>([])
     // The tree draws the rows that fit and no more, so it has to be told what fits.
     const bodyRef = useRef<HTMLDivElement>(null)
-    const [bodyHeight, setBodyHeight] = useState(0)
+    const [body, setBody] = useState({ height: 0, width: 0 })
 
     useEffect(() => {
-        const body = bodyRef.current
-        if (!body) {
+        const measured = bodyRef.current
+        if (!measured) {
             return
         }
         const observer = new ResizeObserver(entries => {
-            const measured = entries[0]?.contentRect.height ?? 0
-            setBodyHeight(Math.floor(measured))
+            const box = entries[0]?.contentRect
+            setBody({ height: Math.floor(box?.height ?? 0), width: Math.floor(box?.width ?? 0) })
         })
-        observer.observe(body)
+        observer.observe(measured)
         return () => observer.disconnect()
     }, [])
 
@@ -195,7 +195,9 @@ export const ModuleTablesTree = ({
     useEffect(() => setView(loadView(preferredView)), [preferredView])
 
     const nodes = useMemo(() => treeOf(tables ?? [], view), [tables, view])
-    const rowWidth = useMemo(() => Math.ceil(widthOf(nodes)), [nodes])
+    // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
+    // what is on screen leaves the virtual list pushed to the right of an empty rail.
+    const rowWidth = useMemo(() => Math.max(Math.ceil(widthOf(nodes)), body.width), [nodes, body.width])
 
     // Only the branch holding the open table stands open; the user opens the rest themselves.
     useEffect(() => {
@@ -281,7 +283,7 @@ export const ModuleTablesTree = ({
                         showIcon
                         className={styles.tree}
                         data-testid="module-rail-modules"
-                        height={bodyHeight}
+                        height={body.height}
                         itemHeight={ROW_HEIGHT}
                         onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
                         selectedKeys={[currentModule]}
@@ -300,7 +302,7 @@ export const ModuleTablesTree = ({
                         className={styles.tree}
                         data-testid="module-tables-tree"
                         expandedKeys={expanded}
-                        height={bodyHeight}
+                        height={body.height}
                         itemHeight={ROW_HEIGHT}
                         onExpand={keys => setExpanded(keys as string[])}
                         scrollWidth={rowWidth}
