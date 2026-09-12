@@ -21,6 +21,8 @@ Content-Type: application/json
             "type": "table",
             "id": "***",
             "name": "doWithError",
+            "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU=",
+            "project": "EPBDS-15998-git",
             "module": "Bank Rating",
             "cell": "***"
           },

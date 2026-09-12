@@ -18,6 +18,8 @@ Content-Type: application/json
         "type": "table",
         "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
         "name": "Cat",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
+        "project": "EPBDS-13931",
         "module": "Main",
         "cell": "B21"
       },

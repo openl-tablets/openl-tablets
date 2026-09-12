@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
@@ -11,6 +12,7 @@ import {
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
 import { readStored, writeStored } from '../../utils/localStore'
+import { toUrlSafeId } from '../../services/projectId'
 import { CompileMessages } from '../../components/CompileMessages'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
 
@@ -128,6 +130,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
 }) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
+    const navigate = useNavigate()
     const live = COMPILE_RELEVANT_STATUSES.has(project.status)
     const [collapsed, setCollapsed] = useState(() => readStored(COLLAPSED_STORAGE_KEY) === 'yes')
     const [height, setHeight] = useState(loadHeight)
@@ -149,6 +152,32 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     // a reader the moment a compilation starts and return only when it ends.
     const errorCount = status.compilation?.messages?.errors ?? errors.length
     const warningCount = status.compilation?.messages?.warnings ?? warnings.length
+
+    // Every message already says where it came from — the project, the module and the table — so opening one
+    // costs no request: a project raising a thousand messages still asks the server nothing to be read.
+    const open = useCallback((message: ProjectStatusDetailedMessage) => {
+        const where = message.location
+        if (!where) {
+            return
+        }
+        const module = where.type === 'table' ? where.module : where.name
+        if (!module) {
+            return
+        }
+        const target = toUrlSafeId(where.projectId ?? project.id)
+        const table = where.type === 'table' && where.id ? `?table=${encodeURIComponent(where.id)}` : ''
+        navigate(`/projects/${target}/modules/${encodeURIComponent(module)}${table}`)
+    }, [navigate, project.id])
+
+    // A module is compiled for one session at a time, so while that is running the reader is kept where they
+    // are: opening another module would only queue behind it. The compiling screen offers to stop it.
+    const canOpen = useCallback((message: ProjectStatusDetailedMessage) => {
+        if (status.compileState === 'compiling') {
+            return false
+        }
+        const where = message.location
+        return !!where && !!(where.type === 'table' ? where.module : where.name)
+    }, [status.compileState])
 
     const fold = (next: boolean) => {
         setCollapsed(next)
@@ -214,8 +243,18 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
             </button>
             {!collapsed && (
                 <div className={styles.body} data-testid="compile-problems-body">
-                    <CompileMessages messages={errors} severity="error" />
-                    <CompileMessages messages={warnings} severity="warning" />
+                    <CompileMessages
+                        canOpen={canOpen}
+                        messages={errors}
+                        onOpen={open}
+                        severity="error"
+                    />
+                    <CompileMessages
+                        canOpen={canOpen}
+                        messages={warnings}
+                        onOpen={open}
+                        severity="warning"
+                    />
                 </div>
             )}
         </section>

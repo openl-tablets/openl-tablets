@@ -15,6 +15,8 @@ Content-Type: application/json
         "type": "table",
         "id": "47d020cdaf10119d4bd11c190f87856e",
         "name": "AssetsCompare",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+        "project": "EPBDS-15409",
         "module": "Main",
         "cell": "C26"
       },
@@ -28,6 +30,8 @@ Content-Type: application/json
         "type": "table",
         "id": "47d020cdaf10119d4bd11c190f87856e",
         "name": "AssetsCompare",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+        "project": "EPBDS-15409",
         "module": "Main",
         "cell": "C27"
       },
@@ -41,6 +45,8 @@ Content-Type: application/json
         "type": "table",
         "id": "47d020cdaf10119d4bd11c190f87856e",
         "name": "AssetsCompare",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+        "project": "EPBDS-15409",
         "module": "Main",
         "cell": "B26"
       },

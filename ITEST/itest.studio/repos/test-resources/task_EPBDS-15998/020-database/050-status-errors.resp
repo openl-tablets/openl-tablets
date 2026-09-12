@@ -20,6 +20,8 @@ Content-Type: application/json
             "type": "table",
             "id": "***",
             "name": "doWithError",
+            "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+            "project": "EPBDS-15998-db",
             "module": "Bank Rating",
             "cell": "***"
           },
