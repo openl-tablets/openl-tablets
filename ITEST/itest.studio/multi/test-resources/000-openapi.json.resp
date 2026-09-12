@@ -28695,6 +28695,14 @@ Content-Type: application/json
       "SummaryTableView": {
         "type": "object",
         "properties": {
+          "active": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "***"
+          },
           "file": {
             "type": "string",
             "description": "***"
@@ -28726,6 +28734,10 @@ Content-Type: application/json
             ]
           },
           "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "overloadGroup": {
             "type": "string",
             "description": "***"
           },

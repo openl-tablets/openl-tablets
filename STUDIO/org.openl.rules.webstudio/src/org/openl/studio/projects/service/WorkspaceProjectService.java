@@ -1612,10 +1612,17 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // answer has to wait for the modules that are still being compiled behind it.
         var moduleModel = scope == SearchScope.CURRENT_PROJECT ? handle.awaitCompiled() : handle.project();
 
+        // Which of the versions of a table answers a call is decided by its dimension properties, and only the
+        // dictionary knows which tables are versions of one another. A module-scoped list asks the opened module's
+        // dictionary; a project-wide one spans every module, so versions living apart are still told apart.
+        var overloads = scope == SearchScope.CURRENT_PROJECT
+                ? moduleModel.getAllMethodNodesDictionary()
+                : moduleModel.getMethodNodesDictionary();
+
         var selectors = buildTableSelector(query);
         var allTables = moduleModel.search(selectors, scope)
                 .stream()
-                .map(summaryTableReader::read)
+                .map(table -> summaryTableReader.read(table, overloads))
                 .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
 

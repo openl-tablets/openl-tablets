@@ -97,6 +97,13 @@ const useStyles = createStyles(({ css, token }) => ({
             line-height: 24px;
         }
     `,
+    /**
+     * A table switched off by its `active` property is written in the module but takes no part in the rules.
+     * The Editor drew it faint, and the rail keeps that: the row is read as present but out of play.
+     */
+    inactive: css`
+        opacity: 0.45;
+    `,
     state: css`
         padding: 12px 16px;
     `,
@@ -108,6 +115,9 @@ interface TreeDataNode {
     title: string
     icon: React.ReactNode
     selectable: boolean
+    /** Set on a row the tree draws apart — a table that takes no part in the rules. */
+    className?: string
+    'data-testid'?: string
     children: TreeDataNode[]
 }
 
@@ -211,6 +221,9 @@ export const ModuleTablesTree = ({
         title: node.title,
         icon: node.table ? tableIcon(node.table.kind) : groupIcon(node.groupedBy),
         selectable: node.table !== undefined,
+        ...(node.table?.active === false
+            ? { className: styles.inactive, 'data-testid': 'module-table-inactive' }
+            : {}),
         children: node.children.map(toTreeNode),
     })
 

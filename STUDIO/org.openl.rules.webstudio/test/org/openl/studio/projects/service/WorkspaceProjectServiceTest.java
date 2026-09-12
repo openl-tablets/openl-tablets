@@ -1450,7 +1450,8 @@ class WorkspaceProjectServiceTest {
         doReturn(registry).when(service).getCompilationJobRegistry();
         when(registry.acquire(any(), any())).thenReturn(job);
         when(projectModel.search(any(), eq(SearchScope.CURRENT_MODULE))).thenReturn(List.of(openLTable));
-        when(summaryTableReader.read(openLTable)).thenReturn(expected);
+        // Read with what the module knows about the versions of its tables, so one version is told from another.
+        when(summaryTableReader.read(eq(openLTable), any())).thenReturn(expected);
 
         var tables = service.getTables(project,
                 ProjectTableCriteriaQuery.builder().module("Claims").build(),

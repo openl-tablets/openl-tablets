@@ -62,4 +62,23 @@ describe('ModuleTablesTree', () => {
         // A session compiles one module at a time; asking for another would only queue behind this one.
         expect(onSelectModule).not.toHaveBeenCalled()
     })
+
+    it('draws a table that takes no part in the rules apart from the others', () => {
+        const switchedOff = { ...tables[0], id: 'off', name: 'Retired', active: false } as ModuleTable
+
+        render(
+            <ModuleTablesTree
+                currentModule="Claims"
+                modules={modules}
+                onSelectModule={vi.fn()}
+                onSelectTable={vi.fn()}
+                selectedTableId="off"
+                tables={[...tables, switchedOff]}
+            />
+        )
+
+        expect(screen.getByTestId('module-table-inactive')).toHaveTextContent('Retired')
+        // Only the switched-off table is drawn that way.
+        expect(screen.getAllByTestId('module-table-inactive')).toHaveLength(1)
+    })
 })

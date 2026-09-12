@@ -45,7 +45,8 @@ Content-Type: application/json
       "signature": "BankLimitIndexDated (String bank, String bankRatingGroup)",
       "file": "EPBDS-16450/BankLimits.xlsx",
       "sheet": "Sheet1",
-      "pos": "B67:H79"
+      "pos": "B67:H79",
+      "active": false
     }
   ],
   "pageNumber": 0,
