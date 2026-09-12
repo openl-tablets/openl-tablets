@@ -7,6 +7,7 @@ import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import type { ModuleInfo } from '../../services/modules'
 import { useSharedStyles } from '../projects/sharedStyles'
+import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { groupIcon, tableIcon } from './tableIcons'
 import {
     DEFAULT_VIEW,
@@ -22,10 +23,18 @@ import {
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
 
+/** The width the rail was last dragged to, kept so a reader who made room for long names keeps it. */
+const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
+const WIDTH = { min: 180, max: 640, fallback: 256 }
+
 /** What the panel shows: the tables of the open module, or the modules to open instead. */
 type RailMode = 'tables' | 'modules'
 
 const useStyles = createStyles(({ css, token }) => ({
+    /** The rail is dragged by its right edge, which the grip is laid along. */
+    resizable: css`
+        position: relative;
+    `,
     /** The mode switch and, under it, whatever the mode needs. */
     top: css`
         flex: none;
@@ -157,8 +166,9 @@ export const ModuleTablesTree = ({
     onSelectModule,
 }: ModuleTablesTreeProps) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
+    const { styles, cx } = useStyles()
     const { styles: shared } = useSharedStyles()
+    const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', WIDTH)
     const [mode, setMode] = useState<RailMode>('tables')
     const [view, setView] = useState<TableView>(DEFAULT_VIEW)
     // The Default Order of the user's own settings decides what the tree opens on.
@@ -166,18 +176,18 @@ export const ModuleTablesTree = ({
     const [expanded, setExpanded] = useState<string[]>([])
     // The tree draws the rows that fit and no more, so it has to be told what fits.
     const bodyRef = useRef<HTMLDivElement>(null)
-    const [bodyHeight, setBodyHeight] = useState(0)
+    const [body, setBody] = useState({ height: 0, width: 0 })
 
     useEffect(() => {
-        const body = bodyRef.current
-        if (!body) {
+        const measured = bodyRef.current
+        if (!measured) {
             return
         }
         const observer = new ResizeObserver(entries => {
-            const measured = entries[0]?.contentRect.height ?? 0
-            setBodyHeight(Math.floor(measured))
+            const box = entries[0]?.contentRect
+            setBody({ height: Math.floor(box?.height ?? 0), width: Math.floor(box?.width ?? 0) })
         })
-        observer.observe(body)
+        observer.observe(measured)
         return () => observer.disconnect()
     }, [])
 
@@ -185,7 +195,9 @@ export const ModuleTablesTree = ({
     useEffect(() => setView(loadView(preferredView)), [preferredView])
 
     const nodes = useMemo(() => treeOf(tables ?? [], view), [tables, view])
-    const rowWidth = useMemo(() => Math.ceil(widthOf(nodes)), [nodes])
+    // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
+    // what is on screen leaves the virtual list pushed to the right of an empty rail.
+    const rowWidth = useMemo(() => Math.max(Math.ceil(widthOf(nodes)), body.width), [nodes, body.width])
 
     // Only the branch holding the open table stands open; the user opens the rest themselves.
     useEffect(() => {
@@ -226,7 +238,8 @@ export const ModuleTablesTree = ({
     }))
 
     return (
-        <aside className={shared.rail} data-testid="module-rail">
+        <aside className={cx(shared.rail, styles.resizable)} data-testid="module-rail" style={{ width }}>
+            <ResizeHandle edge="right" onPointerDown={startResize} testId="module-rail-resizer" />
             <div className={styles.top}>
                 <Segmented
                     block
@@ -270,7 +283,7 @@ export const ModuleTablesTree = ({
                         showIcon
                         className={styles.tree}
                         data-testid="module-rail-modules"
-                        height={bodyHeight}
+                        height={body.height}
                         itemHeight={ROW_HEIGHT}
                         onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
                         selectedKeys={[currentModule]}
@@ -289,7 +302,7 @@ export const ModuleTablesTree = ({
                         className={styles.tree}
                         data-testid="module-tables-tree"
                         expandedKeys={expanded}
-                        height={bodyHeight}
+                        height={body.height}
                         itemHeight={ROW_HEIGHT}
                         onExpand={keys => setExpanded(keys as string[])}
                         scrollWidth={rowWidth}

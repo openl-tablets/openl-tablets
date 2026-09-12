@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ModuleTable } from 'types/tables'
 import { ModuleTablesTree } from './ModuleTablesTree'
 
@@ -32,6 +32,17 @@ const rail = (compiling: boolean, onSelectModule = vi.fn()) => {
 }
 
 describe('ModuleTablesTree', () => {
+    beforeEach(() => localStorage.clear())
+
+    it('takes the width it was dragged to, so a long name can be made room for', () => {
+        localStorage.setItem('openl.module.rail.width', '420')
+
+        rail(false)
+
+        expect(screen.getByTestId('module-rail')).toHaveStyle({ width: '420px' })
+        expect(screen.getByTestId('module-rail-resizer')).toBeInTheDocument()
+    })
+
     it('opens another module when nothing is being compiled', async () => {
         const onSelectModule = rail(false)
 
