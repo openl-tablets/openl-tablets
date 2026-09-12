@@ -31,6 +31,7 @@ import { BranchSwitcher } from './projects/BranchSwitcher'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { ModuleActionBar } from './modules/ModuleActionBar'
+import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import { TableProblems } from './modules/TableProblems'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
@@ -56,6 +57,20 @@ const useStyles = createStyles(({ css, token }) => ({
         min-height: 0;
         display: flex;
         flex-direction: column;
+    `,
+    /** The table and, beside it, what the table says about itself. */
+    withDetails: css`
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+    `,
+    main: css`
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
     `,
     crumb: css`
         display: inline-flex;
@@ -270,13 +285,15 @@ export const ModuleWorkspace = () => {
         }
     }, [moduleName, navigate, projectId])
 
-    const openTable = useCallback((picked: ModuleTable) => {
+    const openTableById = useCallback((picked: string) => {
         setSearch(params => {
             const next = new URLSearchParams(params)
-            next.set('table', picked.id)
+            next.set('table', picked)
             return next
         })
     }, [setSearch])
+
+    const openTable = useCallback((picked: ModuleTable) => openTableById(picked.id), [openTableById])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
     useEffect(() => {
@@ -548,7 +565,17 @@ export const ModuleWorkspace = () => {
                             </>
                         )}
                     />
-                    {canvas()}
+                    <div className={styles.withDetails}>
+                        <div className={styles.main}>{canvas()}</div>
+                        {compilation.ready && !closed && (
+                            <TableDetailsPanel
+                                moduleName={moduleName}
+                                onOpenTable={openTableById}
+                                projectId={project.id}
+                                tableId={selectedId}
+                            />
+                        )}
+                    </div>
                     <CompileProblemsPanel
                         project={project}
                         statusReadAt={statusReadAt}

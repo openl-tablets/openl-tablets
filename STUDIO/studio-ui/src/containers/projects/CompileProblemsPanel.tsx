@@ -14,21 +14,15 @@ import {
 import { readStored, writeStored } from '../../utils/localStore'
 import { toUrlSafeId } from '../../services/projectId'
 import { CompileMessages } from '../../components/CompileMessages'
+import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
 
 
 /** How low and how tall the panel may be dragged, and where it opens the first time. */
-const MIN_HEIGHT = 120
-const MAX_HEIGHT = 600
-const DEFAULT_HEIGHT = 240
+const HEIGHT = { min: 120, max: 600, fallback: 240 }
 
 const HEIGHT_STORAGE_KEY = 'openl.project.problems.height'
 const COLLAPSED_STORAGE_KEY = 'openl.project.problems.collapsed'
-
-const loadHeight = (): number => {
-    const stored = Number(readStored(HEIGHT_STORAGE_KEY))
-    return Number.isFinite(stored) && stored >= MIN_HEIGHT && stored <= MAX_HEIGHT ? stored : DEFAULT_HEIGHT
-}
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The panel docks to the bottom of the project screen, under whatever tab is open. */
@@ -39,25 +33,6 @@ const useStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         border-top: 1px solid ${token.colorBorderSecondary};
         background: ${MOCKUP.sidebarBg};
-    `,
-    /** The top edge the panel is dragged by; it widens on hover so it can be grabbed without aiming. */
-    resizer: css`
-        position: absolute;
-        top: -3px;
-        left: 0;
-        right: 0;
-        height: 6px;
-        margin: 0;
-        border: none;
-        background: transparent;
-        cursor: row-resize;
-        touch-action: none;
-        z-index: 2;
-
-        &:hover,
-        &:active {
-            background: ${token.colorPrimaryBorder};
-        }
     `,
     /** The whole header folds the panel; the counts stay in view either way. */
     header: css`
@@ -133,7 +108,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     const navigate = useNavigate()
     const live = COMPILE_RELEVANT_STATUSES.has(project.status)
     const [collapsed, setCollapsed] = useState(() => readStored(COLLAPSED_STORAGE_KEY) === 'yes')
-    const [height, setHeight] = useState(loadHeight)
+    const { size: height, startResize } = useDragSize(HEIGHT_STORAGE_KEY, 'top', HEIGHT)
     const liveStatus = useLiveProjectStatus(
         project.id,
         supportsBranches ? project.branch || null : null,
@@ -184,23 +159,6 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         writeStored(COLLAPSED_STORAGE_KEY, next ? 'yes' : 'no')
     }
 
-    // Dragging the top edge sizes the panel; the height it is left at is where it opens next time.
-    const startResize = useCallback((event: React.PointerEvent<HTMLHRElement>) => {
-        event.preventDefault()
-        const bottom = (event.currentTarget.parentElement ?? event.currentTarget).getBoundingClientRect().bottom
-        const heightAt = (moved: PointerEvent) =>
-            Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, Math.round(bottom - moved.clientY)))
-        const resize = (moved: PointerEvent) => setHeight(heightAt(moved))
-        const stop = (moved: PointerEvent) => {
-            resize(moved)
-            window.removeEventListener('pointermove', resize)
-            window.removeEventListener('pointerup', stop)
-            writeStored(HEIGHT_STORAGE_KEY, String(heightAt(moved)))
-        }
-        window.addEventListener('pointermove', resize)
-        window.addEventListener('pointerup', stop)
-    }, [])
-
     if (errorCount === 0 && warningCount === 0 && errors.length === 0 && warnings.length === 0) {
         return null
     }
@@ -212,12 +170,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
             style={collapsed ? undefined : { height }}
         >
             {!collapsed && (
-                <hr
-                    aria-label={t('browser.compile.resize')}
-                    className={styles.resizer}
-                    data-testid="compile-problems-resizer"
-                    onPointerDown={startResize}
-                />
+                <ResizeHandle edge="top" onPointerDown={startResize} testId="compile-problems-resizer" />
             )}
             <button
                 aria-expanded={!collapsed}

@@ -268,6 +268,15 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   messages, so they sit in a foldable section above it, the way the legacy editor kept its Problems block —
   the project's other messages stay in the panel at the foot of the screen. Both draw through one component,
   so a message reads the same wherever it is shown.
+- **A table is described by every property that applies to it, not only by the ones it declares.** A property
+  written on a module's or a category's properties table applies to every table under it, and the engine already
+  works this out while it binds: each table carries what it declares, what it inherits and, for each inherited
+  value, the properties table it came from. `GET /projects/{id}/tables/{tableId}/details` answers that whole
+  picture — the groups the property dictionary names, and for each value whether it is the table's own — so the
+  screen shows it in a panel down the right-hand side, where the legacy Editor kept Table Details, with the
+  inherited ones leading to the properties table they come from. This is what a reader needs most when the
+  table's header is hidden: an inherited value appears nowhere else on screen. Values cross in the same form as
+  the rest of the table API, a date in ISO-8601, so the screen shows them in the reader's own format.
 - **Nothing may animate a painted property while a reader scrolls.** The compiling indicator beat with a
   `box-shadow`, which the page paints — so every frame recalculated style and repainted, and the browser's own
   trace of a scroll over a large table showed 346 style recalculations and 610 paints in four seconds, with the

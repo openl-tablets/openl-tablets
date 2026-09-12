@@ -129,3 +129,51 @@ export const getTableTests = async (projectId: string, tableId: string, module?:
         undefined,
         MODULE_API_OPTIONS
     ) as TableTest[] | null)
+
+/** Where a property that applies to a table is defined, when it is not written on the table itself. */
+export type PropertyInheritance = 'category' | 'module' | 'external'
+
+/** One property that applies to a table, as the details panel lists it. */
+export interface TablePropertyDetail {
+    name: string
+    displayName: string
+    value: string
+    /** Absent when the table declares the property itself. */
+    inheritedFrom?: PropertyInheritance
+    /** The properties table the value comes from, so the reader can open it. */
+    inheritedTableId?: string
+}
+
+/** One group of table properties, named as the property dictionary names it. */
+export interface TablePropertyGroup {
+    name: string
+    properties: TablePropertyDetail[]
+}
+
+/** What a table says about itself besides its cells. */
+export interface TableDetails {
+    name: string
+    groups: TablePropertyGroup[]
+}
+
+/**
+ * The name of a table and every property that applies to it.
+ *
+ * The list holds what the table declares together with what it inherits from the properties table of its module
+ * or its category, each saying where it came from — which is what a reader needs when the table's header is
+ * hidden and the values are nowhere on screen.
+ */
+export const getTableDetails = async (
+    projectId: string,
+    tableId: string,
+    module?: string
+): Promise<TableDetails> => {
+    const read = await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/details`
+        + (module === undefined ? '' : `?module=${encodeURIComponent(module)}`),
+        undefined,
+        MODULE_API_OPTIONS
+    ) as TableDetails | null
+    // A table with nothing to say about itself answers without the list at all.
+    return { name: read?.name ?? '', groups: asArray(read?.groups) }
+}
