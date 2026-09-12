@@ -524,9 +524,10 @@ public class ProjectsController {
                                       @RequestParam(value = "startRow", required = false) @Min(0) @Parameter(description = "projects.table.get.param.start-row.desc") Integer startRow,
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
+                                      @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         if (raw) {
-            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles, module);
+            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles, metaInfo, module);
         }
         return (EditableTableView) projectService.getTable(project, tableId, module);
     }

@@ -34,6 +34,38 @@ export interface RawTableCell {
     covered?: boolean
     /** Excel cell style, present only when the raw table was requested with `styles=true` */
     style?: RawTableCellStyle
+    /** What the compiler knows about the cell, present only when the read asked with `metaInfo=true` */
+    metaInfo?: RawTableCellMetaInfo
+}
+
+/** What a piece of a cell's text refers to, as the compiler read it. */
+export type RawTableUsageKind = 'rule' | 'datatype' | 'data' | 'field' | 'underlined' | 'other'
+
+/** One piece of a cell's text the compiler resolved to something. */
+export interface RawTableCellUsage {
+    /** Index of the first character of the cell's text the usage covers */
+    start: number
+    /** Index after the last character it covers */
+    end: number
+    /** What the compiler says about it, shown as a tooltip */
+    description: string
+    /** The table it refers to, as the Tables API addresses it; absent when it refers to no table */
+    tableId?: string
+    /** The module that table is read through; absent when no module of the workspace holds it */
+    module?: string
+    kind: RawTableUsageKind
+}
+
+/** What the compiler knows about one cell, beside what the cell says. */
+export interface RawTableCellMetaInfo {
+    /** The pieces of the cell's text that refer to something, in the order they appear */
+    usages?: RawTableCellUsage[]
+    /** The type the cell holds, as the compiler names it */
+    type?: string
+    /** True when this is the cell a decision table returns */
+    returnCell?: boolean
+    /** The editor the cell asks for */
+    editor?: string
 }
 
 export interface RawTableCellInput {
