@@ -66,4 +66,13 @@ describe('TableProblems', () => {
 
         expect(screen.getByTestId('table-message-12')).toBeInTheDocument()
     })
+
+    it('takes the height it was dragged to, and keeps it for the next table', () => {
+        localStorage.setItem('openl.module.tableProblems.height', '320')
+
+        render(<TableProblems messages={[message(1, 'ERROR', 'Identifier is not found')]} />)
+
+        expect(screen.getByTestId('table-problems-body')).toHaveStyle({ height: '320px' })
+        expect(screen.getByTestId('table-problems-resizer')).toBeInTheDocument()
+    })
 })

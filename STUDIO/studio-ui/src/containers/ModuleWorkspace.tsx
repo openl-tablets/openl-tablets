@@ -449,8 +449,24 @@ export const ModuleWorkspace = () => {
                 </div>
             )
         }
+        // The band of actions belongs to the table that was picked, not to the body being read for it, and it
+        // keeps its place while that read is on its way — a band taken away and put back asks the server again
+        // for everything it shows.
+        const toolbar = selected === null ? null : (
+            <TableToolbar
+                moduleName={moduleName}
+                projectCompiled={compilation.total > 0 && compilation.compiled >= compilation.total}
+                projectId={project.id}
+                table={selected}
+            />
+        )
         if (!table) {
-            return <div className={styles.canvas}><Skeleton active data-testid="module-table-loading" /></div>
+            return (
+                <>
+                    {toolbar}
+                    <div className={styles.canvas}><Skeleton active data-testid="module-table-loading" /></div>
+                </>
+            )
         }
         // "Show Header" puts away the rows the table's header takes, which the read names — the header
         // line, a properties section, the service rows of a decision table.
@@ -459,14 +475,7 @@ export const ModuleWorkspace = () => {
         const total = table.totalRows ?? shown
         return (
             <>
-                {selected !== null && (
-                    <TableToolbar
-                        moduleName={moduleName}
-                        projectCompiled={compilation.total > 0 && compilation.compiled >= compilation.total}
-                        projectId={project.id}
-                        table={selected}
-                    />
-                )}
+                {toolbar}
                 <TableProblems messages={table.messages ?? []} />
                 <div className={styles.canvas}>
                     <RawTableGrid formulas={showFormulas} rows={rows} testId="module-table" />
@@ -490,6 +499,7 @@ export const ModuleWorkspace = () => {
         <div className={styles.page} data-testid="module-workspace">
             <div className={styles.withTree}>
                 <ModuleTablesTree
+                    compiling={!closed && !compilation.ready && compilation.state === 'compiling'}
                     currentModule={moduleName}
                     modules={modules}
                     onSelectModule={openModule}

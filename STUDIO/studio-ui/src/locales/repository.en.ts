@@ -398,6 +398,8 @@ i18next.addResourceBundle('en', 'repository', {
             compiling: 'Compiling "{{module}}" — {{compiled}} of {{total}} modules done',
             compile_progress: 'Compiling {{compiled}} of {{total}}',
             compile_cancel: 'Stop compiling',
+            switch_blocked: 'Another module opens once "{{module}}" is compiled — one module is compiled at a '
+                + 'time. Stop the compilation to open another straight away.',
             compile_cancelled: 'Compiling "{{module}}" was stopped. What was compiled is shown; Refresh compiles '
                 + 'it again.',
             compile_failed: 'The module could not be compiled',
