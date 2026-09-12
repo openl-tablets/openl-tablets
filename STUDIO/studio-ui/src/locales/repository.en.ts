@@ -388,6 +388,7 @@ i18next.addResourceBundle('en', 'repository', {
             create_test: 'Create Test',
             createTable: 'Create Table',
             available_tests: 'Available Tests/Runs',
+            problems: 'Problems',
             rail_tables: 'Tables',
             rail_modules: 'Modules',
             revisions: 'Revisions',

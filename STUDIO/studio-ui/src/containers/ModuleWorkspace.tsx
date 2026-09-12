@@ -31,6 +31,7 @@ import { BranchSwitcher } from './projects/BranchSwitcher'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { ModuleActionBar } from './modules/ModuleActionBar'
+import { TableProblems } from './modules/TableProblems'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
 
@@ -466,6 +467,7 @@ export const ModuleWorkspace = () => {
                         table={selected}
                     />
                 )}
+                <TableProblems messages={table.messages ?? []} />
                 <div className={styles.canvas}>
                     <RawTableGrid formulas={showFormulas} rows={rows} testId="module-table" />
                     {shown < total && (

@@ -1,3 +1,5 @@
+import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
+
 import type { TraceParameterValue } from './trace'
 
 /** Excel cell style read from the workbook; every field is optional and absent when it is the default. */
@@ -138,6 +140,8 @@ export interface RawTableView {
     totalRows?: number
     /** How many rows at the top of the table its header takes, which a screen hiding the header leaves out */
     headerHeight?: number
+    /** What the compiler said about this table — the errors and warnings it raised, if any */
+    messages?: ProjectStatusDetailedMessage[]
 }
 
 /** One field a Datatype table declares. */

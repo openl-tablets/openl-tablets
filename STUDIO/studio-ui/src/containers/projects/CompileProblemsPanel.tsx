@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from 'antd'
 import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
@@ -12,11 +11,9 @@ import {
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
 import { readStored, writeStored } from '../../utils/localStore'
+import { CompileMessages } from '../../components/CompileMessages'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
 
-const PAGE_SIZE = 10
-const PREVIEW_CHARS = 260
-const PREVIEW_LINES = 4
 
 /** How low and how tall the panel may be dragged, and where it opens the first time. */
 const MIN_HEIGHT = 120
@@ -101,40 +98,6 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: 0 12px 12px;
         border-top: 1px solid ${token.colorBorderSecondary};
     `,
-    list: css`
-        list-style: none;
-        margin: 12px 0 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    `,
-    /** One message, marked by the colour stripe of its severity — the way the legacy editor listed them. */
-    message: css`
-        padding: 4px 8px;
-        border-left: 3px solid transparent;
-        white-space: pre-wrap;
-        word-break: break-word;
-        color: ${token.colorTextSecondary};
-        font-size: 13px;
-    `,
-    messageError: css`
-        border-left-color: ${COMPILE_COLORS.errors};
-    `,
-    messageWarning: css`
-        border-left-color: ${COMPILE_COLORS.warnings};
-    `,
-    messageAction: css`
-        margin-top: 2px;
-        padding: 0;
-        height: auto;
-        font-size: 12px;
-    `,
-    pager: css`
-        display: flex;
-        gap: 8px;
-        margin-top: 8px;
-    `,
 }))
 
 const buildStatus = (project: Project, state: ProjectCompileState, supportsBranches: boolean): ProjectStatusUpdate => ({
@@ -148,90 +111,6 @@ const errorMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMess
 
 const warningMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMessage[] =>
     (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'WARN')
-
-const truncateMessage = (value: string): string => {
-    const lines = value.split(/\r?\n/)
-    const byLines = lines.length > PREVIEW_LINES ? lines.slice(0, PREVIEW_LINES).join('\n') : value
-    return byLines.length > PREVIEW_CHARS ? byLines.slice(0, PREVIEW_CHARS).trimEnd() : byLines
-}
-
-const isLongMessage = (value: string): boolean =>
-    value.length > PREVIEW_CHARS || value.split(/\r?\n/).length > PREVIEW_LINES
-
-const MessageText = ({ value }: { value: string }) => {
-    const { styles } = useStyles()
-    const { t } = useTranslation('repository')
-    const [expanded, setExpanded] = useState(false)
-    const long = isLongMessage(value)
-    const text = !long || expanded ? value : `${truncateMessage(value)}...`
-
-    useEffect(() => {
-        setExpanded(false)
-    }, [value])
-
-    return (
-        <>
-            {text}
-            {long && (
-                <div>
-                    <Button
-                        className={styles.messageAction}
-                        onClick={() => setExpanded(current => !current)}
-                        size="small"
-                        type="link"
-                    >
-                        {expanded ? t('browser.compile.show_less') : t('browser.compile.show_more_text')}
-                    </Button>
-                </div>
-            )}
-        </>
-    )
-}
-
-/** The messages of one severity, paged so a project with hundreds of them stays responsive. */
-const MessageGroup = ({ messages, stripeClassName }: {
-    messages: ProjectStatusDetailedMessage[]
-    stripeClassName: string
-}) => {
-    const { styles, cx } = useStyles()
-    const { t } = useTranslation('repository')
-    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
-
-    useEffect(() => {
-        setVisibleCount(PAGE_SIZE)
-    }, [messages])
-
-    if (messages.length === 0) {
-        return null
-    }
-    const visibleMessages = messages.slice(0, visibleCount)
-    const remaining = messages.length - visibleCount
-    return (
-        <>
-            <ul className={styles.list}>
-                {visibleMessages.map(message => (
-                    <li key={message.id} className={cx(styles.message, stripeClassName)} data-testid={`compile-message-${message.id}`}>
-                        <MessageText value={message.summary} />
-                    </li>
-                ))}
-            </ul>
-            {(remaining > 0 || visibleCount > PAGE_SIZE) && (
-                <div className={styles.pager}>
-                    {remaining > 0 && (
-                        <Button onClick={() => setVisibleCount(count => count + PAGE_SIZE)} size="small" type="link">
-                            {t('browser.compile.show_more', { count: Math.min(PAGE_SIZE, remaining) })}
-                        </Button>
-                    )}
-                    {visibleCount > PAGE_SIZE && (
-                        <Button onClick={() => setVisibleCount(PAGE_SIZE)} size="small" type="link">
-                            {t('browser.compile.show_less')}
-                        </Button>
-                    )}
-                </div>
-            )}
-        </>
-    )
-}
 
 /**
  * The compilation problems of the project, docked to the bottom of its screen the way the legacy editor
@@ -335,8 +214,8 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
             </button>
             {!collapsed && (
                 <div className={styles.body} data-testid="compile-problems-body">
-                    <MessageGroup messages={errors} stripeClassName={styles.messageError} />
-                    <MessageGroup messages={warnings} stripeClassName={styles.messageWarning} />
+                    <CompileMessages messages={errors} severity="error" />
+                    <CompileMessages messages={warnings} severity="warning" />
                 </div>
             )}
         </section>

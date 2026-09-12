@@ -4,11 +4,15 @@ export const useStyles = createStyles(({ css, token }) => ({
     /**
      * The table is as wide as its own text needs and no wider: stretching it to the screen spreads a few short
      * columns across a whole monitor and leaves the reader's eye travelling between them.
+     *
+     * It is not squeezed into the screen either. A table of hundreds of columns pressed into the width of the
+     * page gives each column a few characters and wraps every value into a tower of lines — which is neither
+     * what the workbook shows nor something a browser can paint quickly. The screen it sits on scrolls instead.
      */
     table: css`
         border-collapse: collapse;
-        width: auto;
-        max-width: 100%;
+        width: max-content;
+        max-width: none;
         table-layout: auto;
         font-size: ${token.fontSizeSM}px;
     `,
