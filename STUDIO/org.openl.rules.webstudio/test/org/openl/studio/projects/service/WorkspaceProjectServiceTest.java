@@ -1533,6 +1533,31 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_refresh_in_a_session_holding_no_project_compiles_the_module_instead_of_resetting() throws Exception {
+        var launcher = mock(ModuleCompilationLauncher.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(serviceCompilingWith(webStudio, launcher));
+        var projectModel = mock(ProjectModel.class);
+        var registry = mock(CompilationJobRegistry.class);
+        var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
+        // The session has opened nothing: a page refreshed after the session was renewed asks for the module
+        // to be built again before ever opening it.
+        when(webStudio.getCurrentProject()).thenReturn(null);
+        doReturn(registry).when(service).getCompilationJobRegistry();
+
+        service.compileModule(project, "Claims", true);
+
+        var work = forClass(Runnable.class);
+        verify(launcher).launch(eq("Claims"), work.capture());
+        work.getValue().run();
+
+        // Nothing is compiled in such a session, so the open below reads the workbook — which is what the
+        // refresh asked for. A reset would look for the history folder of a project the session does not hold.
+        verify(projectModel, never()).reset(any(), any());
+        verify(webStudio).init("design", "main", "Pricing", "Claims");
+    }
+
+    @Test
     void opening_a_module_leaves_what_is_already_compiled_alone() throws Exception {
         var launcher = mock(ModuleCompilationLauncher.class);
         var webStudio = mock(WebStudio.class);
@@ -1757,6 +1782,7 @@ class WorkspaceProjectServiceTest {
         }).collect(Collectors.toCollection(ArrayList::new)));
         when(webStudio.getProjectByName("design", projectName)).thenReturn(descriptor);
         when(webStudio.getModel()).thenReturn(projectModel);
+        when(webStudio.getCurrentProject()).thenReturn(project);
         return project;
     }
 
