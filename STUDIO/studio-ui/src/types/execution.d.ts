@@ -55,6 +55,8 @@ export interface TestUnitResult {
 export interface TestTableResult {
     name: string
     tableId: string
+    /** The module the test table is written in; absent when no module of the project holds it. */
+    module?: string
     description?: string
     executionTimeMs: number
     numberOfTests: number
@@ -81,6 +83,8 @@ export interface TestsSummary {
 export interface BenchmarkResult {
     id: string
     tableId: string
+    /** The module the measured table is written in; absent when no module of the project holds it. */
+    module?: string
     name: string
     /** The measured table is a test table, whose test cases were run. */
     testTable: boolean

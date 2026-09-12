@@ -15,6 +15,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
  *
  * @param id            identifier of the measurement, by which it is deleted from the results
  * @param tableId       the measured table
+ * @param module        module the measured table is written in, absent when no module of the project holds it
  * @param name          display name of the measured table
  * @param testTable     whether the measured table is a test table, whose cases were run
  * @param runTable      {@code true} when the measured table is a Run table, absent otherwise
@@ -25,6 +26,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
  */
 public record BenchmarkMeasurement(String id,
                                    String tableId,
+                                   @Nullable String module,
                                    String name,
                                    boolean testTable,
                                    @Nullable Boolean runTable,

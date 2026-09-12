@@ -48,6 +48,10 @@ export const useModuleCompilation = (
     enabled = true
 ): ModuleCompilation => {
     const [failure, setFailure] = useState<string | null>(null)
+    // A compilation reporting its progress says how far it has come, not how many tests the project holds —
+    // counting those walks every method it compiled. The last count stands until a full status brings a new one,
+    // so the Test button does not empty and fill again with every push.
+    const counted = useRef(0)
     // Subscribed only once the project is known, and with it the branch the channel is named after. Listening
     // before that subscribes to the wrong channel and throws away what it heard when the right one replaces it,
     // which on a project that compiles in a moment means hearing nothing at all.
@@ -74,12 +78,14 @@ export const useModuleCompilation = (
         })
     }, [projectId, branch, moduleName, reloadToken, ready, enabled])
 
+    counted.current = status?.compilation?.tests?.total ?? counted.current
+
     return {
         ready,
         compiled: modulesOf(status)?.compiled ?? 0,
         total: modulesOf(status)?.total ?? 0,
         failure,
-        tests: status?.compilation?.tests?.total ?? 0,
+        tests: counted.current,
         state: status?.compileState ?? 'idle',
         status,
     }

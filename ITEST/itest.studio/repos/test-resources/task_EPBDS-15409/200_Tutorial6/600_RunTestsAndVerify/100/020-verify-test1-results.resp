@@ -13,6 +13,7 @@ Content-Type: application/json
     {
       "name": "IncomeForecastTest",
       "tableId": "***",
+      "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 3,
       "numberOfFailures": 0,

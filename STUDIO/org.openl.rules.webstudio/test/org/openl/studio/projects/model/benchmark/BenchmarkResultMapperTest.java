@@ -33,7 +33,7 @@ class BenchmarkResultMapperTest {
 
     @Test
     void mapResult_wholeTestTable() {
-        var measurement = new BenchmarkMeasurement("m1", "abc123", "PolicyTest", true, null, 3, 512,
+        var measurement = new BenchmarkMeasurement("m1", "abc123", "Main", "PolicyTest", true, null, 3, 512,
                 3_500_000_000L, List.of());
 
         var result = mapper.mapResult(measurement);
@@ -52,7 +52,7 @@ class BenchmarkResultMapperTest {
     @Test
     void mapResult_oneTestCaseWithItsInput() {
         var driver = new ParameterWithValueDeclaration("driver", "Sara", JavaOpenClass.STRING);
-        var measurement = new BenchmarkMeasurement("m2", "abc123", "PolicyTest", true, Boolean.TRUE, 1, 8,
+        var measurement = new BenchmarkMeasurement("m2", "abc123", "Main", "PolicyTest", true, Boolean.TRUE, 1, 8,
                 3_000_000_000L, List.of(driver));
 
         var result = mapper.mapResult(measurement);

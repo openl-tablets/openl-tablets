@@ -25,12 +25,12 @@ const Probe = ({ initial, reloadToken, branch, enabled }: {
     branch?: string | null
     enabled?: boolean
 }) => {
-    const { ready, compiled, total, failure } = useModuleCompilation(
+    const { ready, compiled, total, failure, tests } = useModuleCompilation(
         'p1', branch === undefined ? 'main' : branch, 'Claims', initial ?? null, 0, reloadToken, enabled ?? true
     )
     return (
         <span data-testid="state">
-            {`${ready ? 'ready' : 'waiting'} ${compiled}/${total} ${failure ?? '-'}`}
+            {`${ready ? 'ready' : 'waiting'} ${compiled}/${total} ${failure ?? '-'} tests:${tests}`}
         </span>
     )
 }
@@ -74,7 +74,26 @@ describe('useModuleCompilation', () => {
         expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', false)
         push(compiling(3, 12, 'Pricing'))
 
-        expect(getByTestId('state').textContent?.trim()).toEqual('waiting 3/12 -')
+        expect(getByTestId('state').textContent?.trim()).toEqual('waiting 3/12 - tests:0')
+    })
+
+    it('keeps the number of tests a full status reported while the compilation goes on reporting progress', () => {
+        const push = captureUpdates()
+        const { getByTestId } = render(<Probe />)
+
+        push({
+            projectId: 'p1',
+            branch: 'main',
+            compileState: 'ok',
+            compilation: { modules: { compiled: 2, total: 2, compiledModules: ['Claims'] }, tests: { total: 7 } },
+        })
+        expect(getByTestId('state')).toHaveTextContent('tests:7')
+
+        // A progress status counts no tests — walking every method for that is what it exists to avoid — and
+        // the Test button must not empty and fill again with every push.
+        push(compiling(1, 2, 'Claims'))
+
+        expect(getByTestId('state')).toHaveTextContent('tests:7')
     })
 
     it('is ready the moment the channel names this module, whatever the rest are still doing', async () => {
@@ -84,7 +103,7 @@ describe('useModuleCompilation', () => {
         push(compiling(4, 12, 'Pricing', 'Claims'))
 
         // Four of twelve: the modules after this one are still compiling, and the editor opens anyway.
-        expect(getByTestId('state').textContent?.trim()).toEqual('ready 4/12 -')
+        expect(getByTestId('state').textContent?.trim()).toEqual('ready 4/12 - tests:0')
     })
 
     it('asks for no compilation when the module is already compiled', async () => {
@@ -92,7 +111,7 @@ describe('useModuleCompilation', () => {
         const { getByTestId } = render(<Probe initial={compiling(12, 12, 'Claims')} />)
 
         expect(startModuleCompilation).not.toHaveBeenCalled()
-        expect(getByTestId('state').textContent?.trim()).toEqual('ready 12/12 -')
+        expect(getByTestId('state').textContent?.trim()).toEqual('ready 12/12 - tests:0')
     })
 
     it('asks again on a refresh, even for a module already compiled', async () => {
@@ -124,6 +143,6 @@ describe('useModuleCompilation', () => {
         const { getByTestId, findByText } = render(<Probe />)
 
         await findByText(/no such module/)
-        expect(getByTestId('state').textContent?.trim()).toEqual('waiting 0/0 no such module')
+        expect(getByTestId('state').textContent?.trim()).toEqual('waiting 0/0 no such module tests:0')
     })
 })

@@ -14,17 +14,14 @@ import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.project.instantiation.IDependencyLoader;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
 import org.openl.studio.projects.model.project.status.MessageSource;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
+import org.openl.studio.projects.service.tables.TableModules;
 
 @Service
 @RequiredArgsConstructor
@@ -76,19 +73,13 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         private record TableEntry(TableSyntaxNode node, XlsUrlParser location) {
         }
 
-        /** Where a project is, as a screen addresses it, and what it is called. */
-        private record ProjectAddress(String id, String name) {
-        }
-
         private final Map<String, List<TableEntry>> tablesBySheet;
-        private final List<Module> modules;
-        /** The project each module belongs to — a message can come from a project this one depends on. */
-        private final Map<String, ProjectAddress> projectsByModule;
+        /** Where a table lives — a message can come from a module of a project this one depends on. */
+        private final TableModules tableModules;
 
         MessageLocator(ProjectModel model, ProjectIdentifierMapper projectIdentifierMapper) {
             tablesBySheet = indexTables(model);
-            modules = indexModules(model);
-            projectsByModule = indexProjects(model, projectIdentifierMapper, modules);
+            tableModules = TableModules.ofWorkspace(model, projectIdentifierMapper);
         }
 
         MessageSource resolve(OpenLMessage message) {
@@ -97,25 +88,24 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
                 return null;
             }
             var location = new XlsUrlParser(sourceLocation);
-            var moduleName = resolveModuleName(sourceLocation);
-            var project = moduleName == null ? null : projectsByModule.get(moduleName);
+            var where = tableModules.locationOf(sourceLocation);
             var node = findNode(location);
             if (node != null) {
                 var tableName = new TableSyntaxNodeAdapter(node).getDisplayName();
                 return TableMessageSource.builder()
                         .id(node.getId())
                         .name(tableName)
-                        .module(moduleName)
-                        .projectId(project == null ? null : project.id())
-                        .project(project == null ? null : project.name())
+                        .module(where == null ? null : where.module())
+                        .projectId(where == null ? null : where.projectId())
+                        .project(where == null ? null : where.projectName())
                         .cell(location.getCell())
                         .build();
             }
-            return moduleName != null
+            return where != null
                     ? ModuleMessageSource.builder()
-                            .name(moduleName)
-                            .projectId(project == null ? null : project.id())
-                            .project(project == null ? null : project.name())
+                            .name(where.module())
+                            .projectId(where.projectId())
+                            .project(where.projectName())
                             .build()
                     : null;
         }
@@ -133,21 +123,6 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
             return null;
         }
 
-        /**
-         * Walks every module dependency loader in the workspace (current project and any projects it
-         * depends on) and returns the {@link Module#getName() module name} whose rules root contains the
-         * supplied source location. Mirrors the lookup used by {@code WebStudio} and
-         * {@code WorkspaceProjectService} so the result matches what the rest of the UI shows.
-         */
-        private String resolveModuleName(String sourceLocation) {
-            for (Module module : modules) {
-                if (module.containsTable(sourceLocation)) {
-                    return module.getName();
-                }
-            }
-            return null;
-        }
-
         private static Map<String, List<TableEntry>> indexTables(ProjectModel model) {
             var index = new HashMap<String, List<TableEntry>>();
             for (TableSyntaxNode node : model.getAllTableSyntaxNodes()) {
@@ -157,70 +132,6 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
                 }
             }
             return index;
-        }
-
-        private static List<Module> indexModules(ProjectModel model) {
-            var dependencyManager = model.getWebStudioWorkspaceDependencyManager();
-            if (dependencyManager == null) {
-                return List.of();
-            }
-            var modules = new ArrayList<Module>();
-            for (IDependencyLoader loader : dependencyManager.getDependencyLoaders()) {
-                if (loader.isProjectLoader()) {
-                    continue;
-                }
-                var module = loader.getModule();
-                if (module != null) {
-                    modules.add(module);
-                }
-            }
-            return modules;
-        }
-
-        /**
-         * The project each module belongs to, resolved once per project rather than once per message.
-         *
-         * <p>The modules of the workspace include those of the projects this one depends on, and a message
-         * raised in one of them belongs to that project — so the screen it sends the reader to is that
-         * project's, not the one being compiled.
-         */
-        private static Map<String, ProjectAddress> indexProjects(ProjectModel model,
-                                                                 ProjectIdentifierMapper projectIdentifierMapper,
-                                                                 List<Module> modules) {
-            var studio = model.getStudio();
-            if (studio == null) {
-                return Map.of();
-            }
-            var repositoryOfProject = new HashMap<String, String>();
-            studio.getProjects()
-                    .forEach((repositoryId, descriptors) -> descriptors
-                            .forEach(descriptor -> repositoryOfProject.putIfAbsent(descriptor.getName(), repositoryId)));
-            var addressOfProject = new HashMap<String, ProjectAddress>();
-            var byModule = new HashMap<String, ProjectAddress>();
-            for (Module module : modules) {
-                var descriptor = module.getProject();
-                if (descriptor == null || module.getName() == null) {
-                    continue;
-                }
-                var address = addressOfProject.computeIfAbsent(descriptor.getName(),
-                        name -> address(studio, projectIdentifierMapper, repositoryOfProject.get(name), descriptor));
-                if (address != null) {
-                    byModule.put(module.getName(), address);
-                }
-            }
-            return byModule;
-        }
-
-        private static ProjectAddress address(WebStudio studio,
-                                              ProjectIdentifierMapper projectIdentifierMapper,
-                                              String repositoryId,
-                                              ProjectDescriptor descriptor) {
-            if (repositoryId == null || descriptor.getProjectFolder() == null) {
-                return null;
-            }
-            var project = studio.getProject(repositoryId, descriptor.getProjectFolder().getFileName().toString());
-            return project == null ? null
-                    : new ProjectAddress(projectIdentifierMapper.map(project).encode(), descriptor.getName());
         }
 
         private static String sheetKey(XlsUrlParser location) {

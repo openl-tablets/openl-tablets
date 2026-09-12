@@ -76,6 +76,56 @@ describe('tableGrouping', () => {
         expect(nodes.every(node => node.table !== undefined)).toBe(true)
     })
 
+    describe('the versions of one table', () => {
+        const carPrice = (lob: string, extra: Partial<ModuleTable> = {}): ModuleTable => table('CarPrice', {
+            id: `car-${lob}`,
+            displayName: `CarPrice [lob=${lob}]`,
+            overloadGroup: 'CarPrice(java.lang.String)',
+            ...extra,
+        })
+
+        it('gathers them under the name they share, each called by what tells it apart', () => {
+            const nodes = treeOf([carPrice('Insurance'), carPrice('Banking'), table('Premium')], 'excelSheet')
+            const sheet = nodes[0]
+
+            expect(sheet?.title).toEqual('Rules')
+            expect(sheet?.children.map(child => child.title)).toEqual(['CarPrice', 'Premium'])
+            expect(sheet?.children[0]?.children.map(child => child.title))
+                .toEqual(['CarPrice [lob=Banking]', 'CarPrice [lob=Insurance]'])
+        })
+
+        it('keeps two tables that merely share a name apart', () => {
+            // Another CarPrice, taking another argument: its versions are its own, not this one's.
+            const namesake = (id: string, lob: string): ModuleTable => table('CarPrice', {
+                id,
+                displayName: `CarPrice [lob=${lob}]`,
+                overloadGroup: 'CarPrice(java.lang.Integer)',
+            })
+            const tables = [carPrice('Banking'), carPrice('Insurance'), namesake('by-age', 'Retail')]
+            const nodes = treeOf([...tables, namesake('by-year', 'Trade')], 'excelSheet')
+
+            expect(nodes[0]?.children.map(child => child.children.length)).toEqual([2, 2])
+        })
+
+        it('files a version under the folder even where the branch holds only that one', () => {
+            // The other version is written on another sheet, so this branch gathers a single one.
+            const nodes = treeOf([carPrice('Banking'), carPrice('Insurance', { sheet: 'More' })], 'excelSheet')
+
+            expect(nodes.map(node => node.title)).toEqual(['More', 'Rules'])
+            expect(nodes.every(sheet => sheet.children[0]?.title === 'CarPrice')).toBe(true)
+            expect(nodes.flatMap(sheet => sheet.children.flatMap(folder => folder.children.map(v => v.title))))
+                .toEqual(['CarPrice [lob=Insurance]', 'CarPrice [lob=Banking]'])
+        })
+
+        it('gives the folder and its versions keys of their own', () => {
+            const nodes = treeOf([carPrice('Banking'), carPrice('Insurance')], 'excelSheet')
+            const folder = nodes[0]?.children[0]
+            const keys = [folder?.key, ...(folder?.children.map(child => child.key) ?? [])]
+
+            expect(new Set(keys).size).toEqual(keys.length)
+        })
+    })
+
     describe('the view the tree opens on', () => {
         beforeEach(() => localStorage.clear())
 

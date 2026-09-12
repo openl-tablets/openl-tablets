@@ -46,6 +46,7 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
+import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -110,6 +111,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(TableCreatorService.class),
                 mock(TableCopyService.class),
                 mock(TablePropertiesService.class),
+                mock(TableDetailsService.class),
                 new TableVersionService(),
                 mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),

@@ -7,6 +7,7 @@ import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import type { ModuleInfo } from '../../services/modules'
 import { useSharedStyles } from '../projects/sharedStyles'
+import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { groupIcon, tableIcon } from './tableIcons'
 import {
     DEFAULT_VIEW,
@@ -22,10 +23,18 @@ import {
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
 
+/** The width the rail was last dragged to, kept so a reader who made room for long names keeps it. */
+const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
+const WIDTH = { min: 180, max: 640, fallback: 256 }
+
 /** What the panel shows: the tables of the open module, or the modules to open instead. */
 type RailMode = 'tables' | 'modules'
 
 const useStyles = createStyles(({ css, token }) => ({
+    /** The rail is dragged by its right edge, which the grip is laid along. */
+    resizable: css`
+        position: relative;
+    `,
     /** The mode switch and, under it, whatever the mode needs. */
     top: css`
         flex: none;
@@ -46,47 +55,12 @@ const useStyles = createStyles(({ css, token }) => ({
         overflow: hidden;
         padding: 4px 8px 12px;
     `,
-    tree: css`
-        background: transparent;
-
-        .ant-tree-treenode {
-            padding-bottom: 0;
-            white-space: nowrap;
-            align-items: center;
-        }
-
-        /* The rail is narrow: every step of the hierarchy costs width, so it stays small. */
-        .ant-tree-indent-unit {
-            width: 12px;
-        }
-
-        .ant-tree-switcher {
-            width: 18px;
-            line-height: 24px;
-        }
-
-        .ant-tree-node-content-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            min-height: 24px;
-            line-height: 24px;
-            padding: 0 4px;
-            overflow: visible;
-        }
-
-        /* A name is read in full, on one line: the tree scrolls sideways instead of clipping it. */
-        .ant-tree-title,
-        .ant-tree-node-content-wrapper .ant-tree-title {
-            overflow: visible;
-            text-overflow: clip;
-            white-space: nowrap;
-        }
-
-        .ant-tree-iconEle {
-            width: auto;
-            line-height: 24px;
-        }
+    /**
+     * A table switched off by its `active` property is written in the module but takes no part in the rules.
+     * The Editor drew it faint, and the rail keeps that: the row is read as present but out of play.
+     */
+    inactive: css`
+        opacity: 0.45;
     `,
     state: css`
         padding: 12px 16px;
@@ -99,8 +73,21 @@ interface TreeDataNode {
     title: string
     icon: React.ReactNode
     selectable: boolean
+    /** Set on a row the tree draws apart — a table that takes no part in the rules. */
+    className?: string
+    'data-testid'?: string
     children: TreeDataNode[]
 }
+
+/** One node of the tree as Ant Design draws it, with the class a switched-off table is drawn faint in. */
+const toTreeNode = (node: TableNode, inactive: string): TreeDataNode => ({
+    key: node.table ? node.table.id : node.key,
+    title: node.title,
+    icon: node.table ? tableIcon(node.table.kind) : groupIcon(node.groupedBy),
+    selectable: node.table !== undefined,
+    ...(node.table?.active === false ? { className: inactive, 'data-testid': 'module-table-inactive' } : {}),
+    children: node.children.map(child => toTreeNode(child, inactive)),
+})
 
 /** The keys of the groups on the way down to the given table, so only that branch stands open. */
 const pathTo = (nodes: TableNode[], tableId: string, trail: string[] = []): string[] | null => {
@@ -157,8 +144,9 @@ export const ModuleTablesTree = ({
     onSelectModule,
 }: ModuleTablesTreeProps) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
+    const { styles, cx } = useStyles()
     const { styles: shared } = useSharedStyles()
+    const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', WIDTH)
     const [mode, setMode] = useState<RailMode>('tables')
     const [view, setView] = useState<TableView>(DEFAULT_VIEW)
     // The Default Order of the user's own settings decides what the tree opens on.
@@ -166,18 +154,18 @@ export const ModuleTablesTree = ({
     const [expanded, setExpanded] = useState<string[]>([])
     // The tree draws the rows that fit and no more, so it has to be told what fits.
     const bodyRef = useRef<HTMLDivElement>(null)
-    const [bodyHeight, setBodyHeight] = useState(0)
+    const [body, setBody] = useState({ height: 0, width: 0 })
 
     useEffect(() => {
-        const body = bodyRef.current
-        if (!body) {
+        const measured = bodyRef.current
+        if (!measured) {
             return
         }
         const observer = new ResizeObserver(entries => {
-            const measured = entries[0]?.contentRect.height ?? 0
-            setBodyHeight(Math.floor(measured))
+            const box = entries[0]?.contentRect
+            setBody({ height: Math.floor(box?.height ?? 0), width: Math.floor(box?.width ?? 0) })
         })
-        observer.observe(body)
+        observer.observe(measured)
         return () => observer.disconnect()
     }, [])
 
@@ -185,37 +173,25 @@ export const ModuleTablesTree = ({
     useEffect(() => setView(loadView(preferredView)), [preferredView])
 
     const nodes = useMemo(() => treeOf(tables ?? [], view), [tables, view])
-    const rowWidth = useMemo(() => Math.ceil(widthOf(nodes)), [nodes])
+    // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
+    // what is on screen leaves the virtual list pushed to the right of an empty rail.
+    const rowWidth = useMemo(() => Math.max(Math.ceil(widthOf(nodes)), body.width), [nodes, body.width])
 
     // Only the branch holding the open table stands open; the user opens the rest themselves.
     useEffect(() => {
         setExpanded(selectedTableId ? pathTo(nodes, selectedTableId) ?? [] : [])
     }, [nodes, selectedTableId])
 
-    const viewOptions = TABLE_VIEWS.map(name => ({ value: name, label: t(`browser.module.view_${name}`) }))
+    const viewOptions = useMemo(
+        () => TABLE_VIEWS.map(name => ({ value: name, label: t(`browser.module.view_${name}`) })),
+        [t]
+    )
 
-    const toTreeNode = (node: TableNode): TreeDataNode => ({
-        key: node.table ? node.table.id : node.key,
-        title: node.title,
-        icon: node.table ? tableIcon(node.table.kind) : groupIcon(node.groupedBy),
-        selectable: node.table !== undefined,
-        children: node.children.map(toTreeNode),
-    })
+    // Built once per tree: the rail redraws on every status the compilation pushes and on every step of a
+    // drag, and a module of hundreds of tables would be rebuilt, icons and all, each time.
+    const treeData = useMemo(() => nodes.map(node => toTreeNode(node, styles.inactive)), [nodes, styles.inactive])
 
-    const findTable = (from: TableNode[], key: string): ModuleTable | undefined => {
-        for (const node of from) {
-            if (node.table?.id === key) {
-                return node.table
-            }
-            const found = findTable(node.children, key)
-            if (found) {
-                return found
-            }
-        }
-        return undefined
-    }
-
-    const moduleNodes = modules.map(module => ({
+    const moduleNodes = useMemo(() => modules.map(module => ({
         key: module.name,
         title: module.name,
         icon: <FileExcelOutlined />,
@@ -223,10 +199,11 @@ export const ModuleTablesTree = ({
         // Only the module already open can be picked while it compiles; the rest would wait behind it.
         disabled: compiling && module.name !== currentModule,
         children: [],
-    }))
+    })), [modules, compiling, currentModule])
 
     return (
-        <aside className={shared.rail} data-testid="module-rail">
+        <aside className={cx(shared.rail, styles.resizable)} data-testid="module-rail" style={{ width }}>
+            <ResizeHandle edge="right" onPointerDown={startResize} testId="module-rail-resizer" />
             <div className={styles.top}>
                 <Segmented
                     block
@@ -268,9 +245,9 @@ export const ModuleTablesTree = ({
                     <Tree
                         blockNode
                         showIcon
-                        className={styles.tree}
+                        className={shared.railTree}
                         data-testid="module-rail-modules"
-                        height={bodyHeight}
+                        height={body.height}
                         itemHeight={ROW_HEIGHT}
                         onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
                         selectedKeys={[currentModule]}
@@ -286,17 +263,18 @@ export const ModuleTablesTree = ({
                     <Tree
                         blockNode
                         showIcon
-                        className={styles.tree}
+                        className={shared.railTree}
                         data-testid="module-tables-tree"
                         expandedKeys={expanded}
-                        height={bodyHeight}
+                        height={body.height}
                         itemHeight={ROW_HEIGHT}
                         onExpand={keys => setExpanded(keys as string[])}
                         scrollWidth={rowWidth}
                         selectedKeys={selectedTableId ? [selectedTableId] : []}
-                        treeData={nodes.map(toTreeNode) as never}
+                        treeData={treeData as never}
                         onSelect={(_keys, info) => {
-                            const table = findTable(nodes, String(info.node.key))
+                            // Only a table is selectable, and a table row is keyed by its own id.
+                            const table = tables?.find(candidate => candidate.id === String(info.node.key))
                             if (table) {
                                 onSelectTable(table)
                             }

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
@@ -110,6 +111,7 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
+import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
@@ -1449,7 +1451,8 @@ class WorkspaceProjectServiceTest {
         doReturn(registry).when(service).getCompilationJobRegistry();
         when(registry.acquire(any(), any())).thenReturn(job);
         when(projectModel.search(any(), eq(SearchScope.CURRENT_MODULE))).thenReturn(List.of(openLTable));
-        when(summaryTableReader.read(openLTable)).thenReturn(expected);
+        // Read with what the module knows about the versions of its tables, so one version is told from another.
+        when(summaryTableReader.read(eq(openLTable), any())).thenReturn(expected);
 
         var tables = service.getTables(project,
                 ProjectTableCriteriaQuery.builder().module("Claims").build(),
@@ -1530,6 +1533,31 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_refresh_in_a_session_holding_no_project_compiles_the_module_instead_of_resetting() throws Exception {
+        var launcher = mock(ModuleCompilationLauncher.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(serviceCompilingWith(webStudio, launcher));
+        var projectModel = mock(ProjectModel.class);
+        var registry = mock(CompilationJobRegistry.class);
+        var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
+        // The session has opened nothing: a page refreshed after the session was renewed asks for the module
+        // to be built again before ever opening it.
+        when(webStudio.getCurrentProject()).thenReturn(null);
+        doReturn(registry).when(service).getCompilationJobRegistry();
+
+        service.compileModule(project, "Claims", true);
+
+        var work = forClass(Runnable.class);
+        verify(launcher).launch(eq("Claims"), work.capture());
+        work.getValue().run();
+
+        // Nothing is compiled in such a session, so the open below reads the workbook — which is what the
+        // refresh asked for. A reset would look for the history folder of a project the session does not hold.
+        verify(projectModel, never()).reset(any(), any());
+        verify(webStudio).init("design", "main", "Pricing", "Claims");
+    }
+
+    @Test
     void opening_a_module_leaves_what_is_already_compiled_alone() throws Exception {
         var launcher = mock(ModuleCompilationLauncher.class);
         var webStudio = mock(WebStudio.class);
@@ -1594,7 +1622,7 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
-    void a_table_the_named_module_does_not_hold_is_looked_up_across_the_project() throws Exception {
+    void a_table_the_named_module_does_not_hold_is_not_found() throws Exception {
         var webStudio = mock(WebStudio.class);
         var service = spy(newService(
                 mock(RepositoryAclService.class),
@@ -1606,25 +1634,20 @@ class WorkspaceProjectServiceTest {
                 mock(TableCreatorService.class),
                 mock(SummaryTableReader.class)));
         var moduleModel = mock(ProjectModel.class);
-        var projectModel = mock(ProjectModel.class);
         var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
         var moduleHandle = mock(ProjectHandle.class);
-        var projectHandle = mock(ProjectHandle.class);
         var table = mock(IOpenLTable.class);
+        var moduleInfo = mock(Module.class);
         when(moduleHandle.project()).thenReturn(moduleModel);
-        when(projectHandle.awaitCompiled()).thenReturn(projectModel);
-        when(projectModel.getTableById("shared-id")).thenReturn(table);
+        when(moduleModel.getTableById("shared-id")).thenReturn(table);
         when(table.getUri()).thenReturn("Pricing/Shared.xlsx?sheet=Rules");
-        when(projectModel.getModuleInfo()).thenReturn(mock(Module.class));
+        when(moduleModel.getModuleInfo()).thenReturn(moduleInfo);
         doReturn(moduleHandle).when(service).openProject(project, "Claims");
-        doReturn(projectHandle).when(service).openProject(project);
 
-        service.getTableTests(project, "shared-id", "Claims");
-
-        // The module was asked first and does not hold the table, so the answer comes from the whole project —
-        // which is compiled through, as it always was.
-        verify(projectHandle).awaitCompiled();
-        verify(projectModel).getTestAndRunMethods("Pricing/Shared.xlsx?sheet=Rules", false);
+        // Answering with a table from wherever else it lives would draw it on the wrong module's screen, and a
+        // link naming the wrong module would look as if it worked.
+        assertThrows(NotFoundException.class, () -> service.getTableTests(project, "shared-id", "Claims"));
+        verify(moduleModel, never()).getTestAndRunMethods(any(), anyBoolean());
     }
 
     @Test
@@ -1653,6 +1676,8 @@ class WorkspaceProjectServiceTest {
         // The id is the one the Tables API answers by, so the screen opens a test as it opens any other table.
         assertEquals("WrapperTest", moduleModel.getTableById(wrapperTest.id()).getName());
         assertEquals("1 test case", wrapperTest.info());
+        // And it says where it is written: a test need not live in the module it exercises.
+        assertEquals("sprTests", wrapperTest.module());
     }
 
     /** The compiled table of the module carrying the given name. */
@@ -1757,6 +1782,7 @@ class WorkspaceProjectServiceTest {
         }).collect(Collectors.toCollection(ArrayList::new)));
         when(webStudio.getProjectByName("design", projectName)).thenReturn(descriptor);
         when(webStudio.getModel()).thenReturn(projectModel);
+        when(webStudio.getCurrentProject()).thenReturn(project);
         return project;
     }
 
@@ -1967,6 +1993,7 @@ class WorkspaceProjectServiceTest {
                 tableCreatorService,
                 tableCopyService,
                 tablePropertiesService,
+                mock(TableDetailsService.class),
                 new TableVersionService(),
                 mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
