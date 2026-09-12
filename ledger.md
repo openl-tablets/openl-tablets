@@ -4,12 +4,11 @@
 
 - Open PR #2104 (`dead-code/compare-residue`), head 33329ccbe7: 4 commits, 13 files, 162 deletions re-derived and
   matching the body, one commit per change type, no review. Nothing to do until a reviewer answers or `main` moves.
-- Swept head is `origin/main` e01088de, unchanged for six runs; no vein exists until something merges past it.
-- `origin/main` is red in ITEST and no rerun fixes it (Human follow-ups): the verification rail bars cleanup while
-  that stands, and the same failure on #2104 is never this PR's. Blame is settled, so do not re-derive it: 23b2af95,
-  parent of the 8-commit EPBDS-16415 push, is the last green `main` build.
-- The owner was pushed a notification naming the two stale fixture lines; do not send a second one until `main`
-  moves or #2104 changes state.
+- Swept head `origin/main` e01088de, unchanged for seven runs: no vein until something merges past it, and a red
+  `main` (Human follow-ups) bars cleanup regardless. Blame is settled, so do not re-derive it: 23b2af95, parent of
+  the 8-commit EPBDS-16415 push, is the last green build, so the same ITEST failure on #2104 is never this PR's.
+- The owner holds a notification naming the two stale fixture lines; send no second one until `main` moves or #2104
+  changes state.
 - When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
 
 ## Change-type queue
@@ -78,7 +77,6 @@
   dropdown-submenu, pull-right) and diff2html.css (selecting-left/-right). tooltip.css skins green/red and position
   top_center stay for another reason: no caller passes them but tooltip.js still handles them, so CSS alone is half.
 - Transitive providers, not dead: jaxb-runtime in workspace, spring-core/spring-security-core in security.standalone, kafka-clients in ruleservice.kafka.
-- org.openl.rules.jackson in ruleservice.ws.common: only path to spring-core (BinarySchemaConverter); fix is 2 added declarations.
 - Test-jar executions in ruleservice and ruleservice.deployer include only org/openl/rules/ruleservice/test/* (absent) → publish empty jars; maven-plugin-plugin's reporting entry produces no report, and site.xml links plugin-info.html and 7 *-mojo.html nobody builds.
 - Not deletions but fixes: eslint react-hooks plugin registered with no rule enabled; RulesUtilsTest @SuppressWarnings("deprecated") misspelled; common.js:127 `!$submit.hasClass('own-loader-handler')` can no longer be false.
 - Not dead, just repetitive: 47 dependency `version` elements repeating the managed version (44 in jacoco-report) are DRY; 153 `/* (non-Javadoc) @see */` markers beside @Override are comment churn; AzureBlobRepository `final` in try-with-resources is author style.
@@ -208,11 +206,9 @@
 - studio-ui vitest CPU starvation under -T1C: OverviewPanel.test.tsx (15000ms timeout, act() warning via
   vitest-fail-on-console) and UserDatailsTab.test.tsx findByText timeout when the run takes ~680s; rerun once.
 - OpenLTableLogicTest.detectsErrorsInRulesTestedByTable: `expected true was false`; getMethod right after async setModuleInfo compile; rerun once.
-- IT (services-data): apache/kafka-native:latest segfaults in its own `setup` entrypoint at VM uptime ~0.007s —
-  Pwd.getpwuid <- PosixSystemPropertiesSupport.userNameValue <- PerfManager$PerfDataThread resolving `user.name`.
-  Container exits 1, so the visible error is `Timed out waiting for ... RECOVERY to RUNNING`. It picks a random
-  Kafka module per attempt (itest.tracing, then itest.kafka.smoke), and took 3 attempts on one SHA to pass, so
-  budget more than one rerun before calling it real. Never pin the tag; no in-repo fix.
+- IT (services-data): apache/kafka-native:latest segfaults in its own `setup` entrypoint (Pwd.getpwuid resolving
+  `user.name`); the container exits 1, so the visible error is `Timed out waiting for ... RECOVERY to RUNNING`. It
+  picks a random Kafka module per attempt and took 3 on one SHA, so budget more than one rerun. Never pin the tag.
 - IT (studio-acl): OracleRdbmsTest upgrade `Failed requests expected <0> but was <N>` with ORA-12516 (also on main), or
   a testcontainers/ryuk pull failure erroring all 4 variants at upgrade:53 (runner degraded); rerun once either way.
 - IT (studio): WebStudioTest.simple failed requests at ~10002ms (client timeout); Jetty hang; rerun.
@@ -268,11 +264,9 @@
 - .gitignore/.gitconfig/.gitattributes/.editorconfig, package.json fields, eslint/vite/vitest config imports: done.
 - DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
 - Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
-- EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js deleted): swept for Java types, CSS, JS, images,
-  message bundles, common.js and studio-ui exports/locales; nothing left.
-- EPBDS-16576 residue (5 JSF diff pages, 13 controllers, diff2html, legacyCompare.ts deleted): swept the same way plus
-  Java members and message keys; all of it is in #2104. The 218 methods the deleted controllers called keep other
-  callers; the diff module's own types stay reachable.
+- EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js) and EPBDS-16576 residue (5 JSF diff pages, 13
+  controllers, diff2html, legacyCompare.ts): both swept for Java types and members, CSS, JS, images, message keys,
+  common.js and studio-ui exports/locales; nothing left, and every 16576 finding is in #2104.
 
 ## Human follow-ups
 
@@ -287,12 +281,15 @@
 - Confirm EPBDS-16309 authorises the OpenL2TextUtils removal (decision came from a sweep state file, not Jira).
 - CI health: LockTest load tolerance; OracleRdbmsTest ORA-12516; itest.studio.repos createdAt tiebreaker; jacoco aggregate overlap; kafka-native:latest `setup` segfault (Pwd.getpwuid), which cost 3 CI attempts on one SHA and burns runner time on every PR.
 - OverviewPanel.tsx floating promise into a state setter (~lines 799/1231) is a real test defect at any speed.
-- Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR: declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test, org.openl.rules.project.
+- Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR (additions, never this
+  sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
+  org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
 - Delete the stale remote branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods and dead-code/openapi-layouts-residue (closed #2103); push --delete is 403 from the sandbox and the MCP tools offer no branch delete.
 - Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
 
 ## Run log
 
-- 2026-09-12 b: same standstill; #2104 unchanged and unreviewed, so the blocker went to the owner as a notification.
-- 2026-09-12 c: same standstill; #2104 re-derived as 4/13/162 and correct, no new review, CI unchanged, no notification.
-- 2026-09-12 d: same standstill; 12 of 13 PR jobs green with only the known IT (studio) red, and the blame was pinned.
+- 2026-09-12 c/d: standstill; #2104 re-derived as 4/13/162 and correct, no new review, 12 of 13 jobs green with only
+  the known IT (studio) red, blame pinned to EPBDS-16415.
+- 2026-09-12 e: same standstill, nothing actionable on #2104; compacted the ledger for headroom and re-confirmed
+  `git push --delete` is still 403.
