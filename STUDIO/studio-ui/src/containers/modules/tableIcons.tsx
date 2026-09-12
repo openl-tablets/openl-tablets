@@ -3,6 +3,7 @@ import {
     ApartmentOutlined,
     BlockOutlined,
     CaretRightOutlined,
+    CheckSquareOutlined,
     ColumnWidthOutlined,
     DatabaseOutlined,
     FileExcelOutlined,
@@ -10,15 +11,17 @@ import {
     FolderOutlined,
     FunctionOutlined,
     LayoutOutlined,
+    SettingOutlined,
     TableOutlined,
 } from '@ant-design/icons'
 
 /**
  * The icon a table wears, chosen to read as the one the old Editor drew for it.
  *
- * The old tree used a small picture per table type: a cylinder for a Data table, `fx` for a Method, a green
- * triangle for a Run table, a grid of letters for a Decision table, a banded grid for a Spreadsheet. Each is
- * matched here by the drawn icon closest to it, so the tree reads the same to someone who knew the old one.
+ * The old tree used a small picture per table type: a cylinder for a Data table, `fx` for a Method, a ticked
+ * box for a Test, a green triangle for a Run table, a grid of letters for a Decision table, a banded grid for a
+ * Spreadsheet. Each is matched here by the drawn icon closest to it, so the tree reads the same to someone who
+ * knew the old one.
  */
 const BY_KIND: Record<string, ReactNode> = {
     // dt3.png — a grid with the letters of its conditions.
@@ -34,10 +37,12 @@ const BY_KIND: Record<string, ReactNode> = {
     // data.gif — a database cylinder.
     'Data': <DatabaseOutlined />,
     'Properties': <DatabaseOutlined />,
-    // method.gif — `fx`.
+    // method.gif — `fx`, which is a method and nothing else.
     'Method': <FunctionOutlined />,
-    'Test': <FunctionOutlined />,
-    'Environment': <FunctionOutlined />,
+    // test_ok.gif — a ticked box.
+    'Test': <CheckSquareOutlined />,
+    // config_obj.gif — a small gear.
+    'Environment': <SettingOutlined />,
     // run.gif — a play triangle.
     'Run': <CaretRightOutlined />,
     // tbasic.gif — a flow of steps.
