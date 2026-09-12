@@ -8,6 +8,7 @@ import type { ModuleTable, RawTableView } from 'types/tables'
 import type { Project } from '../types/projects'
 import { getProject, setProjectStatus } from '../services/repositories'
 import {
+    cancelModuleCompilation,
     getModuleTables,
     getRawTable,
     listModules,
@@ -23,12 +24,14 @@ import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { RawTableGrid } from '../components/RawTableGrid'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
+import { CompileDot, getCompileTooltip } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
 import { ValueText } from './projects/ValueText'
 import { BranchSwitcher } from './projects/BranchSwitcher'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { ModuleActionBar } from './modules/ModuleActionBar'
+import { TableProblems } from './modules/TableProblems'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
 
@@ -135,6 +138,7 @@ export const ModuleWorkspace = () => {
     const [table, setTable] = useState<RawTableView | null>(null)
     const [tableError, setTableError] = useState<string | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
+    const [cancelling, setCancelling] = useState(false)
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
@@ -191,8 +195,10 @@ export const ModuleWorkspace = () => {
         )
     }, [load, project, projectId])
 
+    // Followed by the id the server issued, not the one the address carries: a link written elsewhere may
+    // spell the same project a little differently, and the channel is named after the server's spelling.
     const compilation = useModuleCompilation(
-        projectId ?? '',
+        project?.id ?? '',
         project?.branch ?? null,
         moduleName,
         project?.compileStatus ?? null,
@@ -238,6 +244,18 @@ export const ModuleWorkspace = () => {
             { replace: true }
         )
     }, [tables, selectedId, moduleName, navigate, projectId])
+
+    // A compilation of a large project takes minutes, and a reader who no longer wants to wait says so. What
+    // was compiled stays readable; Refresh starts it again.
+    const cancelCompilation = useCallback(() => {
+        if (!projectId) {
+            return
+        }
+        setCancelling(true)
+        cancelModuleCompilation(projectId, moduleName)
+            .catch((error: unknown) => setLoadError(errorMessage(error)))
+            .finally(() => setCancelling(false))
+    }, [moduleName, projectId])
 
     // Refresh compiles the module again and re-reads its tables. What the reader was looking at is kept: the
     // address still names it, and it is drawn again as soon as the tables are back.
@@ -382,6 +400,18 @@ export const ModuleWorkspace = () => {
                 </div>
             )
         }
+        if (compilation.state === 'cancelled' && !compilation.ready) {
+            // The reader asked for the wait to end. What was compiled is kept, and Refresh starts it again.
+            return (
+                <div className={styles.centered} data-testid="module-compile-cancelled">
+                    <Empty description={t('browser.module.compile_cancelled', { module: moduleName })}>
+                        <Button icon={<ReloadOutlined />} onClick={refresh} type="primary">
+                            {t('browser.module.refresh')}
+                        </Button>
+                    </Empty>
+                </div>
+            )
+        }
         if (!compilation.ready) {
             // Shown while the compilation works towards this module. The count is what the status channel
             // reports, so it moves as each module finishes rather than sitting at nothing.
@@ -401,6 +431,9 @@ export const ModuleWorkspace = () => {
                             total: compilation.total,
                         })}
                     </span>
+                    <Button data-testid="module-compile-cancel" loading={cancelling} onClick={cancelCompilation}>
+                        {t('browser.module.compile_cancel')}
+                    </Button>
                 </div>
             )
         }
@@ -418,8 +451,24 @@ export const ModuleWorkspace = () => {
                 </div>
             )
         }
+        // The band of actions belongs to the table that was picked, not to the body being read for it, and it
+        // keeps its place while that read is on its way — a band taken away and put back asks the server again
+        // for everything it shows.
+        const toolbar = selected === null ? null : (
+            <TableToolbar
+                moduleName={moduleName}
+                projectCompiled={compilation.total > 0 && compilation.compiled >= compilation.total}
+                projectId={project.id}
+                table={selected}
+            />
+        )
         if (!table) {
-            return <div className={styles.canvas}><Skeleton active data-testid="module-table-loading" /></div>
+            return (
+                <>
+                    {toolbar}
+                    <div className={styles.canvas}><Skeleton active data-testid="module-table-loading" /></div>
+                </>
+            )
         }
         // "Show Header" puts away the rows the table's header takes, which the read names — the header
         // line, a properties section, the service rows of a decision table.
@@ -428,14 +477,8 @@ export const ModuleWorkspace = () => {
         const total = table.totalRows ?? shown
         return (
             <>
-                {selected !== null && (
-                    <TableToolbar
-                        moduleName={moduleName}
-                        projectCompiled={compilation.total > 0 && compilation.compiled >= compilation.total}
-                        projectId={project.id}
-                        table={selected}
-                    />
-                )}
+                {toolbar}
+                <TableProblems messages={table.messages ?? []} />
                 <div className={styles.canvas}>
                     <RawTableGrid formulas={showFormulas} rows={rows} testId="module-table" />
                     {shown < total && (
@@ -458,6 +501,7 @@ export const ModuleWorkspace = () => {
         <div className={styles.page} data-testid="module-workspace">
             <div className={styles.withTree}>
                 <ModuleTablesTree
+                    compiling={!closed && !compilation.ready && compilation.state === 'compiling'}
                     currentModule={moduleName}
                     modules={modules}
                     onSelectModule={openModule}
@@ -480,16 +524,30 @@ export const ModuleWorkspace = () => {
                             />
                         )}
                         titleAfter={(
-                            <Tooltip title={t('browser.module.refresh')}>
-                                <Button
-                                    aria-label={t('browser.module.refresh')}
-                                    data-testid="module-refresh"
-                                    disabled={closed}
-                                    icon={<ReloadOutlined />}
-                                    onClick={refresh}
-                                    type="text"
+                            <>
+                                <CompileDot
+                                    showLabel
+                                    state={compilation.state}
+                                    testId="module-compile-state"
+                                    tooltip={getCompileTooltip(compilation.status, compilation.state, t)}
+                                    label={compilation.state === 'compiling' && compilation.total > 0
+                                        ? t('browser.module.compile_progress', {
+                                            compiled: compilation.compiled,
+                                            total: compilation.total,
+                                        })
+                                        : undefined}
                                 />
-                            </Tooltip>
+                                <Tooltip title={t('browser.module.refresh')}>
+                                    <Button
+                                        aria-label={t('browser.module.refresh')}
+                                        data-testid="module-refresh"
+                                        disabled={closed}
+                                        icon={<ReloadOutlined />}
+                                        onClick={refresh}
+                                        type="text"
+                                    />
+                                </Tooltip>
+                            </>
                         )}
                     />
                     {canvas()}

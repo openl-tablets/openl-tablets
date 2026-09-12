@@ -254,6 +254,30 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   says in `headerHeight` how many rows its header takes (the header line, a properties section, the service rows
   of a decision table — read from the engine's own business view of that table). The screen chooses; when
   editing arrives it sends back whichever of the two the author edited.
+- **A rail of hundreds of tables draws the rows it shows.** The tree is virtualised (`height`, `itemHeight`
+  and `scrollWidth` on Ant Design's `Tree`), so scrolling paints a screenful rather than a module. Without it
+  every node sits in the DOM and the widest of them is measured across all of them, which is why a long tree
+  scrolled to a blank page and filled in once the scrolling stopped.
+- **A problem leads to the table it was raised against, and asks nothing to do it.** Every compilation message
+  already carries where it came from — the project, the module, the table and the cell — so the list makes each
+  message a link built from what it already holds: a project raising a thousand of them still costs no request.
+  The project is part of that, because a message can be raised in a project this one depends on, and the reader
+  has to be sent there rather than to the project being compiled. While a module is being compiled the links
+  stand still, for the same reason the module list does.
+- **What the compiler said about the table is shown with the table.** The read of a table carries its own
+  messages, so they sit in a foldable section above it, the way the legacy editor kept its Problems block —
+  the project's other messages stay in the panel at the foot of the screen. Both draw through one component,
+  so a message reads the same wherever it is shown.
+- **Nothing may animate a painted property while a reader scrolls.** The compiling indicator beat with a
+  `box-shadow`, which the page paints — so every frame recalculated style and repainted, and the browser's own
+  trace of a scroll over a large table showed 346 style recalculations and 610 paints in four seconds, with the
+  GPU process pegged and the screen going blank behind the scroll. The same scroll with the animation silenced
+  cost one style recalculation and one paint. The beat is a ring moved by `transform` and `opacity` now, which
+  is the compositor's own work: 6 paints for the same scroll.
+- **A table is drawn at the width its values need, not the width of the screen.** Squeezing a table of several
+  hundred columns into the page gives each column a few characters and wraps every value into a tower of
+  lines: a table 10,000 x 6,700 px where the same table laid out naturally is 32,000 x 700 — three times the
+  pixels to paint, and unreadable besides. The screen it sits on scrolls instead.
 - **A tall table arrives a window at a time.** The read takes `startRow` and `maxRows` and answers `totalRows`,
   so the screen draws the first window and fetches the rest as the reader asks for it.
 - **Read what is ready, not what is finished.** Opening a module compiles that module before the rest of the
@@ -261,6 +285,39 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   for the modules after it — on a large project, minutes of waiting for work nobody asked about. The editor
   renders on the first status naming its module, while the rest go on compiling behind the open screen. The
   same read without `module` still waits for the whole project, so no existing caller changes.
+- **A progress report cannot wait for the work it reports on.** Opening a module compiles it while the
+  project model's own monitor is held — minutes, on a large project — and most of the status is read under
+  that same monitor, so a status handed off to another thread waited for the compilation it was reporting on
+  and arrived as one burst at the end. What the compiling thread can read without waiting (the module counts
+  and the names already built) it publishes itself, as a progress-only status; the full one — every message
+  resolved to its table, the tests counted over every method, and what is not committed yet — follows once the
+  monitor is free. Updates handed off are coalesced, since the hand-off reads the status when it runs, not when
+  it was asked to. A screen reading a progress status is therefore told how many problems there are but not
+  which: the problems panel stands on those counts, or it would vanish under its reader for as long as a
+  compilation lasts and come back when it ended.
+- **"Compiled" must mean compiled.** The status names the modules already built, and the module being opened
+  used to be named from the moment it was asked for — its compilation finishes inside `setModuleInfo`, so by
+  the time anyone could read the status it was true. Once the compiling thread reports its own progress it is
+  no longer true, and a screen waiting for its module was let in before the module existed, only to hang on
+  the first read. The model now says whether the opened module is compiled, and the status answers with it.
+- **Work carried out for a session must not need the session's request.** A compilation handed to a
+  background thread reached for the HTTP session twice — the local repository a module's history is written
+  to, and the path that history is kept at — and found none, so the work failed quietly behind a debug log and
+  a refresh looked like it did nothing. The studio holds the user's session, so the work asks it
+  (`WebStudio.getUserWorkspace()`) instead of the thread it happens to run on.
+- **Asking how a compilation is going must not wait for it.** Reading the status used to take the model's own
+  lock, which a compilation holds from its first module to its last — so the projects list froze for minutes
+  whenever any module was being built. The status is read from what the compilation has already published, so
+  it answers at once; a read a moment before a module finishes simply does not count that module.
+- **A wait the reader did not ask for can be ended.** Compiling a large project takes minutes, so the waiting
+  screen offers to stop it: `DELETE /projects/{id}/modules/{name}/compile` answers at once, the module being
+  compiled at that moment is finished — a module cannot be abandoned halfway — and nothing after it is started.
+  The engine already had the switch (a dependency manager that is no longer active answers every request as an
+  interrupted compilation); what was added is asking for it, and a `cancelled` compile state, since a
+  compilation that stopped is neither running nor finished. What was compiled stays readable — a read waiting
+  on a stopped compilation is answered with it, not with an error — and the next request to compile the module
+  builds it from the workbook, whether or not it asks for a reset: opening a module already open compiles
+  nothing, so a compilation that was stopped would otherwise never start again.
 - **Refreshing is compiling again, not asking again.** Opening a module already open compiles nothing, so
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a

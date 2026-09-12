@@ -11,7 +11,7 @@ export type ProjectStatusSeverity = 'INFO' | 'WARN' | 'ERROR'
  * Compile-state values from the {@code CompileState} enum on the backend
  * (`@JsonProperty` -> lower-case).
  */
-export type ProjectCompileState = 'idle' | 'compiling' | 'ok' | 'warnings' | 'errors'
+export type ProjectCompileState = 'idle' | 'compiling' | 'ok' | 'warnings' | 'errors' | 'cancelled'
 
 export interface ProjectStatusMessage {
     id: number
@@ -28,6 +28,9 @@ export interface ProjectStatusMessage {
 export interface ProjectStatusModuleMessageSource {
     type: 'module'
     name?: string
+    /** The project the module belongs to, which is not always the one compiled: a dependency is a project too */
+    projectId?: string
+    project?: string
 }
 
 export interface ProjectStatusTableMessageSource {
@@ -36,6 +39,9 @@ export interface ProjectStatusTableMessageSource {
     name?: string
     module?: string
     cell?: string
+    /** The project the table belongs to, which is not always the one compiled: a dependency is a project too */
+    projectId?: string
+    project?: string
 }
 
 export type ProjectStatusMessageSource =

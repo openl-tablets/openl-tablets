@@ -17,6 +17,14 @@ public record TableMessageSource(
         String module,
 
         @Parameter(description = """
+                Identifier of the project the table belongs to, which is not always the project being compiled: \
+                a message can be raised in a project it depends on. Absent when the project could not be named.""")
+        String projectId,
+
+        @Parameter(description = "Display name of the project the table belongs to.")
+        String project,
+
+        @Parameter(description = """
                 Address of the cell the message points to, in A1 notation. \
                 May be null when the message is associated with the table as a whole.""")
         String cell

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useUserStore } from '../../store'
 import { useTranslation } from 'react-i18next'
-import { Empty, Segmented, Select, Tree } from 'antd'
+import { Alert, Empty, Segmented, Select, Tree } from 'antd'
 import { FileExcelOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
@@ -14,9 +14,13 @@ import {
     saveView,
     TABLE_VIEWS,
     treeOf,
+    widthOf,
     type TableNode,
     type TableView,
 } from './tableGrouping'
+
+/** The height of one row of the tree, which the virtual list counts in. */
+const ROW_HEIGHT = 24
 
 /** What the panel shows: the tables of the open module, or the modules to open instead. */
 type RailMode = 'tables' | 'modules'
@@ -32,24 +36,18 @@ const useStyles = createStyles(({ css, token }) => ({
         margin-top: 8px;
     `,
     /**
-     * The tree scrolls sideways instead of squeezing the names: a table is recognised by its full name, and a
+     * The tree scrolls inside itself: it draws the rows it shows and no more, so a module of hundreds of tables
+     * scrolls as fast as one of ten. Sideways it scrolls too — a table is recognised by its full name, and a
      * wrapped or clipped one is neither readable nor comparable to the row above it.
      */
     body: css`
         flex: 1;
         min-height: 0;
-        overflow: auto;
+        overflow: hidden;
         padding: 4px 8px 12px;
-
-        .ant-tree-list-holder-inner,
-        .ant-tree-list {
-            min-width: max-content;
-        }
     `,
     tree: css`
         background: transparent;
-        width: max-content;
-        min-width: 100%;
 
         .ant-tree-treenode {
             padding-bottom: 0;
@@ -125,6 +123,14 @@ interface ModuleTablesTreeProps {
     modules: ModuleInfo[]
     /** The module the editor has open, marked in the module list. */
     currentModule: string
+    /**
+     * Whether that module is still being compiled.
+     *
+     * <p>A session compiles one module at a time, so asking for another one while this is running only queues
+     * the request behind it — the reader would be left on an empty screen until the first compilation reached
+     * its end. The list is closed for as long as that lasts, and the screen offers to stop the compilation.
+     */
+    compiling?: boolean
     /** The table shown beside the tree, so the tree marks where the reader is. */
     selectedTableId?: string | undefined
     onSelectTable: (table: ModuleTable) => void
@@ -145,6 +151,7 @@ export const ModuleTablesTree = ({
     tables,
     modules,
     currentModule,
+    compiling = false,
     selectedTableId,
     onSelectTable,
     onSelectModule,
@@ -157,11 +164,28 @@ export const ModuleTablesTree = ({
     // The Default Order of the user's own settings decides what the tree opens on.
     const preferredView = useUserStore(state => state.userProfile?.treeView)
     const [expanded, setExpanded] = useState<string[]>([])
+    // The tree draws the rows that fit and no more, so it has to be told what fits.
+    const bodyRef = useRef<HTMLDivElement>(null)
+    const [bodyHeight, setBodyHeight] = useState(0)
+
+    useEffect(() => {
+        const body = bodyRef.current
+        if (!body) {
+            return
+        }
+        const observer = new ResizeObserver(entries => {
+            const measured = entries[0]?.contentRect.height ?? 0
+            setBodyHeight(Math.floor(measured))
+        })
+        observer.observe(body)
+        return () => observer.disconnect()
+    }, [])
 
     // Read once the settings are known: this browser's last choice, or the user's Default Order.
     useEffect(() => setView(loadView(preferredView)), [preferredView])
 
     const nodes = useMemo(() => treeOf(tables ?? [], view), [tables, view])
+    const rowWidth = useMemo(() => Math.ceil(widthOf(nodes)), [nodes])
 
     // Only the branch holding the open table stands open; the user opens the rest themselves.
     useEffect(() => {
@@ -196,6 +220,8 @@ export const ModuleTablesTree = ({
         title: module.name,
         icon: <FileExcelOutlined />,
         selectable: true,
+        // Only the module already open can be picked while it compiles; the rest would wait behind it.
+        disabled: compiling && module.name !== currentModule,
         children: [],
     }))
 
@@ -228,13 +254,24 @@ export const ModuleTablesTree = ({
                     />
                 )}
             </div>
-            <div className={styles.body}>
+            <div ref={bodyRef} className={styles.body}>
+                {mode === 'modules' && compiling && (
+                    <Alert
+                        showIcon
+                        className={styles.state}
+                        data-testid="module-rail-compiling"
+                        title={t('browser.module.switch_blocked', { module: currentModule })}
+                        type="info"
+                    />
+                )}
                 {mode === 'modules' ? (
                     <Tree
                         blockNode
                         showIcon
                         className={styles.tree}
                         data-testid="module-rail-modules"
+                        height={bodyHeight}
+                        itemHeight={ROW_HEIGHT}
                         onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
                         selectedKeys={[currentModule]}
                         treeData={moduleNodes as never}
@@ -252,7 +289,10 @@ export const ModuleTablesTree = ({
                         className={styles.tree}
                         data-testid="module-tables-tree"
                         expandedKeys={expanded}
+                        height={bodyHeight}
+                        itemHeight={ROW_HEIGHT}
                         onExpand={keys => setExpanded(keys as string[])}
+                        scrollWidth={rowWidth}
                         selectedKeys={selectedTableId ? [selectedTableId] : []}
                         treeData={nodes.map(toTreeNode) as never}
                         onSelect={(_keys, info) => {

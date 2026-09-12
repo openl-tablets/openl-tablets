@@ -11042,6 +11042,99 @@ Content-Type: application/json
       }
     },
     "/projects/{projectId}/modules/{moduleName}/compile": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "moduleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      },
       "post": {
         "description": "***",
         "operationId": "***",
@@ -25024,6 +25117,14 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
+                "type": "string",
+                "description": "***"
               }
             }
           }
@@ -25039,6 +25140,14 @@ Content-Type: application/json
             "type": "object",
             "properties": {
               "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
                 "type": "string",
                 "description": "***"
               }
@@ -26278,7 +26387,8 @@ Content-Type: application/json
               "compiling",
               "ok",
               "warnings",
-              "errors"
+              "errors",
+              "cancelled"
             ]
           },
           "lastModifiedBy": {
@@ -26315,7 +26425,8 @@ Content-Type: application/json
               "compiling",
               "ok",
               "warnings",
-              "errors"
+              "errors",
+              "cancelled"
             ]
           },
           "lastModifiedBy": {
@@ -26352,7 +26463,8 @@ Content-Type: application/json
               "compiling",
               "ok",
               "warnings",
-              "errors"
+              "errors",
+              "cancelled"
             ]
           },
           "lastModifiedBy": {
@@ -28578,6 +28690,14 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
+                "type": "string",
+                "description": "***"
               }
             }
           }
@@ -28605,6 +28725,14 @@ Content-Type: application/json
                 "description": "***"
               },
               "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
                 "type": "string",
                 "description": "***"
               }

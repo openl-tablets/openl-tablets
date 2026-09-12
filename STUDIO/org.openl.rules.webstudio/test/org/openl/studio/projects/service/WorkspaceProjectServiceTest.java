@@ -1500,10 +1500,12 @@ class WorkspaceProjectServiceTest {
         var work = forClass(Runnable.class);
         verify(launcher).launch(eq("Claims"), work.capture());
 
-        // The collaborators the work opens the module against were resolved here, where the session is in reach.
+        // The studio the work opens the module against was resolved here, where the session is in reach.
         work.getValue().run();
         verify(webStudio).init("design", "main", "Pricing", "Claims");
-        verify(registry).acquire(any(), any());
+        // The session's own registry is not carried along: asking it for a compilation job from a thread with no
+        // session fails, and the status endpoint registers the compilation itself when it is asked about it.
+        verify(registry, never()).acquire(any(), any());
     }
 
     @Test
@@ -1515,7 +1517,6 @@ class WorkspaceProjectServiceTest {
         var registry = mock(CompilationJobRegistry.class);
         var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
         doReturn(registry).when(service).getCompilationJobRegistry();
-        when(registry.acquire(any(), any())).thenReturn(mock(CompilationJob.class));
 
         service.compileModule(project, "Claims", true);
 
@@ -1537,7 +1538,6 @@ class WorkspaceProjectServiceTest {
         var registry = mock(CompilationJobRegistry.class);
         var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
         doReturn(registry).when(service).getCompilationJobRegistry();
-        when(registry.acquire(any(), any())).thenReturn(mock(CompilationJob.class));
 
         service.compileModule(project, "Claims", false);
 
@@ -1663,6 +1663,53 @@ class WorkspaceProjectServiceTest {
                 .filter(table -> name.equals(table.getName()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("no table named " + name));
+    }
+
+    @Test
+    void stopping_a_compilation_tells_the_module_the_session_has_open() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class));
+        var moduleModel = mock(ProjectModel.class);
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
+        var open = new Module();
+        open.setName("Claims");
+        when(webStudio.getCurrentModule()).thenReturn(open);
+
+        service.cancelModuleCompilation(project, "Claims");
+
+        verify(moduleModel).cancelCompilation();
+    }
+
+    @Test
+    void stopping_a_compilation_of_a_module_left_behind_stops_nothing() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class));
+        var moduleModel = mock(ProjectModel.class);
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
+        var open = new Module();
+        open.setName("Pricing");
+        when(webStudio.getCurrentModule()).thenReturn(open);
+
+        service.cancelModuleCompilation(project, "Claims");
+
+        // What the session compiles now is what the module it moved to asked for, and that stays.
+        verify(moduleModel, never()).cancelCompilation();
     }
 
     /** A service that hands the module compiles it is asked for to the given launcher. */

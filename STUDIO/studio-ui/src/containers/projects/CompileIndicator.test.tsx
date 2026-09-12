@@ -2,7 +2,7 @@ import { act, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectStatus } from '../../constants/project'
 import { subscribeProjectStatus, type ProjectStatusUpdate } from '../../services/projectStatus'
-import { LiveCompileDot, RowCompileDot } from './CompileIndicator'
+import { CompileDot, LiveCompileDot, RowCompileDot } from './CompileIndicator'
 
 // Only the channel is stubbed; the freshness rule stays the one the screens use.
 vi.mock('../../services/projectStatus', async importOriginal => ({
@@ -128,5 +128,19 @@ describe('RowCompileDot', () => {
 
         expect(screen.getByRole('img', { name: 'browser.compile.error_count:2, browser.compile.warning_count:1' }))
             .toBeInTheDocument()
+    })
+})
+
+describe('CompileDot', () => {
+    it('says what it is told instead of the state\'s own name, so progress can be counted out', () => {
+        render(<CompileDot showLabel label="Compiling 3 of 12" state="compiling" testId="chip" />)
+
+        expect(screen.getByTestId('chip')).toHaveTextContent('Compiling 3 of 12')
+    })
+
+    it('falls back to the name of the state when it is told nothing', () => {
+        render(<CompileDot showLabel state="ok" testId="chip" />)
+
+        expect(screen.getByTestId('chip')).toHaveTextContent('browser.compile.ok')
     })
 })

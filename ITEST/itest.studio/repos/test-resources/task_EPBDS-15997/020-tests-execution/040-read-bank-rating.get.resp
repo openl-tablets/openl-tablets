@@ -15,6 +15,8 @@ Content-Type: application/json
         "type": "table",
         "id": "ee556da016e9f542b668014182bf28c4",
         "name": "BankRatingCalculation",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTc6MGFkMzFjMzIxY2E3ZjMwODUxYThmMzMwZWMzMDBjYzNmNmQ5NTBlMTI1MWRkMGUxZmNlMjljMjY3MzZjOWViZQ==",
+        "project": "EPBDS-15997",
         "module": "Bank Rating",
         "cell": "G21"
       },
