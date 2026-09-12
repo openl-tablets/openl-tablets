@@ -280,6 +280,15 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   the time anyone could read the status it was true. Once the compiling thread reports its own progress it is
   no longer true, and a screen waiting for its module was let in before the module existed, only to hang on
   the first read. The model now says whether the opened module is compiled, and the status answers with it.
+- **Work carried out for a session must not need the session's request.** A compilation handed to a
+  background thread reached for the HTTP session twice — the local repository a module's history is written
+  to, and the path that history is kept at — and found none, so the work failed quietly behind a debug log and
+  a refresh looked like it did nothing. The studio holds the user's session, so the work asks it
+  (`WebStudio.getUserWorkspace()`) instead of the thread it happens to run on.
+- **Asking how a compilation is going must not wait for it.** Reading the status used to take the model's own
+  lock, which a compilation holds from its first module to its last — so the projects list froze for minutes
+  whenever any module was being built. The status is read from what the compilation has already published, so
+  it answers at once; a read a moment before a module finishes simply does not count that module.
 - **Refreshing is compiling again, not asking again.** Opening a module already open compiles nothing, so
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a
