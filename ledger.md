@@ -4,9 +4,11 @@
 
 - Open PR #2104 (`dead-code/compare-residue`): 4 commits, 13 files, 162 deletions, one commit per change type, body
   verified against the diff, no review yet. Nothing to do on it until a reviewer answers or `main` moves.
-- Swept head is `origin/main` e01088de, unchanged for three runs; no vein exists until something merges past it.
+- Swept head is `origin/main` e01088de, unchanged for four runs; no vein exists until something merges past it.
 - `origin/main` is red in ITEST and no rerun fixes it (Human follow-ups): the verification rail bars cleanup while
   that stands, and the same failure on #2104 is never this PR's.
+- The owner was pushed a notification naming the two stale fixture lines; do not send a second one until `main`
+  moves or #2104 changes state.
 - On changed code only: rerun PMD, the identifier index and the ASM scans over the changed files, never the whole tree.
 
 ## Change-type queue
@@ -210,8 +212,8 @@
   Container exits 1, so the visible error is `Timed out waiting for ... RECOVERY to RUNNING`. It picks a random
   Kafka module per attempt (itest.tracing, then itest.kafka.smoke), and took 3 attempts on one SHA to pass, so
   budget more than one rerun before calling it real. Never pin the tag; no in-repo fix.
-- IT (studio-acl): OracleRdbmsTest upgrade `Failed requests expected <0> but was <N>` with ORA-12516; also on main; rerun once.
-- IT (studio-acl): testcontainers/ryuk pull failure → all 4 variants error at upgrade:53 (runner degraded); rerun.
+- IT (studio-acl): OracleRdbmsTest upgrade `Failed requests expected <0> but was <N>` with ORA-12516 (also on main), or
+  a testcontainers/ryuk pull failure erroring all 4 variants at upgrade:53 (runner degraded); rerun once either way.
 - IT (studio): WebStudioTest.simple failed requests at ~10002ms (client timeout); Jetty hang; rerun.
 - itest.studio.repos race: two revisions share createdAt → history order flips (task_EPBDS-15439/.../500-verify); rerun.
 - Sonar analysis job: jacoco report-aggregate `Unknown block type` on ITEST/server-core/target/jacoco.exec (overlapping artifact merge); rerun.
@@ -290,6 +292,6 @@
 
 ## Run log
 
-- 2026-09-11 h: opened #2104 (4 commits, 13 files, 162 deletions, superset), closed #2103; found main red in ITEST.
 - 2026-09-11 i: main still e01088de, no vein; #2104 body matches its diff and its one red job is red on main too.
 - 2026-09-12 a: main unmoved and still red, so no cleanup; re-verified #2104 against its diff and compacted the ledger.
+- 2026-09-12 b: same standstill; #2104 unchanged and unreviewed, so the blocker went to the owner as a notification.
