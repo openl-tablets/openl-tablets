@@ -4,12 +4,14 @@
 
 - Open PR #2104 (`dead-code/compare-residue`), head 33329ccbe7: 4 commits, 13 files, 162 deletions re-derived and
   matching the body, one commit per change type, no review. Nothing to do until a reviewer answers or `main` moves.
-- Swept head `origin/main` e01088de, unchanged for seven runs: no vein until something merges past it, and a red
+- Swept head `origin/main` e01088de, unchanged for eight runs: no vein until something merges past it, and a red
   `main` (Human follow-ups) bars cleanup regardless. Blame is settled, so do not re-derive it: 23b2af95, parent of
   the 8-commit EPBDS-16415 push, is the last green build, so the same ITEST failure on #2104 is never this PR's.
 - The owner holds a notification naming the two stale fixture lines; send no second one until `main` moves or #2104
   changes state.
 - When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
+- Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein: on its merge sweep the JSF
+  editor pages, their beans and the images, CSS and JS only they reached, the way 16560 and 16576 residue was swept.
 
 ## Change-type queue
 
@@ -289,7 +291,6 @@
 
 ## Run log
 
-- 2026-09-12 c/d: standstill; #2104 re-derived as 4/13/162 and correct, no new review, 12 of 13 jobs green with only
-  the known IT (studio) red, blame pinned to EPBDS-16415.
-- 2026-09-12 e: same standstill, nothing actionable on #2104; compacted the ledger for headroom and re-confirmed
-  `git push --delete` is still 403.
+- 2026-09-12 c/d: standstill; #2104 re-derived 4/13/162 and correct, blame pinned to EPBDS-16415.
+- 2026-09-12 e: standstill; compacted the ledger for headroom, `git push --delete` still 403.
+- 2026-09-12 f: standstill; `main` and #2104 both unmoved, no new comment or review thread, CI byte-identical.
