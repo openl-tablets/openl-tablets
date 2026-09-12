@@ -75,15 +75,38 @@ describe('TableToolbar', () => {
         expect(screen.getByTestId('table-createTest')).toBeDisabled()
     })
 
-    it('offers running only what can be run, and its cases only to a test table', async () => {
+    it('offers running only what can be run, and testing only what there is a test for', async () => {
         const { unmount } = await draw({ table: table('Datatype') })
         expect(screen.queryByTestId('table-run')).toBeNull()
         expect(screen.queryByTestId('table-tests')).toBeNull()
         unmount()
 
+        // A table nothing covers has nothing to test; a test table always runs its own cases.
+        const { unmount: unmountUncovered } = await draw({ table: table('Spreadsheet') })
+        expect(screen.getByTestId('table-run')).toBeEnabled()
+        expect(screen.queryByTestId('table-tests')).toBeNull()
+        unmountUncovered()
+
         await draw({ table: table('Test') })
         expect(screen.getByTestId('table-run')).toBeEnabled()
         expect(screen.getByTestId('table-tests')).toBeEnabled()
+    })
+
+    it('runs the tests written against the table, beside Create Test as the Editor kept them', async () => {
+        vi.mocked(getTableTests).mockResolvedValue([{ id: 'test-9', name: 'GreetingTest' }])
+        const opened = vi.fn()
+        window.addEventListener('openTestsLaunch', opened)
+        await draw({ table: table('Spreadsheet') })
+
+        const band = screen.getByTestId('table-toolbar')
+        const actions = [...band.querySelectorAll('[data-testid^=table-]')].map(node => node.getAttribute('data-testid'))
+        expect(actions.indexOf('table-tests')).toBe(actions.indexOf('table-createTest') - 1)
+
+        await userEvent.click(screen.getByTestId('table-tests'))
+
+        window.removeEventListener('openTestsLaunch', opened)
+        const { detail } = opened.mock.calls[0]?.[0] as CustomEvent
+        expect(detail).toMatchObject({ projectId: 'p1', tableId: 'table-1', moduleName: 'Claims' })
     })
 
     it('names what exercises the table and opens it where the tree would', async () => {

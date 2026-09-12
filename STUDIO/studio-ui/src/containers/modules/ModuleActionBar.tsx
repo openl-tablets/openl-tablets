@@ -1,12 +1,9 @@
-import { useState } from 'react'
+import { useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge, Button, Dropdown, Modal, Space, Tooltip } from 'antd'
 import { DownOutlined } from '@ant-design/icons'
 import type { Project } from '../../types/projects'
-import { runTests } from '../../services/execution'
-import { errorHandler } from '../../utils/errorHandling'
 import { supportsRevisionSearch } from '../../utils/repositoryFeatures'
-import { TestsResultModal } from '../execution/TestsResultModal'
 import { LocalChangesView } from '../projects/LocalChangesView'
 import { RevisionsPanel } from '../projects/RevisionsPanel'
 import { openCompareWindow } from '../projects/compare'
@@ -24,6 +21,12 @@ interface ModuleActionBarProps {
     modulePath?: string | undefined
     /** How many tests the module holds, as the status channel reports them. */
     testCount?: number | undefined
+    /**
+     * Whether every module of the project is compiled.
+     *
+     * <p>Until it is, only this module's tests can be run: the ones written elsewhere are not built yet.
+     */
+    projectCompiled?: boolean
     /** Nothing here acts on a project nobody has opened, so everything stands disabled until it is. */
     disabled?: boolean
     /** Opening a revision replaces the workspace copy, so the module is read again from it. */
@@ -44,10 +47,10 @@ export const ModuleActionBar = ({
     modulePath,
     testCount,
     disabled = false,
+    projectCompiled = false,
     onRevisionOpened,
 }: ModuleActionBarProps) => {
     const { t } = useTranslation('repository')
-    const [testsOpen, setTestsOpen] = useState(false)
     const [revisionsOpen, setRevisionsOpen] = useState(false)
     const [localChangesOpen, setLocalChangesOpen] = useState(false)
 
@@ -57,11 +60,18 @@ export const ModuleActionBar = ({
         </Tooltip>
     )
 
-    const runModuleTests = () => {
-        setTestsOpen(true)
-        runTests(project.id, { fromModule: moduleName }).catch((error: unknown) => {
-            errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
-        })
+    // The panel of EPBDS-16560 answers this: it runs the project's tests, with the choice of only this
+    // module's — which is the only choice left while the rest of the project is still being compiled.
+    const openTests = (from: ReactMouseEvent<HTMLElement>) => {
+        const { top, left, width, height } = from.currentTarget.getBoundingClientRect()
+        window.dispatchEvent(new CustomEvent('openTestsLaunch', {
+            detail: {
+                projectId: project.id,
+                moduleName,
+                anchor: { top, left, width, height },
+                moduleOnlyLocked: !projectCompiled,
+            },
+        }))
     }
 
     // What the old More menu offered: the project's own history first, then what is about its tables.
@@ -102,7 +112,7 @@ export const ModuleActionBar = ({
                     {t('browser.module.export')}
                 </Button>
             </Tooltip>
-            <Button data-testid="module-test" disabled={disabled || !testCount} onClick={runModuleTests}>
+            <Button data-testid="module-test" disabled={disabled || !testCount} onClick={openTests}>
                 {t('browser.module.test')}
                 {!!testCount && (
                     <Badge color="blue" count={testCount} data-testid="module-test-count" />
@@ -118,9 +128,6 @@ export const ModuleActionBar = ({
                     {t('browser.module.more')} <DownOutlined />
                 </Button>
             </Dropdown>
-            {testsOpen && (
-                <TestsResultModal onClose={() => setTestsOpen(false)} projectId={project.id} />
-            )}
             <Modal
                 destroyOnHidden
                 footer={null}

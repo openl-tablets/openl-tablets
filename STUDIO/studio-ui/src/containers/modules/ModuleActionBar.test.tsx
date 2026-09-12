@@ -38,6 +38,23 @@ const bar = async (capabilities: Project['capabilities'] = { canViewHistory: tru
 }
 
 describe('ModuleActionBar', () => {
+    it('offers the project\'s tests through the launch panel, module-only until the project is compiled', async () => {
+        const opened = vi.fn()
+        window.addEventListener('openTestsLaunch', opened)
+        render(<ModuleActionBar moduleName="Claims" project={project({} as Project['capabilities'])} testCount={3} />)
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        await userEvent.click(screen.getByTestId('module-test'))
+
+        window.removeEventListener('openTestsLaunch', opened)
+        const { detail } = opened.mock.calls[0]?.[0] as CustomEvent
+        // Without a table the panel runs every test of the project; the module is only what it can be narrowed to.
+        expect(detail).toMatchObject({ projectId: 'p1', moduleName: 'Claims', moduleOnlyLocked: true })
+        expect(detail).not.toHaveProperty('tableId')
+    })
+
     it('reads the project history in a window rather than on the project screen', async () => {
         await bar()
 
