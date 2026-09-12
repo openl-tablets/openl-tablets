@@ -7,6 +7,7 @@ import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import type { ModuleInfo } from '../../services/modules'
 import { useSharedStyles } from '../projects/sharedStyles'
+import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { groupIcon, tableIcon } from './tableIcons'
 import {
     DEFAULT_VIEW,
@@ -22,10 +23,18 @@ import {
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
 
+/** The width the rail was last dragged to, kept so a reader who made room for long names keeps it. */
+const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
+const WIDTH = { min: 180, max: 640, fallback: 256 }
+
 /** What the panel shows: the tables of the open module, or the modules to open instead. */
 type RailMode = 'tables' | 'modules'
 
 const useStyles = createStyles(({ css, token }) => ({
+    /** The rail is dragged by its right edge, which the grip is laid along. */
+    resizable: css`
+        position: relative;
+    `,
     /** The mode switch and, under it, whatever the mode needs. */
     top: css`
         flex: none;
@@ -157,8 +166,9 @@ export const ModuleTablesTree = ({
     onSelectModule,
 }: ModuleTablesTreeProps) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
+    const { styles, cx } = useStyles()
     const { styles: shared } = useSharedStyles()
+    const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', WIDTH)
     const [mode, setMode] = useState<RailMode>('tables')
     const [view, setView] = useState<TableView>(DEFAULT_VIEW)
     // The Default Order of the user's own settings decides what the tree opens on.
@@ -226,7 +236,8 @@ export const ModuleTablesTree = ({
     }))
 
     return (
-        <aside className={shared.rail} data-testid="module-rail">
+        <aside className={cx(shared.rail, styles.resizable)} data-testid="module-rail" style={{ width }}>
+            <ResizeHandle edge="right" onPointerDown={startResize} testId="module-rail-resizer" />
             <div className={styles.top}>
                 <Segmented
                     block
