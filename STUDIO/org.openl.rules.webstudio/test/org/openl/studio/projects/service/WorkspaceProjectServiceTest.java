@@ -1665,6 +1665,53 @@ class WorkspaceProjectServiceTest {
                 .orElseThrow(() -> new IllegalStateException("no table named " + name));
     }
 
+    @Test
+    void stopping_a_compilation_tells_the_module_the_session_has_open() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class));
+        var moduleModel = mock(ProjectModel.class);
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
+        var open = new Module();
+        open.setName("Claims");
+        when(webStudio.getCurrentModule()).thenReturn(open);
+
+        service.cancelModuleCompilation(project, "Claims");
+
+        verify(moduleModel).cancelCompilation();
+    }
+
+    @Test
+    void stopping_a_compilation_of_a_module_left_behind_stops_nothing() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class));
+        var moduleModel = mock(ProjectModel.class);
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
+        var open = new Module();
+        open.setName("Pricing");
+        when(webStudio.getCurrentModule()).thenReturn(open);
+
+        service.cancelModuleCompilation(project, "Claims");
+
+        // What the session compiles now is what the module it moved to asked for, and that stays.
+        verify(moduleModel, never()).cancelCompilation();
+    }
+
     /** A service that hands the module compiles it is asked for to the given launcher. */
     private static WorkspaceProjectService serviceCompilingWith(WebStudio webStudio,
                                                                 ModuleCompilationLauncher launcher)

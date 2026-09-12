@@ -335,6 +335,7 @@ i18next.addResourceBundle('en', 'repository', {
             ok: 'Compiled',
             warnings: 'Warnings',
             errors: 'Errors',
+            cancelled: 'Compilation stopped',
             error_count_one: '{{count}} error',
             error_count_other: '{{count}} errors',
             warning_count_one: '{{count}} warning',
@@ -395,6 +396,9 @@ i18next.addResourceBundle('en', 'repository', {
             compare: 'Compare Excel files',
             compiling: 'Compiling "{{module}}" — {{compiled}} of {{total}} modules done',
             compile_progress: 'Compiling {{compiled}} of {{total}}',
+            compile_cancel: 'Stop compiling',
+            compile_cancelled: 'Compiling "{{module}}" was stopped. What was compiled is shown; Refresh compiles '
+                + 'it again.',
             compile_failed: 'The module could not be compiled',
             project_closed: 'Open the project to work with its modules.',
             pick_a_table: 'Pick a table to see it',

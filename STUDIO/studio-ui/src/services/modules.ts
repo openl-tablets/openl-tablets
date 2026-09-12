@@ -56,6 +56,20 @@ export const getModuleTables = async (projectId: string, moduleName: string): Pr
     return asArray(page?.content)
 }
 
+/**
+ * Tells the compilation of a module to stop.
+ *
+ * <p>Answers at once: the module being compiled at that moment is finished and nothing after it is started.
+ * What was compiled stays readable, and a refresh compiles the module again from the workbook.
+ */
+export const cancelModuleCompilation = async (projectId: string, moduleName: string): Promise<void> => {
+    await apiCall(
+        `${moduleUrl(projectId, moduleName)}/compile`,
+        { method: 'DELETE' },
+        MODULE_API_OPTIONS
+    )
+}
+
 /** How many rows of a table are drawn at once; the rest are fetched as the reader asks for them. */
 export const TABLE_PAGE_ROWS = 120
 

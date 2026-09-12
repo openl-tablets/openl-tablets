@@ -135,6 +135,10 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     }
 
     private CompileState deriveCompileState(ProjectModel projectModel, ProjectCompilationStatus compilationStatus) {
+        if (projectModel.isCompilationCancelled()) {
+            // A compilation told to stop leaves the project part-compiled: neither running any more, nor finished.
+            return CompileState.CANCELLED;
+        }
         if (projectModel.isCompilationInProgress() || !isCompilationCompleted(projectModel)) {
             return CompileState.COMPILING;
         }

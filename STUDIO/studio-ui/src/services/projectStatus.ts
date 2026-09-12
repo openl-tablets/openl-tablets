@@ -11,7 +11,7 @@ export type ProjectStatusSeverity = 'INFO' | 'WARN' | 'ERROR'
  * Compile-state values from the {@code CompileState} enum on the backend
  * (`@JsonProperty` -> lower-case).
  */
-export type ProjectCompileState = 'idle' | 'compiling' | 'ok' | 'warnings' | 'errors'
+export type ProjectCompileState = 'idle' | 'compiling' | 'ok' | 'warnings' | 'errors' | 'cancelled'
 
 export interface ProjectStatusMessage {
     id: number

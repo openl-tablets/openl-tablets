@@ -74,7 +74,7 @@ export const getCompileTooltip = (
  * warnings or errors. A clean ({@code ok}) or not-yet-compiled ({@code idle}) project shows nothing.
  */
 export const isNoteworthyCompileState = (state: ProjectCompileState): boolean =>
-    state === 'compiling' || state === 'warnings' || state === 'errors'
+    state === 'compiling' || state === 'warnings' || state === 'errors' || state === 'cancelled'
 
 /**
  * Presentational compilation indicator: a coloured state dot in a rounded pill (optionally labelled),

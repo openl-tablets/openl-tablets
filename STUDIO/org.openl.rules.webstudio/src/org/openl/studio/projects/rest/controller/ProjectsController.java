@@ -484,6 +484,16 @@ public class ProjectsController {
         projectService.compileModule(project, moduleName, reset);
     }
 
+    @DeleteMapping("/{projectId}/modules/{moduleName}/compile")
+    @Operation(summary = "projects.modules.compile.cancel.summary", description = "projects.modules.compile.cancel.desc")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void cancelModuleCompilation(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("moduleName") @Parameter(description = "projects.modules.param.module-name.desc")
+            String moduleName) {
+        projectService.cancelModuleCompilation(project, moduleName);
+    }
+
     @GetMapping("/{projectId}/modules/{moduleName}/sheets")
     @Operation(summary = "projects.modules.sheets.summary")
     public List<String> getModuleSheets(
