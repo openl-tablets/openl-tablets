@@ -113,6 +113,7 @@ import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
@@ -126,6 +127,7 @@ import org.openl.studio.projects.service.protection.ProtectedBranchBypassService
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
+import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
@@ -175,6 +177,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableCreatorService tableCreatorService;
     private final TableCopyService tableCopyService;
     private final TablePropertiesService tablePropertiesService;
+    private final TableDetailsService tableDetailsService;
     private final TableVersionService tableVersionService;
     private final ProjectMetadataService metadataService;
     private final TableWritersFactory tableWritersFactory;
@@ -202,6 +205,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             TableCreatorService tableCreatorService,
             TableCopyService tableCopyService,
             TablePropertiesService tablePropertiesService,
+            TableDetailsService tableDetailsService,
             TableVersionService tableVersionService,
             ProjectMetadataService metadataService,
             TableWriterExecutor tableWriterExecutor,
@@ -232,6 +236,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableCreatorService = tableCreatorService;
         this.tableCopyService = tableCopyService;
         this.tablePropertiesService = tablePropertiesService;
+        this.tableDetailsService = tableDetailsService;
         this.tableVersionService = tableVersionService;
         this.metadataService = metadataService;
         this.tableWriterExecutor = tableWriterExecutor;
@@ -1945,6 +1950,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
         return metadataService.getSheets(project, module.getRulesRootPath());
+    }
+
+    /**
+     * What the table says about itself besides its cells: its name and the properties that apply to it.
+     *
+     * <p>The properties include those the table inherits from the properties table of its module or category,
+     * each saying where it came from — which is what a reader needs when the table's header is not shown.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to describe
+     * @param moduleName module the table is asked for through, so the answer is ready once that module is
+     *                   compiled
+     * @return the table's details
+     */
+    public TableDetailsView getTableDetails(RulesProject project, String tableId, @Nullable String moduleName) {
+        return tableDetailsService.read(getOpenLTable(project, tableId, moduleName).table());
     }
 
     /**

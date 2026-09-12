@@ -88,6 +88,7 @@ import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
@@ -545,6 +546,17 @@ public class ProjectsController {
     public TablePropertiesView getTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
                                                   @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId) {
         return projectService.getTableProperties(project, tableId);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/details")
+    @Operation(summary = "projects.table.details.summary", description = "projects.table.details.desc")
+    public TableDetailsView getTableDetails(@ProjectId @PathVariable("projectId") RulesProject project,
+                                            @PathVariable("tableId") @Parameter(description = "project.table.id.desc")
+                                            String tableId,
+                                            @RequestParam(value = "module", required = false)
+                                            @Parameter(description = "projects.table.get.param.module.desc")
+                                            String module) {
+        return projectService.getTableDetails(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/input")
