@@ -12,7 +12,10 @@ Content-Type: application/json
       "signature": "BankLimitIndex (String bank, String bankRatingGroup)",
       "file": "EPBDS-16450/BankLimits.xlsx",
       "sheet": "Sheet1",
-      "pos": "B22:H30"
+      "pos": "B22:H30",
+      "module": "BankLimits",
+      "project": "EPBDS-16450",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY0NTA6MjVmNjEwOWUzMWIwODYyNDJiYjc2ZTg5ODAyN2RkOWM0MzMxY2M5ZjViMjc5ZDA2ZmNhZGIzNjc0MTUzYjQ2MA=="
     },
     {
       "id": "6e26d31aaa80c5d6da4a7a0f16145d03",
@@ -28,7 +31,10 @@ Content-Type: application/json
       "signature": "BankLimitIndexDated (String bank, String bankRatingGroup)",
       "file": "EPBDS-16450/BankLimits.xlsx",
       "sheet": "Sheet1",
-      "pos": "B54:H65"
+      "pos": "B54:H65",
+      "module": "BankLimits",
+      "project": "EPBDS-16450",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY0NTA6MjVmNjEwOWUzMWIwODYyNDJiYjc2ZTg5ODAyN2RkOWM0MzMxY2M5ZjViMjc5ZDA2ZmNhZGIzNjc0MTUzYjQ2MA=="
     },
     {
       "id": "4b200c0ac327e1ec9ced088f18451197",
@@ -46,7 +52,10 @@ Content-Type: application/json
       "file": "EPBDS-16450/BankLimits.xlsx",
       "sheet": "Sheet1",
       "pos": "B67:H79",
-      "active": false
+      "active": false,
+      "module": "BankLimits",
+      "project": "EPBDS-16450",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY0NTA6MjVmNjEwOWUzMWIwODYyNDJiYjc2ZTg5ODAyN2RkOWM0MzMxY2M5ZjViMjc5ZDA2ZmNhZGIzNjc0MTUzYjQ2MA=="
     }
   ],
   "pageNumber": 0,
@@ -54,4 +63,3 @@ Content-Type: application/json
   "numberOfElements": 3,
   "total": 3
 }
-

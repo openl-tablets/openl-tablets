@@ -10,7 +10,10 @@ Content-Type: application/json
       "name": "TypeA",
       "file": "EPBDS-16086/EPBDS-16086.xlsx",
       "sheet": "Main",
-      "pos": "B11:C15"
+      "pos": "B11:C15",
+      "module": "EPBDS-16086",
+      "project": "EPBDS-16086",
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2"
     },
     {
       "id": "91e1b83d71ebd6206c0bff53079bdcb1",
@@ -19,7 +22,10 @@ Content-Type: application/json
       "name": "TypeB",
       "file": "EPBDS-16086/EPBDS-16086.xlsx",
       "sheet": "Main",
-      "pos": "B18:C22"
+      "pos": "B18:C22",
+      "module": "EPBDS-16086",
+      "project": "EPBDS-16086",
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2"
     },
     {
       "id": "dec94b5ec4595b84a118532580fdb200",
@@ -28,7 +34,10 @@ Content-Type: application/json
       "name": "TypeC",
       "file": "EPBDS-16086/EPBDS-16086.xlsx",
       "sheet": "Main",
-      "pos": "B8:C9"
+      "pos": "B8:C9",
+      "module": "EPBDS-16086",
+      "project": "EPBDS-16086",
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2"
     }
   ],
   "pageNumber": 0,

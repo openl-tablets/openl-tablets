@@ -12044,6 +12044,36 @@ Content-Type: application/json
           },
           {
             "description": "***",
+            "in": "query",
+            "name": "scope",
+            "schema": {
+              "type": "string",
+              "description": "***",
+              "enum": [
+                "module",
+                "project",
+                "all"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "text",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
             "explode": true,
             "in": "query",
             "name": "properties",
@@ -28737,6 +28767,10 @@ Content-Type: application/json
               "Other"
             ]
           },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -28746,6 +28780,14 @@ Content-Type: application/json
             "description": "***"
           },
           "pos": {
+            "type": "string",
+            "description": "***"
+          },
+          "project": {
+            "type": "string",
+            "description": "***"
+          },
+          "projectId": {
             "type": "string",
             "description": "***"
           },

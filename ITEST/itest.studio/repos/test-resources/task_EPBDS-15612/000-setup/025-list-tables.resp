@@ -10,7 +10,10 @@ Content-Type: application/json
       "name": "Foo",
       "file": "EPBDS-15612/Qwerty.xlsx",
       "sheet": "Sheet1",
-      "pos": "B7:C8"
+      "pos": "B7:C8",
+      "module": "Qwerty",
+      "project": "EPBDS-15612",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU2MTI6NTAzZjIzODYwMDhhOTFkYjdlMjQ2ODJjYjRjNWE0YTRlNjMyYTUzYjllMzkzZDZhMzk5MzYwZjQxNzg0ZDkyOQ=="
     },
     {
       "id": "*",
@@ -21,7 +24,10 @@ Content-Type: application/json
       "signature": "Hello (Integer hour)",
       "file": "EPBDS-15612/Main.xlsx",
       "sheet": "Rules",
-      "pos": "B3:E11"
+      "pos": "B3:E11",
+      "module": "Main",
+      "project": "EPBDS-15612",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU2MTI6NTAzZjIzODYwMDhhOTFkYjdlMjQ2ODJjYjRjNWE0YTRlNjMyYTUzYjllMzkzZDZhMzk5MzYwZjQxNzg0ZDkyOQ=="
     }
   ],
   "pageNumber": 0,

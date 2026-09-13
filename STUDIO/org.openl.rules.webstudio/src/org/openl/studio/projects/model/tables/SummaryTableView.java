@@ -39,6 +39,16 @@ public class SummaryTableView extends TableView {
             + "An inactive table is written in the module but takes no part in the rules")
     public final Boolean active;
 
+    @Schema(description = "Module the table is written in. Answered where the list spans more than one module — "
+            + "a search of the project, or of everything the workspace has compiled")
+    public String module;
+
+    @Schema(description = "Name of the project that module belongs to, answered with the module")
+    public String project;
+
+    @Schema(description = "Identifier of that project, as the Projects API addresses it")
+    public String projectId;
+
     protected SummaryTableView(Builder builder) {
         super(builder);
         this.returnType = builder.returnType;
@@ -49,6 +59,19 @@ public class SummaryTableView extends TableView {
         this.displayName = builder.displayName;
         this.overloadGroup = builder.overloadGroup;
         this.active = builder.active;
+    }
+
+    /**
+     * Says where the table lives: the module it is written in, and the project that module belongs to.
+     *
+     * <p>Told only where an answer can hold tables of more than one module, because that is where a screen
+     * cannot work it out from the request it made.
+     */
+    public SummaryTableView locatedAt(String module, String project, String projectId) {
+        this.module = module;
+        this.project = project;
+        this.projectId = projectId;
+        return this;
     }
 
     @Override

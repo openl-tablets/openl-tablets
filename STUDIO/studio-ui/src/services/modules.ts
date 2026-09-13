@@ -142,6 +142,58 @@ export const getTableTests = async (projectId: string, tableId: string, module?:
         LOCAL_LOAD_API_OPTIONS
     ) as TableTest[] | null)
 
+/** How wide a search reaches, as the Tables API names it. */
+export type TableSearchScope = 'module' | 'project' | 'all'
+
+/** What an extended search asks for. Everything is optional: a search asking nothing lists the tables. */
+export interface TableSearchCriteria {
+    /** The module the search is made through, and the one it covers unless the scope says wider. */
+    module?: string | undefined
+    scope?: TableSearchScope | undefined
+    /** Part of the table's name. */
+    name?: string | undefined
+    /** Part of the table's header line — its keyword, what it returns, the arguments it takes. */
+    header?: string | undefined
+    /** Text written in any cell of the table. */
+    text?: string | undefined
+    /** The families of table the search covers; empty means every family. */
+    kinds?: string[]
+    /** Values the table's properties must carry, by property name. */
+    properties?: Record<string, string>
+}
+
+/**
+ * The tables of the project that answer the search.
+ *
+ * A search wider than one module waits for the project to be compiled through, and each table it answers with
+ * says which module and project it lives in — so a result can be opened where it is written.
+ */
+export const searchTables = async (projectId: string, criteria: TableSearchCriteria): Promise<ModuleTable[]> => {
+    const params = new URLSearchParams({ unpaged: 'true' })
+    const add = (key: string, value?: string) => {
+        if (value) {
+            params.set(key, value)
+        }
+    }
+    add('module', criteria.module)
+    add('scope', criteria.scope)
+    add('name', criteria.name)
+    add('header', criteria.header)
+    add('text', criteria.text)
+    for (const kind of criteria.kinds ?? []) {
+        params.append('kind', kind)
+    }
+    for (const [name, value] of Object.entries(criteria.properties ?? {})) {
+        add(`properties.${name}`, value)
+    }
+    const page = await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/tables?${params}`,
+        undefined,
+        LOCAL_LOAD_API_OPTIONS
+    ) as { content?: ModuleTable[] } | null
+    return asArray(page?.content)
+}
+
 /** Where a property that applies to a table is defined, when it is not written on the table itself. */
 export type PropertyInheritance = 'category' | 'module' | 'external'
 
