@@ -2,15 +2,14 @@
 
 ## Resume point
 
-- Swept head `origin/main` e01088de, unchanged for ten runs: no vein until something merges past it, and a red
+- Swept head `origin/main` e01088de, unchanged for twelve runs: no vein until something merges past it, and a red
   `main` (Human follow-ups) bars cleanup regardless. #2104 needs nothing until a reviewer answers (see Open PR).
-- Blame on the shared ITEST failure is settled, never re-derive it: 23b2af95, parent of the 8-commit EPBDS-16415
-  push, is the last green build. Quick Build 34620056986 is the red run on e01088de and was never re-run. The owner
-  already holds a notification naming the two stale fixture lines; send no second one until `main` moves or #2104
-  changes state.
+- ITEST blame is settled, never re-derive: 23b2af95, parent of the 8-commit EPBDS-16415 push, is the last green
+  build; red Quick Build 34620056986 on e01088de was never re-run. The owner holds the notification naming the two
+  stale fixture lines — send no second one until `main` moves or #2104 changes state.
 - When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
-- Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein: on its merge sweep the JSF
-  editor pages, their beans and the images, CSS and JS only they reached, the way 16560 and 16576 residue was swept.
+  Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the JSF
+  editor pages, their beans and the images, CSS and JS only they reached, as 16560 and 16576 residue was swept.
 
 ## Change-type queue
 
@@ -287,6 +286,6 @@
 
 ## Run log
 
-- 2026-09-12 f: standstill; `main` and #2104 both unmoved, no new comment or review thread, CI byte-identical.
 - 2026-09-13 a: standstill; #2104 counts re-derived from the API (4/13/162, matches body), compacted to 292.
 - 2026-09-13 b: standstill; #2104 counts re-derived locally (4/13/162), `main` red run confirmed never re-run.
+- 2026-09-13 c: standstill; no review thread on #2104, no new run on `main`, resume point compacted to 291.
