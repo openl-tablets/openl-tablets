@@ -27,8 +27,11 @@ const {
 }))
 
 vi.mock('react-router-dom', () => ({
+    useNavigate: () => navigateMock,
     useSearchParams: () => [searchParamsMock, setSearchParamsMock],
 }))
+
+const navigateMock = vi.fn()
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (key: string) => key }),
@@ -119,9 +122,11 @@ vi.mock('./FilePreviewPane', () => ({
     // The pane is handed the selected path, so the props of its last render tell what the selection
     // settled on — read them through `latestFilePreviewProps`, never an earlier call.
     FilePreviewPane: (props: {
+        modules?: Record<string, string>
         onChanged?: () => void
         onDeleted?: () => void
         onMoved?: (path: string) => void
+        onOpenModule?: (moduleName: string) => void
         path: string | null
     }) => {
         const { onChanged, onDeleted, onMoved } = props
@@ -259,7 +264,11 @@ const projectDetailElement = ({
 const renderProjectDetail = (options: DetailOptions = {}) => render(projectDetailElement(options))
 
 /** The props the file pane was last rendered with — earlier calls hold the state before a re-render. */
-const latestFilePreviewProps = () => filePreviewMock.mock.lastCall?.[0] as { path: string | null }
+const latestFilePreviewProps = () => filePreviewMock.mock.lastCall?.[0] as {
+    path: string | null
+    modules?: Record<string, string>
+    onOpenModule?: (moduleName: string) => void
+}
 
 describe('ProjectDetail', () => {
     beforeEach(() => {
@@ -551,6 +560,30 @@ describe('ProjectDetail', () => {
         await userEvent.click(screen.getByTestId('files-create-folder'))
         expect(screen.getByTestId('folder-actions')).toBeTruthy()
         expect(screen.queryByTestId('file-preview')).toBeNull()
+    })
+
+    it('hands the pane the module each workbook is, and opens the one it is asked for', async () => {
+        setParams('tab=files&file=rules/Nested.xlsx')
+        renderProjectDetail({
+            files: FILES,
+            project: {
+                ...PROJECT,
+                descriptor: { modules: [
+                    { name: 'Rules', path: 'rules/**/*.xlsx', modules: [{ name: 'Nested', path: 'rules/Nested.xlsx' }]},
+                    { name: 'Standalone', path: 'rules.xlsx' },
+                ]},
+            },
+        })
+
+        // A pattern is no file of its own; the modules it matched are the ones a reader opens.
+        expect(latestFilePreviewProps().modules).toEqual({
+            'rules/Nested.xlsx': 'Nested',
+            'rules.xlsx': 'Standalone',
+        })
+
+        latestFilePreviewProps().onOpenModule?.('Nested')
+
+        expect(navigateMock).toHaveBeenCalledWith('/projects/p1/modules/Nested')
     })
 
     it('drops a selection the loaded tree does not hold', () => {

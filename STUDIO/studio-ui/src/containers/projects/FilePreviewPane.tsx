@@ -13,6 +13,7 @@ import {
     FontColorsOutlined,
     MoreOutlined,
     SaveOutlined,
+    TableOutlined,
     UploadOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
@@ -79,6 +80,10 @@ interface FilePreviewPaneProps {
      * change may have touched anything.
      */
     changedFiles?: string[] | null
+    /** The name of the module each workbook of the project is, indexed by the file's path. */
+    modules?: Record<string, string>
+    /** Opens the module the file is, in the editor. */
+    onOpenModule?: (moduleName: string) => void
 }
 
 /** True when one of the changed paths is the file itself or a folder above it. */
@@ -100,7 +105,7 @@ interface FileSelection {
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule }: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -126,6 +131,8 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
 
     const activePath = activeSelection.path
     const editable = !!activePath && isEditableTextFile(activePath)
+    // A workbook the project declares as a module is opened in the editor rather than exported to be read.
+    const openableModule = activePath && onOpenModule ? modules[activePath] : undefined
     const dirty = content !== original
     const incomingSelection: FileSelection = {
         branch: branch ?? null,
@@ -359,10 +366,22 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                     )
             ) : (
                 <div className={shared.panePlaceholder} data-testid="file-preview-binary">
-                    <span>{t('browser.files.binary_hint')}</span>
-                    <Button icon={<DownloadOutlined />} onClick={() => downloadFile(activeSelection.projectId, activePath)}>
-                        {t('browser.files.download')}
-                    </Button>
+                    <span>{t(openableModule ? 'browser.files.module_hint' : 'browser.files.binary_hint')}</span>
+                    {openableModule ? (
+                        // A workbook the project declares as a module is read in the editor, not here.
+                        <Button
+                            data-testid="file-open-module"
+                            icon={<TableOutlined />}
+                            onClick={() => onOpenModule?.(openableModule)}
+                            type="primary"
+                        >
+                            {t('browser.files.open_in_editor')}
+                        </Button>
+                    ) : (
+                        <Button icon={<DownloadOutlined />} onClick={() => downloadFile(activeSelection.projectId, activePath)}>
+                            {t('browser.files.download')}
+                        </Button>
+                    )}
                 </div>
             )}
             <Modal
