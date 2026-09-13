@@ -2,11 +2,12 @@
 
 ## Resume point
 
-- Swept head `origin/main` e01088de, unchanged for nine runs: no vein until something merges past it, and a red
+- Swept head `origin/main` e01088de, unchanged for ten runs: no vein until something merges past it, and a red
   `main` (Human follow-ups) bars cleanup regardless. #2104 needs nothing until a reviewer answers (see Open PR).
 - Blame on the shared ITEST failure is settled, never re-derive it: 23b2af95, parent of the 8-commit EPBDS-16415
-  push, is the last green build. The owner already holds a notification naming the two stale fixture lines; send no
-  second one until `main` moves or #2104 changes state.
+  push, is the last green build. Quick Build 34620056986 is the red run on e01088de and was never re-run. The owner
+  already holds a notification naming the two stale fixture lines; send no second one until `main` moves or #2104
+  changes state.
 - When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
 - Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein: on its merge sweep the JSF
   editor pages, their beans and the images, CSS and JS only they reached, the way 16560 and 16576 residue was swept.
@@ -216,13 +217,12 @@
 - Sonar analysis job: jacoco report-aggregate `Unknown block type` on ITEST/server-core/target/jacoco.exec (overlapping artifact merge); rerun.
 - SonarCloud gate on deletion-only PRs: New Code wider than the diff; pre-existing S2259/S6466 attributed to shifted lines; deterministic, no rerun; merged red before.
 - Maven build extension archetype-packaging transiently unresolvable on one runner ("could not read 2 projects"); rerun.
-- Job logs 404 while in_progress; the log API returns only the tail. CodeRabbit Docstring Coverage warning fires on deletion-only diffs; ignore.
 - Rerun budget: 2 per check per SHA; reruns are not possible from this sandbox (no gh, no Actions write) — say so once and let the next push retry.
 
 ## Container facts
 
-- No `gh` CLI: use the GitHub MCP tools (pull_request_read, update_pull_request, add_issue_comment, actions_list, get_job_logs).
-- `git push --delete <branch>` is refused by the proxy (HTTP 403, "remote end hung up"); branch deletion is a human follow-up.
+- No `gh` CLI: use the GitHub MCP tools (pull_request_read, update_pull_request, add_issue_comment, actions_list,
+  get_job_logs); job logs 404 while in_progress and the log API returns only the tail.
 - Cold ~/.m2 at session start: the first `-T2` build needs the network (27 min wall clock with tests) and -Daether.syncContext.named.time=600, or resolution fails with "Could not acquire lock(s)"; never -o before that build.
 - After a build failure, `mvn -rf :<module>` cannot resolve the banned siblings or the never-installed rules.test → rerun the whole `mvn install` (no clean, ~10 min warm).
 - Container presets gpg.format=ssh, commit.gpgsign=true; JGit has no ssh signer → repository.git tests die and every module after it is skipped. Unset both **globally** (`git config --global --unset`) before the build; a local unset in the clone is not enough and env overrides do not reach JGit.
@@ -287,6 +287,6 @@
 
 ## Run log
 
-- 2026-09-12 e: standstill; compacted the ledger for headroom, `git push --delete` still 403.
 - 2026-09-12 f: standstill; `main` and #2104 both unmoved, no new comment or review thread, CI byte-identical.
 - 2026-09-13 a: standstill; #2104 counts re-derived from the API (4/13/162, matches body), compacted to 292.
+- 2026-09-13 b: standstill; #2104 counts re-derived locally (4/13/162), `main` red run confirmed never re-run.
