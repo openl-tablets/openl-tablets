@@ -2,13 +2,11 @@
 
 ## Resume point
 
-- Open PR #2104 (`dead-code/compare-residue`), head 33329ccbe7: 4 commits, 13 files, 162 deletions re-derived and
-  matching the body, one commit per change type, no review. Nothing to do until a reviewer answers or `main` moves.
-- Swept head `origin/main` e01088de, unchanged for eight runs: no vein until something merges past it, and a red
-  `main` (Human follow-ups) bars cleanup regardless. Blame is settled, so do not re-derive it: 23b2af95, parent of
-  the 8-commit EPBDS-16415 push, is the last green build, so the same ITEST failure on #2104 is never this PR's.
-- The owner holds a notification naming the two stale fixture lines; send no second one until `main` moves or #2104
-  changes state.
+- Swept head `origin/main` e01088de, unchanged for nine runs: no vein until something merges past it, and a red
+  `main` (Human follow-ups) bars cleanup regardless. #2104 needs nothing until a reviewer answers (see Open PR).
+- Blame on the shared ITEST failure is settled, never re-derive it: 23b2af95, parent of the 8-commit EPBDS-16415
+  push, is the last green build. The owner already holds a notification naming the two stale fixture lines; send no
+  second one until `main` moves or #2104 changes state.
 - When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
 - Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein: on its merge sweep the JSF
   editor pages, their beans and the images, CSS and JS only they reached, the way 16560 and 16576 residue was swept.
@@ -237,7 +235,7 @@
 - ITEST does run here despite no Docker: the Jetty-based itest.studio.* suites execute in a plain `mvn install`, so a whole-reactor build is the real CI gate. No Jira; sonarcloud.io dashboard 403 but api/issues/search reachable.
 - npm install --package-lock-only strips libc metadata from 10 optional platform packages; edit package-lock.json by hand, verify with npm ci.
 - opensaml-bom 5.2.3 lives only on build.shibboleth.net: if CONNECT 403 returns, stub an empty BOM in ~/.m2 and skip webstudio with -pl.
-- Two runs of this routine can fire the same day: list open `dead-code/*` PRs and fetch `dead-code/ledger` again right before pushing anything.
+- Trigger fires on cron `17 */4 * * *` (six runs a day though the prompt says daily), so two can overlap: list open `dead-code/*` PRs and re-fetch `dead-code/ledger` right before pushing anything.
 
 ## Exhausted veins
 
@@ -267,8 +265,7 @@
 - DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
 - Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
 - EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js) and EPBDS-16576 residue (5 JSF diff pages, 13
-  controllers, diff2html, legacyCompare.ts): both swept for Java types and members, CSS, JS, images, message keys,
-  common.js and studio-ui exports/locales; nothing left, and every 16576 finding is in #2104.
+  controllers, diff2html, legacyCompare.ts): both swept for every change type; nothing left, every 16576 find in #2104.
 
 ## Human follow-ups
 
@@ -287,10 +284,9 @@
   sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
   org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
 - Delete the stale remote branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods and dead-code/openapi-layouts-residue (closed #2103); push --delete is 403 from the sandbox and the MCP tools offer no branch delete.
-- Trigger `Dead code sweep (openl-tablets)` runs on cron `17 */4 * * *` (six firings a day) while its prompt says daily; with every vein exhausted most firings only re-read the ledger.
 
 ## Run log
 
-- 2026-09-12 c/d: standstill; #2104 re-derived 4/13/162 and correct, blame pinned to EPBDS-16415.
 - 2026-09-12 e: standstill; compacted the ledger for headroom, `git push --delete` still 403.
 - 2026-09-12 f: standstill; `main` and #2104 both unmoved, no new comment or review thread, CI byte-identical.
+- 2026-09-13 a: standstill; #2104 counts re-derived from the API (4/13/162, matches body), compacted to 292.
