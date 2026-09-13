@@ -33,6 +33,15 @@ export const moduleRoute = (projectId: string, moduleName: string, tableId?: str
         + (tableId ? `?table=${encodeURIComponent(tableId)}` : '')
 
 /**
+ * The address of a project's Files tab, opened on one file of it.
+ *
+ * <p>The path crosses as a query value, so a file in a folder reaches the screen whole rather than as a
+ * path of its own.
+ */
+export const projectFileRoute = (projectId: string, path: string): string =>
+    `/projects/${toUrlSafeId(projectId)}?tab=files&file=${encodeURIComponent(path)}`
+
+/**
  * Encodes a project-relative path for the `{*path}` mapping. The path keeps its `/` separators; each
  * segment is encoded so reserved characters such as `#` or `%` do not corrupt the URL.
  */

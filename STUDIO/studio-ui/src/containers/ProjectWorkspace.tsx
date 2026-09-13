@@ -37,7 +37,7 @@ import type { BusyId } from './projects/projectActions'
 import { DiscardChangesModal } from './DiscardChangesModal'
 import { ProjectsRail } from './projects/ProjectsRail'
 import type { NodeFilters } from './projects/projectGrouping'
-import { toUrlSafeId } from '../services/projectId'
+import { moduleRoute, projectFileRoute, toUrlSafeId } from '../services/projectId'
 
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -425,7 +425,9 @@ export const ProjectWorkspace = () => {
                     currentProjectId={project?.id}
                     initialMode="tree"
                     // A group leads back to the list, showing exactly the projects it holds.
+                    onOpenFile={(other, path) => navigate(projectFileRoute(other.id, path))}
                     onOpenGroup={filters => navigate(`/projects?${groupQuery(filters)}`)}
+                    onOpenModule={(other, moduleName) => navigate(moduleRoute(other.id, moduleName))}
                     onOpenProject={other => navigate(`/projects/${toUrlSafeId(other.id)}`)}
                     onShowAll={() => navigate('/projects')}
                     reloadToken={reloadToken}

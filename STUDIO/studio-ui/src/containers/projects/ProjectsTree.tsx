@@ -7,6 +7,10 @@ import { useTranslation } from 'react-i18next'
 import { errorMessage } from '../../utils/errorMessage'
 import { getProjectIndex, invalidateProjectIndex } from '../../services/projectIndex'
 import type { Project } from '../../types/projects'
+import { getProjectFiles } from '../../services/repositories'
+import { listModules } from '../../services/modules'
+import { buildFileNodes, type FileNode } from './fileNodes'
+import { iconFor } from './fileIcons'
 import type { Repository } from '../../types/repositories'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import type { ProjectStatus } from '../../constants/project'
@@ -33,6 +37,32 @@ import {
 import { GroupProjectsModal } from './GroupProjectsModal'
 
 const SELECTED_STORAGE_KEY = 'openl.projects.tree.selected'
+
+/** The key of a file row: the project it belongs to, and the path inside it. Neither part holds a colon. */
+const fileKey = (projectId: string, path: string): string => `file:${projectId}:${path}`
+
+/** The project and path a file row stands for, or null when the key is not a file's. */
+const fileKeyParts = (key: string): { projectId: string, path: string } | null => {
+    if (!key.startsWith('file:')) {
+        return null
+    }
+    const rest = key.slice('file:'.length)
+    const separator = rest.indexOf(':')
+    return separator < 0 ? null : { projectId: rest.slice(0, separator), path: rest.slice(separator + 1) }
+}
+
+/**
+ * The files of one project, as the tree reads them when its row is opened.
+ *
+ * <p>Which of them are modules is only known while the project is open — a closed project keeps no
+ * workspace copy to resolve its descriptor against — so the map is empty rather than wrong for one.
+ */
+interface ProjectContents {
+    files: FileNode[]
+    /** The name of the module a file is, by the file's path. */
+    modules: Record<string, string>
+    error?: string
+}
 
 const loadSelectedNode = (): string | null => readStored(SELECTED_STORAGE_KEY)
 
@@ -105,6 +135,10 @@ interface ProjectsTreeBaseProps {
     /** The project the screen is showing, highlighted and opened in the tree. */
     currentProjectId?: string | undefined
     onOpenProject: (project: Project) => void
+    /** A module of a project was picked: read it in the editor. */
+    onOpenModule?: ((project: Project, moduleName: string) => void) | undefined
+    /** A file that is no module was picked: show it on the project's Files tab. */
+    onOpenFile?: ((project: Project, path: string) => void) | undefined
     /** A group was picked: show the projects it holds. */
     onOpenGroup: (filters: NodeFilters) => void
     /** The title of the tree was picked: show every project again. */
@@ -133,6 +167,8 @@ export const ProjectsTree = ({
     repositories = NO_REPOSITORIES,
     currentProjectId,
     onOpenProject,
+    onOpenModule,
+    onOpenFile,
     onOpenGroup,
     onShowAll,
     reloadToken,
@@ -157,6 +193,8 @@ export const ProjectsTree = ({
     })
     const [search, setSearch] = useState('')
     const [openedOn, setOpenedOn] = useState<string | null>(null)
+    // The files of the projects whose rows have been opened, read once each and kept while the tree stands.
+    const [contents, setContents] = useState<Record<string, ProjectContents>>({})
 
     // The list supplies the projects it already read; only a single-project page lets the tree read them
     // itself, so the list screen no longer pulls the same /projects snapshot a second time.
@@ -259,8 +297,98 @@ export const ProjectsTree = ({
     const treeData = useMemo(
         // Depends on what shapes a node, not on which nodes are open — expanding must not rebuild the tree.
         () => nodes.map(node => toTreeNode(node)),
-        [currentProjectId, nodes, repoMeta]
+        [contents, currentProjectId, nodes, repoMeta]
     )
+
+    // Which rows have been read is told to the tree rather than left to it, so a refresh that drops what
+    // was read has the rows read again instead of standing open and empty.
+    const loadedKeys = useMemo(() => {
+        const keys: string[] = []
+        const walk = (list: GroupNode[]) => list.forEach(node => {
+            if (node.project) {
+                if (contents[node.project.id]) {
+                    keys.push(node.key)
+                }
+            } else {
+                walk(node.children)
+            }
+        })
+        walk(nodes)
+        return keys
+    }, [contents, nodes])
+
+    /**
+     * Reads the files of a project, and the modules among them, the first time its row is opened.
+     *
+     * <p>Which files are modules is answered by a project that is open; a closed one cannot say, so its
+     * files are all read as plain files rather than the read failing.
+     */
+    const loadContents = async (project: Project) => {
+        if (contents[project.id]) {
+            return
+        }
+        const [files, modules] = await Promise.all([
+            getProjectFiles(project.id).then(
+                read => read.filter(node => node.type === 'file').map(node => node.path),
+                (e: unknown) => errorMessage(e)
+            ),
+            listModules(project.id).catch(() => []),
+        ])
+        setContents(previous => ({
+            ...previous,
+            [project.id]: typeof files === 'string'
+                ? { files: [], modules: {}, error: files }
+                : {
+                    files: buildFileNodes(files),
+                    modules: Object.fromEntries(modules.filter(module => module.path).map(module => [module.path, module.name])),
+                },
+        }))
+    }
+
+    // A file of a project reads as it does on the Files tab — the same icon, the same name.
+    function fileNodesOf(project: Project, read: ProjectContents, files: FileNode[]): TreeNodeData[] {
+        return files.map(file => {
+            const { Icon, color } = iconFor(file.name, file.isFile, {
+                success: token.colorSuccess,
+                info: token.colorInfo,
+                warning: token.colorWarning,
+                muted: token.colorTextTertiary,
+            })
+            return {
+                key: file.isFile ? fileKey(project.id, file.path) : `folder:${project.id}:${file.path}`,
+                isLeaf: file.isFile,
+                icon: <Icon style={{ color }} />,
+                selectable: file.isFile,
+                title: (
+                    <span
+                        className={styles.node}
+                        data-testid={`tree-${file.isFile ? 'file' : 'folder'}-${project.id}-${file.path}`}
+                    >
+                        {file.name}
+                    </span>
+                ),
+                ...(file.children ? { children: fileNodesOf(project, read, file.children) } : {}),
+            }
+        })
+    }
+
+    // What a project's row holds once it has been opened: its files, or why they could not be read.
+    function contentsOf(project: Project): TreeNodeData[] | undefined {
+        const read = contents[project.id]
+        if (!read) {
+            return undefined
+        }
+        if (read.error) {
+            return [{
+                key: `error:${project.id}`,
+                isLeaf: true,
+                selectable: false,
+                icon: null,
+                title: <span className={styles.node} data-testid={`tree-files-error-${project.id}`}>{read.error}</span>,
+            }]
+        }
+        return fileNodesOf(project, read, read.files)
+    }
 
     // A repository carries its own icon — a branch, a database, a disk — as it does everywhere else, a
     // branch group carries the branch mark, and a tag value carries the tag it is.
@@ -317,9 +445,13 @@ export const ProjectsTree = ({
             const status = project.status as ProjectStatus
             const meta = STATUS_META[status]
             const Icon = meta.icon
+            const held = contentsOf(project)
             return {
                 key: node.key,
-                isLeaf: true,
+                // The row opens into the files of the project, read when it is first opened. A project
+                // that turned out to hold none has nothing to open into.
+                isLeaf: held?.length === 0,
+                ...(held ? { children: held } : {}),
                 // A project carries the icon of its state, the same one that marks its name elsewhere:
                 // an open folder while it is open, a pencil while it is being edited, and so on. A state
                 // that asks for attention is coloured, the ordinary ones are not.
@@ -349,7 +481,24 @@ export const ProjectsTree = ({
         }
     }
 
+    /**
+     * Follows a file to where it is read: a module to the editor, anything else to the project's Files tab.
+     */
+    const openFile = (projectId: string, path: string) => {
+        const project = (projects ?? []).find(candidate => candidate.id === projectId)
+        if (!project) {
+            return
+        }
+        const moduleName = contents[projectId]?.modules[path]
+        if (moduleName && onOpenModule) {
+            onOpenModule(project, moduleName)
+        } else {
+            onOpenFile?.(project, path)
+        }
+    }
+
     const refresh = () => {
+        setContents({})
         // When the screen supplies the projects, it owns the read: ask it to refresh and hand them down.
         // The controlled shape guarantees a refresh, so a supplied tree never falls back to reading itself.
         if (controlled) {
@@ -406,14 +555,24 @@ export const ProjectsTree = ({
                     className={cx(shared.railTree, styles.tree)}
                     data-testid="projects-tree"
                     expandedKeys={openKeys}
+                    loadedKeys={loadedKeys}
                     // A branch opens at once: the height the rows slide down with is painted by the page.
                     motion={false}
                     onExpand={keys => setExpanded(keys as string[])}
                     selectedKeys={selected}
                     treeData={treeData as never}
+                    loadData={node => {
+                        const project = findNode(nodes, String(node.key))?.project
+                        return project ? loadContents(project) : Promise.resolve()
+                    }}
                     onSelect={(keys, info) => {
                         const key = String(info.node.key)
                         setSelected(keys as string[])
+                        const picked = fileKeyParts(key)
+                        if (picked) {
+                            openFile(picked.projectId, picked.path)
+                            return
+                        }
                         const node = findNode(nodes, key)
                         if (!node) {
                             return
@@ -497,5 +656,6 @@ interface TreeNodeData {
     title: ReactNode
     icon: ReactNode
     isLeaf?: boolean
+    selectable?: boolean
     children?: TreeNodeData[]
 }
