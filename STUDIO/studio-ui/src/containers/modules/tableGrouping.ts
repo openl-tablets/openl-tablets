@@ -114,7 +114,10 @@ const majorityName = (versions: ModuleTable[]): string => {
     for (const version of versions) {
         counted.set(version.name, (counted.get(version.name) ?? 0) + 1)
     }
-    return [...counted.entries()].reduce((most, entry) => entry[1] > most[1] ? entry : most)[0]
+    // The versions a folder gathers are never none, so there is always a name to start from.
+    return [...counted.entries()]
+        .reduce(([mostName, mostSeen], [name, seen]) => seen > mostSeen ? [name, seen] : [mostName, mostSeen],
+            ['', 0] as [string, number])[0]
 }
 
 /**

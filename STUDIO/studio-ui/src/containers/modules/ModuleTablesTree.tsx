@@ -218,6 +218,66 @@ export const ModuleTablesTree = ({
         children: [],
     })), [modules, compiling, currentModule])
 
+    // Both trees of the rail are the same tree: a screenful of rows at a time, drawn at once rather than
+    // slid open — the height a fold animates is painted by the page, frame by frame (measured at 64
+    // repaints over 350 ms for one folder against 9).
+    const railTree = {
+        blockNode: true,
+        showIcon: true,
+        className: shared.railTree,
+        height: body.height,
+        itemHeight: ROW_HEIGHT,
+        motion: false as const,
+    }
+
+    /**
+     * What the rail draws: the modules of the project, or the tables of the module being read — nothing
+     * while they are still being read, and a word when the search matched none of them.
+     */
+    const railBody = () => {
+        if (mode === 'modules') {
+            return (
+                <Tree
+                    {...railTree}
+                    data-testid="module-rail-modules"
+                    onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
+                    selectedKeys={[currentModule]}
+                    treeData={moduleNodes as never}
+                />
+            )
+        }
+        if (tables === null) {
+            return null
+        }
+        if (shown.length === 0) {
+            return (
+                <Empty
+                    className={styles.state}
+                    data-testid="module-tables-empty"
+                    description={t(search.trim() === '' ? 'browser.module.no_tables' : 'browser.module.no_match')}
+                />
+            )
+        }
+        return (
+            <Tree
+                {...railTree}
+                data-testid="module-tables-tree"
+                expandedKeys={expanded}
+                onExpand={keys => setExpanded(keys as string[])}
+                scrollWidth={rowWidth}
+                selectedKeys={selectedTableId ? [selectedTableId] : []}
+                treeData={treeData as never}
+                onSelect={(_keys, info) => {
+                    // Only a table is selectable, and a table row is keyed by its own id.
+                    const table = shown.find(candidate => candidate.id === String(info.node.key))
+                    if (table) {
+                        onSelectTable(table)
+                    }
+                }}
+            />
+        )
+    }
+
     return (
         <aside className={cx(shared.rail, styles.resizable)} data-testid="module-rail" style={{ width }}>
             <ResizeHandle edge="right" onPointerDown={startResize} testId="module-rail-resizer" />
@@ -281,51 +341,7 @@ export const ModuleTablesTree = ({
                         type="info"
                     />
                 )}
-                {mode === 'modules' ? (
-                    <Tree
-                        blockNode
-                        showIcon
-                        className={shared.railTree}
-                        data-testid="module-rail-modules"
-                        height={body.height}
-                        itemHeight={ROW_HEIGHT}
-                        motion={false}
-                        onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
-                        selectedKeys={[currentModule]}
-                        treeData={moduleNodes as never}
-                    />
-                ) : tables === null ? null : shown.length === 0 ? (
-                    <Empty
-                        className={styles.state}
-                        data-testid="module-tables-empty"
-                        description={t(search.trim() === '' ? 'browser.module.no_tables' : 'browser.module.no_match')}
-                    />
-                ) : (
-                    <Tree
-                        blockNode
-                        showIcon
-                        className={shared.railTree}
-                        data-testid="module-tables-tree"
-                        expandedKeys={expanded}
-                        height={body.height}
-                        itemHeight={ROW_HEIGHT}
-                        // A folder opens at once. The height the rows slide down with is painted by the page
-                        // rather than moved by the compositor, so on a module of any size the tree stutters
-                        // open — 230 repaints of the whole window for six folders.
-                        motion={false}
-                        onExpand={keys => setExpanded(keys as string[])}
-                        scrollWidth={rowWidth}
-                        selectedKeys={selectedTableId ? [selectedTableId] : []}
-                        treeData={treeData as never}
-                        onSelect={(_keys, info) => {
-                            // Only a table is selectable, and a table row is keyed by its own id.
-                            const table = shown.find(candidate => candidate.id === String(info.node.key))
-                            if (table) {
-                                onSelectTable(table)
-                            }
-                        }}
-                    />
-                )}
+                {railBody()}
             </div>
         </aside>
     )

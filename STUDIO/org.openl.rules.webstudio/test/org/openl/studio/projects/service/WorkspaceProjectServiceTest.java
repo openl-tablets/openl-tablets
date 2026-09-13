@@ -1481,9 +1481,9 @@ class WorkspaceProjectServiceTest {
         var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
 
         var query = ProjectTableCriteriaQuery.builder().module("Absent").build();
+        var unpaged = Pageable.unpaged();
 
-        var error = assertThrows(NotFoundException.class,
-                () -> service.getTables(project, query, Pageable.unpaged()));
+        var error = assertThrows(NotFoundException.class, () -> service.getTables(project, query, unpaged));
         assertEquals("openl.error.404.project.module.identifier.message", error.getErrorCode());
         verify(webStudio, never()).init(any(), any(), any(), any());
     }
@@ -1648,7 +1648,8 @@ class WorkspaceProjectServiceTest {
                 mock(TableCreatorService.class),
                 new SummaryTableReader()));
         var registry = mock(CompilationJobRegistry.class);
-        when(registry.acquire(any(), any())).thenReturn(mock(CompilationJob.class));
+        var job = mock(CompilationJob.class);
+        when(registry.acquire(any(), any())).thenReturn(job);
         doReturn(registry).when(service).getCompilationJobRegistry();
         var moduleName = moduleModel.getModuleInfo().getName();
         var project = openedProject(webStudio, moduleModel, "Search", moduleName);
@@ -1692,7 +1693,8 @@ class WorkspaceProjectServiceTest {
                 mock(TableCreatorService.class),
                 new SummaryTableReader()));
         var registry = mock(CompilationJobRegistry.class);
-        when(registry.acquire(any(), any())).thenReturn(mock(CompilationJob.class));
+        var job = mock(CompilationJob.class);
+        when(registry.acquire(any(), any())).thenReturn(job);
         doReturn(registry).when(service).getCompilationJobRegistry();
         var moduleName = moduleModel.getModuleInfo().getName();
         var project = openedProject(webStudio, moduleModel, "Properties", moduleName);

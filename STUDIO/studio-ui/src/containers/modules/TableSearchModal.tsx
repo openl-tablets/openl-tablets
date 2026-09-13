@@ -24,9 +24,14 @@ const KINDS = [
  * enumeration — and crosses to the server as the text that property is written with.
  */
 interface PropertyFilter {
+    /** Identifies the row while it is being filled in, since a property is only picked later. */
+    id: number
     name: string
     value: string | number | boolean | null
 }
+
+/** The next row's id: a row keyed by its place in the list would carry its neighbour's state when one goes. */
+let nextFilterId = 0
 
 const useStyles = createStyles(({ css, token }) => ({
     form: css`
@@ -214,7 +219,7 @@ export const TableSearchModal = ({
                 <div className={cx(styles.field, styles.wide)}>
                     <span className={styles.label}>{t('browser.module.search_properties')}</span>
                     {filters.map((filter, index) => (
-                        <div key={index} className={styles.propertyRow}>
+                        <div key={filter.id} className={styles.propertyRow}>
                             <Select
                                 allowClear
                                 data-testid={`table-search-property-${index}`}
@@ -226,7 +231,7 @@ export const TableSearchModal = ({
                                 onChange={(picked: string) => setFilters(rows => rows.map((row, at) => at === index
                                     // The value starts from what the property stands for, so a flag or an
                                     // enumeration opens on something a table can actually carry.
-                                    ? { name: picked ?? '', value: initialPropertyValue(definitionOf(picked ?? '')) }
+                                    ? { ...row, name: picked ?? '', value: initialPropertyValue(definitionOf(picked ?? '')) }
                                     : row))}
                             />
                             <PropertyValueInput
@@ -248,7 +253,7 @@ export const TableSearchModal = ({
                     <Button
                         data-testid="table-search-property-add"
                         icon={<PlusOutlined />}
-                        onClick={() => setFilters(rows => [...rows, { name: '', value: '' }])}
+                        onClick={() => setFilters(rows => [...rows, { id: nextFilterId++, name: '', value: '' }])}
                         size="small"
                     >
                         {t('browser.module.search_property_add')}

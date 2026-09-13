@@ -160,6 +160,8 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
+    /** Answered when a project does not declare the module a request names. */
+    private static final String NO_SUCH_MODULE = "project.module.identifier.message";
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
     private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
     /** The mark {@link TableSyntaxNodeUtils} appends to a display name it had to shorten. */
@@ -1609,7 +1611,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var module = requestedModule == null ? modules.getFirst() : modules.stream()
                 .filter(declared -> requestedModule.equals(declared.getName()))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
 
         var handle = openProject(projectDescriptor, project, module);
         // Opening the module has already compiled it, so a module-scoped answer is ready. A wider answer has to
@@ -1827,7 +1829,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .stream()
                 .filter(declared -> moduleName.equals(declared.getName()))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
         // The work runs on a thread of its own, where a session-scoped bean cannot be resolved. The studio is
         // looked up here, while the request still holds the session, and the work carries it along. The
         // compilation job is not carried at all: asking the session's registry for one from such a thread fails,
@@ -1842,10 +1844,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             // It is done before the module is opened: opening it first would compile it, and the reset would
             // then throw that away and compile it a second time.
             //
-            // A session holding no project has nothing compiled to drop, and the open below reads the workbook
-            // anyway — which is what a reset asks for. Resetting such a session has no project to name the
-            // module's history folder after, and fails.
-            if (webStudio.getCurrentProject() != null && (reset || moduleModel.isCompilationCancelled())) {
+            // A session holding no project — and one whose model is not built yet — has nothing compiled to
+            // drop, and the open below reads the workbook anyway, which is what a reset asks for. Resetting
+            // such a session has no project to name the module's history folder after, and fails.
+            var holdsProject = moduleModel != null && webStudio.getCurrentProject() != null;
+            if (holdsProject && (reset || moduleModel.isCompilationCancelled())) {
                 try {
                     moduleModel.reset(ReloadType.RELOAD, module);
                 } catch (Exception e) {
@@ -2027,7 +2030,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .stream()
                 .filter(declared -> moduleName.equals(declared.getName()))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
         return metadataService.getSheets(project, module.getRulesRootPath());
     }
 

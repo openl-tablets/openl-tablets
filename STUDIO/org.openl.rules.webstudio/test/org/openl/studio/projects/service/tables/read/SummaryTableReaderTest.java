@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -83,7 +84,7 @@ class SummaryTableReaderTest {
                 .filter(table -> "CarPrice".equals(table.name))
                 .toList();
 
-        assertEquals(List.of(), read.stream().map(table -> table.displayName).filter(name -> name != null).toList());
+        assertEquals(List.of(), read.stream().map(table -> table.displayName).filter(Objects::nonNull).toList());
     }
 
     @Test

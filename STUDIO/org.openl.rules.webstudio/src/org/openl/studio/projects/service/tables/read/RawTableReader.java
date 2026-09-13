@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables.read;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
@@ -220,55 +221,54 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
         for (var row = 0; row < height; row++) {
             var rowCells = new ArrayList<RawTableCell>();
-
             for (var col = 0; col < width; col++) {
+                // A cell inside a merged region that is not the one it starts at carries nothing of its own.
                 if (coveredCells.contains(new CellRef(row, col))) {
-                    // This cell was already covered as part of a merged region (covered by another cell's span)
                     rowCells.add(RawTableCell.COVERED_CELL);
                     continue;
                 }
-
-                var cm = (CellModel) cells[row][col];
-                // Extract cell value
-                var cell = tableModel.getGridTable().getCell(cm.getColumn(), cm.getRow());
-                var value = cellValueReader.apply(cell);
-                // A cell carries both what it computes and what it was written with, so a screen showing
-                // formulas chooses between them without asking for the table again.
-                var formula = cell.getFormula();
-                // Cell address in A1 notation, matching the address reported by compilation messages
-                var cellAddress = cell.getUri();
-
-                // Check for merging
-                var rowspan = cm.getRowspan();
-                var colspan = cm.getColspan();
-
-                var rawCell = RawTableCell.builder()
-                        .cell(cellAddress)
-                        .value(value)
-                        .formula(StringUtils.isBlank(formula) ? null : "=" + formula)
-                        .colspan(colspan)
-                        .rowspan(rowspan)
-                        .style(withStyles ? styleOf(cm) : null)
-                        .metaInfo(withMetaInfo ? metaInfoOf(cell, metaInfoReader, modules) : null)
-                        .build();
-
-                if (colspan > 1 || rowspan > 1) {
-                    // Mark spanned cells as covered
-                    for (var r = row; r < row + rowspan && r < height; r++) {
-                        for (var c = col; c < col + colspan && c < width; c++) {
-                            if (r > row || c > col) {
-                                coveredCells.add(new CellRef(r, c));
-                            }
-                        }
-                    }
-                }
-                rowCells.add(rawCell);
+                var cellModel = (CellModel) cells[row][col];
+                var cell = tableModel.getGridTable().getCell(cellModel.getColumn(), cellModel.getRow());
+                rowCells.add(readCell(cell, cellModel, withStyles, metaInfoReader, withMetaInfo, modules, cellValueReader));
+                markCovered(coveredCells, row, col, cellModel, height, width);
             }
-
             matrix.add(rowCells);
         }
 
         return matrix;
+    }
+
+    /** One cell as the API reports it: what it holds, what it was written with, and how far it reaches. */
+    private RawTableCell readCell(ICell cell, CellModel cellModel, boolean withStyles,
+            MetaInfoReader metaInfoReader, boolean withMetaInfo, TableModules modules,
+            CellValueReader cellValueReader) {
+        // A cell carries both what it computes and what it was written with, so a screen showing formulas
+        // chooses between them without asking for the table again.
+        var formula = cell.getFormula();
+        return RawTableCell.builder()
+                // Cell address in A1 notation, matching the address reported by compilation messages
+                .cell(cell.getUri())
+                .value(cellValueReader.apply(cell))
+                .formula(StringUtils.isBlank(formula) ? null : "=" + formula)
+                .colspan(cellModel.getColspan())
+                .rowspan(cellModel.getRowspan())
+                .style(withStyles ? styleOf(cellModel) : null)
+                .metaInfo(withMetaInfo ? metaInfoOf(cell, metaInfoReader, modules) : null)
+                .build();
+    }
+
+    /** Notes the cells a merged one reaches over, so each of them is reported as covered rather than read. */
+    private static void markCovered(Set<CellRef> coveredCells, int row, int col, CellModel cellModel,
+            int height, int width) {
+        var lastRow = Math.min(row + cellModel.getRowspan(), height);
+        var lastCol = Math.min(col + cellModel.getColspan(), width);
+        for (var r = row; r < lastRow; r++) {
+            for (var c = col; c < lastCol; c++) {
+                if (r > row || c > col) {
+                    coveredCells.add(new CellRef(r, c));
+                }
+            }
+        }
     }
 
     /**

@@ -41,13 +41,18 @@ export const RawTableCellText: React.FC<RawTableCellTextProps> = ({ text, metaIn
         const leads = Boolean(usage.tableId && usage.module && onOpenUsage)
         pieces.push(
             <Tooltip key={`${usage.start}-${index}`} title={usage.description}>
-                <span
-                    className={leads ? styles.usageLink : undefined}
-                    data-testid={`cell-usage-${index}`}
-                    onClick={leads ? () => onOpenUsage?.(usage) : undefined}
-                >
-                    {covered}
-                </span>
+                {leads ? (
+                    <button
+                        className={styles.usageLink}
+                        data-testid={`cell-usage-${index}`}
+                        onClick={() => onOpenUsage?.(usage)}
+                        type="button"
+                    >
+                        {covered}
+                    </button>
+                ) : (
+                    <span data-testid={`cell-usage-${index}`}>{covered}</span>
+                )}
             </Tooltip>
         )
         read = end

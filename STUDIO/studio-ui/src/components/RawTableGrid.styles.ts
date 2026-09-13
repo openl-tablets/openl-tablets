@@ -40,12 +40,22 @@ export const useStyles = createStyles(({ css, token }) => ({
      * A formula is read as a sentence, and a rule under every word of it is a sentence that cannot be read —
      * so a piece that leads nowhere is left as it stands and says what it is in its tooltip alone.
      */
-    /** A piece that names a table reads as the way into it that it is, and underlines under the pointer. */
+    /**
+     * A piece that names a table reads as the way into it that it is, and underlines under the pointer.
+     *
+     * <p>It is a button, so it is reached by the keyboard as every other way into a table is; the button's
+     * own frame is dropped, since what is drawn is a word inside a sentence.
+     */
     usageLink: css`
+        padding: 0;
+        border: none;
+        background: none;
+        font: inherit;
         cursor: pointer;
         color: ${token.colorLink};
 
-        &:hover {
+        &:hover,
+        &:focus-visible {
             color: ${token.colorLinkHover};
             text-decoration: underline;
         }
