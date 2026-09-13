@@ -289,6 +289,7 @@ export const ModuleTablesTree = ({
                         data-testid="module-rail-modules"
                         height={body.height}
                         itemHeight={ROW_HEIGHT}
+                        motion={false}
                         onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
                         selectedKeys={[currentModule]}
                         treeData={moduleNodes as never}
@@ -308,6 +309,10 @@ export const ModuleTablesTree = ({
                         expandedKeys={expanded}
                         height={body.height}
                         itemHeight={ROW_HEIGHT}
+                        // A folder opens at once. The height the rows slide down with is painted by the page
+                        // rather than moved by the compositor, so on a module of any size the tree stutters
+                        // open — 230 repaints of the whole window for six folders.
+                        motion={false}
                         onExpand={keys => setExpanded(keys as string[])}
                         scrollWidth={rowWidth}
                         selectedKeys={selectedTableId ? [selectedTableId] : []}

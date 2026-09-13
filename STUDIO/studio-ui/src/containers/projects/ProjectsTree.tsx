@@ -406,6 +406,8 @@ export const ProjectsTree = ({
                     className={cx(shared.railTree, styles.tree)}
                     data-testid="projects-tree"
                     expandedKeys={openKeys}
+                    // A branch opens at once: the height the rows slide down with is painted by the page.
+                    motion={false}
                     onExpand={keys => setExpanded(keys as string[])}
                     selectedKeys={selected}
                     treeData={treeData as never}

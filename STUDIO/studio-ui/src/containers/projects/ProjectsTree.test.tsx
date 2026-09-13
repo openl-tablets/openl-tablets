@@ -87,8 +87,8 @@ vi.mock('antd', () => {
         </ul>
     )
     const Tree = ({ treeData, expandedKeys, onSelect, onExpand, ...rest }: Record<string, unknown>) => {
-        const { blockNode, className, selectedKeys, showIcon, expandAction, ...dom } = rest
-        void blockNode; void className; void selectedKeys; void showIcon; void expandAction
+        const { blockNode, className, motion, selectedKeys, showIcon, expandAction, ...dom } = rest
+        void blockNode; void className; void motion; void selectedKeys; void showIcon; void expandAction
         const expanded = (expandedKeys as string[]) ?? []
         const select = (key: string) =>
             (onSelect as (keys: unknown, info: unknown) => void)([key], { node: { key } })
