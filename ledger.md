@@ -2,10 +2,8 @@
 
 ## Resume point
 
-- Swept head `origin/main` e01088de, unchanged for thirteen runs: no vein until something merges past it, and a red
+- Swept head `origin/main` e01088de, unchanged for fourteen runs: no vein until something merges past it, and a red
   `main` (Human follow-ups) bars cleanup regardless. #2104 needs nothing until a reviewer answers (see Open PR).
-- ITEST blame is settled, never re-derive: red Quick Build 34620056986 on e01088de was never re-run, and the owner
-  holds the notification naming the two stale fixture lines — send no second one until `main` moves or #2104 changes.
 - When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
   Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the JSF
   editor pages, their beans and the images, CSS and JS only they reached, as 16560 and 16576 residue was swept.
@@ -30,24 +28,26 @@
 
 ## Open PR
 
-- #2104 `dead-code/compare-residue`, head 33329ccbe7, cut from `origin/main` e01088de. EPBDS-16576 residue.
+- #2104 `dead-code/compare-residue`, head 33329ccbe7, cut from `origin/main` e01088de. EPBDS-16576 residue. Body
+  re-derived and matching: 4 commits / 13 files / 162 deletions. CodeRabbit: no actionable comments, 5/5 checks passed.
 - Four commits, one per change type, ordered so a referrer dies before the resources it alone kept alive:
   UiConst.java (13); simpleLayout.xhtml + messagePopup.xhtml (9); 8 images + css/layout/simple.css (7);
-  common.css .scrollable and .dropdown-form (8). CodeRabbit: no actionable comments, 5/5 pre-merge checks passed.
-- `IT (studio)` is red on it with the pre-existing main failure; the standing-down comment naming the two stale fixture
-  lines is already posted, so never post a second one and never re-run (deterministic assertion, not a flake).
+  common.css .scrollable and .dropdown-form (8).
+- `IT (studio)` is red with the pre-existing `main` failure and `mergeable_state` is `blocked` — no review yet, nothing
+  to fix. Blame is settled, never re-derive: the standing-down comment is posted and the owner holds the notification
+  naming the two stale fixture lines, so post no second one, never re-run (deterministic assertion, not a flake), and
+  send no new notification until `main` moves or #2104 changes.
 
 ## Merged PRs
 
-- 22 sweep PRs merged (1906 through 2101); what each removed is covered by Exhausted veins. 2101 was rebase-merged, so
-  one commit per change type survived onto main: a repo-wide single-type commit is accepted as-is.
+- 22 sweep PRs merged (1906-2101); what each removed is covered by Exhausted veins. A repo-wide single-type commit is
+  accepted as-is (2101 was rebase-merged, one commit per change type onto main).
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
 
 ## Module coverage
 
-- All 86 reactor modules, studio-ui, Docs, DEMO and archetypes are swept for every change type; nothing left open. Only
-  code merged after a pass can yield again, and a big feature merge is the reliable source: EPBDS-16560 stranded 393
-  lines, EPBDS-16576 another 162. Diff `origin/main` against the last swept head before picking a detector.
+- All 86 reactor modules, studio-ui, Docs, DEMO and archetypes are swept for every change type; only code merged after
+  a pass can yield again, and a big feature merge is the reliable source (16560 stranded 393 lines, 16576 another 162).
 
 ## Deferred findings
 
@@ -280,10 +280,11 @@
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR (additions, never this
   sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
   org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
-- Delete the stale remote branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods and dead-code/openapi-layouts-residue (closed #2103); push --delete is 403 from the sandbox and the MCP tools offer no branch delete.
+- Delete the stale remote branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods and
+  dead-code/openapi-layouts-residue (closed #2103); `push --delete` re-probed, still 403, and no MCP branch delete.
 
 ## Run log
 
-- 2026-09-13 b: standstill; #2104 counts re-derived locally (4/13/162), `main` red run confirmed never re-run.
 - 2026-09-13 c: standstill; no review thread on #2104, no new run on `main`, resume point compacted to 291.
 - 2026-09-13 d: standstill; #2104 unchanged (4/13/162, no review thread, 14/15 checks green), compacted to 289.
+- 2026-09-13 e: standstill; same head/SHA/checks, branch delete re-probed 403, blame merged into Open PR, at 290.
