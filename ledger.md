@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- Swept head is `origin/main` 9a32b54ca7, green, and unmoved for a day: every change type is exhausted at it, so a
-  run that finds 0 new commits there has no cleanup to do and must not re-run an exhausted detector. #2109 sits on
-  this base, fully green, needing only a human approval — watch it, touch nothing.
+- Swept head is `origin/main` 9a32b54ca7, unmoved for two days: every change type is exhausted at it, so a run that
+  finds 0 new commits there has no cleanup to do and must not re-run an exhausted detector. #2109 sits on this base,
+  fully green, needing only a human approval — watch it, touch nothing.
 - When `main` gains code: diff against 9a32b54ca7, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
@@ -30,8 +30,8 @@
 ## Open PR
 
 - #2109 `dead-code/execution-residue`, head a1ae242, 5 files/5 deletions, one commit: "Remove the React imports left
-  unused by the automatic JSX runtime". ALL 17 checks green and CodeRabbit found nothing; `blocked` now means only a
-  human approval is missing, so leave it alone. Body records the kept `url` param.
+  unused by the automatic JSX runtime". ALL 17 checks green, no review thread, both comments bots; `blocked` means
+  only a human approval is missing, so leave it alone. Body matches the diff and records the kept `url` param.
 
 ## Merged PRs
 
@@ -278,12 +278,11 @@
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR (additions, never this
   sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
   org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
-- Delete the stale remote branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods and
-  dead-code/openapi-layouts-residue (closed #2103); `push --delete` returns HTTP 403 on every re-probe and no MCP
-  branch-delete tool exists, so stop re-probing more than once a run.
+- Delete stale branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods, dead-code/openapi-layouts-residue
+  (closed #2103): `push --delete` 403s every time and no MCP branch-delete tool exists; probe at most once a run.
 
 ## Run log
 
-- 2026-09-14 d: standstill; main acdaced8b5 = 0d9aab81 + 3 dependabot bumps, still red on itest.studio.repos, at 287.
 - 2026-09-14 e: main green again (EPBDS-16415 fixed the fixtures); swept its 10 new commits, #2109 (5 lines) opened and fully green, at 288.
 - 2026-09-14 f: no-op; main still 9a32b54ca7 (0 new commits), #2109 still 17/17 green awaiting approval, at 289.
+- 2026-09-14 g: no-op; main still 9a32b54ca7, #2109 green with no review thread, body re-verified against the diff, at 288.
