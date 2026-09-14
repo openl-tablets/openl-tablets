@@ -572,6 +572,7 @@ export const ModuleWorkspace = () => {
                                 disabled={closed}
                                 moduleName={moduleName}
                                 modulePath={modulePath}
+                                onProjectChanged={reopenRevision}
                                 onRevisionOpened={reopenRevision}
                                 project={project}
                                 projectCompiled={projectCompiled}
