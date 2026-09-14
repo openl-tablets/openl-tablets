@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- Swept head `origin/main` e01088de, unchanged for fifteen runs: no vein until something merges past it, and a red
+- Swept head `origin/main` e01088de, unchanged for sixteen runs: no vein until something merges past it, and a red
   `main` (Human follow-ups) bars cleanup regardless. #2104 needs nothing until a reviewer answers (see Open PR).
 - When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
   Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the JSF
@@ -285,6 +285,6 @@
 
 ## Run log
 
-- 2026-09-13 d: standstill; #2104 unchanged (4/13/162, no review thread, 14/15 checks green), compacted to 289.
 - 2026-09-13 e: standstill; same head/SHA/checks, branch delete re-probed 403, blame merged into Open PR, at 290.
 - 2026-09-13 f: standstill; main and #2104 both unchanged, no review thread, #2105 still draft, at 290.
+- 2026-09-14 a: standstill; main last pushed 09-11, #2104 at 33329cc (4/13/162, 14/15 green), #2105 draft, at 290.
