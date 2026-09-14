@@ -18,7 +18,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY0OTItRXJyb3JMb2NhdGlvbjpjMjgwZGE3OGQ4MTc0NWJhNjY0YjY4NTBlMjVhNzA2NGI5NDc3MmE5NzNiMGVjOTZlMzg0OWMzZjVlOWViOWRj",
         "project": "EPBDS-16492-ErrorLocation",
         "module": "Main",
-        "cell": "C5"
+        "cell": "C5",
+        "start": 1,
+        "end": 7
       },
       "stacktrace": true
     }

@@ -74,6 +74,10 @@ interface TableProblemsProps {
     messages: ProjectStatusDetailedMessage[]
     /** Opens the cell a message was raised against; absent for a reader who may not write the table. */
     onEditCell?: ((cell: string) => void) | undefined
+    /** Reads the stack trace behind a message, when the reader opens it. */
+    onStacktrace?: ((message: ProjectStatusDetailedMessage) => Promise<string>) | undefined
+    /** The text a cell of this table holds, so a message can show the rule it was raised about. */
+    cellText?: ((cell: string) => string | undefined) | undefined
 }
 
 /**
@@ -83,7 +87,7 @@ interface TableProblemsProps {
  * Only the messages the read returned for this table are shown; everything the project raised elsewhere stays
  * in the panel at the foot of the screen.
  */
-export const TableProblems = ({ messages, onEditCell }: TableProblemsProps) => {
+export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText }: TableProblemsProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(() => readJson(STORAGE_KEY, true, (value): value is boolean =>
@@ -134,14 +138,18 @@ export const TableProblems = ({ messages, onEditCell }: TableProblemsProps) => {
                 <div className={styles.resizable}>
                     <div className={styles.body} data-testid="table-problems-body" style={{ height }}>
                         <CompileMessages
+                            cellText={cellText}
                             messages={errors}
                             onEditCell={onEditCell}
+                            onStacktrace={onStacktrace}
                             severity="error"
                             testIdPrefix="table-message"
                         />
                         <CompileMessages
+                            cellText={cellText}
                             messages={warnings}
                             onEditCell={onEditCell}
+                            onStacktrace={onStacktrace}
                             severity="warning"
                             testIdPrefix="table-message"
                         />

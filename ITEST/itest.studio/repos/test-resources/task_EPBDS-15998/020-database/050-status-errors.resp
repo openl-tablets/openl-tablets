@@ -23,7 +23,9 @@ Content-Type: application/json
             "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
             "project": "EPBDS-15998-db",
             "module": "Bank Rating",
-            "cell": "***"
+            "cell": "***",
+            "start": 2,
+            "end": 27
           },
           "stacktrace": true
         }

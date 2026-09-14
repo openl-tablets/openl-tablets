@@ -9,6 +9,7 @@ import type { Project } from '../types/projects'
 import { getProject, setProjectStatus } from '../services/repositories'
 import {
     cancelModuleCompilation,
+    getMessageStacktrace,
     getModuleTables,
     getRawTable,
     listModules,
@@ -16,7 +17,7 @@ import {
     type ModuleInfo,
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
-import { isCompiled } from '../services/projectStatus'
+import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { moduleRoute, toUrlSafeId } from '../services/projectId'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
@@ -160,6 +161,8 @@ export const ModuleWorkspace = () => {
     // The table on screen rides in the address, so a link to it opens it again, Back steps between tables, and
     // a refresh keeps the reader where they were.
     const selectedId = search.get('table')
+    // The cell a message was raised against, carried here by the reader who opened that message.
+    const raisedCell = search.get('errorCell')
     const selected = useMemo(
         () => (tables ?? []).find(candidate => candidate.id === selectedId) ?? null,
         [tables, selectedId]
@@ -382,6 +385,13 @@ export const ModuleWorkspace = () => {
         // project's own screen — the module it names belongs to it, not to the project being read.
         navigate(moduleRoute(usage.projectId ?? projectId ?? '', usage.module, usage.tableId))
     }, [moduleName, navigate, openTableById, projectId])
+
+    // The trace behind a message, read through the module the table was read through — the one whose
+    // compilation raised it.
+    const readStacktrace = useCallback(
+        (message: ProjectStatusDetailedMessage) => getMessageStacktrace(projectId ?? '', message.id, moduleName),
+        [moduleName, projectId]
+    )
 
     // A table a search found is opened where it is written: this screen when it belongs to the module on it,
     // its own module's screen — of its own project — when it does not.
@@ -615,18 +625,27 @@ export const ModuleWorkspace = () => {
         }
         const shown = table.source.length
         const total = table.totalRows ?? shown
+        // A message names the piece of a cell it is about by where that piece begins and ends; the text it
+        // counts in is the cell's own, which the table on screen already holds.
+        const textAt = (cell: string) => table.source
+            .flat()
+            .find(candidate => candidate.cell === cell)
+            ?.value?.toString()
         return (
             <>
                 {toolbar}
                 <TableProblems
+                    cellText={textAt}
                     messages={table.messages ?? []}
                     onEditCell={project.capabilities?.canWrite ? setEditCell : undefined}
+                    onStacktrace={readStacktrace}
                 />
                 <TableEditor
                     canvasClassName={styles.canvas}
                     canWrite={!!project.capabilities?.canWrite}
                     editing={editing}
                     formulas={showFormulas}
+                    markCell={raisedCell}
                     maxRows={table.source.length}
                     moduleName={moduleName}
                     onEditingChange={setEditing}

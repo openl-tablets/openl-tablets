@@ -18,7 +18,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
         "project": "EPBDS-13931",
         "module": "Main",
-        "cell": "C9"
+        "cell": "C9",
+        "start": 2,
+        "end": 17
       }
     }
   ],

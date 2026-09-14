@@ -17,20 +17,29 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.openl.exception.OpenLException;
+import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
+import org.openl.syntax.ISyntaxNode;
+import org.openl.util.text.LocationUtils;
 
 class DetailedMessageDescriptionMapperImplTest {
 
@@ -74,6 +83,104 @@ class DetailedMessageDescriptionMapperImplTest {
         when(message.getSourceLocation()).thenReturn(sourceLocation);
         when(message.getSeverity()).thenReturn(Severity.ERROR);
         return message;
+    }
+
+    /** A compilation error raised about a piece of a rule, the way the compiler reports one. */
+    private static OpenLMessage errorAbout(String sourceLocation, String code, int from, int to) {
+        var error = mock(OpenLException.class);
+        when(error.getSourceLocation()).thenReturn(sourceLocation);
+        when(error.getSourceCode()).thenReturn(code);
+        when(error.getLocation()).thenReturn(LocationUtils.createTextInterval(from, to));
+        return new OpenLErrorMessage(error);
+    }
+
+    /** A table of one cell, holding the given text at C5. */
+    private TableSyntaxNode tableHolding(String text) {
+        var cell = mock(ICell.class);
+        when(cell.getStringValue()).thenReturn(text);
+        var grid = mock(IGrid.class);
+        when(grid.getCell(2, 4)).thenReturn(cell);
+        var gridTable = mock(IGridTable.class);
+        when(gridTable.getGrid()).thenReturn(grid);
+        var node = mock(TableSyntaxNode.class);
+        when(node.getId()).thenReturn("n1");
+        when(node.getGridTable()).thenReturn(gridTable);
+        when(node.getUriParser()).thenReturn(new XlsUrlParser("file:/wb.xlsx?sheet=Sheet1&range=C5:C5"));
+        when(model.getAllTableSyntaxNodes()).thenReturn(Set.of(node));
+        return node;
+    }
+
+    @Test
+    void aMessageNamesThePieceOfTheCellItIsAbout() {
+        tableHolding("=BlaBla+100");
+
+        var result = mapper.mapSorted(
+                List.of(errorAbout("file:/wb.xlsx?sheet=Sheet1&range=C5:C5", "BlaBla+100", 0, 5)), model);
+
+        // The screen draws the cell, so only where the piece begins and ends crosses the wire — counted in the
+        // cell's own text, which the '=' of a spreadsheet step begins one character before the rule.
+        var location = assertInstanceOf(TableMessageSource.class, result.getFirst().location());
+        assertEquals(1, location.start());
+        assertEquals(7, location.end());
+    }
+
+    @Test
+    void aMessageAboutAWholeRuleMarksAllOfItInTheCell() {
+        tableHolding("=BlaBla+100");
+        var error = mock(OpenLException.class);
+        when(error.getSourceLocation()).thenReturn("file:/wb.xlsx?sheet=Sheet1&range=C5:C5");
+        when(error.getSourceCode()).thenReturn("BlaBla+100");
+
+        var result = mapper.mapSorted(List.of(new OpenLErrorMessage(error)), model);
+
+        var location = (TableMessageSource) result.getFirst().location();
+        assertEquals(1, location.start());
+        assertEquals(11, location.end());
+    }
+
+    @Test
+    void aWarningNamesThePieceOfTheCellItWasRaisedAbout() {
+        tableHolding("Bonus > limit");
+        var module = mock(IOpenSourceCodeModule.class);
+        when(module.getCode()).thenReturn("Bonus > limit");
+        var node = mock(ISyntaxNode.class);
+        when(node.getModule()).thenReturn(module);
+        when(node.getSourceLocation()).thenReturn(LocationUtils.createTextInterval(0, 4));
+        var warning = new OpenLWarnMessage("deprecated", node) {
+            @Override
+            public String getSourceLocation() {
+                return "file:/wb.xlsx?sheet=Sheet1&range=C5:C5";
+            }
+        };
+
+        var result = mapper.mapSorted(List.of(warning), model);
+
+        var location = (TableMessageSource) result.getFirst().location();
+        assertEquals(0, location.start());
+        assertEquals(5, location.end());
+    }
+
+    @Test
+    void aMessageTheCellNoLongerSpellsOutMarksNothing() {
+        tableHolding("=Something else");
+
+        var result = mapper.mapSorted(
+                List.of(errorAbout("file:/wb.xlsx?sheet=Sheet1&range=C5:C5", "BlaBla+100", 0, 5)), model);
+
+        var location = (TableMessageSource) result.getFirst().location();
+        assertNull(location.start(), "a rule that is not what the cell says has nothing to mark in it");
+    }
+
+    @Test
+    void aMessageAboutTheTableItselfMarksNothing() {
+        var node = tableHolding("=BlaBla+100");
+        when(node.getUriParser()).thenReturn(new XlsUrlParser("file:/wb.xlsx?sheet=Sheet1&range=C5:D6"));
+
+        var result = mapper.mapSorted(List.of(message("file:/wb.xlsx?sheet=Sheet1&range=C5:D6")), model);
+
+        var location = (TableMessageSource) result.getFirst().location();
+        assertNull(location.start());
+        assertNull(location.end());
     }
 
     @Test

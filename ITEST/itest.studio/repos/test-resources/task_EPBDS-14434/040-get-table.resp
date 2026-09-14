@@ -18,7 +18,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduOkVQQkRTLTE0NDM0",
         "project": "EPBDS-14434",
         "module": "EPBDS-14434",
-        "cell": "B2"
+        "cell": "B2",
+        "start": 11,
+        "end": 34
       },
       "stacktrace": true
     }
