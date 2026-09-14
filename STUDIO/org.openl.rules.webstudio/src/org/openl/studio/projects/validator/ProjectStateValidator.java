@@ -68,6 +68,18 @@ public interface ProjectStateValidator {
     boolean canMerge(RulesProject project);
 
     /**
+     * Whether the project's own state lets another branch be merged into the one it sits on.
+     *
+     * <p>Says nothing about a branch to merge from: it answers what the project itself allows — a
+     * repository with branches, a project that is not local, and no changes of its own waiting to be
+     * saved, since a merge writes over the working copy.
+     *
+     * @param project project
+     * @return true or false
+     */
+    boolean canTakeMerge(RulesProject project);
+
+    /**
      * Check if the branch the project sits on can be deleted.
      *
      * <p>The repository base branch never can, and a protected branch needs the right to bypass branch

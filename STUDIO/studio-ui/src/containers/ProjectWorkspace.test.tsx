@@ -523,7 +523,7 @@ describe('ProjectWorkspace', () => {
     })
 
     it('holds the Sync action through the branch-list request and leaves its dialog unrefreshed', async () => {
-        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true } }) as never)
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true, canMerge: true } }) as never)
         const branches = deferred<unknown[]>()
         vi.mocked(getProjectBranches).mockReturnValue(branches.promise as never)
         const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
@@ -798,7 +798,7 @@ describe('ProjectWorkspace', () => {
     })
 
     it('opens the merge dialog via the Sync action', async () => {
-        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true } }) as never)
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true, canMerge: true } }) as never)
         const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
         await renderWorkspace()
 
@@ -825,7 +825,7 @@ describe('ProjectWorkspace', () => {
         // The main branch cannot be deleted, so the server withholds the capability while still allowing
         // the other branch operations.
         vi.mocked(getProject)
-            .mockResolvedValue(project({ branchDefault: true, capabilities: { canManageBranches: true } }) as never)
+            .mockResolvedValue(project({ branchDefault: true, capabilities: { canManageBranches: true, canMerge: true } }) as never)
         await renderWorkspace()
 
         expect(screen.getByTestId('sync-p1')).toBeInTheDocument()

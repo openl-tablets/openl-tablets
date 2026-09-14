@@ -69,7 +69,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('offers the project\'s own actions by the rules the project screen offers them', async () => {
-        await bar({ canSave: true, canManageBranches: true, canDeploy: true, canCopy: true } as Project['capabilities'])
+        await bar({ canSave: true, canMerge: true, canDeploy: true, canCopy: true } as Project['capabilities'])
 
         expect(screen.getByTestId('module-save')).toBeInTheDocument()
         expect(screen.getByTestId('module-sync')).toBeInTheDocument()
@@ -100,7 +100,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('syncs the project from the editor, through the dialog that reads its branches', async () => {
-        await bar({ canManageBranches: true } as Project['capabilities'])
+        await bar({ canMerge: true } as Project['capabilities'])
 
         await userEvent.click(screen.getByTestId('module-sync'))
 

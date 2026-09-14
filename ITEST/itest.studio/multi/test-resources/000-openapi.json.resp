@@ -25984,6 +25984,10 @@ Content-Type: application/json
           "canWrite": {
             "type": "boolean",
             "description": "***"
+          },
+          "canMerge": {
+            "type": "boolean",
+            "description": "***"
           }
         }
       },
@@ -26045,6 +26049,10 @@ Content-Type: application/json
           "canWrite": {
             "type": "boolean",
             "description": "***"
+          },
+          "canMerge": {
+            "type": "boolean",
+            "description": "***"
           }
         }
       },
@@ -26104,6 +26112,10 @@ Content-Type: application/json
             "description": "***"
           },
           "canWrite": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canMerge": {
             "type": "boolean",
             "description": "***"
           }
