@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- No open PR. Swept head is `origin/main` acdaced8b5; all it gained past 0d9aab81 is three dependabot version bumps
-  (netty-bom, mssql-jdbc, jose4j), which add no code and so open no vein. `mvn validate -N` passes on it, so the
-  mssql bump did not drift its mirrored copies. A red `main` (Human follow-ups) bars cleanup regardless.
-- When `main` gains code: diff against acdaced8b5, then rerun PMD, the identifier index and ASM on changed files
+- Swept head is `origin/main` 9a32b54ca7, which is GREEN but for the kafka flake: EPBDS-16415 fixed the two fixture
+  lines and `IT (studio)` passes again, so cleanup is no longer barred. The 10 EPBDS-1658x/16415 commits it gained
+  past acdaced8b5 (39 files, webstudio execution + studio-ui) are swept whole; only #2109 came out of them.
+- When `main` gains code: diff against 9a32b54ca7, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
 
@@ -23,13 +23,15 @@
 | 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-11 g; merged in 2104 |
 | 9 | Legacy JS functions and .xhtml pages | done 2026-09-11 g; merged in 2104, JS clean |
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-11 g; 66 candidates all template-composed |
-| 11 | TypeScript exports, types, components, imports | done 2026-09-11 |
+| 11 | TypeScript exports, types, components, imports | in-review 2026-09-14 in #2109 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 |
 | 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-11 g; merged in 2104 |
 
 ## Open PR
 
-- None.
+- #2109 `dead-code/execution-residue`, head 5 files/5 deletions, one commit: "Remove the React imports left unused by
+  the automatic JSX runtime". No review thread yet. Body records the kept `url` param and that `IT (services-data)`
+  is main's kafka flake.
 
 ## Merged PRs
 
@@ -112,6 +114,7 @@
 - PMD UnusedAssignment blind spots: constructor early return (CellStyle), try/catch pairs (GitRepository), for-each counting variable (RulesUtils.getValues), and a value read back elsewhere — through a callback (DynamicPropertySource.settings via resolver) or published before blocking (DebugChannel.status, DebugHookImpl.pendingDispatch, ServiceManagerImpl).
 - PMD UnusedPrivateMethod without aux classpath: method references (XlsBinder::addBindingContextError), overloads by argument type, lambda/Supplier overloads (ProjectCreationService, UserWorkspaceImpl, MethodUnreachableStatementValidator).
 - Unused-local FPs: try-with-resources vars (WebSocketAuthTest.stomp, ExtensionsConfigurationTest.context); null before System.gc(); assign before fail() hosting a cast.
+- An unread parameter that precedes a read one (mock callback `(url, options)`) cannot be dropped without changing arity; renaming to `_x` is a refactor, so it is never a finding.
 - `var ignored = executor.submit(...)` silences Error Prone FutureReturnValueIgnored (Sonar S1481/S1854 FP).
 - UnnecessaryCast FP: cast gives `var` its type; UnnecessaryBoxing FP: pins an overload in Operators; varargs `new Object[]{null}`.
 - javac caps warnings at 100: raise -Xmaxwarns before judging @SuppressWarnings("deprecation") dead.
@@ -231,7 +234,8 @@
 
 ## Exhausted veins
 
-- studio-ui: package.json deps, 15 locale namespaces, enum members, Props members, public/ assets, module graph, 849 exports, CSS-in-JS keys, @ts-ignore, React imports.
+- studio-ui: package.json deps, 15 locale namespaces, enum members, Props members, public/ assets, module graph, 849 exports, CSS-in-JS keys, @ts-ignore.
+- Unused React default imports re-open with every new .tsx: `tsc --noEmit --noUnusedLocals` over src is the whole scan (5 of 64 dead at 9a32b54, removed in #2109); it also covers every other unused import and local in one pass.
 - studio-ui exports used only in their own file (~36-70): live; dropping `export` is a visibility refactor, never a deletion.
 - Legacy JS: 382 declarations in 38 files and every whole-file loader; only the four already removed and jQuery.sub (vendored) are dead.
 - CSS selector tokens in all 17 stylesheets: only `.clickable`, `.scrollable` and `.dropdown-form` (all removed) dead outside vendored files and runtime-built names; inline styles all used.
@@ -261,11 +265,8 @@
 
 ## Human follow-ups
 
-- `origin/main` is STILL RED at 0d9aab81, unfixed since 09-11: itest.studio.repos WebStudioTest.repos fails 5 requests.
-  EPBDS-16415 moved workbooks into a `rules/` folder and rewrote 21 fixtures but missed task_EPBDS-16576-conflicts/020-
-  compare, where `010-merge-side-branch.post.resp:11` and `020-start-comparison.post.req:1` still name the flat path;
-  the EPBDS-16415 author must insert `rules/` in those two lines, since this routine may not edit ITEST fixtures. The
-  owner was notified 09-11 and merged 2104 past it, so do not re-notify; every future sweep PR inherits this red.
+- `npx eslint ./src` fails on main with 15 errors (object-curly-spacing in migration.ts and 4 test files) and 2
+  perfectionist warnings; CI never runs it, and fixing formatting is outside a deletion-only sweep.
 - Test bug: JAXRSOpenLServiceEnhancerTest.shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses enhances the wrong fixture interface.
 - Sonar: S2259 (NPE) in ComponentTypeArrayOpenClass.isAssignableFrom/isInstance (null-guard patch proposed in #2088), XlsBinder:523, ProjectModel:1214, TableEditorModel:106, TestDownloadController:144; S6466 CRITICAL WorkbookListener:273.
 - site.webmanifest names `android-chrome-512x512.pngs` (trailing s): the 512px icon is unreachable; one-character bug.
@@ -282,6 +283,6 @@
 
 ## Run log
 
-- 2026-09-14 b: standstill; body counts re-derived and matching, no review thread, only dependabot PRs new, at 290.
 - 2026-09-14 c: #2104 rebase-merged by yurkom (4 commits, 162 deletions on main); PR watch stopped, ledger closed out.
 - 2026-09-14 d: standstill; main acdaced8b5 = 0d9aab81 + 3 dependabot bumps, still red on itest.studio.repos, at 287.
+- 2026-09-14 e: main green again (EPBDS-16415 fixed the fixtures); swept its 10 new commits, opened #2109 (5 lines), at 288.
