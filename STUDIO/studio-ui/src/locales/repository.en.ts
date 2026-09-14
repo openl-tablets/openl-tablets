@@ -386,6 +386,9 @@ i18next.addResourceBundle('en', 'repository', {
             copy: 'Copy',
             update: 'Update',
             remove: 'Remove',
+            remove_confirm: 'Remove table "{{table}}"?',
+            remove_confirm_body: 'The table is cleared from the sheet it is written on. '
+                + 'Save the project to carry the change to the Design repository.',
             test: 'Test',
             create_test: 'Create Test',
             createTable: 'Create Table',

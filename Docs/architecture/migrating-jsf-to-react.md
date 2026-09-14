@@ -379,6 +379,17 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a
   module means.
+- **A dialog that already writes a table is the dialog the editor opens.** Creating a table, copying one and
+  writing a test for one are the three dialogs the legacy Editor dispatched to (`openCreateTableModal`,
+  `openCopyTableModal`), mounted once in the layout and told in the event where to write and what to do with
+  what they wrote — so the editor adds a button, not a form. What may be asked of them is the rule the legacy
+  page rendered by, kept where the answer is: the project says whether the reader may write to it at all
+  (`canWrite`, the same capability for the module's row of actions and the table's band), and the table says
+  what it supports — a datatype, or a table that carries no properties of its own, has nothing to be copied
+  into, and a test is written only against a table the rules can call that answers with something, which is
+  exactly the list the create dialog offers as a target. Removing a table needs no dialog:
+  `DELETE /projects/{id}/tables/{tableId}` was already there, so the band asks first and then compiles the
+  module again — a table is in the list only once the workbook is read again.
 - When such work is shown in a window of its own, let **the new window start it**, telling it what to do in
   the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
   window afterwards opens it after an `await`, when the click no longer counts as user activation and a

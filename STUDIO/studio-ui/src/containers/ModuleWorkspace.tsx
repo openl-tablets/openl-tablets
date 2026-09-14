@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, Progress, Skeleton, Tooltip } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import type { ModuleTable, RawTableView } from 'types/tables'
+import type { ModuleTable, RawTableView, SummaryTable } from 'types/tables'
 import type { Project } from '../types/projects'
 import { getProject, setProjectStatus } from '../services/repositories'
 import {
@@ -265,6 +265,19 @@ export const ModuleWorkspace = () => {
         refresh()
     }, [load, refresh])
 
+    // A table written from this screen — created, copied, or a test generated for one — is opened where it
+    // landed. The module is compiled again first: a table is in the list only once the workbook is read again.
+    const openWritten = useCallback((written: SummaryTable, module: string) => {
+        reopenRevision()
+        navigate(moduleRoute(projectId ?? '', module, written.id))
+    }, [navigate, projectId, reopenRevision])
+
+    // A table that is gone leaves the screen on the module it was written in, which opens on its first table.
+    const tableRemoved = useCallback(() => {
+        reopenRevision()
+        navigate(moduleRoute(projectId ?? '', moduleName), { replace: true })
+    }, [moduleName, navigate, projectId, reopenRevision])
+
     // Another module of the same project opens in the same screen, on its own first table.
     const openModule = useCallback((picked: string) => {
         if (picked !== moduleName) {
@@ -501,7 +514,10 @@ export const ModuleWorkspace = () => {
         // for everything it shows.
         const toolbar = selected === null ? null : (
             <TableToolbar
+                canWrite={!!project.capabilities?.canWrite}
                 moduleName={moduleName}
+                onRemoved={tableRemoved}
+                onWritten={openWritten}
                 projectCompiled={projectCompiled}
                 projectId={project.id}
                 table={selected}
@@ -580,6 +596,7 @@ export const ModuleWorkspace = () => {
                                 modulePath={modulePath}
                                 onProjectChanged={reopenRevision}
                                 onRevisionOpened={reopenRevision}
+                                onTableCreated={openWritten}
                                 project={project}
                                 projectCompiled={projectCompiled}
                                 testCount={testCount}

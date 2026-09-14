@@ -1,12 +1,20 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
+import { Modal } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ModuleTable } from 'types/tables'
+import type { ModuleTable, SummaryTable } from 'types/tables'
 import { getTableTests } from '../../services/modules'
+import { deleteTable } from '../../services/tables'
 import { TableToolbar } from './TableToolbar'
 
 vi.mock('../../services/modules', () => ({ getTableTests: vi.fn() }))
+vi.mock('../../services/tables', () => ({ deleteTable: vi.fn() }))
+
+vi.mock('antd', async importOriginal => {
+    const antd = await importOriginal<typeof import('antd')>()
+    return { ...antd, Modal: { ...antd.Modal, confirm: vi.fn() } }
+})
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -19,12 +27,25 @@ vi.mock('react-router-dom', async importOriginal => ({
     useNavigate: () => navigate,
 }))
 
-const table = (kind: string): ModuleTable => ({ id: 'table-1', name: 'Greeting', kind } as ModuleTable)
+const table = (kind: string, over: Partial<ModuleTable> = {}): ModuleTable =>
+    ({ id: 'table-1', name: 'Greeting', kind, ...over } as ModuleTable)
 
-const toolbar = (props: { table: ModuleTable, projectCompiled?: boolean }) => (
+interface DrawProps {
+    table: ModuleTable
+    projectCompiled?: boolean
+    /** Whether the reader may edit the project, which is what the writing actions are offered by. */
+    canWrite?: boolean
+    onWritten?: (written: SummaryTable, moduleName: string) => void
+    onRemoved?: () => void
+}
+
+const toolbar = (props: DrawProps) => (
     <MemoryRouter>
         <TableToolbar
+            canWrite={props.canWrite ?? false}
             moduleName="Claims"
+            onRemoved={props.onRemoved}
+            onWritten={props.onWritten}
             projectCompiled={props.projectCompiled ?? false}
             projectId="p1"
             table={props.table}
@@ -33,13 +54,17 @@ const toolbar = (props: { table: ModuleTable, projectCompiled?: boolean }) => (
 )
 
 /** Draws the band and lets the read of what exercises the table settle. */
-const draw = async (props: { table: ModuleTable, projectCompiled?: boolean }) => {
+const draw = async (props: DrawProps) => {
     const view = render(toolbar(props))
     await act(async () => {
         await Promise.resolve()
     })
     return view
 }
+
+/** What the band offers, by the ids its buttons carry. */
+const offered = () => [...screen.getByTestId('table-toolbar').querySelectorAll('[data-testid^=table-]')]
+    .map(node => node.getAttribute('data-testid'))
 
 describe('TableToolbar', () => {
     beforeEach(() => {
@@ -66,13 +91,103 @@ describe('TableToolbar', () => {
         }))
     })
 
-    it('stands the actions of the editing phase in place, disabled until it arrives', async () => {
-        await draw({ table: table('Spreadsheet') })
+    it('stands editing the cells in place, disabled until that phase arrives', async () => {
+        await draw({ canWrite: true, table: table('Spreadsheet') })
 
         expect(screen.getByTestId('table-edit')).toBeDisabled()
-        expect(screen.getByTestId('table-copy')).toBeDisabled()
-        expect(screen.getByTestId('table-remove')).toBeDisabled()
-        expect(screen.getByTestId('table-createTest')).toBeDisabled()
+        // What is already answered stands beside it, offered rather than promised.
+        expect(screen.getByTestId('table-copy')).toBeEnabled()
+        expect(screen.getByTestId('table-remove')).toBeEnabled()
+        expect(screen.getByTestId('table-createTest')).toBeEnabled()
+    })
+
+    it('offers nothing that writes to a reader who may not edit the project', async () => {
+        await draw({ table: table('Spreadsheet') })
+
+        // The project says what may be done to it; the band asks nothing of its own.
+        expect(offered()).toEqual(['table-run', 'table-trace', 'table-benchmark'])
+    })
+
+    it('asks the copy dialog for a copy of the table, where the table is written', async () => {
+        const opened = vi.fn()
+        window.addEventListener('openCopyTableModal', opened)
+        const onWritten = vi.fn()
+        await draw({ canWrite: true, onWritten, table: table('Rules') })
+
+        await userEvent.click(screen.getByTestId('table-copy'))
+
+        window.removeEventListener('openCopyTableModal', opened)
+        const { detail } = opened.mock.calls[0]?.[0] as CustomEvent
+        expect(detail).toMatchObject({ projectId: 'p1', currentModuleName: 'Claims', sourceTableId: 'table-1' })
+        // What the dialog writes is handed back, so the editor can open it where it landed.
+        detail.onSuccess({ id: 'copy-1' }, 'Claims')
+        expect(onWritten).toHaveBeenCalledWith({ id: 'copy-1' }, 'Claims')
+    })
+
+    it('copies no table that carries no properties of its own', async () => {
+        const { unmount } = await draw({ canWrite: true, table: table('Datatype') })
+        expect(screen.queryByTestId('table-copy')).toBeNull()
+        unmount()
+
+        await draw({ canWrite: true, table: table('Environment') })
+        expect(screen.queryByTestId('table-copy')).toBeNull()
+    })
+
+    it('writes a test only against a table the rules can call and that answers with something', async () => {
+        const { unmount } = await draw({ canWrite: true, table: table('Rules', { returnType: 'Double' }) })
+        expect(screen.getByTestId('table-createTest')).toBeEnabled()
+        unmount()
+
+        // A table returning nothing gives a test nothing to assert.
+        const { unmount: unmountVoid } = await draw({ canWrite: true, table: table('Rules', { returnType: 'void' }) })
+        expect(screen.queryByTestId('table-createTest')).toBeNull()
+        unmountVoid()
+
+        // A datatype is read, not called; a test table is not tested again.
+        const { unmount: unmountDatatype } = await draw({ canWrite: true, table: table('Datatype') })
+        expect(screen.queryByTestId('table-createTest')).toBeNull()
+        unmountDatatype()
+
+        await draw({ canWrite: true, table: table('Test') })
+        expect(screen.queryByTestId('table-createTest')).toBeNull()
+    })
+
+    it('asks the create dialog to write a test against the table', async () => {
+        const opened = vi.fn()
+        window.addEventListener('openCreateTableModal', opened)
+        await draw({ canWrite: true, table: table('Rules', { returnType: 'Double' }) })
+
+        await userEvent.click(screen.getByTestId('table-createTest'))
+
+        window.removeEventListener('openCreateTableModal', opened)
+        const { detail } = opened.mock.calls[0]?.[0] as CustomEvent
+        expect(detail).toMatchObject({ projectId: 'p1', currentModuleName: 'Claims', sourceTableId: 'table-1' })
+    })
+
+    it('asks before it removes the table, and says so once it is gone', async () => {
+        vi.mocked(deleteTable).mockResolvedValue(true)
+        const onRemoved = vi.fn()
+        await draw({ canWrite: true, onRemoved, table: table('Rules') })
+
+        await userEvent.click(screen.getByTestId('table-remove'))
+
+        expect(deleteTable).not.toHaveBeenCalled()
+        const asked = vi.mocked(Modal.confirm).mock.calls[0]?.[0]
+        await asked?.onOk?.(() => {})
+
+        expect(deleteTable).toHaveBeenCalledWith('p1', 'table-1', 'Greeting')
+        expect(onRemoved).toHaveBeenCalledTimes(1)
+    })
+
+    it('leaves the screen where it is when the table could not be removed', async () => {
+        vi.mocked(deleteTable).mockResolvedValue(false)
+        const onRemoved = vi.fn()
+        await draw({ canWrite: true, onRemoved, table: table('Rules') })
+
+        await userEvent.click(screen.getByTestId('table-remove'))
+        await vi.mocked(Modal.confirm).mock.calls[0]?.[0]?.onOk?.(() => {})
+
+        expect(onRemoved).not.toHaveBeenCalled()
     })
 
     it('offers running only what can be run, and testing only what there is a test for', async () => {
@@ -96,10 +211,9 @@ describe('TableToolbar', () => {
         vi.mocked(getTableTests).mockResolvedValue([{ id: 'test-9', name: 'GreetingTest' }])
         const opened = vi.fn()
         window.addEventListener('openTestsLaunch', opened)
-        await draw({ table: table('Spreadsheet') })
+        await draw({ canWrite: true, table: table('Spreadsheet') })
 
-        const band = screen.getByTestId('table-toolbar')
-        const actions = [...band.querySelectorAll('[data-testid^=table-]')].map(node => node.getAttribute('data-testid'))
+        const actions = offered()
         expect(actions.indexOf('table-tests')).toBe(actions.indexOf('table-createTest') - 1)
 
         await userEvent.click(screen.getByTestId('table-tests'))

@@ -144,6 +144,36 @@ export const copyTable = async (
     }
 )
 
+/**
+ * Removes a table from the module it is written in.
+ *
+ * <p>The whole area the table takes is cleared from its sheet, whatever kind of table it is; what stands around
+ * it stays where it is. The table is gone from the rules once the module is compiled again, and out of the
+ * Design repository once the project is saved.
+ *
+ * @returns whether the table was removed; a failure is reported to the reader here
+ */
+export const deleteTable = async (projectId: string, tableId: string, tableName: string): Promise<boolean> => {
+    try {
+        await apiCall(
+            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}`,
+            { method: 'DELETE' },
+            LOCAL_LOAD_API_OPTIONS
+        )
+        notification.success({
+            title: i18n.t('project:delete_table.deleted'),
+            description: i18n.t('project:delete_table.deleted_description', { table: tableName }),
+        })
+        return true
+    } catch (error) {
+        notification.error({
+            title: i18n.t('project:delete_table.delete_failed'),
+            description: errorMessage(error),
+        })
+        return false
+    }
+}
+
 /** The address of a table's input, and of the cases and single case under it. */
 const inputUrl = (projectId: string, tableId: string, suffix = ''): string =>
     `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/input${suffix}`

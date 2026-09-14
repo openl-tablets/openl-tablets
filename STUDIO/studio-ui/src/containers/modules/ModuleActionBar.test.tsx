@@ -128,6 +128,37 @@ describe('ModuleActionBar', () => {
             .toMatchObject({ projectId: 'p1', modulePath: 'rules/Claims.xlsx' })
     })
 
+    it('writes a new table into the module, through the dialog that builds it', async () => {
+        const opened = vi.fn()
+        window.addEventListener('openCreateTableModal', opened)
+        const onTableCreated = vi.fn()
+        render(
+            <ModuleActionBar
+                moduleName="Claims"
+                onTableCreated={onTableCreated}
+                project={project({ canWrite: true } as Project['capabilities'])}
+            />
+        )
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        await userEvent.click(screen.getByTestId('module-createTable'))
+
+        window.removeEventListener('openCreateTableModal', opened)
+        const { detail } = opened.mock.calls[0]?.[0] as CustomEvent
+        // The module being read is where the table lands, unless the dialog is told otherwise.
+        expect(detail).toMatchObject({ projectId: 'p1', currentModuleName: 'Claims' })
+        detail.onSuccess({ id: 'new-1' }, 'Claims')
+        expect(onTableCreated).toHaveBeenCalledWith({ id: 'new-1' }, 'Claims')
+    })
+
+    it('offers no new table to a reader who may not write to the project', async () => {
+        await bar()
+
+        expect(screen.queryByTestId('module-createTable')).toBeNull()
+    })
+
     it('reads the project history in a window rather than on the project screen', async () => {
         await bar()
 

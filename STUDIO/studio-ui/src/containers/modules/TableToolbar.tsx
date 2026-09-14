@@ -1,7 +1,7 @@
 import { useEffect, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Tooltip } from 'antd'
+import { Button, Modal, Tooltip } from 'antd'
 import {
     CopyOutlined,
     DashboardOutlined,
@@ -13,9 +13,11 @@ import {
     RadarChartOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import type { ModuleTable } from 'types/tables'
+import type { ModuleTable, SummaryTable } from 'types/tables'
 import { getTableTests, type TableTest } from '../../services/modules'
+import { deleteTable } from '../../services/tables'
 import { moduleRoute } from '../../services/projectId'
+import { canTargetTable, EXECUTABLE_KINDS } from '../CreateTableModal/testSkeleton'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** A band over the table, carrying what can be done to the table under it. */
@@ -63,23 +65,58 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-/** What one action of the open table asks for, and the panel of EPBDS-16560 that answers it. */
+/**
+ * Tables a copy cannot be made of: a datatype, and the kinds that carry no properties at all.
+ *
+ * <p>A copy is told from the table it was made of by the properties it is given, so a table that can hold none —
+ * the environment, the properties table itself, whatever OpenL could not name — has nothing to be copied into.
+ */
+const NOT_COPYABLE = new Set(['Datatype', 'Environment', 'Properties', 'Other'])
+
+/** The families of table that can be executed at all; the rest are read, not run. */
+const EXECUTABLE = new Set(['Rules', 'Spreadsheet', 'Method', 'Test', 'TBasic', 'Column Match', 'Run'])
+
+/**
+ * Whether a test can be written against the table.
+ *
+ * <p>The rules must be able to call it, and it must answer with something: a test asserts a result, and a table
+ * returning nothing gives it nothing to compare against. A test table itself is not one — a test of a test
+ * exercises nothing.
+ */
+const canCreateTest = (table: ModuleTable) =>
+    EXECUTABLE_KINDS.includes(table.kind) && canTargetTable(table, 'test')
+
+/** What one action of the open table does, and what a table must be for it to be offered at all. */
 interface TableAction {
     key: string
     labelKey: string
     icon: ReactNode
-    /** The event the React panel listens on; absent for an action that arrives with the editing phase. */
+    /** The event the panel of EPBDS-16560 listens on; only a table that can be run carries one. */
     event?: string
     /** Offered only for a table that has tests of its own or is covered by some. */
     needsTests?: boolean
-    /** Offered whatever the table is, not only for one that can be run. */
-    always?: boolean
+    /** Writes to the module, so it is offered only to a reader who may edit the project. */
+    writes?: boolean
+    /** What the table must be for the action to mean anything; without it every table suits. */
+    suits?: (table: ModuleTable) => boolean
+}
+
+/** The dialog a writing action opens, by the event the dialog listens on. */
+const DIALOGS: Record<string, string> = {
+    copy: 'openCopyTableModal',
+    createTest: 'openCreateTableModal',
 }
 
 const ACTIONS: TableAction[] = [
-    { key: 'edit', labelKey: 'browser.module.edit', icon: <EditOutlined />, always: true },
-    { key: 'copy', labelKey: 'browser.module.copy', icon: <CopyOutlined />, always: true },
-    { key: 'remove', labelKey: 'browser.module.remove', icon: <DeleteOutlined />, always: true },
+    { key: 'edit', labelKey: 'browser.module.edit', icon: <EditOutlined />, writes: true },
+    {
+        key: 'copy',
+        labelKey: 'browser.module.copy',
+        icon: <CopyOutlined />,
+        writes: true,
+        suits: table => !NOT_COPYABLE.has(table.kind),
+    },
+    { key: 'remove', labelKey: 'browser.module.remove', icon: <DeleteOutlined />, writes: true },
     { key: 'run', labelKey: 'browser.module.run', icon: <PlayCircleOutlined />, event: 'openRunLaunch' },
     { key: 'trace', labelKey: 'browser.module.trace', icon: <RadarChartOutlined />, event: 'openTraceLaunch' },
     {
@@ -96,11 +133,14 @@ const ACTIONS: TableAction[] = [
         event: 'openTestsLaunch',
         needsTests: true,
     },
-    { key: 'createTest', labelKey: 'browser.module.create_test', icon: <FileAddOutlined />, always: true },
+    {
+        key: 'createTest',
+        labelKey: 'browser.module.create_test',
+        icon: <FileAddOutlined />,
+        writes: true,
+        suits: canCreateTest,
+    },
 ]
-
-/** The families of table that can be executed at all; the rest are read, not run. */
-const EXECUTABLE = new Set(['Rules', 'Spreadsheet', 'Method', 'Test', 'TBasic', 'Column Match', 'Run'])
 
 interface TableToolbarProps {
     projectId: string
@@ -108,6 +148,12 @@ interface TableToolbarProps {
     table: ModuleTable
     /** Whether every module is compiled, since a test covering this table may be written in another one. */
     projectCompiled?: boolean
+    /** Whether the reader may edit the project; what writes to the module is offered only then. */
+    canWrite?: boolean
+    /** A table written from here — a copy of this one, or a test for it — and the module it landed in. */
+    onWritten?: ((written: SummaryTable, moduleName: string) => void) | undefined
+    /** Called once this table is gone from the module. */
+    onRemoved?: (() => void) | undefined
 }
 
 /**
@@ -116,10 +162,20 @@ interface TableToolbarProps {
  * exercises the table.
  *
  * Running the table, tracing it or measuring it opens the panel EPBDS-16560 already built, asked for by the event
- * that panel listens on. Editing it, copying it, removing it and writing a test for it arrive with the editing
- * phase and stand disabled until then, so the band is already the shape it will keep.
+ * that panel listens on. Copying the table, writing a test for it and removing it are offered only to a reader
+ * who may edit the project, and only where they mean something — a datatype is copied by nobody, a table that
+ * answers with nothing has no test to write. Editing the cells arrives with the editing phase and stands
+ * disabled until then.
  */
-export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = false }: TableToolbarProps) => {
+export const TableToolbar = ({
+    projectId,
+    moduleName,
+    table,
+    projectCompiled = false,
+    canWrite = false,
+    onWritten,
+    onRemoved,
+}: TableToolbarProps) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const navigate = useNavigate()
@@ -152,11 +208,50 @@ export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = f
         }))
     }
 
+    /** Opens a dialog over this table: where it is written, and what to do with what it writes. */
+    const openDialog = (event: string) => window.dispatchEvent(new CustomEvent(event, {
+        detail: {
+            projectId,
+            currentModuleName: moduleName,
+            sourceTableId: table.id,
+            onSuccess: onWritten,
+        },
+    }))
+
+    // Asked before it is done, as the old Editor asked: the table goes from the sheet it is written on, and
+    // only saving the project carries that to the Design repository.
+    const remove = () => {
+        Modal.confirm({
+            title: t('browser.module.remove_confirm', { table: table.displayName ?? table.name }),
+            content: t('browser.module.remove_confirm_body'),
+            okButtonProps: { danger: true },
+            okText: t('browser.module.remove'),
+            onOk: async () => {
+                if (await deleteTable(projectId, table.id, table.name)) {
+                    onRemoved?.()
+                }
+            },
+        })
+    }
+
+    /** What the button does, or nothing at all for an action that arrives with the editing phase. */
+    const answer = (action: TableAction) => {
+        if (action.event) {
+            return (from: ReactMouseEvent<HTMLElement>) => launch(action.event ?? '', from)
+        }
+        if (action.key === 'remove') {
+            return remove
+        }
+        const dialog = DIALOGS[action.key]
+        return dialog ? () => openDialog(dialog) : undefined
+    }
+
     const executable = EXECUTABLE.has(table.kind)
     // A test table runs its own cases; any other table runs the tests written against it, when there are some.
     const hasTests = table.kind === 'Test' || tests.length > 0
-    const offered = ACTIONS.filter(action =>
-        action.always || (executable && (!action.needsTests || hasTests)))
+    const offered = ACTIONS.filter(action => action.writes
+        ? canWrite && (action.suits?.(table) ?? true)
+        : executable && (!action.needsTests || hasTests))
 
     // A test is a table of its own, written where its author put it: another module of this project, or a
     // module of a project this one depends on. It is opened there, not beside the table it exercises.
@@ -171,21 +266,24 @@ export const TableToolbar = ({ projectId, moduleName, table, projectCompiled = f
 
     return (
         <div className={styles.bar} data-testid="table-toolbar">
-            {offered.map(action => (
-                <Tooltip key={action.key} title={action.event ? undefined : t('browser.module.planned')}>
-                    <Button
-                        className={styles.action}
-                        data-testid={`table-${action.key}`}
-                        disabled={!action.event}
-                        icon={action.icon}
-                        onClick={from => action.event && launch(action.event, from)}
-                        size="small"
-                        type="text"
-                    >
-                        <span className={styles.label}>{t(action.labelKey)}</span>
-                    </Button>
-                </Tooltip>
-            ))}
+            {offered.map(action => {
+                const answers = answer(action)
+                return (
+                    <Tooltip key={action.key} title={answers ? undefined : t('browser.module.planned')}>
+                        <Button
+                            className={styles.action}
+                            data-testid={`table-${action.key}`}
+                            disabled={!answers}
+                            icon={action.icon}
+                            onClick={from => answers?.(from)}
+                            size="small"
+                            type="text"
+                        >
+                            <span className={styles.label}>{t(action.labelKey)}</span>
+                        </Button>
+                    </Tooltip>
+                )
+            })}
             {tests.length > 0 && (
                 <div className={styles.tests} data-testid="table-available-tests">
                     <span className={styles.testsTitle}>{t('browser.module.available_tests')}</span>
