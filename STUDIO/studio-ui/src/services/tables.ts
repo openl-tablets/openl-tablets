@@ -10,6 +10,7 @@ import type {
     TableInput,
     TableInputCasesPage,
     TableInputTestCase,
+    TableEdit,
     TableProperty,
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
@@ -174,6 +175,39 @@ export const updateTableProperties = async (
         return written?.id ?? tableId
     } catch (error) {
         notifyLoadFailure(i18n.t('project:table_properties.save_failed'), error)
+        return null
+    }
+}
+
+/**
+ * Writes the edits a reader made to a table, all of them in one request.
+ *
+ * <p>The edits are applied in the order they were made and the table is written once, so an editing session of
+ * any size costs a single request — and a refused edit leaves the table exactly as it was.
+ *
+ * @returns the table's id after the write — it changes when the table had to be moved to grow — or null when
+ *          the write failed, which is reported to the reader here
+ */
+export const applyTableActions = async (
+    projectId: string,
+    tableId: string,
+    actions: TableEdit[]
+): Promise<string | null> => {
+    try {
+        const written = await apiCall(
+            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/actions/batch`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ actions }),
+            },
+            LOCAL_LOAD_API_OPTIONS
+        ) as { id?: string } | null
+        notification.success({ title: i18n.t('project:table_edit.saved') })
+        // The table keeps its id unless it had to be moved to grow, and then the answer carries the new one.
+        return written?.id ?? tableId
+    } catch (error) {
+        notifyLoadFailure(i18n.t('project:table_edit.save_failed'), error)
         return null
     }
 }

@@ -70,6 +70,17 @@ export interface RawTableCellMetaInfo {
     editor?: string
 }
 
+/**
+ * One edit of a table's raw source, as the Tables API takes it.
+ *
+ * <p>`operation` selects the edit and the target's `type` the resource it acts on. A sequence of these is sent
+ * together, and the table is written once.
+ */
+export type TableEdit = {
+    operation: 'update'
+    target: { type: 'cell', row: number, column: number, value: string | number | boolean | null }
+}
+
 export interface RawTableCellInput {
     value: string | number | boolean | null
     colspan?: number

@@ -23,7 +23,6 @@ import { errorMessage } from '../utils/errorMessage'
 import { useLoadGeneration } from '../hooks'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
-import { RawTableGrid } from '../components/RawTableGrid'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
 import { CompileDot, getCompileTooltip } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
@@ -35,6 +34,7 @@ import { ModuleActionBar } from './modules/ModuleActionBar'
 import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import { TableProblems } from './modules/TableProblems'
 import { TableSearchModal } from './modules/TableSearchModal'
+import { TableEditor } from './modules/TableEditor'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
 import { useSharedStyles } from './projects/sharedStyles'
@@ -135,6 +135,7 @@ export const ModuleWorkspace = () => {
     const [cancelling, setCancelling] = useState(false)
     /** Whether the project has compiled through since this module was opened; see the effects below. */
     const [projectCompiled, setProjectCompiled] = useState(false)
+    const [editing, setEditing] = useState(false)
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
@@ -333,6 +334,9 @@ export const ModuleWorkspace = () => {
     }, [setSearch])
 
     const openTable = useCallback((picked: ModuleTable) => openTableById(picked.id), [openTableById])
+
+    // Editing belongs to the table it started on: opening another one — or another module — leaves it.
+    useEffect(() => { setEditing(false) }, [moduleName, selectedId])
 
     // A word in a cell that names another table is a way into it: the same screen when the table is one of
     // this module's, its own module's screen when it lives elsewhere.
@@ -558,6 +562,7 @@ export const ModuleWorkspace = () => {
             <TableToolbar
                 canWrite={!!project.capabilities?.canWrite}
                 moduleName={moduleName}
+                onEdit={() => setEditing(true)}
                 onRemoved={tableRemoved}
                 onWritten={openWritten}
                 projectCompiled={projectCompiled}
@@ -566,7 +571,7 @@ export const ModuleWorkspace = () => {
                 table={selected}
             />
         )
-        if (!table) {
+        if (!table || selected === null) {
             return (
                 <>
                     {toolbar}
@@ -581,10 +586,16 @@ export const ModuleWorkspace = () => {
                 {toolbar}
                 <TableProblems messages={table.messages ?? []} />
                 <div className={styles.canvas}>
-                    <RawTableGrid
+                    <TableEditor
+                        canWrite={!!project.capabilities?.canWrite}
+                        editing={editing}
                         formulas={showFormulas}
+                        onEditingChange={setEditing}
                         onOpenUsage={openUsage}
+                        onSaved={tableRewritten}
+                        projectId={project.id}
                         rows={rows}
+                        tableId={selected.id}
                         testId="module-table"
                     />
                     {shown < total && (
