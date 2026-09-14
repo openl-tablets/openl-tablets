@@ -471,6 +471,7 @@ i18next.addResourceBundle('en', 'repository', {
             edit_indent: 'Increase Indent',
             related_more_one: '{{count}} more',
             related_more_other: '{{count}} more',
+            edit_this_cell: 'Edit cell {{cell}}',
             edit_pick_a_cell: 'Pick a cell first.',
             edit_header_kept: 'The first row and the first column hold the table header, which is where OpenL '
                 + 'finds the table: nothing goes before them and neither is taken away.',

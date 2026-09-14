@@ -224,6 +224,39 @@ describe('TableEditor', () => {
         expect(screen.getByTestId('table-cell-input').tagName).toBe('TEXTAREA')
     })
 
+    it('opens the cell a message was raised against when the reader asks for it', async () => {
+        const { rerender } = render(
+            <TableEditor
+                canWrite
+                editing
+                moduleName="Claims"
+                onEditingChange={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={ROWS}
+                tableId="table-1"
+            />
+        )
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        rerender(
+            <TableEditor
+                canWrite
+                editing
+                moduleName="Claims"
+                onEditingChange={vi.fn()}
+                onSaved={vi.fn()}
+                openAt="C5"
+                projectId="repo:Rating"
+                rows={ROWS}
+                tableId="table-1"
+            />
+        )
+
+        // The message names the cell as the workbook names it, and that is the cell that opens.
+        expect(await screen.findByTestId('table-cell-input')).toHaveValue('Good Morning')
+    })
+
     it('keeps no band of actions over a table that is only being read', () => {
         draw({ editing: false })
 

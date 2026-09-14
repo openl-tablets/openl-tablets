@@ -61,6 +61,10 @@ interface TableEditorProps {
     onEditingChange: (editing: boolean) => void
     /** Told the table's id after a save; it changes when the table had to be moved to grow. */
     onSaved: (tableId: string) => void
+    /** A cell to open for writing, named as the workbook names it — 'D9'. */
+    openAt?: string | null | undefined
+    /** Told once that cell has been opened, so asking for the same one again opens it again. */
+    onOpenedAt?: (() => void) | undefined
     /** The sheet the table is drawn on, which the band of actions sits above rather than on. */
     canvasClassName?: string | undefined
     /** What the screen draws under the table — the way on to the rows beyond this window. */
@@ -89,6 +93,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     editing,
     onEditingChange,
     onSaved,
+    openAt,
+    onOpenedAt,
     canvasClassName,
     children,
     testId,
@@ -155,6 +161,19 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         setDraft(cell.value == null ? '' : String(cell.value))
         onEditingChange(true)
     }, [onEditingChange, written])
+
+    // A message names the cell it was raised against, and the reader asks for that cell from beside it.
+    useEffect(() => {
+        if (openAt == null) {
+            return
+        }
+        const row = written.findIndex(cells => cells.some(cell => cell.cell === openAt))
+        const column = row < 0 ? -1 : (written[row] ?? []).findIndex(cell => cell.cell === openAt)
+        if (row >= 0 && column >= 0) {
+            openCell(row, column)
+        }
+        onOpenedAt?.()
+    }, [onOpenedAt, openAt, openCell, written])
 
     /** Keeps what was written into the open cell, unless it is what the cell already held. */
     const closeCell = (keep: boolean) => {

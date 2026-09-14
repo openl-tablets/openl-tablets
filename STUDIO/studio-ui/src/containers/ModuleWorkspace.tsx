@@ -136,6 +136,8 @@ export const ModuleWorkspace = () => {
     /** Whether the project has compiled through since this module was opened; see the effects below. */
     const [projectCompiled, setProjectCompiled] = useState(false)
     const [editing, setEditing] = useState(false)
+    // The cell a message was raised against, asked for from beside that message.
+    const [editCell, setEditCell] = useState<string | null>(null)
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
@@ -361,7 +363,10 @@ export const ModuleWorkspace = () => {
     const openTable = useCallback((picked: ModuleTable) => openTableById(picked.id), [openTableById])
 
     // Editing belongs to the table it started on: opening another one — or another module — leaves it.
-    useEffect(() => { setEditing(false) }, [moduleName, selectedId])
+    useEffect(() => {
+        setEditing(false)
+        setEditCell(null)
+    }, [moduleName, selectedId])
 
     // A word in a cell that names another table is a way into it: the same screen when the table is one of
     // this module's, its own module's screen when it lives elsewhere.
@@ -613,7 +618,10 @@ export const ModuleWorkspace = () => {
         return (
             <>
                 {toolbar}
-                <TableProblems messages={table.messages ?? []} />
+                <TableProblems
+                    messages={table.messages ?? []}
+                    onEditCell={project.capabilities?.canWrite ? setEditCell : undefined}
+                />
                 <TableEditor
                     canvasClassName={styles.canvas}
                     canWrite={!!project.capabilities?.canWrite}
@@ -622,8 +630,10 @@ export const ModuleWorkspace = () => {
                     maxRows={table.source.length}
                     moduleName={moduleName}
                     onEditingChange={setEditing}
+                    onOpenedAt={() => setEditCell(null)}
                     onOpenUsage={openUsage}
                     onSaved={tableRewritten}
+                    openAt={editCell}
                     projectId={project.id}
                     rows={rows}
                     tableId={selected.id}
