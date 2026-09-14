@@ -949,6 +949,20 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void update_table_properties_requires_permission_to_write_to_the_project() throws Exception {
+        // The ACL grants nothing, which is what a reader who may only read the project is answered with.
+        var acl = mock(RepositoryAclService.class);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var service = newService(acl, mock(ProtectedBranchBypassService.class));
+        var properties = List.of(new TableProperty("description", "Anything"));
+
+        assertThrows(ForbiddenException.class, () -> service.updateTableProperties(project, "table-1", properties));
+
+        // Nothing is taken and nothing is written when the answer is no.
+        verify(project, never()).tryLockOrThrow();
+    }
+
+    @Test
     void create_new_table_creates_a_module_when_module_path_is_supplied() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);

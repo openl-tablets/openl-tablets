@@ -133,7 +133,7 @@ class TableCopyServiceTest {
         var declaredDate = dated.table().getProperties().getEffectiveDate();
 
         // What the copy dialog is prefilled with: the date the source declares, in the form its picker reads.
-        var prefilled = new TablePropertiesServiceImpl().read(dated.table());
+        var prefilled = new TablePropertiesServiceImpl(mock(SystemPropertiesService.class)).read(dated.table());
         var effectiveDate = prefilled.stream().filter(property -> "effectiveDate".equals(property.name()))
                 .findFirst().orElseThrow();
         assertEquals("2009-01-01", effectiveDate.value());

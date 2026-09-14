@@ -214,10 +214,14 @@ export interface TablePropertyGroup {
     properties: TablePropertyDetail[]
 }
 
-/** What a table says about itself besides its cells. */
+/** What a table says about itself besides its cells, and what may still be written on it. */
 export interface TableDetails {
     name: string
     groups: TablePropertyGroup[]
+    /** Whether this kind of table carries properties at all; one that does not is never edited here. */
+    canEditProperties: boolean
+    /** Names of the properties the table may still be given — what it already shows is changed where it stands. */
+    available: string[]
 }
 
 /**
@@ -239,5 +243,10 @@ export const getTableDetails = async (
         LOCAL_LOAD_API_OPTIONS
     ) as TableDetails | null
     // A table with nothing to say about itself answers without the list at all.
-    return { name: read?.name ?? '', groups: asArray(read?.groups) }
+    return {
+        name: read?.name ?? '',
+        groups: asArray(read?.groups),
+        canEditProperties: read?.canEditProperties ?? false,
+        available: asArray(read?.available),
+    }
 }

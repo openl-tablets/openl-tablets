@@ -13818,6 +13818,137 @@ Content-Type: application/json
         "tags": [
           "Projects (BETA)"
         ]
+      },
+      "patch": {
+        "description": "Write properties onto the table of the currently opened project without sending its body. Only the properties named in the request are touched: one carrying a value is written, one carrying no value is removed, and a property the table declares that the request does not name is left as it stands. A removed property that the module or the category also defines applies again from there. A date value is read from ISO-8601; every other value is read the way the Table Details editor writes it. A property the kind of table does not accept is rejected, unless the table already carries it and the request is taking it away. If the table had no room to grow and was relocated, its ID changes and the new ID is returned in the response body together with the new table URL in the `Location` header.",
+        "operationId": "updateTableProperties",
+        "parameters": [
+          {
+            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Table ID.",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TablePropertiesUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableIdView"
+                }
+              }
+            },
+            "description": "Properties written and the table relocated. The response body carries the new table ID and the `Location` header points to the table under its new ID.",
+            "headers": {
+              "Location": {
+                "description": "URL of the table under its new ID, returned when the table was relocated and its ID changed.",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          },
+          "204": {
+            "description": "Properties written without changing the table ID."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Update project table properties",
+        "tags": [
+          "Projects (BETA)"
+        ]
       }
     },
     "/projects/{projectId}/tables/{tableId}/tests": {
@@ -25205,6 +25336,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "canMerge": {
+            "type": "boolean",
+            "description": "Whether another branch can be merged into the one the project sits on. A project carrying changes that are not saved yet cannot take a merge"
+          },
           "canOpen": {
             "type": "boolean",
             "description": "***"
@@ -25266,6 +25401,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "canMerge": {
+            "type": "boolean",
+            "description": "Whether another branch can be merged into the one the project sits on. A project carrying changes that are not saved yet cannot take a merge"
+          },
           "canOpen": {
             "type": "boolean",
             "description": "***"
@@ -25326,6 +25465,10 @@ Content-Type: application/json
           "canManageBranches": {
             "type": "boolean",
             "description": "***"
+          },
+          "canMerge": {
+            "type": "boolean",
+            "description": "Whether another branch can be merged into the one the project sits on. A project carrying changes that are not saved yet cannot take a merge"
           },
           "canOpen": {
             "type": "boolean",
@@ -28095,6 +28238,17 @@ Content-Type: application/json
       "TableDetailsView": {
         "type": "object",
         "properties": {
+          "available": {
+            "type": "array",
+            "description": "Names of the properties that may still be written on the table: the ones its kind accepts, less the ones it already carries or inherits. A value already shown is changed where it stands, which writes it onto the table.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "canEditProperties": {
+            "type": "boolean",
+            "description": "Whether properties may be written on this table. A table that carries no properties at all — the environment, a properties table, whatever OpenL could not name — accepts none."
+          },
           "groups": {
             "type": "array",
             "description": "***",
@@ -28365,6 +28519,21 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "TablePropertiesUpdate": {
+        "type": "object",
+        "properties": {
+          "properties": {
+            "type": "array",
+            "description": "Properties to write. A property with no value is removed from the table; one the table declares and this list does not name is left as it stands.",
+            "items": {
+              "$ref": "#/components/schemas/TableProperty"
+            }
+          }
+        },
+        "required": [
+          "properties"
+        ]
       },
       "TablePropertiesView": {
         "type": "object",

@@ -117,6 +117,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
@@ -2202,6 +2203,27 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tableWriterExecutor.executeSourceAction(writer, action);
+    }
+
+    /**
+     * Writes the given properties onto a table of the currently opened project.
+     *
+     * <p>Only the properties section is rewritten: a property is added, changed or taken away where it stands, and
+     * the body of the table is neither read nor sent. A property given no value is removed, and an inherited value
+     * applies again in its place.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to write to
+     * @param properties the properties to write, each with the text its value is written as
+     * @return the table's identifier after the write, which changes when the table had to be moved to grow
+     * @throws ProjectException if project is locked by another user
+     */
+    public String updateTableProperties(RulesProject project, String tableId,
+                                        List<TableProperty> properties) throws ProjectException {
+        requireGranted(project, BasePermission.WRITE);
+        var context = getOpenLTable(project, tableId, true);
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        return tablePropertiesService.write(context.table(), properties);
     }
 
     /**

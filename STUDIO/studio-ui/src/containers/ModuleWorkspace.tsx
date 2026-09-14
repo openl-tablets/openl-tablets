@@ -272,6 +272,15 @@ export const ModuleWorkspace = () => {
         navigate(moduleRoute(projectId ?? '', module, written.id))
     }, [navigate, projectId, reopenRevision])
 
+    // The properties of a table are rows of the table itself, so writing them rewrites it: the module is
+    // compiled again and the table drawn afresh, under the id it has once it was written.
+    const tableRewritten = useCallback((written: string) => {
+        reopenRevision()
+        if (written !== selectedId) {
+            navigate(moduleRoute(projectId ?? '', moduleName, written), { replace: true })
+        }
+    }, [moduleName, navigate, projectId, reopenRevision, selectedId])
+
     // A table that is gone leaves the screen on the module it was written in, which opens on its first table.
     const tableRemoved = useCallback(() => {
         reopenRevision()
@@ -633,8 +642,10 @@ export const ModuleWorkspace = () => {
                         <div className={styles.main}>{canvas()}</div>
                         {compilation.ready && !closed && (
                             <TableDetailsPanel
+                                canWrite={!!project.capabilities?.canWrite}
                                 moduleName={moduleName}
                                 onOpenTable={openTableById}
+                                onSaved={tableRewritten}
                                 projectId={project.id}
                                 tableId={selectedId}
                             />
