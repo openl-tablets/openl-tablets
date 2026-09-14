@@ -215,7 +215,14 @@ export const ModuleActionBar = ({
                 title={t('browser.module.local_changes')}
                 width={900}
             >
-                <LocalChangesView moduleName={moduleName} projectId={project.id} />
+                <LocalChangesView
+                    moduleName={moduleName}
+                    onRestored={() => {
+                        setLocalChangesOpen(false)
+                        onRevisionOpened?.()
+                    }}
+                    projectId={project.id}
+                />
             </Modal>
             {dialogs}
         </Space>
