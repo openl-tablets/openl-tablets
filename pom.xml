@@ -171,7 +171,7 @@
         <ojdbc11.version>23.26.3.0.0</ojdbc11.version>
         <postgresql.version>42.7.13</postgresql.version>
         <mariadb.version>2.7.15</mariadb.version>
-        <mssql.version>13.4.0.jre11</mssql.version>
+        <mssql.version>13.6.0.jre11</mssql.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- Jakarta APIs -->
