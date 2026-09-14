@@ -2,11 +2,12 @@
 
 ## Resume point
 
-- No open PR. #2104 merged 09-14; swept head is now `origin/main` 0d9aab81 (its four commits are all that main gained).
-- No vein until something merges past 0d9aab81, and a red `main` (Human follow-ups) bars cleanup regardless.
-- When `main` moves: diff against 0d9aab81, then rerun PMD, the identifier index and ASM on changed files only.
-  Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the JSF
-  editor pages, their beans and the images, CSS and JS only they reached, as 16560 and 16576 residue was swept.
+- No open PR. Swept head is `origin/main` acdaced8b5; all it gained past 0d9aab81 is three dependabot version bumps
+  (netty-bom, mssql-jdbc, jose4j), which add no code and so open no vein. `mvn validate -N` passes on it, so the
+  mssql bump did not drift its mirrored copies. A red `main` (Human follow-ups) bars cleanup regardless.
+- When `main` gains code: diff against acdaced8b5, then rerun PMD, the identifier index and ASM on changed files
+  only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
+  JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
 
 ## Change-type queue
 
@@ -276,10 +277,11 @@
   sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
   org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
 - Delete the stale remote branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods and
-  dead-code/openapi-layouts-residue (closed #2103); `push --delete` re-probed, still 403, and no MCP branch delete.
+  dead-code/openapi-layouts-residue (closed #2103); `push --delete` re-probed, now a sideband disconnect instead of
+  403 but still blocked, and no MCP branch-delete tool exists.
 
 ## Run log
 
-- 2026-09-14 a: standstill; main last pushed 09-11, #2104 at 33329cc (4/13/162, 14/15 green), #2105 draft, at 290.
 - 2026-09-14 b: standstill; body counts re-derived and matching, no review thread, only dependabot PRs new, at 290.
 - 2026-09-14 c: #2104 rebase-merged by yurkom (4 commits, 162 deletions on main); PR watch stopped, ledger closed out.
+- 2026-09-14 d: standstill; main acdaced8b5 = 0d9aab81 + 3 dependabot bumps, still red on itest.studio.repos, at 287.
