@@ -142,6 +142,37 @@ export const getTableTests = async (projectId: string, tableId: string, module?:
         LOCAL_LOAD_API_OPTIONS
     ) as TableTest[] | null)
 
+/** A table that a test or a run table exercises. */
+export interface TableTarget {
+    id: string
+    /** Name it is known by, with the dimension properties that tell this version of it from the others. */
+    name: string
+    /** Module the tested table is written in, which need not be the one the test is in. */
+    module?: string
+    /** Name of the project that module belongs to. */
+    project?: string
+    /** Identifier of that project; absent when the session cannot address it, and then it cannot be opened. */
+    projectId?: string
+}
+
+/**
+ * The tables the given test or run table exercises.
+ *
+ * Each says where it is written, because a test may be written against a table of another module or of a project
+ * this one depends on. A table of any other kind exercises nothing and answers with an empty list.
+ */
+export const getTableTargets = async (
+    projectId: string,
+    tableId: string,
+    module?: string
+): Promise<TableTarget[]> =>
+    asArray(await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/targets`
+        + (module === undefined ? '' : `?module=${encodeURIComponent(module)}`),
+        undefined,
+        LOCAL_LOAD_API_OPTIONS
+    ) as TableTarget[] | null)
+
 /** How wide a search reaches, as the Tables API names it. */
 export type TableSearchScope = 'module' | 'project' | 'all'
 

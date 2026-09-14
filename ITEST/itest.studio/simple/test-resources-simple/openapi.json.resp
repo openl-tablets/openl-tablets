@@ -13951,6 +13951,128 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/tables/{tableId}/targets": {
+      "get": {
+        "description": "The tables the given test or run table exercises, each named by the id the Tables API addresses it by and by where it lives, since a test may be written against a table of another module or of a project this one depends on. A table written in several versions is tested in all of them at once, and each version is answered under the name that tells it from the others. Any other kind of table exercises nothing and is answered with an empty list.",
+        "operationId": "getTableTargets",
+        "parameters": [
+          {
+            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Table ID.",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableTargetView"
+                  }
+                }
+              }
+            },
+            "description": "default response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Get the tables a test exercises (BETA)",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/tables/{tableId}/tests": {
       "get": {
         "description": "***",
@@ -28636,6 +28758,32 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/TablePropertyDetailView"
             }
+          }
+        }
+      },
+      "TableTargetView": {
+        "type": "object",
+        "description": "A table that a test or run table exercises",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identifier of the tested table, the one the Tables API addresses it by"
+          },
+          "module": {
+            "type": "string",
+            "description": "Module the tested table is written in, which need not be the one being read"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name the tested table is known by, with the dimension properties that tell this version of it from the others"
+          },
+          "project": {
+            "type": "string",
+            "description": "Name of the project the tested table belongs to"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Identifier of that project, as the Projects API addresses it"
           }
         }
       },

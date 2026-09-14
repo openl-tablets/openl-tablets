@@ -119,6 +119,7 @@ import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -2083,6 +2084,44 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                             .build();
                 })
                 .sorted(Comparator.comparing(TableTestView::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    /**
+     * The tables the given test or run table exercises.
+     *
+     * <p>A test is written against a table of its own project or of one it depends on, so each answer says where
+     * it lives — the screen showing it opens it there, as it opens any other table. A table written in several
+     * versions is tested in all of them at once, and each version is answered under the name that tells it from
+     * the others.
+     *
+     * <p>Any other kind of table exercises nothing and is answered with an empty list.
+     *
+     * @param project    project owning the table
+     * @param tableId    the test or run table the targets are asked about
+     * @param moduleName module the table is asked for through
+     * @return the tables it exercises, in the order the engine holds them
+     */
+    public List<TableTargetView> getTableTargets(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        // While only the opened module is compiled, its own methods are the ones to look the test up among.
+        var openedModuleOnly = !context.module().isProjectCompilationCompleted();
+        var targets = OpenLTableLogic.getTargetTables(context.table(), context.module(), openedModuleOnly);
+        if (targets.isEmpty()) {
+            return List.of();
+        }
+        var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);
+        return targets.stream()
+                .map(target -> {
+                    var where = modules.locationOf(target.getUri());
+                    return TableTargetView.builder()
+                            .id(target.getId())
+                            .name(target.getName())
+                            .module(where == null ? null : where.module())
+                            .project(where == null ? null : where.projectName())
+                            .projectId(where == null ? null : where.projectId())
+                            .build();
+                })
                 .toList();
     }
 

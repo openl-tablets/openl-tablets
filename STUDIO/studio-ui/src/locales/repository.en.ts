@@ -393,6 +393,8 @@ i18next.addResourceBundle('en', 'repository', {
             create_test: 'Create Test',
             createTable: 'Create Table',
             available_tests: 'Available Tests/Runs',
+            target_table: 'Target Table',
+            target_tables: 'Target Tables',
             search_placeholder: 'Search tables by name',
             search_extended: 'Extended search',
             search: 'Search',

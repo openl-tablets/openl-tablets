@@ -102,6 +102,7 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
@@ -1826,6 +1827,56 @@ class WorkspaceProjectServiceTest {
         assertEquals("1 test case", wrapperTest.info());
         // And it says where it is written: a test need not live in the module it exercises.
         assertEquals("sprTests", wrapperTest.module());
+    }
+
+    @Test
+    void a_test_names_the_table_it_exercises_by_the_id_the_tables_api_addresses_it_by() throws Exception {
+        var moduleModel = TableTestProjects.projectModel(Path.of("test/rules/EPBDS-16463"));
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class)));
+        var project = openedProject(webStudio, moduleModel, "SprTests", "sprTests");
+        var handle = mock(ProjectHandle.class);
+        when(handle.project()).thenReturn(moduleModel);
+        doReturn(handle).when(service).openProject(project, "sprTests");
+        var wrapperTest = tableNamed(moduleModel, "WrapperTest");
+
+        var targets = service.getTableTargets(project, wrapperTest.getId(), "sprTests");
+
+        assertEquals(List.of("Wrapper"), targets.stream().map(TableTargetView::name).toList());
+        var wrapper = targets.getFirst();
+        assertEquals("Wrapper", moduleModel.getTableById(wrapper.id()).getName());
+        // And where it is written, because a test need not live in the module it exercises.
+        assertEquals("sprTests", wrapper.module());
+    }
+
+    @Test
+    void a_table_that_is_no_test_exercises_nothing() throws Exception {
+        var moduleModel = TableTestProjects.projectModel(Path.of("test/rules/EPBDS-16463"));
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class)));
+        var project = openedProject(webStudio, moduleModel, "SprTests", "sprTests");
+        var handle = mock(ProjectHandle.class);
+        when(handle.project()).thenReturn(moduleModel);
+        doReturn(handle).when(service).openProject(project, "sprTests");
+        var wrapper = tableNamed(moduleModel, "Wrapper");
+
+        assertTrue(service.getTableTargets(project, wrapper.getId(), "sprTests").isEmpty());
     }
 
     /** The compiled table of the module carrying the given name. */

@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button, Modal, Tooltip } from 'antd'
@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable, SummaryTable } from 'types/tables'
-import { getTableTests, type TableTest } from '../../services/modules'
+import { getTableTargets, getTableTests, type TableTarget, type TableTest } from '../../services/modules'
 import { deleteTable } from '../../services/tables'
 import { moduleRoute } from '../../services/projectId'
 import { canTargetTable, EXECUTABLE_KINDS } from '../CreateTableModal/testSkeleton'
@@ -75,6 +75,9 @@ const NOT_COPYABLE = new Set(['Datatype', 'Environment', 'Properties', 'Other'])
 
 /** The families of table that can be executed at all; the rest are read, not run. */
 const EXECUTABLE = new Set(['Rules', 'Spreadsheet', 'Method', 'Test', 'TBasic', 'Column Match', 'Run'])
+
+/** The families written against another table: they are the only ones with a table to name. */
+const EXERCISING = new Set(['Test', 'Run'])
 
 /**
  * Whether a test can be written against the table.
@@ -180,6 +183,10 @@ export const TableToolbar = ({
     const { styles } = useStyles()
     const navigate = useNavigate()
     const [tests, setTests] = useState<TableTest[]>([])
+    // What this table exercises, which only a test or a run table does.
+    const [targets, setTargets] = useState<TableTarget[]>([])
+    // The table whose targets are already known, so the question is not asked about it a second time.
+    const named = useRef<string | null>(null)
 
     useEffect(() => {
         let dropped = false
@@ -200,6 +207,39 @@ export const TableToolbar = ({
         // A test is a table of its own and may be written in another module, so what covers this one is known
         // once the project is compiled through. The list is read again then, rather than staying as it was.
     }, [projectId, table.id, moduleName, projectCompiled])
+
+    // A test says which table it is written against, so a reader arrives at the rules from the test as easily
+    // as they reach the test from the rules. Nothing else exercises anything, and nothing is asked for it.
+    useEffect(() => {
+        if (!EXERCISING.has(table.kind)) {
+            setTargets([])
+            return
+        }
+        // The table it exercises may be written in a module compiled after this one, so the question is asked
+        // again when the project is compiled through — but only while it went unanswered. Once the table is
+        // named, compiling the rest of the project cannot name it differently.
+        if (named.current === table.id) {
+            return
+        }
+        let dropped = false
+        getTableTargets(projectId, table.id, moduleName)
+            .then(found => {
+                if (!dropped) {
+                    setTargets(found)
+                    if (found.length > 0) {
+                        named.current = table.id
+                    }
+                }
+            })
+            .catch(() => {
+                if (!dropped) {
+                    setTargets([])
+                }
+            })
+        return () => {
+            dropped = true
+        }
+    }, [projectId, table.id, table.kind, moduleName, projectCompiled])
 
     const launch = (event: string, from: ReactMouseEvent<HTMLElement>) => {
         const { top, left, width, height } = from.currentTarget.getBoundingClientRect()
@@ -255,8 +295,8 @@ export const TableToolbar = ({
 
     // A test is a table of its own, written where its author put it: another module of this project, or a
     // module of a project this one depends on. It is opened there, not beside the table it exercises.
-    const openTest = (test: TableTest) =>
-        navigate(moduleRoute(test.projectId ?? projectId, test.module ?? moduleName, test.id))
+    const openTable = (found: TableTest | TableTarget) =>
+        navigate(moduleRoute(found.projectId ?? projectId, found.module ?? moduleName, found.id))
 
     /** What a test is called in the list, saying where it lives when that is not the module being read. */
     const testLabel = (test: TableTest) => {
@@ -284,6 +324,32 @@ export const TableToolbar = ({
                     </Tooltip>
                 )
             })}
+            {targets.length > 0 && (
+                <div className={styles.tests} data-testid="table-target-tables">
+                    <span className={styles.testsTitle}>
+                        {t(targets.length > 1 ? 'browser.module.target_tables' : 'browser.module.target_table')}
+                    </span>
+                    {targets.map(target => (
+                        <Tooltip
+                            key={target.id}
+                            title={target.project && target.projectId === undefined
+                                ? t('browser.module.test_elsewhere', { project: target.project })
+                                : undefined}
+                        >
+                            <Button
+                                className={styles.testLink}
+                                data-testid={`table-target-${target.id}`}
+                                // A project the session cannot address has no screen to open the table on.
+                                disabled={target.module !== undefined && target.projectId === undefined}
+                                onClick={() => openTable(target)}
+                                type="link"
+                            >
+                                {target.name}
+                            </Button>
+                        </Tooltip>
+                    ))}
+                </div>
+            )}
             {tests.length > 0 && (
                 <div className={styles.tests} data-testid="table-available-tests">
                     <span className={styles.testsTitle}>{t('browser.module.available_tests')}</span>
@@ -299,7 +365,7 @@ export const TableToolbar = ({
                                 data-testid={`table-test-${test.id}`}
                                 // A project the session cannot address has no screen to open the test on.
                                 disabled={test.module !== undefined && test.projectId === undefined}
-                                onClick={() => openTest(test)}
+                                onClick={() => openTable(test)}
                                 type="link"
                             >
                                 {testLabel(test)}

@@ -4,11 +4,11 @@ import { MemoryRouter } from 'react-router-dom'
 import { Modal } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ModuleTable, SummaryTable } from 'types/tables'
-import { getTableTests } from '../../services/modules'
+import { getTableTargets, getTableTests } from '../../services/modules'
 import { deleteTable } from '../../services/tables'
 import { TableToolbar } from './TableToolbar'
 
-vi.mock('../../services/modules', () => ({ getTableTests: vi.fn() }))
+vi.mock('../../services/modules', () => ({ getTableTests: vi.fn(), getTableTargets: vi.fn() }))
 vi.mock('../../services/tables', () => ({ deleteTable: vi.fn() }))
 
 vi.mock('antd', async importOriginal => {
@@ -69,6 +69,7 @@ const offered = () => [...screen.getByTestId('table-toolbar').querySelectorAll('
 describe('TableToolbar', () => {
     beforeEach(() => {
         vi.mocked(getTableTests).mockResolvedValue([])
+        vi.mocked(getTableTargets).mockResolvedValue([])
     })
 
     it('asks the panel of an action to open where the button stands', async () => {
@@ -305,4 +306,69 @@ describe('TableToolbar', () => {
         await waitFor(() => expect(getTableTests).toHaveBeenCalledTimes(2))
         expect(await screen.findByTestId('table-test-test-9')).toHaveTextContent('GreetingTest')
     })
+    it('asks what a test exercises once, and again only while the answer was empty', async () => {
+        vi.mocked(getTableTargets).mockResolvedValue([{ id: 'rules-1', name: 'BankRating' }])
+        const { rerender } = await draw({ table: table('Test') })
+        expect(getTableTargets).toHaveBeenCalledTimes(1)
+
+        // The table is named, and compiling the rest of the project cannot name it differently.
+        rerender(toolbar({ projectCompiled: true, table: table('Test') }))
+        await waitFor(() => expect(screen.getByTestId('table-target-tables')).toHaveTextContent('BankRating'))
+        expect(getTableTargets).toHaveBeenCalledTimes(1)
+    })
+
+    it('asks again for a target no module had named yet', async () => {
+        vi.mocked(getTableTargets).mockResolvedValue([])
+        const { rerender } = await draw({ table: table('Test') })
+        expect(getTableTargets).toHaveBeenCalledTimes(1)
+
+        // The table a test exercises may be written in a module compiled after this one.
+        vi.mocked(getTableTargets).mockResolvedValue([{ id: 'rules-1', name: 'BankRating' }])
+        rerender(toolbar({ projectCompiled: true, table: table('Test') }))
+
+        await waitFor(() => expect(getTableTargets).toHaveBeenCalledTimes(2))
+    })
+
+    it('names the table a test exercises, and opens it where it is written', async () => {
+        vi.mocked(getTableTargets).mockResolvedValue([
+            { id: 'rules-1', name: 'BankRating', module: 'Bank', projectId: 'p1' },
+        ])
+        await draw({ table: table('Test') })
+
+        expect(getTableTargets).toHaveBeenCalledWith('p1', 'table-1', 'Claims')
+        expect(screen.getByTestId('table-target-tables')).toHaveTextContent('browser.module.target_table')
+
+        await userEvent.click(screen.getByTestId('table-target-rules-1'))
+
+        // The tested table is opened through the module it is written in, not the one the test sits in.
+        expect(navigate).toHaveBeenCalledWith('/projects/p1/modules/Bank?table=rules-1')
+    })
+
+    it('names every version of a table a test exercises at once', async () => {
+        vi.mocked(getTableTargets).mockResolvedValue([
+            { id: 'rules-1', name: 'BankRating [lob = Banking]' },
+            { id: 'rules-2', name: 'BankRating [lob = Insurance]' },
+        ])
+        await draw({ table: table('Run') })
+
+        expect(screen.getByTestId('table-target-tables')).toHaveTextContent('browser.module.target_tables')
+        expect(screen.getByTestId('table-target-rules-2')).toHaveTextContent('BankRating [lob = Insurance]')
+    })
+
+    it('offers no way into a tested table whose project the session cannot address', async () => {
+        vi.mocked(getTableTargets).mockResolvedValue([
+            { id: 'rules-1', name: 'BankRating', module: 'Bank', project: 'Pricing' },
+        ])
+        await draw({ table: table('Test') })
+
+        expect(screen.getByTestId('table-target-rules-1')).toBeDisabled()
+    })
+
+    it('asks what a table exercises only of a table that exercises something', async () => {
+        await draw({ table: table('Rules') })
+
+        expect(getTableTargets).not.toHaveBeenCalled()
+        expect(screen.queryByTestId('table-target-tables')).toBeNull()
+    })
+
 })

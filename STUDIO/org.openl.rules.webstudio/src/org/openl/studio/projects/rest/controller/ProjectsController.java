@@ -95,6 +95,7 @@ import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.model.tables.TablePropertiesUpdate;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
@@ -555,6 +556,16 @@ public class ProjectsController {
                                              @Parameter(description = "projects.table.get.param.module.desc")
                                              String module) {
         return projectService.getTableTests(project, tableId, module);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/targets")
+    @Operation(summary = "projects.table.targets.summary", description = "projects.table.targets.desc")
+    public List<TableTargetView> getTableTargets(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                 @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                                 @RequestParam(value = "module", required = false)
+                                                 @Parameter(description = "projects.table.get.param.module.desc")
+                                                 String module) {
+        return projectService.getTableTargets(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/properties")
