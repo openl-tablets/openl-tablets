@@ -170,6 +170,35 @@ public class ProjectsController {
         return null;
     }
 
+    /**
+     * Marks the module a write changed to be compiled again, and nothing besides it.
+     *
+     * <p>A write to a table touches one module's workbook, so that module alone is built from it again — the
+     * dependency it stands for is dropped and resolved afresh, which is what the old editor did after every
+     * save.
+     *
+     * <p>Resetting the session instead would drop every module it has compiled, read the whole workspace again
+     * and throw away the compilation the screen is following. On a project of any size that costs a minute for
+     * one changed cell, with every read of the module waiting behind it. A reset belongs to what changes the
+     * project as a whole — a branch, a status, a migration — not to a cell.
+     */
+    private void recompileWrittenModule() {
+        recompileWrittenModule(true);
+    }
+
+    /**
+     * The same, for a write that may have added a module to the project rather than written into one.
+     *
+     * @param intoAModuleOfItsOwn whether the write landed in a module the project already had
+     */
+    private void recompileWrittenModule(boolean intoAModuleOfItsOwn) {
+        if (intoAModuleOfItsOwn) {
+            getWebStudio().recompileCurrentModule();
+        } else {
+            getWebStudio().reset();
+        }
+    }
+
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
         return null;
@@ -444,11 +473,13 @@ public class ProjectsController {
     @ResponseStatus(HttpStatus.CREATED)
     public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                            @Valid @RequestBody CreateNewTableRequest request) throws ProjectException {
-        String tableId;
+        String tableId = null;
         try {
             tableId = projectService.createNewTable(project, request);
         } finally {
-            getWebStudio().reset();
+            // A table written into a module that did not exist before changes what the project is made of, not
+            // just what one module holds, so the session is told to read the project again.
+            recompileWrittenModule(tableId != null);
         }
         var table = (TableView) request.table();
         return projectService.getCreatedTable(project, request.moduleName(), tableId, table.name);
@@ -461,11 +492,11 @@ public class ProjectsController {
     public SummaryTableView copyTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                       @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                       @Valid @RequestBody CopyTableRequest request) throws ProjectException {
-        String copyId;
+        String copyId = null;
         try {
             copyId = projectService.copyTable(project, tableId, request);
         } finally {
-            getWebStudio().reset();
+            recompileWrittenModule(copyId != null);
         }
         // Read the copy back by its own id: a copy kept under the source's name cannot be told apart by name.
         return projectService.getCreatedTable(project, request.moduleName(), copyId, request.name());
@@ -690,7 +721,7 @@ public class ProjectsController {
             var newTableId = projectService.updateTable(project, tableId, editTable);
             return tableWriteResponse(tableId, newTableId);
         } finally {
-            getWebStudio().reset();
+            recompileWrittenModule();
         }
     }
 
@@ -705,7 +736,7 @@ public class ProjectsController {
             var newTableId = projectService.appendTableLines(project, tableId, editTable);
             return tableWriteResponse(tableId, newTableId);
         } finally {
-            getWebStudio().reset();
+            recompileWrittenModule();
         }
     }
 
@@ -720,7 +751,7 @@ public class ProjectsController {
             var newTableId = projectService.editTableSource(project, tableId, List.of(action));
             return tableWriteResponse(tableId, newTableId);
         } finally {
-            getWebStudio().reset();
+            recompileWrittenModule();
         }
     }
 
@@ -735,7 +766,7 @@ public class ProjectsController {
             var newTableId = projectService.editTableSource(project, tableId, actions.actions());
             return tableWriteResponse(tableId, newTableId);
         } finally {
-            getWebStudio().reset();
+            recompileWrittenModule();
         }
     }
 
@@ -750,7 +781,7 @@ public class ProjectsController {
             var newTableId = projectService.updateTableProperties(project, tableId, update.properties());
             return tableWriteResponse(tableId, newTableId);
         } finally {
-            getWebStudio().reset();
+            recompileWrittenModule();
         }
     }
 
@@ -763,7 +794,7 @@ public class ProjectsController {
             projectService.deleteTable(project, tableId);
             return ResponseEntity.noContent().build();
         } finally {
-            getWebStudio().reset();
+            recompileWrittenModule();
         }
     }
 

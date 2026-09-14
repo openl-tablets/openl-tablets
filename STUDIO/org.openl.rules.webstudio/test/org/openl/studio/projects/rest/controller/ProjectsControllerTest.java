@@ -3,8 +3,10 @@ package org.openl.studio.projects.rest.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,12 +33,14 @@ import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TestCaseView;
+import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
@@ -193,6 +197,93 @@ class ProjectsControllerTest {
 
         assertEquals(expected, controller.getTableProperties(project, "table-id"));
         verify(projectService).getTableProperties(project, "table-id");
+    }
+
+    @Test
+    void writingATableCompilesThatModuleAloneRatherThanResettingTheSession() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(1, 1, "Buenos Dias"));
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList())).thenReturn("table-id");
+
+        controller.editTableSource(project, "table-id", action);
+
+        // A write touches one module's workbook. Resetting the session would drop every module compiled from
+        // the workspace and read all of it again, which costs a minute for one changed cell.
+        verify(webStudio).recompileCurrentModule();
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
+    void creatingATableInAModuleOfItsOwnReadsTheProjectAgain() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var table = RawTableView.builder().tableType("RawSource").name("Constants").source(List.of()).build();
+        // A module path rather than a module name: the table goes into a module the project did not have, and
+        // the service says so by answering with no identifier.
+        var request = new CreateNewTableRequest(null, "Rules", "rules/New.xlsx", table);
+        when(projectService.createNewTable(project, request)).thenReturn(null);
+
+        controller.createNewTable(project, request);
+
+        verify(webStudio).reset();
+        verify(webStudio, never()).recompileCurrentModule();
+    }
+
+    @Test
+    void creatingATableInAModuleTheProjectHasCompilesThatModuleAlone() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var table = RawTableView.builder().tableType("RawSource").name("Constants").source(List.of()).build();
+        var request = new CreateNewTableRequest("Main", "Rules", null, table);
+        when(projectService.createNewTable(project, request)).thenReturn("created-id");
+
+        controller.createNewTable(project, request);
+
+        verify(webStudio).recompileCurrentModule();
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
+    void changingTheProjectItselfStillResetsTheSession() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+
+        controller.unlockProject(project);
+
+        verify(webStudio).reset();
+        verify(webStudio, never()).recompileCurrentModule();
+    }
+
+    private static ProjectsController controller(WorkspaceProjectService projectService, WebStudio webStudio) {
+        return new ProjectsController(
+                projectService,
+                mock(TestsExecutorService.class),
+                mock(ExecutionTestsResultRegistry.class),
+                mock(SocketProjectAllTestsExecutionProgressListenerFactory.class),
+                mock(ProjectObjectMapperService.class),
+                mock(ProjectsMergeConflictsSessionHolder.class),
+                mock(ProjectIdentifierMapper.class),
+                mock(ProjectStatusMapper.class),
+                mock(ProjectTablesGraphService.class),
+                mock(RepositoryConfigService.class),
+                mock(ProjectMetadataService.class),
+                mock(ProjectMigrationService.class),
+                mock(ProjectRevisionService.class),
+                mock(TableInputService.class)) {
+            @Override
+            public WebStudio getWebStudio() {
+                return webStudio;
+            }
+        };
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,
