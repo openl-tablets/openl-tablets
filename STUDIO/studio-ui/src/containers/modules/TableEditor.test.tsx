@@ -2,10 +2,12 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
+import { getTableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import { TableEditor } from './TableEditor'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
+vi.mock('../../services/modules', () => ({ getTableEditors: vi.fn() }))
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -47,6 +49,7 @@ const write = async (was: string, becomes: string) => {
 describe('TableEditor', () => {
     beforeEach(() => {
         vi.mocked(applyTableActions).mockResolvedValue('table-1')
+        vi.mocked(getTableEditors).mockResolvedValue({ editors: [], cells: []})
     })
 
     it('opens a cell on a double click and starts editing', async () => {
@@ -83,9 +86,10 @@ describe('TableEditor', () => {
         await userEvent.click(screen.getByTestId('table-edit-save'))
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledTimes(1))
+        // What is sent is the table as the reader left it, so the cells come in the order they stand in.
         expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
-            { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'Buenos Dias' } },
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '6' } },
+            { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'Buenos Dias' } },
         ])
         await waitFor(() => expect(onSaved).toHaveBeenCalledWith('table-1'))
     })
@@ -102,12 +106,39 @@ describe('TableEditor', () => {
         expect(applyTableActions).not.toHaveBeenCalled()
     })
 
-    it('has nothing to save on a table nobody has written to', () => {
+    it('has nothing to save on a table nobody has written to', async () => {
         draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         expect(screen.getByTestId('table-edit-save')).toBeDisabled()
         expect(screen.getByTestId('table-edit-undo')).toBeDisabled()
         expect(screen.getByTestId('table-edit-redo')).toBeDisabled()
+    })
+
+    it('offers the values a cell is chosen from, as the table said when editing started', async () => {
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
+            cells: [{ row: 1, column: 1, editor: 0 }],
+        })
+        draw()
+
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+
+        // The cell holds one of a known set of values, so it is chosen rather than typed.
+        expect(await screen.findByText('Rating 1')).toBeInTheDocument()
+        expect(screen.getByText('Rating 2')).toBeInTheDocument()
+    })
+
+    it('asks how the cells take a value once, however many are opened', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        await userEvent.keyboard('{Escape}')
+        await userEvent.dblClick(screen.getByText('0'))
+
+        expect(getTableEditors).toHaveBeenCalledTimes(1)
     })
 
     it('keeps no band of actions over a table that is only being read', () => {

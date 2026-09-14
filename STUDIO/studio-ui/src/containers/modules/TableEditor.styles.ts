@@ -38,6 +38,12 @@ export const useStyles = createStyles(({ css, token }) => ({
         border-radius: 0;
         font-size: inherit;
     `,
+    /** The open cell: what the value is written with, and the way of writing it beside. */
+    open: css`
+        display: flex;
+        align-items: flex-start;
+        gap: ${token.marginXXS}px;
+    `,
     /** While the table is being edited, a cell reads as something that can be picked. */
     editable: css`
         cursor: cell;

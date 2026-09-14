@@ -592,6 +592,8 @@ export const ModuleWorkspace = () => {
                         formulas={showFormulas}
                         onEditingChange={setEditing}
                         onOpenUsage={openUsage}
+                        maxRows={table.source.length}
+                        moduleName={moduleName}
                         onSaved={tableRewritten}
                         projectId={project.id}
                         rows={rows}
