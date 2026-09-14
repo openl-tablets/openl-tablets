@@ -1,4 +1,3 @@
-import React from 'react'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { RevisionPicker } from './RevisionPicker'
 import { getProjectCompareFiles } from 'services/compare'

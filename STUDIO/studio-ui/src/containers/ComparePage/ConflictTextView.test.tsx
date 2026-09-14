@@ -1,4 +1,3 @@
-import React from 'react'
 import { act, render, screen } from '@testing-library/react'
 import { ConflictTextView } from './ConflictTextView'
 import { getConflictFileText } from 'services/compare'
