@@ -4,7 +4,17 @@ import dayjs from 'dayjs'
 import type { TableCellEditor } from '../../services/modules'
 
 /** How a value is being written, which is not always the way the cell asks for it. */
-export type EditorKind = 'text' | 'multiline' | 'combo' | 'multiselect' | 'numeric' | 'date' | 'boolean' | 'array'
+export type EditorKind =
+    | 'text'
+    | 'multiline'
+    | 'combo'
+    | 'multiselect'
+    | 'numeric'
+    | 'date'
+    | 'boolean'
+    | 'array'
+    /** Entered in a dialog of its own rather than in the cell, so this draws nothing for it. */
+    | 'range'
 
 interface CellValueEditorProps {
     /** The way the value is being written. */
@@ -135,6 +145,9 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     onBlur={onCommit}
                     onChange={entered => onChange(entered == null ? '' : String(entered))}
                     onKeyDown={keys}
+                    // A cell that holds a number takes nothing but a number: anything else is dropped as it is
+                    // typed rather than refused once the reader has finished.
+                    parser={text => (text ?? '').replace(asked?.intOnly ? /[^\d-]/g : /[^\d.eE+-]/g, '')}
                     value={value === '' ? null : value}
                 />
             )
@@ -155,6 +168,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             )
         }
         case 'array':
+        case 'range':
         case 'text':
         default:
             return (

@@ -141,6 +141,25 @@ describe('TableEditor', () => {
         expect(getTableEditors).toHaveBeenCalledTimes(1)
     })
 
+    it('enters a range in a dialog of its own, in the wording OpenL prints', async () => {
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'range', entryEditor: 'double' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('0'))
+        const to = await screen.findByTestId('range-to')
+        await userEvent.type(to, '200')
+        await userEvent.click(screen.getByTestId('range-write'))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '[0..200]' } },
+        ]))
+    })
+
     it('keeps no band of actions over a table that is only being read', () => {
         draw({ editing: false })
 

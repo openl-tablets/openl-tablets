@@ -8,6 +8,7 @@ import { getTableEditors, type TableCellEditor, type TableEditors } from '../../
 import { applyTableActions } from '../../services/tables'
 import type { RawCellStyleInput, RawTableCell } from 'types/tables'
 import { CellValueEditor, type EditorKind } from './CellValueEditor'
+import { RangeDialog } from './RangeDialog'
 import { TableEditToolbar } from './TableEditToolbar'
 import { useStyles } from './TableEditor.styles'
 import {
@@ -25,7 +26,9 @@ import {
 } from './tableEdits'
 
 /** The editors this screen draws; a cell asking for anything else is written as plain text. */
-const DRAWN: ReadonlySet<string> = new Set(['combo', 'multiselect', 'numeric', 'date', 'boolean', 'array'])
+const DRAWN: ReadonlySet<string> = new Set([
+    'combo', 'multiselect', 'numeric', 'date', 'boolean', 'array', 'range',
+])
 
 interface TableEditorProps {
     projectId: string
@@ -187,16 +190,30 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (draft.includes('\n')) {
             return 'multiline'
         }
+        const editor = ownKind(at)
+        return editor ?? 'text'
+    }
+
+    /**
+     * The way the cell asks to be written, or null when it asks for nothing of its own.
+     *
+     * <p>A cell whose type is a range is written as a range even where its text is not one yet — the table says
+     * so only once the text parses, and a reader filling in an empty bound needs the dialog before that.
+     */
+    const ownKind = (at: CellAt): EditorKind | null => {
         const editor = askedAt(at.row, at.column)?.editor
-        return editor !== undefined && DRAWN.has(editor) ? editor as EditorKind : 'text'
+        if (editor !== undefined && DRAWN.has(editor)) {
+            return editor as EditorKind
+        }
+        return (rows[at.row]?.[at.column]?.metaInfo?.type ?? '').endsWith('Range') ? 'range' : null
     }
 
     /** The other ways this cell can be written, which the reader picks from beside it. */
     const switches = (at: CellAt, current: EditorKind) => {
-        const own = askedAt(at.row, at.column)?.editor
+        const own = ownKind(at)
         const others: EditorKind[] = ['multiline', 'text']
-        if (own !== undefined && DRAWN.has(own)) {
-            others.unshift(own as EditorKind)
+        if (own !== null) {
+            others.unshift(own)
         }
         return others
             .filter(other => other !== current)
@@ -212,6 +229,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         const at = { row, column }
         if (sameCell(open, at)) {
             const kind = kindOf(at)
+            if (kind === 'range') {
+                // The bounds are entered in a dialog, so the cell itself keeps showing what it holds.
+                return undefined
+            }
             return {
                 painted: true,
                 content: (
@@ -281,6 +302,19 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     }}
                 />
             )}
+            <RangeDialog
+                intOnly={open === null ? undefined : askedAt(open.row, open.column)?.entryEditor === 'integer'}
+                onCancel={() => closeCell(false)}
+                open={open !== null && kindOf(open) === 'range'}
+                value={draft}
+                onWrite={value => {
+                    const at = open
+                    setOpen(null)
+                    if (at !== null && value !== String(written[at.row]?.[at.column]?.value ?? '')) {
+                        step({ kind: 'value', at, value })
+                    }
+                }}
+            />
             <RawTableGrid
                 decorate={decorate}
                 formulas={formulas}
