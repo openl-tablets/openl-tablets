@@ -364,11 +364,26 @@ describe('TableToolbar', () => {
         expect(screen.getByTestId('table-target-rules-1')).toBeDisabled()
     })
 
-    it('asks what a table exercises only of a table that exercises something', async () => {
-        await draw({ table: table('Rules') })
-
+    it('asks one question per table, and only the one that can be answered', async () => {
+        // A table the rules can call is covered by tests; it exercises nothing.
+        const { unmount } = await draw({ table: table('Rules') })
+        expect(getTableTests).toHaveBeenCalledTimes(1)
         expect(getTableTargets).not.toHaveBeenCalled()
         expect(screen.queryByTestId('table-target-tables')).toBeNull()
+        unmount()
+        vi.mocked(getTableTests).mockClear()
+
+        // A test exercises a table; nothing covers it.
+        const { unmount: unmountTest } = await draw({ table: table('Test') })
+        expect(getTableTargets).toHaveBeenCalledTimes(1)
+        expect(getTableTests).not.toHaveBeenCalled()
+        unmountTest()
+        vi.mocked(getTableTargets).mockClear()
+
+        // A datatype is neither, and the server is asked nothing at all.
+        await draw({ table: table('Datatype') })
+        expect(getTableTests).not.toHaveBeenCalled()
+        expect(getTableTargets).not.toHaveBeenCalled()
     })
 
 })

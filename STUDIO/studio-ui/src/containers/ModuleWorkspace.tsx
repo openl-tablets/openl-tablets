@@ -133,6 +133,8 @@ export const ModuleWorkspace = () => {
     const [tableError, setTableError] = useState<string | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
     const [cancelling, setCancelling] = useState(false)
+    /** Whether the project has compiled through since this module was opened; see the effects below. */
+    const [projectCompiled, setProjectCompiled] = useState(false)
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
@@ -285,6 +287,22 @@ export const ModuleWorkspace = () => {
         }
     }, [moduleName, navigate, projectId, reopenRevision, selectedId])
 
+    // A test covering this module's tables may be written in another one, so what covers them is only known
+    // once the project's compilation has finished — however it finished.
+    //
+    // Held once it is true: the status says "compiled" as each module finishes and "compiling" again while the
+    // next is built, and a screen that asks the server on this answer would ask again on every flip. Compiling
+    // this module afresh is what makes the question open again.
+    useEffect(() => {
+        setProjectCompiled(false)
+    }, [moduleName, reloadToken])
+
+    useEffect(() => {
+        if (isCompiled(compilation.state)) {
+            setProjectCompiled(true)
+        }
+    }, [compilation.state])
+
     // A table that is gone leaves the screen on the module it was written in, which opens on its first table.
     const tableRemoved = useCallback(() => {
         reopenRevision()
@@ -421,9 +439,6 @@ export const ModuleWorkspace = () => {
 
     const modulePath = modules.find(declared => declared.name === moduleName)?.path
     const testCount = compilation.tests
-    // A test covering this module's tables may be written in another one, so what covers them is only known
-    // once the project's compilation has finished — however it finished.
-    const projectCompiled = isCompiled(compilation.state)
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && !!project.branch
 
     const crumbs = (

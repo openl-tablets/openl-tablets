@@ -189,6 +189,12 @@ export const TableToolbar = ({
     const named = useRef<string | null>(null)
 
     useEffect(() => {
+        // Only a table the rules can call is covered by tests; a test table of its own, a datatype or a data
+        // table is covered by none, and the server is not asked about them.
+        if (!EXECUTABLE_KINDS.includes(table.kind)) {
+            setTests([])
+            return
+        }
         let dropped = false
         // What the table before it was covered by is none of this table's business while the answer is on
         // its way.
@@ -209,7 +215,7 @@ export const TableToolbar = ({
         }
         // A test is a table of its own and may be written in another module, so what covers this one is known
         // once the project is compiled through. The list is read again then, rather than staying as it was.
-    }, [projectId, table.id, moduleName, projectCompiled])
+    }, [projectId, table.id, table.kind, moduleName, projectCompiled])
 
     // A test says which table it is written against, so a reader arrives at the rules from the test as easily
     // as they reach the test from the rules. Nothing else exercises anything, and nothing is asked for it.

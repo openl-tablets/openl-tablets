@@ -57,7 +57,23 @@ export const useModuleCompilation = (
     // which on a project that compiles in a moment means hearing nothing at all.
     const status = useLiveProjectStatus(projectId, branch, enabled, initial, initialReadAt)
     const compiledModules = modulesOf(status)?.compiledModules
-    const ready = (compiledModules ?? []).includes(moduleName)
+    const named = (compiledModules ?? []).includes(moduleName)
+    // A module named as compiled stays compiled. A compilation reports its progress many times a second, and a
+    // progress report carries only what it could read without waiting — often not the names — so a screen
+    // reading this answer alone would open on the module and close again with the next report. Compiling this
+    // module afresh is what makes the question open again.
+    const [wasReady, setWasReady] = useState(false)
+    const ready = wasReady || named
+
+    useEffect(() => {
+        setWasReady(false)
+    }, [projectId, branch, moduleName, reloadToken])
+
+    useEffect(() => {
+        if (named) {
+            setWasReady(true)
+        }
+    }, [named])
 
     // Asked for once per module, and once more for every refresh. Re-asking on each pushed status would restart
     // the very compilation the pushes are reporting on, and the session compiles one module at a time.
