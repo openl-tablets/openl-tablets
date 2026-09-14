@@ -179,6 +179,14 @@ export interface ModuleTable extends ProjectTable {
     projectId?: string
 }
 
+/**
+ * Whether the table can be run as it stands, and how far a run of it may reach.
+ *
+ * A table the compiler could not build runs nothing, and neither does a test whose rules failed; where only
+ * the open module is built, or what is built beyond it has errors, a run stays inside that module.
+ */
+export type TableRunState = 'can-run' | 'can-run-module' | 'cannot-run'
+
 /** A table in raw tabular form: a 2D matrix of cells with merge geometry. */
 export interface RawTableView {
     id: string
@@ -191,6 +199,8 @@ export interface RawTableView {
     headerHeight?: number
     /** What the compiler said about this table — the errors and warnings it raised, if any */
     messages?: ProjectStatusDetailedMessage[]
+    /** Whether the table can be run, and how far; absent while the read that carries it is on its way. */
+    runState?: TableRunState
 }
 
 /** One field a Datatype table declares. */

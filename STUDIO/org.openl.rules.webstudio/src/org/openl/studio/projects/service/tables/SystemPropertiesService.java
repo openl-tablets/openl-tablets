@@ -36,6 +36,24 @@ public class SystemPropertiesService {
      * @return the properties to write, in the order they are declared; empty when nothing is recorded
      */
     public Map<String, Object> onCreate() {
+        return stamped(SystemValuePolicy.IF_BLANK_ONLY);
+    }
+
+    /**
+     * What a table is stamped with whenever it is edited: who edited it and when.
+     *
+     * <p>Only the properties recorded on every edit are stamped — the ones recorded once belong to a creation.
+     * Nothing is stamped while the administrator has turned the recording off, and the author is left out of a
+     * single-user installation, where there is only one.
+     *
+     * @return the properties to write, in the order they are declared; empty when nothing is recorded
+     */
+    public Map<String, Object> onEdit() {
+        return stamped(SystemValuePolicy.ON_EACH_EDIT);
+    }
+
+    /** The system properties recorded under the given policy, valued as of now. */
+    private Map<String, Object> stamped(SystemValuePolicy policy) {
         if (!Boolean.TRUE.equals(
                 environment.getProperty(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES, Boolean.class))) {
             return Map.of();
@@ -45,7 +63,7 @@ public class SystemPropertiesService {
                 environment.getProperty(AuthenticationSettings.USER_MODE));
         var stamped = new LinkedHashMap<String, Object>();
         for (TablePropertyDefinition definition : TablePropertyDefinitionUtils.getSystemProperties()) {
-            var value = valueOf(definition, singleUser);
+            var value = valueOf(definition, singleUser, policy);
             if (value != null) {
                 stamped.put(definition.getName(), value);
             }
@@ -53,10 +71,10 @@ public class SystemPropertiesService {
         return stamped;
     }
 
-    /** The value the property is stamped with, or {@code null} when it is not one a creation records. */
-    private static Object valueOf(TablePropertyDefinition definition, boolean singleUser) {
+    /** The value the property is stamped with, or {@code null} when it is not one that policy records. */
+    private static Object valueOf(TablePropertyDefinition definition, boolean singleUser, SystemValuePolicy policy) {
         var descriptor = definition.getSystemValueDescriptor();
-        if (definition.getSystemValuePolicy() != SystemValuePolicy.IF_BLANK_ONLY
+        if (definition.getSystemValuePolicy() != policy
                 || (singleUser && SystemValuesManager.CURRENT_USER_DESCRIPTOR.equals(descriptor))) {
             return null;
         }

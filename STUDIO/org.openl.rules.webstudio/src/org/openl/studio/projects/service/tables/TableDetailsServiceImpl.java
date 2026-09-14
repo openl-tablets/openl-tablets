@@ -29,6 +29,10 @@ import org.openl.studio.projects.model.tables.TablePropertyGroupView;
  * <p>Values are answered as the rest of the table API writes them — a date in ISO-8601, everything else through
  * the formatter its type declares — so the reader shows them in its own format.
  *
+ * <p>The answer also says what may be written: whether this kind of table carries properties at all, and which
+ * properties it may still be given — the ones its kind accepts, less the ones it already shows. A value already
+ * shown is changed where it stands, which writes it onto the table.
+ *
  * @author Vladyslav Pikus
  */
 @Service
@@ -39,7 +43,7 @@ public class TableDetailsServiceImpl implements TableDetailsService {
         var details = TableDetailsView.builder().name(table.getDisplayName());
         var properties = table.getProperties();
         if (!table.isCanContainProperties() || properties == null) {
-            return details.groups(List.of()).build();
+            return details.groups(List.of()).available(List.of()).build();
         }
         var byGroup = new LinkedHashMap<String, List<TablePropertyDetailView>>();
         for (TablePropertyDefinition definition : TablePropertyDefinitionUtils
@@ -52,7 +56,10 @@ public class TableDetailsServiceImpl implements TableDetailsService {
         return details.groups(byGroup.entrySet()
                 .stream()
                 .map(group -> TablePropertyGroupView.builder().name(group.getKey()).properties(group.getValue()).build())
-                .toList()).build();
+                .toList())
+                .canEditProperties(TablePropertyRules.canEditProperties(table))
+                .available(TablePropertyRules.available(table, properties))
+                .build();
     }
 
     /**
@@ -65,7 +72,7 @@ public class TableDetailsServiceImpl implements TableDetailsService {
                                                           ITableProperties properties) {
         var name = definition.getName();
         var value = properties.getPropertyValue(name);
-        if (value == null || !isDeclared(name, properties)) {
+        if (value == null || !TablePropertyRules.isDeclared(name, properties)) {
             return null;
         }
         var level = properties.getPropertyLevelDefinedOn(name);
@@ -77,14 +84,6 @@ public class TableDetailsServiceImpl implements TableDetailsService {
                 .inheritedFrom(inheritance)
                 .inheritedTableId(inheritance == null ? null : inheritedTableId(level, properties))
                 .build();
-    }
-
-    private static boolean isDeclared(String name, ITableProperties properties) {
-        return properties.getTableProperties().containsKey(name)
-                || properties.getCategoryProperties().containsKey(name)
-                || properties.getModuleProperties().containsKey(name)
-                || properties.getGlobalProperties().containsKey(name)
-                || properties.getExternalProperties().containsKey(name);
     }
 
     /** The properties table a value is inherited from, so a reader can open it. */

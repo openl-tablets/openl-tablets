@@ -19,14 +19,21 @@ const compiling = (compiled: number, total: number, ...names: string[]): Project
     compilation: { modules: { compiled, total, compiledModules: names } },
 })
 
-const Probe = ({ initial, reloadToken, branch, enabled }: {
+const Probe = ({ initial, reloadToken, branch, enabled, module }: {
     initial?: ProjectStatusUpdate | null
     reloadToken?: number
     branch?: string | null
     enabled?: boolean
+    module?: string
 }) => {
     const { ready, compiled, total, failure, tests } = useModuleCompilation(
-        'p1', branch === undefined ? 'main' : branch, 'Claims', initial ?? null, 0, reloadToken, enabled ?? true
+        'p1',
+        branch === undefined ? 'main' : branch,
+        module ?? 'Claims',
+        initial ?? null,
+        0,
+        reloadToken,
+        enabled ?? true
     )
     return (
         <span data-testid="state">
@@ -106,6 +113,20 @@ describe('useModuleCompilation', () => {
         expect(getByTestId('state').textContent?.trim()).toEqual('ready 4/12 - tests:0')
     })
 
+    it('keeps a module compiled once the channel has named it, whatever the next report carries', async () => {
+        const push = captureUpdates()
+        const { getByTestId } = render(<Probe />)
+
+        push(compiling(12, 12, 'Claims'))
+        expect(getByTestId('state')).toHaveTextContent('ready')
+
+        // A progress report carries only what the compiling thread could read without waiting, and often not
+        // the names. The editor must not close on the module it just opened.
+        push(compiling(12, 12))
+
+        expect(getByTestId('state')).toHaveTextContent('ready')
+    })
+
     it('asks for no compilation when the module is already compiled', async () => {
         captureUpdates()
         const { getByTestId } = render(<Probe initial={compiling(12, 12, 'Claims')} />)
@@ -123,6 +144,21 @@ describe('useModuleCompilation', () => {
 
         // A refresh builds the module again from the workbook rather than keeping what is compiled.
         expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', true)
+    })
+
+    it('asks for a refresh once, however often the reader comes back to that module', async () => {
+        captureUpdates()
+        const compiled = compiling(12, 12, 'Claims')
+        const { rerender } = render(<Probe initial={compiled} module="Claims" reloadToken={1} />)
+        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', true)
+
+        // Another module is read, and then the reader comes back to the one they refreshed. The refresh is
+        // not asked for again: it would rebuild that module from its workbook on every round trip.
+        rerender(<Probe initial={compiled} module="Pricing" reloadToken={0} />)
+        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Pricing', false)
+        rerender(<Probe initial={compiled} module="Claims" reloadToken={1} />)
+
+        expect(startModuleCompilation).toHaveBeenCalledTimes(2)
     })
 
     it('asks once, however many statuses arrive', async () => {

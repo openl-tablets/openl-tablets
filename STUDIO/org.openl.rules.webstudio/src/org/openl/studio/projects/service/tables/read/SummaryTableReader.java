@@ -143,10 +143,9 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
             return;
         }
         var headerSource = header.getSourceString();
-        var pos = ExecutableTableReader.rollWhitespaces(headerSource, 0);
-        pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
-        pos = ExecutableTableReader.rollWhitespaces(headerSource, pos);
-        var rest = headerSource.substring(pos).trim();
+        // The word naming the kind is read the way a method header reads its own first word, and what follows
+        // it is the line.
+        var rest = headerSource.substring(ExecutableTableReader.readIdentifier(headerSource, 0).pos()).trim();
         if (!rest.isEmpty()) {
             builder.signature(rest);
         }

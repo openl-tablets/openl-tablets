@@ -90,6 +90,36 @@ class RawTableWriterTest {
     }
 
     @Test
+    void appliesActionsInTheOrderGivenEachSeeingWhatThePreviousLeft() {
+        apply(List.of(
+                insertRow(1, row("long", "id", "epsilon")),
+                updateCell(2, 2, "alpha-2"),
+                deleteRow(3)));
+
+        var source = reload(mainProject);
+        // one row added and one taken away, so the table is back to the height it started at
+        assertEquals(4, source.size());
+        assertEquals("id", value(source, 1, 1));
+        // the update addressed the row the insert had shifted down, not the one that stood there before it
+        assertEquals("code", value(source, 2, 1));
+        assertEquals("alpha-2", value(source, 2, 2));
+        // and the delete took the row the insert had shifted to index 3
+        assertEquals("hour", value(source, 3, 1));
+    }
+
+    @Test
+    void writesNothingWhenAnActionOfTheSequenceIsRefused() {
+        assertBadRequest(List.of(
+                updateCell(1, 2, "alpha-2"),
+                deleteRow(9)));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size());
+        // the edit that was accepted is not saved either: the sequence is one change
+        assertEquals("alpha", value(source, 1, 2));
+    }
+
+    @Test
     void deletesRow() {
         apply(deleteRow(1));
 
@@ -842,6 +872,10 @@ class RawTableWriterTest {
         new RawTableWriter(load(mainProject)).apply(action);
     }
 
+    private void apply(List<RawTableSourceAction> actions) {
+        new RawTableWriter(load(mainProject)).apply(actions);
+    }
+
     private void apply(Path project, RawTableSourceAction action) {
         new RawTableWriter(load(project)).apply(action);
     }
@@ -863,6 +897,10 @@ class RawTableWriterTest {
 
     private void assertBadRequest(RawTableSourceAction action) {
         assertThrows(BadRequestException.class, () -> apply(action));
+    }
+
+    private void assertBadRequest(List<RawTableSourceAction> actions) {
+        assertThrows(BadRequestException.class, () -> apply(actions));
     }
 
     private void assertBadRequest(Path project, RawTableSourceAction action) {

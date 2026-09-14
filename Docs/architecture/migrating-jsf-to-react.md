@@ -379,6 +379,29 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a
   module means.
+- **A property is written where it is read, and the table's body stays out of it.** Table Details is the one
+  place a property is edited, so it writes through a resource of its own —
+  `PATCH /projects/{id}/tables/{tableId}/properties` — carrying only the values that changed: a property with a
+  value is written, one with none is taken away, and a property the request does not name is left alone. Going
+  through the table-edit API instead would send the whole table back to change one cell of its header, and a
+  table of ten thousand rows would cross the wire twice for a description. The properties section is the only
+  part of the sheet the write touches (`TableEditorModel.setProperty`, as the legacy panel did it), and who
+  edited the table is recorded there as it is for any other edit. What may be written is the server's to say:
+  the details answer carries whether this kind of table carries properties at all and which properties it may
+  still be given — its kind's, at table level, less the ones it already shows — because a property the kind does
+  not accept is a compile error, not a preference. An inherited value is changed where it stands and lands as
+  the table's own, which is what the Editor's own panel did.
+- **A dialog that already writes a table is the dialog the editor opens.** Creating a table, copying one and
+  writing a test for one are the three dialogs the legacy Editor dispatched to (`openCreateTableModal`,
+  `openCopyTableModal`), mounted once in the layout and told in the event where to write and what to do with
+  what they wrote — so the editor adds a button, not a form. What may be asked of them is the rule the legacy
+  page rendered by, kept where the answer is: the project says whether the reader may write to it at all
+  (`canWrite`, the same capability for the module's row of actions and the table's band), and the table says
+  what it supports — a datatype, or a table that carries no properties of its own, has nothing to be copied
+  into, and a test is written only against a table the rules can call that answers with something, which is
+  exactly the list the create dialog offers as a target. Removing a table needs no dialog:
+  `DELETE /projects/{id}/tables/{tableId}` was already there, so the band asks first and then compiles the
+  module again — a table is in the list only once the workbook is read again.
 - When such work is shown in a window of its own, let **the new window start it**, telling it what to do in
   the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
   window afterwards opens it after an `await`, when the click no longer counts as user activation and a

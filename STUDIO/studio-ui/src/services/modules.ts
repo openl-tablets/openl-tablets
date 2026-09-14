@@ -92,11 +92,21 @@ export const TABLE_PAGE_ROWS = 120
 export const getRawTable = async (
     projectId: string,
     tableId: string,
-    options: { module?: string, startRow?: number, maxRows?: number, metaInfo?: boolean } = {}
+    options: {
+        module?: string
+        startRow?: number
+        maxRows?: number
+        metaInfo?: boolean
+        /** Ask what the table is as something to run: the editor offers Run and Trace on the answer. */
+        runState?: boolean
+    } = {}
 ): Promise<RawTableView> => {
     const params = new URLSearchParams({ raw: 'true', styles: 'true' })
     if (options.metaInfo) {
         params.set('metaInfo', 'true')
+    }
+    if (options.runState) {
+        params.set('runState', 'true')
     }
     if (options.module !== undefined) {
         params.set('module', options.module)
@@ -141,6 +151,37 @@ export const getTableTests = async (projectId: string, tableId: string, module?:
         undefined,
         LOCAL_LOAD_API_OPTIONS
     ) as TableTest[] | null)
+
+/** A table that a test or a run table exercises. */
+export interface TableTarget {
+    id: string
+    /** Name it is known by, with the dimension properties that tell this version of it from the others. */
+    name: string
+    /** Module the tested table is written in, which need not be the one the test is in. */
+    module?: string
+    /** Name of the project that module belongs to. */
+    project?: string
+    /** Identifier of that project; absent when the session cannot address it, and then it cannot be opened. */
+    projectId?: string
+}
+
+/**
+ * The tables the given test or run table exercises.
+ *
+ * Each says where it is written, because a test may be written against a table of another module or of a project
+ * this one depends on. A table of any other kind exercises nothing and answers with an empty list.
+ */
+export const getTableTargets = async (
+    projectId: string,
+    tableId: string,
+    module?: string
+): Promise<TableTarget[]> =>
+    asArray(await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/targets`
+        + (module === undefined ? '' : `?module=${encodeURIComponent(module)}`),
+        undefined,
+        LOCAL_LOAD_API_OPTIONS
+    ) as TableTarget[] | null)
 
 /** How wide a search reaches, as the Tables API names it. */
 export type TableSearchScope = 'module' | 'project' | 'all'
@@ -214,10 +255,14 @@ export interface TablePropertyGroup {
     properties: TablePropertyDetail[]
 }
 
-/** What a table says about itself besides its cells. */
+/** What a table says about itself besides its cells, and what may still be written on it. */
 export interface TableDetails {
     name: string
     groups: TablePropertyGroup[]
+    /** Whether this kind of table carries properties at all; one that does not is never edited here. */
+    canEditProperties: boolean
+    /** Names of the properties the table may still be given — what it already shows is changed where it stands. */
+    available: string[]
 }
 
 /**
@@ -239,5 +284,10 @@ export const getTableDetails = async (
         LOCAL_LOAD_API_OPTIONS
     ) as TableDetails | null
     // A table with nothing to say about itself answers without the list at all.
-    return { name: read?.name ?? '', groups: asArray(read?.groups) }
+    return {
+        name: read?.name ?? '',
+        groups: asArray(read?.groups),
+        canEditProperties: read?.canEditProperties ?? false,
+        available: asArray(read?.available),
+    }
 }

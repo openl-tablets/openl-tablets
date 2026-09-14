@@ -2,6 +2,7 @@ import { useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge, Button, Dropdown, Modal, Space, Tooltip } from 'antd'
 import { DownOutlined, ExperimentOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import type { SummaryTable } from 'types/tables'
 import type { Project } from '../../types/projects'
 import { supportsRevisionSearch } from '../../utils/repositoryFeatures'
 import { LocalChangesView } from '../projects/LocalChangesView'
@@ -13,9 +14,6 @@ import { useProjectDialogs, type ProjectDialogActions } from '../projects/usePro
 
 /** The history and the local changes are read in a window over the module, not on a screen of their own. */
 const DIALOG_BODY = { body: { maxHeight: '70vh', overflow: 'auto' } }
-
-/** The actions that arrive with the editing phase; they stand in their old places, saying so. */
-const PLANNED = ['createTable'] as const
 
 /** The project's own actions the editor offers, in the order the old Editor kept them. */
 const PROJECT_LEVEL: Array<keyof ProjectDialogActions> = ['save', 'sync', 'deploy', 'copy']
@@ -39,15 +37,17 @@ interface ModuleActionBarProps {
     onRevisionOpened?: (() => void) | undefined
     /** An action that changed the project — a save, a copy, a sync, a new workbook — is read back. */
     onProjectChanged?: (() => void) | undefined
+    /** A table written from this row, and the module it landed in, so the editor can open it. */
+    onTableCreated?: ((written: SummaryTable, moduleName: string) => void) | undefined
 }
 
 /**
  * What can be done to the open module, in the place the project's own actions sit — arranged as the old Editor
  * arranged them, so the row reads the same.
  *
- * Exporting the module, running its tests and the More menu are answered here; the rest belong to editing and
- * stand disabled, naming the phase they arrive with. What can be done to the table on screen belongs to the
- * table, and stands in a band above it.
+ * Exporting the module, running its tests, writing a new table and the More menu are answered here; the
+ * project's own actions are offered exactly as its own screen offers them. What can be done to the table on
+ * screen belongs to the table, and stands in a band above it.
  */
 export const ModuleActionBar = ({
     project,
@@ -58,6 +58,7 @@ export const ModuleActionBar = ({
     projectCompiled = false,
     onRevisionOpened,
     onProjectChanged,
+    onTableCreated,
 }: ModuleActionBarProps) => {
     const { t } = useTranslation('repository')
     const [revisionsOpen, setRevisionsOpen] = useState(false)
@@ -68,14 +69,9 @@ export const ModuleActionBar = ({
     // The old Editor let a module's workbook be replaced from this row; the dialog it opens is the one the
     // Files tab uses, restricted to Excel.
     const canUpdateModule = !!project.capabilities?.canWrite && !!modulePath
-
-    const planned = (key: string) => (
-        <Tooltip key={key} title={t('browser.module.planned')}>
-            <Button disabled data-testid={`module-${key}`} icon={<PlusOutlined />}>
-                {t(`browser.module.${key}`)}
-            </Button>
-        </Tooltip>
-    )
+    // Writing a table into the project is the project's own right, so it is offered by the same capability
+    // the Files tab writes by.
+    const canWrite = !!project.capabilities?.canWrite
 
     // The panel of EPBDS-16560 answers this: it runs the project's tests, with the choice of only this
     // module's — which is the only choice left while the rest of the project is still being compiled.
@@ -166,7 +162,22 @@ export const ModuleActionBar = ({
                     <Badge color="blue" count={testCount} data-testid="module-test-count" />
                 )}
             </Button>
-            {planned(PLANNED[0])}
+            {canWrite && (
+                <Button
+                    data-testid="module-createTable"
+                    disabled={disabled}
+                    icon={<PlusOutlined />}
+                    onClick={() => window.dispatchEvent(new CustomEvent('openCreateTableModal', {
+                        detail: {
+                            projectId: project.id,
+                            currentModuleName: moduleName,
+                            onSuccess: onTableCreated,
+                        },
+                    }))}
+                >
+                    {t('browser.module.createTable')}
+                </Button>
+            )}
             <Dropdown
                 disabled={disabled}
                 menu={{ items: more, onClick: ({ key }) => chooseMore(key) }}
@@ -204,7 +215,14 @@ export const ModuleActionBar = ({
                 title={t('browser.module.local_changes')}
                 width={900}
             >
-                <LocalChangesView moduleName={moduleName} projectId={project.id} />
+                <LocalChangesView
+                    moduleName={moduleName}
+                    onRestored={() => {
+                        setLocalChangesOpen(false)
+                        onRevisionOpened?.()
+                    }}
+                    projectId={project.id}
+                />
             </Modal>
             {dialogs}
         </Space>

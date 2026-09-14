@@ -44,6 +44,9 @@ export const useDragSize = (storageKey: string, edge: ResizeEdge, { min, max, fa
 
     const startResize = useCallback((event: ReactPointerEvent<HTMLHRElement>) => {
         event.preventDefault()
+        // A drag whose pointerup never arrived is still listening on the window; it ends here rather than
+        // being left bound for the life of the page, resizing the panel on every move of the mouse.
+        endDrag.current()
         const panel = (event.currentTarget.parentElement ?? event.currentTarget).getBoundingClientRect()
         const bounded = (moved: PointerEvent) => Math.min(max, Math.max(min, Math.round(sizeAt(edge, panel, moved))))
         const resize = (moved: PointerEvent) => setSize(bounded(moved))

@@ -19,7 +19,13 @@ vi.mock('../projects/RevisionsPanel', () => ({
     RevisionsPanel: ({ projectId }: { projectId: string }) => <div data-testid="revisions-panel">{projectId}</div>,
 }))
 
-vi.mock('../projects/LocalChangesView', () => ({ LocalChangesView: () => <div data-testid="local-changes-view" /> }))
+vi.mock('../projects/LocalChangesView', () => ({
+    LocalChangesView: ({ onRestored }: { onRestored?: () => void }) => (
+        <div data-testid="local-changes-view">
+            <button data-testid="local-changes-restored" onClick={() => onRestored?.()} type="button" />
+        </div>
+    ),
+}))
 
 vi.mock('../execution/TestsResultModal', () => ({ TestsResultModal: () => <div data-testid="tests-result" /> }))
 
@@ -128,6 +134,37 @@ describe('ModuleActionBar', () => {
             .toMatchObject({ projectId: 'p1', modulePath: 'rules/Claims.xlsx' })
     })
 
+    it('writes a new table into the module, through the dialog that builds it', async () => {
+        const opened = vi.fn()
+        window.addEventListener('openCreateTableModal', opened)
+        const onTableCreated = vi.fn()
+        render(
+            <ModuleActionBar
+                moduleName="Claims"
+                onTableCreated={onTableCreated}
+                project={project({ canWrite: true } as Project['capabilities'])}
+            />
+        )
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        await userEvent.click(screen.getByTestId('module-createTable'))
+
+        window.removeEventListener('openCreateTableModal', opened)
+        const { detail } = opened.mock.calls[0]?.[0] as CustomEvent
+        // The module being read is where the table lands, unless the dialog is told otherwise.
+        expect(detail).toMatchObject({ projectId: 'p1', currentModuleName: 'Claims' })
+        detail.onSuccess({ id: 'new-1' }, 'Claims')
+        expect(onTableCreated).toHaveBeenCalledWith({ id: 'new-1' }, 'Claims')
+    })
+
+    it('offers no new table to a reader who may not write to the project', async () => {
+        await bar()
+
+        expect(screen.queryByTestId('module-createTable')).toBeNull()
+    })
+
     it('reads the project history in a window rather than on the project screen', async () => {
         await bar()
 
@@ -137,6 +174,28 @@ describe('ModuleActionBar', () => {
         expect(await screen.findByTestId('revisions-panel')).toHaveTextContent('p1')
         // Leaving the editor for the project screen would take the reader away from the module they are reading.
         expect(navigate).not.toHaveBeenCalled()
+    })
+
+    it('reads the module again once a version has been restored from the local changes', async () => {
+        const onRevisionOpened = vi.fn()
+        render(
+            <ModuleActionBar
+                moduleName="Claims"
+                onRevisionOpened={onRevisionOpened}
+                project={project({ canViewHistory: true } as Project['capabilities'])}
+            />
+        )
+        await act(async () => {
+            await Promise.resolve()
+        })
+        await userEvent.click(screen.getByTestId('module-more'))
+        await userEvent.click(await screen.findByText('browser.module.local_changes'))
+
+        await userEvent.click(await screen.findByTestId('local-changes-restored'))
+
+        // The workbook is another version now, so the module is read from it again — which is what the
+        // editor was missing: only a reload of the page used to show the restored version.
+        expect(onRevisionOpened).toHaveBeenCalledTimes(1)
     })
 
     it('offers no history to a reader who may not read it', async () => {

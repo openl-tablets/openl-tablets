@@ -1334,6 +1334,20 @@ public class ProjectModel {
         setModuleInfo(moduleInfo, ReloadType.NO);
     }
 
+    /**
+     * Whether the two describe the same module of the same project.
+     *
+     * <p>Compared by what they name rather than by being the same object: the project descriptors are resolved
+     * again whenever the workspace is refreshed, so the module a request asks for is a new object every time —
+     * and taking it for another module would compile the open one again on every read.
+     */
+    static boolean isSameModule(Module one, Module other) {
+        return one != null && other != null
+                && Objects.equals(one.getName(), other.getName())
+                && Objects.equals(one.getRulesRootPath(), other.getRulesRootPath())
+                && Objects.equals(one.getProject().getName(), other.getProject().getName());
+    }
+
     private void addCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
@@ -1369,7 +1383,7 @@ public class ProjectModel {
     }
 
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
-        if (moduleInfo == null || this.moduleInfo == moduleInfo && reloadType == ReloadType.NO) {
+        if (moduleInfo == null || reloadType == ReloadType.NO && isSameModule(this.moduleInfo, moduleInfo)) {
             return;
         }
 
@@ -1451,6 +1465,15 @@ public class ProjectModel {
             this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
                 Throwable failure = null;
                 synchronized (this) {
+                    if (compilationCancelled) {
+                        // The reader stopped the compilation while this load was on its way. What was built
+                        // stays as it is — the module they have open above all: validating the project now
+                        // would go through a dependency manager that answers every module with an
+                        // interruption, and the empty class it returns would replace both. The project is not
+                        // marked as compiled through either, because it is not.
+                        this.compilationInProgress = false;
+                        return;
+                    }
                     try {
                         this.compiledOpenClass = this.validate(projectDescriptor);
                         XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
