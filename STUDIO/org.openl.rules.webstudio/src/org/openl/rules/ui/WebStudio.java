@@ -521,6 +521,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
         publishWorkspaceReset();
     }
 
+    /**
+     * Whether a write changed a module the session has not built from the changed workbook yet.
+     *
+     * <p>What it compiled before the write was worked out from the workbook as it stood then, so it answers for
+     * nothing now: a screen asking how the project stands is told the module is waiting to be compiled rather
+     * than what the workbook used to say.
+     */
+    public synchronized boolean isAwaitingRecompile() {
+        return rewrittenModule != null;
+    }
+
     /** Tells the session's caches that what they hold was worked out from a workbook that has since changed. */
     private void publishWorkspaceReset() {
         if (eventPublisher == null) {
