@@ -1,0 +1,55 @@
+name: Skip OpenL Tests for documentation
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: read
+  statuses: write
+
+concurrency:
+  group: skip-openl-tests-docs-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  classify:
+    name: Classify documentation-only change
+    runs-on: ubuntu-latest
+
+    steps:
+      # pull_request_target gives fork pull requests a base-repository token. Do not check out or
+      # execute pull request code in this workflow; only inspect GitHub's changed-file metadata.
+      - name: Report OpenL Tests skipped for documentation-only changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_FILES_URL: ${{ github.event.pull_request.html_url }}/files
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          [[ "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]
+
+          FILES_FILE="${RUNNER_TEMP}/pull-request-files.json"
+          gh api --paginate --slurp \
+            "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" > "${FILES_FILE}"
+
+          TOTAL=$(jq '[.[][]] | length' "${FILES_FILE}")
+          NON_DOCS=$(jq '[.[][] | select(
+            (.filename | startswith("Docs/") | not) or
+            ((.previous_filename // "") != "" and (.previous_filename | startswith("Docs/") | not))
+          )] | length' "${FILES_FILE}")
+
+          if [ "${TOTAL}" -eq 0 ] || [ "${NON_DOCS}" -ne 0 ]; then
+            echo "The pull request is not documentation-only; OpenL Tests will run normally."
+            exit 0
+          fi
+
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${HEAD_SHA}" \
+            -f state=success \
+            -f context=openl-tests \
+            -f description='OpenL Tests skipped for documentation-only changes' \
+            -f target_url="${PR_FILES_URL}"
