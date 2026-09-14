@@ -6,8 +6,8 @@ large projects with speed and efficiency. For more information on Git, see <http
 A **Git repository** is the `.git/` folder inside a project. This repository tracks all changes made to files in the
 project, building a history over time.
 
-This section describes how to set up a connection to a Git repository, configure Git functionality, and resolve
-conflicts when modifying the same version of the project.
+This section describes how to set up a connection to a Git repository, configure Git functionality, enable Git Large
+File Storage, and resolve conflicts when modifying the same version of the project.
 
 ##### Setting Up a Connection to a Git Repository
 
@@ -74,3 +74,18 @@ For the **Restore from old version** template, the following additional placehol
 | **Create project**           | Creating a new project.                         |
 | **Copy project**             | Copying a project.                              |
 | **Restore from old version** | Restoring a project to a previous revision.     |
+
+##### Enabling Git Large File Storage
+
+To store large files in a Git repository, use Git Large File Storage (LFS).
+
+-   To enable LFS before the repository is cloned by OpenL Studio, perform the configuration described in
+    <https://git-lfs.github.com/>.
+-   If the repository is already cloned by OpenL Studio, proceed as follows:
+    1.  Close all projects in the workspace.
+    2.  Delete all deployment configuration settings.
+    3.  Stop OpenL Studio.
+    4.  Delete the local folder of the Git repository from the directory defined by the
+        `repo-git.local-repositories-folder` property.
+    5.  Start OpenL Studio and wait until the repository is cloned again.
+    6.  Recreate the deployment configuration settings deleted previously.
