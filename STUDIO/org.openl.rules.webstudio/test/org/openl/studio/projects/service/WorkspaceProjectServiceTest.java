@@ -44,6 +44,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
 
+import org.openl.exception.OpenLRuntimeException;
+import org.openl.message.OpenLErrorMessage;
+import org.openl.message.OpenLMessage;
+import org.openl.message.Severity;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -69,6 +73,7 @@ import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.Props;
@@ -1322,6 +1327,29 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_refused_write_has_the_module_built_from_its_workbook_again() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(webStudio.getCurrentProject()).thenReturn(mock(RulesProject.class));
+        stubResolvedSource(service, project, mock(IOpenLTable.class));
+        var properties = List.of(new TableProperty("state", "AL"));
+        when(tablePropertiesService.write(any(), eq(properties)))
+                .thenThrow(new BadRequestException("table.action.line.all-empty.message"));
+
+        assertThrows(BadRequestException.class,
+                () -> service.updateTableProperties(project, "src-id", properties, null));
+
+        // The refused write stopped part-way, leaving what it had changed in the workbook the session holds.
+        // Every request after it would read that, so the module is built from the disk again.
+        verify(webStudio).recompileCurrentModule();
+    }
+
+    @Test
     void table_properties_are_read_from_the_summary_and_the_properties_service() throws Exception {
         var summaryTableReader = mock(SummaryTableReader.class);
         var tablePropertiesService = mock(TablePropertiesService.class);
@@ -1826,6 +1854,38 @@ class WorkspaceProjectServiceTest {
         // link naming the wrong module would look as if it worked.
         assertThrows(NotFoundException.class, () -> service.getTableTests(project, "shared-id", "Claims"));
         verify(moduleModel, never()).getTestAndRunMethods(any(), anyBoolean());
+    }
+
+    @Test
+    void the_stack_trace_behind_a_message_is_read_only_when_a_reader_asks_for_it() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class)));
+        var moduleModel = mock(ProjectModel.class);
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Claims");
+        var handle = mock(ProjectHandle.class);
+        when(handle.project()).thenReturn(moduleModel);
+        doReturn(handle).when(service).openProject(project, "Claims");
+        var broken = new OpenLErrorMessage(new OpenLRuntimeException("Identifier is not found"));
+        var plain = new OpenLMessage("Deprecated", Severity.WARN);
+        var status = mock(ProjectCompilationStatus.class);
+        when(status.getAllMessage()).thenReturn(List.of(plain, broken));
+        when(moduleModel.getCompilationStatus()).thenReturn(status);
+
+        var trace = service.getMessageStacktrace(project, broken.getId(), "Claims");
+
+        assertNotNull(trace);
+        assertTrue(trace.contains("Identifier is not found"));
+        // A message with nothing behind it, and one nobody raised, have no trace to read.
+        assertNull(service.getMessageStacktrace(project, plain.getId(), "Claims"));
+        assertNull(service.getMessageStacktrace(project, -1, "Claims"));
     }
 
     @Test
