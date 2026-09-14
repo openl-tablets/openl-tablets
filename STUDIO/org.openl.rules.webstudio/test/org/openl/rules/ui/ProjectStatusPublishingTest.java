@@ -3,6 +3,7 @@ package org.openl.rules.ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -28,6 +29,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ProjectResolver;
 
 /**
@@ -159,6 +161,28 @@ class ProjectStatusPublishingTest {
     }
 
     @Test
+    void asking_for_the_open_module_again_compiles_nothing() throws Exception {
+        var published = new CopyOnWriteArrayList<Published>();
+        var model = new ProjectModel(studioPublishing(published), null);
+        model.setModuleInfo(ProjectResolver.getInstance().resolve(PROJECT).getModules().getFirst());
+        assertNotNull(model.getXlsModuleNode(), "the module the reader opened is compiled");
+        // The project's own compilation follows the module's and reports on itself; it is left to finish.
+        Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> !model.isCompilationInProgress());
+        Awaitility.await().during(Duration.ofMillis(300)).atMost(Duration.ofSeconds(5))
+                .until(publishedCount(published), count -> count.equals(published.size()));
+        var told = published.size();
+
+        // The descriptors are resolved again on every workspace refresh, so a request asking for the same
+        // module brings a new object naming it. Taking that for another module would compile it once more —
+        // and every read that names a module would set the status back to compiling.
+        var open = model.getModuleInfo();
+        model.setModuleInfo(namedAgain(open));
+
+        assertSame(open, model.getModuleInfo(), "the module stays the one that is open");
+        assertEquals(told, published.size(), "asking for the open module again starts no compilation");
+    }
+
+    @Test
     void a_stop_that_lands_mid_compilation_leaves_the_open_module_readable() throws Exception {
         var model = new AtomicReference<ProjectModel>();
         var stops = new AtomicInteger();
@@ -201,6 +225,21 @@ class ProjectStatusPublishingTest {
         assertNotNull(model.getXlsModuleNode(), "the tables of the open module are still there to read");
         // And the project is not passed off as compiled through, which would send every reader to an empty class.
         assertFalse(model.isProjectCompilationCompleted(), "a stopped compilation has not compiled the project");
+    }
+
+    /** The same module, as a descriptor resolved afresh describes it: another object naming the same thing. */
+    private static Module namedAgain(Module module) {
+        var again = new Module();
+        again.setName(module.getName());
+        again.setRulesRootPath(module.getRulesRootPath());
+        again.setProject(module.getProject());
+        again.setWebstudioConfiguration(module.getWebstudioConfiguration());
+        return again;
+    }
+
+    /** How many statuses have been published, read again on each poll. */
+    private static java.util.concurrent.Callable<Integer> publishedCount(List<Published> published) {
+        return published::size;
     }
 
     /** Waits for a status matching the given rule, which the notifier delivers on a thread of its own. */

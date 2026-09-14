@@ -583,7 +583,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 handleProjectNotFound();
                 return;
             }
-            boolean anotherModuleOpened = currentModule != module;
+            // The descriptors are resolved again whenever the workspace is refreshed, so the same module
+            // arrives as a new object; what it names is what tells it from another module.
+            boolean anotherModuleOpened = !ProjectModel.isSameModule(currentModule, module);
             boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
                     .getProject()
                     .getName()

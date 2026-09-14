@@ -950,6 +950,32 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_request_that_names_no_module_is_answered_about_the_one_the_reader_has_open() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var moduleModel = mock(ProjectModel.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class)));
+        var registry = mock(CompilationJobRegistry.class);
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Main", "Claims");
+        var descriptor = webStudio.getProjectByName("design", "Pricing");
+        var open = descriptor.getModules().get(1);
+        open.setProject(descriptor);
+        when(webStudio.getCurrentModule()).thenReturn(open);
+
+        service.openProject(project, null);
+
+        // Not the project's first module: opening that one would compile it in place of the module being
+        // read, and the answer would then wait for a compilation it started itself.
+        verify(webStudio).init("design", "main", "Pricing", "Claims");
+    }
+
+    @Test
     void update_table_properties_requires_permission_to_write_to_the_project() throws Exception {
         // The ACL grants nothing, which is what a reader who may only read the project is answered with.
         var acl = mock(RepositoryAclService.class);

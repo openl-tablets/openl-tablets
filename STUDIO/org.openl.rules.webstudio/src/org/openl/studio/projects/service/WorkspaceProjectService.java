@@ -1775,12 +1775,31 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public ProjectHandle openProject(RulesProject project, @Nullable String moduleName) {
         var projectDescriptor = getProjectDescriptor(project);
+        var asked = moduleName == null ? moduleAlreadyOpen(projectDescriptor) : moduleName;
         var moduleSelector = projectDescriptor.getModules().stream();
-        if (moduleName != null) {
-            moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(moduleName));
+        if (asked != null) {
+            moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(asked));
         }
         var module = moduleSelector.findFirst().orElse(null);
         return openProject(projectDescriptor, project, module);
+    }
+
+    /**
+     * The module of this project the session already has open, when a request names none.
+     *
+     * <p>A request that asks nothing about which module it wants is answered about the one the reader is on:
+     * opening the project's first module instead would compile it in place of the one being read, and the
+     * answer would wait for a compilation it started itself. With none open, the first module is the one to
+     * open — it is the request that opens the project.
+     *
+     * @return the module's name, or {@code null} when the session holds no module of this project
+     */
+    private @Nullable String moduleAlreadyOpen(ProjectDescriptor projectDescriptor) {
+        var open = getWebStudio().getCurrentModule();
+        return open != null && open.getProject() != null
+                && Objects.equals(open.getProject().getName(), projectDescriptor.getName())
+                ? open.getName()
+                : null;
     }
 
     private ProjectDescriptor getProjectDescriptor(RulesProject project) {
