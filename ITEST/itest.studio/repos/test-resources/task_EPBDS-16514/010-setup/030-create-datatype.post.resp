@@ -8,6 +8,6 @@ Content-Type: application/json
   "name": "MetaRows",
   "file": "EPBDS-16514-MetaRows/Main.xlsx",
   "sheet": "Datatypes",
-  "pos": "B2:D5"
+  "pos": "B2:D5",
+  "signature": "MetaRows"
 }
-

@@ -47,7 +47,8 @@ Content-Type: application/json
       "pos": "C5:E12",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "Bank"
     },
     {
       "id": "32b51d4ed984fe0fbd7b723898cb42dc",
@@ -59,7 +60,8 @@ Content-Type: application/json
       "pos": "B5:H9",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "Bank bankData"
     },
     {
       "id": "4508daa0239982cfa3e8934a3c09d3a4",
@@ -71,7 +73,8 @@ Content-Type: application/json
       "pos": "B12:S16",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "FinancialData bankFinancialData"
     },
     {
       "id": "43db5288b8e3d23e8ed11a47b5261df5",
@@ -97,7 +100,8 @@ Content-Type: application/json
       "pos": "C5:E9",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "BankLimitIndex BankLimitIndexTest"
     },
     {
       "id": "6abe748545ac15a99015f58ba1ec82cd",
@@ -157,7 +161,8 @@ Content-Type: application/json
       "pos": "C6:D13",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "BankRatingGroup BankRatingGroupTest"
     },
     {
       "id": "acfd3e56b9f6f069e4c88056fd0debd9",
@@ -169,7 +174,8 @@ Content-Type: application/json
       "pos": "B25:D90",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "Rating bankRatingList"
     },
     {
       "id": "7f166a5dc83968b5b8f503949c062df4",
@@ -181,7 +187,8 @@ Content-Type: application/json
       "pos": "C6:E10",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "BankRatingCalculation BankRatingTest"
     },
     {
       "id": "de007c27106a96682484745cde639bc1",
@@ -207,7 +214,8 @@ Content-Type: application/json
       "pos": "C6:D12",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "CapitalAdequacyScore CapitalAdequacyScoreTest"
     },
     {
       "id": "68de41fd9e5c838847d0a326aa3d4ecc",
@@ -259,7 +267,8 @@ Content-Type: application/json
       "pos": "D59:D77",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "CountryCode <String>"
     },
     {
       "id": "db743662e9cedaa9c4cb15836499ad68",
@@ -299,7 +308,8 @@ Content-Type: application/json
       "pos": "C22:E26",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "BalanceDynamicIndexCalculation DynamicIndexTest"
     },
     {
       "id": "1b662e47225b661a5bc640d67a79dea6",
@@ -325,7 +335,8 @@ Content-Type: application/json
       "pos": "C16:E22",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "EquityScore EquityScoreTest"
     },
     {
       "id": "4269424f88da4155ef4525b550ae666d",
@@ -337,7 +348,8 @@ Content-Type: application/json
       "pos": "C15:E32",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "FinancialData"
     },
     {
       "id": "e37e6cd233ff262b1316a2b4ae3c9acb",
@@ -405,7 +417,8 @@ Content-Type: application/json
       "pos": "C6:E12",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "IsAdequateMaxCreditRiskScore  IsAdequateMaxCreditRiskScoreTest"
     },
     {
       "id": "ddc706874f6993e6bd89d36e6b657bf7",
@@ -434,7 +447,8 @@ Content-Type: application/json
       "pos": "C38:D42",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "IsAdequateNormativeIndexCalculation IsAdequateNormativeIndexTest"
     },
     {
       "id": "b2f39f26ad5786cafee140338de1fc23",
@@ -502,7 +516,8 @@ Content-Type: application/json
       "pos": "D12:D56",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "LongTermRating <String>"
     },
     {
       "id": "8c1337a587becd5e6eed607b28549537",
@@ -528,7 +543,8 @@ Content-Type: application/json
       "pos": "C6:D10",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "LossesInThisYearScore LossesInThisYearScoreTest"
     },
     {
       "id": "df06c45f6216acf1921960f6114f26da",
@@ -638,7 +654,8 @@ Content-Type: application/json
       "pos": "C6:E12",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "ProfitDynamicScore ProfitDynamicScoreTest"
     },
     {
       "id": "aecfc64c9ad292e81ca03213036322d5",
@@ -650,7 +667,8 @@ Content-Type: application/json
       "pos": "C30:D34",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "BankQualitativeIndexCalculation QualitativeIndexTest"
     },
     {
       "id": "90c597c9115cd89ad8ed222a8b8938f5",
@@ -662,7 +680,8 @@ Content-Type: application/json
       "pos": "C14:D18",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "BalanceQualityIndexCalculation QualityIndexTest"
     },
     {
       "id": "70bf6d64135bb4b66cd4e94d31add342",
@@ -674,7 +693,8 @@ Content-Type: application/json
       "pos": "C35:E44",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "signature": "QualityIndicators"
     }
   ],
   "pageNumber": 0,

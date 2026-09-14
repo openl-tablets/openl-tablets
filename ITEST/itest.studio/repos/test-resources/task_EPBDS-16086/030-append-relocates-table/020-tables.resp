@@ -13,7 +13,8 @@ Content-Type: application/json
       "pos": "B11:C15",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2"
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "signature": "TypeA"
     },
     {
       "id": "91e1b83d71ebd6206c0bff53079bdcb1",
@@ -25,7 +26,8 @@ Content-Type: application/json
       "pos": "B18:C22",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2"
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "signature": "TypeB"
     },
     {
       "id": "dec94b5ec4595b84a118532580fdb200",
@@ -37,7 +39,8 @@ Content-Type: application/json
       "pos": "B8:C9",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2"
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "signature": "TypeC"
     }
   ],
   "pageNumber": 0,

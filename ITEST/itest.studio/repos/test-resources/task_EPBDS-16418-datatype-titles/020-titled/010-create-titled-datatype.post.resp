@@ -8,6 +8,6 @@ Content-Type: application/json
   "name": "TitledType",
   "file": "EPBDS-16418-Titles/Main.xlsx",
   "sheet": "Datatypes",
-  "pos": "B2:D4"
+  "pos": "B2:D4",
+  "signature": "TitledType"
 }
-

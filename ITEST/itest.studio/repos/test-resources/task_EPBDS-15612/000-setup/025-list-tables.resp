@@ -13,7 +13,8 @@ Content-Type: application/json
       "pos": "B7:C8",
       "module": "Qwerty",
       "project": "EPBDS-15612",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU2MTI6NTAzZjIzODYwMDhhOTFkYjdlMjQ2ODJjYjRjNWE0YTRlNjMyYTUzYjllMzkzZDZhMzk5MzYwZjQxNzg0ZDkyOQ=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU2MTI6NTAzZjIzODYwMDhhOTFkYjdlMjQ2ODJjYjRjNWE0YTRlNjMyYTUzYjllMzkzZDZhMzk5MzYwZjQxNzg0ZDkyOQ==",
+      "signature": "Foo"
     },
     {
       "id": "*",

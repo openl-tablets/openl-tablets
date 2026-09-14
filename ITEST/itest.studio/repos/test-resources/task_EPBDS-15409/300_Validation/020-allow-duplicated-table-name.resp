@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "LossFreeDiscountCalc",
   "file": "EPBDS-15409/Main.xlsx",
   "sheet": "LossFreeDiscountCalc",
-  "pos": "B2:E10"
+  "pos": "B2:E10",
+  "signature": "Loss LossFreeDiscountCalc"
 }

@@ -27,7 +27,8 @@ Content-Type: application/json
       "pos": "B2:D5",
       "module": "BugReproducing",
       "project": "EPBDS-16344",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ==",
+      "signature": "calc3 calc1Test"
     },
     {
       "id": "7eae422f9f4d3a6c07f48d5b4d6d02bc",
@@ -67,7 +68,8 @@ Content-Type: application/json
       "pos": "C52:D53",
       "module": "BugReproducing",
       "project": "EPBDS-16344",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ==",
+      "signature": "Type1"
     },
     {
       "id": "43f253f4e7d6410c5669fd2d5271556b",
@@ -79,7 +81,8 @@ Content-Type: application/json
       "pos": "C35:D37",
       "module": "BugReproducing",
       "project": "EPBDS-16344",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ==",
+      "signature": "Type3"
     }
   ],
   "pageNumber": 0,

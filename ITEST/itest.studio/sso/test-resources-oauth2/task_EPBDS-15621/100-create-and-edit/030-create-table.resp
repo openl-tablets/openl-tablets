@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "TestType",
   "file": "*",
   "sheet": "TestType",
-  "pos": "*"
+  "pos": "*",
+  "signature": "TestType"
 }

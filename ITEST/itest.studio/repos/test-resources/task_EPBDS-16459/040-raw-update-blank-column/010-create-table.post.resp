@@ -8,6 +8,6 @@ Content-Type: application/json
   "name": "Coverage",
   "file": "EPBDS-16459-Blank/Main.xlsx",
   "sheet": "Coverage",
-  "pos": "B2:D5"
+  "pos": "B2:D5",
+  "signature": "Coverage"
 }
-

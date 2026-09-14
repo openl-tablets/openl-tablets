@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, Input, Modal, Select, Space, Spin, Table } from 'antd'
+import { Alert, Button, Empty, Input, Modal, Select, Space, Spin } from 'antd'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import type { ModuleTable, ProjectProperty } from 'types/tables'
-import { searchTables, type TableSearchCriteria, type TableSearchScope } from '../../services/modules'
+import type { ModuleTable, ProjectProperty, RawTableView } from 'types/tables'
+import { RawTableGrid } from '../../components/RawTableGrid'
+import {
+    getRawTable,
+    searchTables,
+    TABLE_PAGE_ROWS,
+    type TableSearchCriteria,
+    type TableSearchScope,
+} from '../../services/modules'
 import { getProjectProperties } from '../../services/projects'
 import { errorMessage } from '../../utils/errorMessage'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
@@ -67,6 +74,39 @@ const useStyles = createStyles(({ css, token }) => ({
         align-items: center;
         gap: ${token.marginXXS}px;
     `,
+    /** What was found reads as a list: one entry under the next, each opening as far as it is asked to. */
+    found: css`
+        display: flex;
+        flex-direction: column;
+        gap: ${token.margin}px;
+        max-height: 50vh;
+        overflow: auto;
+    `,
+    entry: css`
+        display: flex;
+        flex-direction: column;
+        gap: ${token.marginXXS}px;
+        padding-bottom: ${token.marginXS}px;
+        border-bottom: 1px solid ${token.colorBorderSecondary};
+    `,
+    /** The signature is the table's own line, read as the editor writes it. */
+    signature: css`
+        display: inline-flex;
+        align-items: center;
+        gap: ${token.marginXXS}px;
+        font-family: ${token.fontFamilyCode};
+        font-size: ${token.fontSizeSM}px;
+        word-break: break-word;
+    `,
+    /** Where the table is written, said quietly under its signature. */
+    where: css`
+        color: ${token.colorTextTertiary};
+        font-size: ${token.fontSizeSM}px;
+    `,
+    /** A body is as wide as its values need; the entry scrolls it rather than squeezing it. */
+    body: css`
+        overflow: auto;
+    `,
 }))
 
 interface TableSearchModalProps {
@@ -109,14 +149,32 @@ export const TableSearchModal = ({
     const [results, setResults] = useState<ModuleTable[] | null>(null)
     const [searching, setSearching] = useState(false)
     const [failure, setFailure] = useState<string | null>(null)
+    /** The body of a result, once the reader asked for it: what was read, or why it could not be. */
+    const [bodies, setBodies] = useState<Record<string, RawTableView | string | 'reading'>>({})
 
-    // The names a property can be narrowed by are the ones the engine knows, so the list is read rather than
-    // written here — a property added to the dictionary appears without a change to this screen.
+    /**
+     * The search opens as it starts, whatever was asked of it before.
+     *
+     * <p>A reader leaves it by opening a table, and comes back to look for something else — in another module
+     * by then, often enough — so what was filled in last time, and what it found, are not what this search is
+     * about. Only the name carried in from the rail is kept.
+     *
+     * <p>The names a property can be narrowed by are the ones the engine knows, so the list is read rather
+     * than written here: a property added to the dictionary appears without a change to this screen.
+     */
     useEffect(() => {
         if (!open) {
             return
         }
+        setScope('module')
         setName(initialName)
+        setHeader('')
+        setText('')
+        setKinds([])
+        setFilters([])
+        setResults(null)
+        setFailure(null)
+        setBodies({})
         getProjectProperties(projectId).then(setProperties).catch(() => setProperties([]))
     }, [open, projectId, initialName])
 
@@ -148,26 +206,104 @@ export const TableSearchModal = ({
             .finally(() => setSearching(false))
     }, [projectId, moduleName, scope, name, header, text, kinds, filters])
 
-    const columns = [
-        {
-            title: t('browser.module.search_result_name'),
-            dataIndex: 'name',
-            render: (_: unknown, table: ModuleTable) => (
-                <Button className={styles.name} onClick={() => onOpen(table)} type="link">
+    /** Where one result is written, which is the project and module its body is read through. */
+    const at = (table: ModuleTable) => ({
+        projectId: table.projectId ?? projectId,
+        module: table.module ?? moduleName,
+    })
+
+    const keyOf = (table: ModuleTable) => `${at(table).projectId}/${at(table).module}/${table.id}`
+
+    /**
+     * Reads the body of one result, and folds it away when it is already on screen.
+     *
+     * <p>A search can answer with hundreds of tables, and drawing every body would read every one of them from
+     * the workbook; the reader asks for the ones they want to see. A tall table is read a window deep, as the
+     * editor reads it.
+     */
+    const toggleBody = (table: ModuleTable) => {
+        const key = keyOf(table)
+        const shown = bodies[key]
+        if (shown !== undefined) {
+            setBodies(({ [key]: _dropped, ...rest }) => rest)
+            return
+        }
+        setBodies(previous => ({ ...previous, [key]: 'reading' }))
+        const { projectId: where, module } = at(table)
+        getRawTable(where, table.id, { module, maxRows: TABLE_PAGE_ROWS })
+            .then(read => setBodies(previous => ({ ...previous, [key]: read })))
+            .catch((error: unknown) => setBodies(previous => ({ ...previous, [key]: errorMessage(error) })))
+    }
+
+    /**
+     * The whole line a table is written with: its type, what it answers with, and what it is called.
+     *
+     * <p>A table is told from the next by its header, and the header starts with the type — {@code Rules Double
+     * AccidentPremium()}, {@code Datatype Driver}, {@code Test DetermineDriverPremium DriverPremiumTest} — so
+     * the type is read where it is written rather than said again under the table.
+     *
+     * <p>A table that carries no signature of its own is named after its type, Environment among them, and
+     * that name is written once.
+     */
+    const written = (table: ModuleTable) => {
+        const line = table.signature
+            ? [table.returnType, table.signature].filter(Boolean).join(' ')
+            : table.displayName ?? table.name
+        return line === table.kind ? line : `${table.kind} ${line}`
+    }
+
+    /** One result: what can be done with it, the header it reads by, and where it is written. */
+    const entry = (table: ModuleTable) => {
+        const key = keyOf(table)
+        const body = bodies[key]
+        const rows = typeof body === 'object' ? body.source : null
+        const total = typeof body === 'object' ? body.totalRows ?? body.source.length : 0
+        return (
+            <div key={key} className={styles.entry} data-testid={`table-search-result-${table.id}`}>
+                <Space size="small">
+                    <Button
+                        data-testid={`table-search-open-${table.id}`}
+                        onClick={() => onOpen(table)}
+                        size="small"
+                        type="link"
+                    >
+                        {t('browser.module.search_view_table')}
+                    </Button>
+                    <Button
+                        data-testid={`table-search-body-${table.id}`}
+                        loading={body === 'reading'}
+                        onClick={() => toggleBody(table)}
+                        size="small"
+                        type="link"
+                    >
+                        {t(body === undefined || body === 'reading'
+                            ? 'browser.module.search_show_body'
+                            : 'browser.module.search_hide_body')}
+                    </Button>
+                </Space>
+                <span className={styles.signature}>
                     {tableIcon(table.kind)}
-                    {table.displayName ?? table.name}
-                </Button>
-            ),
-        },
-        { title: t('browser.module.search_result_kind'), dataIndex: 'kind', width: 140 },
-        {
-            title: t('browser.module.search_result_where'),
-            width: 260,
-            render: (_: unknown, table: ModuleTable) => [table.project, table.module ?? moduleName]
-                .filter(Boolean)
-                .join(' · '),
-        },
-    ]
+                    {written(table)}
+                </span>
+                <span className={styles.where}>
+                    {[table.project, table.module ?? moduleName].filter(Boolean).join(' · ')}
+                </span>
+                {typeof body === 'string' && body !== 'reading' && (
+                    <Alert showIcon description={body} type="error" />
+                )}
+                {rows && (
+                    <div className={styles.body}>
+                        <RawTableGrid rows={rows} testId={`table-search-grid-${table.id}`} />
+                        {rows.length < total && (
+                            <span className={styles.where}>
+                                {t('browser.module.search_body_part', { shown: rows.length, total })}
+                            </span>
+                        )}
+                    </div>
+                )}
+            </div>
+        )
+    }
 
     return (
         <Modal
@@ -277,13 +413,7 @@ export const TableSearchModal = ({
                     {results.length === 0 ? (
                         <Empty description={t('browser.module.search_no_match')} />
                     ) : (
-                        <Table
-                            columns={columns as never}
-                            dataSource={results}
-                            pagination={{ pageSize: 10, hideOnSinglePage: true }}
-                            rowKey={table => `${table.module ?? moduleName}/${table.id}`}
-                            size="small"
-                        />
+                        <div className={styles.found}>{results.map(entry)}</div>
                     )}
                 </div>
             )}

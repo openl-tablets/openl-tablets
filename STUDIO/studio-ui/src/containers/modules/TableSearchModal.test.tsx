@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ModuleTable } from 'types/tables'
-import { searchTables } from '../../services/modules'
+import { getRawTable, searchTables } from '../../services/modules'
 import { getProjectProperties } from '../../services/projects'
 import { TableSearchModal } from './TableSearchModal'
 
@@ -11,7 +11,11 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
 })
 
-vi.mock('../../services/modules', () => ({ searchTables: vi.fn() }))
+vi.mock('../../services/modules', () => ({
+    searchTables: vi.fn(),
+    getRawTable: vi.fn(),
+    TABLE_PAGE_ROWS: 120,
+}))
 vi.mock('../../services/projects', () => ({ getProjectProperties: vi.fn() }))
 
 const found = (over: Partial<ModuleTable> = {}): ModuleTable => ({
@@ -125,19 +129,99 @@ describe('TableSearchModal', () => {
         }))
     })
 
-    it('lists what it found and opens the one that is picked', async () => {
-        vi.mocked(searchTables).mockResolvedValue([found({ module: 'ClaimsTests', project: 'Pricing' })])
+    it('reads each result by the header it is written with, and opens the one that is picked', async () => {
+        vi.mocked(searchTables).mockResolvedValue([found({
+            module: 'ClaimsTests',
+            project: 'Pricing',
+            returnType: 'String',
+            signature: 'Greeting(Integer hour)',
+        })])
         const onOpen = open()
 
         await userEvent.click(screen.getByTestId('table-search-run'))
         await waitFor(() => expect(screen.getByTestId('table-search-results')).toBeInTheDocument())
 
-        // Where a table lives is shown beside it, since a search reaches past the module on screen.
+        // The whole header reads on one line, the type first, and where the table is written is said under it.
+        expect(screen.getByTestId('table-search-result-table-9'))
+            .toHaveTextContent('Rules String Greeting(Integer hour)')
         expect(screen.getByTestId('table-search-results')).toHaveTextContent('Pricing · ClaimsTests')
 
-        await userEvent.click(screen.getByText('Greeting'))
+        await userEvent.click(screen.getByTestId('table-search-open-table-9'))
 
         expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ id: 'table-9', module: 'ClaimsTests' }))
+    })
+
+    it('reads a table that is no method by its own header, and one named after its type just once', async () => {
+        vi.mocked(searchTables).mockResolvedValue([
+            found({ id: 'datatype-1', kind: 'Datatype', name: 'Driver', signature: 'Driver' }),
+            found({ id: 'test-1', kind: 'Test', name: 'DriverPremiumTest',
+                signature: 'DetermineDriverPremium DriverPremiumTest' }),
+            found({ id: 'env-1', kind: 'Environment', name: 'Environment' }),
+        ])
+        open()
+
+        await userEvent.click(screen.getByTestId('table-search-run'))
+        await waitFor(() => expect(screen.getByTestId('table-search-results')).toBeInTheDocument())
+
+        expect(screen.getByTestId('table-search-result-datatype-1')).toHaveTextContent('Datatype Driver')
+        expect(screen.getByTestId('table-search-result-test-1'))
+            .toHaveTextContent('Test DetermineDriverPremium DriverPremiumTest')
+        // A table with no signature of its own is named after its type, which is not written twice.
+        expect(screen.getByTestId('table-search-result-env-1').textContent).toContain('Environment')
+        expect(screen.getByTestId('table-search-result-env-1').textContent).not.toContain('Environment Environment')
+    })
+
+    it('reads the body of a result only when it is asked for, and folds it away again', async () => {
+        vi.mocked(searchTables).mockResolvedValue([found({ module: 'ClaimsTests', project: 'Pricing' })])
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 'table-9',
+            name: 'Greeting',
+            source: [[{ cell: 'A1', value: 'Hello' }]],
+        } as never)
+        open()
+
+        await userEvent.click(screen.getByTestId('table-search-run'))
+        await waitFor(() => expect(screen.getByTestId('table-search-results')).toBeInTheDocument())
+
+        // A search can answer with hundreds of tables; none of them is read until someone asks.
+        expect(getRawTable).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('table-search-body-table-9'))
+
+        await waitFor(() => expect(screen.getByTestId('table-search-grid-table-9')).toBeInTheDocument())
+        // The body is read where the table is written, not where the search was started.
+        expect(getRawTable).toHaveBeenCalledWith('p1', 'table-9', expect.objectContaining({ module: 'ClaimsTests' }))
+
+        await userEvent.click(screen.getByTestId('table-search-body-table-9'))
+
+        expect(screen.queryByTestId('table-search-grid-table-9')).toBeNull()
+    })
+
+    it('starts afresh when it is opened again, after a table was gone to', async () => {
+        vi.mocked(searchTables).mockResolvedValue([found({ module: 'ClaimsTests', project: 'Pricing' })])
+        const panel = (shown: boolean, initialName: string) => (
+            <TableSearchModal
+                initialName={initialName}
+                moduleName="Claims"
+                onClose={vi.fn()}
+                onOpen={vi.fn()}
+                open={shown}
+                projectId="p1"
+            />
+        )
+        const { rerender } = render(panel(true, 'Greet'))
+
+        await userEvent.type(screen.getByTestId('table-search-header'), 'Spreadsheet')
+        await userEvent.click(screen.getByTestId('table-search-run'))
+        await waitFor(() => expect(screen.getByTestId('table-search-results')).toBeInTheDocument())
+
+        // Opening a result closes the search; what it was asked last time is not what it is opened for next.
+        rerender(panel(false, ''))
+        rerender(panel(true, ''))
+
+        await waitFor(() => expect(screen.queryByTestId('table-search-results')).toBeNull())
+        expect(screen.getByTestId('table-search-name')).toHaveValue('')
+        expect(screen.getByTestId('table-search-header')).toHaveValue('')
     })
 
     it('says when nothing answers the search', async () => {

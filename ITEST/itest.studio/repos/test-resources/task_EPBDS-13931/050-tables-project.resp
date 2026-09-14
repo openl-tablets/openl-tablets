@@ -13,7 +13,8 @@ Content-Type: application/json
       "pos": "B17:C18",
       "module": "Main",
       "project": "EPBDS-13931",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
+      "signature": "Cat extends Pet"
     },
     {
       "id": "da1f4603fa80458412457592fd5f6459",
@@ -25,7 +26,8 @@ Content-Type: application/json
       "pos": "B28:B32",
       "module": "Main",
       "project": "EPBDS-13931",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
+      "signature": "Color <String>"
     },
     {
       "id": "6e3e97fd6994ad50150bd2f3d86ec198",
@@ -85,7 +87,8 @@ Content-Type: application/json
       "pos": "B5:D8",
       "module": "Main",
       "project": "EPBDS-13931",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
+      "signature": "Pet"
     },
     {
       "id": "9805b76ba5af036d6cfc387a5957daa4",

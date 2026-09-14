@@ -13,7 +13,8 @@ Content-Type: application/json
       "pos": "B99:D105",
       "module": "Main",
       "project": "EPBDS-15409",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+      "signature": "Address"
     },
     {
       "id": "cb1d8299356a8beb83335365afc54211",
@@ -25,7 +26,8 @@ Content-Type: application/json
       "pos": "B88:G93",
       "module": "Main",
       "project": "EPBDS-15409",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+      "signature": "Address addresses"
     },
     {
       "id": "db956ceeb6b34b8a871c16062f9eebe3",
@@ -65,7 +67,8 @@ Content-Type: application/json
       "pos": "B2:B20",
       "module": "Main",
       "project": "EPBDS-15409",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+      "signature": "CountryCode <String>"
     },
     {
       "id": "87e731887e64f1f5749ee11b07248857",
@@ -77,7 +80,8 @@ Content-Type: application/json
       "pos": "B111:D113",
       "module": "Main",
       "project": "EPBDS-15409",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+      "signature": "CoverageForm"
     },
     {
       "id": "089f8508b0ec1284de97ba1c27ac5f7a",
