@@ -2,10 +2,9 @@
 
 ## Resume point
 
-- Swept head is `origin/main` 9a32b54ca7, which is GREEN but for the kafka flake: EPBDS-16415 fixed the two fixture
-  lines and `IT (studio)` passes again, so cleanup is no longer barred. The 10 EPBDS-1658x/16415 commits it gained
-  past acdaced8b5 (39 files, webstudio execution + studio-ui) are swept whole; only #2109 came out of them, and it
-  is green and waiting on a human approval — nothing to do on it but watch.
+- Swept head is `origin/main` 9a32b54ca7, green, and unmoved for a day: every change type is exhausted at it, so a
+  run that finds 0 new commits there has no cleanup to do and must not re-run an exhausted detector. #2109 sits on
+  this base, fully green, needing only a human approval — watch it, touch nothing.
 - When `main` gains code: diff against 9a32b54ca7, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
@@ -213,12 +212,13 @@
 - Sonar analysis job: jacoco report-aggregate `Unknown block type` on ITEST/server-core/target/jacoco.exec (overlapping artifact merge); rerun.
 - SonarCloud gate on deletion-only PRs: New Code wider than the diff; pre-existing S2259/S6466 attributed to shifted lines; deterministic, no rerun; merged red before. A diff confined to test files passes it clean (#2109, 0 new issues), so the gate only bites when production lines shift.
 - Maven build extension archetype-packaging transiently unresolvable on one runner ("could not read 2 projects"); rerun.
-- Rerun budget: 2 per check per SHA; reruns are not possible from this sandbox (no gh, no Actions write) — say so once and let the next push retry.
+- Rerun budget: 2 per check per SHA, but no rerun is possible here (see Container facts) — let the next push be the retry.
 
 ## Container facts
 
 - No `gh` CLI: use the GitHub MCP tools (pull_request_read, update_pull_request, add_issue_comment, actions_list,
-  get_job_logs); job logs 404 while in_progress and the log API returns only the tail.
+  get_job_logs); job logs 404 while in_progress and the log API returns only the tail. No Actions-write tool exists,
+  so a CI rerun cannot be triggered from here at all.
 - Cold ~/.m2 at session start: the first `-T2` build needs the network (27 min wall clock with tests) and -Daether.syncContext.named.time=600, or resolution fails with "Could not acquire lock(s)"; never -o before that build.
 - After a build failure, `mvn -rf :<module>` cannot resolve the banned siblings or the never-installed rules.test → rerun the whole `mvn install` (no clean, ~10 min warm).
 - Container presets gpg.format=ssh, commit.gpgsign=true; JGit has no ssh signer → repository.git tests die and every module after it is skipped. Unset both **globally** (`git config --global --unset`) before the build; a local unset in the clone is not enough and env overrides do not reach JGit.
@@ -279,11 +279,11 @@
   sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
   org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
 - Delete the stale remote branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods and
-  dead-code/openapi-layouts-residue (closed #2103); `push --delete` re-probed, now a sideband disconnect instead of
-  403 but still blocked, and no MCP branch-delete tool exists.
+  dead-code/openapi-layouts-residue (closed #2103); `push --delete` returns HTTP 403 on every re-probe and no MCP
+  branch-delete tool exists, so stop re-probing more than once a run.
 
 ## Run log
 
-- 2026-09-14 c: #2104 rebase-merged by yurkom (4 commits, 162 deletions on main); PR watch stopped, ledger closed out.
 - 2026-09-14 d: standstill; main acdaced8b5 = 0d9aab81 + 3 dependabot bumps, still red on itest.studio.repos, at 287.
 - 2026-09-14 e: main green again (EPBDS-16415 fixed the fixtures); swept its 10 new commits, #2109 (5 lines) opened and fully green, at 288.
+- 2026-09-14 f: no-op; main still 9a32b54ca7 (0 new commits), #2109 still 17/17 green awaiting approval, at 289.
