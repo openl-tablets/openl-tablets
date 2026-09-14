@@ -111,7 +111,59 @@ globalThis.dispatchEvent(new CustomEvent('openDeleteFileModal', { detail: { proj
 - Mount the modal once in `DefaultLayout` alongside the existing ones.
 
 Worked examples: `DeleteFileModal` (`openDeleteFileModal`), `MergeModal` (`openMergeModal`), `DeployModal`
-(`openDeployModal`), `TraceExecutionModal`, `TableGraphModal`.
+(`openDeployModal`), `TableGraphModal`, `TraceLaunchHost` (`openTraceLaunch`), `RunLaunchHost`
+(`openRunLaunch`), `TestsLaunchHost` (`openTestsLaunch`), `BenchmarkLaunchHost` (`openBenchmarkLaunch`).
+
+A dialog that replaces a legacy drop-down keeps its place under the button: the event carries the button's
+viewport rectangle (`event.currentTarget.getBoundingClientRect()`), and the React side hangs an Ant Design
+`Popover` on an invisible fixed anchor at that rectangle. The legacy page and the React app share one document,
+so no coordinate translation is needed; an outside click closes the popover as it closed the drop-down.
+Worked example: `TableInputPopover` used by `TraceLaunchHost`.
+
+Every action of the table toolbar asks for the same things, so one panel serves them all:
+`TableInputLauncher` reads what the table takes, shows the parameter form of a rule table or the cases of a
+test table, offers "Within Current Module Only", and hands what it collected to the buttons the action
+supplies. Trace, Run, Test and Benchmark differ only in those buttons and in the options next to the checkbox,
+which the panel renders through the same render props so an action offers only what applies to the table it is
+on.
+
+### Showing what an action produced
+
+A result belongs to the editor, so it is shown in a modal over the table rather than in a window of its own:
+the host that started the action swaps its panel for the result modal (`RunResultModal`, `TestsResultModal`,
+`BenchmarkResultModal`) and closes both together. Closing the modal returns to the table with the action still in view, which the
+legacy pages could not do - they replaced it.
+
+A trace is the exception: it is a session the user works in, not a result to read, so it keeps a window of its
+own on a route outside the main layout (`/trace/:projectId`).
+
+The result modal opens while the action is still on its way and waits on the topic the action reports its status
+on. It reads the result once as soon as it is subscribed, which covers an action that ended before the window
+was there to hear about it, and again when the status says the action has ended. The status is reported from
+inside the run, so a read right after it can still answer "not ended yet" (`409`); the read is repeated for a
+few seconds to let the result appear, and a run that is genuinely still going on simply waits for the next
+status. Nothing polls.
+
+A screen that only reads values asks for them lazily. The test results are read with `lazyValues=true`: an input
+with inner structure and the whole returned value arrive as references, and no schema is written at all. The
+screen reads such a value from `GET /projects/{id}/tests/summary/{tableId}/cases/{caseId}`, which answers with
+one case of the run in full, when the user asks for it. On a project of fourteen test tables that is 62% less
+over the wire. The option is off by default, so a client that wants everything at once keeps getting it.
+
+A second view of the same value is asked for the same way. A run reports what the table returned as the value
+OpenL Rule Services publishes, and `GET /projects/{id}/run/result?spreadsheet=true` adds `resultSpreadsheet`,
+the same value laid out by the rows and the columns of the spreadsheet it was calculated by. The run window
+asks for it to show the result as the table its author wrote; the layout repeats the values, about a fifth of
+the response, so a caller that does not show a table is not sent it. The value itself and the schema that
+describes it never change shape - a field whose meaning turns on a query parameter would leave its schema
+describing something else, and the "Result in JSON Format" download would quietly stop being the JSON a
+deployed service answers with.
+
+An action whose results accumulate keeps them on the server, not in the screen. A benchmark joins the
+measurements of the session (`ExecutionBenchmarkResultRegistry`), which `GET /projects/{id}/benchmarks` reports
+newest first and `DELETE` forgets, so the window shows what the session has measured however often it is opened
+and closed. The registry holds the running measurement the way every execution registry does, and folds its
+result into the list once, when the list is first read after it ends.
 
 ### Reusing a Projects tab dialog
 
@@ -167,15 +219,31 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
 - Identify project and module state in every read and action instead of reading the JSF session. For example, the
   Local Changes island calls `GET /projects/{projectId}/local-history?module={moduleName}` to read history and
   `POST /projects/{projectId}/local-history/restore?module={moduleName}` to restore it. Project-wide deletion uses
-  `DELETE /projects/{projectId}/local-history`. Its legacy comparison page
-  receives the same project ID and module name. This keeps every action scoped to the island after remounts, in a
-  fresh HTTP session, and when another browser tab changes the session's current module.
+  `DELETE /projects/{projectId}/local-history`. Its comparison window is opened with the same project ID and
+  module name. This keeps every action scoped to the island after remounts, in a fresh HTTP session, and when
+  another browser tab changes the session's current module.
 - For editable state, put a REST **façade** in front of the domain service and make it the **source of
   truth** (e.g. `GET`/`PUT /projects/{id}/descriptor`). Guard concurrent edits with an optimistic
   **content hash**: `GET` returns it, `PUT` echoes it, a mismatch returns `409` → the UI confirms and retries
   with a `force` flag.
 - After a write that changes compiled state, trigger the server-side reset/recompile and, if the JSF shell
   shows stale data (tree, breadcrumbs), refresh it.
+- For work that cannot answer within a request — comparing two workbooks, running rules — use three steps
+  instead of one long call: a `POST` that starts the work and answers with its identifier, a WebSocket topic
+  named by that identifier that reports how it is going, and a `GET` that reads the result once it has
+  completed. The work runs on an executor of its own, and what it holds stays in a session-scoped registry
+  that releases it when another one starts or the session ends. Compare (`POST /compare/files` →
+  `/user/topic/compare/{id}/status` → `GET /compare/{id}`) and Run (`POST /projects/{id}/run` →
+  `/topic/projects/{id}/tables/{tableId}/run/status`) are built this way. What is reported to one user
+  is sent to that user, so the client subscribes to it under `/user`.
+- When such work is shown in a window of its own, let **the new window start it**, telling it what to do in
+  the address (`/compare?projectId=…&first=…&second=…`). A screen that starts the work first and opens the
+  window afterwards opens it after an `await`, when the click no longer counts as user activation and a
+  blocker can refuse it silently — and the window misses whatever the topic reported meanwhile.
+- One window serves every way of reaching such work, told in the address which of them this is: `/compare`
+  compares two uploaded files, two versions of a module, a file of a project against a revision of it, or the
+  two versions of a file a merge could not settle. The screen that opens it names what to compare and nothing
+  else, so a new way of comparing adds a reading of the address rather than a window of its own.
 
 ## Migration recipe
 

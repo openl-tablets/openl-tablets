@@ -51,14 +51,6 @@
         .toolbarButton > div {
             margin-top: 3px;
         }
-        .toolbarButton .arrow {
-            background: url('webresource/images/arrow_down.png') no-repeat center;
-            padding: 2px 3px;
-            min-width: 12px;
-        }
-        .toolbarButton .arrow:hover {
-            background-color: #e3e3e3;
-        }
         .menuButton {
             padding: 4px;
             margin: 0;
@@ -66,28 +58,6 @@
         .menuButton table {
             border-collapse: collapse;
             text-align: center;
-        }
-
-        #testSelector, #inputArgsForm\:inputTestCasePanel {
-            min-height: 50px;
-            max-height: clamp(50px, 100vh - 470px, 50vh);
-        }
-
-        #runCasesSettings, #testSelector {
-            border-bottom: 1px solid #eee;
-            margin-bottom: 2px;
-            padding: 8px 0;
-            background: #fdfdfd;
-            line-height: 1.5;
-        }
-
-        #runCasesSettings > div, #testSelector > div {
-            padding: 4px 15px;
-        }
-
-        #runCasesSettings > div > span, #testSelector > div > span {
-            display: inline-block;
-            min-width: 110px;
         }
 
         .te_toolbar {
@@ -215,156 +185,7 @@
 
     <c:if test="#{!empty tableBean.table and !tableBean.dispatcherValidationNode}">
 
-    <div id="unitsMenu" style="display: none; min-width: 300px">
-        <h:form prependId="false">
-            <h:panelGroup id="runModuleOnlySetting" layout="block">
-                <div style="margin: 10px 15px 0; white-space:nowrap;" title="Within Current Module Only">
-                    <span style="margin-right: 10px">Within Current Module Only</span>
-                    <input id="runTestModuleOnly" name="currentOpenedModule" type="checkbox"
-                           value="true" style="vertical-align:-2px;margin:-4px"/>
-                </div>
-            </h:panelGroup>
-            <h:panelGroup id="advancedTracerSetting" layout="block" styleClass="hidden b-trace">
-                <div style="margin: 10px 15px 0; white-space:nowrap;" title="Trace in the advanced step debugger instead of the business view">
-                    <label for="advancedTracerTest" style="margin-right: 10px">Advanced tracer</label>
-                    <input id="advancedTracerTest" type="checkbox"
-                           value="true" style="vertical-align:-2px;margin:-4px"/>
-                </div>
-            </h:panelGroup>
-            <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
-                          styleClass="hidden b-run b-test">
-                <div title="Show only failed test cases">
-                    <span>Failures Only</span>
-                    <input name="failuresOnly" type="checkbox"
-                           onclick="$j('#caseFailuresSetting').toggle(this.checked)"
-                           value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
-                           style="vertical-align:-2px;margin:-4px" />
-                </div>
-                <div id="caseFailuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
-                    <span>Failures per test</span>
-                    <select id="failures" name="failures">
-                        <c:set var="values" value="#{fn:split('1;5;20;-1', ';')}"/>
-                        <ui:repeat value="#{values}" var="value" varStatus="i">
-                            <option value="#{value}" selected="#{studio.testsFailuresPerTest == value ? 'selected':''}" >#{value == -1 ? "All" : value}</option>
-                        </ui:repeat>
-                    </select>
-                </div>
-                <div title="Display all executed test cases results including the ones for the tested values">
-                    <span>Compound Result</span>
-                    <input name="complexResult" type="checkbox"
-                           value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
-                           style="vertical-align:-2px;margin:-4px" />
-                </div>
-            </h:panelGroup>
-            <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-run b-benchmark b-trace scrollable">
-                <c:if test="#{fn:length(tableBean.tests) gt 20}"><!-- Use range only for the huge tests -->
-                    <input type="checkbox" id="useTestRanges" checked="checked" style="display: none"/>
-                    <div class="b-run">
-                        <span>Run All</span>
-                        <input type="checkbox" id="runAllTests"
-                               onclick="toggleRunAllTests(this)"
-                               style="vertical-align:-2px;margin:-4px"/>
-                    </div>
-                    <div id="testRangeSetting">
-                        <span>Range of IDs</span>
-                        <input type="text" id="testRanges" value="#{tableBean.tests[0].id}"/>
-                        <a class="imageButton" href="javascript:void(0)" title="Define ranges like: 2-4,7,10-12 or id3-id7"
-                           style="background:url('webresource/images/info.png');display: inline-block; vertical-align: middle;"></a>
-                    </div>
-                    <div style="color: #777;">Total test cases: #{fn:length(tableBean.tests)}</div>
-                    <div style="color: #777;">Individual selection is disabled for tables with more than 20 test cases.</div>
-                </c:if>
-
-                <c:if test="#{fn:length(tableBean.tests) le 20}"><!-- Display checkbox only when the count of the tests not greater than 20 -->
-                <div title="Define a range of IDs instead of checkboxes">
-                    <span>Use the Range</span>
-                    <input type="checkbox" id="useTestRanges"
-                                             onclick="$j('#testRangeSetting').toggle(this.checked); $j('#testTable').toggle(!this.checked)"
-                                             style="vertical-align:-2px;margin:-4px"/>
-                </div>
-                <div id="testRangeSetting" style="display:none;">
-                    <span>Range of IDs</span>
-                    <input type="text" id="testRanges"/>
-                    <a class="imageButton" href="javascript:void(0)" title="Define ranges like: 2-4,7,10-12 or id3-id7"
-                       style="background:url('webresource/images/info.png');display: inline-block; vertical-align: middle;"></a>
-                    <div style="color: #777; margin-left: 110px;">Total test cases: #{fn:length(tableBean.tests)}</div>
-                </div>
-            <table id="testTable" class="table" style="margin: 2px 2px 1px 2px; width: 98%;">
-                <thead>
-                <tr>
-                    <th>
-                        <input type="checkbox" id="allTestCheck" onclick="changeAllItemStatus(this, 'testTable')" checked="checked" title="Check/Uncheck All"/>
-                    </th>
-                    <th>ID</th>
-                    <th colspan="100">
-                        #{tableBean.table.type == 'xls.run.method' ? 'Run Cases' : 'Test Cases'}
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <ui:repeat var="test" value="#{tableBean.tests}">
-                    <tr>
-                        <td>
-                            <input type="checkbox" class="test-id" value="#{test.id}" onclick="changeItemStatus(this, 'testTable', 'allTestCheck')" checked="checked"/>
-                        </td>
-                        <td>#{test.id}</td>
-                        <ui:repeat var="inParam" value="#{tableBean.getTestCaseParams(test)}">
-                            <td>
-                                <ui:include src="/pages/modules/test/parameter.xhtml">
-                                    <ui:param name="parameter" value="#{inParam}" />
-                                    <ui:param name="lazy" value="true" />
-                                    <ui:param name="requestId" value="#{mainBean.requestId}" />
-                                </ui:include>
-                            </td>
-                        </ui:repeat>
-                    </tr>
-                </ui:repeat>
-                </tbody>
-            </table>
-                </c:if>
-            </h:panelGroup>
-            <div style="padding: 6px 5px">
-                <a4j:commandButton id="testButton" value="Test"
-                                   rendered="#{tableBean.canRun}"
-                                   title="Test" onclick="runTestCases();"
-                                   styleClass="hidden on-errors-hide b-test"/>
-                <a4j:commandButton id="runButton" value="Run"
-                                   rendered="#{tableBean.canRun}"
-                                   title="Run" onclick="return isAnyTestSelected();" oncomplete="runTestCases();"
-                                   styleClass="hidden on-errors-hide b-run"/>
-                <a4j:commandButton id="runToExcel"
-                                   rendered="#{tableBean.canRun}"
-                                   onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
-                                   value="Run into File" title="Run into File"
-                                   styleClass="hidden on-errors-hide b-run"/>
-                <a4j:commandButton id="testToExcel"
-                                   rendered="#{tableBean.canRun}"
-                                   onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
-                                   value="Test into File" title="Test into File"
-                                   styleClass="hidden on-errors-hide b-test"/>
-                <h:commandButton id="traceButton"
-                                   rendered="#{tableBean.canRun}"
-                                   value="Trace" title="Trace"
-                                   styleClass="hidden on-errors-hide b-trace"
-                                   onclick="if (isSingleTestSelected()) { startTestTableTrace('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}'); } return false;"/>
-                <h:commandButton id="traceIntoFileButton"
-                                 rendered="#{tableBean.canRun}"
-                                 value="Trace into File" title="Trace into File"
-                                 styleClass="hidden on-errors-hide b-trace"
-                                 onclick="if (isSingleTestSelected()) { startTestTableTrace('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', true); } return false;"/>
-                <a4j:commandButton id="benchmarkButton" action="#{benchmarkBean.addLastBenchmark}"
-                                   rendered="#{tableBean.canBenchmark}"
-                                   value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
-                                   oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')"
-                                   styleClass="hidden on-errors-hide b-benchmark"/>
-            </div>
-            <input type="hidden" name="testRanges" value="" id="testRangesHiddenInput"/>
-            <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyHiddenInput"/>
-        </h:form>
-    </div>
-
     <div id="tableToolbarPanel">
-        <input type="hidden" id="tableHasProblems" value="false" />
         <table>
             <tr>
 
@@ -421,21 +242,15 @@
                         <table>
                             <tr>
                                 <td>
-                                    <a4j:commandLink id="runLink" title="Run" styleClass="toolbarButton on-errors-hide menuButton"
-                                        rendered="#{tableBean.canRun}"
-                                        onclick="onRun(); return false;"
-                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        style="padding-right: 1px">
+                                    <a4j:commandLink id="runLink" title="Run"
+                                                     styleClass="toolbarButton on-errors-hide menuButton changes-listener"
+                                                     rendered="#{tableBean.canRun}"
+                                                     onclick="openTableLaunch('openRunLaunch', event); return false;">
                                         <table>
                                             <tr>
                                                 <td>
                                                     <img src="#{contextPath}/webresource/images/run.gif" />
                                                 </td>
-                                                <td rowspan="2" class="arrow"
-                                                    onclick="onTestMenuOpen(event, 'b-run');return false;"
-                                                    style="visibility: hidden;"/>
-
                                             </tr>
                                             <tr>
                                                 <td>
@@ -449,7 +264,7 @@
                                     <a4j:commandLink id="traceLink" title="Trace"
                                                      styleClass="toolbarButton on-errors-hide menuButton changes-listener"
                                                      rendered="#{tableBean.canRun}"
-                                                     onclick="onTestMenuOpen(event, 'b-trace');return false;">
+                                                     onclick="openTableLaunch('openTraceLaunch', event); return false;">
                                         <table>
                                             <tr>
                                                 <td>
@@ -465,22 +280,15 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="benchmarkLink" title="Benchmark" styleClass="toolbarButton on-errors-hide menuButton"
-                                        rendered="#{tableBean.canBenchmark}"
-                                        onclick="onBenchmark(); return false;"
-                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        style="padding-right: 1px">
-                                        <a4j:jsFunction name="onBenchmarkFunction" oncomplete="ws.nav.go('#{studio.url('test/benchmark')}');" action="#{benchmarkBean.addLastBenchmark}"/>
+                                    <a4j:commandLink id="benchmarkLink" title="Benchmark"
+                                                     styleClass="toolbarButton on-errors-hide menuButton changes-listener"
+                                                     rendered="#{tableBean.canBenchmark}"
+                                                     onclick="openTableLaunch('openBenchmarkLaunch', event); return false;">
                                         <table>
                                             <tr>
                                                 <td>
                                                     <img src="#{contextPath}/webresource/images/clock-icon.png" />
                                                 </td>
-                                                <td rowspan="2" class="arrow"
-                                                    onclick="showUnitsMenu(event, 'b-benchmark');return false;"
-                                                    style="visibility: hidden;"/>
-
                                             </tr>
                                             <tr>
                                                 <td>
@@ -492,144 +300,39 @@
                                 </td>
                             </tr>
                         </table>
-                        <input type="hidden" name="currentOpenedModule" value="" id="testModuleHiddenInput"/>
                     </h:form>
                 </td>
                 </c:if>
 
                 <c:if test="#{tableBean.table.executable}">
                     <td>
-                        <h:form id="inputArgsForm" onsubmit="return checkInput()">
-                            <c:set var="runLink" value="#{studio.url('test/run')}?id=#{tableBean.id}" />
-                            <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
-                            <c:if test="#{inputArgsBean.methodHasParameters}">
-                                <c:if test="#{tableBean.canRun}">
-                                    <a class="toolbarButton on-errors-hide" title="Launch the table" href="javascript:void(0)"
-                                        onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-run').show();$j('.manual-trace').hide();">
-                                        <img src="#{contextPath}/webresource/images/run.gif" />
-                                        <div>Run</div>
-                                    </a>
-                                </c:if>
-                                <c:if test="#{tableBean.canRun}">
-                                    <a class="toolbarButton on-errors-hide" title="Launch the table and trace steps"
-                                       href="javascript:void(0)"
-                                       onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-trace').show();$j('.manual-run').hide();">
-                                        <img src="#{contextPath}/webresource/images/trace.gif"/>
-                                        <div>Trace</div>
-                                    </a>
-                                </c:if>
-                                <div id="inputArgsMenu" style="display: none" >
-                                    <h:panelGroup layout="block">
-                                        <div style="margin: 10px" title="Within Current Module Only">
-                                            <span style="margin-right: 10px">Within Current Module Only</span>
-                                            <input id="runTestModuleOnlyInputArgs" name="currentOpenedModule" type="checkbox"
-                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                        <div style="margin: 10px" title="Skip Empty Parameters">
-                                            <span style="margin-right: 10px">Skip Empty Parameters</span>
-                                            <input id="skipEmptyParametersInputArgs" name="skipEmptyParameters" type="checkbox"
-                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                        <div style="margin: 10px" title="Flat Parameter Layout">
-                                            <span style="margin-right: 10px">Flat Parameter Layout</span>
-                                            <input id="flattenParametersInputArgs" name="flattenParameters" type="checkbox"
-                                                   value="true" checked="checked" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                        <div style="margin: 10px" title="Result in JSON format">
-                                            <span style="margin-right: 10px">Result in JSON format</span>
-                                            <input id="resultInJSONFormat" name="resultInJSONFormat" type="checkbox"
-                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                        <div style="margin: 10px; display: none" class="manual-trace" title="Trace in the advanced step debugger instead of the business view">
-                                            <label for="advancedTracerExec" style="margin-right: 10px">Advanced tracer</label>
-                                            <input id="advancedTracerExec" type="checkbox"
-                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                                        </div>
-                                    </h:panelGroup>
-                                    <h:panelGroup id="inputTestCasePanelWrapper">
-                                        <h:selectOneRadio id="inputTestCaseType"
-                                                          value="#{inputArgsBean.inputTestCaseType}">
-                                            <f:selectItem itemValue="BEAN" itemLabel="Tree Form"/>
-                                            <f:selectItem itemValue="TEXT" itemLabel="JSON"/>
-                                            <f:ajax listener="#{runTestHelper.fillBean}"
-                                                    execute=":inputArgsForm:inputTestCasePanelWrapper"
-                                                    onerror="onInputTestCaseTypeChange"
-                                                    render=":inputArgsForm:inputTestCasePanelWrapper" />
-                                        </h:selectOneRadio>
-                                        <h:panelGroup id="inputTestCasePanel" layout="block"
-                                                      styleClass="#{inputArgsBean.inputTestCaseType == 'TEXT'?'hidden':''} scrollable">
-                                            <ui:include src="/pages/modules/test/inputTestCase.xhtml"/>
-                                        </h:panelGroup>
-                                        <h:panelGroup id="inputTestCaseText" layout="block"
-                                                      styleClass="#{inputArgsBean.inputTestCaseType == 'BEAN'?'hidden':''}">
-                                            <h:inputTextarea id="jsonInput" value="#{inputArgsBean.inputTextBean}"
-                                                             placeholder="Input JSON here"
-                                                             style="height:300px; width:500px">
-                                            </h:inputTextarea>
-                                        </h:panelGroup>
-                                    </h:panelGroup>
-                                    <div style="padding: 8px 5px 6px">
-                                        <a4j:commandButton id="runButton" style="display: none" styleClass="manual-run"
-                                            action="#{runTestHelper.catchParams}" value="Run" title="Launch the table"
-                                            oncomplete="runManualTest();"/>
-                                        <a4j:commandButton id="runToFileButton" style="display: none" styleClass="manual-run"
-                                            value="Run into File" title="Run into File" onclick="moduleOnlyInputArgs()"
-                                            action="#{runTestHelper.catchParamsToDownload}"
-                                            oncomplete="downloadManualTest();"/>
-                                        <h:commandButton id="traceButton" style="display: none"
-                                            styleClass="manual-trace"
-                                            value="Trace" title="Launch the table and trace steps"
-                                            onclick="prepareAndTraceExecutableTable('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', #{studio.showRealNumbers}); return false;"/>
-                                        <h:commandButton id="traceIntoFileButton" style="display: none" styleClass="manual-trace"
-                                            value="Trace into File" title="Trace into File"
-                                            onclick="prepareAndTraceExecutableTable('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}', #{studio.showRealNumbers}, true); return false;"/>
-                                    </div>
-                                </div>
-                                <a4j:jsFunction name="fetchParamsForTrace"
-                                    execute="@form"
-                                    data="#{inputArgsBean.paramsAsJson}"
-                                    oncomplete="onParamsFetched(event.data)" />
-                            </c:if>
-                            <c:if test="#{not inputArgsBean.methodHasParameters}">
-                                <a4j:commandLink styleClass="toolbarButton on-errors-hide" title="Run"
-                                    rendered="#{tableBean.canRun}"
-                                    oncomplete="ws.nav.go('#{runLink}')">
-                                    <img src="#{contextPath}/webresource/images/run.gif" />
-                                    <div>Run</div>
-                                    <a4j:param name="id" value="#{tableBean.id}"/>
-                                </a4j:commandLink>
-                                <c:if test="#{tableBean.canRun}">
-                                    <a href="javascript:void(0)"
-                                       class="toolbarButton on-errors-hide"
-                                       onclick="traceNoParamsMethod('#{studio.currentProject.repository.id}', '#{studio.currentProject.name}', '#{tableBean.id}', '#{studio.currentModule.name}'); return false;"
-                                       title="Trace">
-                                        <img src="#{contextPath}/webresource/images/trace.gif" />
-                                        <div>Trace</div>
-                                    </a>
-                                </c:if>
-                            </c:if>
-                            <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyInputArgs"/>
-                        </h:form>
+                        <c:if test="#{tableBean.canRun}">
+                            <a class="toolbarButton on-errors-hide" title="Launch the table" href="javascript:void(0)"
+                               onclick="openTableLaunch('openRunLaunch', event); return false;">
+                                <img src="#{contextPath}/webresource/images/run.gif" />
+                                <div>Run</div>
+                            </a>
+                            <a class="toolbarButton on-errors-hide" title="Launch the table and trace steps"
+                               href="javascript:void(0)"
+                               onclick="openTableLaunch('openTraceLaunch', event); return false;">
+                                <img src="#{contextPath}/webresource/images/trace.gif"/>
+                                <div>Trace</div>
+                            </a>
+                        </c:if>
                     </td>
                 </c:if>
 
                 <c:if test="#{tableBean.hasTests}">
                     <td>
-                        <c:set var="testLink" value="#{studio.url('test/test')}?id=#{tableBean.id}" />
-                        <h:outputLink value="#{testLink}" title="Run Tests" styleClass="toolbarButton on-errors-hide menuButton"
-                                      onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                      onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                      onclick="onRun(true); return false;"
-                                      rendered="#{tableBean.canRun}"  >
+                        <a4j:commandLink title="Run Tests"
+                                         styleClass="toolbarButton on-errors-hide menuButton changes-listener"
+                                         rendered="#{tableBean.canRun}"
+                                         onclick="openTableLaunch('openTestsLaunch', event); return false;">
                             <table>
                                 <tr>
                                     <td>
                                         <img src="#{contextPath}/webresource/images/test_ok.gif" />
                                     </td>
-                                    <td rowspan="2" class="arrow"
-                                        onclick="showUnitsMenu(event, 'b-test');return false;"
-                                        style="visibility: hidden;"/>
-
                                 </tr>
                                 <tr>
                                     <td>
@@ -637,7 +340,7 @@
                                     </td>
                                 </tr>
                             </table>
-                        </h:outputLink>
+                        </a4j:commandLink>
                     </td>
                 </c:if>
 
@@ -786,287 +489,32 @@
     </c:if>
 
     <script>
-        var testIds = [undefined<c:forEach items="#{tableBean.tests}" var="test">, "#{utils.toJSText(test.id)}"</c:forEach>];
         //<![CDATA[
-        var itemStatuses = function () {
-            class ItemStatusesHandler {
-                static EVENT_KEY = "click.statusHandlerEvents";
-                static _CACHE = {};
-
-                _testCases = null;
-                _allTestCheck = null;
-                _key = null;
-
-                save() {
-                    const that = this;
-                    if (this._testCases?.length > 0) {
-                        let cache = {}
-                        this._testCases.each(function () {
-                            cache[this.getAttribute("value")] = this.checked;
-                        });
-                        ItemStatusesHandler._CACHE[that._key] = cache;
-                    }
-                }
-
-                load() {
-                    const that = this;
-                    if (this._testCases?.length > 0 && ItemStatusesHandler._CACHE[that._key]) {
-                        this._testCases.each(function () {
-                            this.checked = ItemStatusesHandler._CACHE[that._key][this.getAttribute("value")];
-                            this.onclick();
-                        });
-                    }
-                }
-
-                bindEvents() {
-                    const that = this;
-                    // Unbind old handlers.
-                    this._allTestCheck.unbind(ItemStatusesHandler.EVENT_KEY);
-                    this._testCases.unbind(ItemStatusesHandler.EVENT_KEY);
-                    // Bind new handlers.
-                    this._allTestCheck.bind(ItemStatusesHandler.EVENT_KEY, function () {
-                        that.save();
-                    });
-                    this._testCases.bind(ItemStatusesHandler.EVENT_KEY, function () {
-                        ItemStatusesHandler._CACHE[that._key][this.getAttribute("value")] = this.checked;
-                    });
-                }
-
-                constructor(key, preset) {
-                    if (key == null) {
-                        throw new Error("Key is not defined!");
-                    }
-                    if (ItemStatusesHandler._CACHE[key]) {
-                        throw new Error("Duplicated key: " + key);
-                    }
-                    this._key = key;
-                    this._testCases = $j("#testTable INPUT[type='checkbox']:not(INPUT[id='allTestCheck'])");
-                    this._allTestCheck = $j("#allTestCheck");
-
-                    if (this._testCases?.length > 0 && preset != null) {
-                        this._testCases.each(function () {
-                            if (typeof preset == "boolean") {
-                                this.checked = preset;
-                            } else {
-                                let checked = preset[this.getAttribute("value")]
-                                if (checked != null && typeof checked == "boolean") {
-                                    this.checked = checked;
-                                } else {
-                                    this.checked = false;
-                                }
-                            }
-                            this.onclick();
-                        });
-                    }
-                    this.save();
-                }
-            }
-
-            let all = {}
-
-            all["b-run"] = new ItemStatusesHandler("b-run", true);
-            all["b-benchmark"] = all["b-run"]; // Using the same handler for benchmark.
-            all["b-trace"] = new ItemStatusesHandler("b-trace", false);
-
-            return {
-                switchTo(key) {
-                    if (all[key] != null) {
-                        let current = all[key];
-                        current.bindEvents();
-                        current.load();
-                    }
-                }
-            }
-        }();
+        // The run state of the table as the last compile check reported it. While the project is still loading or
+        // another module has errors, the table can only be executed within its own module.
+        var tableRunState = null;
 
         /**
-         * Initiate trace via React modal.
-         * Used for test tables only.
-         * Fetches real project ID from backend, then dispatches CustomEvent to React TraceExecutionModal.
-         */
-        // The Advanced tracer checkbox on the Trace menu: checked opens the full step debugger, unchecked the
-        // business view. React reads this flag and does the rest.
-        function isAdvancedTracer(checkboxId) {
-            var cb = document.getElementById(checkboxId);
-            return !!(cb && cb.checked);
-        }
-
-        function startTestTableTrace(repositoryId, projectName, tableId, moduleName, downloadMode) {
-            var testRanges = getTestRangesParam();
-            var moduleOnlyCheckbox = document.getElementById('runTestModuleOnly');
-            var tempProjectId = globalThis.openl.encodeProjectId(repositoryId, projectName);
-
-            // Fetch real project ID from backend
-            $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
-                .done(function(project) {
-                    window.dispatchEvent(new CustomEvent('openTraceExecutionModal', {
-                        detail: {
-                            projectId: project.id,
-                            tableId: tableId,
-                            moduleName: moduleName,
-                            showRealNumbers: #{studio.showRealNumbers},
-                            testRanges: testRanges || undefined,
-                            fromModule: (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) ? moduleName : undefined,
-                            downloadMode: downloadMode || false,
-                            advanced: isAdvancedTracer('advancedTracerTest')
-                        }
-                    }));
-                })
-                .fail(function(xhr, status, error) {
-                    ws.ui.error('Failed to get project: ' + error);
-                });
-        }
-
-        /**
-         * Trace executable method without parameters.
-         * Fetches real project ID from backend, then dispatches CustomEvent to React TraceExecutionModal.
-         */
-        function traceNoParamsMethod(repositoryId, projectName, tableId, moduleName) {
-            var tempProjectId = globalThis.openl.encodeProjectId(repositoryId, projectName);
-
-            // Fetch real project ID from backend
-            $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
-                .done(function(project) {
-                    window.dispatchEvent(new CustomEvent('openTraceExecutionModal', {
-                        detail: {
-                            projectId: project.id,
-                            tableId: tableId,
-                            moduleName: moduleName,
-                            showRealNumbers: #{studio.showRealNumbers},
-                            inputJson: '{}',
-                            downloadMode: false,
-                            advanced: isAdvancedTracer('advancedTracerExec')
-                        }
-                    }));
-                })
-                .fail(function(xhr, status, error) {
-                    ws.ui.error('Failed to get project: ' + error);
-                });
-        }
-
-        // Store trace params for callback (executable tables)
-        // Guarded by requestToken to prevent concurrent calls from clobbering context
-        var _executableTraceContext = null;
-
-        /**
-         * Prepare and initiate trace for executable tables.
-         * Checks input mode and either fetches formatted params (Tree Form)
-         * or passes raw JSON directly (JSON mode).
+         * Opens the React panel of an action under the button that was clicked.
          *
-         * Concurrency guard: blocks new requests while one is pending to prevent
-         * context from being overwritten by concurrent calls.
-         */
-        function prepareAndTraceExecutableTable(repositoryId, projectName, tableId, moduleName, showRealNumbers, downloadMode) {
-            // Concurrency guard: block if another trace request is already pending
-            if (_executableTraceContext !== null) {
-                ws.ui.error('Trace operation already in progress. Please wait for it to complete.');
-                return;
-            }
-
-            // Generate unique request token to detect stale callbacks
-            var requestToken = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-
-            // Store context for the callback with token for validation
-            _executableTraceContext = {
-                requestToken: requestToken,
-                repositoryId: repositoryId,
-                projectName: projectName,
-                tableId: tableId,
-                moduleName: moduleName,
-                showRealNumbers: showRealNumbers,
-                downloadMode: downloadMode || false
-            };
-
-            // Check input mode - find the selected radio button
-            var inputTypeRadios = document.querySelectorAll('input[name$="inputTestCaseType"]');
-            var isJsonMode = false;
-            for (var i = 0; i < inputTypeRadios.length; i++) {
-                if (inputTypeRadios[i].checked && inputTypeRadios[i].value === 'TEXT') {
-                    isJsonMode = true;
-                    break;
-                }
-            }
-
-            if (isJsonMode) {
-                // JSON mode - get raw JSON from textarea, validate, and call API
-                var jsonTextarea = document.querySelector('textarea[id$="jsonInput"]');
-                var rawJson = jsonTextarea ? jsonTextarea.value : '{}';
-
-                // Validate JSON before proceeding (same pattern as checkInput())
-                if (rawJson && rawJson.length > 0) {
-                    try {
-                        JSON.parse(rawJson);
-                    } catch (e) {
-                        ws.ui.info(e.message);
-                        _executableTraceContext = null;
-                        return;
-                    }
-                }
-
-                onParamsFetched(rawJson);
-            } else {
-                // Tree Form mode - fetch formatted params from bean
-                fetchParamsForTrace();
-            }
-        }
-
-        /**
-         * Callback invoked by a4j:jsFunction oncomplete or directly with raw JSON.
-         * Receives JSON string and dispatches to React TraceExecutionModal.
-         */
-        function onParamsFetched(inputJson) {
-            dispatchTraceEvent(inputJson);
-        }
-
-        /**
-         * Dispatch trace execution event to React TraceExecutionModal.
-         * Fetches real project ID from backend first.
+         * The page only says which table and where the button is. The panel asks for what the action needs
+         * and starts it itself.
          *
-         * Note: Context includes requestToken for debugging concurrent call issues.
-         * The blocking guard in prepareAndTraceExecutableTable prevents context
-         * from being overwritten, so stale callbacks should not occur.
+         * The page shares its document with the shell, so it names nothing the shell already names. A
+         * function of its own called openTestsLaunch would shadow the one behind the module toolbar, and
+         * that button would run the tests of the open table instead of all of them.
          */
-        function dispatchTraceEvent(inputJson) {
-            if (!_executableTraceContext) {
-                // Context was cleared (possibly by error handling) - this is a stale callback
-                console.warn('Trace callback received but context is null (stale or cleared)');
-                return;
-            }
-
-            // Capture context and clear immediately to allow new requests
-            var ctx = _executableTraceContext;
-            _executableTraceContext = null;
-
-            var moduleOnlyCheckbox = document.getElementById('runTestModuleOnlyInputArgs');
-            var tempProjectId = globalThis.openl.encodeProjectId(ctx.repositoryId, ctx.projectName);
-
-            // Fetch real project ID from backend
-            $j.get('#{request.contextPath}/web/projects/' + encodeURIComponent(tempProjectId))
-                .done(function(project) {
-                    window.dispatchEvent(new CustomEvent('openTraceExecutionModal', {
-                        detail: {
-                            projectId: project.id,
-                            tableId: ctx.tableId,
-                            moduleName: ctx.moduleName,
-                            showRealNumbers: ctx.showRealNumbers,
-                            fromModule: (moduleOnlyCheckbox && moduleOnlyCheckbox.checked) ? ctx.moduleName : undefined,
-                            inputJson: inputJson,
-                            downloadMode: ctx.downloadMode || false,
-                            advanced: isAdvancedTracer('advancedTracerExec')
-                        }
-                    }));
-                })
-                .fail(function(xhr, status, error) {
-                    ws.ui.error('Failed to get project: ' + error);
-                });
-        }
-
-        function showButtonMenu(event, popupId, buttonElem) {
-            event.stopPropagation();
-            var button = $j(event.target).parent(buttonElem);
-            if (!button.length)
-                button = $j(event.target).closest(buttonElem);
-            ws.ui.showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'offsetTop' : 6, 'fitToScreen' : true});
+        function openTableLaunch(action, event) {
+            var anchor = event.currentTarget.getBoundingClientRect();
+            window.dispatchEvent(new CustomEvent(action, {
+                detail: {
+                    projectId: globalThis.openl.encodeProjectId('#{utils.toJSText(studio.currentProject.repository.id)}', '#{utils.toJSText(studio.currentProject.name)}'),
+                    tableId: '#{tableBean.id}',
+                    moduleName: '#{utils.toJSText(studio.currentModule.name)}',
+                    anchor: {left: anchor.left, top: anchor.top, width: anchor.width, height: anchor.height},
+                    moduleOnlyLocked: tableRunState !== null && tableRunState !== 'CAN_RUN'
+                }
+            }));
         }
 
         function onBeforeEdit() {
@@ -1086,277 +534,6 @@
         function onError(data) {
             ws.ui.hideLoader();
             ws.ui.info(data.message);
-        }
-
-        function onRun(skipSelectionCheck) {
-            itemStatuses.switchTo("b-run");
-            compiled(function (compiled) {
-                let proceed = () => {
-                    if (skipSelectionCheck || isAnyTestSelected()) {
-                        runTestCases(!compiled);
-                    }
-                };
-
-                if (!compiled) {
-                    ws.ui.confirm({
-                        title: 'Tests',
-                        message: 'Tests can be run within current module only because the project is not loaded yet.',
-                        onOK: proceed
-                    });
-                } else if ($j("#tableHasProblems") === 'true') {
-                    ws.ui.confirm({
-                        title: 'Tests',
-                        message: 'Tests can be run for the currently opened module only because other modules contain errors.',
-                        onOK: proceed
-                    });
-                } else {
-                    proceed();
-                }
-            });
-        }
-
-        function onBenchmark() {
-            itemStatuses.switchTo("b-benchmark");
-            compiled(function (compiled) {
-                let proceed = () => {
-                    if (isAnyTestSelected()) {
-                        $j("#testModuleHiddenInput").val(!compiled).prop('disabled', false);
-                        onBenchmarkFunction();
-                    }
-                };
-
-                if (!compiled) {
-                    ws.ui.confirm({
-                        title: 'Benchmark',
-                        message: 'Benchmark can be run within current module only because the project is not loaded yet.',
-                        onOK: proceed
-                    });
-                } else if ($j("#tableHasProblems") === 'true') {
-                    ws.ui.confirm({
-                        title: 'Benchmark',
-                        message: 'Benchmark can be run for the currently opened module only because other modules contain errors.',
-                        onOK: proceed
-                    });
-                } else {
-                    proceed();
-                }
-            });
-        }
-
-        function moduleOnlyInputArgs() {
-            $j("#testModuleOnlyInputArgs")
-                .val($j("#inputArgsMenu").find('input[type=checkbox]')[0].checked)
-                .prop('disabled', false);
-        }
-
-        function checkInput() {
-            var textBean = $j('textarea:[id=inputArgsForm\\:jsonInput]')[0].value;
-            var beanSelected = $j('input:radio[name=inputArgsForm\\:inputTestCaseType]')[1].checked;
-            if (beanSelected && textBean != null && textBean.length > 0) {
-                try {
-                    JSON.parse(textBean);
-                } catch (e) {
-                    ws.ui.info(e.message);
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        function compiled(callback) {
-            var projectId = "#{studio.currentProjectId}";
-            if (!projectId) {
-                callback(false);
-                return;
-            }
-            ws.projectStatus.whenReady(function () {
-                window.openl.projectStatus.fetch(projectId)
-                    .then(function (status) { callback(status.compileState !== 'compiling'); })
-                    .catch(function () { callback(false); });
-            });
-        }
-
-        function isSingleTestSelected() {
-            if (!isAnyTestSelected()) {
-                return false;
-            }
-            // The interactive trace runs one test case, so require a single selection - one checked case, or a
-            // single test ID in the range field (a manually entered range like "1-3" or "1,2" is rejected).
-            var single = $j("#useTestRanges").is(":checked")
-                ? /^\d+$/.test($j("#testRanges").val().trim())
-                : $j(".test-id:checked").length === 1;
-            if (!single) {
-                ws.ui.error("Trace runs a single test case. Select one test, or enter a single test ID.");
-            }
-            return single;
-        }
-
-        function isAnyTestSelected() {
-            $j("#testModuleOnlyHiddenInput")
-                .val($j("#runModuleOnlySetting").find('input[type=checkbox]')[0].checked)
-                .prop('disabled', false);
-
-            var testRangesParam = getTestRangesParam();
-
-            // undefined value means that the range is not used (default)
-            if (testRangesParam === undefined) {
-                $j("#testRangesHiddenInput")
-                        .val(null)
-                        .prop('disabled', true);
-                return true;
-            }
-            // Validate on empty value of a range of IDs
-            if (testRangesParam === "") {
-                ws.ui.error("No tests selected");
-                return false;
-            }
-
-            // Validate the range of entered IDs
-            if ($j("#useTestRanges").is(":checked")) {
-                var ranges = testRangesParam.trim().split(/,/);
-                var allowed = testIds;
-                for (var i = 0; i < ranges.length; i++) {
-                    if (!ranges[i] || 0 === ranges[i].trim().length) {
-                        if ($j.inArray(",", allowed ) === -1) {
-                            ws.ui.error('Wrong [","] ID in the Range of IDs');
-                            return false;
-                        }
-                        continue;
-                    }
-                    if ($j.inArray(ranges[i].trim(), allowed ) === -1) {
-                        var edges = ranges[i].trim().split(/-/);
-                        if (edges.length > 2 || (!edges[edges.length - 1] || 0 === edges[edges.length - 1].trim().length)) {
-                            edges = ranges[i].trim().split(/\s[-]\s/);
-                        }
-                        if ((!edges[0] || 0 === edges[0].trim().length) && (!edges[edges.length - 1] || 0 === edges[edges.length - 1].trim().length)){
-                            if ($j.inArray("-", allowed ) === -1) {
-                                ws.ui.error('Wrong ["-"] ID in the Range of IDs');
-                                return false;
-                            }
-                        } else {
-                            if ($j.inArray( edges[0].trim(), allowed ) === -1) {
-                                ws.ui.error("Wrong [" + edges[0] + "] ID in the Range of IDs");
-                                return false;
-                            }
-                            if ($j.inArray( edges[edges.length - 1].trim(), allowed ) === -1) {
-                                ws.ui.error("Wrong [" + edges[edges.length - 1] + "] ID in the Range of IDs");
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Set the range of IDs to the hidden input for sending to a server
-            $j("#testRangesHiddenInput")
-                    .val(testRangesParam)
-                    .prop('disabled', false);
-            return true;
-        }
-
-        function onTestMenuOpen(event, block) {
-            itemStatuses.switchTo(block);
-            showButtonMenu(event, 'unitsMenu', 'a');
-            $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
-            $j('#unitsMenu .' + block).show();
-            resetRunAllForNonRunMode(block);
-        }
-
-        function showUnitsMenu(event, block) {
-            itemStatuses.switchTo(block);
-            showButtonMenu(event, 'unitsMenu', 'a');
-            $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
-            $j('#unitsMenu .' + block).show();
-            resetRunAllForNonRunMode(block);
-        }
-
-        function resetRunAllForNonRunMode(block) {
-            // The "Run All" checkbox applies only to the Run mode. When switching to another
-            // mode, uncheck it so the range input becomes editable again.
-            if (block !== 'b-run') {
-                var runAll = $j("#runAllTests");
-                if (runAll.is(":checked")) {
-                    runAll.prop("checked", false);
-                    toggleRunAllTests(runAll[0]);
-                }
-            }
-        }
-
-        function getTestQuery(currentOpenedModule) {
-            var query = "?id=#{tableBean.id}";
-            query += '&currentOpenedModule=' + (currentOpenedModule === true ? 'true' : $j("#runModuleOnlySetting").find('input[type=checkbox]')[0].checked);
-            if ($j("#unitsMenu").is(":hidden")) {
-                // No query for the hidden menu
-                return query;
-            }
-
-            query += '&' + $j("#runCasesSettings").find("select,input").serialize();
-            jQuery('#runCasesSettings').find('input[type=checkbox]:not(:checked)').each(function() {
-                query += '&' + this.name + '=false';
-            });
-
-            var ids = getTestRangesParam();
-            if (ids) {
-                // Query only selected IDs
-                query += '&testRanges=' + encodeURIComponent(ids);
-            }
-            return query;
-        }
-
-        function getTestRangesParam() {
-            if ($j("#useTestRanges").is(":checked")) {
-                // If a range is selected
-                var ids = $j("#testRanges").val().trim();
-            } else if (!$j("#allTestCheck").is(":checked")) {
-                // If not all checkboxes are selected
-                var ids = $j(".test-id:checked")
-                        .map(function() { return $j(this).val(); })
-                        .get()
-                        .join();
-            }
-            return ids;
-        }
-
-        function toggleRunAllTests(cb) {
-            var $range = $j("#testRanges");
-            if (cb.checked) {
-                $range.data("prevValue", $range.val());
-                var first = testIds[1];
-                var last = testIds[testIds.length - 1];
-                var fullRange = (testIds.length > 2) ? (first + " - " + last) : (first || "");
-                $range.val(fullRange).prop("readonly", true);
-            } else {
-                var prev = $range.data("prevValue");
-                $range.val(prev != null ? prev : "").prop("readonly", false);
-            }
-        }
-
-        function runTestCases(currentOpenedModule) {
-            var link="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}";
-            ws.nav.go(link + getTestQuery(currentOpenedModule));
-        }
-
-        function downloadTestCases(currentOpenedModule) {
-            var link="#{contextPath}/web/test/testcase";
-            ws.nav.download(link + getTestQuery(currentOpenedModule));
-        }
-
-        function downloadManualTest() {
-            var currentOpenedModule = $j("#inputArgsMenu").find('input[id=runTestModuleOnlyInputArgs]')[0].checked;
-            var includeEmptyParamters = $j("#inputArgsMenu").find('input[id=skipEmptyParametersInputArgs]')[0].checked;
-            var flattenParameters = $j("#inputArgsMenu").find('input[id=flattenParametersInputArgs]')[0].checked;
-            let resultInJSONFormat = $j("#inputArgsMenu").find('input[id=resultInJSONFormat]')[0].checked;
-            ws.nav.download("#{contextPath}/web/test/rule"
-                + (resultInJSONFormat ? "/json" : "")
-                + "?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule
-                + "&skipEmptyParameters=" + includeEmptyParamters
-                + "&flattenParameters=" + flattenParameters);
-        }
-
-        function runManualTest() {
-            var currentOpenedModule = $j("#inputArgsMenu").find('input[type=checkbox]')[0].checked;
-            ws.nav.go("#{studio.url('test/run')}?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule);
         }
 
         function editTable() {
@@ -1429,17 +606,6 @@
                 });
             });
         });
-
-        function onInputTestCaseTypeChange() {
-            var beanSelected = $j('input:radio[name=inputArgsForm\\:inputTestCaseType]')[0].checked;
-            if(beanSelected){
-                $j('input:radio[name=inputArgsForm\\:inputTestCaseType]').val(['TEXT']);
-            }else{
-                $j('input:radio[name=inputArgsForm\\:inputTestCaseType]').val(['BEAN']);
-            }
-        }
-
-        var $jq = jQuery.noConflict();
 
         $jq('#tableTestsPanel').bind('refresh', function () {
             $jq.ajax({
@@ -1526,12 +692,12 @@
                   if (warnings.length > 0 || errors.length > 0 || #{tableBean.tablePart and studio.model.editable}) {
                       $jq(".table-problems").show()
                   }
-                  if (data.tableRunState === 'CANNOT_RUN') {
+                  tableRunState = data.tableRunState || null;
+                  if (tableRunState === 'CANNOT_RUN') {
                       $j(".on-errors-hide").hide();
                   }
                   applyTargetTables(data.targetTables || []);
                   applyProblems(errors, warnings, data.tableUrl);
-                  applyRunOpenedModuleCheckboxes(data.tableRunState);
                   adjustJSFElements();
               });
          }
@@ -1544,30 +710,8 @@
             }
         }
 
-        function applyRunOpenedModuleCheckboxes(tableRunState) {
-            const runTestModuleOnly = $j("#runTestModuleOnly");
-            const runTestModuleOnlyInputArgs = $j("#runTestModuleOnlyInputArgs");
-            const testModuleOnlyField = $j("#testModuleOnlyField");
-            if (tableRunState === 'CAN_RUN') {
-                runTestModuleOnly.prop('checked', false);
-                runTestModuleOnly.prop('disabled', false);
-                runTestModuleOnlyInputArgs.prop('checked', false);
-                runTestModuleOnlyInputArgs.prop('disabled', false);
-                testModuleOnlyField.prop('checked', false);
-                testModuleOnlyField.prop('disabled', false);
-            } else {
-                runTestModuleOnly.prop('checked', true);
-                runTestModuleOnly.prop('disabled', true);
-                runTestModuleOnlyInputArgs.prop('checked', true);
-                runTestModuleOnlyInputArgs.prop('disabled', true);
-                testModuleOnlyField.prop('checked', true);
-                testModuleOnlyField.prop('disabled', true);
-            }
-        }
-
          function applyProblems(errors, warnings, tableUrl) {
             if (errors.length > 0 || warnings.length > 0) {
-                $j("#tableHasProblems").val(true);
                 $j("#problems-messages-panel-id").show();
                 const rowTemplate = $j('#problems-messages-panel-id>table:nth-child(1)');
                 const htmlTemplate = $j('<div/>').append(rowTemplate).html();

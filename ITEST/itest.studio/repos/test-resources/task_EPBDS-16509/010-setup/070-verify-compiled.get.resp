@@ -29,15 +29,15 @@ Content-Type: application/json
     "total": 3,
     "files": [
       {
-        "path": "EPBDS-16509-CellArrays/rules.xml",
-        "type": "added"
-      },
-      {
         "path": "EPBDS-16509-CellArrays/rules/ArrayDefaults.xlsx",
         "type": "added"
       },
       {
         "path": "EPBDS-16509-CellArrays/Main.xlsx",
+        "type": "modified"
+      },
+      {
+        "path": "EPBDS-16509-CellArrays/rules.xml",
         "type": "modified"
       }
     ]

@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "1",
+      "parameters": [
+        {
+          "name": "bank",
+          "description": "bank ID",
+          "lazy": true
+        }
+      ]
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 25,
+  "numberOfElements": 1,
+  "total": 1
+}

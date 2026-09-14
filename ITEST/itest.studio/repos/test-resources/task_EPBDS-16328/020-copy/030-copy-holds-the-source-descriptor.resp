@@ -3,5 +3,10 @@ Content-Type: application/xml
 
 <project>
     <name>EPBDS16328 Rates Lookup Copy</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
 </project>
 

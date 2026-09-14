@@ -139,6 +139,9 @@ While creating a project from template, use the following template types:
 -   **Tutorials** — represent projects designed to familiarize users with OpenL Tablets step-by-step, from
     simple features and concepts to more complex ones.
 
+Every built-in template uses the standard project layout. It contains `rules.xml` in the project root, stores rule
+workbooks in `rules/`, and stores test workbooks, when present, in `tests/`.
+
 Projects represented as Examples and Tutorials can be used not only to learn how they are organized and work, but also to create user’s own projects from them.
 
 To create a new project from template, proceed as follows:
@@ -235,6 +238,8 @@ Proceed as follows:
 1.  If necessary, modify the commit comment in the **Comment** field.
 1.  Click **Create** to complete.
 
+OpenL Studio creates `rules.xml` in the project root and stores all uploaded workbooks in the `rules/` folder.
+
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
 #### Creating a Project from OpenAPI file
@@ -266,6 +271,15 @@ To create a project from the OpenAPI file, proceed as follows:
 
 1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
 1.  Click **Create**.
+
+With the default file locations, OpenL Studio stores the generated Models and Algorithms workbooks in the `rules/`
+folder. The generated `rules.xml` relies on the standard module layout and omits redundant project and module
+declarations. Nonstandard module names or file locations are declared explicitly.
+
+The uploaded OpenAPI file is stored in the project root. Its name is normalized to `openapi.json` for a JSON file or
+`openapi.yaml` for a YAML or YML file, regardless of the uploaded file name. The generated `rules.xml` does not contain
+an `openapi` block. The normalized file is discovered automatically in the default reconciliation mode, so it validates
+the project without continuing to regenerate the workbooks and overwrite subsequent edits.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
@@ -308,6 +322,10 @@ The archive must also arrive in full. OpenL Studio reads the directory the archi
 1.  Click **Create** to complete.
 
     The new project opens in the workspace right away, the same as a project created from a template or Excel files.
+
+If the archive has no `rules.xml` in its root, OpenL Studio creates one without moving any files in the archive. The
+generated descriptor declares `*.xlsx` as the module pattern for workbooks in the project root. Root-level workbooks
+in older Excel formats are declared as individual modules so they remain available.
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
@@ -926,20 +944,24 @@ The entered services version is displayed in the **Deploy Configuration** tab fo
 
 ### Comparing Project Revisions
 
-OpenL Studio provides a function for comparing files and sheets in Excel files between two project revisions.
-To compare contents of the currently opened project revision with any other revision, proceed as follows:
+OpenL Studio compares an Excel file of the project as the working copy has it now with the same file as a revision holds it.
+To compare the working copy with another revision, proceed as follows:
 
 1.  In the project tree, select the project.
 2.  In the project header, click **Compare**.
 
-    A window appears listing contents of the currently opened project version on the left side and contents of another project revision on the right side.
+    The comparison opens in a window of its own, where what to compare is picked: the Excel file of the working copy on the left, and the branch, the revision and the Excel file to compare it with on the right.
 
     ![Comparing the current project revision from user workspace to the second project revision](images/compare-project-revisions.png)
 
-    *Comparing the current project revision from user workspace to the second project revision*
+    *Picking the working copy on one side and a revision on the other*
 
-1.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
-2.  To compare the current project revision with a different revision, select the branch and revision.
+1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
+2.  Click **Compare**.
+
+    The elements that differ are listed grouped by Excel sheet. Selecting an element displays the two versions of it next to each other, with the cells that read differently highlighted, exactly as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files).
+
+1.  To compare another pair, click **Select other files**.
 
 ### Exporting a Project or a File
 

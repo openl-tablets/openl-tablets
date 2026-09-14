@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next'
 import cytoscape, { type Core } from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
-import { apiCall, type ApiCallOptions } from '../services'
+import { apiCall, openTableInEditor, type ApiCallOptions } from '../services'
 import {
     bridgeHiddenNodes,
     buildGraphModel,
@@ -269,21 +269,13 @@ export interface TableGraphModalDetail {
 /** The editor keeps the open table in the URL fragment as `…table?id=<tableId>`; read it so the graph can preselect it. */
 const tableIdFromHash = (): string | undefined => /[?&]id=([^&]+)/.exec(globalThis.location.hash)?.[1]
 
-/**
- * Opens the tapped table in the editor via the backend-resolved URL, then closes the graph. The backend returns a
- * page-relative fragment (e.g. {@code #repo/project/module/table}) that the editor shell hosting this modal resolves on
- * hash change, so it is navigated as-is — prefixing the origin would leave the editor page and drop the context path.
- * The endpoint resolves tables in the active project only, so a foreign-project table yields no URL and is left alone.
- */
+/** Opens the tapped table in the editor and closes the graph, leaving it open when the table has no address. */
 const openTable = (id: string): void => {
-    apiCall(`/compile/table/${id}/url`, { method: 'GET' }, GRAPH_API_OPTIONS)
-        .then((data: { url?: string | null }) => {
-            if (data?.url) {
-                globalThis.location.href = `${data.url}?id=${id}`
-                globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
-            }
-        })
-        .catch(() => undefined)
+    void openTableInEditor(id).then(opened => {
+        if (opened) {
+            globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
+        }
+    })
 }
 
 /**

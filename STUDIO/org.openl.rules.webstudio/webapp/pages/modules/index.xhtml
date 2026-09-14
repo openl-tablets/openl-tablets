@@ -49,7 +49,6 @@
     <script src="javascript/jquery.popup.js"></script>
     <script src="javascript/jquery.multiselect.js?1"></script>
     <script src="javascript/bomjs.js"></script>
-    <script src="javascript/vendor/response-monitor.js"></script>
 
     <h:outputScript name="faces.js" library="jakarta.faces" />
 
@@ -313,57 +312,6 @@
                                 location.hash = page;
                             }
                         }
-                    },
-                    download: function (url) {
-                        var options = {
-                            timeout: 120, // seconds
-                            interval: 100, // milliseconds
-                            onRequest: function (token) {
-                                api.ui.showLoader();
-                            },
-                            onResponse: function (status) {
-                                if (downloadPage.isOpened()) {
-                                    downloadPage.close();
-                                } else {
-                                    api.ui.hideLoader();
-                                }
-                                if (status !== "success") {
-                                    api.ui.info(status);
-                                }
-                            },
-                            onTimeout: function () {
-                                api.ui.hideLoader();
-                                api.ui.info('File generation was aborted');
-                                if (downloadPage.isOpened()) {
-                                    downloadPage.close();
-                                }
-                            },
-                            onMonitor: function (countdown) {
-                                if (countdown === 0) {
-                                    var countdownsForSecond = 1000 / options.interval;
-                                    // Before timeout. Continue waiting, otherwise download will be cancelled.
-                                    monitor.countdown = countdownsForSecond;
-
-                                    if (!downloadPage.isOpened()) {
-                                        downloadPage.open({
-                                            onWait: function (seconds) {
-                                                api.ui.showLoader();
-                                                monitor.countdown = seconds * countdownsForSecond;
-                                            },
-                                            onAbort: function () {
-                                                monitor.countdown = -1;
-                                            }
-                                        });
-
-                                        // Make dialog accessible
-                                        api.ui.hideLoader();
-                                    }
-                                }
-                            }
-                        };
-
-                        var monitor = new ResponseMonitor(url, options);
-                        monitor.execute();
                     },
                     // prefixPage will be removed when Global Search will be implemented
                     search: function(params, prefixPage) {
@@ -1206,7 +1154,6 @@
         </h:form>
     </div>
 
-    <ui:include src="/pages/modules/tooLongDownload.xhtml"/>
 </h:body>
 </f:view>
 </html>

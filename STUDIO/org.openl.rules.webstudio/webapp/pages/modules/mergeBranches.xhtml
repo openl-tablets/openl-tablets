@@ -16,8 +16,7 @@
                             repositoryType: repositoryType,
                             currentBranch: project.branch,
                             branches: branches,
-                            onSuccess: forceReload,
-                            onCompare: function(filePath) { openMergeCompareDialog(project.id, filePath); }
+                            onSuccess: forceReload
                         }
                     }));
                 });
@@ -26,14 +25,6 @@
             });
         }
 
-        function openMergeCompareDialog(projectId, filePath) {
-            const isExcel = /\.(xlsx?|xlsm|xlsb)$/i.test(filePath);
-            if (isExcel) {
-                openCompareRevisionsDialog(projectId, filePath);
-            } else {
-                openCompareTextFilesDialog(projectId, filePath);
-            }
-        }
         //]]>
     </script>
 </ui:composition>

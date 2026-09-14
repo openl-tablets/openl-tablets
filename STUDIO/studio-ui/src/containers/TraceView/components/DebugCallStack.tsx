@@ -2,7 +2,7 @@ import React from 'react'
 import { Tag, Empty } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
-import { onActivate } from './keyboardActivate'
+import { onActivate } from 'utils/keyboardActivate'
 import { kindIcon } from './TraceIcons'
 import { useStyles } from './DebugCallStack.styles'
 

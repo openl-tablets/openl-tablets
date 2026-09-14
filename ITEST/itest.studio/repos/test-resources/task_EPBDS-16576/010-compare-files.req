@@ -1,0 +1,18 @@
+POST /rest/compare/files HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file1"; filename="first.xlsx"
+Content-Transfer-Encoding: binary
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+&first.xlsx
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file2"; filename="second.xlsx"
+Content-Transfer-Encoding: binary
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+&second.xlsx
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

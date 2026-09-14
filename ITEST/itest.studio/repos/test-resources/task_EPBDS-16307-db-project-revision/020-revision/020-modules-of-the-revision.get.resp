@@ -13,8 +13,13 @@ Content-Type: application/json
   "descriptor": {
     "modules": [
       {
-        "name": "Main",
-        "path": "Main.xlsx"
+        "path": "*.xlsx",
+        "modules": [
+          {
+            "name": "Main",
+            "path": "Main.xlsx"
+          }
+        ]
       }
     ],
     "sources": [

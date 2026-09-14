@@ -117,8 +117,10 @@ public class DemoInit {
     private void createProject(UserWorkspace userWorkspace, String part, String projectName, boolean open, boolean deploy) {
         var templateFiles = templatesResolver.getProjectFiles(part, projectName);
         var repositoryId = "design";
+        var designTimeRepository = userWorkspace.getDesignTimeRepository();
+        var repository = designTimeRepository.getRepository(repositoryId);
 
-        var projectCreator = new ExcelFilesProjectCreator(repositoryId,
+        var projectCreator = new ExcelFilesProjectCreator(repository,
                 projectName,
                 "",
                 userWorkspace,
@@ -136,9 +138,7 @@ public class DemoInit {
             // A design write becomes resolvable by name only once the project index publishes it, so the demo
             // waits for that as every other create path does. Without it the next lookup loses the race and the
             // project is left neither opened nor deployed — see EPBDS-16409.
-            var designTimeRepository = userWorkspace.getDesignTimeRepository();
-            projectCreationService.awaitProjectVisibility(designTimeRepository,
-                    designTimeRepository.getRepository(repositoryId));
+            projectCreationService.awaitProjectVisibility(designTimeRepository, repository);
 
             var technicalName = projectCreator.getCreatedProjectName();
             var createdProject = userWorkspace.getProject(repositoryId, technicalName);

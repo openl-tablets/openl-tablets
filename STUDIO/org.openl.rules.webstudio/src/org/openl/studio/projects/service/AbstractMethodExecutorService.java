@@ -51,14 +51,24 @@ public abstract class AbstractMethodExecutorService {
 
         // If runtime context is provided, get project-level method
         if (runtimeContext != null) {
-            CompiledOpenClass compiledOpenClass = currentOpenedModule
-                    ? projectModel.getOpenedModuleCompiledOpenClass()
-                    : projectModel.getCompiledOpenClass();
-            method = compiledOpenClass.getOpenClassWithErrors()
+            method = compiledOpenClass(projectModel, currentOpenedModule).getOpenClassWithErrors()
                     .getMethod(method.getName(), method.getSignature().getParameterTypes());
         }
 
         return method;
+    }
+
+    /**
+     * The compiled state an execution runs against: the whole project, or only the module that is open.
+     *
+     * @param projectModel        project model
+     * @param currentOpenedModule if true, use the currently opened module
+     * @return the compiled state to execute against
+     */
+    protected static CompiledOpenClass compiledOpenClass(ProjectModel projectModel, boolean currentOpenedModule) {
+        return currentOpenedModule
+                ? projectModel.getOpenedModuleCompiledOpenClass()
+                : projectModel.getCompiledOpenClass();
     }
 
     /**
@@ -72,10 +82,7 @@ public abstract class AbstractMethodExecutorService {
         if (projectModel == null) {
             return null;
         }
-        CompiledOpenClass compiledOpenClass = currentOpenedModule
-                ? projectModel.getOpenedModuleCompiledOpenClass()
-                : projectModel.getCompiledOpenClass();
-        var moduleClass = compiledOpenClass.getOpenClassWithErrors();
+        var moduleClass = compiledOpenClass(projectModel, currentOpenedModule).getOpenClassWithErrors();
         if (moduleClass instanceof XlsModuleOpenClass xlsModuleOpenClass) {
             return xlsModuleOpenClass.getDataBase();
         }
@@ -95,38 +102,13 @@ public abstract class AbstractMethodExecutorService {
      */
     protected <T> CompletableFuture<T> executeWithLifecycle(ExecutionProgressListener listener,
                                                             Callable<T> task) {
-        listener.onStatusChanged(ExecutionStatus.STARTED);
-        try {
-            var result = task.call();
-
-            if (Thread.currentThread().isInterrupted()) {
-                listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
-                return CompletableFuture.completedFuture(result);
-            }
-
-            listener.onStatusChanged(ExecutionStatus.COMPLETED);
-            return CompletableFuture.completedFuture(result);
-        } catch (Exception e) {
-            if (isInterruptedException(e)) {
-                listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
-                return CompletableFuture.completedFuture(null);
-            }
-            listener.onError(e.getMessage(), e);
-            return CompletableFuture.failedFuture(e);
-        }
+        return ExecutionLifecycle.execute(listener, task);
     }
 
     /**
      * Checks if the exception is caused by thread interruption.
      */
     protected static boolean isInterruptedException(Throwable e) {
-        var cause = e;
-        while (cause != null) {
-            if (cause instanceof InterruptedException) {
-                return true;
-            }
-            cause = cause.getCause();
-        }
-        return false;
+        return ExecutionLifecycle.isInterrupted(e);
     }
 }

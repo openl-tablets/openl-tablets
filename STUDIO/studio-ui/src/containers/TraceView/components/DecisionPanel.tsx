@@ -5,7 +5,7 @@ import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { DecisionView } from 'types/trace'
-import { onActivate } from './keyboardActivate'
+import { onActivate } from 'utils/keyboardActivate'
 import { useStyles } from './DecisionPanel.styles'
 
 /** Breakpoint key suffix that suspends when any rule fires; mirrors the backend CurrentLocation.RULE_FIRED_REF. */

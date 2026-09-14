@@ -24,8 +24,8 @@ Use almost the latest versions when possible.
 src/
 ├── App.tsx              # Root: error boundary, auth gate, router mount
 ├── index.tsx            # Entry: inits i18n, mounts App
-├── components/          # Reusable widgets (accessManagement/, form/, modal/, shared)
-├── containers/          # Feature screens (System, Security, Users, Groups, Tags, Repositories, Trace, Merge…)
+├── components/          # Reusable widgets (accessManagement/, form/, modal/, schemaForm/, values/, shared)
+├── containers/          # Feature screens (System, Security, Users, Groups, Tags, Repositories, Trace, execution, Merge…)
 ├── contexts/            # PermissionContext, SystemContext, GroupsContext
 ├── providers/           # SecurityProvider (wraps app with SystemContext + PermissionContext)
 ├── hooks/               # Shared hooks (forms, global events, websocket, scripts)
@@ -85,6 +85,8 @@ Tests are co-located with sources (e.g. `src/containers/DeployModal.test.tsx` ne
 `npm test` (`vitest run --coverage`); watch mode with `npm run test:watch`.
 
 - Mock the `services` module for API calls and `react-i18next` for translations.
+- Vitest clears every mock's call history before each test. Put calls that a test asserts in the test body or its
+  `beforeEach`; calls made at module scope, in a setup file, or in `beforeAll` are cleared before the assertion runs.
 - `vitest.setup.ts` polyfills `MessageChannel`, `ResizeObserver`, `matchMedia`, and `getComputedStyle` for jsdom. The
   `MessageChannel` polyfill delivers messages via `setTimeout(0)` — required for React's scheduler to commit
   async-scheduled state updates.

@@ -51,7 +51,7 @@ const cyMocks = vi.hoisted(() => {
     }
 })
 
-vi.mock('services', () => ({ apiCall: vi.fn() }))
+vi.mock('services', () => ({ apiCall: vi.fn(), openTableInEditor: vi.fn() }))
 
 vi.mock('cytoscape-dagre', () => ({ default: vi.fn() }))
 
@@ -118,6 +118,7 @@ vi.mock('react-i18next', () => {
 })
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
+const mockOpenTable = services.openTableInEditor as MockedFunction<typeof services.openTableInEditor>
 const mockCytoscape = cytoscape as unknown as MockedFunction<(options: { elements: Array<{ data: { id: string } }> }) => unknown>
 
 const dispatchOpen = async (detail: { projectId: string, projectName?: string, module?: string } | null) => {
@@ -393,7 +394,7 @@ describe('TableGraphModal', () => {
 
     it('opens a table in the editor and closes the graph', async () => {
         mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
-        mockApiCall.mockResolvedValueOnce({ url: '#repo/proj/module/table' } as never)
+        mockOpenTable.mockResolvedValueOnce(true as never)
 
         render(<TableGraphModal />)
         await dispatchOpen({ projectId: 'proj-1', projectName: 'proj-1' })
@@ -402,8 +403,8 @@ describe('TableGraphModal', () => {
         await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'A')
         await userEvent.click(screen.getByText('graph:panel.open'))
 
-        expect(mockApiCall).toHaveBeenCalledWith('/compile/table/a/url', { method: 'GET' }, expect.anything())
-        // a resolved URL navigates and dismisses the modal
+        expect(mockOpenTable).toHaveBeenCalledWith('a')
+        // a table that has an address takes the editor there and dismisses the modal
         await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     })
 

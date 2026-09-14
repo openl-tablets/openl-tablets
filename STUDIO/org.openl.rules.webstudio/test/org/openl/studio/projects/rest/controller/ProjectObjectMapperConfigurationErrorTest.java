@@ -43,6 +43,7 @@ import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.run.ExecutionRunResultRegistry;
 import org.openl.studio.projects.service.run.RunExecutorService;
+import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
@@ -127,7 +128,8 @@ class ProjectObjectMapperConfigurationErrorTest {
                 mock(RepositoryConfigService.class),
                 mock(ProjectMetadataService.class),
                 mock(ProjectMigrationService.class),
-                mock(ProjectRevisionService.class));
+                mock(ProjectRevisionService.class),
+                mock(TableInputService.class));
     }
 
     @Test

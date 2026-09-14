@@ -8,13 +8,13 @@ describe('openCompareWindow', () => {
         vi.restoreAllMocks()
     })
 
-    it('opens the legacy comparison popup addressed by project name and repository', () => {
+    it('opens the comparison window for the project, which picks what to compare itself', () => {
         const open = vi.spyOn(window, 'open').mockReturnValue(null)
 
-        openCompareWindow({ name: 'My Project', repository: 'design' })
+        openCompareWindow({ id: 'design:My Project' })
 
         expect(open).toHaveBeenCalledWith(
-            '/studio/faces/pages/modules/repository/compare.xhtml?projectName=My%20Project&repoId=design',
+            '/studio/compare?projectId=design%3AMy%20Project',
             'compare_win',
             'width=1240,height=800,resizable=yes,scrollbars=yes'
         )

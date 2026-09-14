@@ -16,7 +16,7 @@ import org.openl.studio.common.model.GenericView;
  * {@link JsonView @JsonView(Full)} to exclude them from non-trace OpenAPI schemas.
  * </p>
  */
-@Builder
+@Builder(toBuilder = true)
 @Schema(description = "trace.type.parameter-value.desc")
 public record ParameterValue(
         @Schema(description = "trace.field.param.name.desc")

@@ -5,6 +5,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
 import lombok.Singular;
+import org.jspecify.annotations.Nullable;
 
 @Builder
 public record TestCaseExecutionResult(
@@ -25,6 +26,9 @@ public record TestCaseExecutionResult(
 
         @Parameter(description = "Number of failed tests in the test case")
         int numberOfFailures,
+
+        @Parameter(description = "`true` when the table is a Run table, which states no expected values and so has nothing to pass or fail; absent for a test table")
+        @Nullable Boolean runTable,
 
         @Parameter(description = "List of test unit execution results")
         @Singular("testUnit")

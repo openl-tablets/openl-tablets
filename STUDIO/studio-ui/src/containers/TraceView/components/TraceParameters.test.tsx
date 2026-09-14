@@ -135,7 +135,7 @@ describe('TraceParameters', () => {
                     paramKey="k"
                 />
             )
-            expect(screen.getByText('param.loadValue')).toBeInTheDocument()
+            expect(screen.getByText('value.load')).toBeInTheDocument()
         })
 
         it('fetches and displays the lazy value on click', async () => {
@@ -147,13 +147,30 @@ describe('TraceParameters', () => {
                 />
             )
 
-            await userEvent.click(screen.getByText('param.loadValue'))
+            await userEvent.click(screen.getByText('value.load'))
 
             // The store's fetchLazyParameter goes through the service with the parameter id.
             await waitFor(() => expect(getParameterValue).toHaveBeenCalledWith('p1', 5))
             // Once loaded, the fetched value replaces the affordance.
             expect(await screen.findByText('99')).toBeInTheDocument()
-            expect(screen.queryByText('param.loadValue')).toBeNull()
+            expect(screen.queryByText('value.load')).toBeNull()
+        })
+
+        it('starts over when the line comes to stand for another value', async () => {
+            getParameterValue.mockResolvedValue({ name: 'big', description: 'Double', lazy: false, value: 99 })
+            const lazy = (parameterId: number) => param({
+                name: 'big', description: 'Double', lazy: true, parameterId, value: undefined,
+            })
+            const { rerender } = render(<ParameterTree param={lazy(5)} paramKey="k" />)
+
+            await userEvent.click(screen.getByText('value.load'))
+            expect(await screen.findByText('99')).toBeInTheDocument()
+
+            // The same line now stands for the value of another step: what was read before is not its own.
+            rerender(<ParameterTree param={lazy(6)} paramKey="k" />)
+
+            expect(screen.queryByText('99')).toBeNull()
+            expect(screen.getByText('value.load')).toBeInTheDocument()
         })
 
         it('surfaces an error when the lazy fetch fails', async () => {
@@ -165,7 +182,7 @@ describe('TraceParameters', () => {
                 />
             )
 
-            await userEvent.click(screen.getByText('param.loadValue'))
+            await userEvent.click(screen.getByText('value.load'))
             expect(await screen.findByText('boom')).toBeInTheDocument()
         })
     })

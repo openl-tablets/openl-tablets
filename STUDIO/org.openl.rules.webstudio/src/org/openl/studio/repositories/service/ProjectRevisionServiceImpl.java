@@ -24,6 +24,7 @@ import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.repositories.model.ProjectRevision;
+import org.openl.util.StringUtils;
 
 @RequiredArgsConstructor
 @Service
@@ -80,6 +81,7 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
 
     @Override
     public PageResponse<ProjectRevision> getProjectRevision(RulesProject project,
+                                                            String branch,
                                                             String searchTerm,
                                                             boolean techRevs,
                                                             Pageable page) throws IOException {
@@ -87,10 +89,20 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
             // Never published, so no repository holds a history of it.
             return PageResponse.of(List.of(), page, 0L);
         }
-        // The project carries the folder its repository holds it under, which is the folder its own history
-        // is read from. No name is resolved, so a rename that is not saved yet changes nothing here.
-        return getHistoryRepositoryMapper(project.getDesignRepository())
-                .getProjectHistory(project.getDesignFolderName(), searchTerm, techRevs, page);
+        if (StringUtils.isBlank(branch)) {
+            // The project carries the folder its repository holds it under, which is the folder its own
+            // history is read from. No name is resolved, so a rename that is not saved yet changes
+            // nothing here.
+            return getHistoryRepositoryMapper(project.getDesignRepository())
+                    .getProjectHistory(project.getDesignFolderName(), searchTerm, techRevs, page);
+        }
+        var repository = checkoutBranchIfPresent(project.getDesignRepository(), branch);
+        var folder = folderIn(repository, project);
+        if (folder == null) {
+            // The branch being read does not hold the folder, so it has no history of it to report.
+            return PageResponse.of(List.of(), page, 0L);
+        }
+        return getHistoryRepositoryMapper(repository).getProjectHistory(folder, searchTerm, techRevs, page);
     }
 
     @Override
@@ -105,8 +117,8 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
         }
         var filePath = path.startsWith("/") ? path.substring(1) : path;
         if (filePath.isEmpty() || "/".equals(filePath)) {
-            // No file named: the history asked for is the project's own.
-            return getProjectRevision(project, searchTerm, techRevs, page);
+            // No file named: the history asked for is the project's own, on the branch it is on.
+            return getProjectRevision(project, null, searchTerm, techRevs, page);
         }
         // Reject absolute paths and parent traversal before they are anchored to the project folder. The
         // container already refuses most of them, but the repository contract is enforced here rather than
@@ -120,6 +132,20 @@ public class ProjectRevisionServiceImpl implements ProjectRevisionService {
         // same way, so the file's own history is the project folder's history narrowed to that path.
         return getHistoryRepositoryMapper(project.getDesignRepository())
                 .getProjectHistory(project.getDesignFolderName() + "/" + filePath, searchTerm, techRevs, page);
+    }
+
+    /**
+     * The folder the given branch holds the project under.
+     *
+     * <p>A repository that maps folders knows a project by a name of its own on every branch, so the
+     * name the project carries - the one its own branch maps it under - cannot be used to read another
+     * branch. The path inside the repository is the same everywhere, and the branch maps its own name
+     * onto it, or holds no such folder at all.
+     */
+    private static @Nullable String folderIn(Repository repository, RulesProject project) {
+        return repository.supports().mappedFolders()
+                ? ((FolderMapper) repository).findMappedName(project.getRealPath())
+                : project.getDesignFolderName();
     }
 
     /**

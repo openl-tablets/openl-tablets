@@ -205,159 +205,110 @@ OpenL Studio adds a view navigation link to the appropriate test table and vice 
 
 #### Running Unit Tests
 
-This section provides the methods used to run unit tests. The following topics are included in this section:
+This section describes how a table and its tests are run, and how the results read. The following topics are
+included in this section:
 
--   [Executing All Module Tests at Once](#executing-all-module-tests-at-once)
--   [Executing Tests for a Single Table](#executing-tests-for-a-single-table)
--   [Displaying Failures Only](#displaying-failures-only)
--   [Displaying Compound Result](#displaying-compound-result)
+-   [Running the Tests of a Table](#running-the-tests-of-a-table)
+-   [Running All Tests of a Module](#running-all-tests-of-a-module)
+-   [Reading Test Results](#reading-test-results)
+-   [Running a Table](#running-a-table)
 
-##### Executing All Module Tests at Once
+##### Running the Tests of a Table
 
-The system automatically executes all test runs, test cases, in every unit test in a module, including tests in module dependencies, and displays a summary of results.
+1.  In Rules editor, open the rule table to test and click **Test** in the toolbar above it. The button appears
+    for a table that has test tables. A panel opens under the button; clicking elsewhere on the page closes it.
 
-Test results display resembles the following sample:
+    ![Test button in the table toolbar with the panel open](images/test-start-button.png "Running the tests of a table")
 
-![Results of running all project tests](images/all-project-tests-results.jpeg)
+    *Running every test of a rule table*
 
-*Results of running all project tests*
+1.  To run only the rules of the current module and skip the modules it depends on, select **Within Current
+    Module Only**. While the project is still loading, or another module has errors, only the current module can
+    be used: the option is selected and cannot be changed.
+1.  **Failures Only** and **Compound Result** say what the results show; they can be changed there as well.
+1.  Click **Test**. Every test table that tests this rule table runs, and the results open in a window over the
+    table. Closing the window returns to the table, so a rule can be corrected and the tests run again.
+    **Test into File** runs them and saves the results as a workbook without showing them.
 
-1.  To run all module tests, click the **Run Tests** ![](images/run-tests-icon.png) icon in the top line menu of Rules Editor.
+To run a test table itself, open it and click **Run**: the panel lists its cases, every one of them runs unless
+some are ticked, and the results open in the same window. Selecting the cases is described in
+[Starting a Trace](#starting-a-trace), which lists them the same way.
 
-    Failed test cases are represented by ![](images/test-failed-mark-icon.png) mark. Passed tests are represented by ![](images/test-passed-mark-icon.png) mark.
+##### Running All Tests of a Module
 
-    By default, all tests are run in multi-module mode, and the system executes all tests of the project, including project dependencies.
+1.  Click **Test** in the module toolbar, above the module tree. The number next to it counts the tests of the
+    project.
+1.  In the panel that opens, leave **Within Current Module Only** clear to run every test of the project,
+    including the modules it depends on, or select it to run the tests of the current module only. **Tests per
+    page**, **Failures Only** and **Compound Result** say what the results show.
+1.  Click **Test**. The results are shown the same way as the tests of a single table, so only one kind of
+    results screen has to be read. **Test into File** saves them as a workbook without showing them.
 
-1.  To run the tests in the current module and its dependent modules only, select the **Within Current Module Only** check box in the button menu or test results page.
+##### Reading Test Results
 
-    ![Defining test settings](images/test-settings-within-module.jpeg)
+The results window lists every test table that ran, with the number of cases it holds and, in red, how many of
+them failed. The name of a table is green when every case of it passed and red when one did not, and it opens
+that test table in the editor. Every case is a row of that table: its id, a column for each value it was given,
+and a column for each value the test compares. A tick or a cross stands next to the case and next to every
+value that was compared, and a case that failed says how many of its comparisons did not match and shows the
+value that was expected under the value that came out.
 
-    *Defining test settings*
+A Run table states no expected values, so its results carry no ticks and no crosses: they only show what every
+run returned.
 
-    In the example above, test results are displayed with five test tables, unit tests, per page. This setting is configured for each user individually in User Profile as **Tests per page** setting.
+![Test results with the options above them](images/test-results.png "Reading test results")
 
-1.  To change the setting for a particular test run without updating user settings, click the arrow to the right of the **Run Tests** ![](images/run-tests-dropdown-icon.png) and choose a required number of **Tests per page**. There is an alternative way: the same setting options are displayed on the top of the window after executing all tests. The following picture provides an illustration:
+*Results of a test run*
 
-    ![Number of tests per page setting](images/tests-per-page-setting.png)
+The options above the list decide what it shows. They apply at once, without running the tests again:
 
-    *Number of tests per page setting*
+-   **Failures Only** — leaves out the cases that passed. **Failures per test** next to it limits how many
+    failures of one test table are listed, so a long list stays readable while a rule is corrected step by step.
+-   **Compound Result** — adds the whole value the rule returned to every case, and not only the values the test
+    compares. It is what a spreadsheet result is read with: the test names a few of its steps, and this option
+    shows all of them.
+-   **Tests per page** — how many test tables one page holds; the pager under the list reaches the rest. **All**
+    puts every test table on one page.
 
-1.  To export test results into an Excel file, in the **Run** or **Test** drop-down menu, select **Run into File** or **Test into File.** The generated file contains both results and input parameters.
+The screen opens with the options as they are saved in **My Settings**, and changing them here applies to this
+run only.
 
-##### Executing Tests for a Single Table
+To save the results, click **Save to Excel**. The workbook holds the same results and the input of every case.
 
-This section describes test execution. Proceed as follows:
+##### Running a Table
 
-1.  To execute all test runs for a particular rule table, select the rule table in the module tree and, in the upper part of the middle pane, click **Test** ![](images/run-tests-for-table-icon.png).
+A rule table can be run on its own, without a test table for it.
 
-    Test results resemble the following:
+1.  Open the table and click **Run** in the toolbar above it. The panel asks for the input the table takes: the
+    parameters as a tree, or the same input as JSON, exactly as
+    [Starting a Trace](#starting-a-trace) describes. A table that takes no parameters runs at once, with no panel.
 
-    ![Results of executing all test runs for one rule table](images/test-results-single-table.png)
+    ![Run button in the table toolbar with the panel open](images/run-start-button.png "Running a table")
 
-    *Results of executing all test runs for one rule table*
+    *Running a table with the input it takes*
 
-1.  To test a rule table even if no tests have been created for the given table yet, proceed as follows:
-2.  In the module tree, select the required rule table and click the green **Run** arrow ![](images/run-arrow-icon.png) above the table.
+1.  Click **Run**. The result opens in a window over the table: one row of what the table was given and what it
+    returned, a column each, with the runtime context first when the project provides one.
 
-    The form for entering required values to test rule table appears.
+    ![The result of running a table](images/run-result.png "Reading a run result")
 
-    ![Testing a rule table without tests](images/testing-rule-without-tests.png)
+    *Result of running a table*
 
-    *Testing a rule table without tests*
-1.  To run a test for the currently opened module and its dependent modules only, ensure that the **Within Current Module Only** option is selected.
-2.  In the pop-up window, click **Run**.
+    A table that returns a spreadsheet shows it as the table its author wrote: a row per step, a column per
+    spreadsheet column, and the calculated value in every cell.
 
-        The results of the testing are displayed.
+1.  To save the result, click **Save to Excel**.
 
-    ![Result of running virtual test](images/virtual-test-result.png)
+To save the result without reading it first, click **Run into File** instead of **Run**. The table runs and the
+result is written straight to a file, which is what a result too large to read on screen is taken with. A test
+table offers **Test into File** in the same place, and saves the results of its cases as a workbook.
 
-    *Result of running virtual test*
-3.  To export the results to a file, click **Run Into File**.
+Three options above the input decide what the file of a rule table holds:
 
-    By default, OpenL Studio generates an Excel file named `test-results.xlsx` with two sheets, **Result** and
-    **Parameters**. The following options control its content:
-
-    -   **Flat Parameter Layout** — selected by default, the **Parameters** sheet lists each attribute's name and
-        value on separate rows. Clear it for a more compact table format.
-    -   **Skip Empty Parameters** — select it to exclude empty input values.
-    -   **Result in JSON format** — select it to download the calculated result as `response.json` instead of the
-        Excel file. The JSON holds the result only, so **Flat Parameter Layout** and **Skip Empty Parameters** do
-        not apply.
-
-    The following examples illustrate how **Flat Parameter Layout** and **Skip Empty Parameters** affect
-    `test-results.xlsx`:
-
-    ![Default export layout with each parameter on its own row](images/test-export-flat-layout-default.png "Default export layout")
-
-    *Flat Parameter Layout = True, Skip Empty Parameters = False (default)*
-
-    ![Export layout with parameters in a compact table](images/test-export-non-flat-layout.png "Non-flat export layout")
-
-    *Flat Parameter Layout = False, Skip Empty Parameters = False*
-
-    ![Export layout with empty parameters excluded](images/test-export-skip-empty-params.png "Export with empty parameters skipped")
-
-    *Flat Parameter Layout = True, Skip Empty Parameters = True*
-
-A test table addresses its cases by the **ID** column. The column is not mandatory: define it and give each test
-case a unique value, or leave it out and OpenL Studio numbers the cases itself.
-
-1.  For test tables, to select test cases to be executed, proceed as follows:
-2.  Navigate to the **Run** button above the Test table and click the small black arrow ![](images/run-dropdown-arrow-icon.png).
-3.  In the pop-up window that appears, select or clear the check boxes for the appropriate IDs, and to run several particular test cases, define them in the **Use the Range** field.
-
-    ![Select test cases via Range field to be executed](images/select-test-cases-range.png)
-
-    *Select test cases via Range field to be executed*
-
-1.  If necessary, specify whether the test must be run in the current module only.
-2.  In the pop-up window, click **Run**.
-
-    Only the selected test cases are executed.
-
-    ![Result of selective testing](images/selective-test-results.jpeg)
-
-    *Result of selective testing*
-
-1.  To export test results into an Excel file, click **Test** and select **Test into File.**
-
-##### Displaying Failures Only
-
-There are cases when a user wants to examine results of failed test cases only. For example, the project contains a test with more than 50 test cases and a user just needs to know whether project rules are operating correctly, that is, whether all test cases are passed. If a user runs the test, a huge table of results is returned, which is difficult to review and find failures to correct the rule or case. For such situations, OpenL Studio provides an option to display failed test cases only.
-
-This option is configured for each user individually in User Profile as the **Failures Only** setting. There are multiple ways to change the setting for a particular test run without updating user settings:
-
--   Click the arrow to the right of the **Run Tests** ![](images/run-tests-icon.png) and in a pop-up window that appears, clear or select **Failures** **only**.
--   Select the Test table, navigate to the **Run** button above the table, click the **Run** arrow ![](images/run-arrow-with-settings-icon.png), and in the pop-up window that appears, select or clear **Failures only**.
--   Select or clear the **Failures only** setting that appears on the top of the window upon executing all tests at once as displayed in Figure 107: Number of tests per page setting.
-
-Additionally, the number of failed test cases displayed for one unit test can be limited. For example, a user is testing rules iteratively and is interested just in the first several failures in order to analyze and correct them, and re-execute tests, sequentially correcting errors. To do this, change **All** on an appropriate value next to **Failures per test** label or **first** label (for method 3). The setting is available only if **Failures only** is selected.
-
-![Settings for displaying failed test cases only](images/failures-only-settings.png)
-
-*Settings for displaying failed test cases only*
-
-##### Displaying Compound Result
-
-The result of a rule table execution can be a single value or compound value such as spreadsheet. A test table specifies what is tested, full result or particular parts of it, and their expected results of each test case. In the following example, *IncomeForecastTest* is intended to check Minimal and Maximal Total Salary values in the resulting spreadsheet:
-
-![Testing tables with compound result on](images/test-compound-result-table.png)
-
-*Testing tables with compound result on*
-
-After running the test, OpenL Studio displays each test case with input values and actual results marked as passed or failed.
-
-![Testing spreadsheet result](images/test-spreadsheet-result.png)
-
-*Testing spreadsheet result*
-
-In cases when test result is complex (compound), there is an option to display the full result of running test cases as well, not only values which are being tested. It is configured for each user individually in User Profile as “**Compound Result**” setting. If the option is switched on, the result of running *IncomeForecastTest* looks as follows:
-
-![Displaying compound result](images/test-compound-result-display.png)
-
-*Displaying compound result*
-
-This setting for a particular test run (without updating user settings) can be changed in the same ways as it is described in [Displaying Failures Only](#displaying-failures-only).
+-   **Skip Empty Parameters** — leaves the input values that are empty out of the workbook.
+-   **Flat Parameter Layout** — writes every field of an input on a row of its own. Clear it for a compact table
+    of the inputs.
+-   **Result in JSON Format** — writes the returned value on its own as JSON, instead of the workbook of the run.
 
 #### Creating a Test
 
@@ -403,35 +354,37 @@ Tracing is available for everything that can be run:
 
 #### Starting a Trace
 
-1.  In Rules Editor, open the table to trace and click **Trace** in the toolbar above the table.
+1.  In Rules editor, open the table to trace and click **Trace** in the toolbar above the table. A panel opens under the button; clicking elsewhere on the page closes it.
 
-    ![Trace button in the table toolbar with the trace options open](images/trace-start-button.png "Starting a trace")
+    ![Trace button in the table toolbar with the trace panel open](images/trace-start-button.png "Starting a trace")
 
     *Starting a trace from the table toolbar*
 
-1.  For a test table, select the test cases to trace. The checkbox in the header selects or clears all cases at once.
+1.  For a test table, select the test case to trace. Every case is listed by ID with the values of its columns, shown the way the trace window shows them, and the first case is selected at first. A trace runs one case, so click the case to trace. A value with inner structure, such as a whole datatype, is not read until you ask for it. Click **Load value** next to it to see it.
 
     ![Test case selection for tracing a test table](images/trace-test-table-popup.png "Tracing a test table")
 
-    *Selecting test cases to trace*
+    *Selecting a test case to trace*
+
+    A table with more than 25 cases is shown a page at a time; a pager appears under the list to reach the rest, and the case you selected stays selected while you look through the other pages.
 
 1.  For a rule or method table, provide the input parameters instead:
 
-    -   **Tree Form** — fill in the parameter fields.
+    -   **Form** — the parameters are shown as a tree, one folded line each, and clicking the arrow next to a parameter shows its fields with the value of every field next to its name; a field with a default value in its datatype starts with that value, the others start as `null`. Click the pencil next to a field to enter or change its value: a number field takes only a number, a date opens a calendar, and a value with a fixed set of options offers them in a list; the cross clears the value back to `null`. A nested object starts as `null`: **+** creates it with its fields empty, **×** makes it `null` again. A list starts as `null` too: **+** creates it, **+** on the list adds a `null` element that another **+** turns into an object, and **−** next to an element removes it. When the project provides a runtime context to its rules, **Runtime Context** is the last line of the form, under the parameters, and opens the same way.
 
         ![Parameter entry form for a rule table](images/trace-rule-table-form.png "Entering trace parameters")
 
         *Entering parameters for a rule table*
 
-    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON must include the `context` object. If the option is off or `isProvideRuntimeContext` is absent from `rules-deploy.xml`, OpenL Studio treats runtime context as disabled. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. Most users can ignore this option and stay on **Tree Form**.
+    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. Switching to **JSON** shows what the form holds, so the form can be filled in first and adjusted as text; switching back reads the text into the form. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON can carry it in the `runtimeContext` object. If the option is off or `isProvideRuntimeContext` is absent from `rules-deploy.xml`, OpenL Studio treats runtime context as disabled. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. Most users can ignore this option and stay on **Form**.
 
         ![JSON input option for tracing](images/trace-json-option.png "Tracing with JSON input")
 
         *Providing input as JSON*
 
-1.  To trace only the rules of the current module and skip the modules it depends on, select **Within Current Module Only**.
+1.  To trace only the rules of the current module and skip the modules it depends on, select **Within Current Module Only**. While the project is still loading, or another module has errors, only the current module can be traced: the option is selected and cannot be changed.
 1.  Leave **Advanced tracer** off — the default — to open the business view. Select it only for the full step debugger; see [The Advanced Mode](#the-advanced-mode). The mode is chosen here, before the trace starts, and stays fixed for the trace window.
-1.  Click **Trace**. The trace window opens and runs the calculation.
+1.  Click **Trace**. The trace window opens and runs the calculation. A table that takes no parameters is traced as soon as **Trace** is clicked in the toolbar; no panel opens for it.
 
 To save the calculation as a text file instead of opening the trace window, click **Trace into File**. OpenL Studio runs the rule and downloads the result as `trace.txt`.
 
@@ -571,31 +524,42 @@ Turn on the **Profiling** switch to keep the whole calculation and measure how l
 
 ### Using Benchmarking Tools
 
-OpenL Studio provides benchmarking tools for measuring execution time for all appropriate OpenL Tablets elements. In OpenL Tablets, everything that can be run can be benchmarked too. Benchmarking is useful for optimizing the rule structure and identifying critical paths in rule calculation.
+OpenL Studio measures how fast rules run. A benchmark is taken over the cases of a test table, so the rules it
+tests are measured with the input the table author wrote for them. It is useful for optimizing the rule
+structure and identifying critical paths in rule calculation. The following topics are included in this
+section:
 
-The benchmarking icon is displayed above the table to be traced.
+-   [Taking a Benchmark](#taking-a-benchmark)
+-   [Reading Benchmark Results](#reading-benchmark-results)
 
-![Controls for measuring performance](images/benchmarking-controls.png)
+#### Taking a Benchmark
 
-*Controls for measuring performance*
+1.  Open the test table to measure and click **Benchmark** in the toolbar above it. The button appears above a
+    test table and above a Run table, over whose cases the measurement is taken. A panel opens under the
+    button; clicking elsewhere on the page closes it.
 
-For a test table, select the test cases as follows:
+    ![Benchmark button in the table toolbar with the panel open](images/benchmarking-controls.png "Taking a benchmark")
 
-1.  Open the required test table.
-2.  Navigate to the **Benchmark** button above the test table and click the small right-hand black arrow to open a pop-up with test cases as needed.
-3.  Select or deselect the test cases as needed.
+    *Measuring a test table over its cases*
 
-    By default, all cases are selected. All test cases can be also checked or unchecked by using the checkbox on the left of **Test Parameter(s)**.
+1.  The panel lists the cases of the table. Leave **All cases** selected to measure the table the way it runs,
+    over every case at once, or tick the cases to measure each of them on its own. Selecting the cases is
+    described in [Starting a Trace](#starting-a-trace), which lists them the same way.
+1.  To measure only the rules of the current module and skip the modules it depends on, select **Within Current
+    Module Only**.
+1.  Click **Benchmark**. The table runs over and over until the measurement lasts long enough to be meaningful,
+    so it takes a few seconds. The results then open in a window over the table.
 
-1.  Click the **Benchmark** button within the pop-up.
+#### Reading Benchmark Results
 
-Clicking the benchmarking icon runs the corresponding method or set of methods and displays the results in a table.
+Every measurement is a row of the results.
 
-![Benchmarking results](images/benchmarking-results.png)
+![Benchmark results](images/benchmarking-results.png "Reading benchmark results")
 
-*Benchmarking results*
+*Benchmark results*
 
-Benchmark is displayed using the following parameters:
+A row reports the measured table, the number of test cases one run covered, the input of the measured case, and
+the following numbers:
 
 | Parameter      | Description                                                                             |
 |----------------|-----------------------------------------------------------------------------------------|
@@ -605,10 +569,15 @@ Benchmark is displayed using the following parameters:
 | Runs (ms)      | Time required for all test cases of the table, or rule set, execution, in milliseconds. |
 | Runs/sec       | Number of such rule sets that can be executed per second.                               |
 
-OpenL Studio remembers all benchmarking runs executed within one session. Every time a new benchmark is run, a new row is added to the results table.
-Benchmarking results can be compared to identify the most time consuming methods. Select the required check boxes and click **Compare** to compare results in the results table.
-Comparison results are displayed below the benchmarking table.
+OpenL Studio remembers every benchmark taken within one session, the newest first, so measurements of different
+tables and cases stand side by side. Measuring another project starts a new list.
 
-![Comparing benchmarking results](images/benchmarking-compare-results.png)
+Tick the rows and click **Compare** to find the most time consuming of them. The comparison is shown under the
+results: it places the measurements by speed, the fastest first, and says how many times slower each of the
+others is.
 
-*Comparing benchmarking results*
+![Comparing benchmark results](images/benchmarking-compare-results.png "Comparing benchmark results")
+
+*Comparing benchmark results*
+
+**Delete** forgets the rows that are ticked.

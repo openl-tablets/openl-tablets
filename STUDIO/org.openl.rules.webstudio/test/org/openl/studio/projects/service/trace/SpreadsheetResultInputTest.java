@@ -11,7 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
@@ -158,19 +157,17 @@ class SpreadsheetResultInputTest {
     }
 
     @Test
-    @DisplayName("A runtime context survives the round trip alongside the arguments")
-    void runtimeContextRoundTrips() throws Exception {
+    @DisplayName("A runtime context in the structured form is read alongside the arguments")
+    void runtimeContextIsReadFromStructuredInput() {
         var target = method("PolicyOverrideCalculation", ratingDetailsType);
-        var parsed = parser.parseInput("{\"Plan\":\"P7\",\"Total\":2.0}", target, mapper);
-        var context = new DefaultRulesRuntimeContext();
-        context.setLob("Home");
 
-        var json = parser.formatInput(parsed.params(), context, target, mapper);
-        var reparsed = parser.parseInput(json, target, mapper);
+        var parsed = parser.parseInput(
+                "{\"params\":{\"ratingDetails\":{\"Plan\":\"P7\",\"Total\":2.0}},\"runtimeContext\":{\"lob\":\"Home\"}}",
+                target, mapper);
 
-        assertEquals("P7", firstParam(reparsed).getFieldValue("$Plan"));
-        assertNotNull(reparsed.runtimeContext());
-        assertEquals("Home", reparsed.runtimeContext().getLob());
+        assertEquals("P7", firstParam(parsed).getFieldValue("$Plan"));
+        assertNotNull(parsed.runtimeContext());
+        assertEquals("Home", parsed.runtimeContext().getLob());
     }
 
     @Test
@@ -188,27 +185,14 @@ class SpreadsheetResultInputTest {
     }
 
     @Test
-    @DisplayName("Formatted input is read back into the same spreadsheet result")
-    void formattedInputRoundTrips() throws Exception {
-        var target = method("PolicyOverrideCalculation", ratingDetailsType);
-        var parsed = parser.parseInput("{\"Plan\":\"P5\",\"Total\":6.0}", target, mapper);
-
-        var json = parser.formatInput(parsed.params(), null, target, mapper);
-        var reparsed = parser.parseInput(json, target, mapper);
-
-        assertEquals("P5", firstParam(reparsed).getFieldValue("$Plan"));
-        assertEquals(6.0, firstParam(reparsed).getFieldValue("$Total"));
-    }
-
-    @Test
-    @DisplayName("A missing argument is formatted as null and stays null when read back")
-    void missingArgumentRoundTripsAsNull() throws Exception {
+    @DisplayName("An argument sent as null stays null")
+    void nullArgumentStaysNull() {
         var target = method("OverrideWithPolicy", JavaOpenClass.STRING, ratingDetailsType);
 
-        var json = parser.formatInput(new Object[]{"POL-2", null}, null, target, mapper);
-        var reparsed = parser.parseInput(json, target, mapper);
+        var parsed = parser.parseInput(
+                "{\"params\":{\"policyId\":\"POL-2\",\"ratingDetails\":null}}", target, mapper);
 
-        assertEquals("POL-2", reparsed.params()[0]);
-        assertNull(reparsed.params()[1]);
+        assertEquals("POL-2", parsed.params()[0]);
+        assertNull(parsed.params()[1]);
     }
 }

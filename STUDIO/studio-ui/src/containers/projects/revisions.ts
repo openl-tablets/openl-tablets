@@ -61,11 +61,14 @@ export interface ProjectRevisions {
  *
  * Naming a file reads that file's own history instead of the project's: only the revisions that changed it,
  * with the revision that removed it left out, so every revision offered is one the file can be read from.
+ *
+ * Naming a branch reads the history on that branch rather than on the one the project is on.
  */
 export const useProjectRevisions = (
-    project: Project | null,
+    project: Pick<Project, 'id'> | null,
     enabled: boolean,
-    filePath?: string
+    filePath?: string,
+    branch?: string
 ): ProjectRevisions => {
     const [revisions, setRevisions] = useState<ProjectRevision[] | null>(null)
     const [error, setError] = useState<string | null>(null)
@@ -75,11 +78,12 @@ export const useProjectRevisions = (
     const generation = useRef(0)
 
     const readPage = useCallback((page: number): Promise<RevisionPage> => {
-        const query = { size: REVISIONS_PAGE_SIZE, page }
+        // A branch is asked for only where one is chosen; a file is read on the branch the project is on.
+        const query = { size: REVISIONS_PAGE_SIZE, page, ...(branch ? { branch } : {}) }
         return filePath
             ? getFileRevisions(project!.id, filePath, query)
             : getProjectRevisions(project!.id, query)
-    }, [project?.id, filePath])
+    }, [project?.id, filePath, branch])
 
     useEffect(() => {
         // Bumped before the guard: a page still in flight when the dialog closes must not land in the
@@ -110,7 +114,7 @@ export const useProjectRevisions = (
                     setError(errorMessage(e))
                 }
             })
-    }, [enabled, project?.id, filePath])
+    }, [enabled, project?.id, filePath, branch])
 
     // A total says outright whether anything is left; without one, a full page means there may be.
     const loaded = revisions?.length ?? 0

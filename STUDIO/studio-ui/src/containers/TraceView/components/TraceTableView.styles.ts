@@ -30,18 +30,6 @@ export const useStyles = createStyles(({ css, token }) => ({
         overflow: auto;
         max-width: 100%;
     `,
-    table: css`
-        border-collapse: collapse;
-        width: 100%;
-        font-size: ${token.fontSizeSM}px;
-    `,
-    cell: css`
-        border: 1px solid ${token.colorBorderSecondary};
-        padding: ${token.paddingXXS}px ${token.paddingXS}px;
-        text-align: left;
-        vertical-align: top;
-        white-space: pre-wrap;
-    `,
     // Everything that is NOT part of the highlighted calculation, muted to grey (like the legacy trace),
     // so the highlighted cells are the only colour on the table and the eye lands on them instantly.
     dimmed: css`

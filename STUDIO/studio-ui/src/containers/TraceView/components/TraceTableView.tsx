@@ -5,6 +5,7 @@ import { useTraceStore } from 'store'
 import traceService from 'services/traceService'
 import { NotFoundError, isApiHttpError } from 'services'
 import type { HighlightState, RawTableCell } from 'types/trace'
+import { RawTableGrid } from 'components/RawTableGrid'
 import { useStyles } from './TraceTableView.styles'
 
 interface TraceTableViewProps {
@@ -14,28 +15,6 @@ interface TraceTableViewProps {
     /** Mute every non-highlighted cell to grey (the business view), so the highlights carry the colour. */
     dimOthers?: boolean | undefined
 }
-
-const formatValue = (value: RawTableCell['value']): string => (value == null ? '' : String(value))
-
-/** Stable row key from the first cell's A1 address (e.g. `A2`); falls back to the row position. */
-const rowKey = (row: RawTableCell[], index: number): string => {
-    const address = row.find(cell => cell.cell)?.cell
-    return address ?? `r${index}`
-}
-
-/**
- * The cell's Excel styling. The trace highlight (a class) must win over the Excel background, so the
- * background is painted only when the cell is not highlighted; font and alignment always apply.
- */
-const cellStyle = (s: RawTableCell['style'], highlighted: boolean): React.CSSProperties => ({
-    background: highlighted ? undefined : s?.background,
-    color: s?.color,
-    textAlign: s?.align as React.CSSProperties['textAlign'],
-    verticalAlign: s?.valign as React.CSSProperties['verticalAlign'],
-    fontWeight: s?.bold ? 'bold' : undefined,
-    fontStyle: s?.italic ? 'italic' : undefined,
-    textDecoration: s?.underline ? 'underline' : undefined,
-})
 
 /**
  * Renders a stack frame's table from the raw Tables API grid and overlays the trace highlights
@@ -150,39 +129,22 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCe
     ]
     const shownLegend = legend.filter(item => paintedStates.has(item.state))
 
+    // In the dimmed business view the current cell needs no colour of its own — it is the only cell
+    // left uncoloured, so it already stands out; keep it exactly as the table draws it. A decision
+    // table's matched conditions and result still carry meaning and keep their highlight.
+    const decorate = (cell: RawTableCell) => {
+        const state = cell.cell ? highlights[cell.cell] : undefined
+        const painted = paintedState(state)
+        return {
+            className: cx(painted && styles[painted], dim && !state && styles.dimmed),
+            painted: !!painted,
+        }
+    }
+
     return (
         <Card className={styles.card} size="small" title={t('details.table')}>
             <div className={styles.content}>
-                <table className={styles.table} data-testid="trace-table">
-                    <tbody>
-                        {rows.map((row, r) => (
-                            <tr key={rowKey(row, r)}>
-                                {row.map((cell, c) => {
-                                    if (cell.covered) return null
-                                    const state = cell.cell ? highlights[cell.cell] : undefined
-                                    // In the dimmed business view the current cell needs no colour of its
-                                    // own — it is the only cell left uncoloured, so it already stands out;
-                                    // keep it exactly as the table draws it. A decision table's matched
-                                    // conditions and result still carry meaning and keep their highlight.
-                                    const painted = paintedState(state)
-                                    return (
-                                        <td
-                                            key={cell.cell ?? `c${c}`}
-                                            colSpan={cell.colspan}
-                                            data-cell={cell.cell}
-                                            rowSpan={cell.rowspan}
-                                            style={cellStyle(cell.style, !!painted)}
-                                            className={cx(styles.cell, painted && styles[painted],
-                                                dim && !state && styles.dimmed)}
-                                        >
-                                            {formatValue(cell.value)}
-                                        </td>
-                                    )
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <RawTableGrid decorate={decorate} rows={rows} testId="trace-table" />
             </div>
             {shownLegend.length > 0 && (
                 <div className={styles.legend} data-testid="trace-legend">

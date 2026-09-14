@@ -1,0 +1,31 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "identical": false,
+  "sheets": [
+    {
+      "id": "0",
+      "name": "Sheet1",
+      "type": "sheet",
+      "status": "changed",
+      "children": [
+        {
+          "id": "0-0",
+          "name": "Datatype Foo",
+          "type": "table",
+          "status": "changed",
+          "changes": [
+            {
+              "property": "size",
+              "first": "2x2",
+              "second": "2x3"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

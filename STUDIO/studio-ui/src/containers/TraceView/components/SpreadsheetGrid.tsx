@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
 import type { StepValueView } from 'types/trace'
 import { ParameterTree } from './TraceParameters'
-import { onActivate } from './keyboardActivate'
+import { onActivate } from 'utils/keyboardActivate'
 import { useStyles } from './SpreadsheetGrid.styles'
 
 interface SpreadsheetGridProps {

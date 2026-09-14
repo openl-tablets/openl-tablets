@@ -62,7 +62,12 @@ public class RepoFileRootFactory {
      */
     private ProjectLockGuard lockGuard(Repository repository, Repository resolved) {
         var userWorkspace = getUserWorkspace();
-        String branch = resolved instanceof BranchRepository branchRepo ? branchRepo.getBranch() : null;
+        // A repository that knows nothing of branches can still be wrapped in something that implements
+        // the branch contract - the ACL wrapper does - so what it supports is asked before it is asked
+        // which branch it is on, which such a repository cannot answer.
+        String branch = resolved.supports().branches() && resolved instanceof BranchRepository branchRepo
+                ? branchRepo.getBranch()
+                : null;
         return new ProjectLockGuard(userWorkspace.getDesignTimeRepository(),
                 userWorkspace.getProjectsLockEngine(),
                 repository.getId(),

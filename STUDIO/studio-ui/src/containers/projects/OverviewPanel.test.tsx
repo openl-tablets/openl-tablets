@@ -554,7 +554,7 @@ describe('OverviewPanel', () => {
         await user.click(screen.getByTestId('overview-edit'))
         // The clear control of the file picker is the way to drop the configuration.
         const select = screen.getByTestId('edit-openapi-path')
-        fireEvent.mouseDown(select.querySelector('.ant-select-clear')!)
+        await user.click(select.querySelector('.ant-select-clear')!)
 
         await user.click(screen.getByTestId('overview-save'))
 

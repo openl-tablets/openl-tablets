@@ -4,11 +4,10 @@ import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from '../../hooks'
 import { apiCall, NotFoundError } from '../../services'
-import { errorMessage } from '../../utils/errorMessage'
 import { MergeBranchesStep } from './MergeBranchesStep'
 import { ConflictResolutionStep } from './ConflictResolutionStep'
 import { BranchInfo, ConflictDetails, ConflictGroup, MergeModalDetail, MergeResultResponse, MergeStep } from './types'
-import { openMergeConflictCompare } from './mergeConflictCompare'
+import { openConflictCompareWindow } from '../projects/compare'
 
 /**
  * MergeModal component
@@ -114,22 +113,13 @@ export const MergeModal: React.FC = () => {
         handleClose()
     }, [handleClose])
 
+    // The comparison opens in a window of its own, which reads the two versions itself - the same
+    // window wherever the merge was started from.
     const handleCompare = useCallback((filePath: string) => {
-        // Prefer the legacy RichFaces bridge when the modal is opened from JSF.
-        if (detail?.onCompare) {
-            detail.onCompare(filePath)
-            return
+        if (detail) {
+            openConflictCompareWindow(detail.projectId, filePath)
         }
-        if (!detail) {
-            return
-        }
-        void openMergeConflictCompare(detail.projectId, filePath).catch(error => {
-            notification.error({
-                title: t('merge:errors.compare_failed'),
-                description: errorMessage(error),
-            })
-        })
-    }, [detail, t])
+    }, [detail])
 
     const handleCheckCommitInfo = useCallback((callback: () => void) => {
         void runWithCommitInfo(callback)

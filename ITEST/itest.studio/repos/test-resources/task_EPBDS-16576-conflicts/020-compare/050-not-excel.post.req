@@ -1,0 +1,3 @@
+POST /rest/projects/{PROJECT_NAME}/merge/conflicts/compare?file=EPBDS-16576-Conflicts%2Frules.xml HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

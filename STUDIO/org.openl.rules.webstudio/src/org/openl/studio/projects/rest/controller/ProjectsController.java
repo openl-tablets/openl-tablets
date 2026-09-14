@@ -52,12 +52,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.model.UserInfoModel;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
@@ -86,10 +89,13 @@ import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableIdView;
+import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableView;
+import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
+import org.openl.studio.projects.model.tests.TestUnitExecutionResult;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
@@ -103,6 +109,7 @@ import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.GraphLayer;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
@@ -129,6 +136,9 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class ProjectsController {
 
+    /** How many cases of a test table a page carries unless the client asks for another size. */
+    private static final int TEST_CASE_PAGE_SIZE = 25;
+
     private static final String TAGS_PREFIX = "tags.";
     private static final String PROPERTIES_PREFIX = "properties.";
     private static final String APPLICATION_XLSX_MEDIATYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -146,6 +156,7 @@ public class ProjectsController {
     private final ProjectMetadataService metadataService;
     private final ProjectMigrationService migrationService;
     private final ProjectRevisionService projectRevisionService;
+    private final TableInputService tableInputService;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -154,6 +165,12 @@ public class ProjectsController {
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
+        return null;
+    }
+
+    /** The generator for the input a table takes. It also records the defaults a datatype declares. */
+    @Lookup("inputSchemaGenerator")
+    protected SchemaGenerator getInputSchemaGenerator(ObjectMapper objectMapper) {
         return null;
     }
 
@@ -323,10 +340,11 @@ public class ProjectsController {
     @Operation(summary = "projects.history.list.summary", description = "projects.history.list.desc")
     @JsonView(UserInfoModel.View.Short.class)
     public PageResponse<ProjectRevision> getHistory(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                    @Parameter(description = "repo.param.branch-name.desc") @RequestParam(value = "branch", required = false) String branch,
                                                     @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String search,
                                                     @Parameter(description = "repo.param.techRevs.desc") @RequestParam(value = "techRevs", required = false, defaultValue = "false") boolean techRevs,
                                                     @PaginationDefault Pageable page) throws IOException {
-        return projectRevisionService.getProjectRevision(project, search, techRevs, page);
+        return projectRevisionService.getProjectRevision(project, branch, search, techRevs, page);
     }
 
     @GetMapping("/{projectId}/branches")
@@ -491,6 +509,52 @@ public class ProjectsController {
     public TablePropertiesView getTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
                                                   @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId) {
         return projectService.getTableProperties(project, tableId);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/input")
+    @Operation(summary = "projects.table.input.summary", description = "projects.table.input.desc")
+    public TableInputView getTableInput(@ProjectId @PathVariable("projectId") RulesProject project,
+                                        @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                        @RequestParam(value = "fromModule", required = false) @Parameter(description = "projects.table.input.param.from-module.desc") String fromModule) {
+        var moduleName = StringUtils.trimToNull(fromModule);
+        var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
+        var objectMapper = objectMapperService.createObjectMapper();
+        return tableInputService.describe(projectModel, requireTable(projectModel, tableId), moduleName != null,
+                objectMapper, getInputSchemaGenerator(objectMapper));
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/input/cases")
+    @Operation(summary = "projects.table.input-cases.summary", description = "projects.table.input-cases.desc")
+    public PageResponse<TestCaseView> getTableInputCases(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                         @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                                         @RequestParam(value = "fromModule", required = false) @Parameter(description = "projects.table.input.param.from-module.desc") String fromModule,
+                                                         @PaginationDefault(size = TEST_CASE_PAGE_SIZE) Pageable page) {
+        var moduleName = StringUtils.trimToNull(fromModule);
+        var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
+        var objectMapper = objectMapperService.createObjectMapper();
+        return tableInputService.listTestCases(projectModel, requireTable(projectModel, tableId), moduleName != null,
+                page, objectMapper, getInputSchemaGenerator(objectMapper));
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/input/cases/{caseId}")
+    @Operation(summary = "projects.table.input-case.summary", description = "projects.table.input-case.desc")
+    public TestCaseView getTableInputCase(@ProjectId @PathVariable("projectId") RulesProject project,
+                                          @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                          @PathVariable("caseId") @Parameter(description = "projects.table.input-case.param.case-id.desc") String caseId,
+                                          @RequestParam(value = "fromModule", required = false) @Parameter(description = "projects.table.input.param.from-module.desc") String fromModule) {
+        var moduleName = StringUtils.trimToNull(fromModule);
+        var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
+        var objectMapper = objectMapperService.createObjectMapper();
+        return tableInputService.describeTestCase(projectModel, requireTable(projectModel, tableId), moduleName != null,
+                caseId, objectMapper, getInputSchemaGenerator(objectMapper));
+    }
+
+    private static IOpenLTable requireTable(ProjectModel projectModel, String tableId) {
+        var table = projectModel.getTableById(tableId);
+        if (table == null) {
+            throw new NotFoundException("table.message");
+        }
+        return table;
     }
 
     @GetMapping("/{projectId}/tables/graph")
@@ -667,28 +731,24 @@ public class ProjectsController {
                                              @Parameter(description = "projects.tests.summary.param.failures.desc")
                                              @Min(1)
                                              int failures,
+                                             @RequestParam(value = "compoundResult", defaultValue = "false")
+                                             @Parameter(description = "projects.tests.summary.param.compound-result.desc")
+                                             boolean compoundResult,
+                                             @RequestParam(value = "lazyValues", defaultValue = "false")
+                                             @Parameter(description = "projects.tests.summary.param.lazy-values.desc")
+                                             boolean lazyValues,
                                              @PaginationDefault Pageable page,
                                              @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
                                              @RequestHeader(name = HttpHeaders.ACCEPT)
                                              String acceptMediaType) throws IOException {
-        var projectId = projectIdentifierMapper.map(project);
-        if (!executionTestsResultRegistry.hasTask(projectId)) {
-            throw new NotFoundException("tests.execution.task.message");
-        }
-        if (!executionTestsResultRegistry.isDone(projectId)) {
-            throw new ConflictException("tests.execution.not.completed.message");
-        }
-        var executionResults = executionTestsResultRegistry.getResultIfDone(projectId);
-        if (executionResults == null) {
-            throw new NotFoundException("tests.execution.task.message");
-        }
+        var executionResults = completedTests(project);
 
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
             var objectMapper = objectMapperService.createObjectMapper();
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator,
                     projectService.getSpreadsheetResultNamingStrategy());
-            var query = new TestExecutionSummaryQuery(failuresOnly, failures);
+            var query = new TestExecutionSummaryQuery(failuresOnly, failures, compoundResult, lazyValues);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             var output = new ByteArrayOutputStream();
@@ -700,6 +760,53 @@ public class ProjectsController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
+    }
+
+    @Operation(summary = "projects.tests.case.summary", description = "projects.tests.case.desc")
+    @ApiResponse(responseCode = "200", description = "projects.tests.case.200.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TestUnitExecutionResult.class)))
+    @ApiResponse(responseCode = "404", description = "projects.tests.case.404.desc")
+    @ApiResponse(responseCode = "409", description = "projects.tests.summary.409.desc")
+    @GetMapping("/{projectId}/tests/summary/{tableId}/cases/{caseId}")
+    public TestUnitExecutionResult getTestCaseResult(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @PathVariable("tableId") @Parameter(description = "projects.tests.case.param.table-id.desc") String tableId,
+            @PathVariable("caseId") @Parameter(description = "projects.tests.case.param.case-id.desc") String caseId) {
+
+        var testCase = completedTests(project).stream()
+                .filter(candidate -> tableId.equals(TableUtils.makeTableId(candidate.getTestSuite().getUri())))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
+        var testUnit = testCase.getTestUnits().stream()
+                .filter(candidate -> caseId.equals(candidate.getTest().getId()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
+
+        var objectMapper = objectMapperService.createObjectMapper();
+        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, getSchemaGenerator(objectMapper),
+                projectService.getSpreadsheetResultNamingStrategy());
+        return mapper.mapToTestUnitResult(testCase, testUnit, TestExecutionSummaryQuery.inFull());
+    }
+
+    /**
+     * The results of the test run that has ended, for the project of the request.
+     *
+     * @throws NotFoundException when no test run is remembered for the project
+     * @throws ConflictException when the tests are still running
+     */
+    private List<TestUnitsResults> completedTests(RulesProject project) {
+        var projectId = projectIdentifierMapper.map(project);
+        if (!executionTestsResultRegistry.hasTask(projectId)) {
+            throw new NotFoundException("tests.execution.task.message");
+        }
+        if (!executionTestsResultRegistry.isDone(projectId)) {
+            throw new ConflictException("tests.execution.not.completed.message");
+        }
+        var executionResults = executionTestsResultRegistry.getResultIfDone(projectId);
+        if (executionResults == null) {
+            throw new NotFoundException("tests.execution.task.message");
+        }
+        return executionResults;
     }
 
     /**

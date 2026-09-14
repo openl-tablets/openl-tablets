@@ -4,10 +4,10 @@ Content-Type: application/json
 [
   {
     "name": "Legacy",
-    "path": "rules/Legacy.xls"
+    "path": "Legacy.xls"
   },
   {
     "name": "Main",
-    "path": "rules/Main.xlsx"
+    "path": "Main.xlsx"
   }
 ]

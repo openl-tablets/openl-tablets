@@ -63,7 +63,7 @@ class RunExecutionResultMapperTest {
         when(results.getTestUnits()).thenReturn(List.of());
         when(results.getExecutionTime()).thenReturn(2_000_000L);
 
-        var result = mapper.mapResult(results);
+        var result = mapper.mapResult(results, true);
 
         assertEquals(TABLE_NAME, result.tableName());
         assertNotNull(result.tableId());
@@ -97,7 +97,7 @@ class RunExecutionResultMapperTest {
 
         when(schemaGenerator.generateSchema(Integer.class)).thenReturn(schema);
 
-        var result = mapper.mapResult(results);
+        var result = mapper.mapResult(results, true);
 
         assertEquals(TABLE_NAME, result.tableName());
         assertEquals(5.0, result.executionTimeMs(), 0.001);
@@ -125,7 +125,7 @@ class RunExecutionResultMapperTest {
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
-        var result = mapper.mapResult(results);
+        var result = mapper.mapResult(results, true);
 
         assertNull(result.result());
         assertNull(result.resultSchema());
@@ -147,7 +147,7 @@ class RunExecutionResultMapperTest {
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
-        var result = mapper.mapResult(results);
+        var result = mapper.mapResult(results, true);
 
         assertNull(result.result());
         assertNull(result.resultSchema());
@@ -178,7 +178,7 @@ class RunExecutionResultMapperTest {
         when(paramType.getInstanceClass()).thenReturn((Class) Integer.class);
         when(schemaGenerator.generateSchema(Integer.class)).thenReturn(schema);
 
-        var result = mapper.mapResult(results);
+        var result = mapper.mapResult(results, true);
 
         assertEquals(1, result.parameters().size());
         var p = result.parameters().getFirst();
@@ -207,7 +207,7 @@ class RunExecutionResultMapperTest {
         when(testUnit.getErrors()).thenReturn(List.of());
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
-        var result = mapper.mapResult(results);
+        var result = mapper.mapResult(results, true);
 
         assertEquals(1, result.contextParameters().size());
         var cp = result.contextParameters().getFirst();
@@ -236,7 +236,7 @@ class RunExecutionResultMapperTest {
         when(testUnit.getErrors()).thenReturn(List.of(error1, error2, warning));
         when(testDescription.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
-        var result = mapper.mapResult(results);
+        var result = mapper.mapResult(results, true);
 
         assertEquals(3, result.errors().size());
         // Sorted by severity then id
@@ -253,7 +253,7 @@ class RunExecutionResultMapperTest {
     void mapResult_namesExecutedTable() {
         mockSingleUnit();
 
-        var result = mapper.mapResult(results);
+        var result = mapper.mapResult(results, true);
 
         assertEquals(TABLE_NAME, result.tableName());
     }

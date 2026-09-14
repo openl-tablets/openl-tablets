@@ -266,9 +266,14 @@ public class ProjectCreationService {
     }
 
     /**
-     * Create a project from uploaded files, granting the creator a CONTRIBUTOR ACL. The upload dispatcher
-     * recognises the content by extension: a single ZIP archive, one or more Excel files, or a single
-     * OpenAPI (Swagger) file (which builds a data-types module and a rules module at the given paths).
+     * Creates a project from uploaded files and grants the creator a CONTRIBUTOR ACL.
+     *
+     * <p>The upload dispatcher recognises a single ZIP archive, one or more Excel files, or a single OpenAPI file.
+     * An OpenAPI upload builds a data-types module and a rules module at the requested paths.
+     *
+     * <p>When Excel files do not supply {@code rules.xml}, their workbooks are stored in the standard project layout
+     * and a descriptor is created. An archive without {@code rules.xml} keeps its paths and receives a descriptor for
+     * root-level workbooks.
      *
      * @return the created project's file data (branch/revision)
      */

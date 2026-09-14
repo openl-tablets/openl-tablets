@@ -106,37 +106,7 @@ export interface CellHighlight {
     state: HighlightState
 }
 
-/** Excel cell style read from the workbook; every field is optional and absent when it is the default. */
-export interface RawTableCellStyle {
-    /** Background colour as #rrggbb (absent when white) */
-    background?: string
-    /** Font colour as #rrggbb (absent when black) */
-    color?: string
-    /** Horizontal alignment */
-    align?: string
-    /** Vertical alignment */
-    valign?: string
-    bold?: boolean
-    italic?: boolean
-    underline?: boolean
-    indent?: number
-}
-
-/** One cell of a raw table grid (Tables API `?raw=true`). */
-export interface RawTableCell {
-    /** Cell address in A1 notation; absent on covered cells */
-    cell?: string
-    /** Typed cell value (number, string, boolean), or absent when empty */
-    value?: string | number | boolean | null
-    /** Number of columns this cell spans (>= 2), when merged */
-    colspan?: number
-    /** Number of rows this cell spans (>= 2), when merged */
-    rowspan?: number
-    /** True for a cell masked by another cell's span */
-    covered?: boolean
-    /** Excel cell style, present only when the raw table was requested with `styles=true` */
-    style?: RawTableCellStyle
-}
+export type { RawTableCell, RawTableCellStyle } from './tables'
 
 /** A table in raw tabular form: a 2D matrix of cells with merge geometry. */
 export interface RawTableView {

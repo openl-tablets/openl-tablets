@@ -182,7 +182,7 @@ These functions enable advanced calculations for risk assessment, forecasting, a
 
 ```properties
 security.single.username=john.smith
-security.single.email=john.smith@company.com
+security.single.email=john.smith@example.com
 security.single.first-name=John
 security.single.last-name=Smith
 security.single.display-name=John Smith

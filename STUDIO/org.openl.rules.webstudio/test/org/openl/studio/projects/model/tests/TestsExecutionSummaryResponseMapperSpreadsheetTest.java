@@ -47,7 +47,7 @@ class TestsExecutionSummaryResponseMapperSpreadsheetTest {
         var objectMapper = new ObjectMapper();
         var schemaGenerator = new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper);
         var mapper = new TestsExecutionSummaryResponseMapper(objectMapper, schemaGenerator, null);
-        summary = mapper.mapExecutionSummary(results, new TestExecutionSummaryQuery(false, 5), Pageable.unpaged());
+        summary = mapper.mapExecutionSummary(results, new TestExecutionSummaryQuery(false, 5, false, false), Pageable.unpaged());
     }
 
     /**

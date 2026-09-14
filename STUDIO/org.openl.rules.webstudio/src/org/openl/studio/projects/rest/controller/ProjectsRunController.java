@@ -143,6 +143,12 @@ public class ProjectsRunController {
     @GetMapping(value = "/result", produces = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE})
     public ResponseEntity<?> getResult(
             @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam(value = "skipEmptyParameters", defaultValue = "false")
+            @Parameter(description = "run.param.skip-empty-parameters.desc") boolean skipEmptyParameters,
+            @RequestParam(value = "flattenParameters", defaultValue = "true")
+            @Parameter(description = "run.param.flatten-parameters.desc") boolean flattenParameters,
+            @RequestParam(value = "spreadsheet", defaultValue = "false")
+            @Parameter(description = "run.param.spreadsheet.desc") boolean spreadsheet,
             @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
             @RequestHeader(name = HttpHeaders.ACCEPT)
             String acceptMediaType) throws IOException {
@@ -164,10 +170,10 @@ public class ProjectsRunController {
             var schemaGenerator = getSchemaGenerator(objectMapper);
             var mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator,
                     projectService.getSpreadsheetResultNamingStrategy());
-            return ResponseEntity.ok(mapper.mapResult(results));
+            return ResponseEntity.ok(mapper.mapResult(results, spreadsheet));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             var output = new ByteArrayOutputStream();
-            new RulesResultExport().export(output, Integer.MAX_VALUE, results);
+            new RulesResultExport().export(output, Integer.MAX_VALUE, skipEmptyParameters, flattenParameters, results);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("run-result.xlsx"))
                     .header(HttpHeaders.CONTENT_TYPE, APPLICATION_XLSX_MEDIATYPE)

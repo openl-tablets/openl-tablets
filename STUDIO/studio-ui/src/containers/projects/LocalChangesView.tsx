@@ -3,11 +3,11 @@ import { Alert, Button, Checkbox, Empty, Modal, notification, Spin, Typography }
 import { useTranslation } from 'react-i18next'
 import { createStyles } from 'antd-style'
 import { notifyLoadFailure } from '../../services/apiCall'
-import CONFIG from '../../services/config'
 import { getLocalHistory, restoreLocalHistory, type LocalHistoryItem } from '../../services/localHistory'
 import { useListPageStyles } from '../../styles/listPageStyles'
 import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { errorMessage } from '../../utils/errorMessage'
+import { openVersionsCompareWindow } from './compare'
 
 interface LocalChangesViewProps {
     projectId: string
@@ -112,23 +112,14 @@ export const LocalChangesView = ({ projectId, moduleName }: LocalChangesViewProp
             : previous.filter(selectedId => selectedId !== id))
     }
 
+    // The two versions are compared in the comparison window, which is told what to compare rather
+    // than asked for files: it starts the comparison itself, so no window waits on a request.
     const compare = () => {
-        const [version1, version2] = selected
-        if (!version1 || !version2) {
+        const [first, second] = selected
+        if (!first || !second) {
             return
         }
-        const params = new URLSearchParams({
-            disableUpload: 'true',
-            projectId,
-            module: moduleName,
-            version1,
-            version2,
-        })
-        window.open(
-            `${CONFIG.CONTEXT}/faces/pages/modules/compare.xhtml?${params}`,
-            'Compare',
-            'width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes'
-        )
+        openVersionsCompareWindow(projectId, moduleName, first, second)
     }
 
     const restore = async () => {

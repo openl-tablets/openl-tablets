@@ -5,6 +5,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
 import lombok.Singular;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.TestStatus;
@@ -27,6 +28,11 @@ public record TestUnitExecutionResult(
         @Parameter(description = "List of test assertion execution results")
         @Singular("testAssertion")
         List<TestAssertionExecutionResult> testAssertions,
+
+        @Parameter(description = """
+                The whole value the tested rule returned, asked for by `compoundResult`; a spreadsheet comes \
+                as the bean OpenL Rule Services publishes for it""")
+        @Nullable ParameterValue result,
 
         @Parameter(description = "List of test parameter values")
         @Singular("parameter")

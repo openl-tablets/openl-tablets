@@ -37,7 +37,10 @@ are reported below the **Branch** field before the request is sent.
 
 This section describes how to view existing branches, switch between them in the editor and repository,
 inspect project membership, and delete branches. OpenL Studio discovers projects from the current Git tree
-of every readable branch. A project that exists only outside the default branch therefore appears in the
+of every readable branch. A folder with `rules.xml` is always a project. A folder without the descriptor is also
+treated as a project when it has an Excel file in its root and the global
+`project.detect-by-excel-files` setting is enabled. This setting is disabled by default. A project that
+exists only outside the default branch therefore appears in the
 project list, represented by a protected branch when one contains it and by the branch with the newest commit
 otherwise. Its **Branch** field shows the current branch and loads the branches that contain the project when
 the branch menu is opened. Proceed as follows:
@@ -133,16 +136,22 @@ Each conflicting file is resolved by selecting one of the following options in t
 -   **Upload merged file** — a file merged by hand outside OpenL Studio is uploaded and used as the resolution.
 
 To view the changes made by another user, compare them to your changes, or view the base version of the file, use
-the **Compare** column. **Compare File Versions** shows both conflicting versions side by side, and **Download
-your version**, **Download their version** and **Download base version** save a copy of each.
+the **Compare** column. **Download your version**, **Download their version** and **Download base version** save a
+copy of each.
 
-![Comparing conflicting versions](images/compare-conflicting-versions.jpeg)
+**Compare File Versions** opens the two conflicting versions side by side, in a window of its own. The window names
+the file and says whether the merge modified or deleted it. An Excel file is compared element by element, as
+described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), with the **Show equal elements** and
+**Show equal rows** check boxes heading the list of elements; a file of any other format is compared line by line.
+A file that one of the two versions no longer holds has nothing to be compared with, and the window says so.
+
+![Comparing the two versions of a conflicted file](images/compare-conflicting-versions.jpeg)
 
 *Comparing conflicting versions*
 
 Download links are available only for versions in which the conflicted file exists. The **Compare** column marks a
 deleted file as **Deleted in your version**, **Deleted in their version**, or **Deleted in base version** instead
-of offering a download. Deleted files can still be compared.
+of offering a download.
 
 ![Deleted file status in the Compare column](images/resolve-conflicts-deleted-file.png "Deleted file in the Resolve Conflicts dialog")
 

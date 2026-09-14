@@ -1,7 +1,8 @@
 import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Alert, Collapse, Segmented, Spin } from 'antd'
+import { Alert, Collapse, Segmented } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { RunningCard } from 'components/RunningCard'
 import { useTraceStore } from 'store'
 import type { DebugError } from 'types/trace'
 import TraceToolbar from './components/TraceToolbar'
@@ -226,14 +227,11 @@ const TraceView: React.FC = () => {
                 className={cx(styles.panels, isResizing && styles.resizing)}
             >
                 {busy && (
-                    <div className={styles.runningOverlay} data-testid="trace-running-overlay">
-                        <div className={styles.runningCard}>
-                            <Spin size="large" />
-                            <span className={styles.runningText}>
-                                {advanced ? t('debug.runningNotice') : t('simple.calculating')}
-                            </span>
-                        </div>
-                    </div>
+                    <RunningCard
+                        overlay
+                        data-testid="trace-running-overlay"
+                        description={advanced ? t('debug.runningNotice') : t('simple.calculating')}
+                    />
                 )}
                 <div
                     className={cx(styles.leftPanel, isResizing && styles.panelDisabled)}

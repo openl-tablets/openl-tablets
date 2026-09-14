@@ -1,0 +1,14 @@
+POST /rest/projects/ZGVzaWduOkVQQkRTLTE2NTc2LVJldmlzaW9ucw==/compare HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "first": {
+    "path": "rules.xml"
+  },
+  "second": {
+    "path": "Qwerty.xlsx",
+    "revision": "${REVISION}"
+  }
+}
+

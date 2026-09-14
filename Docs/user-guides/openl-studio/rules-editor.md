@@ -223,15 +223,15 @@ To compare module versions, proceed as follows:
 
     *Comparing module versions*
 
-    The system displays the module in a separate browser window where changed tables are marked as displayed in the following example.
+    The comparison opens in a window of its own and lists the elements that differ, grouped by Excel sheet, as displayed in the following example.
 
     ![Tables with changes](images/tables-with-changes-comparison.jpeg)
 
     *Tables with changes*
 
-4.  To view the changes, click the required table.
+4.  To view the changes, click the required element.
 
-    The result of the comparison is displayed in the bottom of the window.
+    The two versions of the element are displayed next to each other, with the cells that read differently highlighted. The window is the one described in [Comparing Excel Files](#comparing-excel-files), except that it has no files to pick: it opens on the comparison of the two versions, and the **Show equal elements** check box heads the list of elements instead of standing next to the files.
 
     ![The result of the module version comparison](images/module-version-comparison-result.jpeg)
 
@@ -796,47 +796,64 @@ signature of the selected table. For more information, see [Editing and Testing 
 
 ### Comparing Excel Files
 
-OpenL Studio supports comparing contents of Excel files displaying tables and Excel elements that are modified. To compare two Excel files, proceed as follows:
+OpenL Studio compares two Excel files and shows the tables and other elements that differ. To compare two Excel files, proceed as follows:
 
 1.  In OpenL Studio Rules Editor, in the toolbar, select **More \> Compare Excel Files.**
 
-    ![Initiating Excel comparison functionality](images/excel-comparison-initiate.png)
+    ![Initiating Excel comparison](images/excel-comparison-initiate.png)
 
     *Initiating Excel comparison functionality*
 
-2.  In the window that appears, click **Add** and select two Excel files to compare.
-3.  Click **Upload** and wait until file status is changed to **Done.**
+    The comparison opens in a window of its own.
+
+1.  Drag the two files to compare into the box, or click it and select them.
 
     ![Excel files ready for comparison](images/excel-files-ready-for-comparison.png)
 
     *Excel files ready for comparison*
 
-4.  To display tables and other Excel file elements that differ in the selected Excel files, click **Compare.**
+1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
+2.  Click **Compare.**
 
-    The list of tables and Excel elements is displayed, grouped by Excel sheets. Clicking on the table or element in the list displays the changes in the section below.
+    The elements of the two files are listed grouped by Excel sheet. Selecting an element displays it as it stands in each of the files, one next to the other, with the cells that differ highlighted. The cells that read the same in both files are drawn in grey, so that the differences are what the eye lands on.
 
-    ![Excel file comparison results](images/excel-comparison-results.jpeg)
+    ![Excel comparison results](images/excel-comparison-results.jpeg)
 
     *Excel file comparison results*
 
-    Elements and tables that changed the location or contents are marked with the asterisk icon ![](images/excel-compare-changed-icon.png). Added elements are marked with the plus sign icon ![](images/excel-compare-added-icon.png). Removed elements or tables are marked with the deletion icon ![](images/excel-compare-removed-icon.png).
+    Every element is marked with what became of it. An element that changed its location or its contents carries the changed file icon ![Changed](images/excel-compare-changed-icon.png), one that the second file adds carries the added file icon ![Added](images/excel-compare-added-icon.png), one that it no longer holds carries the removed file icon ![Removed](images/excel-compare-removed-icon.png), and one that reads the same in both files carries a plain file icon.
 
-5.  To view or hide equal rows in the table, select or clear the **Show equal rows** check box.
-6.  To display all equal tables and Excel file elements in the selected Excel files, select the **Show equal elements** check box and click **Compare.**
+    The list of elements, the first file and the second one are separated by dividers. Drag a divider to give
+    either side more room. The button above the list hides it and leaves the tables alone; while the list is
+    hidden, the button that brings it back and **Select other files** are above the first file.
 
-All elements that are equal in the selected Excel files are displayed, grouped by Excel sheets. Elements that are relocated, added, or removed are marked with an appropriate icon.
+1.  To read the two versions as one table instead of two, select **Combined** at the end of the line the files are named on.
 
-If contents of two Excel files with different names is completely identical, the **File elements are identical** message is displayed.
+    Each row is led by the sign that says what became of it, and a cell the two files read differently carries both values, the one the first file has before the one the second file has in its place. The signs the table is read by are listed beside the file names, and each sign in the table says what it means when the pointer rests on it.
+
+    ![The two versions drawn as one table](images/excel-comparison-combined.jpeg)
+
+    *The two versions drawn as one table*
+
+    When the two files hold a different number of rows, there is nothing to read one against the other. What the first file holds is shown first, each row marked with a minus, and what the second file holds after it, each row marked with a plus.
+
+1.  To display the rows that read the same in both files, select the **Show equal rows** check box. Without it, an element shows only the rows that differ.
+2.  To compare another pair of files, click **Select other files**.
+
+If the two files hold the same elements with the same contents, the **File elements are identical** message is displayed.
 
 ### Viewing and Editing Project-Related OpenAPI Details
 
-When a project is generated from the imported OpenAPI file, it becomes available in Rules Editor.
+When a project is created from an imported OpenAPI file, the normalized file in the project root is used for
+reconciliation by default. The generated `rules.xml` does not store OpenAPI generation settings, so OpenL Studio does
+not regenerate the workbooks automatically and overwrite later edits.
 
-The generated project contains information about the last file import date, name of the OpenAPI file, mode, and modules names in rules.xml. This information is available in OpenL Studio, the OpenAPI section.
+After an explicit OpenAPI import or generation operation stores its settings in `rules.xml`, the OpenAPI section shows
+the last file import date, OpenAPI file name, mode, and module names.
 
-![OpenAPI project in Rules Editor, in the Tables Generation mode](images/openapi-project-rules-editor.png)
+![OpenAPI project after explicitly running Tables generation](images/openapi-project-rules-editor.png)
 
-*OpenAPI project in Rules Editor, in the Tables Generation mode*
+*OpenAPI project after explicitly running Tables generation*
 
 It contains the following information:
 
@@ -921,7 +938,10 @@ The rules and model modules are created or updated. The OpenAPI data is updated.
 
 #### Regenerating a Project from Another OpenAPI File
 
-If a project is initially created from an OpenAPI file, it can be regenerated from another OpenAPI file. For project regeneration, follow the steps described in [Adding OpenAPI for Reconciliation to an Existing Project](#adding-openapi-for-reconciliation-to-an-existing-project). The name of the OpenAPI file is preset for regeneration.
+If a project is initially created from an OpenAPI file, it can be regenerated explicitly from another OpenAPI file.
+Follow the steps described in
+[Adding OpenAPI for Reconciliation to an Existing Project](#adding-openapi-for-reconciliation-to-an-existing-project),
+select **Tables generation**, and choose the OpenAPI file. Regeneration overwrites the selected rules and data modules.
 
 #### Updating the OpenAPI File
 

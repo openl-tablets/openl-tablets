@@ -9,6 +9,8 @@ import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -90,11 +92,34 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         return builder.build();
     }
 
+    /**
+     * Reads the cells of a table as a matrix, without the identity a table has in a project.
+     *
+     * <p>Used where the table belongs to no open project — the two sides of a comparison come from
+     * files of their own — so it has no id, no kind and no properties to report.
+     *
+     * @param openLTable the table to read
+     * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
+     * @return the cells of the table, row by row
+     */
+    public List<List<RawTableCell>> readCells(IOpenLTable openLTable, boolean withStyles) {
+        var metaInfoReader = metaInfoReaderOf(openLTable);
+        var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), NO_ROW_CAP, metaInfoReader);
+        return tableModel == null ? List.of()
+                : convertTableModelToMatrix(tableModel, new CellValueReader(metaInfoReader), withStyles);
+    }
+
+    /** The table's meta info, or an empty one when the table carries none. */
+    private static MetaInfoReader metaInfoReaderOf(IOpenLTable openLTable) {
+        var metaInfoReader = openLTable.getSyntaxNode().getMetaInfoReader();
+        return metaInfoReader == null ? EmptyMetaInfoReader.getInstance() : metaInfoReader;
+    }
+
     private void initialize(RawTableView.Builder builder, IOpenLTable openLTable, @Nullable Integer startRow,
             @Nullable Integer maxRows, boolean withStyles) {
         super.initialize(builder, openLTable);
         builder.pos(openLTable.getUriParser().getRange());
-        var metaInfoReader = openLTable.getSyntaxNode().getMetaInfoReader();
+        var metaInfoReader = metaInfoReaderOf(openLTable);
         var fullHeight = openLTable.getGridTable().getHeight();
         // Crop from startRow first; TableModel then caps maxRows rows from the slice top. Both act on the grid
         // region, so rows outside the window are never materialised and cell addresses stay absolute.

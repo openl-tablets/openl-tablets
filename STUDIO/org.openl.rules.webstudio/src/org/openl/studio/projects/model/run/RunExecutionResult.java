@@ -10,6 +10,7 @@ import lombok.Builder;
 
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.model.SpreadsheetResultView;
 
 @Builder
 @Schema(description = "Run execution result containing method output, parameters, and metadata")
@@ -28,6 +29,9 @@ public record RunExecutionResult(
 
         @Schema(description = "JSON Schema of the result type", implementation = Object.class)
         ObjectNode resultSchema,
+
+        @Schema(description = "Layout of the result, when the table returns a spreadsheet")
+        SpreadsheetResultView resultSpreadsheet,
 
         @Parameter(description = "Input parameters")
         List<ParameterValue> parameters,

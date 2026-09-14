@@ -27,6 +27,7 @@ import { Help } from '../containers/Help'
 import { EmailVerification } from '../containers/EmailVerification'
 import { PersonalAccessTokens } from '../containers/PersonalAccessTokens'
 import TraceView from '../containers/TraceView'
+import { ComparePage } from '../containers/ComparePage'
 import { CONFIG } from '../services'
 import { RedirectToRoot } from './RedirectToRoot'
 import Forbidden from '../pages/403'
@@ -173,6 +174,11 @@ const router = createBrowserRouter([
     {
         path: '/trace/:projectId',
         element: <TraceView />,
+        errorElement: <RouteErrorFallback />,
+    },
+    {
+        path: '/compare',
+        element: <ComparePage />,
         errorElement: <RouteErrorFallback />,
     },
 ], {

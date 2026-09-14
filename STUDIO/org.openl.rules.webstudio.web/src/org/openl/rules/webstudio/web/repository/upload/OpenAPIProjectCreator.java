@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.GroovyScriptFile;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
+import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
@@ -36,8 +38,9 @@ import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
 
 /**
- * Project creator from OpenAPI files, generates models, spreadsheets, rules.xml, rules-deploy and compiled annotation
- * template files.
+ * Creates a project from an OpenAPI file. Generates models, spreadsheets, rules.xml, rules-deploy and compiled
+ * annotation template files. Stores the OpenAPI file under its standard name in the project root. The generated
+ * descriptor uses the default reconciliation behavior and does not enable continued generation.
  */
 public class OpenAPIProjectCreator extends AProjectCreator {
 
@@ -45,11 +48,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private final String comment;
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
     private final Repository repository;
-    private final String projectName;
     private final String modelsPath;
     private final String algorithmsPath;
     private final String modelsModuleName;
     private final String algorithmsModuleName;
+    private final String openAPIPath;
 
     public OpenAPIProjectCreator(ProjectFile projectFile,
                                  String repositoryId,
@@ -88,6 +91,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                                  Map<String, String> tags) throws ProjectException {
         super(projectName, projectFolder, userWorkspace, tags);
         this.repository = repository;
+        var normalizedOpenAPIPath = normalizeOpenAPIPath(projectFile.getName());
         // Save a streamed upload to disk first, so the size check below sees the real size and the spec
         // can be parsed from a file path later.
         try {
@@ -110,10 +114,6 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         if (!NameChecker.checkName(modelsModuleName) || !NameChecker.checkName(algorithmsModuleName)) {
             throw new OpenAPIProjectException("Module " + NameChecker.BAD_NAME_MSG);
         }
-        if (!NameChecker.checkName(FileUtils.getName(projectFile.getName()))) {
-            throw new OpenAPIProjectException("OpenAPI File " + NameChecker.BAD_NAME_MSG);
-        }
-
         if (modelsModuleName.equalsIgnoreCase(algorithmsModuleName)) {
             throw new OpenAPIProjectException("Module names cannot be the same.");
         }
@@ -151,11 +151,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
         this.uploadedOpenAPIFile = projectFile;
         this.comment = comment;
-        this.projectName = projectName;
         this.modelsPath = normalizedModelsPath;
         this.algorithmsPath = normalizedAlgorithmsPath;
         this.modelsModuleName = modelsModuleName;
         this.algorithmsModuleName = algorithmsModuleName;
+        this.openAPIPath = normalizedOpenAPIPath;
     }
 
     @Override
@@ -195,7 +195,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
             addFile(projectBuilder,
                     uploadedOpenAPIFile.getInput(),
-                    uploadedOpenAPIFile.getName(),
+                    openAPIPath,
                     "Error uploading openAPI file.");
 
             var generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -259,29 +259,14 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     private ProjectDescriptor defineDescriptor(boolean genJavaClasses, Set<String> algorithmsInclude) {
         var descriptor = new ProjectDescriptor();
-        var openAPI = new OpenAPI();
-        openAPI.setAlgorithmModuleName(algorithmsModuleName);
-        openAPI.setModelModuleName(modelsModuleName);
-        openAPI.setMode(OpenAPI.Mode.GENERATION);
 
-        descriptor.setName(projectName);
-        var modules = new ArrayList<Module>();
-        var rulesModule = new Module();
-        rulesModule.setRulesRootPath(algorithmsPath);
-        rulesModule.setName(algorithmsModuleName);
         var filter = new ExposedMethods();
         filter.setIncludes(algorithmsInclude);
         descriptor.setExposedMethods(filter);
-        modules.add(rulesModule);
 
-        var modelsModule = new Module();
-        modelsModule.setName(modelsModuleName);
-        modelsModule.setRulesRootPath(modelsPath);
-        modules.add(modelsModule);
-
-        openAPI.setPath(uploadedOpenAPIFile.getName());
-        descriptor.setOpenapi(openAPI);
-        descriptor.setModules(modules);
+        var descriptorManager = new ProjectDescriptorManager();
+        descriptorManager.registerModule(descriptor, module(algorithmsModuleName, algorithmsPath));
+        descriptorManager.registerModule(descriptor, module(modelsModuleName, modelsPath));
 
         var classpath = new ArrayList<String>();
         if (genJavaClasses) {
@@ -289,6 +274,25 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
         descriptor.setClasspath(classpath);
         return descriptor;
+    }
+
+    private static String normalizeOpenAPIPath(String fileName) throws OpenAPIProjectException {
+        var extension = FileUtils.getExtension(fileName);
+        if (extension == null) {
+            throw new OpenAPIProjectException("Unsupported OpenAPI file extension.");
+        }
+        return switch (extension.toLowerCase(Locale.ROOT)) {
+            case "json" -> OpenAPI.Type.JSON.getDefaultFileName();
+            case "yaml", "yml" -> OpenAPI.Type.YAML.getDefaultFileName();
+            default -> throw new OpenAPIProjectException("Unsupported OpenAPI file extension.");
+        };
+    }
+
+    private static Module module(String name, String path) {
+        var module = new Module();
+        module.setName(name);
+        module.setRulesRootPath(path);
+        return module;
     }
 
     @Override

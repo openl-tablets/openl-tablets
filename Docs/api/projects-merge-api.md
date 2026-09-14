@@ -137,6 +137,7 @@ stateDiagram-v2
 
     ConflictsStored --> ConflictsStored: GET /conflicts
     ConflictsStored --> ConflictsStored: GET /conflicts/files
+    ConflictsStored --> ConflictsStored: POST /conflicts/compare
 
     ConflictsStored --> Resolving: POST /conflicts/resolve
 
@@ -374,7 +375,49 @@ GET /projects/MyProject/merge/conflicts/files?file=rules/BusinessRules.xlsx&side
 
 ---
 
-### 5. Resolve Conflicts
+### 5. Compare Conflicted File Versions
+
+**Endpoint**: `POST /projects/{projectId}/merge/conflicts/compare`
+
+**Description**: Starts a comparison of the two versions of a conflicted workbook — the version being merged in
+against the version the workspace holds. The comparison itself is read through the Compare API, so this endpoint
+only starts it.
+
+**HTTP Method**: POST
+
+**Path Parameters**:
+- `projectId` (string, required): Project identifier
+
+**Query Parameters**:
+- `file` (string, required): Relative path to the conflicted file
+
+**Response**: `202 Accepted`
+```json
+{
+  "id": "b1b0c2e0-0a3f-4e52-9f0a-7a1d7d6a0f11"
+}
+```
+
+The identifier names the comparison: `/topic/compare/{id}/status` reports how it is going, `GET /compare/{id}`
+reads what the two versions hold, and `DELETE /compare/{id}` releases it. A session holds one comparison at a
+time, so starting another one releases this one.
+
+Only Excel files are compared this way. A conflicted file of any other format is read line by line by the client
+through `GET /projects/{projectId}/merge/conflicts/files`, which is why this endpoint refuses it.
+
+**Example**:
+```bash
+POST /projects/MyProject/merge/conflicts/compare?file=rules/BusinessRules.xlsx
+```
+
+**Errors**:
+- `400 Bad Request`: The file is not an Excel file
+- `404 Not Found`: No conflict information found, file not in conflict list, or file missing in one of the
+  two versions
+
+---
+
+### 6. Resolve Conflicts
 
 **Endpoint**: `POST /projects/{projectId}/merge/conflicts/resolve`
 
@@ -451,7 +494,7 @@ GET /projects/MyProject/merge/conflicts/files?file=rules/BusinessRules.xlsx&side
 
 ---
 
-### 6. Cancel Merge Conflicts
+### 7. Cancel Merge Conflicts
 
 **Endpoint**: `DELETE /projects/{projectId}/merge/conflicts`
 

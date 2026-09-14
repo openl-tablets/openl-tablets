@@ -1,9 +1,13 @@
 package org.openl.rules.webstudio.web.repository.project;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
 import org.openl.rules.webstudio.web.repository.upload.RulesProjectBuilder;
@@ -11,30 +15,13 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 
+/** Creates a project from Excel files, arranging them in the standard layout when no descriptor is supplied. */
 public class ExcelFilesProjectCreator extends AProjectCreator {
 
     private final ProjectFile[] files;
     private final Repository repository;
     private final PathFilter pathFilter;
     private final String comment;
-
-    public ExcelFilesProjectCreator(String repositoryId,
-                                    String projectName,
-                                    String projectFolder,
-                                    UserWorkspace userWorkspace,
-                                    String comment,
-                                    PathFilter pathFilter,
-                                    Map<String, String> tags,
-                                    ProjectFile... files) {
-        this(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
-                projectName,
-                projectFolder,
-                userWorkspace,
-                comment,
-                pathFilter,
-                tags,
-                files);
-    }
 
     public ExcelFilesProjectCreator(Repository repository,
                                     String projectName,
@@ -58,31 +45,45 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
                 getProjectFolder(),
                 comment);
 
-        if (files != null) {
-            for (ProjectFile file : files) {
-                try {
-                    var fileName = file.getName();
-                    if (!pathFilter.accept(fileName)) {
-                        continue;
-                    }
-
-                    if (checkFileSize(file)) {
-                        try {
-                            projectBuilder.addFile(fileName, changeFileIfNeeded(fileName, file.getInput()));
-                        } catch (IOException e) {
-                            throw new ProjectException(e.getMessage(), e);
-                        }
-                    } else {
-                        throw new ProjectException("Size of the file " + file.getName() + " is more then 100MB.");
-                    }
-                } catch (Exception e) {
-                    projectBuilder.cancel();
-                    throw e;
-                }
+        try {
+            var acceptedFiles = files == null ? List.<ProjectFile>of()
+                    : Arrays.stream(files).filter(file -> pathFilter.accept(file.getName())).toList();
+            var useDefaultLayout = acceptedFiles.stream()
+                    .noneMatch(file -> ProjectDescriptor.FILE_NAME.equals(file.getName()));
+            if (useDefaultLayout) {
+                projectBuilder.addFile(ProjectDescriptor.FILE_NAME,
+                        new ByteArrayInputStream(DefaultProjectLayout.rulesXml(acceptedFiles.stream()
+                                .map(ProjectFile::getName)
+                                .map(DefaultProjectLayout::filePath)
+                                .toList())));
             }
+            for (ProjectFile file : acceptedFiles) {
+                addFile(projectBuilder, file, useDefaultLayout);
+            }
+        } catch (RuntimeException | ProjectException e) {
+            projectBuilder.cancel();
+            throw e;
         }
 
         return projectBuilder;
+    }
+
+    private void addFile(RulesProjectBuilder projectBuilder, ProjectFile file, boolean useDefaultLayout)
+            throws ProjectException {
+        if (!checkFileSize(file)) {
+            throw new ProjectException("Size of the file " + file.getName() + " is more then 100MB.");
+        }
+        var fileName = file.getName();
+        try {
+            projectBuilder.addFile(projectPath(fileName, useDefaultLayout),
+                    changeFileIfNeeded(fileName, file.getInput()));
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }
+    }
+
+    private static String projectPath(String fileName, boolean useDefaultLayout) {
+        return useDefaultLayout ? DefaultProjectLayout.filePath(fileName) : fileName;
     }
 
     @Override

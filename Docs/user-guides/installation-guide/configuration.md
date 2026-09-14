@@ -136,7 +136,8 @@ Described in [Managing System Settings][system].
 | Core                   | Dispatching Validation                      | `dispatching.validation`     |
 | Core                   | Verify on Edit                              | `compile.auto`               |
 | Testing                | Thread Number for Tests                     | `test.run.thread.count`      |
-| History                | Maximum count of saved changes per user     | `project.history.count`      |
+| Projects               | Maximum count of saved changes per user     | `project.history.count`         |
+| Projects               | Detect projects by Excel files              | `project.detect-by-excel-files` |
 | Other                  | Update table properties                     | `update.system.properties`   |
 | Other                  | Date Format                                 | `data.format.date`           |
 | Other                  | Time Format                                 | `data.format.time`           |
@@ -334,12 +335,14 @@ driver-specific parameter such as `sslmode` for PostgreSQL, in the driver, or in
 
 #### Azure Blob Storage
 
-| Field           | Property suffix          |
-|-----------------|--------------------------|
-| URL             | `.uri`                   |
-| Account name    | `.account-name`          |
-| Account key     | `.account-key`           |
-| Listener period | `.listener-timer-period` |
+| Field                       | Property suffix          |
+|-----------------------------|--------------------------|
+| URL                         | `.uri`                   |
+| Listener timer period (sec) | `.listener-timer-period` |
+
+The credentials of the storage account have no fields in the UI, so a repository that authenticates with a shared key
+is configured in `application.properties`. See
+[Azure Blob Storage Credentials](#azure-blob-storage-credentials).
 
 #### Commit Comments
 
@@ -375,6 +378,29 @@ Email address verification is active while these three properties hold valid val
 ## Settings With No UI Field
 
 These are set in `application.properties` only.
+
+### Azure Blob Storage Credentials
+
+An Azure Blob Storage repository authenticates with the access key of a storage account. Both settings take the
+repository identifier as a prefix, like every other `repository.<id>.*` setting:
+
+- **`.account-name`** — name of the storage account.
+- **`.account-key`** — access key of that account. Store it encrypted, as described in
+  [Encrypting Passwords](#encrypting-passwords).
+
+The key is used only when the account name has a value. With both left empty, the repository connects with whatever
+authorization the URL itself carries, such as an appended shared access signature, and anonymously when the URL
+carries none:
+
+```properties
+production-repository-configs = production
+repository.production.name = Deployment
+repository.production.$ref = repo-azure-blob
+repository.production.uri = https://openlrules.blob.core.windows.net/deploy
+repository.production.account-name = openlrules
+repository.production.account-key = ENC(yZaBcDeFgHiJkLmNoPqR==)
+repository.production.listener-timer-period = 10
+```
 
 ### Cross-Origin Requests
 

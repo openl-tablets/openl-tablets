@@ -7,12 +7,12 @@ Content-Type: application/json
       "projectName": "EPBDS-16462",
       "projectPath": "EPBDS-16462",
       "files": [
-        "EPBDS-16462/Main.xlsx"
+        "EPBDS-16462/rules/Main.xlsx"
       ]
     }
   ],
   "fileAvailability": {
-    "EPBDS-16462/Main.xlsx": {
+    "EPBDS-16462/rules/Main.xlsx": {
       "ours": false,
       "theirs": true,
       "base": true
