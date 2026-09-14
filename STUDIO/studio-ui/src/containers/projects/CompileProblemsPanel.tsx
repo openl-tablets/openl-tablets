@@ -139,7 +139,9 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         if (!module) {
             return
         }
-        navigate(moduleRoute(where.projectId ?? project.id, module, where.type === 'table' ? where.id : undefined))
+        navigate(where.type === 'table'
+            ? moduleRoute(where.projectId ?? project.id, module, where.id, where.cell)
+            : moduleRoute(where.projectId ?? project.id, module))
     }, [navigate, project.id])
 
     // A module is compiled for one session at a time, so while that is running the reader is kept where they

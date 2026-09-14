@@ -65,6 +65,25 @@ describe('TableEditor', () => {
         expect(onEditingChange).toHaveBeenCalledWith(true)
     })
 
+    /** The classes one cell of the drawn table carries. */
+    const classesOf = (cell: string): string =>
+        document.querySelector(`[data-cell="${cell}"]`)?.className ?? ''
+
+    it('marks the cell a message was raised against, and no other', async () => {
+        draw({ markCell: 'C5', editing: false })
+        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
+
+        // The reader lands on a table of any size; the mark is what tells them which cell the message was about.
+        expect(classesOf('C5')).not.toEqual(classesOf('B5'))
+    })
+
+    it('marks nothing when no message sent the reader here', async () => {
+        draw({ editing: false })
+        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
+
+        expect(classesOf('C5')).toEqual(classesOf('B5'))
+    })
+
     it('leaves the table alone for a reader who may not write it', async () => {
         draw({ canWrite: false })
 

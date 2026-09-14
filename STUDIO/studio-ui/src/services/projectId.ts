@@ -27,10 +27,14 @@ export const encodeProjectId = (repositoryId: string, projectName: string): stri
  *
  * Every way into the editor — a module row, a compilation problem, a test result, a graph node, a word in a
  * cell — leads here, so the address is spelled in one place rather than at each of them.
+ *
+ * <p>A reader sent by a compilation message arrives at the cell it was raised against, named the way the
+ * workbook names it — `D101` — so the table opens with that cell marked.
  */
-export const moduleRoute = (projectId: string, moduleName: string, tableId?: string): string =>
+export const moduleRoute = (projectId: string, moduleName: string, tableId?: string, cell?: string): string =>
     `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
         + (tableId ? `?table=${encodeURIComponent(tableId)}` : '')
+        + (tableId && cell ? `&errorCell=${encodeURIComponent(cell)}` : '')
 
 /**
  * The address of a project's Files tab, opened on one file of it.

@@ -87,6 +87,8 @@ interface TableEditorProps {
     onSaved: (tableId: string) => void
     /** A cell to open for writing, named as the workbook names it — 'D9'. */
     openAt?: string | null | undefined
+    /** A cell a compilation message was raised against, marked so a reader arriving from it finds the cell. */
+    markCell?: string | null | undefined
     /** Told once that cell has been opened, so asking for the same one again opens it again. */
     onOpenedAt?: (() => void) | undefined
     /** The sheet the table is drawn on, which the band of actions sits above rather than on. */
@@ -119,6 +121,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     onSaved,
     openAt,
     onOpenedAt,
+    markCell,
     canvasClassName,
     children,
     testId,
@@ -362,7 +365,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         const isTouched = edited.touched.has(keyOf(edited, at))
         return {
             className: cx(isTouched && styles.touched, sameCell(picked, at) && styles.picked,
-                canWrite && styles.editable),
+                markCell != null && cell.cell === markCell && styles.raised, canWrite && styles.editable),
             painted: isTouched,
         }
     }
