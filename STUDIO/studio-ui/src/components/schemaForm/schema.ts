@@ -63,17 +63,21 @@ export const resolveSchema = (schema: JsonSchema, root: JsonSchema, depth = 0): 
         return schema
     }
     if (schema.$ref) {
-        const target = resolveRef(schema.$ref, root)
-        return target ? resolveSchema(target, root, depth + 1) : {}
+        // What stands beside the reference is kept, the way the union and the `allOf` branches below keep it:
+        // a field describing itself as a datatype declares its own default beside the reference to it. What
+        // the field says wins, as it describes this field while the definition describes the datatype. A
+        // reference naming nothing leaves the field with what it says about itself.
+        const { $ref: _ref, ...rest } = schema
+        return resolveSchema({ ...resolveRef(schema.$ref, root), ...rest }, root, depth + 1)
     }
     const branches = (schema.anyOf ?? schema.oneOf)?.filter(branch => !isNullSchema(branch))
     if (branches?.length === 1 && branches[0]) {
         const { anyOf: _anyOf, oneOf: _oneOf, ...rest } = schema
-        return resolveSchema({ ...rest, ...branches[0] }, root, depth + 1)
+        return resolveSchema({ ...branches[0], ...rest }, root, depth + 1)
     }
     if (schema.allOf?.length === 1 && schema.allOf[0]) {
         const { allOf: _allOf, ...rest } = schema
-        return resolveSchema({ ...rest, ...schema.allOf[0] }, root, depth + 1)
+        return resolveSchema({ ...schema.allOf[0], ...rest }, root, depth + 1)
     }
     return schema
 }

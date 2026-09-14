@@ -10,6 +10,7 @@ import type { BenchmarkResult } from 'types/execution'
 import { errorMessage } from 'utils/errorMessage'
 import { formatRate, formatRatio, formatTime, metricsOf } from './benchmarkMetrics'
 import { isFinished, useExecutionProgress } from './useExecutionProgress'
+import { benchmarkStatusTopic } from './topics'
 import { ExecutionModal } from './ExecutionModal'
 
 const { Text, Title } = Typography
@@ -59,9 +60,7 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
     const [failure, setFailure] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [deleting, setDeleting] = useState(false)
-    const progress = useExecutionProgress(
-        `/user/topic/projects/${encodeURIComponent(projectId)}/tables/${encodeURIComponent(tableId)}/benchmarks/status`
-    )
+    const progress = useExecutionProgress(benchmarkStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
 

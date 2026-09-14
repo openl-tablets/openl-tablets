@@ -1,4 +1,3 @@
-import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { TextDiffView } from './TextDiffView'
 import { MAX_DIFF_LINES } from 'utils/lineDiff'

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { Form, Radio, Skeleton, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { initialFormValue, SchemaForm, type SchemaFormParameter } from 'components/schemaForm/SchemaForm'
@@ -57,7 +57,7 @@ const toInputJson = (value: Record<string, unknown>): string => {
  */
 export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, runtimeContext, onChange }) => {
     const { t } = useTranslation('execution')
-    const formParameters: SchemaFormParameter[] = [
+    const formParameters: SchemaFormParameter[] = useMemo(() => [
         ...parameters.map(parameter => ({
             name: parameter.name,
             type: parameter.description,
@@ -72,11 +72,27 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
                 schema: runtimeContext.schema,
             }]
             : []),
-    ]
+    ], [parameters, runtimeContext, t])
     const [mode, setMode] = useState<InputMode>('form')
     const [value, setValue] = useState<Record<string, unknown>>(() => initialFormValue(formParameters))
     const [text, setText] = useState('')
     const [error, setError] = useState<string | undefined>(undefined)
+
+    // The same table can be described differently — read within the current module only, it may take other
+    // parameters — so the input starts again from what it is given. Kept as it was, it would send a value
+    // typed for a parameter that is gone, and leave a parameter that has appeared without its declared
+    // default. The text is the same input in another shape, and starts again with it: what it holds is what
+    // is sent while JSON is the input shown.
+    //
+    // What is watched is the declarations themselves. The label of the context is taken from the
+    // translation, which may be handed out anew without a declaration having changed, and what is typed
+    // survives that.
+    useEffect(() => {
+        const restarted = initialFormValue(formParameters)
+        setValue(restarted)
+        setText(toInputJson(restarted))
+        setError(undefined)
+    }, [parameters, runtimeContext])
 
     const parseText = useCallback((json: string): { parsed?: unknown, error?: string } => {
         if (json.trim() === '') {

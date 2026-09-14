@@ -26,6 +26,33 @@ describe('resolveSchema', () => {
         const union = { oneOf: [{ type: 'string' }, { type: 'integer' }]}
         expect(resolveSchema(union, {})).toBe(union)
         expect(resolveSchema({ $ref: '#/$defs/Missing' }, {})).toEqual({})
+        // A reference naming nothing says nothing about the field; what the field says about itself is
+        // still there to edit it by.
+        expect(resolveSchema({ type: 'string', default: 'DE', $ref: '#/$defs/Missing' }, {}))
+            .toEqual({ type: 'string', default: 'DE' })
+    })
+
+    it('keeps what stands beside a reference', () => {
+        const root = { $defs: { Code: { type: 'string' } } }
+        // A field that is a datatype and may be absent is a default beside a union of the reference and
+        // null: collapsing the union leaves the default beside the reference, and following it must not
+        // throw the default away.
+        expect(resolveSchema({ default: 'DE', $ref: '#/$defs/Code' }, root))
+            .toEqual({ type: 'string', default: 'DE' })
+        expect(resolveSchema({ default: 'DE', anyOf: [{ $ref: '#/$defs/Code' }, { type: 'null' }]}, root))
+            .toEqual({ type: 'string', default: 'DE' })
+    })
+
+    it('lets what a field declares win over the definition it names', () => {
+        // The definition describes the datatype, the field describes itself: a field declaring the value it
+        // starts with keeps it, whatever the datatype starts with elsewhere.
+        const root = { $defs: { Code: { type: 'string', default: 'US' } } }
+        expect(resolveSchema({ default: 'DE', $ref: '#/$defs/Code' }, root))
+            .toEqual({ type: 'string', default: 'DE' })
+        expect(resolveSchema({ default: 'DE', allOf: [{ $ref: '#/$defs/Code' }]}, root))
+            .toEqual({ type: 'string', default: 'DE' })
+        expect(resolveSchema({ default: 'DE', anyOf: [{ $ref: '#/$defs/Code' }, { type: 'null' }]}, root))
+            .toEqual({ type: 'string', default: 'DE' })
     })
 
     it('stops on a reference that points back at itself', () => {
@@ -75,5 +102,17 @@ describe('primaryType / mapValueSchema / createValue', () => {
         const root = { $defs: { Code: { type: 'string', default: 'DE' } } }
         const schema = { type: 'object', properties: { code: { $ref: '#/$defs/Code' }, name: { type: 'string' }, ok: { type: 'boolean', default: false } } }
         expect(createValue(schema, root)).toEqual({ code: 'DE', ok: false })
+    })
+
+    it('creates an object with the defaults declared on a field that may be absent', () => {
+        // A nullable datatype field declares its default beside the union naming the datatype.
+        const root = { $defs: { Address: { type: 'object', properties: { city: { type: 'string' } } } } }
+        const schema = {
+            type: 'object',
+            properties: {
+                home: { default: { city: 'Riga' }, anyOf: [{ $ref: '#/$defs/Address' }, { type: 'null' }]},
+            },
+        }
+        expect(createValue(schema, root)).toEqual({ home: { city: 'Riga' } })
     })
 })

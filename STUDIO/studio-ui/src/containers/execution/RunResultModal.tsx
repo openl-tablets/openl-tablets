@@ -11,6 +11,7 @@ import type { RunResult } from 'types/execution'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
 import { isFinished, useExecutionProgress } from './useExecutionProgress'
+import { runStatusTopic } from './topics'
 import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
 
 /** The single row of the result table: the values the table ran with, and the value it returned. */
@@ -72,9 +73,7 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
     const [failure, setFailure] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
-    const progress = useExecutionProgress(
-        `/user/topic/projects/${encodeURIComponent(projectId)}/tables/${encodeURIComponent(tableId)}/run/status`
-    )
+    const progress = useExecutionProgress(runStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
 

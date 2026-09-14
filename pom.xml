@@ -106,7 +106,7 @@
              up-to-date set and to realign the drifted core5 / core5-h2 versions. -->
         <httpcomponents.client5.version>5.6.4</httpcomponents.client5.version>
         <httpcomponents.core5.version>5.4.3</httpcomponents.core5.version>
-        <jose4j.version>0.9.6</jose4j.version>
+        <jose4j.version>0.9.7</jose4j.version>
         <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
         <json-smart.version>2.6.0</json-smart.version>
 
@@ -149,7 +149,7 @@
         <!-- Repositories -->
         <amazonaws.version>2.45.0</amazonaws.version>
         <azure.version>12.35.1</azure.version>
-        <netty.version>4.2.17.Final</netty.version>
+        <netty.version>4.2.18.Final</netty.version>
         <jgit.version>7.3.0.202506031305-openl</jgit.version>
 
         <!-- DB -->
@@ -167,11 +167,11 @@
         <xmlunit.version>2.13.0</xmlunit.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <testcontainers.keycloak.version>4.3.1</testcontainers.keycloak.version>
-        <s3mock.version>5.2.0</s3mock.version>
+        <s3mock.version>5.2.2</s3mock.version>
         <ojdbc11.version>23.26.3.0.0</ojdbc11.version>
         <postgresql.version>42.7.13</postgresql.version>
         <mariadb.version>2.7.15</mariadb.version>
-        <mssql.version>13.4.0.jre11</mssql.version>
+        <mssql.version>13.6.0.jre11</mssql.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- Jakarta APIs -->
@@ -203,7 +203,7 @@
         <!-- protocols -->
         <gson.version>2.14.0</gson.version>
 
-        <bouncycastle.version>1.85.2</bouncycastle.version>
+        <bouncycastle.version>1.86</bouncycastle.version>
         <groovy.version>4.0.33</groovy.version>
         <poi.version>5.5.1</poi.version>
         <aspectj.version>1.9.25.1</aspectj.version>
@@ -1341,7 +1341,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>javacc-maven-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1366,7 +1366,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.6.1</version>
+                    <version>3.6.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1785,7 +1785,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.3.1</version>
                 <configuration>
                     <timestampPropertyName>build.date</timestampPropertyName>
                     <timestampFormat>yyyy-MM-dd</timestampFormat>

@@ -11575,7 +11575,7 @@ Content-Type: application/json
             "name": "skipEmptyParameters",
             "schema": {
               "type": "boolean",
-              "default": false
+              "default": true
             }
           },
           {
@@ -11584,7 +11584,7 @@ Content-Type: application/json
             "name": "flattenParameters",
             "schema": {
               "type": "boolean",
-              "default": true
+              "default": false
             }
           },
           {

@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { Button, Checkbox, notification, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useEventProject } from 'hooks'
-import { launchTrace } from 'services/traceLaunch'
+import { launchTrace, TRACE_WINDOW_BLOCKED } from 'services/traceLaunch'
 import { useUserStore } from 'store'
 import type { Project } from 'types/projects'
 import { errorMessage } from 'utils/errorMessage'
@@ -24,12 +24,20 @@ const TraceLaunch: React.FC<TraceLaunchProps> = ({ detail, project, onClose }) =
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
 
+    // A window the browser refused says so by name, because only the screen knows how to say it.
+    const whatWentWrong = useCallback(
+        (launchError: unknown) => (launchError instanceof Error && launchError.message === TRACE_WINDOW_BLOCKED
+            ? t('launch.windowBlocked')
+            : errorMessage(launchError)),
+        [t]
+    )
+
     const start = (value: TableLaunchValue, download: boolean) => {
         setStarting(true)
         setError(null)
         launchTrace({ projectId: project.id, tableId: detail.tableId, ...value, download, advanced, showRealNumbers })
             .then(onClose)
-            .catch(launchError => setError(errorMessage(launchError)))
+            .catch(launchError => setError(whatWentWrong(launchError)))
             .finally(() => setStarting(false))
     }
 
@@ -39,10 +47,10 @@ const TraceLaunch: React.FC<TraceLaunchProps> = ({ detail, project, onClose }) =
         launchTrace({ projectId: project.id, tableId: detail.tableId, ...value, advanced, showRealNumbers })
             .then(onClose)
             .catch(launchError => {
-                notification.error({ title: t('launch.startFailed'), description: errorMessage(launchError) })
+                notification.error({ title: t('launch.startFailed'), description: whatWentWrong(launchError) })
                 onClose()
             })
-    }, [project.id, detail.tableId, advanced, showRealNumbers, onClose, t])
+    }, [project.id, detail.tableId, advanced, showRealNumbers, onClose, t, whatWentWrong])
 
     return (
         <TableInputLauncher

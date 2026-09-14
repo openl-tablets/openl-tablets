@@ -1,4 +1,4 @@
-import { launchTrace } from 'services/traceLaunch'
+import { launchTrace, TRACE_WINDOW_BLOCKED } from 'services/traceLaunch'
 import { traceService } from 'services/traceService'
 import { retireTraceLaunch, stampTraceLaunch } from 'services/traceLaunchToken'
 
@@ -6,6 +6,7 @@ vi.mock('services/traceService', () => ({
     traceService: {
         startTrace: vi.fn().mockResolvedValue({}),
         exportTrace: vi.fn().mockResolvedValue('TRACE: SpreadSheet Double Rate() = 0.9\n'),
+        cancelTrace: vi.fn().mockResolvedValue(undefined),
     },
 }))
 
@@ -29,7 +30,8 @@ describe('launchTrace', () => {
 
     beforeEach(() => {
         vi.clearAllMocks()
-        openSpy = vi.spyOn(window, 'open').mockReturnValue(null)
+        // The browser opens the window; a test that wants it refused says so for itself.
+        openSpy = vi.spyOn(window, 'open').mockReturnValue({} as Window)
         clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
         // jsdom does not implement object URLs. The download helper only needs them to not throw.
         URL.createObjectURL = vi.fn(() => 'blob:trace')
@@ -85,5 +87,15 @@ describe('launchTrace', () => {
         expect(exportTrace).toHaveBeenCalledWith('p1', true) // then the full trace is fetched
         expect(clickSpy).toHaveBeenCalledTimes(1) // and saved via a download link
         expect(openSpy).not.toHaveBeenCalled()
+    })
+    it('lets the session go when the browser will not open the trace window', async () => {
+        // Creating the session waits for a project that may still be compiling, so the click that started
+        // the launch may no longer count as one and the window is refused. Nothing is left registered.
+        openSpy.mockReturnValue(null)
+
+        await expect(launchTrace(request)).rejects.toThrow(TRACE_WINDOW_BLOCKED)
+        // Nothing will ever attach to the session, so it does not stay holding a parked execution.
+        expect(traceService.cancelTrace).toHaveBeenCalledWith(request.projectId)
+        expect(retireTraceLaunch).toHaveBeenCalledWith('7')
     })
 })

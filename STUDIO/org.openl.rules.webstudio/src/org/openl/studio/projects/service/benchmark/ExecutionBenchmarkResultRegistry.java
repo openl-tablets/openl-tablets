@@ -13,6 +13,7 @@ import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.service.AbstractExecutionResultRegistry;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Session-scoped registry of the benchmarks a user has taken.
@@ -46,7 +47,11 @@ public class ExecutionBenchmarkResultRegistry extends AbstractExecutionResultReg
                                      String tableId,
                                      CompletableFuture<List<BenchmarkMeasurement>> task) {
         Objects.requireNonNull(tableId, "tableId");
-        if (!projectId.equals(measuredProject)) {
+        if (projectId.equals(measuredProject)) {
+            // A benchmark that ended without being read keeps what it measured: the window compares every
+            // measurement taken in the session, and this one is one of them.
+            harvest(projectId);
+        } else {
             measurements.clear();
             measuredProject = projectId;
         }
@@ -58,29 +63,54 @@ public class ExecutionBenchmarkResultRegistry extends AbstractExecutionResultReg
      * The measurements taken in this session for the given project, the newest first.
      *
      * <p>A benchmark that has ended joins them the first time they are read, so that reading them again
-     * reports the same rows. A benchmark that failed or was abandoned adds nothing.
+     * reports the same rows. One that was abandoned adds nothing, and one that failed says why instead of
+     * answering with the rows of the benchmarks before it.
      *
      * <p>A project that was never measured has no measurements, and reading it leaves the benchmark of
      * another project waiting to be read there.
      *
      * @param projectId the project identifier
      * @return the measurements of the project
+     * @throws RuntimeException the reason the benchmark that has just ended failed
      */
     public synchronized List<BenchmarkMeasurement> collect(ProjectIdModel projectId) {
         if (!projectId.equals(measuredProject)) {
             return List.of();
         }
-        var task = pending;
-        if (task != null && task.isDone()) {
-            pending = null;
-            if (!task.isCompletedExceptionally() && !task.isCancelled()) {
-                var taken = getResultIfDone(projectId);
-                if (taken != null) {
-                    measurements.addAll(0, taken);
-                }
-            }
+        var failure = harvest(projectId);
+        if (failure != null) {
+            // A benchmark that could not be taken says why. The measurements of the ones before it are not
+            // its result, and are there to be read again.
+            throw RuntimeExceptionWrapper.wrap(failure);
         }
         return List.copyOf(measurements);
+    }
+
+    /**
+     * Takes in what the benchmark that has ended measured.
+     *
+     * <p>A benchmark that is still going on is left alone. One that was abandoned measured nothing.
+     *
+     * @param projectId the project identifier
+     * @return the reason the benchmark failed, or {@code null} when it did not
+     */
+    private @Nullable Throwable harvest(ProjectIdModel projectId) {
+        var task = pending;
+        if (task == null || !task.isDone()) {
+            return null;
+        }
+        pending = null;
+        if (task.isCancelled()) {
+            return null;
+        }
+        if (task.isCompletedExceptionally()) {
+            return task.exceptionNow();
+        }
+        var taken = getResultIfDone(projectId);
+        if (taken != null) {
+            measurements.addAll(0, taken);
+        }
+        return null;
     }
 
     /**
