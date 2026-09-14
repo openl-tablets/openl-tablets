@@ -13361,6 +13361,145 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/tables/{tableId}/editors": {
+      "get": {
+        "description": "Read the ways of entering a value the cells of the table ask for: the values a cell is chosen from, the bounds a number is entered within, how the entries of an array are written, how a range is entered. A screen editing a table reads this once, for the same window of rows it read the table as, and needs nothing more while the user edits. The ways of entering a value are listed once and pointed at by index, because a whole column usually asks for the same one. A cell that is not listed is written as plain text, which a screen can tell from the value itself.",
+        "operationId": "getTableEditors",
+        "parameters": [
+          {
+            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Table ID.",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Zero-based index of the first row of the raw view; omit to start at the top. Combine with `maxRows` to read a large table in slices.",
+            "in": "query",
+            "name": "startRow",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "description": "Maximum number of rows for the raw view, counted from `startRow`; omit to read to the end. When the window omits rows, the response carries `totalRows`.",
+            "in": "query",
+            "name": "maxRows",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableEditorsView"
+                }
+              }
+            },
+            "description": "default response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Get how a project table's cells are written",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/tables/{tableId}/graph": {
       "get": {
         "description": "***",
@@ -29491,6 +29630,77 @@ Content-Type: application/json
           }
         }
       },
+      "TableCellEditorRef": {
+        "type": "object",
+        "description": "A cell and the editor it asks for",
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based column of the cell in the matrix the raw read returns"
+          },
+          "editor": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based index into `editors`"
+          },
+          "row": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based row of the cell in the matrix the raw read returns"
+          }
+        }
+      },
+      "TableCellEditorView": {
+        "type": "object",
+        "description": "One way of entering a value, with what that way of entering it needs",
+        "properties": {
+          "choices": {
+            "type": "array",
+            "description": "Values to choose from; carried by 'combo' and 'multiselect'",
+            "items": {
+              "type": "string",
+              "description": "Values to choose from; carried by 'combo' and 'multiselect'"
+            }
+          },
+          "displayValues": {
+            "type": "array",
+            "description": "What to show for each choice, in the order of `choices`",
+            "items": {
+              "type": "string",
+              "description": "What to show for each choice, in the order of `choices`"
+            }
+          },
+          "editor": {
+            "type": "string",
+            "description": "Kind of editor: 'combo', 'multiselect', 'numeric', 'array', 'range', 'date' or 'boolean'."
+          },
+          "entryEditor": {
+            "type": "string",
+            "description": "Editor one entry is written with; carried by 'array' and 'range'"
+          },
+          "intOnly": {
+            "type": "boolean",
+            "description": "true when only whole numbers are accepted; carried by 'numeric' and 'array'"
+          },
+          "max": {
+            "type": "number",
+            "description": "Largest value the cell's type holds; carried by 'numeric'"
+          },
+          "min": {
+            "type": "number",
+            "description": "Smallest value the cell's type holds; carried by 'numeric'"
+          },
+          "separator": {
+            "type": "string",
+            "description": "What separates the chosen values in the cell; carried by 'multiselect' and 'array'"
+          },
+          "separatorEscaper": {
+            "type": "string",
+            "description": "What precedes a separator that belongs to a value; carried by 'multiselect'"
+          }
+        }
+      },
       "TableDescription": {
         "type": "object",
         "properties": {
@@ -29529,6 +29739,26 @@ Content-Type: application/json
           "name": {
             "type": "string",
             "description": "***"
+          }
+        }
+      },
+      "TableEditorsView": {
+        "type": "object",
+        "description": "The ways of entering a value a table's cells ask for",
+        "properties": {
+          "cells": {
+            "type": "array",
+            "description": "Cells that ask for one of the editors; a cell that is absent is written as text",
+            "items": {
+              "$ref": "#/components/schemas/TableCellEditorRef"
+            }
+          },
+          "editors": {
+            "type": "array",
+            "description": "Ways of entering a value this table needs, pointed at by index from `cells`",
+            "items": {
+              "$ref": "#/components/schemas/TableCellEditorView"
+            }
           }
         }
       },

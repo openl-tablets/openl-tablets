@@ -52,6 +52,7 @@ import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.read.TableEditorsReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -106,6 +107,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(ProjectDependencyResolver.class),
                 mock(SummaryTableReader.class),
                 mock(RawTableReader.class),
+                mock(TableEditorsReader.class),
                 List.of(),
                 mock(Function.class),
                 mock(BeanValidationProvider.class),

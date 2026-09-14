@@ -414,7 +414,4 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         return hex.equals(defaultHex) ? null : hex;
     }
 
-    private record CellRef(int row, int col) {
-    }
-
 }

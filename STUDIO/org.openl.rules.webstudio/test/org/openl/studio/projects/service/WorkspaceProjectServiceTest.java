@@ -120,6 +120,7 @@ import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.read.TableEditorsReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
@@ -2213,6 +2214,7 @@ class WorkspaceProjectServiceTest {
                 dependencyResolver,
                 summaryTableReader,
                 mock(RawTableReader.class),
+                mock(TableEditorsReader.class),
                 List.of(),
                 repository -> mock(NewBranchValidator.class),
                 mock(BeanValidationProvider.class),

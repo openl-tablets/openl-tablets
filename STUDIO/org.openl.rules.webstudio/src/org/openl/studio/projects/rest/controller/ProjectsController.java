@@ -90,6 +90,7 @@ import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableSourceActions;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
+import org.openl.studio.projects.model.tables.TableEditorsView;
 import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
@@ -589,6 +590,23 @@ public class ProjectsController {
                                             @Parameter(description = "projects.table.get.param.module.desc")
                                             String module) {
         return projectService.getTableDetails(project, tableId, module);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/editors")
+    @Operation(summary = "projects.table.editors.summary", description = "projects.table.editors.desc")
+    public TableEditorsView getTableEditors(@ProjectId @PathVariable("projectId") RulesProject project,
+                                            @PathVariable("tableId") @Parameter(description = "project.table.id.desc")
+                                            String tableId,
+                                            @RequestParam(value = "startRow", required = false) @Min(0)
+                                            @Parameter(description = "projects.table.get.param.start-row.desc")
+                                            Integer startRow,
+                                            @RequestParam(value = "maxRows", required = false) @Min(1)
+                                            @Parameter(description = "projects.table.get.param.max-rows.desc")
+                                            Integer maxRows,
+                                            @RequestParam(value = "module", required = false)
+                                            @Parameter(description = "projects.table.get.param.module.desc")
+                                            String module) {
+        return projectService.getTableEditors(project, tableId, startRow, maxRows, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/input")
