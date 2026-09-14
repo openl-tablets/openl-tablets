@@ -160,6 +160,59 @@ describe('TableEditor', () => {
         ]))
     })
 
+    it('writes a cell over several lines when the reader switches to it', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        await userEvent.click(screen.getByTestId('table-cell-switch'))
+        // Picking the way of writing takes the pointer out of the field, which must not close the cell.
+        await userEvent.click(await screen.findByText('browser.module.editor_switch_multiline'))
+
+        const input = screen.getByTestId('table-cell-input')
+        expect(input.tagName).toBe('TEXTAREA')
+        expect(input).toHaveValue('Good Morning')
+    })
+
+    it('takes the ways out of the cells while the table is being edited', async () => {
+        const leading: RawTableCell[][] = [[{
+            cell: 'B4',
+            value: 'Bank bank',
+            metaInfo: {
+                usages: [{ start: 0, end: 4, description: 'Bank', tableId: 't2', module: 'm', kind: 'datatype' }],
+            },
+        }]]
+        const { rerender } = render(
+            <TableEditor
+                canWrite
+                editing={false}
+                onEditingChange={vi.fn()}
+                onOpenUsage={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={leading}
+                tableId="table-1"
+            />
+        )
+        expect(screen.getByTestId('cell-usage-0').tagName).toBe('BUTTON')
+
+        rerender(
+            <TableEditor
+                canWrite
+                editing
+                onEditingChange={vi.fn()}
+                onOpenUsage={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={leading}
+                tableId="table-1"
+            />
+        )
+
+        // The same piece of text is still marked, but it no longer leads anywhere a misclick could follow.
+        await waitFor(() => expect(screen.getByTestId('cell-usage-0').tagName).toBe('SPAN'))
+    })
+
     it('keeps no band of actions over a table that is only being read', () => {
         draw({ editing: false })
 

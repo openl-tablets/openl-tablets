@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MoreOutlined } from '@ant-design/icons'
 import { Button, Dropdown } from 'antd'
 import { useTranslation } from 'react-i18next'
@@ -96,6 +96,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const [loadingEditors, setLoadingEditors] = useState(false)
     // The way the reader chose to write the open cell, when it is not the way the cell asks for.
     const [switched, setSwitched] = useState<EditorKind | null>(null)
+    // Picking another way of writing the cell takes the pointer out of the field, which is not the reader
+    // leaving the cell — without this the cell would close on the way to the menu and never switch at all.
+    const switching = useRef(false)
 
     // How the cells take a value is read once, when the reader starts editing, and for the window the table was
     // read as — so nothing is asked while they edit, however many cells they open.
@@ -147,6 +150,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     /** Keeps what was written into the open cell, unless it is what the cell already held. */
     const closeCell = (keep: boolean) => {
+        if (switching.current) {
+            return
+        }
         const at = open
         setOpen(null)
         if (!keep || at === null) {
@@ -252,7 +258,11 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                             onCommit={() => closeCell(true)}
                             value={draft}
                         />
-                        <Dropdown menu={{ items: switches(at, kind) }} trigger={['click']}>
+                        <Dropdown
+                            menu={{ items: switches(at, kind) }}
+                            onOpenChange={opened => { switching.current = opened }}
+                            trigger={['click']}
+                        >
                             <Button
                                 data-testid="table-cell-switch"
                                 icon={<MoreOutlined />}
@@ -324,7 +334,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     decorate={decorate}
                     formulas={formulas}
                     onOpenCell={canWrite ? openCell : undefined}
-                    onOpenUsage={onOpenUsage}
+                    // While the table is being edited its cells lead nowhere: a click is meant for the cell
+                    // under it, and a reader aiming at one must not be taken to another table by mistake.
+                    onOpenUsage={editing ? undefined : onOpenUsage}
                     onPickCell={canWrite ? pick : undefined}
                     rows={written}
                     testId={testId}

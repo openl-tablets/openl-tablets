@@ -150,7 +150,7 @@ describe('useModuleCompilation', () => {
 
     it('reads the module again after a write rather than building it afresh', async () => {
         captureUpdates()
-        const { rerender } = render(<Probe initial={compiling(12, 12, 'Claims')} rebuild reloadToken={0} />)
+        const { rerender } = render(<Probe rebuild initial={compiling(12, 12, 'Claims')} reloadToken={0} />)
 
         rerender(<Probe initial={compiling(12, 12, 'Claims')} rebuild={false} reloadToken={1} />)
 
