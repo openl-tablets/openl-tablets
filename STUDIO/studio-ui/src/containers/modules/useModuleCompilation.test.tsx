@@ -64,7 +64,7 @@ describe('useModuleCompilation', () => {
         expect(subscribeProjectStatus).not.toHaveBeenCalled()
         expect(startModuleCompilation).not.toHaveBeenCalled()
 
-        rerender(<Probe branch="main" enabled />)
+        rerender(<Probe enabled branch="main" />)
 
         // One channel, joined once: re-joining would throw away what a quick compilation already said.
         expect(subscribeProjectStatus).toHaveBeenCalledTimes(1)
@@ -92,7 +92,7 @@ describe('useModuleCompilation', () => {
             projectId: 'p1',
             branch: 'main',
             compileState: 'ok',
-            compilation: { modules: { compiled: 2, total: 2, compiledModules: ['Claims'] }, tests: { total: 7 } },
+            compilation: { modules: { compiled: 2, total: 2, compiledModules: ['Claims']}, tests: { total: 7 } },
         })
         expect(getByTestId('state')).toHaveTextContent('tests:7')
 

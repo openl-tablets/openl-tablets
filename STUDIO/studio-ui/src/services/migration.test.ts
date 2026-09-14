@@ -18,7 +18,7 @@ describe('migration service', () => {
         })
 
         await expect(getProjectMigration('repo/project')).resolves.toEqual({
-            rulesXml: { movableRootModules: ['Pricing.xlsx'], migratable: true, newModules: [] },
+            rulesXml: { movableRootModules: ['Pricing.xlsx'], migratable: true, newModules: []},
             rulesDeploy: { migratable: false },
         })
         expect(apiCall).toHaveBeenCalledWith('/projects/repo_project/migration', undefined, { throwError: true })
@@ -29,19 +29,19 @@ describe('migration service', () => {
         vi.mocked(apiCall).mockResolvedValue({ rulesXml: { migratable: true }, rulesDeploy: { migratable: true } })
 
         await expect(getProjectMigration('p')).resolves.toEqual({
-            rulesXml: { movableRootModules: [], migratable: true, newModules: [] },
+            rulesXml: { movableRootModules: [], migratable: true, newModules: []},
             rulesDeploy: { migratable: true },
         })
     })
 
     it('passes through the workbooks a rewrite would turn into modules', async () => {
         vi.mocked(apiCall).mockResolvedValue({
-            rulesXml: { migratable: true, newModules: ['rules/Extra.xlsx'] },
+            rulesXml: { migratable: true, newModules: ['rules/Extra.xlsx']},
             rulesDeploy: { migratable: false },
         })
 
         await expect(getProjectMigration('p')).resolves.toEqual({
-            rulesXml: { movableRootModules: [], migratable: true, newModules: ['rules/Extra.xlsx'] },
+            rulesXml: { movableRootModules: [], migratable: true, newModules: ['rules/Extra.xlsx']},
             rulesDeploy: { migratable: false },
         })
     })
