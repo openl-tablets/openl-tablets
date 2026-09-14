@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { Modal } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ModuleTable, SummaryTable } from 'types/tables'
+import type { ModuleTable, SummaryTable, TableRunState } from 'types/tables'
 import { getTableTargets, getTableTests } from '../../services/modules'
 import { deleteTable } from '../../services/tables'
 import { TableToolbar } from './TableToolbar'
@@ -35,6 +35,8 @@ interface DrawProps {
     projectCompiled?: boolean
     /** Whether the reader may edit the project, which is what the writing actions are offered by. */
     canWrite?: boolean
+    /** What the table is as something to run, as the read of it answers; runnable unless a test says otherwise. */
+    runState?: TableRunState
     onWritten?: (written: SummaryTable, moduleName: string) => void
     onRemoved?: () => void
 }
@@ -48,6 +50,7 @@ const toolbar = (props: DrawProps) => (
             onWritten={props.onWritten}
             projectCompiled={props.projectCompiled ?? false}
             projectId="p1"
+            runState={props.runState ?? 'can-run'}
             table={props.table}
         />
     </MemoryRouter>
@@ -384,6 +387,30 @@ describe('TableToolbar', () => {
         await draw({ table: table('Datatype') })
         expect(getTableTests).not.toHaveBeenCalled()
         expect(getTableTargets).not.toHaveBeenCalled()
+    })
+
+    it('offers no run of a table the compiler could not build', async () => {
+        vi.mocked(getTableTests).mockResolvedValue([{ id: 'test-9', name: 'GreetingTest' }])
+        await draw({ runState: 'cannot-run', table: table('Rules') })
+
+        // The old Editor took these off the band rather than letting a run fail on a broken table.
+        expect(screen.queryByTestId('table-run')).toBeNull()
+        expect(screen.queryByTestId('table-trace')).toBeNull()
+        expect(screen.queryByTestId('table-benchmark')).toBeNull()
+        expect(screen.queryByTestId('table-tests')).toBeNull()
+        // What covers the table is still named: a list of tests is not something to run.
+        expect(screen.getByTestId('table-available-tests')).toBeInTheDocument()
+    })
+
+    it('keeps a run inside the module while what is built beyond it has errors', async () => {
+        const opened = vi.fn()
+        window.addEventListener('openRunLaunch', opened)
+        await draw({ runState: 'can-run-module', table: table('Spreadsheet') })
+
+        await userEvent.click(screen.getByTestId('table-run'))
+
+        window.removeEventListener('openRunLaunch', opened)
+        expect((opened.mock.calls[0]?.[0] as CustomEvent).detail).toMatchObject({ moduleOnlyLocked: true })
     })
 
 })

@@ -375,7 +375,13 @@ export const ModuleWorkspace = () => {
         setTable(null)
         setTableError(null)
         // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it.
-        getRawTable(projectId, selected.id, { module: moduleName, maxRows: TABLE_PAGE_ROWS, metaInfo: true })
+        getRawTable(projectId, selected.id, {
+            module: moduleName,
+            maxRows: TABLE_PAGE_ROWS,
+            metaInfo: true,
+            // What the band offers to run is what the read says can be run.
+            runState: true,
+        })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
                     setTable(loaded)
@@ -556,6 +562,7 @@ export const ModuleWorkspace = () => {
                 onWritten={openWritten}
                 projectCompiled={projectCompiled}
                 projectId={project.id}
+                runState={table?.runState}
                 table={selected}
             />
         )

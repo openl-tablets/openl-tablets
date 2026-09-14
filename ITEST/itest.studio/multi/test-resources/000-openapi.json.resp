@@ -12628,6 +12628,15 @@ Content-Type: application/json
             }
           },
           {
+            "description": "When `true`, the answer also says whether the table can be run as it stands and how far a run of it may reach: `can-run`, `can-run-module` while only the open module is built or what is built beyond it has errors, or `cannot-run` for a table that failed to compile and for a test whose rules failed. Working it out reads what the compiler said about the table, so it is answered only when asked for.",
+            "in": "query",
+            "name": "runState",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "fields",
@@ -23543,6 +23552,16 @@ Content-Type: application/json
                 "items": {
                   "$ref": "#/components/schemas/DataRowView"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -23739,6 +23758,16 @@ Content-Type: application/json
                   "description": "***"
                 },
                 "description": "***"
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -25208,6 +25237,16 @@ Content-Type: application/json
                   },
                   "description": "***"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -27774,6 +27813,16 @@ Content-Type: application/json
                 "description": "***",
                 "readOnly": true
               },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
+              },
               "source": {
                 "type": "array",
                 "description": "***",
@@ -28454,6 +28503,16 @@ Content-Type: application/json
                   },
                   "description": "***"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -28544,6 +28603,16 @@ Content-Type: application/json
               "returnType": {
                 "type": "string",
                 "description": "***"
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               },
               "steps": {
                 "type": "array",
@@ -28679,6 +28748,16 @@ Content-Type: application/json
                   },
                   "description": "***"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -28894,6 +28973,16 @@ Content-Type: application/json
                 "items": {
                   "$ref": "#/components/schemas/SpreadsheetRowView"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -29067,6 +29156,16 @@ Content-Type: application/json
           "returnType": {
             "type": "string",
             "description": "***"
+          },
+          "runState": {
+            "type": "string",
+            "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+            "enum": [
+              "can-run",
+              "can-run-module",
+              "cannot-run"
+            ],
+            "readOnly": true
           },
           "sheet": {
             "type": "string",
@@ -30033,6 +30132,16 @@ Content-Type: application/json
                   "$ref": "#/components/schemas/DataRowView"
                 }
               },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
+              },
               "testedTableName": {
                 "type": "string",
                 "description": "***"
@@ -30978,6 +31087,16 @@ Content-Type: application/json
                   "description": "***"
                 },
                 "description": "***"
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               },
               "type": {
                 "type": "string",

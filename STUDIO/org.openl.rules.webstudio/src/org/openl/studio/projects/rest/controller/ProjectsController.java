@@ -541,11 +541,15 @@ public class ProjectsController {
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
                                       @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
-                                      @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        if (raw) {
-            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles, metaInfo, module);
+                                      @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
+                                      @RequestParam(value = "runState", defaultValue = "false") @Parameter(description = "projects.table.get.param.run-state.desc") boolean runState) {
+        var read = raw
+                ? projectService.getTableRaw(project, tableId, startRow, maxRows, styles, metaInfo, module)
+                : (EditableTableView) projectService.getTable(project, tableId, module);
+        if (runState && read instanceof TableView view) {
+            view.runState = projectService.getTableRunState(project, tableId, module);
         }
-        return (EditableTableView) projectService.getTable(project, tableId, module);
+        return read;
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/tests")

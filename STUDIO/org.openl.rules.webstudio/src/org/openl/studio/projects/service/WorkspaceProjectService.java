@@ -118,6 +118,7 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.model.tables.TableRunState;
 import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
@@ -136,6 +137,7 @@ import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TablePropertyText;
+import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -186,6 +188,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableCreatorService tableCreatorService;
     private final TableCopyService tableCopyService;
     private final TablePropertiesService tablePropertiesService;
+    private final TableRunStateService tableRunStateService;
     private final TableDetailsService tableDetailsService;
     private final TableVersionService tableVersionService;
     private final ProjectMetadataService metadataService;
@@ -214,6 +217,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             TableCreatorService tableCreatorService,
             TableCopyService tableCopyService,
             TablePropertiesService tablePropertiesService,
+            TableRunStateService tableRunStateService,
             TableDetailsService tableDetailsService,
             TableVersionService tableVersionService,
             ProjectMetadataService metadataService,
@@ -245,6 +249,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableCreatorService = tableCreatorService;
         this.tableCopyService = tableCopyService;
         this.tablePropertiesService = tablePropertiesService;
+        this.tableRunStateService = tableRunStateService;
         this.tableDetailsService = tableDetailsService;
         this.tableVersionService = tableVersionService;
         this.metadataService = metadataService;
@@ -1947,6 +1952,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
         tableView.messages = mapMessages(context);
         return tableView;
+    }
+
+    /**
+     * What the reader may do with the table beyond reading it: run it, and how far a run of it may reach.
+     *
+     * <p>Answered where a screen asks for it: working it out reads what the compiler said about the table and,
+     * for a test, about the rules it exercises — worth doing for the table on screen, not for every read.
+     *
+     * @param project    project owning the table
+     * @param tableId    table being asked about
+     * @param moduleName module the table is read through
+     * @return whether the table can be run, and how far
+     */
+    public TableRunState getTableRunState(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        return tableRunStateService.of(context.module(), context.table());
     }
 
     private List<DetailedMessageDescription> mapMessages(OpenLTableContext context) {

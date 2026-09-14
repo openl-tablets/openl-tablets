@@ -13,7 +13,7 @@ import {
     RadarChartOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import type { ModuleTable, SummaryTable } from 'types/tables'
+import type { ModuleTable, SummaryTable, TableRunState } from 'types/tables'
 import { getTableTargets, getTableTests, type TableTarget, type TableTest } from '../../services/modules'
 import { deleteTable } from '../../services/tables'
 import { moduleRoute } from '../../services/projectId'
@@ -153,6 +153,14 @@ interface TableToolbarProps {
     projectCompiled?: boolean
     /** Whether the reader may edit the project; what writes to the module is offered only then. */
     canWrite?: boolean
+    /**
+     * What the table is as something to run, as the read of it answered.
+     *
+     * <p>Absent while that read is on its way, and then nothing is offered to run: a table the compiler could
+     * not build — or a test whose rules failed — has nothing to run, and the old Editor took those actions
+     * off the band rather than letting them fail.
+     */
+    runState?: TableRunState | undefined
     /** A table written from here — a copy of this one, or a test for it — and the module it landed in. */
     onWritten?: ((written: SummaryTable, moduleName: string) => void) | undefined
     /** Called once this table is gone from the module. */
@@ -176,6 +184,7 @@ export const TableToolbar = ({
     table,
     projectCompiled = false,
     canWrite = false,
+    runState,
     onWritten,
     onRemoved,
 }: TableToolbarProps) => {
@@ -254,7 +263,14 @@ export const TableToolbar = ({
     const launch = (event: string, from: ReactMouseEvent<HTMLElement>) => {
         const { top, left, width, height } = from.currentTarget.getBoundingClientRect()
         window.dispatchEvent(new CustomEvent(event, {
-            detail: { projectId, tableId: table.id, moduleName, anchor: { top, left, width, height } },
+            detail: {
+                projectId,
+                tableId: table.id,
+                moduleName,
+                anchor: { top, left, width, height },
+                // Where what is built beyond this module has errors, the run stays inside the module.
+                moduleOnlyLocked: runState === 'can-run-module',
+            },
         }))
     }
 
@@ -296,12 +312,13 @@ export const TableToolbar = ({
         return dialog ? () => openDialog(dialog) : undefined
     }
 
-    const executable = EXECUTABLE.has(table.kind)
+    // Runnable is what the server says it is; a table whose read has not answered yet is not offered a run.
+    const runnable = EXECUTABLE.has(table.kind) && (runState === 'can-run' || runState === 'can-run-module')
     // A test table runs its own cases; any other table runs the tests written against it, when there are some.
     const hasTests = table.kind === 'Test' || tests.length > 0
     const offered = ACTIONS.filter(action => action.writes
         ? canWrite && (action.suits?.(table) ?? true)
-        : executable && (!action.needsTests || hasTests))
+        : runnable && (!action.needsTests || hasTests))
 
     // A test is a table of its own, written where its author put it: another module of this project, or a
     // module of a project this one depends on. It is opened there, not beside the table it exercises.

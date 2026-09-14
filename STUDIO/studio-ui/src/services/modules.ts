@@ -92,11 +92,21 @@ export const TABLE_PAGE_ROWS = 120
 export const getRawTable = async (
     projectId: string,
     tableId: string,
-    options: { module?: string, startRow?: number, maxRows?: number, metaInfo?: boolean } = {}
+    options: {
+        module?: string
+        startRow?: number
+        maxRows?: number
+        metaInfo?: boolean
+        /** Ask what the table is as something to run: the editor offers Run and Trace on the answer. */
+        runState?: boolean
+    } = {}
 ): Promise<RawTableView> => {
     const params = new URLSearchParams({ raw: 'true', styles: 'true' })
     if (options.metaInfo) {
         params.set('metaInfo', 'true')
+    }
+    if (options.runState) {
+        params.set('runState', 'true')
     }
     if (options.module !== undefined) {
         params.set('module', options.module)

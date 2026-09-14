@@ -115,6 +115,7 @@ import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -2218,6 +2219,7 @@ class WorkspaceProjectServiceTest {
                 tableCreatorService,
                 tableCopyService,
                 tablePropertiesService,
+                mock(TableRunStateService.class),
                 mock(TableDetailsService.class),
                 new TableVersionService(),
                 mock(ProjectMetadataService.class),
