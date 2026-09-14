@@ -72,6 +72,8 @@ const useStyles = createStyles(({ css, token }) => ({
 interface TableProblemsProps {
     /** What the read said about this table; nothing is drawn when it said nothing. */
     messages: ProjectStatusDetailedMessage[]
+    /** Opens the cell a message was raised against; absent for a reader who may not write the table. */
+    onEditCell?: ((cell: string) => void) | undefined
 }
 
 /**
@@ -81,7 +83,7 @@ interface TableProblemsProps {
  * Only the messages the read returned for this table are shown; everything the project raised elsewhere stays
  * in the panel at the foot of the screen.
  */
-export const TableProblems = ({ messages }: TableProblemsProps) => {
+export const TableProblems = ({ messages, onEditCell }: TableProblemsProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(() => readJson(STORAGE_KEY, true, (value): value is boolean =>
@@ -131,8 +133,18 @@ export const TableProblems = ({ messages }: TableProblemsProps) => {
                 // would size the messages to the pointer plus the header above them.
                 <div className={styles.resizable}>
                     <div className={styles.body} data-testid="table-problems-body" style={{ height }}>
-                        <CompileMessages messages={errors} severity="error" testIdPrefix="table-message" />
-                        <CompileMessages messages={warnings} severity="warning" testIdPrefix="table-message" />
+                        <CompileMessages
+                            messages={errors}
+                            onEditCell={onEditCell}
+                            severity="error"
+                            testIdPrefix="table-message"
+                        />
+                        <CompileMessages
+                            messages={warnings}
+                            onEditCell={onEditCell}
+                            severity="warning"
+                            testIdPrefix="table-message"
+                        />
                     </div>
                     <ResizeHandle edge="bottom" onPointerDown={startResize} testId="table-problems-resizer" />
                 </div>

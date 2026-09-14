@@ -12290,6 +12290,14 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -12557,6 +12565,14 @@ Content-Type: application/json
             }
           },
           {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "fields",
@@ -12690,6 +12706,14 @@ Content-Type: application/json
             }
           },
           {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "fields",
@@ -12818,6 +12842,14 @@ Content-Type: application/json
             "in": "path",
             "name": "tableId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
             "schema": {
               "type": "string"
             }
@@ -13881,6 +13913,14 @@ Content-Type: application/json
             }
           },
           {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "fields",
@@ -14118,6 +14158,14 @@ Content-Type: application/json
             "in": "path",
             "name": "tableId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
             "schema": {
               "type": "string"
             }

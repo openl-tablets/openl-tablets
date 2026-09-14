@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -30,6 +31,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,6 +41,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
 
+import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -1975,6 +1978,31 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return tableRunStateService.of(context.module(), context.table());
     }
 
+    /**
+     * The stack trace behind a compilation message, read only when a reader asks for it.
+     *
+     * <p>A trace runs to thousands of characters and most messages are read without one, so it is left out of
+     * the messages themselves and fetched for the one message that is opened.
+     *
+     * @param project    project the message was raised in
+     * @param messageId  message being asked about
+     * @param moduleName module the message is read through, or {@code null} for the project as a whole
+     * @return the trace, or {@code null} when the message carries none
+     */
+    public @Nullable String getMessageStacktrace(RulesProject project, long messageId, @Nullable String moduleName) {
+        return openProject(project, moduleName).project()
+                .getCompilationStatus()
+                .getAllMessage()
+                .stream()
+                .filter(message -> message.getId() == messageId)
+                .findFirst()
+                .filter(OpenLErrorMessage.class::isInstance)
+                .map(message -> ((OpenLErrorMessage) message).getError())
+                .filter(Throwable.class::isInstance)
+                .map(error -> ExceptionUtils.getStackTrace((Throwable) error))
+                .orElse(null);
+    }
+
     private List<DetailedMessageDescription> mapMessages(OpenLTableContext context) {
         var messages = context.getMessages().values().stream()
                 .flatMap(Collection::stream)
@@ -2220,6 +2248,44 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * Resolve a table that is about to be written, through the module it is written in.
+     *
+     * <p>Opening that module compiles it and nothing after it, so the write starts as soon as the module it
+     * touches is ready. Asked without a module, the table is looked for across the project — which waits for
+     * every module of it to compile, minutes on a project of any size, for a write that needs one of them.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to write to
+     * @param moduleName module the table is written in, or {@code null} to look across the project
+     * @return the table and the model it was resolved through
+     */
+    /**
+     * Runs a write of a table, and has the module built from its workbook again when the write is refused.
+     *
+     * <p>A refused write stops part-way. Nothing of it reaches the disk, but what it had already changed stays in
+     * the workbook the session holds, where every request that follows would read it — and be judged against it:
+     * a cell cleared by a write that was then refused makes the next write look as if it emptied the line.
+     * Building the module again from the disk is what puts the session back where the refusal found it.
+     *
+     * @param write the write to run
+     * @return whatever the write answers
+     */
+    private <T> T writing(Supplier<T> write) {
+        try {
+            return write.get();
+        } catch (RuntimeException refused) {
+            getWebStudio().recompileCurrentModule();
+            throw refused;
+        }
+    }
+
+    private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        return moduleName == null
+                ? getOpenLTable(project, tableId, true)
+                : getOpenLTableInModule(project, tableId, moduleName);
+    }
+
+    /**
      * Resolve a table by id. When {@code editable} is set, a table that belongs to a dependency project is
      * rejected: it can be rendered read-only, but writing it here would mutate another project's source while
      * only the current project is locked and ACL-checked.
@@ -2261,12 +2327,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table id after the write; differs from {@code tableId} when the table was relocated to grow
      * @throws ProjectException if project is locked by another user
      */
-    public String updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
+    public String updateTable(RulesProject project, String tableId, EditableTableView tableView,
+            @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableWriterExecutor.executeWrite(writer, tableView);
+        return writing(() -> tableWriterExecutor.executeWrite(writer, tableView));
     }
 
     /**
@@ -2280,12 +2347,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public String appendTableLines(RulesProject project,
                                    String tableId,
-                                   AppendTableView tableView) throws ProjectException {
+                                   AppendTableView tableView,
+                                   @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableWriterExecutor.executeAppend(writer, tableView);
+        return writing(() -> tableWriterExecutor.executeAppend(writer, tableView));
     }
 
     /**
@@ -2304,12 +2372,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public String editTableSource(RulesProject project,
                                   String tableId,
-                                  List<RawTableSourceAction> actions) throws ProjectException {
+                                  List<RawTableSourceAction> actions,
+                                  @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableWriterExecutor.executeSourceAction(writer, actions);
+        return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
     }
 
     /**
@@ -2326,11 +2395,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if project is locked by another user
      */
     public String updateTableProperties(RulesProject project, String tableId,
-                                        List<TableProperty> properties) throws ProjectException {
+                                        List<TableProperty> properties,
+                                        @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tablePropertiesService.write(context.table(), properties);
+        return writing(() -> tablePropertiesService.write(context.table(), properties));
     }
 
     /**
@@ -2343,12 +2413,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId table id
      * @throws ProjectException if project is locked by another user
      */
-    public void deleteTable(RulesProject project, String tableId) throws ProjectException {
+    public void deleteTable(RulesProject project, String tableId, @Nullable String moduleName)
+            throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        writer.delete();
+        writing(() -> {
+            writer.delete();
+            return null;
+        });
     }
 
     /**

@@ -40,6 +40,30 @@ describe('TableProblems', () => {
         expect(screen.getByTestId('table-message-3')).toHaveTextContent('Ambiguous field')
     })
 
+    it('offers the way into the cell a message was raised against', async () => {
+        const onEditCell = vi.fn()
+        const raised: ProjectStatusDetailedMessage[] = [
+            { ...message(1, 'ERROR', 'Identifier is not found'), location: { type: 'table', cell: 'D9' } },
+            message(2, 'ERROR', 'Cannot parse the module'),
+        ]
+        render(<TableProblems messages={raised} onEditCell={onEditCell} />)
+
+        await userEvent.click(screen.getByTestId('table-message-1-edit'))
+
+        expect(onEditCell).toHaveBeenCalledWith('D9')
+        // A message that names no cell has none to open.
+        expect(screen.queryByTestId('table-message-2-edit')).toBeNull()
+    })
+
+    it('offers no way in to a reader who may not write the table', () => {
+        const raised: ProjectStatusDetailedMessage[] = [
+            { ...message(1, 'ERROR', 'Identifier is not found'), location: { type: 'table', cell: 'D9' } },
+        ]
+        render(<TableProblems messages={raised} />)
+
+        expect(screen.queryByTestId('table-message-1-edit')).toBeNull()
+    })
+
     it('folds away, and stays folded for the next table', async () => {
         const { unmount } = render(<TableProblems messages={[message(1, 'ERROR', 'Identifier is not found')]} />)
         expect(screen.getByTestId('table-problems-body')).toBeInTheDocument()

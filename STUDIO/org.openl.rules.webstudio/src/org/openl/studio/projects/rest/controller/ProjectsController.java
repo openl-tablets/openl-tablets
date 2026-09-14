@@ -170,6 +170,30 @@ public class ProjectsController {
         return null;
     }
 
+    /**
+     * Marks the module a write changed to be compiled again, and nothing besides it.
+     *
+     * <p>Called where a write returned, never where it was refused: a write that did not happen changed no
+     * workbook, and asking for the module to be built again on account of it throws away what the session has
+     * compiled for nothing.
+     */
+    private void recompileWrittenModule() {
+        recompileWrittenModule(true);
+    }
+
+    /**
+     * The same, for a write that may have added a module to the project rather than written into one.
+     *
+     * @param intoAModuleOfItsOwn whether the write landed in a module the project already had
+     */
+    private void recompileWrittenModule(boolean intoAModuleOfItsOwn) {
+        if (intoAModuleOfItsOwn) {
+            getWebStudio().recompileCurrentModule();
+        } else {
+            getWebStudio().reset();
+        }
+    }
+
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
         return null;
@@ -444,12 +468,10 @@ public class ProjectsController {
     @ResponseStatus(HttpStatus.CREATED)
     public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                            @Valid @RequestBody CreateNewTableRequest request) throws ProjectException {
-        String tableId;
-        try {
-            tableId = projectService.createNewTable(project, request);
-        } finally {
-            getWebStudio().reset();
-        }
+        var tableId = projectService.createNewTable(project, request);
+        // A table written into a module that did not exist before changes what the project is made of, not just
+        // what one module holds, so the session is told to read the project again.
+        recompileWrittenModule(tableId != null);
         var table = (TableView) request.table();
         return projectService.getCreatedTable(project, request.moduleName(), tableId, table.name);
     }
@@ -461,12 +483,8 @@ public class ProjectsController {
     public SummaryTableView copyTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                       @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                       @Valid @RequestBody CopyTableRequest request) throws ProjectException {
-        String copyId;
-        try {
-            copyId = projectService.copyTable(project, tableId, request);
-        } finally {
-            getWebStudio().reset();
-        }
+        var copyId = projectService.copyTable(project, tableId, request);
+        recompileWrittenModule(copyId != null);
         // Read the copy back by its own id: a copy kept under the source's name cannot be told apart by name.
         return projectService.getCreatedTable(project, request.moduleName(), copyId, request.name());
     }
@@ -685,13 +703,11 @@ public class ProjectsController {
     @PutMapping("/{projectId}/tables/{tableId}")
     public ResponseEntity<TableIdView> updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                                    @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
-                                                   @Valid @RequestBody EditableTableView editTable) throws ProjectException {
-        try {
-            var newTableId = projectService.updateTable(project, tableId, editTable);
-            return tableWriteResponse(tableId, newTableId);
-        } finally {
-            getWebStudio().reset();
-        }
+                                                   @Valid @RequestBody EditableTableView editTable,
+                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+        var newTableId = projectService.updateTable(project, tableId, editTable, module);
+        recompileWrittenModule();
+        return tableWriteResponse(tableId, newTableId);
     }
 
     @Operation(summary = "project.table.append.summary", description = "project.table.append.desc")
@@ -700,13 +716,11 @@ public class ProjectsController {
     @PostMapping("/{projectId}/tables/{tableId}/lines")
     public ResponseEntity<TableIdView> appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                                    @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
-                                                   @Valid @RequestBody AppendTableView editTable) throws ProjectException {
-        try {
-            var newTableId = projectService.appendTableLines(project, tableId, editTable);
-            return tableWriteResponse(tableId, newTableId);
-        } finally {
-            getWebStudio().reset();
-        }
+                                                   @Valid @RequestBody AppendTableView editTable,
+                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+        var newTableId = projectService.appendTableLines(project, tableId, editTable, module);
+        recompileWrittenModule();
+        return tableWriteResponse(tableId, newTableId);
     }
 
     @Operation(summary = "project.table.actions.summary", description = "project.table.actions.desc")
@@ -715,13 +729,11 @@ public class ProjectsController {
     @PostMapping("/{projectId}/tables/{tableId}/actions")
     public ResponseEntity<TableIdView> editTableSource(@ProjectId @PathVariable("projectId") RulesProject project,
                                                        @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
-                                                       @Valid @RequestBody RawTableSourceAction action) throws ProjectException {
-        try {
-            var newTableId = projectService.editTableSource(project, tableId, List.of(action));
-            return tableWriteResponse(tableId, newTableId);
-        } finally {
-            getWebStudio().reset();
-        }
+                                                       @Valid @RequestBody RawTableSourceAction action,
+                                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+        var newTableId = projectService.editTableSource(project, tableId, List.of(action), module);
+        recompileWrittenModule();
+        return tableWriteResponse(tableId, newTableId);
     }
 
     @Operation(summary = "project.table.actions.batch.summary", description = "project.table.actions.batch.desc")
@@ -730,13 +742,11 @@ public class ProjectsController {
     @PostMapping("/{projectId}/tables/{tableId}/actions/batch")
     public ResponseEntity<TableIdView> editTableSourceBatch(@ProjectId @PathVariable("projectId") RulesProject project,
                                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
-                                                            @Valid @RequestBody RawTableSourceActions actions) throws ProjectException {
-        try {
-            var newTableId = projectService.editTableSource(project, tableId, actions.actions());
-            return tableWriteResponse(tableId, newTableId);
-        } finally {
-            getWebStudio().reset();
-        }
+                                                            @Valid @RequestBody RawTableSourceActions actions,
+                                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+        var newTableId = projectService.editTableSource(project, tableId, actions.actions(), module);
+        recompileWrittenModule();
+        return tableWriteResponse(tableId, newTableId);
     }
 
     @Operation(summary = "project.table.properties.update.summary", description = "project.table.properties.update.desc")
@@ -745,26 +755,22 @@ public class ProjectsController {
     @PatchMapping("/{projectId}/tables/{tableId}/properties")
     public ResponseEntity<TableIdView> updateTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
                                                              @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
-                                                             @Valid @RequestBody TablePropertiesUpdate update) throws ProjectException {
-        try {
-            var newTableId = projectService.updateTableProperties(project, tableId, update.properties());
-            return tableWriteResponse(tableId, newTableId);
-        } finally {
-            getWebStudio().reset();
-        }
+                                                             @Valid @RequestBody TablePropertiesUpdate update,
+                                                             @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+        var newTableId = projectService.updateTableProperties(project, tableId, update.properties(), module);
+        recompileWrittenModule();
+        return tableWriteResponse(tableId, newTableId);
     }
 
     @Operation(summary = "project.table.delete.summary", description = "project.table.delete.desc")
     @ApiResponse(responseCode = "204", description = "project.table.delete.204.desc")
     @DeleteMapping("/{projectId}/tables/{tableId}")
     public ResponseEntity<Void> deleteTable(@ProjectId @PathVariable("projectId") RulesProject project,
-                                            @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId) throws ProjectException {
-        try {
-            projectService.deleteTable(project, tableId);
-            return ResponseEntity.noContent().build();
-        } finally {
-            getWebStudio().reset();
-        }
+                                            @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) throws ProjectException {
+        projectService.deleteTable(project, tableId, module);
+        recompileWrittenModule();
+        return ResponseEntity.noContent().build();
     }
 
     /**

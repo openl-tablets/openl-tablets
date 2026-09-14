@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from 'antd'
+import { Button, Tooltip } from 'antd'
+import { EditOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { COMPILE_COLORS } from '../containers/projects/projectsTheme'
@@ -34,6 +35,16 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     warning: css`
         border-left-color: ${COMPILE_COLORS.warnings};
+    `,
+    /** The way straight to the cell a message was raised against, beside the message itself. */
+    editCell: css`
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        margin-left: ${token.marginXXS}px;
+        padding: 0;
+        vertical-align: middle;
+        color: ${token.colorTextTertiary};
     `,
     /** A message that leads somewhere reads as something to press. */
     openable: css`
@@ -129,6 +140,13 @@ interface CompileMessagesProps {
     onOpen?: (message: ProjectStatusDetailedMessage) => void
     /** Which messages can be opened at all; the rest are read where they are. */
     canOpen?: (message: ProjectStatusDetailedMessage) => boolean
+    /**
+     * Opens the cell a message was raised against, for the reader to correct it.
+     *
+     * <p>Offered beside a message that names one, the way the old editor put a pencil there. Absent on a
+     * screen that does no editing, and on a message that names no cell there is nothing to open.
+     */
+    onEditCell?: ((cell: string) => void) | undefined
 }
 
 /**
@@ -144,6 +162,7 @@ export const CompileMessages = ({
     testIdPrefix = 'compile-message',
     onOpen,
     canOpen,
+    onEditCell,
 }: CompileMessagesProps) => {
     const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
@@ -164,6 +183,7 @@ export const CompileMessages = ({
                 {visible.map(message => {
                     const openable = onOpen !== undefined && (canOpen === undefined || canOpen(message))
                     const text = <MessageText value={message.summary} />
+                    const cell = message.location?.type === 'table' ? message.location.cell : undefined
                     return (
                         <li
                             key={message.id}
@@ -182,6 +202,18 @@ export const CompileMessages = ({
                                 </button>
                             ) : (
                                 <span data-testid={`${testIdPrefix}-${message.id}`}>{text}</span>
+                            )}
+                            {onEditCell !== undefined && cell !== undefined && (
+                                <Tooltip title={t('browser.module.edit_this_cell', { cell })}>
+                                    <Button
+                                        className={styles.editCell}
+                                        data-testid={`${testIdPrefix}-${message.id}-edit`}
+                                        icon={<EditOutlined />}
+                                        onClick={() => onEditCell(cell)}
+                                        size="small"
+                                        type="text"
+                                    />
+                                </Tooltip>
                             )}
                         </li>
                     )

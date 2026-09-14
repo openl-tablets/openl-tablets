@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -74,8 +75,15 @@ vi.mock('./projects/CompileProblemsPanel', () => ({ CompileProblemsPanel: () => 
 vi.mock('./projects/BranchSwitcher', () => ({ BranchSwitcher: () => null }))
 // The table itself is drawn and edited elsewhere; this screen is asked only what it hands over.
 vi.mock('./modules/TableEditor', () => ({
-    TableEditor: ({ testId, rows }: { testId?: string, rows?: unknown[] }) => (
-        <div data-testid={testId}>{`rows:${rows?.length ?? 0}`}</div>
+    TableEditor: ({ testId, rows, children }: {
+        testId?: string
+        rows?: unknown[]
+        children?: ReactNode
+    }) => (
+        <div data-testid={testId}>
+            {`rows:${rows?.length ?? 0}`}
+            {children}
+        </div>
     ),
 }))
 

@@ -45,7 +45,9 @@ export const useModuleCompilation = (
     initial: ProjectStatusUpdate | null,
     initialReadAt = 0,
     reloadToken = 0,
-    enabled = true
+    enabled = true,
+    /** Whether the module is to be built from its workbook afresh, dropping what was compiled before. */
+    rebuild = true
 ): ModuleCompilation => {
     const [failure, setFailure] = useState<string | null>(null)
     // A compilation reporting its progress says how far it has come, not how many tests the project holds —
@@ -91,12 +93,12 @@ export const useModuleCompilation = (
         }
         asked.current.add(key)
         setFailure(null)
-        startModuleCompilation(projectId, moduleName, reloadToken > 0).catch((error: unknown) => {
+        startModuleCompilation(projectId, moduleName, rebuild && reloadToken > 0).catch((error: unknown) => {
             const failed = error instanceof Error ? error : new Error(String(error))
             errorHandler.logError(failed)
             setFailure(failed.message)
         })
-    }, [projectId, branch, moduleName, reloadToken, ready, enabled])
+    }, [projectId, branch, moduleName, reloadToken, ready, enabled, rebuild])
 
     counted.current = status?.compilation?.tests?.total ?? counted.current
 

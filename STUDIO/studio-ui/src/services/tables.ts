@@ -17,6 +17,16 @@ import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from './apiCall'
 import { toUrlSafeId } from './projectId'
 
+/**
+ * The module a write is made through, as the address says it.
+ *
+ * <p>Naming it lets the write start as soon as that module is compiled. Without one the table is looked for
+ * across the project, which waits for every module of it — minutes on a project of any size, for a write that
+ * touches one of them.
+ */
+const inModule = (moduleName?: string): string =>
+    (moduleName === undefined ? '' : `?module=${encodeURIComponent(moduleName)}`)
+
 /** How many cases of a test table a page carries, as the API pages them. */
 export const TEST_CASES_PAGE_SIZE = 25
 
@@ -158,11 +168,13 @@ export const copyTable = async (
 export const updateTableProperties = async (
     projectId: string,
     tableId: string,
-    properties: TableProperty[]
+    properties: TableProperty[],
+    moduleName?: string
 ): Promise<string | null> => {
     try {
         const written = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/properties`,
+            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/properties`
+            + inModule(moduleName),
             {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -191,11 +203,13 @@ export const updateTableProperties = async (
 export const applyTableActions = async (
     projectId: string,
     tableId: string,
-    actions: TableEdit[]
+    actions: TableEdit[],
+    moduleName?: string
 ): Promise<string | null> => {
     try {
         const written = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/actions/batch`,
+            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/actions/batch`
+            + inModule(moduleName),
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -221,10 +235,16 @@ export const applyTableActions = async (
  *
  * @returns whether the table was removed; a failure is reported to the reader here
  */
-export const deleteTable = async (projectId: string, tableId: string, tableName: string): Promise<boolean> => {
+export const deleteTable = async (
+    projectId: string,
+    tableId: string,
+    tableName: string,
+    moduleName?: string
+): Promise<boolean> => {
     try {
         await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}`,
+            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}`
+            + inModule(moduleName),
             { method: 'DELETE' },
             LOCAL_LOAD_API_OPTIONS
         )
