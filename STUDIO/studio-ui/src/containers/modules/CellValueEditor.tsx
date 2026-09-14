@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { DatePicker, Input, InputNumber, Select } from 'antd'
 import dayjs from 'dayjs'
 import type { TableCellEditor } from '../../services/modules'
+import { numberOnly } from './numberOnly'
 
 /** How a value is being written, which is not always the way the cell asks for it. */
 export type EditorKind =
@@ -60,6 +61,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
 }) => {
     const choices = useMemo(() => choicesOf(asked), [asked])
     const separator = asked?.separator ?? ','
+    const numeric = useMemo(() => numberOnly(asked?.intOnly), [asked?.intOnly])
 
     // Enter keeps what was written and Escape leaves the cell as it was, wherever the reader is writing.
     const keys = (event: React.KeyboardEvent) => {
@@ -144,11 +146,14 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     stringMode
                     onBlur={onCommit}
                     onChange={entered => onChange(entered == null ? '' : String(entered))}
-                    onKeyDown={keys}
-                    // A cell that holds a number takes nothing but a number: anything else is dropped as it is
-                    // typed rather than refused once the reader has finished.
-                    parser={text => (text ?? '').replace(asked?.intOnly ? /[^\d-]/g : /[^\d.eE+-]/g, '')}
+                    onPaste={numeric.onPaste}
                     value={value === '' ? null : value}
+                    // A cell that holds a number takes nothing but a number: a key that cannot stand in one
+                    // never reaches the field.
+                    onKeyDown={event => {
+                        numeric.onKeyDown(event)
+                        keys(event)
+                    }}
                 />
             )
         case 'date': {

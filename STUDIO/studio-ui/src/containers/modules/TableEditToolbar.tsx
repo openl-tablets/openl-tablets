@@ -5,6 +5,7 @@ import {
     AlignRightOutlined,
     BgColorsOutlined,
     BoldOutlined,
+    CloseOutlined,
     DeleteColumnOutlined,
     DeleteRowOutlined,
     FontColorsOutlined,
@@ -18,7 +19,7 @@ import {
     UnderlineOutlined,
     UndoOutlined,
 } from '@ant-design/icons'
-import { Button, ColorPicker, Popconfirm, Tooltip } from 'antd'
+import { Button, ColorPicker, Tooltip } from 'antd'
 import type { AggregationColor } from 'antd/es/color-picker/color'
 import { useTranslation } from 'react-i18next'
 import type { RawCellStyleInput, RawTableCell } from 'types/tables'
@@ -30,9 +31,6 @@ interface TableEditToolbarProps {
     picked: CellAt | null
     /** The cell as it stands, so a button shows whether what it sets is already on. */
     cell: RawTableCell | undefined
-    /** How many rows and columns the table has now, so an action that would reach outside is not offered. */
-    height: number
-    width: number
     canUndo: boolean
     canRedo: boolean
     /** Whether anything is waiting to be written. */
@@ -67,8 +65,6 @@ const MAX_INDENT = 15
 export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     picked,
     cell,
-    height,
-    width,
     canUndo,
     canRedo,
     dirty,
@@ -91,16 +87,16 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     // removed nor pushed aside, so the actions that would touch them are not offered.
     const row = picked?.row ?? -1
     const column = picked?.column ?? -1
-    const onBody = row >= 1 && column >= 1
     const style = cell?.style
 
     const action = (
         key: string,
         icon: React.ReactNode,
         onClick: () => void,
-        options: { disabled?: boolean, on?: boolean } = {}
+        options: { disabled?: boolean, on?: boolean, why?: string } = {}
     ) => (
-        <Tooltip key={key} title={t(`browser.module.edit_${key}`)}>
+        // A button that is off says why it is off, so the reader is not left guessing at a grey icon.
+        <Tooltip key={key} title={options.disabled && options.why ? options.why : t(`browser.module.edit_${key}`)}>
             <Button
                 className={cx(styles.button, options.on && styles.on)}
                 data-testid={`table-edit-${key}`}
@@ -114,6 +110,10 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     )
 
     const rule = <span className={styles.rule} />
+
+    // The table's first row and first column hold its header, and the engine finds the table by that corner:
+    // nothing is added before them and neither is taken away.
+    const header = picked === null ? t('browser.module.edit_pick_a_cell') : t('browser.module.edit_header_kept')
 
     /** The colour as the API writes it: #rrggbb, without whatever the picker says about opacity. */
     const colour = (chosen: AggregationColor) => chosen.toHexString().slice(0, 7)
@@ -136,12 +136,14 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('undo', <UndoOutlined />, onUndo, { disabled: !canUndo })}
             {action('redo', <RedoOutlined />, onRedo, { disabled: !canRedo })}
             {rule}
-            {action('insert_row', <InsertRowAboveOutlined />, onInsertRow, { disabled: row < 1 })}
-            {action('remove_row', <DeleteRowOutlined />, onRemoveRow, { disabled: row < 1 || height <= 2 })}
+            {action('insert_row', <InsertRowAboveOutlined />, onInsertRow,
+                { disabled: row < 1, why: header })}
+            {action('remove_row', <DeleteRowOutlined />, onRemoveRow, { disabled: row < 1, why: header })}
             {rule}
-            {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn, { disabled: column < 1 })}
+            {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn,
+                { disabled: column < 1, why: header })}
             {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn,
-                { disabled: column < 1 || width <= 2 })}
+                { disabled: column < 1, why: header })}
             {rule}
             {action('align_left', <AlignLeftOutlined />, () => onStyle({ align: 'left' }),
                 { on: style?.align === undefined || style.align === 'left' })}
@@ -201,20 +203,17 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('indent', <MenuFoldOutlined />,
                 () => onStyle({ indent: Math.min(MAX_INDENT, (style?.indent ?? 0) + INDENT_STEP) }),
                 { disabled: picked === null || (style?.indent ?? 0) >= MAX_INDENT })}
-            <span className={styles.pending} data-testid="table-edit-pending">
-                {onBody || picked === null ? '' : t('browser.module.edit_header_cell')}
-            </span>
-            <Popconfirm
-                cancelText={t('browser.module.edit_keep_editing')}
-                disabled={!dirty}
-                okText={t('browser.module.edit_discard')}
-                onConfirm={onCancel}
-                title={t('browser.module.edit_discard_question')}
-            >
-                <Button data-testid="table-edit-cancel" onClick={dirty ? undefined : onCancel} size="small">
-                    {t('browser.module.edit_close')}
-                </Button>
-            </Popconfirm>
+            <span className={styles.pending} />
+            <Tooltip title={t('browser.module.edit_close')}>
+                <Button
+                    className={styles.button}
+                    data-testid="table-edit-cancel"
+                    icon={<CloseOutlined />}
+                    onClick={onCancel}
+                    size="small"
+                    type="text"
+                />
+            </Tooltip>
         </div>
     )
 }

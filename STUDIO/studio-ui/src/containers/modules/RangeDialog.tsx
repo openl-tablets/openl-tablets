@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, InputNumber, Modal, Select, Space, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { numberOnly } from './numberOnly'
 import { formatRange, NO_RANGE, parseRange, type RangeBounds, rangeProblem } from './rangeValue'
 
 interface RangeDialogProps {
@@ -32,6 +33,7 @@ export const RangeDialog: React.FC<RangeDialogProps> = ({ open, value, intOnly, 
         }
     }, [open, value])
 
+    const numeric = numberOnly(intOnly)
     const problem = rangeProblem(bounds)
     const written = formatRange(bounds)
 
@@ -61,6 +63,8 @@ export const RangeDialog: React.FC<RangeDialogProps> = ({ open, value, intOnly, 
                 }))}
                 {...(intOnly ? { precision: 0 } : {})}
                 stringMode
+                onKeyDown={numeric.onKeyDown}
+                onPaste={numeric.onPaste}
                 style={{ width: 160 }}
                 value={bounds[side] === '' ? null : bounds[side]}
             />

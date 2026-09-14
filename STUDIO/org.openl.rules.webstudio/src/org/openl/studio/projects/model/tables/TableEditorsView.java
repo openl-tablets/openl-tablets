@@ -2,6 +2,7 @@ package org.openl.studio.projects.model.tables;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -14,6 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param cells   the cells that ask for one of them
  * @author Vladyslav Pikus
  */
+// A table whose cells all take plain text answers with two empty lists rather than with nothing at all: the
+// screen reading this is told that it asked, and does not have to tell an empty answer from a missing one.
+@JsonInclude(JsonInclude.Include.ALWAYS)
 @Schema(description = "The ways of entering a value a table's cells ask for")
 public record TableEditorsView(
         @Schema(description = "Ways of entering a value this table needs, pointed at by index from `cells`")

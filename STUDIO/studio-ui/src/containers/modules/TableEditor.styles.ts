@@ -33,8 +33,6 @@ export const useStyles = createStyles(({ css, token }) => ({
     input: css`
         width: 100%;
         min-width: 80px;
-        margin: -${token.paddingXXS}px -${token.paddingXS}px;
-        padding: ${token.paddingXXS}px ${token.paddingXS}px;
         border-radius: 0;
         font-size: inherit;
     `,

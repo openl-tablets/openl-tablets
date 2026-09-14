@@ -262,7 +262,7 @@ export const TableDetailsPanel = ({
         // Only what the reader touched is sent: the table keeps every property this panel was not asked about.
         const written = Object.entries(draft).map(([name, value]) => ({ name, value }))
         setSaving(true)
-        const table = await updateTableProperties(projectId, tableId, written)
+        const table = await updateTableProperties(projectId, tableId, written, moduleName)
         setSaving(false)
         if (table !== null) {
             setEditing(false)

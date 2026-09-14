@@ -129,7 +129,8 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
      * requested project/branch, or no module is selected yet — opening a project from the
      * tree without selecting a module sets {@code currentProject} but skips the
      * {@code setModuleInfo} / {@code compileProject} branch in {@code WebStudio.init},
-     * meaning no compilation has actually started.
+     * meaning no compilation has actually started. Returns empty as well while a write is waiting to be
+     * compiled: what the session holds then was worked out from the workbook as it stood before the write.
      */
     private Optional<CompilationJob> adoptFromSession(ProjectIdModel projectId, @Nullable String branch) {
         var currentProject = webStudio.getCurrentProject();
@@ -138,6 +139,11 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
         }
         if (!projectIdentifierMapper.map(currentProject).equals(projectId)
                 || !Objects.equals(currentProject.getBranch(), branch)) {
+            return Optional.empty();
+        }
+        // A write has changed a module the session has not built again yet. What it compiled was worked out from
+        // the workbook as it stood before that write, so adopting it would report the project as it used to be.
+        if (webStudio.isAwaitingRecompile()) {
             return Optional.empty();
         }
         var model = webStudio.getModel();

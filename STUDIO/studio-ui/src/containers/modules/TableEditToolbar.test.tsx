@@ -28,10 +28,8 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
             blocked={null}
             canRedo={false}
             cell={{ value: 'Good Morning' } as RawTableCell}
-            height={4}
             picked={{ row: 1, column: 1 }}
             saving={false}
-            width={3}
             {...acted}
             {...over}
         />
