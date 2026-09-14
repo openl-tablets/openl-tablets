@@ -469,6 +469,8 @@ i18next.addResourceBundle('en', 'repository', {
             edit_font_colour: 'Font Color',
             edit_outdent: 'Decrease Indent',
             edit_indent: 'Increase Indent',
+            related_more_one: '{{count}} more',
+            related_more_other: '{{count}} more',
             edit_pick_a_cell: 'Pick a cell first.',
             edit_header_kept: 'The first row and the first column hold the table header, which is where OpenL '
                 + 'finds the table: nothing goes before them and neither is taken away.',

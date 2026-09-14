@@ -25,6 +25,14 @@ import {
     withStep,
 } from './tableEdits'
 
+/**
+ * How long a value has to be before the cell it sits in takes more than one line to show it.
+ *
+ * <p>A cell that wraps is written over several lines whatever its type would ask for, so the reader is given
+ * the room at once rather than having to switch to it.
+ */
+const WRAPS = 60
+
 /** The editors this screen draws; a cell asking for anything else is written as plain text. */
 const DRAWN: ReadonlySet<string> = new Set([
     'combo', 'multiselect', 'numeric', 'date', 'boolean', 'array', 'range',
@@ -199,7 +207,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (draft.startsWith('=')) {
             return 'text'
         }
-        if (draft.includes('\n')) {
+        if (draft.includes('\n') || draft.length > WRAPS) {
             return 'multiline'
         }
         const editor = ownKind(at)

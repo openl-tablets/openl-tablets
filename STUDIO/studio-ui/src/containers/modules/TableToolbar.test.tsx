@@ -347,7 +347,7 @@ describe('TableToolbar', () => {
         expect(navigate).toHaveBeenCalledWith('/projects/p1/modules/Bank?table=rules-1')
     })
 
-    it('names every version of a table a test exercises at once', async () => {
+    it('names the first table a test exercises and keeps the rest behind a caret', async () => {
         vi.mocked(getTableTargets).mockResolvedValue([
             { id: 'rules-1', name: 'BankRating [lob = Banking]' },
             { id: 'rules-2', name: 'BankRating [lob = Insurance]' },
@@ -355,7 +355,21 @@ describe('TableToolbar', () => {
         await draw({ table: table('Run') })
 
         expect(screen.getByTestId('table-target-tables')).toHaveTextContent('browser.module.target_tables')
-        expect(screen.getByTestId('table-target-rules-2')).toHaveTextContent('BankRating [lob = Insurance]')
+        expect(screen.getByTestId('table-target-rules-1')).toHaveTextContent('BankRating [lob = Banking]')
+        // A table exercised by two dozen others would push the band off the screen, so only one is named.
+        expect(screen.queryByTestId('table-target-rules-2')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('table-target-tables-more'))
+
+        expect(await screen.findByText('BankRating [lob = Insurance]')).toBeInTheDocument()
+    })
+
+    it('names the only table a test exercises without a caret', async () => {
+        vi.mocked(getTableTargets).mockResolvedValue([{ id: 'rules-1', name: 'BankRating' }])
+        await draw({ table: table('Run') })
+
+        expect(screen.getByTestId('table-target-rules-1')).toHaveTextContent('BankRating')
+        expect(screen.queryByTestId('table-target-tables-more')).toBeNull()
     })
 
     it('offers no way into a tested table whose project the session cannot address', async () => {

@@ -214,6 +214,16 @@ describe('TableEditor', () => {
         await waitFor(() => expect(screen.getByTestId('cell-usage-0').tagName).toBe('SPAN'))
     })
 
+    it('opens a cell that takes more than one line over several lines at once', async () => {
+        const long = 'A value long enough that the cell it sits in wraps it onto more than one line.'
+        draw({ rows: [[{ cell: 'B4', value: long }]]})
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText(long))
+
+        expect(screen.getByTestId('table-cell-input').tagName).toBe('TEXTAREA')
+    })
+
     it('keeps no band of actions over a table that is only being read', () => {
         draw({ editing: false })
 

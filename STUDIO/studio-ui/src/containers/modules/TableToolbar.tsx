@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Modal, Tooltip } from 'antd'
+import { Button, Dropdown, Modal, Tooltip } from 'antd'
 import {
+    CaretDownOutlined,
     CopyOutlined,
     DashboardOutlined,
     DeleteOutlined,
@@ -50,6 +51,9 @@ const useStyles = createStyles(({ css, token }) => ({
     tests: css`
         display: flex;
         flex-direction: column;
+        /* Each name starts where the one above it starts: a button fills the column and centres its own
+           label, which leaves a list of names of different lengths wandering from line to line. */
+        align-items: flex-start;
         gap: 2px;
         margin-left: ${token.marginLG}px;
         line-height: 1.2;
@@ -58,10 +62,24 @@ const useStyles = createStyles(({ css, token }) => ({
         font-size: ${token.fontSizeSM}px;
         font-weight: 600;
     `,
+    /** The one that is named, and the way to the rest, side by side. */
+    testsLine: css`
+        display: flex;
+        align-items: center;
+        gap: ${token.marginXXS}px;
+    `,
     testLink: css`
         height: auto;
         padding: 0;
         font-size: ${token.fontSizeSM}px;
+        text-align: left;
+    `,
+    testsMore: css`
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        padding: 0;
+        color: ${token.colorTextSecondary};
     `,
 }))
 
@@ -331,8 +349,15 @@ export const TableToolbar = ({
     const openTable = (found: TableTest | TableTarget) =>
         navigate(moduleRoute(found.projectId ?? projectId, found.module ?? moduleName, found.id))
 
+    /** Whether the table can be opened at all: one in a project the session cannot address cannot. */
+    const unreachable = (item: TableTest | TableTarget) =>
+        item.module !== undefined && item.projectId === undefined
+
     /**
      * The tables beside the band: what this one exercises, and what exercises it.
+     *
+     * <p>The first is named and the rest are behind a caret beside it, as the old toolbar had them — a table
+     * exercised by two dozen others would otherwise push the band down the screen.
      *
      * <p>Each is a link to where that table is written. A project the session cannot address has no screen to
      * open it on, and the reader is told where it lives instead.
@@ -343,29 +368,56 @@ export const TableToolbar = ({
         items: Array<TableTest | TableTarget>,
         idPrefix: string,
         label: (item: TableTest & TableTarget) => string
-    ) => items.length > 0 && (
-        <div className={styles.tests} data-testid={testId}>
-            <span className={styles.testsTitle}>{title}</span>
-            {items.map(item => (
-                <Tooltip
-                    key={item.id}
-                    title={item.project && item.projectId === undefined
-                        ? t('browser.module.test_elsewhere', { project: item.project })
-                        : undefined}
-                >
-                    <Button
-                        className={styles.testLink}
-                        data-testid={`${idPrefix}${item.id}`}
-                        disabled={item.module !== undefined && item.projectId === undefined}
-                        onClick={() => openTable(item)}
-                        type="link"
+    ) => {
+        const [first, ...rest] = items
+        if (first === undefined) {
+            return false
+        }
+        return (
+            <div className={styles.tests} data-testid={testId}>
+                <span className={styles.testsTitle}>{title}</span>
+                <div className={styles.testsLine}>
+                    <Tooltip
+                        title={first.project && first.projectId === undefined
+                            ? t('browser.module.test_elsewhere', { project: first.project })
+                            : undefined}
                     >
-                        {label(item as TableTest & TableTarget)}
-                    </Button>
-                </Tooltip>
-            ))}
-        </div>
-    )
+                        <Button
+                            className={styles.testLink}
+                            data-testid={`${idPrefix}${first.id}`}
+                            disabled={unreachable(first)}
+                            onClick={() => openTable(first)}
+                            type="link"
+                        >
+                            {label(first as TableTest & TableTarget)}
+                        </Button>
+                    </Tooltip>
+                    {rest.length > 0 && (
+                        <Dropdown
+                            trigger={['click']}
+                            menu={{
+                                items: rest.map(item => ({
+                                    key: item.id,
+                                    label: label(item as TableTest & TableTarget),
+                                    disabled: unreachable(item),
+                                    onClick: () => openTable(item),
+                                })),
+                            }}
+                        >
+                            <Button
+                                className={styles.testsMore}
+                                data-testid={`${testId}-more`}
+                                icon={<CaretDownOutlined />}
+                                size="small"
+                                title={t('browser.module.related_more', { count: rest.length })}
+                                type="text"
+                            />
+                        </Dropdown>
+                    )}
+                </div>
+            </div>
+        )
+    }
 
     /** What a test is called in the list, saying where it lives when that is not the module being read. */
     const testLabel = (test: TableTest) => {
