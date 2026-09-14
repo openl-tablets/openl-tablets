@@ -58,14 +58,27 @@ class OpenLTableLogicTest {
                 .findFirst()
                 .orElseThrow();
 
+        assertFalse(OpenLTableLogic.getTargetTables(testTable, projectModel, false).isEmpty(),
+                "the fixture test table must name the rules it exercises");
         assertFalse(OpenLTableLogic.testedRulesHaveErrors(testTable, projectModel, false));
 
         doReturn(List.of(mock(OpenLMessage.class))).when(projectModel).getErrorsByUri(anyString());
         assertTrue(OpenLTableLogic.testedRulesHaveErrors(testTable, projectModel, false));
     }
 
+    /**
+     * The fixture modules, each set to compile on its own.
+     *
+     * <p>Opening a module otherwise starts a compilation of the whole project in the background, which replaces
+     * what the model holds part-way through a test: a later question about a table is then answered from a model
+     * that is compiling again, and the answer depends on which of the two got there first.
+     */
     private List<Module> getModules() throws ProjectResolvingException {
-        return ProjectResolver.getInstance().resolve(Path.of("test-resources/org/openl/rules/table")).getModules();
+        var modules = ProjectResolver.getInstance()
+                .resolve(Path.of("test-resources/org/openl/rules/table"))
+                .getModules();
+        modules.forEach(module -> module.getWebstudioConfiguration().setCompileThisModuleOnly(true));
+        return modules;
     }
 
 }
