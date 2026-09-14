@@ -19,12 +19,13 @@ const compiling = (compiled: number, total: number, ...names: string[]): Project
     compilation: { modules: { compiled, total, compiledModules: names } },
 })
 
-const Probe = ({ initial, reloadToken, branch, enabled, module }: {
+const Probe = ({ initial, reloadToken, branch, enabled, module, rebuild }: {
     initial?: ProjectStatusUpdate | null
     reloadToken?: number
     branch?: string | null
     enabled?: boolean
     module?: string
+    rebuild?: boolean
 }) => {
     const { ready, compiled, total, failure, tests } = useModuleCompilation(
         'p1',
@@ -33,7 +34,8 @@ const Probe = ({ initial, reloadToken, branch, enabled, module }: {
         initial ?? null,
         0,
         reloadToken,
-        enabled ?? true
+        enabled ?? true,
+        rebuild ?? true
     )
     return (
         <span data-testid="state">
@@ -144,6 +146,18 @@ describe('useModuleCompilation', () => {
 
         // A refresh builds the module again from the workbook rather than keeping what is compiled.
         expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', true)
+    })
+
+    it('reads the module again after a write rather than building it afresh', async () => {
+        captureUpdates()
+        const { rerender } = render(<Probe initial={compiling(12, 12, 'Claims')} rebuild reloadToken={0} />)
+
+        rerender(<Probe initial={compiling(12, 12, 'Claims')} rebuild={false} reloadToken={1} />)
+
+        // A write already leaves the session without a compiled module. Asking for it to be built from the
+        // workbook on top of that reads the whole workspace again, and every read of the module waits behind
+        // that — a minute of it on a project of any size.
+        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', false)
     })
 
     it('asks for a refresh once, however often the reader comes back to that module', async () => {

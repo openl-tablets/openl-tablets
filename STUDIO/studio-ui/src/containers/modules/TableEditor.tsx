@@ -53,6 +53,10 @@ interface TableEditorProps {
     onEditingChange: (editing: boolean) => void
     /** Told the table's id after a save; it changes when the table had to be moved to grow. */
     onSaved: (tableId: string) => void
+    /** The sheet the table is drawn on, which the band of actions sits above rather than on. */
+    canvasClassName?: string | undefined
+    /** What the screen draws under the table — the way on to the rows beyond this window. */
+    children?: React.ReactNode
     testId?: string | undefined
 }
 
@@ -77,6 +81,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     editing,
     onEditingChange,
     onSaved,
+    canvasClassName,
+    children,
     testId,
 }) => {
     const { t } = useTranslation('repository')
@@ -110,8 +116,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     /** What the cell at the given place asks to be written with, as the table said when editing started. */
     const askedAt = useCallback((row: number, column: number): TableCellEditor | undefined => {
-        const found = asked?.cells.find(cell => cell.row === row && cell.column === column)
-        return found === undefined ? undefined : asked?.editors[found.editor]
+        const found = asked?.cells?.find(cell => cell.row === row && cell.column === column)
+        return found === undefined ? undefined : asked?.editors?.[found.editor]
     }, [asked])
 
     const edited = useMemo(() => replay(rows, buffer.steps), [rows, buffer.steps])
@@ -281,7 +287,6 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     canUndo={buffer.steps.length > 0}
                     cell={picked === null ? undefined : written[at.row]?.[at.column]}
                     dirty={buffer.steps.length > 0}
-                    height={written.length}
                     onCancel={stopEditing}
                     onInsertColumn={() => step({ kind: 'insertColumn', at: at.column })}
                     onInsertRow={() => step({ kind: 'insertRow', at: at.row })}
@@ -291,7 +296,6 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onUndo={() => setBuffer(undo)}
                     picked={picked}
                     saving={saving}
-                    width={written[0]?.length ?? 0}
                     onRemoveColumn={() => {
                         step({ kind: 'removeColumn', at: at.column })
                         setPicked(null)
@@ -315,15 +319,18 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     }
                 }}
             />
-            <RawTableGrid
-                decorate={decorate}
-                formulas={formulas}
-                onOpenCell={canWrite ? openCell : undefined}
-                onOpenUsage={onOpenUsage}
-                onPickCell={canWrite ? pick : undefined}
-                rows={written}
-                testId={testId}
-            />
+            <div className={canvasClassName}>
+                <RawTableGrid
+                    decorate={decorate}
+                    formulas={formulas}
+                    onOpenCell={canWrite ? openCell : undefined}
+                    onOpenUsage={onOpenUsage}
+                    onPickCell={canWrite ? pick : undefined}
+                    rows={written}
+                    testId={testId}
+                />
+                {children}
+            </div>
         </>
     )
 }

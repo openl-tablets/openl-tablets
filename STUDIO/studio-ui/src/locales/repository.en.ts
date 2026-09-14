@@ -469,7 +469,9 @@ i18next.addResourceBundle('en', 'repository', {
             edit_font_colour: 'Font Color',
             edit_outdent: 'Decrease Indent',
             edit_indent: 'Increase Indent',
-            edit_header_cell: 'The table header cannot be moved or removed.',
+            edit_pick_a_cell: 'Pick a cell first.',
+            edit_header_kept: 'The first row and the first column hold the table header, which is where OpenL '
+                + 'finds the table: nothing goes before them and neither is taken away.',
             edit_blank_row: 'A row you added is empty. A blank row splits the table, so fill in a cell or '
                 + 'remove the row.',
             edit_blank_column: 'A column you added is empty. A blank column splits the table, so fill in a cell '
