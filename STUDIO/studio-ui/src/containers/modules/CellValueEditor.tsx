@@ -14,7 +14,7 @@ export type EditorKind =
     | 'date'
     | 'boolean'
     | 'array'
-    /** Entered in a dialog of its own rather than in the cell, so this draws nothing for it. */
+    /** Entered in the panel under the cell rather than typed into it. */
     | 'range'
 
 interface CellValueEditorProps {
@@ -172,8 +172,11 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                 />
             )
         }
-        case 'array':
         case 'range':
+            // The bounds are entered in the panel under the cell, so the cell itself only shows what they
+            // come to — as the old editor did, where the field could not be typed into either.
+            return <Input {...shared} readOnly onKeyDown={keys} value={value} />
+        case 'array':
         case 'text':
         default:
             return (

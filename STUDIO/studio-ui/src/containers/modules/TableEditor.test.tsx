@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
@@ -164,22 +164,66 @@ describe('TableEditor', () => {
         expect(getTableEditors).toHaveBeenCalledTimes(1)
     })
 
-    it('enters a range in a dialog of its own, in the wording OpenL prints', async () => {
-        vi.mocked(getTableEditors).mockResolvedValue({
-            editors: [{ editor: 'range', entryEditor: 'double' }],
-            cells: [{ row: 1, column: 0, editor: 0 }],
-        })
+    /** A cell the module says holds a range. */
+    const rangeCell = () => vi.mocked(getTableEditors).mockResolvedValue({
+        editors: [{ editor: 'range', entryEditor: 'double' }],
+        cells: [{ row: 1, column: 0, editor: 0 }],
+    })
+
+    it('enters a range in the panel under the cell, in the wording OpenL prints', async () => {
+        rangeCell()
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
 
         await userEvent.dblClick(screen.getByText('0'))
-        const to = await screen.findByTestId('range-to')
+        await userEvent.click(await screen.findByTestId('range-shape-between'))
+        const to = screen.getByTestId('range-to')
+        await userEvent.clear(to)
         await userEvent.type(to, '200')
         await userEvent.click(screen.getByTestId('range-write'))
         await userEvent.click(screen.getByTestId('table-edit-save'))
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '[0..200]' } },
+        ], 'Claims'))
+    })
+
+    it('closes the range panel when the reader clicks away from it', async () => {
+        rangeCell()
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('0'))
+        expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
+
+        // A click inside the panel leaves it standing; one outside closes it, writing nothing.
+        fireEvent.mouseDown(screen.getByTestId('range-from'))
+        expect(screen.getByTestId('range-editor')).toBeInTheDocument()
+        fireEvent.mouseDown(document.body)
+
+        await waitFor(() => expect(screen.queryByTestId('range-editor')).toBeNull())
+        expect(applyTableActions).not.toHaveBeenCalled()
+    })
+
+    it('lets the reader write a range cell as text instead', async () => {
+        rangeCell()
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('0'))
+        expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
+        // The way out of the panel is the same one every other cell has.
+        await userEvent.click(screen.getByTestId('table-cell-switch'))
+        await userEvent.click(await screen.findByText('browser.module.editor_switch_text'))
+
+        expect(screen.queryByTestId('range-editor')).toBeNull()
+        const input = screen.getByTestId('table-cell-input')
+        await userEvent.clear(input)
+        await userEvent.type(input, '5+{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '5+' } },
         ], 'Claims'))
     })
 

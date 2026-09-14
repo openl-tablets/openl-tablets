@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MoreOutlined } from '@ant-design/icons'
-import { Button, Dropdown, Modal, Spin } from 'antd'
+import { Button, Dropdown, Modal, Popover, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router-dom'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
@@ -9,7 +9,7 @@ import { getTableEditors, type TableCellEditor, type TableEditors } from '../../
 import { applyTableActions } from '../../services/tables'
 import type { RawCellStyleInput, RawTableCell } from 'types/tables'
 import { CellValueEditor, type EditorKind } from './CellValueEditor'
-import { RangeDialog } from './RangeDialog'
+import { RangeEditor } from './RangeEditor'
 import { TableEditToolbar } from './TableEditToolbar'
 import { useStyles } from './TableEditor.styles'
 import {
@@ -321,44 +321,82 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             }))
     }
 
+    // The panel under a range cell stands open until the reader is done with it, so a click anywhere else is
+    // what closes it — the way the old editor closed its panel. What was entered is written by Done alone.
+    useEffect(() => {
+        if (open === null || kindOf(open) !== 'range') {
+            return undefined
+        }
+        const address = written[open.row]?.[open.column]?.cell
+        const away = (event: MouseEvent) => {
+            const target = event.target instanceof Element ? event.target : null
+            const inPanel = target?.closest('[data-testid="range-editor"]') != null
+            const inCell = address !== undefined && target?.closest(`[data-cell="${address}"]`) != null
+            if (target !== null && !inPanel && !inCell) {
+                closeCell(false)
+            }
+        }
+        document.addEventListener('mousedown', away)
+        return () => document.removeEventListener('mousedown', away)
+    })
+
     /** How a cell is drawn: picked, waiting to be written, or open for writing. */
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
         const at = { row, column }
         if (sameCell(open, at)) {
             const kind = kindOf(at)
-            if (kind === 'range') {
-                // The bounds are entered in a dialog, so the cell itself keeps showing what it holds.
-                return undefined
-            }
+            const inCell = (
+                <div className={styles.open}>
+                    <CellValueEditor
+                        asked={askedAt(at.row, at.column)}
+                        className={styles.input}
+                        kind={kind}
+                        onCancel={() => closeCell(false)}
+                        onChange={setDraft}
+                        onCommit={() => closeCell(true)}
+                        value={draft}
+                    />
+                    <Dropdown
+                        menu={{ items: switches(at, kind) }}
+                        onOpenChange={opened => { switching.current = opened }}
+                        trigger={['click']}
+                    >
+                        <Button
+                            data-testid="table-cell-switch"
+                            icon={<MoreOutlined />}
+                            // The menu is opened by the pointer, and opening it must not close the cell.
+                            onMouseDown={event => event.preventDefault()}
+                            size="small"
+                            title={t('browser.module.editor_switch')}
+                            type="text"
+                        />
+                    </Dropdown>
+                </div>
+            )
             return {
                 painted: true,
-                content: (
-                    <div className={styles.open}>
-                        <CellValueEditor
-                            asked={askedAt(at.row, at.column)}
-                            className={styles.input}
-                            kind={kind}
-                            onCancel={() => closeCell(false)}
-                            onChange={setDraft}
-                            onCommit={() => closeCell(true)}
-                            value={draft}
-                        />
-                        <Dropdown
-                            menu={{ items: switches(at, kind) }}
-                            onOpenChange={opened => { switching.current = opened }}
-                            trigger={['click']}
-                        >
-                            <Button
-                                data-testid="table-cell-switch"
-                                icon={<MoreOutlined />}
-                                // The menu is opened by the pointer, and opening it must not close the cell.
-                                onMouseDown={event => event.preventDefault()}
-                                size="small"
-                                title={t('browser.module.editor_switch')}
-                                type="text"
+                // The bounds of a range are entered under the cell rather than in the cell, the way the old
+                // editor dropped its panel there — and the cell keeps the way out to writing it as text.
+                content: kind !== 'range' ? inCell : (
+                    <Popover
+                        open
+                        placement="bottomLeft"
+                        trigger={[]}
+                        content={(
+                            <RangeEditor
+                                intOnly={askedAt(at.row, at.column)?.entryEditor === 'integer'}
+                                value={draft}
+                                onWrite={entered => {
+                                    setOpen(null)
+                                    if (entered !== String(written[at.row]?.[at.column]?.value ?? '')) {
+                                        step({ kind: 'value', at, value: entered })
+                                    }
+                                }}
                             />
-                        </Dropdown>
-                    </div>
+                        )}
+                    >
+                        {inCell}
+                    </Popover>
                 ),
             }
         }
@@ -427,19 +465,6 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     }}
                 />
             )}
-            <RangeDialog
-                intOnly={open === null ? undefined : askedAt(open.row, open.column)?.entryEditor === 'integer'}
-                onCancel={() => closeCell(false)}
-                open={open !== null && kindOf(open) === 'range'}
-                value={draft}
-                onWrite={value => {
-                    const at = open
-                    setOpen(null)
-                    if (at !== null && value !== String(written[at.row]?.[at.column]?.value ?? '')) {
-                        step({ kind: 'value', at, value })
-                    }
-                }}
-            />
             <div className={canvasClassName}>
                 <RawTableGrid
                     decorate={decorate}
