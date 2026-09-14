@@ -31,7 +31,7 @@ export interface ProjectMigration {
 
 /** Nothing to migrate — the state used before the info loads and when it fails. */
 export const EMPTY_MIGRATION: ProjectMigration = {
-    rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
+    rulesXml: { movableRootModules: [], migratable: false, newModules: []},
     rulesDeploy: { migratable: false },
 }
 

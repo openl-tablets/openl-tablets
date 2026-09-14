@@ -118,6 +118,10 @@ i18next.addResourceBundle('en', 'project', {
         saved: 'Table properties saved',
         save_failed: 'Failed to save the table properties',
     },
+    table_edit: {
+        saved: 'Table saved',
+        save_failed: 'Failed to save the table',
+    },
     delete_table: {
         deleted: 'Table removed',
         deleted_description: 'The "{{table}}" table was removed from the module.',

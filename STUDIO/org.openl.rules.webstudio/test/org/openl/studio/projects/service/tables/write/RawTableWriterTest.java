@@ -33,11 +33,16 @@ import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
+import org.openl.studio.projects.model.tables.RawCellStyleInput;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableCellStyle;
+import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
@@ -117,6 +122,48 @@ class RawTableWriterTest {
         assertEquals(4, source.size());
         // the edit that was accepted is not saved either: the sequence is one change
         assertEquals("alpha", value(source, 1, 2));
+    }
+
+    @Test
+    void setsTheStylingOfEveryCellOfARange() {
+        apply(style(1, 0, 3, 2, new RawCellStyleInput("#ffff00", "#ff0000",
+                RawTableHorizontalAlign.CENTER, true, true, true, 2)));
+
+        var source = reloadStyled(mainProject);
+        var styled = styleOf(source, 1, 0);
+        assertEquals("#ffff00", styled.background());
+        assertEquals("#ff0000", styled.color());
+        assertEquals(RawTableHorizontalAlign.CENTER, styled.align());
+        assertEquals(Boolean.TRUE, styled.bold());
+        assertEquals(Boolean.TRUE, styled.italic());
+        assertEquals(Boolean.TRUE, styled.underline());
+        assertEquals(2, styled.indent().intValue());
+        // the far corner of the range carries it too
+        assertEquals("#ffff00", styleOf(source, 3, 1).background());
+        // and the column just outside the range is left as it was
+        assertNull(styleOf(source, 1, 2).background());
+        assertNull(styleOf(source, 1, 2).bold());
+    }
+
+    @Test
+    void leavesTheAttributesAStyleDoesNotNameAsTheyStand() {
+        apply(style(1, 1, 1, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
+        apply(style(1, 1, 1, 1, new RawCellStyleInput("#00ff00", null, null, null, null, null, null)));
+
+        var styled = styleOf(reloadStyled(mainProject), 1, 1);
+        assertEquals("#00ff00", styled.background());
+        // the second style named no font weight, so the bold the first one set is still there
+        assertEquals(Boolean.TRUE, styled.bold());
+    }
+
+    @Test
+    void rejectsAStyleThatNamesNoAttribute() {
+        assertBadRequest(style(1, 0, 1, 1, new RawCellStyleInput(null, null, null, null, null, null, null)));
+    }
+
+    @Test
+    void rejectsAStyleRangeReachingOutsideTheTable() {
+        assertBadRequest(style(3, 0, 2, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
     }
 
     @Test
@@ -911,6 +958,15 @@ class RawTableWriterTest {
         return readSource(load(project));
     }
 
+    /** The table read back with the styling attached, which the plain read leaves out. */
+    private List<List<RawTableCell>> reloadStyled(Path project) {
+        return new RawTableReader().read(load(project), null, null, true, false, TableModules.none()).source;
+    }
+
+    private static RawTableCellStyle styleOf(List<List<RawTableCell>> source, int row, int col) {
+        return source.get(row).get(col).style();
+    }
+
     private static List<List<RawTableCell>> readSource(IOpenLTable table) {
         var view = new RawTableReader().read(table);
         return view.source;
@@ -999,6 +1055,11 @@ class RawTableWriterTest {
 
     private static RawTableSourceAction merge(int row, int column, int rowspan, int colspan) {
         return new RawTableSourceAction.Merge(new MergeTarget.Cells(row, column, rowspan, colspan));
+    }
+
+    private static RawTableSourceAction style(int row, int column, int rowspan, int colspan,
+            RawCellStyleInput style) {
+        return new RawTableSourceAction.Style(new StyleTarget.Cells(row, column, rowspan, colspan, style));
     }
 
     private static RawTableSourceAction unmerge(int row, int column) {

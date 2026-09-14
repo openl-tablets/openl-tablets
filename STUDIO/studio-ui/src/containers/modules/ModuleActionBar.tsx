@@ -217,11 +217,11 @@ export const ModuleActionBar = ({
             >
                 <LocalChangesView
                     moduleName={moduleName}
+                    projectId={project.id}
                     onRestored={() => {
                         setLocalChangesOpen(false)
                         onRevisionOpened?.()
                     }}
-                    projectId={project.id}
                 />
             </Modal>
             {dialogs}

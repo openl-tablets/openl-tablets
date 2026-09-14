@@ -534,6 +534,72 @@ Insert operations allocate the complete block before applying its inline merges.
 the insertion position are shifted together and preserved; an inline merge does not expand when another item from the
 same request is inserted.
 
+### How a Cell Is Written
+
+An editor asks once, when it starts editing a table, how the table's cells take a value — and needs nothing more
+while the user edits:
+
+```text
+GET /rest/projects/{projectId}/tables/{tableId}/editors?startRow=0&maxRows=100
+```
+
+```json
+{
+  "editors": [
+    {"editor": "numeric", "min": -2147483648, "max": 2147483647, "intOnly": true},
+    {"editor": "combo", "choices": ["AL", "AZ"], "displayValues": ["Alabama", "Arizona"]}
+  ],
+  "cells": [
+    {"row": 5, "column": 0, "editor": 0},
+    {"row": 5, "column": 2, "editor": 1}
+  ]
+}
+```
+
+The window is the same one the raw read returns, so a cell is pointed at by the same row and column in both. The
+ways of entering a value are listed once and pointed at by index, because a whole column usually asks for the same
+one.
+
+A cell that is not listed is written as plain text — including one holding a formula or several lines, which a
+screen can tell from the value itself, and must tell anyway while a value is being edited and the table has not
+been written yet.
+
+Which fields an editor carries depends on its kind: `combo` and `multiselect` carry the values to choose from,
+`numeric` the bounds of the cell's type, `array` how its entries are written, and `range` the editor one bound is
+entered with.
+
+### Styling Cells
+
+The `style` operation sets the styling of every cell of a rectangular range, so the editor's toolbar writes the
+background, the font and the alignment the same way it writes values:
+
+```json
+{
+  "operation": "style",
+  "target": {
+    "type": "cells",
+    "row": 5,
+    "column": 0,
+    "rowspan": 1,
+    "colspan": 3,
+    "style": {
+      "background": "#ffff00",
+      "color": "#0000ff",
+      "align": "center",
+      "bold": true,
+      "indent": 1
+    }
+  }
+}
+```
+
+Only the attributes the `style` object names are set — an attribute left out is not touched, so a cell keeps the
+styling it already carries. `align` takes `left` to put the cells back to the default alignment and `indent` takes `0`
+to take the indent away. A style that names no attribute at all is rejected.
+
+The attributes are the ones a styled read reports back, except the borders and the vertical alignment, which are
+read-only.
+
 ### Applying Several Edits in One Request
 
 An editor keeps the actions a user performs and sends them when the user saves, so a whole editing session reaches
