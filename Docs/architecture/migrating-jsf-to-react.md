@@ -281,6 +281,21 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   module's table on another module's screen, under the wrong tree and the wrong actions. It now answers "not
   found in module X", which is what the screen shows. Asked without a module, the lookup spans the project as
   it always has.
+- **Two searches, because they are two different questions.** Finding a table by name among the ones on screen
+  is a question the browser already holds the answer to: the module's tables are in it, so the box above the
+  grouping filters the tree as the reader types and costs no request. Everything else — a header line, the text
+  written in the cells, another module, another project, a property a table must carry — is the server's to
+  answer, so it is asked for once, explicitly, through the same `GET /projects/{id}/tables`: `scope`
+  (`module`/`project`/`all`), `header`, `text`, the `kind`s and the `properties.*` filters it already took. The
+  results open in a dialog of their own rather than rearranging the tree, because they are not the tree: a
+  search of the project answers with tables the open module does not hold, and each of them says which module
+  and project it lives in so it can be opened there.
+- **A property is asked for in the shape it is written in.** The engine keeps a table's properties as the types
+  their definitions give — a date, a flag, one or several values of an enumeration — and matches a filter only
+  against a value of the same type. So the dialog offers the same editors the copy dialog offers (they are one
+  component, chosen by the definition the project's own properties endpoint returns), and the server reads the
+  text that crosses back into the property's type before it matches. A date filter typed as text, or an
+  enumeration matched as a string, would simply never find anything.
 - **A problem leads to the table it was raised against, and asks nothing to do it.** Every compilation message
   already carries where it came from — the project, the module, the table and the cell — so the list makes each
   message a link built from what it already holds: a project raising a thousand of them still costs no request.

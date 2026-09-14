@@ -124,6 +124,9 @@ When working with a large project that, for example, includes huge amounts of te
 </modules>
 ```
 
+In OpenL Studio, the same flag is set per module in the **Modules** section of the project **Overview**, with the
+**Compile this module only** check box. A module declared this way is marked **This Module Only** in the list.
+
 ##### Dependency Configurations
 The dependency configurations are as follows:
 

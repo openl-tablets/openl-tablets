@@ -36,7 +36,9 @@ class ProjectHandleTest {
         var cycle = new CompletableFuture<Void>();
         cycle.completeExceptionally(new IllegalStateException("module is broken"));
 
-        var failure = assertThrows(CompletionException.class, () -> handle(cycle).awaitCompiled());
+        var handle = handle(cycle);
+
+        var failure = assertThrows(CompletionException.class, handle::awaitCompiled);
 
         assertEquals("module is broken", failure.getCause().getMessage());
     }

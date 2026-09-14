@@ -23,6 +23,19 @@ vi.mock('../projects/LocalChangesView', () => ({ LocalChangesView: () => <div da
 
 vi.mock('../execution/TestsResultModal', () => ({ TestsResultModal: () => <div data-testid="tests-result" /> }))
 
+vi.mock('../projects/SaveProjectModal', () => ({
+    SaveProjectModal: ({ open }: { open: boolean }) => open ? <div data-testid="save-project-modal" /> : null,
+}))
+
+vi.mock('../projects/CopyProjectModal', () => ({
+    CopyProjectModal: ({ open }: { open: boolean }) => open ? <div data-testid="copy-project-modal" /> : null,
+}))
+
+const openMergeDialog = vi.fn()
+vi.mock('../projects/branchDialogs', () => ({ openMergeDialog: (...args: unknown[]) => openMergeDialog(...args) }))
+
+vi.mock('../../services/repositories', () => ({ getDesignRepositories: () => Promise.resolve([]) }))
+
 const project = (capabilities: Project['capabilities']): Project => ({
     id: 'p1',
     name: 'Rating',
@@ -53,6 +66,66 @@ describe('ModuleActionBar', () => {
         // Without a table the panel runs every test of the project; the module is only what it can be narrowed to.
         expect(detail).toMatchObject({ projectId: 'p1', moduleName: 'Claims', moduleOnlyLocked: true })
         expect(detail).not.toHaveProperty('tableId')
+    })
+
+    it('offers the project\'s own actions by the rules the project screen offers them', async () => {
+        await bar({ canSave: true, canMerge: true, canDeploy: true, canCopy: true } as Project['capabilities'])
+
+        expect(screen.getByTestId('module-save')).toBeInTheDocument()
+        expect(screen.getByTestId('module-sync')).toBeInTheDocument()
+        expect(screen.getByTestId('module-deploy')).toBeInTheDocument()
+        expect(screen.getByTestId('module-copy')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('module-save'))
+        expect(await screen.findByTestId('save-project-modal')).toBeInTheDocument()
+    })
+
+    it('withholds what the project does not allow', async () => {
+        await bar({ canViewHistory: true } as Project['capabilities'])
+
+        // Saving, syncing, deploying, copying and replacing the workbook are the project's to allow.
+        expect(screen.queryByTestId('module-save')).toBeNull()
+        expect(screen.queryByTestId('module-sync')).toBeNull()
+        expect(screen.queryByTestId('module-deploy')).toBeNull()
+        expect(screen.queryByTestId('module-copy')).toBeNull()
+        expect(screen.queryByTestId('module-update')).toBeNull()
+    })
+
+    it('copies the project from the editor, through the project\'s own dialog', async () => {
+        await bar({ canCopy: true } as Project['capabilities'])
+
+        await userEvent.click(screen.getByTestId('module-copy'))
+
+        expect(await screen.findByTestId('copy-project-modal')).toBeInTheDocument()
+    })
+
+    it('syncs the project from the editor, through the dialog that reads its branches', async () => {
+        await bar({ canMerge: true } as Project['capabilities'])
+
+        await userEvent.click(screen.getByTestId('module-sync'))
+
+        expect(openMergeDialog).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), expect.any(Function))
+    })
+
+    it('replaces the module workbook where the project may be written to', async () => {
+        const opened = vi.fn()
+        window.addEventListener('openUpdateModuleModal', opened)
+        render(
+            <ModuleActionBar
+                moduleName="Claims"
+                modulePath="rules/Claims.xlsx"
+                project={project({ canWrite: true } as Project['capabilities'])}
+            />
+        )
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        await userEvent.click(screen.getByTestId('module-update'))
+
+        window.removeEventListener('openUpdateModuleModal', opened)
+        expect((opened.mock.calls[0]?.[0] as CustomEvent).detail)
+            .toMatchObject({ projectId: 'p1', modulePath: 'rules/Claims.xlsx' })
     })
 
     it('reads the project history in a window rather than on the project screen', async () => {

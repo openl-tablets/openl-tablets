@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "CoverageForm",
   "file": "EPBDS-15409/Main.xlsx",
   "sheet": "Tutorial3",
-  "pos": "B111:D113"
+  "pos": "B111:D113",
+  "signature": "CoverageForm"
 }

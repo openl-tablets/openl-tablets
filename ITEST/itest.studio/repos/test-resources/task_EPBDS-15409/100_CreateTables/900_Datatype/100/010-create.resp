@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "USState",
   "file": "EPBDS-15409/Main.xlsx",
   "sheet": "Tutorial3",
-  "pos": "B95:D97"
+  "pos": "B95:D97",
+  "signature": "USState"
 }

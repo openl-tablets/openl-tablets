@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from 'antd'
 import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../../services/projectStatus'
@@ -23,13 +22,23 @@ const useStyles = createStyles(({ css, token }) => ({
         border-bottom: 1px solid ${token.colorBorderSecondary};
         background: ${token.colorBgContainer};
     `,
+    /** The heading folds the panel, so it is a button — the frame of one is not what a heading reads as. */
     header: css`
         display: flex;
         align-items: center;
         gap: ${token.marginXS}px;
+        width: 100%;
         padding: ${token.paddingXXS}px ${token.padding}px;
+        border: none;
+        background: none;
+        text-align: left;
         cursor: pointer;
         user-select: none;
+    `,
+    /** The mark that says which way the heading folds, sitting where the button used to. */
+    fold: css`
+        margin-left: auto;
+        color: ${token.colorTextTertiary};
     `,
     title: css`
         font-size: ${token.fontSizeSM}px;
@@ -94,10 +103,12 @@ export const TableProblems = ({ messages }: TableProblemsProps) => {
 
     return (
         <section className={styles.section} data-testid="table-problems">
-            <div
+            <button
+                aria-expanded={open}
                 className={styles.header}
                 data-testid="table-problems-toggle"
                 onClick={() => setOpen(current => !current)}
+                type="button"
             >
                 <span className={styles.title}>{t('browser.module.problems')}</span>
                 {errors.length > 0 && (
@@ -112,13 +123,9 @@ export const TableProblems = ({ messages }: TableProblemsProps) => {
                         {warnings.length}
                     </span>
                 )}
-                <Button
-                    aria-label={t(open ? 'browser.compile.problems_collapse' : 'browser.compile.problems_expand')}
-                    icon={open ? <UpOutlined /> : <DownOutlined />}
-                    size="small"
-                    type="text"
-                />
-            </div>
+                {/* The whole heading folds the panel, so the mark only says which way it goes. */}
+                <span className={styles.fold}>{open ? <UpOutlined /> : <DownOutlined />}</span>
+            </button>
             {open && (
                 // The grip is dragged against the box it sizes: measured against the whole section, every drag
                 // would size the messages to the pointer plus the header above them.

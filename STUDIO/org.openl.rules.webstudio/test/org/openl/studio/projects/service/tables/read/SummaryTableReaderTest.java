@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,6 +21,7 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableKind;
 
 /**
  * Verifies that a table is read with what tells it from the other versions of itself, and with the mark that says
@@ -44,6 +46,10 @@ class SummaryTableReaderTest {
             row(sheet, 17, "Rules String Discount()");
             row(sheet, 18, "properties", "active", "false");
             row(sheet, 19, "", "None");
+
+            // A table that is no method reads by its own header: a datatype is written as one.
+            row(sheet, 21, "Datatype Bank");
+            row(sheet, 22, "String", "name");
 
             try (OutputStream out = Files.newOutputStream(projectDir.resolve("Rules.xlsx"))) {
                 workbook.write(out);
@@ -75,6 +81,15 @@ class SummaryTableReaderTest {
     }
 
     @Test
+    void readsATableThatIsNoMethodByTheHeaderItIsWrittenWith() {
+        var bank = tables("Bank").getFirst();
+
+        // The word naming the kind is left out, as it is for a method; the kind is reported beside the table.
+        assertEquals("Bank", bank.signature);
+        assertEquals(TableKind.DATATYPE, bank.kind);
+    }
+
+    @Test
     void saysNothingAboutVersionsWhenItIsNotAskedWithTheDictionary() {
         var read = projectModel.getAllTableSyntaxNodes()
                 .stream()
@@ -83,7 +98,7 @@ class SummaryTableReaderTest {
                 .filter(table -> "CarPrice".equals(table.name))
                 .toList();
 
-        assertEquals(List.of(), read.stream().map(table -> table.displayName).filter(name -> name != null).toList());
+        assertEquals(List.of(), read.stream().map(table -> table.displayName).filter(Objects::nonNull).toList());
     }
 
     @Test

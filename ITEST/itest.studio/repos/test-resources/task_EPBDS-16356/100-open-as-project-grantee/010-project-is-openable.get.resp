@@ -9,6 +9,7 @@ Content-Type: application/json
     "canCompare": true,
     "canViewHistory": true,
     "canManage": true,
+    "canMerge": true,
     "canManageBranches": true,
     "canExport": true
   }

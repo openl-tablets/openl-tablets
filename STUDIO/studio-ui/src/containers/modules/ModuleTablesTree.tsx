@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useUserStore } from '../../store'
 import { useTranslation } from 'react-i18next'
-import { Alert, Empty, Segmented, Select, Tree } from 'antd'
-import { FileExcelOutlined } from '@ant-design/icons'
+import { Alert, Button, Empty, Input, Segmented, Select, Tooltip, Tree } from 'antd'
+import { FileExcelOutlined, FilterOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import type { ModuleInfo } from '../../services/modules'
@@ -42,6 +42,10 @@ const useStyles = createStyles(({ css, token }) => ({
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     picker: css`
+        margin-top: 8px;
+    `,
+    /** The search sits above the grouping, as the Editor kept it above its tree. */
+    search: css`
         margin-top: 8px;
     `,
     /**
@@ -122,6 +126,8 @@ interface ModuleTablesTreeProps {
     selectedTableId?: string | undefined
     onSelectTable: (table: ModuleTable) => void
     onSelectModule: (moduleName: string) => void
+    /** Opens the extended search, carrying what the reader has typed so far. */
+    onExtendedSearch: (typed: string) => void
 }
 
 /**
@@ -142,6 +148,7 @@ export const ModuleTablesTree = ({
     selectedTableId,
     onSelectTable,
     onSelectModule,
+    onExtendedSearch,
 }: ModuleTablesTreeProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -152,6 +159,7 @@ export const ModuleTablesTree = ({
     // The Default Order of the user's own settings decides what the tree opens on.
     const preferredView = useUserStore(state => state.userProfile?.treeView)
     const [expanded, setExpanded] = useState<string[]>([])
+    const [search, setSearch] = useState('')
     // The tree draws the rows that fit and no more, so it has to be told what fits.
     const bodyRef = useRef<HTMLDivElement>(null)
     const [body, setBody] = useState({ height: 0, width: 0 })
@@ -172,7 +180,16 @@ export const ModuleTablesTree = ({
     // Read once the settings are known: this browser's last choice, or the user's Default Order.
     useEffect(() => setView(loadView(preferredView)), [preferredView])
 
-    const nodes = useMemo(() => treeOf(tables ?? [], view), [tables, view])
+    // The rail searches what it shows, by name: the tables of this module are already in the browser, so the
+    // search costs no request. Everything wider than a name — a header, the text in the cells, another module —
+    // is what the extended search asks the server for.
+    const shown = useMemo(() => {
+        const wanted = search.trim().toLowerCase()
+        return wanted === '' ? tables ?? [] : (tables ?? [])
+            .filter(table => (table.displayName ?? table.name).toLowerCase().includes(wanted))
+    }, [tables, search])
+
+    const nodes = useMemo(() => treeOf(shown, view), [shown, view])
     // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
     // what is on screen leaves the virtual list pushed to the right of an empty rail.
     const rowWidth = useMemo(() => Math.max(Math.ceil(widthOf(nodes)), body.width), [nodes, body.width])
@@ -201,6 +218,66 @@ export const ModuleTablesTree = ({
         children: [],
     })), [modules, compiling, currentModule])
 
+    // Both trees of the rail are the same tree: a screenful of rows at a time, drawn at once rather than
+    // slid open — the height a fold animates is painted by the page, frame by frame (measured at 64
+    // repaints over 350 ms for one folder against 9).
+    const railTree = {
+        blockNode: true,
+        showIcon: true,
+        className: shared.railTree,
+        height: body.height,
+        itemHeight: ROW_HEIGHT,
+        motion: false as const,
+    }
+
+    /**
+     * What the rail draws: the modules of the project, or the tables of the module being read — nothing
+     * while they are still being read, and a word when the search matched none of them.
+     */
+    const railBody = () => {
+        if (mode === 'modules') {
+            return (
+                <Tree
+                    {...railTree}
+                    data-testid="module-rail-modules"
+                    onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
+                    selectedKeys={[currentModule]}
+                    treeData={moduleNodes as never}
+                />
+            )
+        }
+        if (tables === null) {
+            return null
+        }
+        if (shown.length === 0) {
+            return (
+                <Empty
+                    className={styles.state}
+                    data-testid="module-tables-empty"
+                    description={t(search.trim() === '' ? 'browser.module.no_tables' : 'browser.module.no_match')}
+                />
+            )
+        }
+        return (
+            <Tree
+                {...railTree}
+                data-testid="module-tables-tree"
+                expandedKeys={expanded}
+                onExpand={keys => setExpanded(keys as string[])}
+                scrollWidth={rowWidth}
+                selectedKeys={selectedTableId ? [selectedTableId] : []}
+                treeData={treeData as never}
+                onSelect={(_keys, info) => {
+                    // Only a table is selectable, and a table row is keyed by its own id.
+                    const table = shown.find(candidate => candidate.id === String(info.node.key))
+                    if (table) {
+                        onSelectTable(table)
+                    }
+                }}
+            />
+        )
+    }
+
     return (
         <aside className={cx(shared.rail, styles.resizable)} data-testid="module-rail" style={{ width }}>
             <ResizeHandle edge="right" onPointerDown={startResize} testId="module-rail-resizer" />
@@ -217,18 +294,41 @@ export const ModuleTablesTree = ({
                     ]}
                 />
                 {mode === 'tables' && (
-                    <Select
-                        className={styles.picker}
-                        data-testid="module-tables-view"
-                        options={viewOptions}
-                        size="small"
-                        style={{ width: '100%' }}
-                        value={view}
-                        onChange={chosen => {
-                            setView(chosen)
-                            saveView(chosen)
-                        }}
-                    />
+                    <>
+                        <Input
+                            allowClear
+                            className={styles.search}
+                            data-testid="module-tables-search"
+                            onChange={event => setSearch(event.target.value)}
+                            placeholder={t('browser.module.search_placeholder')}
+                            size="small"
+                            value={search}
+                            suffix={(
+                                <Tooltip title={t('browser.module.search_extended')}>
+                                    <Button
+                                        aria-label={t('browser.module.search_extended')}
+                                        data-testid="module-tables-search-extended"
+                                        icon={<FilterOutlined />}
+                                        onClick={() => onExtendedSearch(search.trim())}
+                                        size="small"
+                                        type="text"
+                                    />
+                                </Tooltip>
+                            )}
+                        />
+                        <Select
+                            className={styles.picker}
+                            data-testid="module-tables-view"
+                            options={viewOptions}
+                            size="small"
+                            style={{ width: '100%' }}
+                            value={view}
+                            onChange={chosen => {
+                                setView(chosen)
+                                saveView(chosen)
+                            }}
+                        />
+                    </>
                 )}
             </div>
             <div ref={bodyRef} className={styles.body}>
@@ -241,46 +341,7 @@ export const ModuleTablesTree = ({
                         type="info"
                     />
                 )}
-                {mode === 'modules' ? (
-                    <Tree
-                        blockNode
-                        showIcon
-                        className={shared.railTree}
-                        data-testid="module-rail-modules"
-                        height={body.height}
-                        itemHeight={ROW_HEIGHT}
-                        onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
-                        selectedKeys={[currentModule]}
-                        treeData={moduleNodes as never}
-                    />
-                ) : tables === null ? null : tables.length === 0 ? (
-                    <Empty
-                        className={styles.state}
-                        data-testid="module-tables-empty"
-                        description={t('browser.module.no_tables')}
-                    />
-                ) : (
-                    <Tree
-                        blockNode
-                        showIcon
-                        className={shared.railTree}
-                        data-testid="module-tables-tree"
-                        expandedKeys={expanded}
-                        height={body.height}
-                        itemHeight={ROW_HEIGHT}
-                        onExpand={keys => setExpanded(keys as string[])}
-                        scrollWidth={rowWidth}
-                        selectedKeys={selectedTableId ? [selectedTableId] : []}
-                        treeData={treeData as never}
-                        onSelect={(_keys, info) => {
-                            // Only a table is selectable, and a table row is keyed by its own id.
-                            const table = tables?.find(candidate => candidate.id === String(info.node.key))
-                            if (table) {
-                                onSelectTable(table)
-                            }
-                        }}
-                    />
-                )}
+                {railBody()}
             </div>
         </aside>
     )

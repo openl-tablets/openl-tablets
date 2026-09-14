@@ -3,7 +3,7 @@
 // need the engine — the resolved modules and sources — come from the project response instead.
 
 import { escapeXml } from '../utils/escapeXml'
-import { childValue, childValues, directChild, parseXmlRoot, preservedChildren, unmanagedChildren } from './xmlDescriptor'
+import { childFlag, childValue, childValues, directChild, parseXmlRoot, preservedChildren, unmanagedChildren } from './xmlDescriptor'
 
 const ROOT = 'project'
 
@@ -20,9 +20,9 @@ const MANAGED = new Set([
     'openapi',
 ])
 
-// Inside a rebuilt <module>, these are the parts the overview reads and writes. Every other child — a
-// <webstudio-configuration> block above all — is preserved so an edit-and-save never drops it.
-const MODULE_MANAGED = new Set(['name', 'rules-root', 'method-filter'])
+// Inside a rebuilt <module>, these are the parts the overview reads and writes. Every other child is
+// preserved so an edit-and-save never drops it.
+const MODULE_MANAGED = new Set(['name', 'rules-root', 'method-filter', 'webstudioConfiguration'])
 
 /** What the engine does with the OpenAPI file: validates the project against it, or generates tables from it. */
 export type OpenApiMode = 'RECONCILIATION' | 'GENERATION'
@@ -46,8 +46,13 @@ export interface ModuleDeclaration {
     name: string
     path: string
     methodFilter?: MethodFilter | undefined
-    /** Serialized `<module>` children the overview does not manage (e.g. `<webstudio-configuration>`),
-     * kept as declared and written back verbatim so an edit never loses them. */
+    /**
+     * Whether opening this module compiles it alone, leaving the modules it does not depend on out. It is
+     * meant for a project too large to compile through — a project with heavy tests, above all.
+     */
+    compileThisModuleOnly?: boolean | undefined
+    /** Serialized `<module>` children the overview does not manage, kept as declared and written back
+     * verbatim so an edit never loses them. */
     preserved?: string[] | undefined
 }
 
@@ -117,7 +122,7 @@ const readDependencies = (root: Element): DeclaredDependency[] => {
             const maven = childValue(dependency, 'mavenArtifact')
             return {
                 name: childValue(dependency, 'name'),
-                autoIncluded: childValue(dependency, 'autoIncluded') === 'true',
+                autoIncluded: childFlag(dependency, 'autoIncluded'),
                 ...(maven ? { mavenArtifact: maven } : {}),
             }
         })
@@ -152,10 +157,13 @@ const readModuleDeclarations = (root: Element): ModuleDeclaration[] => {
         .map(module => {
             const filter = readMethodFilter(module)
             const preserved = unmanagedChildren(module, MODULE_MANAGED)
+            const webstudio = directChild(module, 'webstudioConfiguration')
+            const compileThisModuleOnly = webstudio !== null && childFlag(webstudio, 'compileThisModuleOnly')
             return {
                 name: childValue(module, 'name'),
                 path: directChild(module, 'rules-root')?.getAttribute('path')?.trim() ?? '',
                 ...(filter ? { methodFilter: filter } : {}),
+                ...(compileThisModuleOnly ? { compileThisModuleOnly } : {}),
                 ...(preserved.length > 0 ? { preserved } : {}),
             }
         })
@@ -249,7 +257,7 @@ const methodFilterXml = (filter: MethodFilter | undefined, indent: string): stri
 
 const modulesXml = (modules: ModuleDeclaration[]): string[] => {
     // A blank row the user added and left empty is dropped; a module the file declared is kept even
-    // without a path, so its preserved parts (a webstudio-configuration, say) are not lost.
+    // without a path, so the parts carried with it are not lost.
     const declared = modules.filter(module => module.path.trim() || module.name.trim() || module.preserved?.length)
     if (declared.length === 0) {
         return []
@@ -260,6 +268,15 @@ const modulesXml = (modules: ModuleDeclaration[]): string[] => {
             '        <module>',
             ...(module.name.trim() ? [`            <name>${escapeXml(module.name.trim())}</name>`] : []),
             ...(module.path.trim() ? [`            <rules-root path="${escapeXml(module.path.trim())}"/>`] : []),
+            // The engine writes the block only when the module is compiled on its own and reads its absence
+            // as the default, so clearing the flag leaves the file as it was before it was set.
+            ...(module.compileThisModuleOnly
+                ? [
+                    '            <webstudioConfiguration>',
+                    '                <compileThisModuleOnly>true</compileThisModuleOnly>',
+                    '            </webstudioConfiguration>',
+                ]
+                : []),
             ...methodFilterXml(module.methodFilter, '            '),
             ...(module.preserved ?? []).map(child => `            ${child}`),
             '        </module>',

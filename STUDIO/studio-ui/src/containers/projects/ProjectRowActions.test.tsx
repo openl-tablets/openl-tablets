@@ -94,6 +94,7 @@ describe('ProjectRowActions', () => {
             canSave: true,
             canCopy: true,
             canManageBranches: true,
+            canMerge: true,
             canDeleteBranch: true,
             canViewHistory: true,
             canDeploy: true,

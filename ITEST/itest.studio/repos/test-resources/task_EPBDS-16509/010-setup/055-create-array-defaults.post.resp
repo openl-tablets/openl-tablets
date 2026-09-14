@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "ArrayDefaults",
   "file": "***",
   "sheet": "Datatype",
-  "pos": "B2:D4"
+  "pos": "B2:D4",
+  "signature": "ArrayDefaults"
 }

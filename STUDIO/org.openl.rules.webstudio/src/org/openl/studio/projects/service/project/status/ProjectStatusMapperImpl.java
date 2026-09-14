@@ -240,10 +240,9 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         var projectCompilationCompleted = projectModel.isProjectCompilationCompleted();
         var openedModuleCompiled = projectModel.isOpenedModuleCompiled();
         for (IDependencyLoader loader : loaders) {
-            if (!loader.isProjectLoader()) {
-                if (isCompiled(loader, currentModule, projectCompilationCompleted, openedModuleCompiled)) {
-                    compiled.add(loader.getModule().getName());
-                }
+            if (!loader.isProjectLoader()
+                    && isCompiled(loader, currentModule, projectCompilationCompleted, openedModuleCompiled)) {
+                compiled.add(loader.getModule().getName());
             }
         }
         return List.copyOf(compiled);

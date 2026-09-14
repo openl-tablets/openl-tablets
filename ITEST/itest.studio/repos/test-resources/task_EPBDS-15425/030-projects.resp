@@ -34,6 +34,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canDeleteBranch": true,
         "canExport": true
       }
@@ -213,6 +214,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canExport": true
       }
     },
@@ -247,6 +249,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canExport": true
       }
     },
@@ -311,6 +314,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canExport": true
       }
     },
@@ -345,6 +349,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canExport": true
       }
     },
@@ -409,6 +414,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canExport": true
       }
     },
@@ -443,6 +449,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canExport": true
       }
     },
@@ -477,6 +484,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canExport": true
       }
     },
@@ -511,6 +519,7 @@ Content-Type: application/json
         "canManage": true,
         "canCopy": true,
         "canManageBranches": true,
+        "canMerge": true,
         "canExport": true
       }
     }

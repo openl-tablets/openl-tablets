@@ -11,8 +11,11 @@ Content-Type: application/json
       "returnType": "Double",
       "signature": "FicaDetails (String  fica, Date startDate)",
       "file": "EPBDS-14376/DateBug.xlsx",
-      "sheet": "\u041b\u0438\u0441\u04421",
-      "pos": "C5:E9"
+      "sheet": "Лист1",
+      "pos": "C5:E9",
+      "module": "DateBug",
+      "project": "EPBDS-14376",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY6N2I3NDE1MjZhYjJhOTI3NDEyYzA2YTZhZTUzYzg4YTBlZTJjNWU0MzY5NWQ3ZjZhNmFlZjFmMTg5ZGJlMjE0ZQ=="
     }
   ],
   "pageNumber": 0,

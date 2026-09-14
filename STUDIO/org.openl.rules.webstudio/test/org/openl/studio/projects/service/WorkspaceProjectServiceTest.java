@@ -101,6 +101,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
@@ -1480,9 +1481,9 @@ class WorkspaceProjectServiceTest {
         var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
 
         var query = ProjectTableCriteriaQuery.builder().module("Absent").build();
+        var unpaged = Pageable.unpaged();
 
-        var error = assertThrows(NotFoundException.class,
-                () -> service.getTables(project, query, Pageable.unpaged()));
+        var error = assertThrows(NotFoundException.class, () -> service.getTables(project, query, unpaged));
         assertEquals("openl.error.404.project.module.identifier.message", error.getErrorCode());
         verify(webStudio, never()).init(any(), any(), any(), any());
     }
@@ -1619,6 +1620,139 @@ class WorkspaceProjectServiceTest {
         // compilation is what used to hold the editor's first read until every other module was built.
         verify(handle, never()).awaitCompiled();
         verify(moduleModel).getTestAndRunMethods("Pricing/Claims.xlsx?sheet=Rules", false);
+    }
+
+    @Test
+    void a_search_narrows_by_the_header_line_and_by_the_text_written_in_the_cells(@TempDir Path dir) throws Exception {
+        // Two tables on one sheet, told apart by a blank line, as a module writes them.
+        var projectDir = TableTestProjects.writeProject(dir, "Search", "Rules", new String[][]{
+                {"Rules String Greeting(int hour)"},
+                {"C1", "RET1"},
+                {"hour < c1", "value"},
+                {"int c1", "String value"},
+                {"Hour", "Greeting"},
+                {"12", "Good morning"},
+                {null, null},
+                {"Datatype Person"},
+                {"String", "name"},
+        });
+        var moduleModel = TableTestProjects.projectModel(projectDir);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                new SummaryTableReader()));
+        var registry = mock(CompilationJobRegistry.class);
+        var job = mock(CompilationJob.class);
+        when(registry.acquire(any(), any())).thenReturn(job);
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        var moduleName = moduleModel.getModuleInfo().getName();
+        var project = openedProject(webStudio, moduleModel, "Search", moduleName);
+
+        // The header is the line the table is written with, so a reader finds a table by its kind and signature.
+        assertEquals(List.of("Person"), names(service, project, ProjectTableCriteriaQuery.builder()
+                .module(moduleName)
+                .header("Datatype")));
+        // The text is looked for in every cell, so a reader finds a table by what is written inside it.
+        assertEquals(List.of("Greeting"), names(service, project, ProjectTableCriteriaQuery.builder()
+                .module(moduleName)
+                .text("Good morning")));
+        // Both narrow together, and a table that answers one but not the other is left out.
+        assertEquals(List.of(), names(service, project, ProjectTableCriteriaQuery.builder()
+                .module(moduleName)
+                .header("Datatype")
+                .text("Good morning")));
+    }
+
+    @Test
+    void a_property_is_matched_as_the_value_the_table_declares_for_it(@TempDir Path dir) throws Exception {
+        // A dimension property the engine keeps as a date, and one it keeps as a list of states.
+        var projectDir = TableTestProjects.writeProject(dir, "Properties", "Rules", new String[][]{
+                {"Rules String Greeting(int hour)"},
+                {"properties", "effectiveDate", "01/01/2009"},
+                {"C1", "RET1"},
+                {"hour < c1", "value"},
+                {"int c1", "String value"},
+                {"Hour", "Greeting"},
+                {"12", "Good morning"},
+        });
+        var moduleModel = TableTestProjects.projectModel(projectDir);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                new SummaryTableReader()));
+        var registry = mock(CompilationJobRegistry.class);
+        var job = mock(CompilationJob.class);
+        when(registry.acquire(any(), any())).thenReturn(job);
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        var moduleName = moduleModel.getModuleInfo().getName();
+        var project = openedProject(webStudio, moduleModel, "Properties", moduleName);
+
+        // The date crosses as text and is read as the date the table declares.
+        assertEquals(List.of("Greeting"), names(service, project, ProjectTableCriteriaQuery.builder()
+                .module(moduleName)
+                .property("effectiveDate", "2009-01-01")));
+        // Another day is another value, and the table does not answer for it.
+        assertEquals(List.of(), names(service, project, ProjectTableCriteriaQuery.builder()
+                .module(moduleName)
+                .property("effectiveDate", "2010-01-01")));
+    }
+
+    @Test
+    void a_search_of_everything_compiled_waits_for_the_project_and_says_where_each_table_lives() throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                summaryTableReader));
+        var projectModel = mock(ProjectModel.class);
+        var job = mock(CompilationJob.class);
+        var registry = mock(CompilationJobRegistry.class);
+        var openLTable = mock(IOpenLTable.class);
+        var found = SummaryTableView.builder().id("id").name("Greeting").build();
+        var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        when(registry.acquire(any(), any())).thenReturn(job);
+        when(job.future()).thenReturn(CompletableFuture.completedFuture(null));
+        when(projectModel.search(any(), eq(SearchScope.ALL))).thenReturn(List.of(openLTable));
+        when(summaryTableReader.read(eq(openLTable), any())).thenReturn(found);
+
+        var tables = service.getTables(project,
+                ProjectTableCriteriaQuery.builder().module("Claims").scope(TableSearchScope.ALL).build(),
+                Pageable.unpaged());
+
+        assertEquals(List.of(found), tables.getContent());
+        // A search that reaches past one module can only be waited for: the modules it spans are compiled behind
+        // the one that was opened.
+        verify(job).future();
+    }
+
+    /** The names of the tables a query finds, in the order the answer lists them. */
+    private static List<String> names(WorkspaceProjectService service,
+                                      RulesProject project,
+                                      ProjectTableCriteriaQuery.Builder query) {
+        return service.getTables(project, query.build(), Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(table -> table.name)
+                .toList();
     }
 
     @Test

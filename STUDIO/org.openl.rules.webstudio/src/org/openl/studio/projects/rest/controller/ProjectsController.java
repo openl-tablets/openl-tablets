@@ -93,6 +93,7 @@ import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
@@ -398,6 +399,10 @@ public class ProjectsController {
                     })),
             @Parameter(name = "name", description = "projects.tables.list.param.name.desc", in = ParameterIn.QUERY),
             @Parameter(name = "module", description = "projects.tables.list.param.module.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "scope", description = "projects.tables.list.param.scope.desc", in = ParameterIn.QUERY,
+                    schema = @Schema(implementation = TableSearchScope.class)),
+            @Parameter(name = "header", description = "projects.tables.list.param.header.desc", in = ParameterIn.QUERY),
+            @Parameter(name = "text", description = "projects.tables.list.param.text.desc", in = ParameterIn.QUERY),
             @Parameter(name = "properties", description = "projects.tables.list.param.properties.desc", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)
     })
     public PageResponse<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
@@ -405,9 +410,18 @@ public class ProjectsController {
                                                     @RequestParam(value = "kind", required = false) Set<String> kinds,
                                                     @RequestParam(value = "name", required = false) String name,
                                                     @RequestParam(value = "module", required = false) String module,
+                                                    @RequestParam(value = "scope", required = false) TableSearchScope scope,
+                                                    @RequestParam(value = "header", required = false) String header,
+                                                    @RequestParam(value = "text", required = false) String text,
                                                     @PaginationDefault Pageable page) {
 
-        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name).module(module);
+        var queryBuilder = ProjectTableCriteriaQuery.builder()
+                .kinds(kinds)
+                .name(name)
+                .module(module)
+                .scope(scope)
+                .header(header)
+                .text(text);
         params.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))
