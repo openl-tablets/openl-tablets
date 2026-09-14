@@ -179,7 +179,7 @@ describe('TableToolbar', () => {
         const asked = vi.mocked(Modal.confirm).mock.calls[0]?.[0]
         await asked?.onOk?.(() => {})
 
-        expect(deleteTable).toHaveBeenCalledWith('p1', 'table-1', 'Greeting')
+        expect(deleteTable).toHaveBeenCalledWith('p1', 'table-1', 'Greeting', 'Claims')
         expect(onRemoved).toHaveBeenCalledTimes(1)
     })
 

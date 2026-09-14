@@ -173,7 +173,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const save = async () => {
         setSaving(true)
         try {
-            const savedId = await applyTableActions(projectId, tableId, compile(rows, edited))
+            const savedId = await applyTableActions(projectId, tableId, compile(rows, edited), moduleName)
             if (savedId !== null) {
                 setBuffer(NO_EDITS)
                 setOpen(null)

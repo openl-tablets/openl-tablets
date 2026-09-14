@@ -2220,6 +2220,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * Resolve a table that is about to be written, through the module it is written in.
+     *
+     * <p>Opening that module compiles it and nothing after it, so the write starts as soon as the module it
+     * touches is ready. Asked without a module, the table is looked for across the project — which waits for
+     * every module of it to compile, minutes on a project of any size, for a write that needs one of them.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to write to
+     * @param moduleName module the table is written in, or {@code null} to look across the project
+     * @return the table and the model it was resolved through
+     */
+    private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        return moduleName == null
+                ? getOpenLTable(project, tableId, true)
+                : getOpenLTableInModule(project, tableId, moduleName);
+    }
+
+    /**
      * Resolve a table by id. When {@code editable} is set, a table that belongs to a dependency project is
      * rejected: it can be rendered read-only, but writing it here would mutate another project's source while
      * only the current project is locked and ACL-checked.
@@ -2261,9 +2279,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table id after the write; differs from {@code tableId} when the table was relocated to grow
      * @throws ProjectException if project is locked by another user
      */
-    public String updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
+    public String updateTable(RulesProject project, String tableId, EditableTableView tableView,
+            @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tableWriterExecutor.executeWrite(writer, tableView);
@@ -2280,9 +2299,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public String appendTableLines(RulesProject project,
                                    String tableId,
-                                   AppendTableView tableView) throws ProjectException {
+                                   AppendTableView tableView,
+                                   @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tableWriterExecutor.executeAppend(writer, tableView);
@@ -2304,9 +2324,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public String editTableSource(RulesProject project,
                                   String tableId,
-                                  List<RawTableSourceAction> actions) throws ProjectException {
+                                  List<RawTableSourceAction> actions,
+                                  @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tableWriterExecutor.executeSourceAction(writer, actions);
@@ -2326,9 +2347,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if project is locked by another user
      */
     public String updateTableProperties(RulesProject project, String tableId,
-                                        List<TableProperty> properties) throws ProjectException {
+                                        List<TableProperty> properties,
+                                        @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return tablePropertiesService.write(context.table(), properties);
     }
@@ -2343,9 +2365,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId table id
      * @throws ProjectException if project is locked by another user
      */
-    public void deleteTable(RulesProject project, String tableId) throws ProjectException {
+    public void deleteTable(RulesProject project, String tableId, @Nullable String moduleName)
+            throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
         writer.delete();

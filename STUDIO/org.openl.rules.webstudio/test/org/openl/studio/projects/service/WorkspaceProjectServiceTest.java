@@ -985,7 +985,8 @@ class WorkspaceProjectServiceTest {
         var service = newService(acl, mock(ProtectedBranchBypassService.class));
         var properties = List.of(new TableProperty("description", "Anything"));
 
-        assertThrows(ForbiddenException.class, () -> service.updateTableProperties(project, "table-1", properties));
+        assertThrows(ForbiddenException.class,
+                () -> service.updateTableProperties(project, "table-1", properties, null));
 
         // Nothing is taken and nothing is written when the answer is no.
         verify(project, never()).tryLockOrThrow();

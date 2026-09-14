@@ -26,6 +26,7 @@ const draw = (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => {
         <TableEditor
             canWrite
             editing
+            moduleName="Claims"
             onEditingChange={onEditingChange}
             onSaved={onSaved}
             projectId="repo:Rating"
@@ -90,7 +91,7 @@ describe('TableEditor', () => {
         expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '6' } },
             { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'Buenos Dias' } },
-        ])
+        ], 'Claims')
         await waitFor(() => expect(onSaved).toHaveBeenCalledWith('table-1'))
     })
 
@@ -157,7 +158,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '[0..200]' } },
-        ]))
+        ], 'Claims'))
     })
 
     it('writes a cell over several lines when the reader switches to it', async () => {

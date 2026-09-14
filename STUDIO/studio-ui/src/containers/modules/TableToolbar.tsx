@@ -296,7 +296,7 @@ export const TableToolbar = ({
             okButtonProps: { danger: true },
             okText: t('browser.module.remove'),
             onOk: async () => {
-                if (await deleteTable(projectId, table.id, table.name)) {
+                if (await deleteTable(projectId, table.id, table.name, moduleName)) {
                     onRemoved?.()
                 }
             },

@@ -22,6 +22,7 @@ import org.openl.rules.repository.api.Page;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
@@ -206,13 +207,33 @@ class ProjectsControllerTest {
         var controller = controller(projectService, webStudio);
         var project = mock(RulesProject.class);
         var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(1, 1, "Buenos Dias"));
-        when(projectService.editTableSource(eq(project), eq("table-id"), anyList())).thenReturn("table-id");
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main")))
+                .thenReturn("table-id");
 
-        controller.editTableSource(project, "table-id", action);
+        controller.editTableSource(project, "table-id", action, "Main");
 
         // A write touches one module's workbook. Resetting the session would drop every module compiled from
         // the workspace and read all of it again, which costs a minute for one changed cell.
         verify(webStudio).recompileCurrentModule();
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
+    void aRefusedWriteLeavesWhatTheSessionCompiledAlone() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(99999, 1, "Buenos Dias"));
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main")))
+                .thenThrow(new BadRequestException("table.action.position.invalid.message"));
+
+        assertThrows(BadRequestException.class,
+                () -> controller.editTableSource(project, "table-id", action, "Main"));
+
+        // Nothing was written, so nothing has to be compiled again: asking for it would throw away a module
+        // the session had compiled, and the next read would wait for it to be built from the workbook afresh.
+        verify(webStudio, never()).recompileCurrentModule();
         verify(webStudio, never()).reset();
     }
 
