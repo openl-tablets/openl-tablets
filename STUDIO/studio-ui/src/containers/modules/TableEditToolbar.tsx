@@ -19,7 +19,7 @@ import {
     UnderlineOutlined,
     UndoOutlined,
 } from '@ant-design/icons'
-import { Button, ColorPicker, Popconfirm, Tooltip } from 'antd'
+import { Button, ColorPicker, Tooltip } from 'antd'
 import type { AggregationColor } from 'antd/es/color-picker/color'
 import { useTranslation } from 'react-i18next'
 import type { RawCellStyleInput, RawTableCell } from 'types/tables'
@@ -204,24 +204,16 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                 () => onStyle({ indent: Math.min(MAX_INDENT, (style?.indent ?? 0) + INDENT_STEP) }),
                 { disabled: picked === null || (style?.indent ?? 0) >= MAX_INDENT })}
             <span className={styles.pending} />
-            <Popconfirm
-                cancelText={t('browser.module.edit_keep_editing')}
-                disabled={!dirty}
-                okText={t('browser.module.edit_discard')}
-                onConfirm={onCancel}
-                title={t('browser.module.edit_discard_question')}
-            >
-                <Tooltip title={t('browser.module.edit_close')}>
-                    <Button
-                        className={styles.button}
-                        data-testid="table-edit-cancel"
-                        icon={<CloseOutlined />}
-                        onClick={dirty ? undefined : onCancel}
-                        size="small"
-                        type="text"
-                    />
-                </Tooltip>
-            </Popconfirm>
+            <Tooltip title={t('browser.module.edit_close')}>
+                <Button
+                    className={styles.button}
+                    data-testid="table-edit-cancel"
+                    icon={<CloseOutlined />}
+                    onClick={onCancel}
+                    size="small"
+                    type="text"
+                />
+            </Tooltip>
         </div>
     )
 }

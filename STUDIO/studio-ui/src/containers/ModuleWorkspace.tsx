@@ -686,7 +686,9 @@ export const ModuleWorkspace = () => {
                         title={moduleName}
                         actions={(
                             <ModuleActionBar
-                                disabled={closed}
+                                // Nothing beside the module's name acts on a module that is not built yet:
+                                // there is nothing to run, nothing to test and nothing to write against.
+                                disabled={closed || !compilation.ready}
                                 moduleName={moduleName}
                                 modulePath={modulePath}
                                 onProjectChanged={reopenRevision}

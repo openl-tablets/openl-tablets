@@ -9,6 +9,9 @@ import { TableEditor } from './TableEditor'
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
 vi.mock('../../services/modules', () => ({ getTableEditors: vi.fn() }))
 
+const blocker = vi.hoisted(() => ({ state: 'unblocked', proceed: vi.fn(), reset: vi.fn() }))
+vi.mock('react-router-dom', () => ({ useBlocker: () => blocker }))
+
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
     return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
@@ -255,6 +258,61 @@ describe('TableEditor', () => {
 
         // The message names the cell as the workbook names it, and that is the cell that opens.
         expect(await screen.findByTestId('table-cell-input')).toHaveValue('Good Morning')
+    })
+
+    it('holds the screen while the table is being written', async () => {
+        let finish: (id: string | null) => void = () => {}
+        vi.mocked(applyTableActions).mockReturnValue(new Promise(resolve => { finish = resolve }))
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+        await write('Good Morning', 'Buenos Dias')
+
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        // Nothing else can be asked for while the workbook is rewritten and the module built from it again.
+        expect(await screen.findByTestId('table-edit-saving')).toBeInTheDocument()
+
+        finish('table-1')
+        await waitFor(() => expect(screen.queryByTestId('table-edit-saving')).toBeNull())
+    })
+
+    it('asks before the reader leaves with cells they have not saved', async () => {
+        blocker.state = 'blocked'
+        try {
+            draw()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+            await write('Good Morning', 'Buenos Dias')
+
+            await userEvent.click(await screen.findByTestId('table-edit-discard'))
+
+            expect(blocker.proceed).toHaveBeenCalled()
+        } finally {
+            blocker.state = 'unblocked'
+        }
+    })
+
+    it('asks the same question when the editor is closed with cells unsaved', async () => {
+        const { onEditingChange } = draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+        await write('Good Morning', 'Buenos Dias')
+
+        await userEvent.click(screen.getByTestId('table-edit-cancel'))
+
+        // The same dialog as leaving the page: the reader loses the same work either way.
+        expect(await screen.findByText('browser.module.edit_leaving')).toBeInTheDocument()
+        expect(onEditingChange).not.toHaveBeenCalledWith(false)
+
+        await userEvent.click(screen.getByTestId('table-edit-discard'))
+        expect(onEditingChange).toHaveBeenCalledWith(false)
+    })
+
+    it('closes without a question when nothing was written', async () => {
+        const { onEditingChange } = draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByTestId('table-edit-cancel'))
+
+        expect(onEditingChange).toHaveBeenCalledWith(false)
     })
 
     it('keeps no band of actions over a table that is only being read', () => {

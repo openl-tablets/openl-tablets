@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MoreOutlined } from '@ant-design/icons'
-import { Button, Dropdown } from 'antd'
+import { Button, Dropdown, Modal, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { useBlocker } from 'react-router-dom'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
@@ -26,12 +27,35 @@ import {
 } from './tableEdits'
 
 /**
- * How long a value has to be before the cell it sits in takes more than one line to show it.
+ * How long a value has to be before its cell is taken to run over more than one line.
  *
- * <p>A cell that wraps is written over several lines whatever its type would ask for, so the reader is given
- * the room at once rather than having to switch to it.
+ * <p>Used where the cell cannot be measured — it is not drawn yet, or the screen has no layout to measure.
  */
-const WRAPS = 60
+const LONG_ENOUGH_TO_WRAP = 60
+
+/**
+ * Whether the cell drawn at the given address takes more than one line to show what it holds.
+ *
+ * <p>Measured off the cell itself rather than guessed from the value: a short value in a narrow column wraps
+ * just as a long one does, and either way the reader wants the room to write in without asking for it.
+ */
+const takesSeveralLines = (address: string | undefined, value: string): boolean => {
+    const drawn = address === undefined
+        ? null
+        : document.querySelector<HTMLElement>(`td[data-cell="${CSS.escape(address)}"]`)
+    if (drawn === null) {
+        return value.length > LONG_ENOUGH_TO_WRAP
+    }
+    // The browser lays the text out in one rectangle per line, so counting them says how many lines the cell
+    // takes whatever it is styled with. Measuring its height instead needs the line height as a number, and a
+    // stylesheet that leaves the line height to the browser cannot give one.
+    const shown = document.createRange()
+    shown.selectNodeContents(drawn)
+    // Not every browser-like environment lays anything out — a test harness draws no lines to count.
+    const lines = typeof shown.getClientRects === 'function' ? shown.getClientRects().length : 0
+    // A screen with no layout to measure — a test, a cell not drawn yet — is answered from the value alone.
+    return lines === 0 ? value.length > LONG_ENOUGH_TO_WRAP : lines > 1
+}
 
 /** The editors this screen draws; a cell asking for anything else is written as plain text. */
 const DRAWN: ReadonlySet<string> = new Set([
@@ -110,6 +134,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const [loadingEditors, setLoadingEditors] = useState(false)
     // The way the reader chose to write the open cell, when it is not the way the cell asks for.
     const [switched, setSwitched] = useState<EditorKind | null>(null)
+    // Whether the cell that was opened takes more than one line on screen, measured as it was opened.
+    const [several, setSeveral] = useState(false)
+    // Whether the reader asked to close the editor while cells of theirs were still unsaved.
+    const [closing, setClosing] = useState(false)
     // Picking another way of writing the cell takes the pointer out of the field, which is not the reader
     // leaving the cell — without this the cell would close on the way to the menu and never switch at all.
     const switching = useRef(false)
@@ -138,6 +166,19 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     }, [asked])
 
     const edited = useMemo(() => replay(rows, buffer.steps), [rows, buffer.steps])
+    const dirty = buffer.steps.length > 0
+
+    // Cells written and not yet saved live on this screen alone: leaving it loses them, so the reader is asked
+    // first — whether they leave by opening another table, by the Back button, or by closing the page.
+    const leaving = useBlocker(dirty)
+    useEffect(() => {
+        if (!dirty) {
+            return undefined
+        }
+        const ask = (event: BeforeUnloadEvent) => event.preventDefault()
+        window.addEventListener('beforeunload', ask)
+        return () => window.removeEventListener('beforeunload', ask)
+    }, [dirty])
     const written = edited.rows
     const blocked = useMemo(() => {
         const line = blankLine(edited)
@@ -155,10 +196,12 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (cell === undefined || cell.covered) {
             return
         }
+        const value = cell.value == null ? '' : String(cell.value)
         setPicked({ row, column })
         setOpen({ row, column })
         setSwitched(null)
-        setDraft(cell.value == null ? '' : String(cell.value))
+        setSeveral(takesSeveralLines(cell.cell, value))
+        setDraft(value)
         onEditingChange(true)
     }, [onEditingChange, written])
 
@@ -191,10 +234,22 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         }
     }
 
-    const stopEditing = () => {
+    /** Leaves the table as it was read, dropping whatever was written into it. */
+    const discard = () => {
         setOpen(null)
         setBuffer(NO_EDITS)
+        setClosing(false)
         onEditingChange(false)
+    }
+
+    // Closing the editor with cells still unsaved loses the same work as leaving the page with them, so it is
+    // the same question, asked the same way.
+    const stopEditing = () => {
+        if (dirty) {
+            setClosing(true)
+        } else {
+            discard()
+        }
     }
 
     const save = async () => {
@@ -226,7 +281,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (draft.startsWith('=')) {
             return 'text'
         }
-        if (draft.includes('\n') || draft.length > WRAPS) {
+        if (draft.includes('\n') || several) {
             return 'multiline'
         }
         const editor = ownKind(at)
@@ -317,13 +372,39 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     return (
         <>
+            {/* A save rewrites the workbook and builds the module from it again. Nothing else can be asked for
+                while that happens, so nothing else is offered: the screen is held until it answers. */}
+            {saving && (
+                <Spin
+                    fullscreen
+                    data-testid="table-edit-saving"
+                    description={t('browser.module.edit_saving')}
+                />
+            )}
+            <Modal
+                cancelText={t('browser.module.edit_keep_editing')}
+                okButtonProps={{ 'data-testid': 'table-edit-discard' }}
+                okText={t('browser.module.edit_discard')}
+                open={closing || leaving.state === 'blocked'}
+                title={t('browser.module.edit_leaving')}
+                onCancel={() => {
+                    setClosing(false)
+                    leaving.reset?.()
+                }}
+                onOk={() => {
+                    discard()
+                    leaving.proceed?.()
+                }}
+            >
+                {closing ? t('browser.module.edit_closing_message') : t('browser.module.edit_leaving_message')}
+            </Modal>
             {editing && (
                 <TableEditToolbar
                     blocked={blocked}
                     canRedo={buffer.undone.length > 0}
-                    canUndo={buffer.steps.length > 0}
+                    canUndo={dirty}
                     cell={picked === null ? undefined : written[at.row]?.[at.column]}
-                    dirty={buffer.steps.length > 0}
+                    dirty={dirty}
                     onCancel={stopEditing}
                     onInsertColumn={() => step({ kind: 'insertColumn', at: at.column })}
                     onInsertRow={() => step({ kind: 'insertRow', at: at.row })}

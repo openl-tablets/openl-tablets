@@ -471,6 +471,12 @@ i18next.addResourceBundle('en', 'repository', {
             edit_indent: 'Increase Indent',
             related_more_one: '{{count}} more',
             related_more_other: '{{count}} more',
+            edit_saving: 'Saving the table…',
+            edit_leaving: 'Discard changes',
+            edit_leaving_message: 'The table is not saved. If you leave this page, the cells you edited will '
+                + 'be lost. Discard them?',
+            edit_closing_message: 'The table is not saved. If you close the editor, the cells you edited will '
+                + 'be lost. Discard them?',
             edit_this_cell: 'Edit cell {{cell}}',
             edit_pick_a_cell: 'Pick a cell first.',
             edit_header_kept: 'The first row and the first column hold the table header, which is where OpenL '
@@ -479,7 +485,6 @@ i18next.addResourceBundle('en', 'repository', {
                 + 'remove the row.',
             edit_blank_column: 'A column you added is empty. A blank column splits the table, so fill in a cell '
                 + 'or remove the column.',
-            edit_discard_question: 'Discard the cells you edited?',
             edit_discard: 'Discard',
             edit_keep_editing: 'Keep Editing',
             editor_switch: 'Switch editor',
