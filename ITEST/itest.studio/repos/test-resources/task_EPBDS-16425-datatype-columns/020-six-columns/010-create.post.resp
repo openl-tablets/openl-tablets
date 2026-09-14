@@ -8,6 +8,6 @@ Content-Type: application/json
   "name": "Claim",
   "file": "EPBDS-16425-Columns/Main.xlsx",
   "sheet": "SixColumns",
-  "pos": "B2:G4"
+  "pos": "B2:G4",
+  "signature": "Claim"
 }
-

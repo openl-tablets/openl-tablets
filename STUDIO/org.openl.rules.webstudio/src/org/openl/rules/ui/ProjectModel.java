@@ -604,70 +604,99 @@ public class ProjectModel {
      * simply does not count that module — the next read does.
      */
     public ProjectCompilationStatus getCompilationStatus() {
-        var moduleInfo = this.moduleInfo;
+        var module = this.moduleInfo;
+        var status = ProjectCompilationStatus.newBuilder();
+        if (module == null) {
+            return status.build();
+        }
+        if (compilesAlone(module)) {
+            return compiledAloneStatus(status);
+        }
         var dependencyManager = this.webStudioWorkspaceDependencyManager;
-        ProjectCompilationStatus.Builder compilationStatus = ProjectCompilationStatus.newBuilder();
-        if (moduleInfo == null) {
-            return compilationStatus.build();
+        if (dependencyManager == null) {
+            return status.build();
         }
-        if (moduleInfo.getWebstudioConfiguration() != null && moduleInfo
-                .getWebstudioConfiguration()
-                .isCompileThisModuleOnly()) {
-            var compiled = this.compiledOpenClass;
-            if (compiled != null) {
-                compilationStatus.addMessages(compiled.getAllMessages());
-            }
-            compilationStatus.setModulesCompiled(1);
-            compilationStatus.addModulesCount(1);
-        } else {
-            if (dependencyManager == null) {
-                return compilationStatus.build();
-            }
-            Collection<IDependencyLoader> dependencyLoaders = dependencyManager
-                    .findAllProjectDependencyLoaders(moduleInfo.getProject());
-            if (isProjectCompilationCompleted()) {
-                var compiled = this.compiledOpenClass;
-                if (compiled != null) {
-                    compilationStatus.addMessages(compiled.getAllMessages());
-                }
-                dependencyLoaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(e -> {
-                    compilationStatus.addModulesCount(e.getProject().getModules().size());
-                    compilationStatus.addModulesCompiled(e.getProject().getModules().size());
-                });
-            } else {
-                for (IDependencyLoader dependencyLoader : dependencyLoaders) {
-                    if (dependencyLoader.isProjectLoader()) {
-                        if (!Objects.equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
-                            if (dependencyLoader.getRefToCompiledDependency() != null) {
-                                compilationStatus.addMessages(
-                                        dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages());
-                            }
-                        }
-                    } else {
-                        compilationStatus.addModulesCount(1);
-                        boolean isOpenedModule = Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName())
-                                && Objects.equals(dependencyLoader.getProject(), moduleInfo.getProject());
-                        var openedModule = this.openedModuleCompiledOpenClass;
-                        if (isOpenedModule && openedModule != null) {
-                            // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
-                            // rewrite the algorithm to handle with it is required here
-                            compilationStatus.addMessages(openedModule.getAllMessages())
-                                    .addModulesCompiled(1);
-                        } else {
-                            // Fallback path for the opened module BEFORE setModuleInfo publishes
-                            // `openedModuleCompiledOpenClass` (the loader's ref is set by then),
-                            // and the canonical path for all other module loaders.
-                            CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
-                            if (compiledDependency != null) {
-                                compilationStatus.addMessages(compiledDependency.getCompiledOpenClass().getMessages())
-                                        .addModulesCompiled(1);
-                            }
-                        }
-                    }
-                }
-            }
+        var loaders = dependencyManager.findAllProjectDependencyLoaders(module.getProject());
+        if (isProjectCompilationCompleted()) {
+            return compiledThroughStatus(status, loaders);
         }
-        return compilationStatus.build();
+        for (IDependencyLoader loader : loaders) {
+            countWhileCompiling(status, loader, module);
+        }
+        return status.build();
+    }
+
+    /** Whether opening the module compiles it alone, leaving out the modules it does not depend on. */
+    private static boolean compilesAlone(Module module) {
+        return module.getWebstudioConfiguration() != null
+                && module.getWebstudioConfiguration().isCompileThisModuleOnly();
+    }
+
+    /** A module compiled on its own is the whole cycle: one module, counted as finished, with its messages. */
+    private ProjectCompilationStatus compiledAloneStatus(ProjectCompilationStatus.Builder status) {
+        var compiled = this.compiledOpenClass;
+        if (compiled != null) {
+            status.addMessages(compiled.getAllMessages());
+        }
+        return status.setModulesCompiled(1).addModulesCount(1).build();
+    }
+
+    /** A project compiled through counts its modules from the project loaders rather than one by one. */
+    private ProjectCompilationStatus compiledThroughStatus(ProjectCompilationStatus.Builder status,
+                                                           Collection<IDependencyLoader> loaders) {
+        var compiled = this.compiledOpenClass;
+        if (compiled != null) {
+            status.addMessages(compiled.getAllMessages());
+        }
+        loaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(loader -> {
+            var modules = loader.getProject().getModules().size();
+            status.addModulesCount(modules).addModulesCompiled(modules);
+        });
+        return status.build();
+    }
+
+    /** What one loader adds while the project is still compiling: a module of it, or another project's messages. */
+    private void countWhileCompiling(ProjectCompilationStatus.Builder status,
+                                     IDependencyLoader loader,
+                                     Module module) {
+        if (loader.isProjectLoader()) {
+            addOtherProjectMessages(status, loader, module);
+            return;
+        }
+        status.addModulesCount(1);
+        var opened = isOpenedModule(loader, module) ? this.openedModuleCompiledOpenClass : null;
+        if (opened != null) {
+            // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
+            // rewrite the algorithm to handle with it is required here
+            status.addMessages(opened.getAllMessages()).addModulesCompiled(1);
+            return;
+        }
+        // Fallback path for the opened module BEFORE setModuleInfo publishes
+        // `openedModuleCompiledOpenClass` (the loader's ref is set by then),
+        // and the canonical path for all other module loaders.
+        CompiledDependency compiledDependency = loader.getRefToCompiledDependency();
+        if (compiledDependency != null) {
+            status.addMessages(compiledDependency.getCompiledOpenClass().getMessages()).addModulesCompiled(1);
+        }
+    }
+
+    /** The messages a project other than the module's own carries into the status, once it has compiled. */
+    private static void addOtherProjectMessages(ProjectCompilationStatus.Builder status,
+                                                IDependencyLoader loader,
+                                                Module module) {
+        if (Objects.equals(loader.getProject(), module.getProject())) {
+            return;
+        }
+        var compiled = loader.getRefToCompiledDependency();
+        if (compiled != null) {
+            status.addMessages(compiled.getCompiledOpenClass().getMessages());
+        }
+    }
+
+    /** Whether the loader is the one of the module being read. */
+    private static boolean isOpenedModule(IDependencyLoader loader, Module module) {
+        return Objects.equals(loader.getModule().getName(), module.getName())
+                && Objects.equals(loader.getProject(), module.getProject());
     }
 
     public Collection<OpenLMessage> getModuleMessages() {

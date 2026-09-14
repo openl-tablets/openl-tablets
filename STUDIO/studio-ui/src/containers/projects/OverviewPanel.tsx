@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEve
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { moduleRoute } from '../../services/projectId'
-import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tooltip, Typography, Upload } from 'antd'
+import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tag, Tooltip, Typography, Upload } from 'antd'
 import {
     ApartmentOutlined,
     ApiOutlined,
@@ -322,6 +322,11 @@ const useStyles = createStyles(({ css, token }) => ({
         flex: none;
         width: 40%;
     `,
+    /** The flag ends the row and keeps its label on one line, whatever the fields before it take. */
+    moduleCompileOnly: css`
+        flex: none;
+        white-space: nowrap;
+    `,
     dependencyFields: css`
         display: flex;
         align-items: center;
@@ -478,18 +483,22 @@ const Section = ({ icon, title, action, hint, hintTestId, onHelp, helpLabel, hel
  * A pattern that names no module of its own is read by what it does — it stands for the modules it
  * matched.
  */
-const ModuleCells = ({ module, modulesDefault, projectId }: { module: ProjectModule, modulesDefault?: boolean | undefined, projectId?: string | undefined }) => {
+const ModuleCells = ({ compileOnly, module, modulesDefault, projectId }: { compileOnly?: boolean | undefined, module: ProjectModule, modulesDefault?: boolean | undefined, projectId?: string | undefined }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     // A project that declares no modules of its own takes the engine's defaults: those read as the rules
     // and the tests found automatically, not as a "pattern". A pattern the file does declare keeps its own
     // name, or, unnamed, reads by what it matched.
-    const autoDiscoveredHeading = module.path?.startsWith('tests/')
-        ? t('browser.overview.modules_auto_tests')
-        : t('browser.overview.modules_auto')
-    const patternHeading = modulesDefault ? autoDiscoveredHeading : t('browser.overview.modules_pattern')
-    const name = module.name || (module.modules ? patternHeading : '')
+    const patternHeading = () => {
+        if (!modulesDefault) {
+            return t('browser.overview.modules_pattern')
+        }
+        return module.path?.startsWith('tests/')
+            ? t('browser.overview.modules_auto_tests')
+            : t('browser.overview.modules_auto')
+    }
+    const name = module.name || (module.modules ? patternHeading() : '')
     // Only a module of its own opens in the editor. A pattern stands for the modules it matched, and those are
     // the rows that link.
     const opens = projectId !== undefined && module.name !== undefined && module.name !== '' && !module.modules
@@ -507,6 +516,15 @@ const ModuleCells = ({ module, modulesDefault, projectId }: { module: ProjectMod
             ) : (
                 <span className={cx(shared.valueText, shared.ellipsis, styles.moduleName)} title={name}>{name}</span>
             )}
+            {compileOnly && (
+                <Tag
+                    className={shared.chipTag}
+                    data-testid={`module-compile-only-${name}`}
+                    title={t('browser.overview.module_compile_only_hint')}
+                >
+                    {t('browser.overview.module_compile_only_tag')}
+                </Tag>
+            )}
             <span className={cx(shared.ellipsis, shared.valueText, styles.modulePath)} title={module.path}>
                 {module.path}
             </span>
@@ -517,13 +535,15 @@ const ModuleCells = ({ module, modulesDefault, projectId }: { module: ProjectMod
 /**
  * One module of the project, as its {@code rules.xml} declares it.
  *
- * A declaration whose path is a pattern stands for the files it matched: they are folded away under it
- * and opened on demand, so the list stays as long as the file is.
+ * A declaration whose path is a pattern stands for the files it matched. Those are the modules a reader
+ * opens, so they are shown from the start; the switcher folds them away when the list is in the way.
  */
-const ModuleRow = ({ module, filter, modulesDefault, projectId }: { module: ProjectModule, filter?: MethodFilter | undefined, modulesDefault?: boolean | undefined, projectId?: string | undefined }) => {
+const ModuleRow = ({ declaration, module, modulesDefault, projectId }: { declaration?: ModuleDeclaration | undefined, module: ProjectModule, modulesDefault?: boolean | undefined, projectId?: string | undefined }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = useState(true)
+    const compileOnly = declaration?.compileThisModuleOnly === true
+    const filter = declaration?.methodFilter
     const matched = module.modules
     const testId = module.path ?? module.name
     const toggleTitle = t(open ? 'browser.overview.modules_matched_hide' : 'browser.overview.modules_matched_show')
@@ -547,7 +567,7 @@ const ModuleRow = ({ module, filter, modulesDefault, projectId }: { module: Proj
                     // The place of the switcher is kept, so every row starts where the others do.
                     <span className={styles.moduleSwitcherSpace} data-testid={matched ? `module-unmatched-${testId}` : undefined} />
                 )}
-                <ModuleCells module={module} modulesDefault={modulesDefault} projectId={projectId} />
+                <ModuleCells compileOnly={compileOnly} module={module} modulesDefault={modulesDefault} projectId={projectId} />
             </li>
             {/* The module's own method filter, declared in rules.xml alongside it. */}
             {filter && (
@@ -563,14 +583,18 @@ const ModuleRow = ({ module, filter, modulesDefault, projectId }: { module: Proj
                     data-testid={`module-matched-item-${matchedModule.path ?? matchedModule.name}`}
                 >
                     <span className={styles.moduleSwitcherSpace} />
-                    <ModuleCells module={matchedModule} projectId={projectId} />
+                    {/* The engine gives every module a pattern matched the flag the pattern declares. */}
+                    <ModuleCells compileOnly={compileOnly} module={matchedModule} projectId={projectId} />
                 </li>
             ))}
         </>
     )
 }
 
-/** The editable fields of one declared module: its name and its rules-root path (which may be a pattern). */
+/**
+ * The editable fields of one declared module: its name, its rules-root path (which may be a pattern) and
+ * whether opening it compiles it alone.
+ */
 const ModuleFields = ({ module, onChange, testId }: {
     module: ModuleDeclaration
     onChange: (module: ModuleDeclaration) => void
@@ -595,6 +619,15 @@ const ModuleFields = ({ module, onChange, testId }: {
                 size="small"
                 value={module.path}
             />
+            <Checkbox
+                checked={module.compileThisModuleOnly === true}
+                className={styles.moduleCompileOnly}
+                data-testid={`${testId}-compile-only`}
+                onChange={event => onChange({ ...module, compileThisModuleOnly: event.target.checked })}
+                title={t('browser.overview.module_compile_only_hint')}
+            >
+                {t('browser.overview.module_compile_only')}
+            </Checkbox>
         </div>
     )
 }
@@ -697,16 +730,9 @@ const FilterPanel = ({ filter, compact }: { filter: MethodFilter, compact?: bool
     )
 }
 
-/** The method-filter each declared module carries, indexed by its rules-root path. */
-const moduleFiltersOf = (declarations: ModuleDeclaration[]): Record<string, MethodFilter> => {
-    const filters: Record<string, MethodFilter> = {}
-    for (const module of declarations) {
-        if (module.methodFilter) {
-            filters[module.path] = module.methodFilter
-        }
-    }
-    return filters
-}
+/** What rules.xml declares for each module, indexed by its rules-root path. */
+const declarationsByPath = (declarations: ModuleDeclaration[]): Record<string, ModuleDeclaration> =>
+    Object.fromEntries(declarations.filter(module => module.path).map(module => [module.path, module]))
 
 /** What a descriptor section reads and edits: the working copy shown, and how a change lands in the draft. */
 interface DescriptorEditor {
@@ -855,12 +881,13 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
         }
     }
 
-    // Each declared module carries its own method filter; index them by path to show on the resolved module.
-    const moduleFilters = useMemo(() => moduleFiltersOf(rules.moduleDeclarations), [rules.moduleDeclarations])
+    // What a module declares — its method filter, whether it compiles on its own — is in the file rather
+    // than in the resolved module, so it is indexed by path and shown on the row it belongs to.
+    const declaredModules = useMemo(() => declarationsByPath(rules.moduleDeclarations), [rules.moduleDeclarations])
 
     const editor: DescriptorEditor = { editing, shown: editing ? draft : rules, editDraft }
     return {
-        state, refreshing, editing, saving, fileExists, projectNames, moduleFilters, editor,
+        state, refreshing, editing, saving, fileExists, projectNames, declaredModules, editor,
         startEditing, cancelEditing: endEditing, saveEditing,
         staged: stagedUpload, stageUpload: (file: File) => setStagedUpload(file),
     }
@@ -970,11 +997,11 @@ const DescriptionSection = ({ editor }: { editor: DescriptorEditor }) => {
  * The modules: the declared ones are edited only when rules.xml declares them; when they are auto-discovered
  * (empty rules.xml) they are shown read-only, since editing entries the engine derives makes no sense.
  */
-const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRulesXml, projectId }: {
+const ModulesSection = ({ declaredModules, editor, modules, modulesDefault, hasRulesXml, projectId }: {
+    declaredModules: Record<string, ModuleDeclaration>
     editor: DescriptorEditor
     modules: ProjectModule[]
     modulesDefault: boolean
-    moduleFilters: Record<string, MethodFilter>
     hasRulesXml: boolean
     projectId: string
 }) => {
@@ -1021,7 +1048,7 @@ const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRul
                             {modules.map(module => (
                                 <ModuleRow
                                     key={module.path ?? module.name}
-                                    filter={module.path ? moduleFilters[module.path] : undefined}
+                                    declaration={module.path ? declaredModules[module.path] : undefined}
                                     module={module}
                                     modulesDefault={modulesDefault}
                                     projectId={projectId}
@@ -1553,9 +1580,9 @@ export const OverviewPanel = ({
                 <LockBanner onUnlock={onUnlock} project={project} />
                 <DescriptionSection editor={descriptor.editor} />
                 <ModulesSection
+                    declaredModules={descriptor.declaredModules}
                     editor={descriptor.editor}
                     hasRulesXml={descriptor.fileExists}
-                    moduleFilters={descriptor.moduleFilters}
                     modules={project.descriptor?.modules ?? []}
                     modulesDefault={project.descriptor?.modulesDefault ?? false}
                     projectId={project.id}

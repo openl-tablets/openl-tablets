@@ -236,6 +236,24 @@ class ProjectAccessServiceTest {
         assertNull(service.computeCapabilities(rulesProject).canDeleteBranch());
     }
 
+    @Test
+    void merging_takes_write_access_and_a_project_that_can_take_one() {
+        var rulesProject = mock(RulesProject.class);
+        when(aclProjectsHelper.hasPermission(rulesProject, BasePermission.WRITE)).thenReturn(true);
+        when(stateValidator.canTakeMerge(rulesProject)).thenReturn(true);
+
+        assertEquals(Boolean.TRUE, service.computeCapabilities(rulesProject).canMerge());
+
+        // A project carrying changes that are not saved yet cannot take a merge; the state answers that.
+        when(stateValidator.canTakeMerge(rulesProject)).thenReturn(false);
+        assertNull(service.computeCapabilities(rulesProject).canMerge());
+
+        // And a reader who may not write to it is not offered one either.
+        when(stateValidator.canTakeMerge(rulesProject)).thenReturn(true);
+        when(aclProjectsHelper.hasPermission(rulesProject, BasePermission.WRITE)).thenReturn(false);
+        assertNull(service.computeCapabilities(rulesProject).canMerge());
+    }
+
     // The Copy dialog offers a new project, a new branch, or both, so either right opens it — and it answers
     // the same as the capabilities it is derived from.
     @Test

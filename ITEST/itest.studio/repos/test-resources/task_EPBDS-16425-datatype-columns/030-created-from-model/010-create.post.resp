@@ -8,6 +8,6 @@ Content-Type: application/json
   "name": "Policy",
   "file": "EPBDS-16425-Columns/Main.xlsx",
   "sheet": "FromModel",
-  "pos": "B2:E4"
+  "pos": "B2:E4",
+  "signature": "Policy"
 }
-

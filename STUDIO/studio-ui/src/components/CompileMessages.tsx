@@ -40,9 +40,23 @@ const useStyles = createStyles(({ css, token }) => ({
         cursor: pointer;
 
         &:hover,
-        &:focus-visible {
+        &:focus-within {
             background: ${token.controlItemBgHover};
         }
+    `,
+    /** The message fills its row and reads as the text it is, whatever frame a button would bring. */
+    open: css`
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: none;
+        background: none;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        white-space: pre-wrap;
+        word-break: break-word;
+        cursor: pointer;
     `,
     action: css`
         margin-top: 2px;
@@ -149,24 +163,26 @@ export const CompileMessages = ({
             <ul className={styles.list}>
                 {visible.map(message => {
                     const openable = onOpen !== undefined && (canOpen === undefined || canOpen(message))
+                    const text = <MessageText value={message.summary} />
                     return (
                         <li
                             key={message.id}
                             className={cx(styles.message, styles[severity], openable && styles.openable)}
-                            data-testid={`${testIdPrefix}-${message.id}`}
-                            onClick={openable ? () => onOpen(message) : undefined}
-                            role={openable ? 'button' : undefined}
-                            tabIndex={openable ? 0 : undefined}
-                            onKeyDown={openable
-                                ? event => {
-                                    if (event.key === 'Enter' || event.key === ' ') {
-                                        event.preventDefault()
-                                        onOpen(message)
-                                    }
-                                }
-                                : undefined}
                         >
-                            <MessageText value={message.summary} />
+                            {openable ? (
+                                // A message that leads to its table is a button, so the keyboard reaches
+                                // it the way the pointer does.
+                                <button
+                                    className={styles.open}
+                                    data-testid={`${testIdPrefix}-${message.id}`}
+                                    onClick={() => onOpen(message)}
+                                    type="button"
+                                >
+                                    {text}
+                                </button>
+                            ) : (
+                                <span data-testid={`${testIdPrefix}-${message.id}`}>{text}</span>
+                            )}
                         </li>
                     )
                 })}

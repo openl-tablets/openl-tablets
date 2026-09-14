@@ -43,6 +43,39 @@ describe('parseRulesDescriptor', () => {
         ])
     })
 
+    it('reads the flag that has the module compiled on its own', () => {
+        const descriptor = parseRulesDescriptor(`
+            <project>
+                <modules>
+                    <module>
+                        <name>Tests</name>
+                        <rules-root path="tests/*.xlsx"/>
+                        <webstudioConfiguration>
+                            <compileThisModuleOnly>true</compileThisModuleOnly>
+                        </webstudioConfiguration>
+                    </module>
+                    <module>
+                        <name>Legacy</name>
+                        <rules-root path="legacy/*.xlsx"/>
+                        <webstudioConfiguration><compileThisModuleOnly>1</compileThisModuleOnly></webstudioConfiguration>
+                    </module>
+                    <module>
+                        <name>Main</name>
+                        <rules-root path="rules/Main.xlsx"/>
+                    </module>
+                </modules>
+            </project>
+        `)
+
+        // The flag is an XML boolean, written `true` or `1`; the module the file says nothing about is
+        // compiled with the project, as the engine reads it.
+        expect(descriptor.moduleDeclarations).toEqual([
+            { name: 'Tests', path: 'tests/*.xlsx', compileThisModuleOnly: true },
+            { name: 'Legacy', path: 'legacy/*.xlsx', compileThisModuleOnly: true },
+            { name: 'Main', path: 'rules/Main.xlsx' },
+        ])
+    })
+
     it('reads an empty descriptor from a blank, malformed, or foreign file', () => {
         expect(parseRulesDescriptor('')).toEqual(EMPTY_RULES_DESCRIPTOR)
         expect(parseRulesDescriptor('<project><comment>x')).toEqual(EMPTY_RULES_DESCRIPTOR)
@@ -116,6 +149,8 @@ describe('serializeRulesDescriptor', () => {
             moduleDeclarations: [
                 { name: 'Main', path: 'rules/Main.xlsx' },
                 { name: 'Rules', path: 'rules/**/*.xlsx', methodFilter: { includes: ['calc*'], excludes: []} },
+                // A row the user added, ticked and left empty names no module, so it is not written.
+                { name: '', path: '', compileThisModuleOnly: true },
             ],
         }, '<project><name>P</name></project>')
 
@@ -130,6 +165,38 @@ describe('serializeRulesDescriptor', () => {
             { name: 'Main', path: 'rules/Main.xlsx' },
             { name: 'Rules', path: 'rules/**/*.xlsx', methodFilter: { includes: ['calc*'], excludes: []} },
         ])
+    })
+
+    it('writes the flag that has the module compiled on its own, and drops it when it is cleared', () => {
+        const original = `
+            <project>
+                <modules>
+                    <module>
+                        <name>Tests</name>
+                        <rules-root path="tests/*.xlsx"/>
+                        <webstudioConfiguration>
+                            <compileThisModuleOnly>true</compileThisModuleOnly>
+                        </webstudioConfiguration>
+                    </module>
+                </modules>
+            </project>
+        `
+        const declared = parseRulesDescriptor(original)
+
+        const set = serializeRulesDescriptor(declared, original)
+        expect(set).toContain('<compileThisModuleOnly>true</compileThisModuleOnly>')
+        // The block is written once: the reader owns it now, so it is not carried over a second time.
+        expect(set.match(/<webstudioConfiguration>/g)).toHaveLength(1)
+        expect(parseRulesDescriptor(set).moduleDeclarations[0]!.compileThisModuleOnly).toBe(true)
+
+        const cleared = serializeRulesDescriptor({
+            ...declared,
+            moduleDeclarations: [{ ...declared.moduleDeclarations[0]!, compileThisModuleOnly: false }],
+        }, original)
+
+        // Cleared, it leaves the file as it was before the flag was set — the way the engine writes it.
+        expect(cleared).not.toContain('webstudioConfiguration')
+        expect(parseRulesDescriptor(cleared).moduleDeclarations[0]!.compileThisModuleOnly).toBeUndefined()
     })
 
     it('keeps a module child it does not manage, so an edit never drops it', () => {

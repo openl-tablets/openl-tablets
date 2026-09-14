@@ -1,25 +1,12 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Dropdown, Popconfirm, Space } from 'antd'
-import {
-    CopyOutlined,
-    DeleteOutlined,
-    DiffOutlined,
-    DownloadOutlined,
-    DownOutlined,
-    FolderOpenOutlined,
-    HistoryOutlined,
-    MergeOutlined,
-    MinusCircleOutlined,
-    MoreOutlined,
-    RocketOutlined,
-    SaveOutlined,
-    UnlockOutlined,
-} from '@ant-design/icons'
+import { DownOutlined, MoreOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { SplitButton } from '../../components/SplitButton'
 import type { Project } from '../../types/projects'
 import { isActionAvailable, PROJECT_ACTIONS, type ActionId, type BusyId } from './projectActions'
+import { ACTION_ICONS } from './projectActionIcons'
 
 /** Gap between buttons, in px — kept in sync with the `bar` style so the fit maths matches the layout. */
 const GAP = 8
@@ -63,20 +50,6 @@ const useStyles = createStyles(({ css }) => ({
     `,
 }))
 
-const ACTION_ICONS: Record<ActionId, ReactNode> = {
-    save: <SaveOutlined />,
-    open: <FolderOpenOutlined />,
-    close: <MinusCircleOutlined />,
-    deploy: <RocketOutlined />,
-    compare: <DiffOutlined />,
-    copy: <CopyOutlined />,
-    openRevision: <HistoryOutlined />,
-    sync: <MergeOutlined />,
-    deleteBranch: <DeleteOutlined />,
-    export: <DownloadOutlined />,
-    delete: <DeleteOutlined />,
-    unlock: <UnlockOutlined />,
-}
 
 /**
  * Every action in display order. Opening leads, then what changes the project, then the read-only

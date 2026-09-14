@@ -8,6 +8,6 @@ Content-Type: application/json
   "name": "LegacyType",
   "file": "EPBDS-16425-Columns/Main.xlsx",
   "sheet": "Legacy",
-  "pos": "B2:D3"
+  "pos": "B2:D3",
+  "signature": "LegacyType"
 }
-

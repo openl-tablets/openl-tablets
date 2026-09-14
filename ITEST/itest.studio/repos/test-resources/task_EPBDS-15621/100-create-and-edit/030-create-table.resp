@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "TestType",
   "file": "EPBDS_15621/Main.xlsx",
   "sheet": "TestType",
-  "pos": "*"
+  "pos": "*",
+  "signature": "TestType"
 }

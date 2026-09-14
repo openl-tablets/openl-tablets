@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "Rating",
   "file": "***",
   "sheet": "Datatype",
-  "pos": "B2:C5"
+  "pos": "B2:C5",
+  "signature": "Rating"
 }

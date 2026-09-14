@@ -141,24 +141,25 @@ class ProjectStatusMapperImplTest {
 
     @Test
     void theModuleBeingOpenedIsNamedOnlyOnceItIsCompiled() {
-        var project = new ProjectDescriptor();
-        var opened = module("Claims", project);
-        var other = module("Pricing", project);
+        var descriptor = new ProjectDescriptor();
+        var opened = module("Claims", descriptor);
+        var other = module("Pricing", descriptor);
         var openedLoader = loader(opened, null);
         var otherLoader = loader(other, mock(CompiledDependency.class));
         var dependencyManager = mock(WebStudioWorkspaceRelatedDependencyManager.class);
-        when(dependencyManager.findAllProjectDependencyLoaders(project)).thenReturn(List.of(openedLoader, otherLoader));
+        when(dependencyManager.findAllProjectDependencyLoaders(descriptor))
+                .thenReturn(List.of(openedLoader, otherLoader));
         when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(dependencyManager);
         when(model.getModuleInfo()).thenReturn(opened);
         when(model.isProjectCompilationCompleted()).thenReturn(false);
 
         // Its own compilation is what the reader is waiting for, so while it runs the module is not named.
         when(model.isOpenedModuleCompiled()).thenReturn(false);
-        assertEquals(List.of("Pricing"), mapper.map(this.project, model).compilation().modules().compiledModules());
+        assertEquals(List.of("Pricing"), mapper.map(project, model).compilation().modules().compiledModules());
 
         when(model.isOpenedModuleCompiled()).thenReturn(true);
         assertEquals(List.of("Claims", "Pricing"),
-                mapper.map(this.project, model).compilation().modules().compiledModules());
+                mapper.map(project, model).compilation().modules().compiledModules());
     }
 
     /** A module of the given project, declared the way a project descriptor declares one. */

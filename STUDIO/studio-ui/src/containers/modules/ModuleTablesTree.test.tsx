@@ -23,6 +23,7 @@ const rail = (compiling: boolean, onSelectModule = vi.fn()) => {
             compiling={compiling}
             currentModule="Claims"
             modules={modules}
+            onExtendedSearch={vi.fn()}
             onSelectModule={onSelectModule}
             onSelectTable={vi.fn()}
             tables={tables}
@@ -63,6 +64,44 @@ describe('ModuleTablesTree', () => {
         expect(onSelectModule).not.toHaveBeenCalled()
     })
 
+    it('searches the names it shows, and hands the rest to the extended search', async () => {
+        const shown: ModuleTable[] = [
+            { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' } as ModuleTable,
+            { id: 'two', name: 'Premium', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' } as ModuleTable,
+        ]
+        const onExtendedSearch = vi.fn()
+        render(
+            <ModuleTablesTree
+                currentModule="Claims"
+                modules={modules}
+                onExtendedSearch={onExtendedSearch}
+                onSelectModule={vi.fn()}
+                onSelectTable={vi.fn()}
+                selectedTableId="two"
+                tables={shown}
+            />
+        )
+        expect(screen.getByText('Premium')).toBeInTheDocument()
+
+        await userEvent.type(screen.getByTestId('module-tables-search'), 'greet')
+
+        // The tables are already in the browser, so the search costs no request.
+        expect(screen.queryByText('Premium')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('module-tables-search-extended'))
+
+        // Anything wider than a name is the extended search's to ask the server, and it starts from what was typed.
+        expect(onExtendedSearch).toHaveBeenCalledWith('greet')
+    })
+
+    it('says when nothing in the module answers the search', async () => {
+        rail(false)
+
+        await userEvent.type(screen.getByTestId('module-tables-search'), 'nothing here')
+
+        expect(screen.getByTestId('module-tables-empty')).toHaveTextContent('browser.module.no_match')
+    })
+
     it('draws a table that takes no part in the rules apart from the others', () => {
         const switchedOff = { ...tables[0], id: 'off', name: 'Retired', active: false } as ModuleTable
 
@@ -70,6 +109,7 @@ describe('ModuleTablesTree', () => {
             <ModuleTablesTree
                 currentModule="Claims"
                 modules={modules}
+                onExtendedSearch={vi.fn()}
                 onSelectModule={vi.fn()}
                 onSelectTable={vi.fn()}
                 selectedTableId="off"

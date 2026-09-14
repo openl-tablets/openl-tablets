@@ -77,7 +77,9 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.CellValueSelector;
 import org.openl.rules.webstudio.web.SearchScope;
+import org.openl.rules.webstudio.web.TableHeaderSelector;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
@@ -115,6 +117,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -130,6 +133,7 @@ import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TablePropertyText;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -156,6 +160,8 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
+    /** Answered when a project does not declare the module a request names. */
+    private static final String NO_SUCH_MODULE = "project.module.identifier.message";
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
     private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
     /** The mark {@link TableSyntaxNodeUtils} appends to a display name it had to shorten. */
@@ -1601,28 +1607,32 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return PageResponse.of(List.of(), page, 0L);
         }
         var requestedModule = query.getModule().orElse(null);
-        var scope = requestedModule == null ? SearchScope.CURRENT_PROJECT : SearchScope.CURRENT_MODULE;
+        var scope = searchScopeOf(query, requestedModule);
         var module = requestedModule == null ? modules.getFirst() : modules.stream()
                 .filter(declared -> requestedModule.equals(declared.getName()))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
 
         var handle = openProject(projectDescriptor, project, module);
-        // Opening the module has already compiled it, so a module-scoped answer is ready. Only the project-wide
-        // answer has to wait for the modules that are still being compiled behind it.
-        var moduleModel = scope == SearchScope.CURRENT_PROJECT ? handle.awaitCompiled() : handle.project();
+        // Opening the module has already compiled it, so a module-scoped answer is ready. A wider answer has to
+        // wait for the modules that are still being compiled behind it.
+        var moduleModel = scope == SearchScope.CURRENT_MODULE ? handle.project() : handle.awaitCompiled();
 
         // Which of the versions of a table answers a call is decided by its dimension properties, and only the
         // dictionary knows which tables are versions of one another. A module-scoped list asks the opened module's
-        // dictionary; a project-wide one spans every module, so versions living apart are still told apart.
-        var overloads = scope == SearchScope.CURRENT_PROJECT
-                ? moduleModel.getAllMethodNodesDictionary()
-                : moduleModel.getMethodNodesDictionary();
+        // dictionary; a wider one spans every module, so versions living apart are still told apart.
+        var overloads = scope == SearchScope.CURRENT_MODULE
+                ? moduleModel.getMethodNodesDictionary()
+                : moduleModel.getAllMethodNodesDictionary();
+        // A search that reaches past the module it was asked through answers with tables of other modules, and of
+        // other projects — so each of them says where it lives, or nothing could be opened from the answer.
+        var locations = scope == SearchScope.CURRENT_MODULE ? null
+                : TableModules.ofWorkspace(moduleModel, projectIdentifierMapper);
 
         var selectors = buildTableSelector(query);
         var allTables = moduleModel.search(selectors, scope)
                 .stream()
-                .map(table -> summaryTableReader.read(table, overloads))
+                .map(table -> locate(summaryTableReader.read(table, overloads), table, locations))
                 .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
 
@@ -1667,6 +1677,28 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .orElse(null);
     }
 
+    /**
+     * How wide the search reaches: what it asks for, or the module it names when it asks for nothing.
+     */
+    private static SearchScope searchScopeOf(ProjectTableCriteriaQuery query, @Nullable String requestedModule) {
+        var asked = query.getScope()
+                .orElse(requestedModule == null ? TableSearchScope.PROJECT : TableSearchScope.MODULE);
+        return switch (asked) {
+            case MODULE -> SearchScope.CURRENT_MODULE;
+            case PROJECT -> SearchScope.CURRENT_PROJECT;
+            case ALL -> SearchScope.ALL;
+        };
+    }
+
+    /** Says where a table found by a search lives, so the screen showing it can open it there. */
+    private static SummaryTableView locate(SummaryTableView view, IOpenLTable table, @Nullable TableModules modules) {
+        if (modules == null) {
+            return view;
+        }
+        var where = modules.locationOf(table.getUri());
+        return where == null ? view : view.locatedAt(where.module(), where.projectName(), where.projectId());
+    }
+
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
         Predicate<TableSyntaxNode> selectors = tsn -> query.isIncludeOther()
                 || !XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType());
@@ -1692,7 +1724,25 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
 
         if (CollectionUtils.isNotEmpty(query.getProperties())) {
-            selectors = selectors.and(new TablePropertiesSelector(query.getProperties()));
+            // A property is matched against the value the table declares, which the engine holds as the type the
+            // property is defined with — a date, a flag, an enumeration. The text the search carries is read as
+            // that type first, or a filter on anything but a plain text would match nothing at all.
+            var wanted = query.getProperties()
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            entry -> TablePropertyText.parse(entry.getKey(), String.valueOf(entry.getValue()))));
+            selectors = selectors.and(new TablePropertiesSelector(wanted));
+        }
+
+        if (query.getHeader().isPresent()) {
+            selectors = selectors.and(new TableHeaderSelector(query.getHeader().get()));
+        }
+
+        // Read last: it is the only filter that reads the table itself, so everything cheaper has narrowed the
+        // tables down by the time it runs.
+        if (query.getText().isPresent()) {
+            selectors = selectors.and(new CellValueSelector(query.getText().get()));
         }
 
         return selectors;
@@ -1779,7 +1829,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .stream()
                 .filter(declared -> moduleName.equals(declared.getName()))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
         // The work runs on a thread of its own, where a session-scoped bean cannot be resolved. The studio is
         // looked up here, while the request still holds the session, and the work carries it along. The
         // compilation job is not carried at all: asking the session's registry for one from such a thread fails,
@@ -1794,10 +1844,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             // It is done before the module is opened: opening it first would compile it, and the reset would
             // then throw that away and compile it a second time.
             //
-            // A session holding no project has nothing compiled to drop, and the open below reads the workbook
-            // anyway — which is what a reset asks for. Resetting such a session has no project to name the
-            // module's history folder after, and fails.
-            if (webStudio.getCurrentProject() != null && (reset || moduleModel.isCompilationCancelled())) {
+            // A session holding no project — and one whose model is not built yet — has nothing compiled to
+            // drop, and the open below reads the workbook anyway, which is what a reset asks for. Resetting
+            // such a session has no project to name the module's history folder after, and fails.
+            var holdsProject = moduleModel != null && webStudio.getCurrentProject() != null;
+            if (holdsProject && (reset || moduleModel.isCompilationCancelled())) {
                 try {
                     moduleModel.reset(ReloadType.RELOAD, module);
                 } catch (Exception e) {
@@ -1979,7 +2030,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .stream()
                 .filter(declared -> moduleName.equals(declared.getName()))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
         return metadataService.getSheets(project, module.getRulesRootPath());
     }
 

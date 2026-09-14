@@ -13,6 +13,7 @@ import {
 } from '../services/repositories'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
+import { moduleRoute, projectFileRoute } from '../services/projectId'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import type { Repository, RepositoryInfo } from '../types/repositories'
 import type {
@@ -495,6 +496,17 @@ export const ProjectsHome = () => {
         navigate(`/projects/${encodeURIComponent(project.id)}`)
     }, [navigate])
 
+    // A file picked in the tree is followed to where it is read: a module to the editor, anything else
+    // to the Files tab of the project it belongs to.
+    const openModule = useCallback(
+        (project: Project, moduleName: string) => navigate(moduleRoute(project.id, moduleName)),
+        [navigate]
+    )
+    const openFile = useCallback(
+        (project: Project, path: string) => navigate(projectFileRoute(project.id, path)),
+        [navigate]
+    )
+
     // After a create, land on the new project's page. Its server id is not known here (the create
     // response omits it), so a freshly read index is searched by repository and name; if the project
     // cannot be resolved the screen just refreshes its list instead.
@@ -778,7 +790,9 @@ export const ProjectsHome = () => {
     return (
         <div className={cx(shared.page, shared.listPageRoot)} data-testid="projects-home">
             <ProjectsRail
+                onOpenFile={openFile}
                 onOpenGroup={openGroup}
+                onOpenModule={openModule}
                 onOpenProject={openProject}
                 onRefresh={() => void load(true)}
                 onShowAll={resetFilters}

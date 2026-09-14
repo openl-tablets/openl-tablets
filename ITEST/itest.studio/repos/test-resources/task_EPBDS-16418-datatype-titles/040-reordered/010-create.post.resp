@@ -8,6 +8,6 @@ Content-Type: application/json
   "name": "ReorderedType",
   "file": "EPBDS-16418-Titles/Main.xlsx",
   "sheet": "Datatypes",
-  "pos": "B9:D11"
+  "pos": "B9:D11",
+  "signature": "ReorderedType"
 }
-

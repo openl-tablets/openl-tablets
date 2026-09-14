@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { errorMessage as message } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Alert, Button, Dropdown, Modal, notification, Skeleton, Space, Tag, type MenuProps } from 'antd'
 import {
     CloseOutlined,
@@ -13,6 +14,7 @@ import {
     FontColorsOutlined,
     MoreOutlined,
     SaveOutlined,
+    TableOutlined,
     UploadOutlined,
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
@@ -79,6 +81,85 @@ interface FilePreviewPaneProps {
      * change may have touched anything.
      */
     changedFiles?: string[] | null
+    /** The name of the module each workbook of the project is, indexed by the file's path. */
+    modules?: Record<string, string>
+    /** Opens the module the file is, in the editor. */
+    onOpenModule?: (moduleName: string) => void
+}
+
+/**
+ * The text of the file a selection names, re-read whenever the selection or the project reloads.
+ *
+ * <p>A reload that names what it touched and left the open file alone keeps what is on screen. A re-read
+ * that brings back something other than what was last read says so, since someone else wrote the file.
+ */
+const useFileText = (selection: FileSelection, editable: boolean, changedFiles: string[] | null, t: TFunction) => {
+    const [content, setContent] = useState('')
+    const [original, setOriginal] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    // What the last fetch brought for which file — read to tell a re-read that changed the file
+    // (worth telling the user about) from a first open or a switch to another file.
+    const lastLoaded = useRef<{ key: string, text: string } | null>(null)
+    // The toast reads `t` through a ref: a re-bound translator must not re-download the open file.
+    const tRef = useRef(t)
+    tRef.current = t
+    // Rides a ref: the list always belongs to the reload that bumped the token, never re-runs the effect.
+    const changedFilesRef = useRef(changedFiles)
+    changedFilesRef.current = changedFiles
+    const { path, projectId, reloadToken } = selection
+
+    useEffect(() => {
+        if (!path || !editable) {
+            setContent('')
+            setOriginal('')
+            setLoading(false)
+            setError(null)
+            return
+        }
+        const touched = changedFilesRef.current
+        const key = `${projectId}|${path}`
+        if (touched !== null && lastLoaded.current?.key === key && !coversFile(touched, path)) {
+            return
+        }
+        let cancelled = false
+        setLoading(true)
+        setError(null)
+        getFileContent(projectId, path)
+            .then(text => {
+                if (cancelled) {
+                    return
+                }
+                setContent(text)
+                setOriginal(text)
+                announceOtherWriter(lastLoaded.current, key, text, path, tRef.current)
+                lastLoaded.current = { key, text }
+            })
+            .catch(e => { if (!cancelled) setError(message(e)) })
+            .finally(() => { if (!cancelled) setLoading(false) })
+        return () => { cancelled = true }
+    }, [projectId, path, editable, reloadToken])
+
+    /** Takes what was just written as what the file now holds, so the re-read after it is no news. */
+    const markSaved = (text: string) => {
+        setOriginal(text)
+        lastLoaded.current = { key: `${projectId}|${path}`, text }
+    }
+
+    return { content, setContent, original, loading, error, setError, markSaved }
+}
+
+/** Says that the file changed under the reader, when the re-read brought back something else. */
+const announceOtherWriter = (
+    last: { key: string, text: string } | null,
+    key: string,
+    text: string,
+    path: string,
+    t: TFunction
+) => {
+    if (last?.key === key && last.text !== text) {
+        notification.info({ title: t('browser.live_file_synced', { name: path.split('/').pop() }) })
+    }
 }
 
 /** True when one of the changed paths is the file itself or a folder above it. */
@@ -100,7 +181,7 @@ interface FileSelection {
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule }: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -113,11 +194,7 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         repositoryId,
     })
     const [pendingSelection, setPendingSelection] = useState<FileSelection | null>(null)
-    const [content, setContent] = useState('')
-    const [original, setOriginal] = useState('')
-    const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [updating, setUpdating] = useState(false)
     const [copying, setCopying] = useState(false)
     const [moving, setMoving] = useState<'move' | 'rename' | null>(null)
@@ -126,6 +203,10 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
 
     const activePath = activeSelection.path
     const editable = !!activePath && isEditableTextFile(activePath)
+    const { content, setContent, original, loading, error, setError, markSaved } =
+        useFileText(activeSelection, editable, changedFiles, t)
+    // A workbook the project declares as a module is opened in the editor rather than exported to be read.
+    const openableModule = activePath && onOpenModule ? modules[activePath] : undefined
     const dirty = content !== original
     const incomingSelection: FileSelection = {
         branch: branch ?? null,
@@ -174,54 +255,6 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         setError(null)
     }, [activePath, activeSelection.reloadToken])
 
-    // What the last fetch brought for which file — read to tell a re-read that changed the file
-    // (worth telling the user about) from a first open or a switch to another file.
-    const lastLoaded = useRef<{ key: string, text: string } | null>(null)
-    // The toast reads `t` through a ref: a re-bound translator must not re-download the open file.
-    const tRef = useRef(t)
-    tRef.current = t
-    // Rides a ref: the list always belongs to the reload that bumped the token, never re-runs the effect.
-    const changedFilesRef = useRef(changedFiles)
-    changedFilesRef.current = changedFiles
-
-    useEffect(() => {
-        if (!activePath || !editable) {
-            setContent('')
-            setOriginal('')
-            setLoading(false)
-            setError(null)
-            return
-        }
-        // A reload that names what it touched and did not touch the open file: keep what is shown.
-        const touched = changedFilesRef.current
-        if (touched !== null
-            && lastLoaded.current?.key === `${activeSelection.projectId}|${activePath}`
-            && !coversFile(touched, activePath)) {
-            return
-        }
-        let cancelled = false
-        setLoading(true)
-        setError(null)
-        getFileContent(activeSelection.projectId, activePath)
-            .then(text => {
-                if (cancelled) {
-                    return
-                }
-                setContent(text)
-                setOriginal(text)
-                const key = `${activeSelection.projectId}|${activePath}`
-                if (lastLoaded.current?.key === key && lastLoaded.current.text !== text) {
-                    notification.info({
-                        title: tRef.current('browser.live_file_synced', { name: activePath.split('/').pop() }),
-                    })
-                }
-                lastLoaded.current = { key, text }
-            })
-            .catch(e => { if (!cancelled) setError(message(e)) })
-            .finally(() => { if (!cancelled) setLoading(false) })
-        return () => { cancelled = true }
-    }, [activeSelection.projectId, activePath, editable, activeSelection.reloadToken])
-
     const save = async () => {
         if (!activePath) {
             return
@@ -230,9 +263,7 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         setError(null)
         try {
             await updateFileContent(activeSelection.projectId, activePath, content)
-            setOriginal(content)
-            // The re-read after the save brings back what was just written — not news to the user.
-            lastLoaded.current = { key: `${activeSelection.projectId}|${activePath}`, text: content }
+            markSaved(content)
             setEditing(false)
             onChanged()
         } catch (e) {
@@ -359,10 +390,22 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
                     )
             ) : (
                 <div className={shared.panePlaceholder} data-testid="file-preview-binary">
-                    <span>{t('browser.files.binary_hint')}</span>
-                    <Button icon={<DownloadOutlined />} onClick={() => downloadFile(activeSelection.projectId, activePath)}>
-                        {t('browser.files.download')}
-                    </Button>
+                    <span>{t(openableModule ? 'browser.files.module_hint' : 'browser.files.binary_hint')}</span>
+                    {openableModule ? (
+                        // A workbook the project declares as a module is read in the editor, not here.
+                        <Button
+                            data-testid="file-open-module"
+                            icon={<TableOutlined />}
+                            onClick={() => onOpenModule?.(openableModule)}
+                            type="primary"
+                        >
+                            {t('browser.files.open_in_editor')}
+                        </Button>
+                    ) : (
+                        <Button icon={<DownloadOutlined />} onClick={() => downloadFile(activeSelection.projectId, activePath)}>
+                            {t('browser.files.download')}
+                        </Button>
+                    )}
                 </div>
             )}
             <Modal

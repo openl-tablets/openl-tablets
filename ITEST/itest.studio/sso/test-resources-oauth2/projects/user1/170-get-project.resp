@@ -30,6 +30,7 @@ Content-Type: application/json
     "canCompare": true,
     "canViewHistory": true,
     "canCopy": true,
+    "canMerge": true,
     "canManageBranches": true,
     "canDeleteBranch": true,
     "canExport": true

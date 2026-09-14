@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -53,7 +54,7 @@ class TableDetailsServiceImplTest {
             row(sheet, 3, "lob", "Banking");
             row(sheet, 4, "buildPhase", "main");
             row(sheet, 5, "effectiveDate");
-            date(sheet.getRow(5).createCell(2), LocalDate.of(2009, 1, 1));
+            date(sheet.getRow(5).createCell(2), LocalDate.of(2009, Month.JANUARY, 1));
 
             row(sheet, 7, "Rules String Hello()");
             // The properties section of a table spans as many rows as it declares properties.

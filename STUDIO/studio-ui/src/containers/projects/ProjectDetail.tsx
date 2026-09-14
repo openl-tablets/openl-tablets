@@ -9,7 +9,7 @@ import {
     type ReactNode,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Empty, Skeleton, Tabs, type TabsProps } from 'antd'
 import {
     FileTextOutlined,
@@ -20,8 +20,9 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
-import type { Project } from '../../types/projects'
+import type { Project, ProjectModule } from '../../types/projects'
 import type { FsNode } from '../../types/files'
+import { moduleRoute } from '../../services/projectId'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { StatusMark } from './StatusIndicator'
 import { LiveCompileDot } from './CompileIndicator'
@@ -186,6 +187,24 @@ interface ProjectDetailProps {
  * A single project's workspace: identity header, capability-driven action bar, and the Overview,
  * Revisions, Files, Branches, Deploy Configuration and Access tabs. Table editing is not hosted here yet.
  */
+/**
+ * The name of the module each workbook of the project is, indexed by the file it is written in.
+ *
+ * <p>A declaration whose path is a pattern is no file of its own: the modules it matched are, and those
+ * are the ones a reader opens.
+ */
+const moduleNamesByFile = (modules: ProjectModule[] | undefined): Record<string, string> => {
+    const named: Record<string, string> = {}
+    for (const module of modules ?? []) {
+        for (const resolved of module.modules ?? [module]) {
+            if (resolved.name && resolved.path) {
+                named[resolved.path] = resolved.name
+            }
+        }
+    }
+    return named
+}
+
 export const ProjectDetail = ({
     project,
     statusReadAt,
@@ -206,6 +225,7 @@ export const ProjectDetail = ({
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
     const { isUserManagementEnabled } = useContext(SystemContext)
+    const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
     // The selected file lives in the URL (?file=…) so the exact view can be shared or reloaded.
     const selectedFile = searchParams.get('file')
@@ -236,6 +256,9 @@ export const ProjectDetail = ({
     // (creating "reports/2026" makes "reports" a folder too), so ancestors never render as a file preview.
     const selectedIsVirtualFolder = !!selectedFile
         && virtualFolders.some(folder => folder === selectedFile || folder.startsWith(`${selectedFile}/`))
+    // A workbook the project declares as a module opens in the editor, so the Files tab offers that
+    // rather than an export of a file nothing on this screen can show.
+    const moduleFiles = useMemo(() => moduleNamesByFile(project?.descriptor?.modules), [project?.descriptor?.modules])
     const selectedIsFolder = selectedNode?.type === 'folder' || selectedIsVirtualFolder
     const selectedTargetFolder = selectedIsFolder ? selectedNode?.path ?? selectedFile ?? '' : selectedNode?.basePath ?? ''
     // Whether the tree is loaded well enough to tell a file from a folder. Until it is, a selection is of
@@ -385,9 +408,11 @@ export const ProjectDetail = ({
                 canWrite={canWriteFiles}
                 changedFiles={changedFiles}
                 folders={folders}
+                modules={moduleFiles}
                 onChanged={() => onChanged?.()}
                 onDeleted={() => { setSelectedFile(null); onChanged?.() }}
                 onMoved={newPath => { setSelectedFile(newPath); onChanged?.() }}
+                onOpenModule={moduleName => navigate(moduleRoute(project.id, moduleName))}
                 path={selectedFile}
                 projectId={project.id}
                 projectName={project.name}

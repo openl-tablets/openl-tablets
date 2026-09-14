@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "attributesTest",
   "file": "***",
   "sheet": "TestData",
-  "pos": "B2:C5"
+  "pos": "B2:C5",
+  "signature": "first attributesTest"
 }

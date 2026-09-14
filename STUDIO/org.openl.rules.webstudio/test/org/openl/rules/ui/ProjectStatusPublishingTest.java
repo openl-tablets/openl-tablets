@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -17,6 +18,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
+import org.awaitility.Awaitility;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -142,14 +145,15 @@ class ProjectStatusPublishingTest {
     }
 
     /** Waits for a status matching the given rule, which the notifier delivers on a thread of its own. */
-    private static boolean waitFor(List<Published> published, Predicate<Published> rule) throws Exception {
-        var deadline = System.currentTimeMillis() + 10_000;
-        while (System.currentTimeMillis() < deadline) {
-            if (published.stream().anyMatch(rule)) {
-                return true;
-            }
-            Thread.sleep(50);
+    private static boolean waitFor(List<Published> published, Predicate<Published> rule) {
+        try {
+            Awaitility.await()
+                    .atMost(Duration.ofSeconds(10))
+                    .pollInterval(Duration.ofMillis(50))
+                    .until(() -> published.stream().anyMatch(rule));
+            return true;
+        } catch (ConditionTimeoutException e) {
+            return false;
         }
-        return false;
     }
 }

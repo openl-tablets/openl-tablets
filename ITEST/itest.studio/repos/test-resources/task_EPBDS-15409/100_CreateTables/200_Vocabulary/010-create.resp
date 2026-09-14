@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "CountryCode",
   "file": "EPBDS-15409/Main.xlsx",
   "sheet": "BankRating",
-  "pos": "B2:B20"
+  "pos": "B2:B20",
+  "signature": "CountryCode <String>"
 }

@@ -15,7 +15,10 @@ Content-Type: application/json
       "signature": "BalanceDynamicIndexCalculation (FinancialData currentFinancialData, FinancialData previousFinancialData)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
-      "pos": "D54:G68"
+      "pos": "D54:G68",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "fea5c3b491a9421f0ceb2d51a05dfd9a",
@@ -29,7 +32,10 @@ Content-Type: application/json
       "signature": "BalanceQualityIndexCalculation (FinancialData currentFinancialData)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
-      "pos": "D26:G49"
+      "pos": "D26:G49",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "728130709bc0c27ab3d02613a845e9e7",
@@ -38,7 +44,11 @@ Content-Type: application/json
       "name": "Bank",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Domain",
-      "pos": "C5:E12"
+      "pos": "C5:E12",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "Bank"
     },
     {
       "id": "6e895adc097c1ee8c979e66bde77e0ef",
@@ -47,7 +57,11 @@ Content-Type: application/json
       "name": "bankData",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Test Data",
-      "pos": "B5:H9"
+      "pos": "B5:H9",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "Bank bankData"
     },
     {
       "id": "c4055eafefcebebfb740d48427c08fc1",
@@ -56,7 +70,11 @@ Content-Type: application/json
       "name": "bankFinancialData",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Test Data",
-      "pos": "B12:S16"
+      "pos": "B12:S16",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "FinancialData bankFinancialData"
     },
     {
       "id": "f0aff1fbfff0ed5b2d113601fe6fd9ef",
@@ -67,7 +85,10 @@ Content-Type: application/json
       "signature": "BankLimitIndex (Bank bank, RatingGroup bankRatingGroup)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Limit",
-      "pos": "C8:M24"
+      "pos": "C8:M24",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "03efe8b13fd8572b9430f2419e2424f8",
@@ -76,7 +97,11 @@ Content-Type: application/json
       "name": "BankLimitIndexTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Limit Test",
-      "pos": "C5:E9"
+      "pos": "C5:E9",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "BankLimitIndex BankLimitIndexTest"
     },
     {
       "id": "1dd4bef4a39c561cd939ab722d461923",
@@ -90,7 +115,10 @@ Content-Type: application/json
       "signature": "BankQualitativeIndexCalculation (Bank bank)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
-      "pos": "D73:G83"
+      "pos": "D73:G83",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "e4969bb2f762406d7a3e43097e1701e9",
@@ -107,7 +135,10 @@ Content-Type: application/json
       "signature": "BankRatingCalculation (Bank bank)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
-      "pos": "D9:G22"
+      "pos": "D9:G22",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "4a73d4c9811bffe520ceb7dda35c0cec",
@@ -118,7 +149,10 @@ Content-Type: application/json
       "signature": "BankRatingGroup (Double bankRating)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Rating Groups",
-      "pos": "C8:D14"
+      "pos": "C8:D14",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "9b80f5e5cee3ac69cc23e5edc5107569",
@@ -127,7 +161,11 @@ Content-Type: application/json
       "name": "BankRatingGroupTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Rating Groups Test",
-      "pos": "C6:D13"
+      "pos": "C6:D13",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "BankRatingGroup BankRatingGroupTest"
     },
     {
       "id": "1401fd8072b93dee9abb30daf6206ce1",
@@ -136,7 +174,11 @@ Content-Type: application/json
       "name": "bankRatingList",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Test Data",
-      "pos": "B25:D90"
+      "pos": "B25:D90",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "Rating bankRatingList"
     },
     {
       "id": "1d58a7b722faf270e08dc6bdef3e3487",
@@ -145,7 +187,11 @@ Content-Type: application/json
       "name": "BankRatingTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Algorithm Tests",
-      "pos": "C6:E10"
+      "pos": "C6:E10",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "BankRatingCalculation BankRatingTest"
     },
     {
       "id": "48516ea2eea4a186636fa0610d68b451",
@@ -156,7 +202,10 @@ Content-Type: application/json
       "signature": "CapitalAdequacyScore (Double capitalAdequacy)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality",
-      "pos": "C8:D15"
+      "pos": "C8:D15",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "a3ac11d9209a161bbebe62db08092c61",
@@ -165,7 +214,11 @@ Content-Type: application/json
       "name": "CapitalAdequacyScoreTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality Tests",
-      "pos": "C6:D12"
+      "pos": "C6:D12",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "CapitalAdequacyScore CapitalAdequacyScoreTest"
     },
     {
       "id": "0b56344f4c5f8b1bd4110de5e5cb77fa",
@@ -176,7 +229,10 @@ Content-Type: application/json
       "signature": "CapitalDynamicScore (Double capitalDynamic)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality in Dynamic",
-      "pos": "C8:D13"
+      "pos": "C8:D13",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "729d4d228676ee32f31a6e65def13611",
@@ -187,7 +243,10 @@ Content-Type: application/json
       "signature": "ClaimsOnCustomerRatioScore (Double claimsOnCustomerRatio)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality",
-      "pos": "C19:D25"
+      "pos": "C19:D25",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "cf26e5a419c25c4b8dba3b02402c4ad6",
@@ -196,7 +255,10 @@ Content-Type: application/json
       "name": "Constants",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Max Limit",
-      "pos": "C7:E8"
+      "pos": "C7:E8",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "d5c031e4f56909ebb4778df8c14635f6",
@@ -205,7 +267,11 @@ Content-Type: application/json
       "name": "CountryCode",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Vocabulary",
-      "pos": "D59:D77"
+      "pos": "D59:D77",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "CountryCode <String>"
     },
     {
       "id": "42fc38ce7b483627ae16ce112a488b45",
@@ -216,7 +282,10 @@ Content-Type: application/json
       "signature": "CreditPortfolioQualityScore (Double creditPortfolioQuality)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality",
-      "pos": "C29:D36"
+      "pos": "C29:D36",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "dbfae1817dccd94c67018e95954e0c07",
@@ -227,7 +296,10 @@ Content-Type: application/json
       "signature": "DowngradesOfBankRatingScore (Boolean downgradesOfBankRating)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Bank Qualitative factors",
-      "pos": "C36:D39"
+      "pos": "C36:D39",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "de21509e72ff59be4e3ecfbdb7661e5e",
@@ -236,7 +308,11 @@ Content-Type: application/json
       "name": "DynamicIndexTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Algorithm Tests",
-      "pos": "C22:E26"
+      "pos": "C22:E26",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "BalanceDynamicIndexCalculation DynamicIndexTest"
     },
     {
       "id": "da8f0b50bdbf3484e1fc51185f68f760",
@@ -247,7 +323,10 @@ Content-Type: application/json
       "signature": "EquityScore (CountryCode countryCode, Double equity)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Central Bank Req",
-      "pos": "C29:F32"
+      "pos": "C29:F32",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "bc181c115a2a145de05794ad238110aa",
@@ -256,7 +335,11 @@ Content-Type: application/json
       "name": "EquityScoreTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Central Bank Req Tests",
-      "pos": "C16:E22"
+      "pos": "C16:E22",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "EquityScore EquityScoreTest"
     },
     {
       "id": "103a5365167db9ad11d902369ff9752d",
@@ -265,7 +348,11 @@ Content-Type: application/json
       "name": "FinancialData",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Domain",
-      "pos": "C15:E32"
+      "pos": "C15:E32",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "FinancialData"
     },
     {
       "id": "edf5a9bb377524348845d5216b21c42a",
@@ -276,7 +363,10 @@ Content-Type: application/json
       "signature": "HighLiquidityRatioScore (Double highLiquidityRatio)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality",
-      "pos": "C75:D82"
+      "pos": "C75:D82",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "bfa101662a34969995837e893c34995f",
@@ -287,7 +377,10 @@ Content-Type: application/json
       "signature": "IsAdequateCoreCapitalRatioScore (Boolean isAdequateCoreCapitalRatio)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Central Bank Req",
-      "pos": "C8:D11"
+      "pos": "C8:D11",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "c1a0bc339146e1da9a18660970a88366",
@@ -298,7 +391,10 @@ Content-Type: application/json
       "signature": "IsAdequateLiquidityRatioScore (Boolean isAdequateLiquidityRatio)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Central Bank Req",
-      "pos": "C15:D18"
+      "pos": "C15:D18",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "53fa9fbb0c5c43723ad7e9921150df6c",
@@ -309,7 +405,10 @@ Content-Type: application/json
       "signature": "IsAdequateMaxCreditRiskScore (CountryCode countryCode, Boolean isAdequateMaxCreditRisk)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Central Bank Req",
-      "pos": "C22:E25"
+      "pos": "C22:E25",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "29698f86154cda884b43a3744a72075e",
@@ -318,7 +417,11 @@ Content-Type: application/json
       "name": "IsAdequateMaxCreditRiskScoreTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Central Bank Req Tests",
-      "pos": "C6:E12"
+      "pos": "C6:E12",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "IsAdequateMaxCreditRiskScore  IsAdequateMaxCreditRiskScoreTest"
     },
     {
       "id": "915a4c2ab860bd8cefa8ff6399f91db3",
@@ -332,7 +435,10 @@ Content-Type: application/json
       "signature": "IsAdequateNormativeIndexCalculation (Bank bank)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
-      "pos": "D88:G96"
+      "pos": "D88:G96",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "4d82eca4e7012ab7c78acf9afb3555b5",
@@ -341,7 +447,11 @@ Content-Type: application/json
       "name": "IsAdequateNormativeIndexTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Algorithm Tests",
-      "pos": "C38:D42"
+      "pos": "C38:D42",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "IsAdequateNormativeIndexCalculation IsAdequateNormativeIndexTest"
     },
     {
       "id": "14472aede4928688556870131368e323",
@@ -352,7 +462,10 @@ Content-Type: application/json
       "signature": "LiabilitiesToCustomersDynamicScore (Double LiabToCustDynamic)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality in Dynamic",
-      "pos": "C37:D42"
+      "pos": "C37:D42",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "c53c44d98202287a164cd091f474b3ba",
@@ -363,7 +476,10 @@ Content-Type: application/json
       "signature": "LiabilitiesToCustomersOnDemandRatioScore (Double liabilitiesToCustOnDemand)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality",
-      "pos": "C97:D105"
+      "pos": "C97:D105",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "dd0200a1ee1bdd302b6ca77de2d6a974",
@@ -374,7 +490,10 @@ Content-Type: application/json
       "signature": "LiquidityDynamicScore (Double liquidityDynamic)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality in Dynamic",
-      "pos": "C17:D22"
+      "pos": "C17:D22",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "41fd8f58d5d33c7ff3ad638066c95679",
@@ -385,7 +504,10 @@ Content-Type: application/json
       "signature": "LiquidityRatioScore (Double liquidityRatio)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality",
-      "pos": "C63:D71"
+      "pos": "C63:D71",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "39e8986869fe8acda3f30a9ef5154862",
@@ -394,7 +516,11 @@ Content-Type: application/json
       "name": "LongTermRating",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Vocabulary",
-      "pos": "D12:D56"
+      "pos": "D12:D56",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "LongTermRating <String>"
     },
     {
       "id": "fce4d219b65640a2d30f7440566abfb9",
@@ -405,7 +531,10 @@ Content-Type: application/json
       "signature": "LossesInThisYearScore (Boolean lossesInThisYear)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Bank Qualitative factors",
-      "pos": "C8:D11"
+      "pos": "C8:D11",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "e0ac725b4e184b27d141bff9c55f12c2",
@@ -414,7 +543,11 @@ Content-Type: application/json
       "name": "LossesInThisYearScoreTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Qualitat Factors Tests",
-      "pos": "C6:D10"
+      "pos": "C6:D10",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "LossesInThisYearScore LossesInThisYearScoreTest"
     },
     {
       "id": "32fc2f3915d28326488217c3ca1fec26",
@@ -425,7 +558,10 @@ Content-Type: application/json
       "signature": "NegativeHistoryRelationsScore (Boolean negativeHistoryRelations)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Bank Qualitative factors",
-      "pos": "C15:D18"
+      "pos": "C15:D18",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "07d189083d69fe2fe316bd97e72d47f4",
@@ -436,7 +572,10 @@ Content-Type: application/json
       "signature": "NegativeInfoShareHoldersOrManagementScore (Boolean negativeManagInfo)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Bank Qualitative factors",
-      "pos": "C29:D32"
+      "pos": "C29:D32",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "73051ec3862d3542e56e6192e45e3745",
@@ -447,7 +586,10 @@ Content-Type: application/json
       "signature": "NegativeMassMediaScore (Boolean negativeMassMedia)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Bank Qualitative factors",
-      "pos": "C22:D25"
+      "pos": "C22:D25",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "385b4128f06f01064f0d10aa5b42eda0",
@@ -458,7 +600,10 @@ Content-Type: application/json
       "signature": "NetMoneyMarketLiabilitiesScore (Double  netMoneyMarketLiabilities)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality",
-      "pos": "C86:D93"
+      "pos": "C86:D93",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "1376f870b11d8917d8cde17a8d7b747e",
@@ -469,7 +614,10 @@ Content-Type: application/json
       "signature": "NonZeroValues (Double value)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Set NonZero Values",
-      "pos": "C17:D20"
+      "pos": "C17:D20",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "0f92440572b9f69f3d2da43fc50d36e8",
@@ -480,7 +628,10 @@ Content-Type: application/json
       "signature": "OtherAssetsRatioScore (Double otherAssetsRatio)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality",
-      "pos": "C109:D116"
+      "pos": "C109:D116",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "290cdd55102074791449aeb69254c20d",
@@ -491,7 +642,10 @@ Content-Type: application/json
       "signature": "ProfitDynamicScore (Double profitDynamic, Double profit)",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance Quality in Dynamic",
-      "pos": "C26:E33"
+      "pos": "C26:E33",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ=="
     },
     {
       "id": "e58851b7edbf08e66e5f73ce0f0915da",
@@ -500,7 +654,11 @@ Content-Type: application/json
       "name": "ProfitDynamicScoreTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Balance in Dynamic Tests",
-      "pos": "C6:E12"
+      "pos": "C6:E12",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "ProfitDynamicScore ProfitDynamicScoreTest"
     },
     {
       "id": "cdb0e3d4fe39086abe21889830793dbf",
@@ -509,7 +667,11 @@ Content-Type: application/json
       "name": "QualitativeIndexTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Algorithm Tests",
-      "pos": "C30:D34"
+      "pos": "C30:D34",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "BankQualitativeIndexCalculation QualitativeIndexTest"
     },
     {
       "id": "e431c760153686417c1353dca7ff02c1",
@@ -518,7 +680,11 @@ Content-Type: application/json
       "name": "QualityIndexTest",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Algorithm Tests",
-      "pos": "C14:D18"
+      "pos": "C14:D18",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "BalanceQualityIndexCalculation QualityIndexTest"
     },
     {
       "id": "3e91563054562b4f9c0fa275042b46dd",
@@ -527,7 +693,11 @@ Content-Type: application/json
       "name": "QualityIndicators",
       "file": "EPBDS-15752/Bank Rating.xlsx",
       "sheet": "Domain",
-      "pos": "C35:E44"
+      "pos": "C35:E44",
+      "module": "Bank Rating",
+      "project": "EPBDS-15752",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTI6M2I3MWU5MjY5MGMyZGMzMDYxN2JiOTlhYjE5MjY0YTk3ZDQ0ZDUxZTUzMzc3YTdhZmI4OTZjYmI2MDE5NjI0ZQ==",
+      "signature": "QualityIndicators"
     }
   ],
   "pageNumber": 0,

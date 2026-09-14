@@ -12,7 +12,10 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "sheet": "Rules",
       "signature": "Root ( )",
-      "tableType": "SimpleSpreadsheet"
+      "tableType": "SimpleSpreadsheet",
+      "module": "arrayCallProject",
+      "project": "EPBDS-16291-profiling",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYyOTEtcHJvZmlsaW5nOjc1MjUzYTRiMTYyMmY1ZWJmYTEwMjE4MzlmMTA1YWY4NzQzNTg2YjU2MTkzOGU5MDMyMTE3OGVlZTNlMTBjYWU="
     },
     {
       "file": "EPBDS-16291-profiling/arrayCallProject.xlsx",
@@ -23,7 +26,10 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "sheet": "Rules",
       "signature": "SubCalc ( Integer x )",
-      "tableType": "SimpleSpreadsheet"
+      "tableType": "SimpleSpreadsheet",
+      "module": "arrayCallProject",
+      "project": "EPBDS-16291-profiling",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYyOTEtcHJvZmlsaW5nOjc1MjUzYTRiMTYyMmY1ZWJmYTEwMjE4MzlmMTA1YWY4NzQzNTg2YjU2MTkzOGU5MDMyMTE3OGVlZTNlMTBjYWU="
     }
   ],
   "numberOfElements": 2,
@@ -31,4 +37,3 @@ Content-Type: application/json
   "pageSize": 50,
   "total": 2
 }
-

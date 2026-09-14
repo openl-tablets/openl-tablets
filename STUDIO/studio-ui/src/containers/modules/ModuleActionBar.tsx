@@ -1,18 +1,24 @@
 import { useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge, Button, Dropdown, Modal, Space, Tooltip } from 'antd'
-import { DownOutlined } from '@ant-design/icons'
+import { DownOutlined, ExperimentOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import type { Project } from '../../types/projects'
 import { supportsRevisionSearch } from '../../utils/repositoryFeatures'
 import { LocalChangesView } from '../projects/LocalChangesView'
 import { RevisionsPanel } from '../projects/RevisionsPanel'
 import { openCompareWindow } from '../projects/compare'
+import { isActionAvailable, PROJECT_ACTIONS } from '../projects/projectActions'
+import { ACTION_ICONS } from '../projects/projectActionIcons'
+import { useProjectDialogs, type ProjectDialogActions } from '../projects/useProjectDialogs'
 
 /** The history and the local changes are read in a window over the module, not on a screen of their own. */
 const DIALOG_BODY = { body: { maxHeight: '70vh', overflow: 'auto' } }
 
 /** The actions that arrive with the editing phase; they stand in their old places, saying so. */
-const PLANNED = ['copy', 'update', 'createTable'] as const
+const PLANNED = ['createTable'] as const
+
+/** The project's own actions the editor offers, in the order the old Editor kept them. */
+const PROJECT_LEVEL: Array<keyof ProjectDialogActions> = ['save', 'sync', 'deploy', 'copy']
 
 interface ModuleActionBarProps {
     project: Project
@@ -31,6 +37,8 @@ interface ModuleActionBarProps {
     disabled?: boolean
     /** Opening a revision replaces the workspace copy, so the module is read again from it. */
     onRevisionOpened?: (() => void) | undefined
+    /** An action that changed the project — a save, a copy, a sync, a new workbook — is read back. */
+    onProjectChanged?: (() => void) | undefined
 }
 
 /**
@@ -49,14 +57,23 @@ export const ModuleActionBar = ({
     disabled = false,
     projectCompiled = false,
     onRevisionOpened,
+    onProjectChanged,
 }: ModuleActionBarProps) => {
     const { t } = useTranslation('repository')
     const [revisionsOpen, setRevisionsOpen] = useState(false)
     const [localChangesOpen, setLocalChangesOpen] = useState(false)
+    // Saving, syncing, deploying and copying belong to the project, not to the module being read: they are
+    // offered here exactly as the project's own screen offers them, by the same capabilities.
+    const { actions, dialogs } = useProjectDialogs(project, { onChanged: () => onProjectChanged?.() })
+    // The old Editor let a module's workbook be replaced from this row; the dialog it opens is the one the
+    // Files tab uses, restricted to Excel.
+    const canUpdateModule = !!project.capabilities?.canWrite && !!modulePath
 
     const planned = (key: string) => (
         <Tooltip key={key} title={t('browser.module.planned')}>
-            <Button disabled data-testid={`module-${key}`}>{t(`browser.module.${key}`)}</Button>
+            <Button disabled data-testid={`module-${key}`} icon={<PlusOutlined />}>
+                {t(`browser.module.${key}`)}
+            </Button>
         </Tooltip>
     )
 
@@ -97,14 +114,40 @@ export const ModuleActionBar = ({
         }
     }
 
+    /** One of the project's own actions, offered only where the project says it is allowed. */
+    const projectAction = (id: keyof ProjectDialogActions) => isActionAvailable(project, id) && (
+        <Button
+            key={id}
+            data-testid={`module-${id}`}
+            disabled={disabled}
+            icon={ACTION_ICONS[id]}
+            onClick={actions[id]}
+            type={id === 'save' ? 'primary' : 'default'}
+        >
+            {t(PROJECT_ACTIONS[id].labelKey)}
+        </Button>
+    )
+
     return (
         <Space data-testid="module-actions">
-            {planned(PLANNED[0])}
-            {planned(PLANNED[1])}
+            {PROJECT_LEVEL.map(projectAction)}
+            {canUpdateModule && (
+                <Button
+                    data-testid="module-update"
+                    disabled={disabled}
+                    icon={<UploadOutlined />}
+                    onClick={() => window.dispatchEvent(new CustomEvent('openUpdateModuleModal', {
+                        detail: { projectId: project.id, modulePath, onSuccess: () => onProjectChanged?.() },
+                    }))}
+                >
+                    {t('browser.module.update')}
+                </Button>
+            )}
             <Tooltip title={modulePath ? undefined : t('browser.module.export_unavailable')}>
                 <Button
                     data-testid="module-export"
                     disabled={disabled || !modulePath}
+                    icon={ACTION_ICONS.export}
                     onClick={() => window.dispatchEvent(new CustomEvent('openExportProjectModal', {
                         detail: { projectId: project.id, filePath: modulePath },
                     }))}
@@ -112,13 +155,18 @@ export const ModuleActionBar = ({
                     {t('browser.module.export')}
                 </Button>
             </Tooltip>
-            <Button data-testid="module-test" disabled={disabled || !testCount} onClick={openTests}>
+            <Button
+                data-testid="module-test"
+                disabled={disabled || !testCount}
+                icon={<ExperimentOutlined />}
+                onClick={openTests}
+            >
                 {t('browser.module.test')}
                 {!!testCount && (
                     <Badge color="blue" count={testCount} data-testid="module-test-count" />
                 )}
             </Button>
-            {planned(PLANNED[2])}
+            {planned(PLANNED[0])}
             <Dropdown
                 disabled={disabled}
                 menu={{ items: more, onClick: ({ key }) => chooseMore(key) }}
@@ -158,6 +206,7 @@ export const ModuleActionBar = ({
             >
                 <LocalChangesView moduleName={moduleName} projectId={project.id} />
             </Modal>
+            {dialogs}
         </Space>
     )
 }

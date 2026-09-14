@@ -77,6 +77,8 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         var member = tsn.getMember();
         if (member instanceof AMethod) {
             initializeMethodSignature(builder, tsn.getHeader());
+        } else {
+            initializeHeaderSignature(builder, tsn.getHeader());
         }
 
         // The `active` property is the one a reader is told about outside the properties themselves: a table
@@ -126,6 +128,28 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         builder.overloadGroup(new MethodKey(method).toString());
         var formats = WebStudioFormats.getInstance();
         builder.displayName(TableSyntaxNodeUtils.getTableDisplayValue(tsn, 0, overloads, formats)[INamedThing.SHORT]);
+    }
+
+    /**
+     * The line a table that is no method reads by: what its header says after the word naming its kind.
+     *
+     * <p>A datatype, a data table and a test table are written with a header of their own — {@code Datatype
+     * Bank}, {@code Data Bank bankData}, {@code Test BankRating bankRatingTest} — and that is what tells one
+     * of them from the next. The kind itself is left out, as it is for a method: it is reported beside the
+     * table rather than inside the line.
+     */
+    private void initializeHeaderSignature(SummaryTableView.Builder builder, @Nullable HeaderSyntaxNode header) {
+        if (header == null) {
+            return;
+        }
+        var headerSource = header.getSourceString();
+        var pos = ExecutableTableReader.rollWhitespaces(headerSource, 0);
+        pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
+        pos = ExecutableTableReader.rollWhitespaces(headerSource, pos);
+        var rest = headerSource.substring(pos).trim();
+        if (!rest.isEmpty()) {
+            builder.signature(rest);
+        }
     }
 
     private void initializeMethodSignature(SummaryTableView.Builder builder, HeaderSyntaxNode header) {

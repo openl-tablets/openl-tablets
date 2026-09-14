@@ -34,6 +34,7 @@ import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { ModuleActionBar } from './modules/ModuleActionBar'
 import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import { TableProblems } from './modules/TableProblems'
+import { TableSearchModal } from './modules/TableSearchModal'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
 import { useSharedStyles } from './projects/sharedStyles'
@@ -119,6 +120,8 @@ export const ModuleWorkspace = () => {
     const navigate = useNavigate()
     const { projectId, moduleName = '' } = useParams()
     const [search, setSearch] = useSearchParams()
+    // What the extended search was opened with, and whether it stands open at all.
+    const [searchFor, setSearchFor] = useState<string | null>(null)
 
     const [project, setProject] = useState<Project | null>(null)
     const [statusReadAt, setStatusReadAt] = useState(0)
@@ -300,6 +303,16 @@ export const ModuleWorkspace = () => {
         // A table this one uses may be written in a project this one depends on, and is read through that
         // project's own screen — the module it names belongs to it, not to the project being read.
         navigate(moduleRoute(usage.projectId ?? projectId ?? '', usage.module, usage.tableId))
+    }, [moduleName, navigate, openTableById, projectId])
+
+    // A table a search found is opened where it is written: this screen when it belongs to the module on it,
+    // its own module's screen — of its own project — when it does not.
+    const openFound = useCallback((found: ModuleTable) => {
+        if (!found.module || found.module === moduleName) {
+            openTableById(found.id)
+            return
+        }
+        navigate(moduleRoute(found.projectId ?? projectId ?? '', found.module, found.id))
     }, [moduleName, navigate, openTableById, projectId])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
@@ -532,10 +545,22 @@ export const ModuleWorkspace = () => {
                     compiling={!closed && !compilation.ready && compilation.state === 'compiling'}
                     currentModule={moduleName}
                     modules={modules}
+                    onExtendedSearch={setSearchFor}
                     onSelectModule={openModule}
                     onSelectTable={openTable}
                     selectedTableId={selected?.id}
                     tables={tables}
+                />
+                <TableSearchModal
+                    initialName={searchFor ?? ''}
+                    moduleName={moduleName}
+                    onClose={() => setSearchFor(null)}
+                    open={searchFor !== null}
+                    projectId={projectId ?? ''}
+                    onOpen={found => {
+                        setSearchFor(null)
+                        openFound(found)
+                    }}
                 />
                 <div className={styles.body}>
                     <WorkspaceHeader
@@ -547,6 +572,7 @@ export const ModuleWorkspace = () => {
                                 disabled={closed}
                                 moduleName={moduleName}
                                 modulePath={modulePath}
+                                onProjectChanged={reopenRevision}
                                 onRevisionOpened={reopenRevision}
                                 project={project}
                                 projectCompiled={projectCompiled}

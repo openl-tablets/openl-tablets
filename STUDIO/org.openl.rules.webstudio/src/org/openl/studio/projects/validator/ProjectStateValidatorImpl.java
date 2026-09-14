@@ -105,11 +105,22 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
     @Override
     public boolean canMerge(RulesProject project) {
-        if (project == null || !project.getDesignRepository().supports().branches() || project.isLocalOnly()) {
+        return canTakeMerge(project) && hasMergeTarget(project);
+    }
+
+    @Override
+    public boolean canTakeMerge(RulesProject project) {
+        // A project of the workspace alone has no design repository to be asked about branches, and nothing to
+        // merge from, so it is answered before the repository is reached for.
+        if (project == null || project.isLocalOnly()) {
             return false;
         }
-
-        return !project.isModified() && hasMergeTarget(project);
+        var repository = project.getDesignRepository();
+        if (repository == null || !repository.supports().branches()) {
+            return false;
+        }
+        // A merge writes over the working copy, so what it holds has to be saved first.
+        return !project.isModified();
     }
 
     @Override

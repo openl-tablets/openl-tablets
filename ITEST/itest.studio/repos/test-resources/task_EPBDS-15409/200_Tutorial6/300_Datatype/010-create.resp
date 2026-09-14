@@ -8,5 +8,6 @@ Content-Type: application/json
   "name": "Loss",
   "file": "EPBDS-15409/Main.xlsx",
   "sheet": "Tutorial6",
-  "pos": "B19:D22"
+  "pos": "B19:D22",
+  "signature": "Loss"
 }

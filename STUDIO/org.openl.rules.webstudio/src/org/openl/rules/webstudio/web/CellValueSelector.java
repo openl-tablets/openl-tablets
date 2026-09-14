@@ -3,14 +3,13 @@ package org.openl.rules.webstudio.web;
 import java.lang.reflect.Array;
 import java.util.function.Predicate;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.util.StringUtils;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-class CellValueSelector implements Predicate<TableSyntaxNode> {
+@RequiredArgsConstructor
+public class CellValueSelector implements Predicate<TableSyntaxNode> {
 
     private final String value;
 
