@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- Swept head `origin/main` e01088de, unchanged for seventeen runs: no vein until something merges past it, and a red
-  `main` (Human follow-ups) bars cleanup regardless. #2104 needs nothing until a reviewer answers (see Open PR).
-- When `main` moves: diff against e01088de, then rerun PMD, the identifier index and ASM on changed files only.
+- No open PR. #2104 merged 09-14; swept head is now `origin/main` 0d9aab81 (its four commits are all that main gained).
+- No vein until something merges past 0d9aab81, and a red `main` (Human follow-ups) bars cleanup regardless.
+- When `main` moves: diff against 0d9aab81, then rerun PMD, the identifier index and ASM on changed files only.
   Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the JSF
   editor pages, their beans and the images, CSS and JS only they reached, as 16560 and 16576 residue was swept.
 
@@ -18,30 +18,24 @@
 | 4 | Unused Maven dependency declarations | done 2026-09-07; the rest are providers |
 | 5 | Pom metadata: managed entries, exclusions, plugin config, properties | done 2026-09-07 |
 | 6 | Redundant constructs, dead suppressions, VCS/build settings | done 2026-09-07 |
-| 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-11 g; 9 files in #2104 |
-| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-11 g; 2 rules in #2104 |
-| 9 | Legacy JS functions and .xhtml pages | done 2026-09-11 g; 2 pages in #2104, JS clean |
+| 7 | Unreferenced resources (descriptors, TLD, config files, images) | done 2026-09-11 g; merged in 2104 |
+| 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-11 g; merged in 2104 |
+| 9 | Legacy JS functions and .xhtml pages | done 2026-09-11 g; merged in 2104, JS clean |
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-11 g; 66 candidates all template-composed |
 | 11 | TypeScript exports, types, components, imports | done 2026-09-11 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 |
-| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-11 g; UiConst in #2104 |
+| 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-11 g; merged in 2104 |
 
 ## Open PR
 
-- #2104 `dead-code/compare-residue`, head 33329ccbe7, cut from `origin/main` e01088de. EPBDS-16576 residue. Body
-  re-derived and matching: 4 commits / 13 files / 162 deletions. CodeRabbit: no actionable comments, 5/5 checks passed.
-- Four commits, one per change type, ordered so a referrer dies before the resources it alone kept alive:
-  UiConst.java (13); simpleLayout.xhtml + messagePopup.xhtml (9); 8 images + css/layout/simple.css (7);
-  common.css .scrollable and .dropdown-form (8).
-- `IT (studio)` is red with the pre-existing `main` failure and `mergeable_state` is `blocked` — no review yet, nothing
-  to fix. Blame is settled, never re-derive: the standing-down comment is posted and the owner holds the notification
-  naming the two stale fixture lines, so post no second one, never re-run (deterministic assertion, not a flake), and
-  send no new notification until `main` moves or #2104 changes.
+- None.
 
 ## Merged PRs
 
-- 22 sweep PRs merged (1906-2101); what each removed is covered by Exhausted veins. A repo-wide single-type commit is
-  accepted as-is (2101 was rebase-merged, one commit per change type onto main).
+- 23 sweep PRs merged (1906-2104); what each removed is covered by Exhausted veins. A repo-wide single-type commit is
+  accepted as-is (2101 and 2104 were rebase-merged, one commit per change type onto main).
+- 2104 merged with `IT (studio)` still red: a failure proven to be `main`'s, with a standing-down comment naming it,
+  does not block a merge. Ordering a referrer's commit before the resources only it reached survived review untouched.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
 
 ## Module coverage
@@ -262,14 +256,15 @@
 - DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
 - Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
 - EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js) and EPBDS-16576 residue (5 JSF diff pages, 13
-  controllers, diff2html, legacyCompare.ts): both swept for every change type; nothing left, every 16576 find in #2104.
+  controllers, diff2html, legacyCompare.ts): both swept for every change type; nothing left, all of it merged in 2104.
 
 ## Human follow-ups
 
-- `origin/main` e01088de is RED: itest.studio.repos WebStudioTest.repos fails 5 requests. EPBDS-16415 moved workbooks
-  into a `rules/` folder and rewrote 21 fixtures but missed task_EPBDS-16576-conflicts/020-compare, where `010-merge-
-  side-branch.post.resp:11` and `020-start-comparison.post.req:1` still name the flat path; the EPBDS-16415 author must
-  insert `rules/` in those two lines, since this routine may not edit ITEST fixtures.
+- `origin/main` is STILL RED at 0d9aab81, unfixed since 09-11: itest.studio.repos WebStudioTest.repos fails 5 requests.
+  EPBDS-16415 moved workbooks into a `rules/` folder and rewrote 21 fixtures but missed task_EPBDS-16576-conflicts/020-
+  compare, where `010-merge-side-branch.post.resp:11` and `020-start-comparison.post.req:1` still name the flat path;
+  the EPBDS-16415 author must insert `rules/` in those two lines, since this routine may not edit ITEST fixtures. The
+  owner was notified 09-11 and merged 2104 past it, so do not re-notify; every future sweep PR inherits this red.
 - Test bug: JAXRSOpenLServiceEnhancerTest.shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses enhances the wrong fixture interface.
 - Sonar: S2259 (NPE) in ComponentTypeArrayOpenClass.isAssignableFrom/isInstance (null-guard patch proposed in #2088), XlsBinder:523, ProjectModel:1214, TableEditorModel:106, TestDownloadController:144; S6466 CRITICAL WorkbookListener:273.
 - site.webmanifest names `android-chrome-512x512.pngs` (trailing s): the 512px icon is unreachable; one-character bug.
@@ -285,6 +280,6 @@
 
 ## Run log
 
-- 2026-09-13 f: standstill; main and #2104 both unchanged, no review thread, #2105 still draft, at 290.
 - 2026-09-14 a: standstill; main last pushed 09-11, #2104 at 33329cc (4/13/162, 14/15 green), #2105 draft, at 290.
 - 2026-09-14 b: standstill; body counts re-derived and matching, no review thread, only dependabot PRs new, at 290.
+- 2026-09-14 c: #2104 rebase-merged by yurkom (4 commits, 162 deletions on main); PR watch stopped, ledger closed out.
