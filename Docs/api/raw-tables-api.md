@@ -534,6 +534,38 @@ Insert operations allocate the complete block before applying its inline merges.
 the insertion position are shifted together and preserved; an inline merge does not expand when another item from the
 same request is inserted.
 
+### Styling Cells
+
+The `style` operation sets the styling of every cell of a rectangular range, so the editor's toolbar writes the
+background, the font and the alignment the same way it writes values:
+
+```json
+{
+  "operation": "style",
+  "target": {
+    "type": "cells",
+    "row": 5,
+    "column": 0,
+    "rowspan": 1,
+    "colspan": 3,
+    "style": {
+      "background": "#ffff00",
+      "color": "#0000ff",
+      "align": "center",
+      "bold": true,
+      "indent": 1
+    }
+  }
+}
+```
+
+Only the attributes the `style` object names are set — an attribute left out is not touched, so a cell keeps the
+styling it already carries. `align` takes `left` to put the cells back to the default alignment and `indent` takes `0`
+to take the indent away. A style that names no attribute at all is rejected.
+
+The attributes are the ones a styled read reports back, except the borders and the vertical alignment, which are
+read-only.
+
 ### Applying Several Edits in One Request
 
 An editor keeps the actions a user performs and sends them when the user saves, so a whole editing session reaches

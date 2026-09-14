@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -16,19 +17,30 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.RemoveMergedRegionsAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
+import org.openl.rules.table.actions.style.SetAlignmentAction;
+import org.openl.rules.table.actions.style.SetFillColorAction;
+import org.openl.rules.table.actions.style.SetIndentAction;
+import org.openl.rules.table.actions.style.font.SetBoldAction;
+import org.openl.rules.table.actions.style.font.SetColorAction;
+import org.openl.rules.table.actions.style.font.SetItalicAction;
+import org.openl.rules.table.actions.style.font.SetUnderlineAction;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.AppendTarget;
 import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
+import org.openl.studio.projects.model.tables.RawCellStyleInput;
 import org.openl.studio.projects.model.tables.RawTableAppend;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
 
@@ -239,9 +251,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     /**
      * Apply a single in-place edit to the table's raw source matrix and save the result.
      * <p>
-     * The concrete operation is chosen by the action type: appending, inserting or deleting a row or a column, or
-     * updating one cell. All coordinates are 0-based and relative to the developer view (the full table including the
-     * header row), matching the matrix returned by the raw read.
+     * The concrete operation is chosen by the action type: appending, inserting or deleting a row or a column,
+     * updating a cell, a row, a column or a range, merging or unmerging a range, or styling one. All coordinates are
+     * 0-based and relative to the developer view (the full table including the header row), matching the matrix
+     * returned by the raw read.
      *
      * @param action the edit to apply
      */
@@ -293,6 +306,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             case RawTableSourceAction.Update(var target) -> update(target);
             case RawTableSourceAction.Merge(var target) -> merge(target);
             case RawTableSourceAction.Unmerge(var target) -> unmerge(target);
+            case RawTableSourceAction.Style(var target) -> style(target);
         }
     }
 
@@ -336,6 +350,13 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void unmerge(UnmergeTarget target) {
         switch (target) {
             case UnmergeTarget.Cells(var row, var column) -> unmergeCells(row, column);
+        }
+    }
+
+    private void style(StyleTarget target) {
+        switch (target) {
+            case StyleTarget.Cells(var row, var column, var rowspan, var colspan, var style) ->
+                    styleCells(row, column, rowspan, colspan, style);
         }
     }
 
@@ -541,6 +562,75 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         removeMergedRegionsIn(developerView, merged);
     }
 
+    private void styleCells(int row, int column, int rowspan, int colspan, RawCellStyleInput style) {
+        if (style.isEmpty()) {
+            throw new BadRequestException("table.action.style.empty.message");
+        }
+        var developerView = developerView();
+        var tableRegion = developerView.getRegion();
+        requireRangeInBounds(row, column, rowspan, colspan, Tool.height(tableRegion), Tool.width(tableRegion));
+        for (var r = row; r < row + rowspan; r++) {
+            for (var c = column; c < column + colspan; c++) {
+                styleCell(developerView, tableRegion.getLeft() + c, tableRegion.getTop() + r, style);
+            }
+        }
+    }
+
+    /**
+     * Sets on one cell the attributes the request names, leaving the ones it does not name as they stand.
+     *
+     * <p>The font colour is set last on purpose: changing the weight, the slant or the underline of a cell rebuilds
+     * its font from the colour index Excel keeps beside the font, which does not carry an exact RGB colour. Setting
+     * the colour after them keeps the colour the request asked for.
+     */
+    private void styleCell(IGridTable developerView, int col, int row, RawCellStyleInput style) {
+        var metaInfoWriter = getMetaInfoWriter();
+        if (style.background() != null) {
+            run(developerView, new SetFillColorAction(col, row, rgb(style.background()), metaInfoWriter));
+        }
+        if (style.align() != null) {
+            run(developerView, new SetAlignmentAction(col, row, alignment(style.align()), metaInfoWriter));
+        }
+        if (style.indent() != null) {
+            run(developerView, new SetIndentAction(col, row, style.indent(), metaInfoWriter));
+        }
+        if (style.bold() != null) {
+            run(developerView, new SetBoldAction(col, row, style.bold(), metaInfoWriter));
+        }
+        if (style.italic() != null) {
+            run(developerView, new SetItalicAction(col, row, style.italic(), metaInfoWriter));
+        }
+        if (style.underline() != null) {
+            run(developerView, new SetUnderlineAction(col, row, style.underline(), metaInfoWriter));
+        }
+        if (style.color() != null) {
+            run(developerView, new SetColorAction(col, row, rgb(style.color()), metaInfoWriter));
+        }
+    }
+
+    /** Applies an action and keeps it, the way every other edit of this writer is applied. */
+    private void run(IGridTable developerView, IUndoableGridTableAction action) {
+        action.doAction(developerView);
+        actionsQueue.addNewAction(action);
+    }
+
+    /** The colour as the workbook takes it: one component per entry. The request shape is already validated. */
+    private static short[] rgb(String hex) {
+        return new short[]{
+                (short) Integer.parseInt(hex.substring(1, 3), 16),
+                (short) Integer.parseInt(hex.substring(3, 5), 16),
+                (short) Integer.parseInt(hex.substring(5, 7), 16)};
+    }
+
+    private static HorizontalAlignment alignment(RawTableHorizontalAlign align) {
+        return switch (align) {
+            case LEFT -> HorizontalAlignment.LEFT;
+            case RIGHT -> HorizontalAlignment.RIGHT;
+            case CENTER -> HorizontalAlignment.CENTER;
+            case JUSTIFY -> HorizontalAlignment.JUSTIFY;
+        };
+    }
+
     /**
      * Removes the merges anchored in a single row or column. The line-sized counterpart of
      * {@link #clearMergedRegions}: an update re-applies only the merges declared in its new cells, so this drops the
@@ -560,9 +650,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * Runs an undoable removal of the merged regions intersecting {@code region} and queues it for save.
      */
     private void removeMergedRegionsIn(IGridTable developerView, IGridRegion region) {
-        var action = new RemoveMergedRegionsAction(region);
-        action.doAction(developerView);
-        actionsQueue.addNewAction(action);
+        run(developerView, new RemoveMergedRegionsAction(region));
     }
 
     private IGridTable developerView() {
@@ -570,15 +658,11 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private void insertBlankRows(IGridTable developerView, int beforeRow) {
-        var action = new UndoableInsertRowsAction(1, beforeRow, 0, getMetaInfoWriter());
-        action.doAction(developerView);
-        actionsQueue.addNewAction(action);
+        run(developerView, new UndoableInsertRowsAction(1, beforeRow, 0, getMetaInfoWriter()));
     }
 
     private void insertBlankColumns(IGridTable developerView, int beforeColumn) {
-        var action = new UndoableInsertColumnsAction(1, beforeColumn, 0, getMetaInfoWriter());
-        action.doAction(developerView);
-        actionsQueue.addNewAction(action);
+        run(developerView, new UndoableInsertColumnsAction(1, beforeColumn, 0, getMetaInfoWriter()));
     }
 
     private void writeRow(IGridTable developerView, int row, List<RawCellInput> cells, boolean skipCovered) {

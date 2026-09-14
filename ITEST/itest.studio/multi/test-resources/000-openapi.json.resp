@@ -27605,6 +27605,51 @@ Content-Type: application/json
           }
         }
       },
+      "RawCellStyleInput": {
+        "type": "object",
+        "description": "Styling to set on the cells: background, font and alignment. An attribute that is left out is not touched, so the cells keep the styling they already carry.",
+        "properties": {
+          "align": {
+            "type": "string",
+            "description": "Horizontal alignment; `left` puts the cells back to the default alignment.",
+            "enum": [
+              "left",
+              "right",
+              "center",
+              "justify"
+            ]
+          },
+          "background": {
+            "type": "string",
+            "description": "Background colour as #rrggbb.",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "bold": {
+            "type": "boolean",
+            "description": "Whether the font is bold."
+          },
+          "color": {
+            "type": "string",
+            "description": "Font colour as #rrggbb.",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "indent": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Left indent in Excel indent units; 0 takes the indent away.",
+            "maximum": 15,
+            "minimum": 0
+          },
+          "italic": {
+            "type": "boolean",
+            "description": "Whether the font is italic."
+          },
+          "underline": {
+            "type": "boolean",
+            "description": "Whether the font is underlined."
+          }
+        }
+      },
       "RawTableAppend": {
         "type": "object",
         "allOf": [
@@ -27758,6 +27803,7 @@ Content-Type: application/json
             "type": "string",
             "description": "***",
             "enum": [
+              "left",
               "right",
               "center",
               "justify"
@@ -27854,6 +27900,7 @@ Content-Type: application/json
             "delete": "#/components/schemas/Delete",
             "insert": "#/components/schemas/Insert",
             "merge": "#/components/schemas/Merge",
+            "style": "#/components/schemas/Style",
             "unmerge": "#/components/schemas/Unmerge",
             "update": "#/components/schemas/Update"
           },
@@ -27877,6 +27924,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/Unmerge"
+          },
+          {
+            "$ref": "#/components/schemas/Style"
           }
         ],
         "properties": {
@@ -29228,6 +29278,96 @@ Content-Type: application/json
             "$ref": "#/components/schemas/ParameterValue"
           }
         }
+      },
+      "Style": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawTableSourceAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "#/components/schemas/StyleTarget"
+              }
+            }
+          }
+        ],
+        "description": "Sets the styling of a rectangular range of cells.",
+        "required": [
+          "target"
+        ]
+      },
+      "StyleCells": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StyleTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "colspan": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Number of columns the range spans (>= 1).",
+                "minimum": 1
+              },
+              "column": {
+                "type": "integer",
+                "format": "int32",
+                "description": "0-based column index of the top-left cell (0..width-1).",
+                "minimum": 0
+              },
+              "row": {
+                "type": "integer",
+                "format": "int32",
+                "description": "0-based row index of the top-left cell (0..height-1).",
+                "minimum": 0
+              },
+              "rowspan": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Number of rows the range spans (>= 1).",
+                "minimum": 1
+              },
+              "style": {
+                "$ref": "#/components/schemas/RawCellStyleInput"
+              }
+            }
+          }
+        ],
+        "description": "Sets the styling of every cell of a rectangular range. The range must stay within the table; a single cell is a range of one row by one column.",
+        "required": [
+          "colspan",
+          "column",
+          "row",
+          "rowspan",
+          "style"
+        ]
+      },
+      "StyleTarget": {
+        "type": "object",
+        "discriminator": {
+          "mapping": {
+            "cells": "#/components/schemas/StyleCells"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/StyleCells"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
       },
       "SummaryTableView": {
         "type": "object",
