@@ -16,6 +16,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.awaitility.Awaitility;
@@ -61,11 +64,22 @@ class ProjectStatusPublishingTest {
 
     /** A studio that records every status the model publishes, as the WebSocket publisher would receive it. */
     private static WebStudio studioPublishing(List<Published> published) {
+        return studioPublishing(published, status -> {
+        });
+    }
+
+    /**
+     * The same, with something to do as each status is published — which is the one moment a test can act while
+     * the compilation is between its steps.
+     */
+    private static WebStudio studioPublishing(List<Published> published, Consumer<Published> onPublished) {
         var studio = mock(WebStudio.class);
         var project = mock(RulesProject.class);
         ApplicationEventPublisher publisher = event -> {
             if (event instanceof ProjectStatusChangedEvent status) {
-                published.add(new Published(status.isProgressOnly(), Thread.currentThread().getName()));
+                var told = new Published(status.isProgressOnly(), Thread.currentThread().getName());
+                published.add(told);
+                onPublished.accept(told);
             }
         };
         when(studio.getEventPublisher()).thenReturn(publisher);
@@ -142,6 +156,51 @@ class ProjectStatusPublishingTest {
 
         assertFalse(model.isCompilationCancelled(), "asking for a compilation clears the stop");
         assertTrue(model.getWebStudioWorkspaceDependencyManager().isActive(), "the new manager compiles");
+    }
+
+    @Test
+    void a_stop_that_lands_mid_compilation_leaves_the_open_module_readable() throws Exception {
+        var model = new AtomicReference<ProjectModel>();
+        var stops = new AtomicInteger();
+        // The stop is asked for from inside the compilation's own progress report, so the load the compiling
+        // thread is on lands after it — which is where what it had compiled used to be thrown away.
+        var studio = studioPublishing(new CopyOnWriteArrayList<>(), status -> {
+            var current = model.get();
+            if (current != null && current.isCompilationInProgress() && stops.incrementAndGet() == 1) {
+                current.cancelCompilation();
+            }
+        });
+        model.set(new ProjectModel(studio, null));
+        var modules = ProjectResolver.getInstance().resolve(PROJECT).getModules();
+
+        model.get().setModuleInfo(modules.getFirst());
+        Awaitility.await().atMost(Duration.ofSeconds(10)).until(() -> !model.get().isCompilationInProgress());
+
+        assertTrue(model.get().isCompilationCancelled(), "the compilation was stopped while it ran");
+        assertTrue(model.get().isOpenedModuleCompiledSuccessfully(),
+                "the module the reader has open stays readable after the stop");
+        assertNotNull(model.get().getXlsModuleNode(), "its tables are still there to read");
+        assertFalse(model.get().isProjectCompilationCompleted(),
+                "a stopped compilation has not compiled the project through");
+    }
+
+    @Test
+    void a_compilation_told_to_stop_leaves_the_module_it_had_compiled_readable() throws Exception {
+        var model = new ProjectModel(studioPublishing(new CopyOnWriteArrayList<>()), null);
+        var modules = ProjectResolver.getInstance().resolve(PROJECT).getModules();
+        // Opening a module compiles that module; the rest of the project follows it.
+        model.setModuleInfo(modules.getFirst());
+        assertTrue(model.isOpenedModuleCompiledSuccessfully(), "the module the reader opened is compiled");
+
+        model.cancelCompilation();
+        // Whatever the stopped compilation still had on its way lands after the stop and must change nothing.
+        model.compileProject(true, false);
+
+        assertTrue(model.isOpenedModuleCompiledSuccessfully(),
+                "what was compiled stays readable after the reader stops the compilation");
+        assertNotNull(model.getXlsModuleNode(), "the tables of the open module are still there to read");
+        // And the project is not passed off as compiled through, which would send every reader to an empty class.
+        assertFalse(model.isProjectCompilationCompleted(), "a stopped compilation has not compiled the project");
     }
 
     /** Waits for a status matching the given rule, which the notifier delivers on a thread of its own. */

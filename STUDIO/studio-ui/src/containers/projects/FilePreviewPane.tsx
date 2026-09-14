@@ -111,6 +111,9 @@ const useFileText = (selection: FileSelection, editable: boolean, changedFiles: 
 
     useEffect(() => {
         if (!path || !editable) {
+            // Nothing is read for it, so nothing is remembered as read: a file opened again after this one
+            // would otherwise be taken for the one already on screen and left empty.
+            lastLoaded.current = null
             setContent('')
             setOriginal('')
             setLoading(false)

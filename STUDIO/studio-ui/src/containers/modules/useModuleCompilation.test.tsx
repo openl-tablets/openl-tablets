@@ -19,14 +19,21 @@ const compiling = (compiled: number, total: number, ...names: string[]): Project
     compilation: { modules: { compiled, total, compiledModules: names } },
 })
 
-const Probe = ({ initial, reloadToken, branch, enabled }: {
+const Probe = ({ initial, reloadToken, branch, enabled, module }: {
     initial?: ProjectStatusUpdate | null
     reloadToken?: number
     branch?: string | null
     enabled?: boolean
+    module?: string
 }) => {
     const { ready, compiled, total, failure, tests } = useModuleCompilation(
-        'p1', branch === undefined ? 'main' : branch, 'Claims', initial ?? null, 0, reloadToken, enabled ?? true
+        'p1',
+        branch === undefined ? 'main' : branch,
+        module ?? 'Claims',
+        initial ?? null,
+        0,
+        reloadToken,
+        enabled ?? true
     )
     return (
         <span data-testid="state">
@@ -123,6 +130,21 @@ describe('useModuleCompilation', () => {
 
         // A refresh builds the module again from the workbook rather than keeping what is compiled.
         expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', true)
+    })
+
+    it('asks for a refresh once, however often the reader comes back to that module', async () => {
+        captureUpdates()
+        const compiled = compiling(12, 12, 'Claims')
+        const { rerender } = render(<Probe initial={compiled} module="Claims" reloadToken={1} />)
+        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Claims', true)
+
+        // Another module is read, and then the reader comes back to the one they refreshed. The refresh is
+        // not asked for again: it would rebuild that module from its workbook on every round trip.
+        rerender(<Probe initial={compiled} module="Pricing" reloadToken={0} />)
+        expect(startModuleCompilation).toHaveBeenCalledWith('p1', 'Pricing', false)
+        rerender(<Probe initial={compiled} module="Claims" reloadToken={1} />)
+
+        expect(startModuleCompilation).toHaveBeenCalledTimes(2)
     })
 
     it('asks once, however many statuses arrive', async () => {

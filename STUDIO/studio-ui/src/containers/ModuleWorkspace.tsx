@@ -128,7 +128,7 @@ export const ModuleWorkspace = () => {
     const [loadError, setLoadError] = useState<string | null>(null)
     const [opening, setOpening] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[]>([])
-    const [loaded, setLoaded] = useState<{ module: string, tables: ModuleTable[] } | null>(null)
+    const [loaded, setLoaded] = useState<{ project: string, module: string, tables: ModuleTable[] } | null>(null)
     const [table, setTable] = useState<RawTableView | null>(null)
     const [tableError, setTableError] = useState<string | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
@@ -143,8 +143,9 @@ export const ModuleWorkspace = () => {
     const reloadToken = reload.module === moduleName ? reload.token : 0
     const tableLoads = useLoadGeneration()
 
-    // Only the tables read for the module now open count as this screen's.
-    const tables = loaded?.module === moduleName ? loaded.tables : null
+    // Only the tables read for the module now open count as this screen's — and a module of another project
+    // carrying the same name is another module, whatever it is called.
+    const tables = loaded?.module === moduleName && loaded.project === projectId ? loaded.tables : null
 
     // The table on screen rides in the address, so a link to it opens it again, Back steps between tables, and
     // a refresh keeps the reader where they were.
@@ -163,6 +164,9 @@ export const ModuleWorkspace = () => {
             .then(loaded => {
                 setProject(loaded)
                 setStatusReadAt(startedAt)
+                // A read that answers puts the last failure behind it: one error while a module compiles
+                // would otherwise leave the screen on a dead end until the browser is reloaded.
+                setLoadError(null)
             })
             .catch((error: unknown) => setLoadError(errorMessage(error)))
     }, [projectId])
@@ -217,11 +221,11 @@ export const ModuleWorkspace = () => {
     // compilation to reach it. They are kept under the module they belong to: moving to another module of the
     // same project keeps this screen mounted, and the tables left behind are none of the new module's.
     useEffect(() => {
-        if (!projectId || !compilation.ready || loaded?.module === moduleName) {
+        if (!projectId || !compilation.ready || (loaded?.module === moduleName && loaded.project === projectId)) {
             return
         }
         getModuleTables(projectId, moduleName)
-            .then(found => setLoaded({ module: moduleName, tables: found }))
+            .then(found => setLoaded({ project: projectId, module: moduleName, tables: found }))
             .catch((error: unknown) => setLoadError(errorMessage(error)))
     }, [projectId, moduleName, compilation.ready, loaded])
 
@@ -372,19 +376,26 @@ export const ModuleWorkspace = () => {
             return
         }
         setMoreLoading(true)
+        // The window belongs to the table it continues: picking another one while it is on its way leaves
+        // these rows with nothing to be added to, and they are dropped rather than drawn under the new table.
+        const { generation } = tableLoads.start(true)
         getRawTable(projectId, selectedId, {
             module: moduleName,
             startRow: table.source.length,
             maxRows: TABLE_PAGE_ROWS,
             metaInfo: true,
         })
-            .then(next => setTable(shown => (shown === null ? next : {
+            .then(next => setTable(shown => (shown === null || !tableLoads.isLatest(generation) ? shown : {
                 ...shown,
                 source: [...shown.source, ...next.source],
             })))
-            .catch((error: unknown) => setTableError(errorMessage(error)))
+            .catch((error: unknown) => {
+                if (tableLoads.isLatest(generation)) {
+                    setTableError(errorMessage(error))
+                }
+            })
             .finally(() => setMoreLoading(false))
-    }, [projectId, selectedId, moduleName, table, moreLoading])
+    }, [projectId, selectedId, moduleName, table, moreLoading, tableLoads])
 
     if (loadError) {
         return (
@@ -511,7 +522,8 @@ export const ModuleWorkspace = () => {
                 </div>
             )
         }
-        if (selectedId === null) {
+        if (selectedId === null || (tables !== null && tables.length === 0)) {
+            // A module compiled to nothing has no table to draw, whatever the address still names.
             return (
                 <div className={styles.centered}>
                     <Empty data-testid="module-no-table" description={t('browser.module.pick_a_table')} />

@@ -258,9 +258,11 @@ export const ProjectsTree = ({
     )
     // What the search found, with everything under a group that matched by its own name.
     const nodes = useMemo(() => searchTree(grouped, search), [grouped, search])
-    // A search shows what it found straight away; without one the user decides what is open.
+    // A search shows what it found straight away; without one the user decides what is open. What the reader
+    // opens themselves is added to it either way — the files of a project are read only when it is unfolded,
+    // and a search that pinned the list would leave a found project with a switcher that does nothing.
     const openKeys = useMemo(
-        () => (search.trim() ? groupKeys(nodes) : expanded),
+        () => (search.trim() ? [...new Set([...groupKeys(nodes), ...expanded])] : expanded),
         [expanded, nodes, search]
     )
 

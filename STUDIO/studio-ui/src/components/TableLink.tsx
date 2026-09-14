@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useHref, useNavigate } from 'react-router-dom'
 import { Typography } from 'antd'
 import { moduleRoute } from 'services/projectId'
 
@@ -39,17 +39,19 @@ export const TableLink: React.FC<TableLinkProps> = ({
     ...rest
 }) => {
     const navigate = useNavigate()
+    // The address the browser is given, which carries the path the application is deployed under — a route
+    // alone would be opened at the root of the server and find nothing there.
+    const to = moduleRoute(projectId, module ?? '', tableId)
+    const href = useHref(to)
 
     if (!module) {
         return <Text data-testid={rest['data-testid']} {...(type && { type })}>{children}</Text>
     }
 
-    const to = moduleRoute(projectId, module, tableId)
-
     return (
         <Link
             data-testid={rest['data-testid']}
-            href={to}
+            href={href}
             onClick={event => {
                 event.preventDefault()
                 onOpen()

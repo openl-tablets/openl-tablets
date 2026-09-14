@@ -1451,6 +1451,15 @@ public class ProjectModel {
             this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
                 Throwable failure = null;
                 synchronized (this) {
+                    if (compilationCancelled) {
+                        // The reader stopped the compilation while this load was on its way. What was built
+                        // stays as it is — the module they have open above all: validating the project now
+                        // would go through a dependency manager that answers every module with an
+                        // interruption, and the empty class it returns would replace both. The project is not
+                        // marked as compiled through either, because it is not.
+                        this.compilationInProgress = false;
+                        return;
+                    }
                     try {
                         this.compiledOpenClass = this.validate(projectDescriptor);
                         XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()

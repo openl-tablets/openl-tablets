@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ModuleWorkspace } from './ModuleWorkspace'
@@ -73,7 +73,9 @@ vi.mock('./modules/TableToolbar', () => ({ TableToolbar: () => <div data-testid=
 vi.mock('./projects/CompileProblemsPanel', () => ({ CompileProblemsPanel: () => null }))
 vi.mock('./projects/BranchSwitcher', () => ({ BranchSwitcher: () => null }))
 vi.mock('../components/RawTableGrid', () => ({
-    RawTableGrid: ({ testId }: { testId?: string }) => <div data-testid={testId} />,
+    RawTableGrid: ({ testId, rows }: { testId?: string, rows?: unknown[] }) => (
+        <div data-testid={testId}>{`rows:${rows?.length ?? 0}`}</div>
+    ),
 }))
 
 const project = (status: string) => ({
@@ -88,6 +90,8 @@ const project = (status: string) => ({
 describe('ModuleWorkspace', () => {
     beforeEach(() => {
         workspace.opened = false
+        routeParams.projectId = 'p1'
+        searchParams.set('table', 't-1')
         vi.mocked(getProject).mockImplementation(() =>
             Promise.resolve(project(workspace.opened ? 'OPENED' : 'CLOSED') as never))
         vi.mocked(setProjectStatus).mockImplementation(() => {
@@ -103,6 +107,50 @@ describe('ModuleWorkspace', () => {
             name: 'BankRating',
             source: [[{ cell: 'A1', value: 'Bank' }]],
         } as never)
+    })
+
+    it('reads the tables of the module of the project the address names', async () => {
+        workspace.opened = true
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating'))
+
+        // Another project whose module carries the same name: its tables are none of the first one's.
+        routeParams.projectId = 'p2'
+        rerender(<ModuleWorkspace />)
+
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p2', 'Bank Rating'))
+    })
+
+    it('drops the rows of a table the reader left rather than drawing them under the next one', async () => {
+        workspace.opened = true
+        vi.mocked(getModuleTables).mockResolvedValue([
+            { id: 't-1', name: 'BankRating', kind: 'Rules', tableType: 'SimpleRules' },
+            { id: 't-2', name: 'Limit', kind: 'Rules', tableType: 'SimpleRules' },
+        ] as never)
+        // The first window of the first table, then a window still on its way when the reader moves on.
+        let releaseMore!: (read: unknown) => void
+        vi.mocked(getRawTable)
+            .mockResolvedValueOnce({
+                id: 't-1', name: 'BankRating', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
+            } as never)
+            .mockImplementationOnce(() => new Promise(resolve => {
+                releaseMore = resolve
+            }) as never)
+            .mockResolvedValue({ id: 't-2', name: 'Limit', source: [[{ cell: 'A1', value: '2' }]]} as never)
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
+
+        await userEvent.click(screen.getByTestId('module-table-more'))
+        searchParams.set('table', 't-2')
+        rerender(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
+
+        await act(async () => {
+            releaseMore({ id: 't-1', name: 'BankRating', source: [[{ cell: 'A2', value: '1b' }]]})
+        })
+
+        // Still the one row of the table on screen: the other table's rows were not added to it.
+        expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1')
     })
 
     it('reads no table of a project nobody opened, and draws the one the link names once it is opened', async () => {

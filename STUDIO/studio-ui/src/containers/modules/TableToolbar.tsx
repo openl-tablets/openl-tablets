@@ -190,6 +190,9 @@ export const TableToolbar = ({
 
     useEffect(() => {
         let dropped = false
+        // What the table before it was covered by is none of this table's business while the answer is on
+        // its way.
+        setTests([])
         getTableTests(projectId, table.id, moduleName)
             .then(found => {
                 if (!dropped) {
@@ -222,6 +225,7 @@ export const TableToolbar = ({
             return
         }
         let dropped = false
+        setTargets([])
         getTableTargets(projectId, table.id, moduleName)
             .then(found => {
                 if (!dropped) {
