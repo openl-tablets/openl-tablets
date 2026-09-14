@@ -87,6 +87,7 @@ import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.RawTableSourceActions;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TableIdView;
@@ -698,7 +699,22 @@ public class ProjectsController {
                                                        @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                        @Valid @RequestBody RawTableSourceAction action) throws ProjectException {
         try {
-            var newTableId = projectService.editTableSource(project, tableId, action);
+            var newTableId = projectService.editTableSource(project, tableId, List.of(action));
+            return tableWriteResponse(tableId, newTableId);
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @Operation(summary = "project.table.actions.batch.summary", description = "project.table.actions.batch.desc")
+    @ApiResponse(responseCode = "200", description = "project.table.actions.200.desc", headers = @Header(name = HttpHeaders.LOCATION, description = "header.location.desc"))
+    @ApiResponse(responseCode = "204", description = "project.table.actions.204.desc")
+    @PostMapping("/{projectId}/tables/{tableId}/actions/batch")
+    public ResponseEntity<TableIdView> editTableSourceBatch(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                            @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                                            @Valid @RequestBody RawTableSourceActions actions) throws ProjectException {
+        try {
+            var newTableId = projectService.editTableSource(project, tableId, actions.actions());
             return tableWriteResponse(tableId, newTableId);
         } finally {
             getWebStudio().reset();

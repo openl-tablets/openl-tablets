@@ -2263,25 +2263,27 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Apply a single raw-source edit to a table.
+     * Apply raw-source edits to a table as one change.
      * <p>
-     * The table is always handled in the raw format regardless of its type. The concrete edit (append, insert or delete
-     * a row or a column, or update a cell) is carried by the action.
+     * The table is always handled in the raw format regardless of its type. The concrete edits (append, insert or
+     * delete a row or a column, update a cell, merge or unmerge a range) are carried by the actions and applied in
+     * the order they are given, each seeing the table as the previous one left it. The workbook is saved once, after
+     * the last of them.
      *
      * @param project project
      * @param tableId table id
-     * @param action  the edit to apply
-     * @return table id after the edit; differs from {@code tableId} when the table was relocated to grow
+     * @param actions the edits to apply, in order
+     * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
      * @throws ProjectException if project is locked by another user
      */
     public String editTableSource(RulesProject project,
                                   String tableId,
-                                  RawTableSourceAction action) throws ProjectException {
+                                  List<RawTableSourceAction> actions) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
         var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableWriterExecutor.executeSourceAction(writer, action);
+        return tableWriterExecutor.executeSourceAction(writer, actions);
     }
 
     /**

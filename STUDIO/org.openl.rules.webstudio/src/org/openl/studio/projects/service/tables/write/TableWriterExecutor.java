@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.tables.write;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import org.openl.studio.projects.model.tables.AppendTableView;
@@ -69,9 +71,9 @@ public class TableWriterExecutor {
         return writer.getTableId();
     }
 
-    public String executeSourceAction(TableWriter<? extends TableView> writer, RawTableSourceAction action) {
+    public String executeSourceAction(TableWriter<? extends TableView> writer, List<RawTableSourceAction> actions) {
         if (writer instanceof RawTableWriter rawTableWriter) {
-            rawTableWriter.apply(action);
+            rawTableWriter.apply(actions);
             return writer.getTableId();
         }
         throw new UnsupportedOperationException("Source actions are supported only for the raw table format");

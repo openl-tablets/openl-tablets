@@ -12799,6 +12799,139 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/tables/{tableId}/actions/batch": {
+      "post": {
+        "description": "Apply a sequence of edits to the raw source of the table in the currently opened project as one change, so a whole editing session is sent in a single request. The edits are applied in the order they are given and each one addresses the table as the previous one left it: a row inserted or deleted earlier shifts the coordinates of everything that follows. The table is written once, after the last edit; an edit that is refused ends the sequence and nothing of it reaches the table. Each edit takes the same shape as the single-edit request. If the table had no room to grow and was relocated, its ID changes and the new ID is returned in the response body together with the new table URL in the `Location` header.",
+        "operationId": "editTableSourceBatch",
+        "parameters": [
+          {
+            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Table ID.",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawTableSourceActions"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableIdView"
+                }
+              }
+            },
+            "description": "Edit applied and the table relocated. The response body carries the new table ID and the `Location` header points to the table under its new ID.",
+            "headers": {
+              "Location": {
+                "description": "URL of the table under its new ID, returned when the table was relocated and its ID changed.",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          },
+          "204": {
+            "description": "Edit applied without changing the table ID."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Edit project table source in one change",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/tables/{tableId}/copy": {
       "post": {
         "description": "***",
@@ -26993,6 +27126,22 @@ Content-Type: application/json
         },
         "required": [
           "operation"
+        ]
+      },
+      "RawTableSourceActions": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": "array",
+            "description": "Edits to apply, in order. Each one addresses the table as the previous one left it, so an insert or a delete shifts the coordinates of everything that follows.",
+            "items": {
+              "$ref": "#/components/schemas/RawTableSourceAction"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "actions"
         ]
       },
       "RawTableView": {
