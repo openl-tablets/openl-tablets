@@ -70,6 +70,45 @@ export interface RawTableCellMetaInfo {
     editor?: string
 }
 
+/** The styling to set on cells; an attribute left out is not touched. */
+export interface RawCellStyleInput {
+    /** Background colour as #rrggbb */
+    background?: string
+    /** Font colour as #rrggbb */
+    color?: string
+    /** Horizontal alignment; `left` puts the cells back to the default */
+    align?: 'left' | 'center' | 'right' | 'justify'
+    bold?: boolean
+    italic?: boolean
+    underline?: boolean
+    /** Left indent in Excel indent units; 0 takes the indent away */
+    indent?: number
+}
+
+/**
+ * One edit of a table's raw source, as the Tables API takes it.
+ *
+ * <p>`operation` selects the edit and the target's `type` the resource it acts on. A sequence of these is sent
+ * together, each addressing the table as the previous one left it, and the table is written once.
+ */
+export type TableEdit =
+    | { operation: 'update', target: { type: 'cell', row: number, column: number, value: string | number | boolean | null } }
+    | { operation: 'insert', target: { type: 'rows', position: number, cells: RawTableCellInput[][] } }
+    | { operation: 'insert', target: { type: 'columns', position: number, cells: RawTableCellInput[][] } }
+    | { operation: 'delete', target: { type: 'rows', position: number, count: number } }
+    | { operation: 'delete', target: { type: 'columns', position: number, count: number } }
+    | {
+        operation: 'style'
+        target: {
+            type: 'cells'
+            row: number
+            column: number
+            rowspan: number
+            colspan: number
+            style: RawCellStyleInput
+        }
+    }
+
 export interface RawTableCellInput {
     value: string | number | boolean | null
     colspan?: number

@@ -103,7 +103,7 @@ describe('RawTableGrid', () => {
             cell: 'A1',
             value: 'Premium',
             formula: '=B1&C1',
-            metaInfo: { usages: [{ start: 0, end: 7, description: 'Rules Double Premium()', kind: 'rule' }] },
+            metaInfo: { usages: [{ start: 0, end: 7, description: 'Rules Double Premium()', kind: 'rule' }]},
         }]]
 
         const { rerender } = render(<RawTableGrid rows={marked} testId="grid" />)

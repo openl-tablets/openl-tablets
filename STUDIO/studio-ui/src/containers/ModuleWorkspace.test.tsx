@@ -72,8 +72,9 @@ vi.mock('./modules/TableSearchModal', () => ({ TableSearchModal: () => null }))
 vi.mock('./modules/TableToolbar', () => ({ TableToolbar: () => <div data-testid="table-toolbar" /> }))
 vi.mock('./projects/CompileProblemsPanel', () => ({ CompileProblemsPanel: () => null }))
 vi.mock('./projects/BranchSwitcher', () => ({ BranchSwitcher: () => null }))
-vi.mock('../components/RawTableGrid', () => ({
-    RawTableGrid: ({ testId, rows }: { testId?: string, rows?: unknown[] }) => (
+// The table itself is drawn and edited elsewhere; this screen is asked only what it hands over.
+vi.mock('./modules/TableEditor', () => ({
+    TableEditor: ({ testId, rows }: { testId?: string, rows?: unknown[] }) => (
         <div data-testid={testId}>{`rows:${rows?.length ?? 0}`}</div>
     ),
 }))

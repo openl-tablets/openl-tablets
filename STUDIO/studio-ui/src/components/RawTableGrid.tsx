@@ -19,12 +19,16 @@ interface RawTableGridProps {
     /** The table body as the Tables API reports it, indexed rows[row][column]. */
     rows: RawTableCell[][]
     /** How each cell is marked; a cell the screen says nothing about is drawn as the workbook has it. */
-    decorate?: (cell: RawTableCell) => CellDecoration | undefined
+    decorate?: ((cell: RawTableCell, row: number, column: number) => CellDecoration | undefined) | undefined
     /** Draw the formula a cell was written with rather than the value it computed, where it has one. */
-    formulas?: boolean
+    formulas?: boolean | undefined
     /** Follows a piece of a cell's text to the table it names; absent when this screen cannot go there. */
     onOpenUsage?: OpenUsage | undefined
-    testId?: string
+    /** Told which cell the reader picked; absent on a screen where a cell cannot be picked. */
+    onPickCell?: ((row: number, column: number) => void) | undefined
+    /** Told which cell the reader opened, by double-clicking it. */
+    onOpenCell?: ((row: number, column: number) => void) | undefined
+    testId?: string | undefined
 }
 
 const formatValue = (value: RawTableCell['value']): string => (value == null ? '' : String(value))
@@ -102,7 +106,15 @@ const cellText = (cell: RawTableCell, formulas: boolean, onOpenUsage?: OpenUsage
     return <RawTableCellText metaInfo={metaInfo} onOpenUsage={onOpenUsage} text={text} />
 }
 
-export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, formulas, onOpenUsage, testId }) => {
+export const RawTableGrid: React.FC<RawTableGridProps> = ({
+    rows,
+    decorate,
+    formulas,
+    onOpenUsage,
+    onPickCell,
+    onOpenCell,
+    testId,
+}) => {
     const { styles, cx } = useStyles()
 
     return (
@@ -112,13 +124,15 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, form
                     <tr key={rowKey(row, rowIndex)}>
                         {row.map((cell, columnIndex) => {
                             if (cell.covered) return null
-                            const decoration = decorate?.(cell)
+                            const decoration = decorate?.(cell, rowIndex, columnIndex)
                             return (
                                 <td
                                     key={cell.cell ?? `c${columnIndex}`}
                                     className={cx(styles.cell, decoration?.className)}
                                     colSpan={cell.colspan}
                                     data-cell={cell.cell}
+                                    onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
+                                    onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                     rowSpan={cell.rowspan}
                                     style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
                                 >

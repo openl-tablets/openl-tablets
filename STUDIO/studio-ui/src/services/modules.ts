@@ -124,6 +124,65 @@ export const getRawTable = async (
     ) as RawTableView
 }
 
+/** One way of entering a value, with everything that way of entering it needs. */
+export interface TableCellEditor {
+    /** 'combo', 'multiselect', 'numeric', 'array', 'range', 'date' or 'boolean' */
+    editor: string
+    /** Values to choose from, for 'combo' and 'multiselect' */
+    choices?: string[]
+    /** What to show for each choice, in the order of `choices` */
+    displayValues?: string[]
+    /** What separates the chosen values in the cell, for 'multiselect' and 'array' */
+    separator?: string
+    /** What precedes a separator that belongs to a value, for 'multiselect' */
+    separatorEscaper?: string
+    /** Smallest value the cell's type holds, for 'numeric' */
+    min?: number
+    /** Largest value the cell's type holds, for 'numeric' */
+    max?: number
+    /** True when only whole numbers are accepted, for 'numeric' and 'array' */
+    intOnly?: boolean
+    /** The editor one entry is written with, for 'array' and 'range' */
+    entryEditor?: string
+}
+
+/** How the cells of a table take a value: the ways of entering one, and which cell asks for which. */
+export interface TableEditors {
+    editors: TableCellEditor[]
+    cells: Array<{ row: number, column: number, editor: number }>
+}
+
+/**
+ * How the cells of a window of a table take a value.
+ *
+ * <p>Read once, when the reader starts editing the table, and for the same window the table itself was read as —
+ * so a cell is pointed at by the same row and column in both, and nothing is asked while the reader edits.
+ *
+ * <p>A cell the answer does not name is written as plain text.
+ */
+export const getTableEditors = async (
+    projectId: string,
+    tableId: string,
+    options: { module?: string | undefined, startRow?: number | undefined, maxRows?: number | undefined } = {}
+): Promise<TableEditors> => {
+    const params = new URLSearchParams()
+    if (options.module !== undefined) {
+        params.set('module', options.module)
+    }
+    if (options.startRow !== undefined) {
+        params.set('startRow', String(options.startRow))
+    }
+    if (options.maxRows !== undefined) {
+        params.set('maxRows', String(options.maxRows))
+    }
+    const query = params.size > 0 ? `?${params}` : ''
+    return await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/editors${query}`,
+        undefined,
+        LOCAL_LOAD_API_OPTIONS
+    ) as TableEditors
+}
+
 /** A test or run table that exercises another table. */
 export interface TableTest {
     id: string

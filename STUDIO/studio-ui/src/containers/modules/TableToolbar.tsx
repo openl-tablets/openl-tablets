@@ -165,6 +165,8 @@ interface TableToolbarProps {
     onWritten?: ((written: SummaryTable, moduleName: string) => void) | undefined
     /** Called once this table is gone from the module. */
     onRemoved?: (() => void) | undefined
+    /** Starts editing the table's cells; absent where this screen does no editing. */
+    onEdit?: (() => void) | undefined
 }
 
 /**
@@ -187,6 +189,7 @@ export const TableToolbar = ({
     runState,
     onWritten,
     onRemoved,
+    onEdit,
 }: TableToolbarProps) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
@@ -307,6 +310,9 @@ export const TableToolbar = ({
         }
         if (action.key === 'remove') {
             return remove
+        }
+        if (action.key === 'edit') {
+            return onEdit
         }
         const dialog = DIALOGS[action.key]
         return dialog ? () => openDialog(dialog) : undefined

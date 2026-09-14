@@ -116,6 +116,7 @@ import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
+import org.openl.studio.projects.model.tables.TableEditorsView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.model.tables.TableRunState;
@@ -142,6 +143,7 @@ import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.read.TableEditorsReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
@@ -181,6 +183,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectDependencyResolver projectDependencyResolver;
     private final SummaryTableReader summaryTableReader;
     private final RawTableReader rawTableReader;
+    private final TableEditorsReader tableEditorsReader;
     private final List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers;
     private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
     private final BeanValidationProvider validationProvider;
@@ -211,6 +214,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectDependencyResolver projectDependencyResolver,
             SummaryTableReader summaryTableReader,
             RawTableReader rawTableReader,
+            TableEditorsReader tableEditorsReader,
             List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers,
             Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
             BeanValidationProvider validationProvider,
@@ -243,6 +247,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;
         this.rawTableReader = rawTableReader;
+        this.tableEditorsReader = tableEditorsReader;
         this.readers = readers;
         this.newBranchValidatorFactory = newBranchValidatorFactory;
         this.validationProvider = validationProvider;
@@ -2090,6 +2095,27 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public TableDetailsView getTableDetails(RulesProject project, String tableId, @Nullable String moduleName) {
         return tableDetailsService.read(getOpenLTableInModule(project, tableId, moduleName).table());
+    }
+
+    /**
+     * How the cells of a window of a table are written: the ways of entering a value the table needs, and which
+     * cell asks for which.
+     *
+     * <p>Read once, when a screen starts editing a table, rather than cell by cell as the user moves through it:
+     * the answer describes the whole window the table was read as, so no further request is made while editing.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to read
+     * @param startRow   zero-based index of the first row to look at, or {@code null} for the top
+     * @param maxRows    how many rows from {@code startRow} to look at, or {@code null} for all of them
+     * @param moduleName module the table is asked for through, so the answer is ready once that module is
+     *                   compiled
+     * @return the editors the table needs and the cells that ask for them
+     */
+    public TableEditorsView getTableEditors(RulesProject project, String tableId, @Nullable Integer startRow,
+            @Nullable Integer maxRows, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        return tableEditorsReader.read(context.table(), startRow, maxRows);
     }
 
     /**
