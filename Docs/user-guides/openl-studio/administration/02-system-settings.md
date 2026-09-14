@@ -1,28 +1,66 @@
 ### Managing System Settings
 
-The **System** section enables modifying core, testing, project, and general OpenL Studio settings. In the navigation menu, click **System** to open it.
+The **System** section manages core, testing, project, and general OpenL Studio settings. In the navigation menu, click
+**System** to open it.
 
-After making changes, click **Apply** to save.
+When the settings are defined, click **Apply** and confirm the action in the displayed dialog. OpenL Studio saves the
+settings and reloads the page.
 
-| Section                    | Property                                                    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|----------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Core**                   | **Dispatching Validation**                                  | Turns on or off the dispatching mechanism for a rule table where only one version of the rule table exists. <br/>By default, this option is enabled. <br/>For more information on dispatching validation, see [OpenL Tablets Rule Services Usage and Customization Guide > Table Dispatching Validation Mode](../../rule-services/configuration.md#table-dispatching-validation-mode). |
-|                            | **Verify on Edit**                                          | Turns on or off automatic checking of rules consistency and validity on each edit in Rules Editor. <br/>By default, this option is enabled. Automatic checks are executed after each edit. <br/>If this option is cleared, the verification process does not launch automatically when the **Save** button is clicked. <br/>Instead, a **Verify** button appears in Rules Editor, and the user must verify manually by clicking this button.                                                          |
-| **Testing**                | **Thread Number for Tests**                                 | Indicates the number of test cases executed simultaneously. By default, four threads are set. <br/>It means that after running a test table or all tests, up to four test cases will be in progress at the same time. <br/>When they are calculated, the next four test cases will be executed.                                                                                                                                                                                                     |
-| **Projects**               | **Maximum count of saved changes per user**                 | Maximum number of history records kept per project per user. By default, set to 100. If no value is provided, the number of records is unlimited.                                                                                                                                                                                                                                                                                                                                                  |
-|                            | **Detect projects by Excel files**                          | Treats a folder without `rules.xml` as a project when it contains an Excel file in its root. The setting applies to all Design repositories and is cleared by default.                                                                                                                                                                                                                                                                                                                             |
-| **Other**                  | **Update table properties**                                 | Indicates whether table properties controlled by the system must be updated and can be viewed in OpenL Studio UI. <br/>If this option is cleared, information about the time of table creation and modification and changes authors, such as **Created By/On**, **Modified By/On**, <br/>is not added to the table properties.                                                                                                                                                                      |
-|                            | **Date Format**                                             | Enables changing the date format in the OpenL Studio UI.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|                            | **Time Format**                                             | Enables changing the time format in the OpenL Studio UI.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Database Configuration** | **Database URL**                                            | JDBC URL of the database used to store OpenL Studio user data. Contact your System Administrator for this information if necessary.                                                                                                                                                                                                                                                                                                                                                                |
-|                            | **Login**                                                   | Database user login.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-|                            | **Password**                                                | Database user password. Leave blank to keep the current value.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|                            | **Maximum Pool Size**                                       | Maximum number of database connections in the connection pool.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+Applying the settings makes all users currently working with OpenL Studio lose their unsaved changes.
 
-To clear all history files for all projects, click the **Clear All History** button and confirm deletion.
+#### Defining Core Settings
+
+-   **Dispatching Validation** — turns on or off the dispatching mechanism for a rule table where only one version of
+    the rule table exists. The option is selected by default. For more information, see
+    [OpenL Tablets Rule Services Usage and Customization Guide > Table Dispatching Validation Mode](../../rule-services/configuration.md#table-dispatching-validation-mode).
+-   **Verify on Edit** — turns on or off automatic checking of rules consistency and validity on each edit in Rules
+    Editor. The option is selected by default. When it is cleared, verification does not start automatically, and a
+    **Verify** button appears in Rules Editor for starting it manually.
+
+#### Defining Testing Settings
+
+-   **Thread Number for Tests** — number of test cases executed simultaneously. The default value is 4, which means
+    that running a test table or all tests keeps up to four test cases in progress at the same time. When they are
+    calculated, the next four test cases are executed.
+
+#### Defining Project Settings
+
+-   **The maximum count of saved changes for each project per user** — maximum number of history records kept per
+    project per user. The default value is 100. If the field is left empty, the number of records is unlimited. To
+    remove the history files of all projects for all users, click the **Clear All History** button next to the field
+    and confirm the deletion.
+-   **Detect projects by Excel files** — treats a folder without `rules.xml` as a project when it contains an Excel
+    file in its root. The setting applies to all design repositories and is cleared by default.
 
 > [!Note]
 > Enabling **Detect projects by Excel files** slows down the **Repository** tab because OpenL Studio must inspect
 > Excel files while discovering projects.
 
-> **WARNING!** To restore all settings to their default values, in the **Reset Settings** group, click **Restore Defaults and Restart**. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.
+#### Defining Other Settings
+
+-   **Update table properties ('createdOn', 'modifiedBy' etc.) on editing** — adds the table properties controlled by
+    the system, such as **Created By/On** and **Modified By/On**, when a table is edited, and displays them in the
+    OpenL Studio UI. The option is cleared by default.
+-   **Date Format** — pattern used to display and enter dates in the OpenL Studio UI. The default value is
+    `MM/dd/yyyy`.
+-   **Time Format** — pattern used to display and enter time in the OpenL Studio UI. The default value is
+    `hh:mm:ss a`.
+
+#### Defining Database Configuration
+
+The database stores OpenL Studio users, groups, and access rights. It is used when the authentication mode is not
+**Single-User**. For more information on authentication modes, see
+[Selecting an Authentication Mode](03-security/01-authentication-mode.md#selecting-an-authentication-mode).
+
+-   **Database URL** — JDBC URL of the database. Contact the system administrator for this information if necessary.
+-   **Login** — user name for accessing the database.
+-   **Password** — password for the specified user. Leave the field blank to keep the current value.
+-   **Maximum Pool Size** — maximum number of database connections in the connection pool. The default value is 50.
+
+#### Restoring Default Settings
+
+> [!Warning]
+> To restore all settings to their default values, in the **Reset Settings** group, click **Restore Defaults and
+> Restart** and confirm the action. All user defined values, such as repository settings, are lost, and all users
+> currently working with OpenL Studio lose their unsaved changes. Use this button only if you understand the
+> consequences.
