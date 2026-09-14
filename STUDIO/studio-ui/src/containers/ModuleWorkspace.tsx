@@ -316,16 +316,22 @@ export const ModuleWorkspace = () => {
     }, [moduleName, navigate, openTableById, projectId])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
+    //
+    // Read once the module's own list names that table, which is the moment there is something to read: a link
+    // followed into a project nobody opened is answered with "the project is not opened", and a link carried
+    // over from another module names a table this one does not hold. The list arrives when the module is
+    // compiled, and the table is read then — so opening the project from this screen draws it, unasked.
     useEffect(() => {
-        if (!projectId || selectedId === null) {
+        if (!projectId || selected === null) {
             setTable(null)
+            setTableError(null)
             return
         }
         const { generation } = tableLoads.start(false)
         setTable(null)
         setTableError(null)
         // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it.
-        getRawTable(projectId, selectedId, { module: moduleName, maxRows: TABLE_PAGE_ROWS, metaInfo: true })
+        getRawTable(projectId, selected.id, { module: moduleName, maxRows: TABLE_PAGE_ROWS, metaInfo: true })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
                     setTable(loaded)
@@ -336,7 +342,7 @@ export const ModuleWorkspace = () => {
                     setTableError(errorMessage(error))
                 }
             })
-    }, [projectId, selectedId, moduleName, tableLoads, reloadToken])
+    }, [projectId, selected, moduleName, tableLoads])
 
     // The next window of the same table, appended to what is already drawn.
     const showMoreRows = useCallback(() => {
