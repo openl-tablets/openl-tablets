@@ -57,19 +57,39 @@ export const useModuleCompilation = (
     // which on a project that compiles in a moment means hearing nothing at all.
     const status = useLiveProjectStatus(projectId, branch, enabled, initial, initialReadAt)
     const compiledModules = modulesOf(status)?.compiledModules
-    const ready = (compiledModules ?? []).includes(moduleName)
+    const named = (compiledModules ?? []).includes(moduleName)
+    // A module named as compiled stays compiled. A compilation reports its progress many times a second, and a
+    // progress report carries only what it could read without waiting — often not the names — so a screen
+    // reading this answer alone would open on the module and close again with the next report. Compiling this
+    // module afresh is what makes the question open again.
+    const [wasReady, setWasReady] = useState(false)
+    const ready = wasReady || named
+
+    useEffect(() => {
+        setWasReady(false)
+    }, [projectId, branch, moduleName, reloadToken])
+
+    useEffect(() => {
+        if (named) {
+            setWasReady(true)
+        }
+    }, [named])
 
     // Asked for once per module, and once more for every refresh. Re-asking on each pushed status would restart
     // the very compilation the pushes are reporting on, and the session compiles one module at a time.
-    const asked = useRef<string | null>(null)
+    //
+    // Every request made is remembered, not just the last: a reader who refreshes one module, reads another and
+    // comes back would otherwise be asking for that refresh again on every return, rebuilding the module from
+    // its workbook each time.
+    const asked = useRef(new Set<string>())
     useEffect(() => {
         const key = `${projectId} ${branch ?? ''} ${moduleName} ${reloadToken}`
         // A module already compiled needs no compiling — unless a refresh asked, which is exactly a request to
         // compile it again.
-        if (!enabled || asked.current === key || (ready && reloadToken === 0)) {
+        if (!enabled || asked.current.has(key) || (ready && reloadToken === 0)) {
             return
         }
-        asked.current = key
+        asked.current.add(key)
         setFailure(null)
         startModuleCompilation(projectId, moduleName, reloadToken > 0).catch((error: unknown) => {
             const failed = error instanceof Error ? error : new Error(String(error))

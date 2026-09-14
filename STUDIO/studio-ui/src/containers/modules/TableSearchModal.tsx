@@ -40,6 +40,17 @@ interface PropertyFilter {
 /** The next row's id: a row keyed by its place in the list would carry its neighbour's state when one goes. */
 let nextFilterId = 0
 
+/**
+ * Where the body of one result has got to: on its way, read, or refused.
+ *
+ * <p>Each says what it is rather than being told apart by its shape — a failure carries a message, and a
+ * message is a string like any other.
+ */
+type ResultBody =
+    | { state: 'reading' }
+    | { state: 'read', table: RawTableView }
+    | { state: 'failed', message: string }
+
 const useStyles = createStyles(({ css, token }) => ({
     form: css`
         display: grid;
@@ -121,6 +132,8 @@ interface TableSearchModalProps {
     onOpen: (table: ModuleTable) => void
 }
 
+type TableSearchFormProps = Omit<TableSearchModalProps, 'open' | 'onClose'>
+
 /**
  * The extended table search, as the Editor's own search offered it: how wide to look, which families of table,
  * what the header says, what is written in the cells, and which properties a table must carry.
@@ -128,15 +141,41 @@ interface TableSearchModalProps {
  * <p>The rail's own box searches the names of the tables already on screen. This asks the server, so it reaches
  * the modules the tree does not show — the rest of the project, and the projects it depends on — and the results
  * say where each table lives, so one can be opened where it is written.
+ *
+ * <p>The window holds the search rather than being it: closed, the window destroys what is inside, so the
+ * search opens as it starts — whatever was asked of it before, and whichever module the reader is in by then.
  */
-export const TableSearchModal = ({
-    open,
+export const TableSearchModal = ({ open, onClose, ...asked }: TableSearchModalProps) => {
+    const { t } = useTranslation('repository')
+    // Each opening is a search of its own, and is built as one: what the last was asked, and what it found,
+    // belong to it rather than to this one.
+    const [opening, setOpening] = useState(0)
+    useEffect(() => {
+        if (open) {
+            setOpening(count => count + 1)
+        }
+    }, [open])
+    return (
+        <Modal
+            destroyOnHidden
+            footer={null}
+            onCancel={onClose}
+            open={open}
+            title={t('browser.module.search_extended')}
+            width={900}
+        >
+            <TableSearchForm key={opening} {...asked} />
+        </Modal>
+    )
+}
+
+/** What is asked, and what it found: the form the window opens on, fresh each time it is opened. */
+const TableSearchForm = ({
     projectId,
     moduleName,
     initialName = '',
-    onClose,
     onOpen,
-}: TableSearchModalProps) => {
+}: TableSearchFormProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [scope, setScope] = useState<TableSearchScope>('module')
@@ -150,33 +189,13 @@ export const TableSearchModal = ({
     const [searching, setSearching] = useState(false)
     const [failure, setFailure] = useState<string | null>(null)
     /** The body of a result, once the reader asked for it: what was read, or why it could not be. */
-    const [bodies, setBodies] = useState<Record<string, RawTableView | string | 'reading'>>({})
+    const [bodies, setBodies] = useState<Record<string, ResultBody>>({})
 
-    /**
-     * The search opens as it starts, whatever was asked of it before.
-     *
-     * <p>A reader leaves it by opening a table, and comes back to look for something else — in another module
-     * by then, often enough — so what was filled in last time, and what it found, are not what this search is
-     * about. Only the name carried in from the rail is kept.
-     *
-     * <p>The names a property can be narrowed by are the ones the engine knows, so the list is read rather
-     * than written here: a property added to the dictionary appears without a change to this screen.
-     */
+    // The names a property can be narrowed by are the ones the engine knows, so the list is read rather than
+    // written here: a property added to the dictionary appears without a change to this screen.
     useEffect(() => {
-        if (!open) {
-            return
-        }
-        setScope('module')
-        setName(initialName)
-        setHeader('')
-        setText('')
-        setKinds([])
-        setFilters([])
-        setResults(null)
-        setFailure(null)
-        setBodies({})
         getProjectProperties(projectId).then(setProperties).catch(() => setProperties([]))
-    }, [open, projectId, initialName])
+    }, [projectId])
 
     // Grouped the way the copy dialog groups them — Info, Business Dimension, Version, Dev — so a property is
     // looked for where the Table Details panel lists it.
@@ -228,11 +247,14 @@ export const TableSearchModal = ({
             setBodies(({ [key]: _dropped, ...rest }) => rest)
             return
         }
-        setBodies(previous => ({ ...previous, [key]: 'reading' }))
+        setBodies(previous => ({ ...previous, [key]: { state: 'reading' } }))
         const { projectId: where, module } = at(table)
         getRawTable(where, table.id, { module, maxRows: TABLE_PAGE_ROWS })
-            .then(read => setBodies(previous => ({ ...previous, [key]: read })))
-            .catch((error: unknown) => setBodies(previous => ({ ...previous, [key]: errorMessage(error) })))
+            .then(read => setBodies(previous => ({ ...previous, [key]: { state: 'read', table: read } })))
+            .catch((error: unknown) => setBodies(previous => ({
+                ...previous,
+                [key]: { state: 'failed', message: errorMessage(error) },
+            })))
     }
 
     /**
@@ -256,8 +278,9 @@ export const TableSearchModal = ({
     const entry = (table: ModuleTable) => {
         const key = keyOf(table)
         const body = bodies[key]
-        const rows = typeof body === 'object' ? body.source : null
-        const total = typeof body === 'object' ? body.totalRows ?? body.source.length : 0
+        const read = body?.state === 'read' ? body.table : null
+        const rows = read?.source ?? null
+        const total = read ? read.totalRows ?? read.source.length : 0
         return (
             <div key={key} className={styles.entry} data-testid={`table-search-result-${table.id}`}>
                 <Space size="small">
@@ -271,12 +294,12 @@ export const TableSearchModal = ({
                     </Button>
                     <Button
                         data-testid={`table-search-body-${table.id}`}
-                        loading={body === 'reading'}
+                        loading={body?.state === 'reading'}
                         onClick={() => toggleBody(table)}
                         size="small"
                         type="link"
                     >
-                        {t(body === undefined || body === 'reading'
+                        {t(body === undefined || body.state === 'reading'
                             ? 'browser.module.search_show_body'
                             : 'browser.module.search_hide_body')}
                     </Button>
@@ -288,8 +311,8 @@ export const TableSearchModal = ({
                 <span className={styles.where}>
                     {[table.project, table.module ?? moduleName].filter(Boolean).join(' · ')}
                 </span>
-                {typeof body === 'string' && body !== 'reading' && (
-                    <Alert showIcon description={body} type="error" />
+                {body?.state === 'failed' && (
+                    <Alert showIcon description={body.message} type="error" />
                 )}
                 {rows && (
                     <div className={styles.body}>
@@ -306,14 +329,7 @@ export const TableSearchModal = ({
     }
 
     return (
-        <Modal
-            destroyOnHidden
-            footer={null}
-            onCancel={onClose}
-            open={open}
-            title={t('browser.module.search_extended')}
-            width={900}
-        >
+        <>
             <div className={styles.form} data-testid="table-search-form">
                 <label className={styles.field}>
                     <span className={styles.label}>{t('browser.module.search_scope')}</span>
@@ -417,7 +433,7 @@ export const TableSearchModal = ({
                     )}
                 </div>
             )}
-        </Modal>
+        </>
     )
 }
 

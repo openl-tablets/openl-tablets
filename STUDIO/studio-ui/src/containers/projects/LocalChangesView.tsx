@@ -12,6 +12,13 @@ import { openVersionsCompareWindow } from './compare'
 interface LocalChangesViewProps {
     projectId: string
     moduleName: string
+    /**
+     * Called once a version has been restored, so the screen showing this reads the module again.
+     *
+     * <p>Without one, the legacy workspace is told to reload itself — which is what the JSF page it is
+     * embedded in has always done.
+     */
+    onRestored?: (() => void) | undefined
 }
 
 interface LegacyWorkspaceApi {
@@ -72,7 +79,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-export const LocalChangesView = ({ projectId, moduleName }: LocalChangesViewProps) => {
+export const LocalChangesView = ({ projectId, moduleName, onRestored }: LocalChangesViewProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useListPageStyles()
     const { styles, cx } = useStyles()
@@ -132,7 +139,13 @@ export const LocalChangesView = ({ projectId, moduleName }: LocalChangesViewProp
             await loadHistory()
             notification.success({ title: t('browser.local_history.restore_succeeded') })
             setRestoreItem(null)
-            reloadLegacyWorkspace()
+            // The workbook is another version now, so what is drawn from it is out of date. The screen that
+            // opened this reads the module again; the legacy page reloads itself, as it always has.
+            if (onRestored) {
+                onRestored()
+            } else {
+                reloadLegacyWorkspace()
+            }
         } catch (error) {
             notification.error({
                 title: t('browser.local_history.restore_failed'),

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, Progress, Skeleton, Tooltip } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import type { ModuleTable, RawTableView } from 'types/tables'
+import type { ModuleTable, RawTableView, SummaryTable } from 'types/tables'
 import type { Project } from '../types/projects'
 import { getProject, setProjectStatus } from '../services/repositories'
 import {
@@ -128,11 +128,13 @@ export const ModuleWorkspace = () => {
     const [loadError, setLoadError] = useState<string | null>(null)
     const [opening, setOpening] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[]>([])
-    const [loaded, setLoaded] = useState<{ module: string, tables: ModuleTable[] } | null>(null)
+    const [loaded, setLoaded] = useState<{ project: string, module: string, tables: ModuleTable[] } | null>(null)
     const [table, setTable] = useState<RawTableView | null>(null)
     const [tableError, setTableError] = useState<string | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
     const [cancelling, setCancelling] = useState(false)
+    /** Whether the project has compiled through since this module was opened; see the effects below. */
+    const [projectCompiled, setProjectCompiled] = useState(false)
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
@@ -143,8 +145,9 @@ export const ModuleWorkspace = () => {
     const reloadToken = reload.module === moduleName ? reload.token : 0
     const tableLoads = useLoadGeneration()
 
-    // Only the tables read for the module now open count as this screen's.
-    const tables = loaded?.module === moduleName ? loaded.tables : null
+    // Only the tables read for the module now open count as this screen's — and a module of another project
+    // carrying the same name is another module, whatever it is called.
+    const tables = loaded?.module === moduleName && loaded.project === projectId ? loaded.tables : null
 
     // The table on screen rides in the address, so a link to it opens it again, Back steps between tables, and
     // a refresh keeps the reader where they were.
@@ -163,6 +166,9 @@ export const ModuleWorkspace = () => {
             .then(loaded => {
                 setProject(loaded)
                 setStatusReadAt(startedAt)
+                // A read that answers puts the last failure behind it: one error while a module compiles
+                // would otherwise leave the screen on a dead end until the browser is reloaded.
+                setLoadError(null)
             })
             .catch((error: unknown) => setLoadError(errorMessage(error)))
     }, [projectId])
@@ -217,11 +223,11 @@ export const ModuleWorkspace = () => {
     // compilation to reach it. They are kept under the module they belong to: moving to another module of the
     // same project keeps this screen mounted, and the tables left behind are none of the new module's.
     useEffect(() => {
-        if (!projectId || !compilation.ready || loaded?.module === moduleName) {
+        if (!projectId || !compilation.ready || (loaded?.module === moduleName && loaded.project === projectId)) {
             return
         }
         getModuleTables(projectId, moduleName)
-            .then(found => setLoaded({ module: moduleName, tables: found }))
+            .then(found => setLoaded({ project: projectId, module: moduleName, tables: found }))
             .catch((error: unknown) => setLoadError(errorMessage(error)))
     }, [projectId, moduleName, compilation.ready, loaded])
 
@@ -264,6 +270,44 @@ export const ModuleWorkspace = () => {
         load()
         refresh()
     }, [load, refresh])
+
+    // A table written from this screen — created, copied, or a test generated for one — is opened where it
+    // landed. The module is compiled again first: a table is in the list only once the workbook is read again.
+    const openWritten = useCallback((written: SummaryTable, module: string) => {
+        reopenRevision()
+        navigate(moduleRoute(projectId ?? '', module, written.id))
+    }, [navigate, projectId, reopenRevision])
+
+    // The properties of a table are rows of the table itself, so writing them rewrites it: the module is
+    // compiled again and the table drawn afresh, under the id it has once it was written.
+    const tableRewritten = useCallback((written: string) => {
+        reopenRevision()
+        if (written !== selectedId) {
+            navigate(moduleRoute(projectId ?? '', moduleName, written), { replace: true })
+        }
+    }, [moduleName, navigate, projectId, reopenRevision, selectedId])
+
+    // A test covering this module's tables may be written in another one, so what covers them is only known
+    // once the project's compilation has finished — however it finished.
+    //
+    // Held once it is true: the status says "compiled" as each module finishes and "compiling" again while the
+    // next is built, and a screen that asks the server on this answer would ask again on every flip. Compiling
+    // this module afresh is what makes the question open again.
+    useEffect(() => {
+        setProjectCompiled(false)
+    }, [moduleName, reloadToken])
+
+    useEffect(() => {
+        if (isCompiled(compilation.state)) {
+            setProjectCompiled(true)
+        }
+    }, [compilation.state])
+
+    // A table that is gone leaves the screen on the module it was written in, which opens on its first table.
+    const tableRemoved = useCallback(() => {
+        reopenRevision()
+        navigate(moduleRoute(projectId ?? '', moduleName), { replace: true })
+    }, [moduleName, navigate, projectId, reopenRevision])
 
     // Another module of the same project opens in the same screen, on its own first table.
     const openModule = useCallback((picked: string) => {
@@ -316,16 +360,28 @@ export const ModuleWorkspace = () => {
     }, [moduleName, navigate, openTableById, projectId])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
+    //
+    // Read once the module's own list names that table, which is the moment there is something to read: a link
+    // followed into a project nobody opened is answered with "the project is not opened", and a link carried
+    // over from another module names a table this one does not hold. The list arrives when the module is
+    // compiled, and the table is read then — so opening the project from this screen draws it, unasked.
     useEffect(() => {
-        if (!projectId || selectedId === null) {
+        if (!projectId || selected === null) {
             setTable(null)
+            setTableError(null)
             return
         }
         const { generation } = tableLoads.start(false)
         setTable(null)
         setTableError(null)
         // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it.
-        getRawTable(projectId, selectedId, { module: moduleName, maxRows: TABLE_PAGE_ROWS, metaInfo: true })
+        getRawTable(projectId, selected.id, {
+            module: moduleName,
+            maxRows: TABLE_PAGE_ROWS,
+            metaInfo: true,
+            // What the band offers to run is what the read says can be run.
+            runState: true,
+        })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
                     setTable(loaded)
@@ -336,7 +392,7 @@ export const ModuleWorkspace = () => {
                     setTableError(errorMessage(error))
                 }
             })
-    }, [projectId, selectedId, moduleName, tableLoads, reloadToken])
+    }, [projectId, selected, moduleName, tableLoads])
 
     // The next window of the same table, appended to what is already drawn.
     const showMoreRows = useCallback(() => {
@@ -344,19 +400,26 @@ export const ModuleWorkspace = () => {
             return
         }
         setMoreLoading(true)
+        // The window belongs to the table it continues: picking another one while it is on its way leaves
+        // these rows with nothing to be added to, and they are dropped rather than drawn under the new table.
+        const { generation } = tableLoads.start(true)
         getRawTable(projectId, selectedId, {
             module: moduleName,
             startRow: table.source.length,
             maxRows: TABLE_PAGE_ROWS,
             metaInfo: true,
         })
-            .then(next => setTable(shown => (shown === null ? next : {
+            .then(next => setTable(shown => (shown === null || !tableLoads.isLatest(generation) ? shown : {
                 ...shown,
                 source: [...shown.source, ...next.source],
             })))
-            .catch((error: unknown) => setTableError(errorMessage(error)))
+            .catch((error: unknown) => {
+                if (tableLoads.isLatest(generation)) {
+                    setTableError(errorMessage(error))
+                }
+            })
             .finally(() => setMoreLoading(false))
-    }, [projectId, selectedId, moduleName, table, moreLoading])
+    }, [projectId, selectedId, moduleName, table, moreLoading, tableLoads])
 
     if (loadError) {
         return (
@@ -382,9 +445,6 @@ export const ModuleWorkspace = () => {
 
     const modulePath = modules.find(declared => declared.name === moduleName)?.path
     const testCount = compilation.tests
-    // A test covering this module's tables may be written in another one, so what covers them is only known
-    // once the project's compilation has finished — however it finished.
-    const projectCompiled = isCompiled(compilation.state)
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && !!project.branch
 
     const crumbs = (
@@ -483,7 +543,8 @@ export const ModuleWorkspace = () => {
                 </div>
             )
         }
-        if (selectedId === null) {
+        if (selectedId === null || (tables !== null && tables.length === 0)) {
+            // A module compiled to nothing has no table to draw, whatever the address still names.
             return (
                 <div className={styles.centered}>
                     <Empty data-testid="module-no-table" description={t('browser.module.pick_a_table')} />
@@ -495,9 +556,13 @@ export const ModuleWorkspace = () => {
         // for everything it shows.
         const toolbar = selected === null ? null : (
             <TableToolbar
+                canWrite={!!project.capabilities?.canWrite}
                 moduleName={moduleName}
+                onRemoved={tableRemoved}
+                onWritten={openWritten}
                 projectCompiled={projectCompiled}
                 projectId={project.id}
+                runState={table?.runState}
                 table={selected}
             />
         )
@@ -574,6 +639,7 @@ export const ModuleWorkspace = () => {
                                 modulePath={modulePath}
                                 onProjectChanged={reopenRevision}
                                 onRevisionOpened={reopenRevision}
+                                onTableCreated={openWritten}
                                 project={project}
                                 projectCompiled={projectCompiled}
                                 testCount={testCount}
@@ -610,8 +676,10 @@ export const ModuleWorkspace = () => {
                         <div className={styles.main}>{canvas()}</div>
                         {compilation.ready && !closed && (
                             <TableDetailsPanel
+                                canWrite={!!project.capabilities?.canWrite}
                                 moduleName={moduleName}
                                 onOpenTable={openTableById}
+                                onSaved={tableRewritten}
                                 projectId={project.id}
                                 tableId={selectedId}
                             />

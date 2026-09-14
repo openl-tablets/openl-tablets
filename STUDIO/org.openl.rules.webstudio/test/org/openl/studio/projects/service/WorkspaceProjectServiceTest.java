@@ -102,6 +102,7 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
@@ -114,6 +115,7 @@ import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -946,6 +948,46 @@ class WorkspaceProjectServiceTest {
 
         assertEquals("openl.error.409.project.close.modified.message", exception.getErrorCode());
         verify(project, never()).setBranch("feature");
+    }
+
+    @Test
+    void a_request_that_names_no_module_is_answered_about_the_one_the_reader_has_open() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var moduleModel = mock(ProjectModel.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class)));
+        var registry = mock(CompilationJobRegistry.class);
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        var project = openedProject(webStudio, moduleModel, "Pricing", "Main", "Claims");
+        var descriptor = webStudio.getProjectByName("design", "Pricing");
+        var open = descriptor.getModules().get(1);
+        open.setProject(descriptor);
+        when(webStudio.getCurrentModule()).thenReturn(open);
+
+        service.openProject(project, null);
+
+        // Not the project's first module: opening that one would compile it in place of the module being
+        // read, and the answer would then wait for a compilation it started itself.
+        verify(webStudio).init("design", "main", "Pricing", "Claims");
+    }
+
+    @Test
+    void update_table_properties_requires_permission_to_write_to_the_project() throws Exception {
+        // The ACL grants nothing, which is what a reader who may only read the project is answered with.
+        var acl = mock(RepositoryAclService.class);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var service = newService(acl, mock(ProtectedBranchBypassService.class));
+        var properties = List.of(new TableProperty("description", "Anything"));
+
+        assertThrows(ForbiddenException.class, () -> service.updateTableProperties(project, "table-1", properties));
+
+        // Nothing is taken and nothing is written when the answer is no.
+        verify(project, never()).tryLockOrThrow();
     }
 
     @Test
@@ -1814,6 +1856,56 @@ class WorkspaceProjectServiceTest {
         assertEquals("sprTests", wrapperTest.module());
     }
 
+    @Test
+    void a_test_names_the_table_it_exercises_by_the_id_the_tables_api_addresses_it_by() throws Exception {
+        var moduleModel = TableTestProjects.projectModel(Path.of("test/rules/EPBDS-16463"));
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class)));
+        var project = openedProject(webStudio, moduleModel, "SprTests", "sprTests");
+        var handle = mock(ProjectHandle.class);
+        when(handle.project()).thenReturn(moduleModel);
+        doReturn(handle).when(service).openProject(project, "sprTests");
+        var wrapperTest = tableNamed(moduleModel, "WrapperTest");
+
+        var targets = service.getTableTargets(project, wrapperTest.getId(), "sprTests");
+
+        assertEquals(List.of("Wrapper"), targets.stream().map(TableTargetView::name).toList());
+        var wrapper = targets.getFirst();
+        assertEquals("Wrapper", moduleModel.getTableById(wrapper.id()).getName());
+        // And where it is written, because a test need not live in the module it exercises.
+        assertEquals("sprTests", wrapper.module());
+    }
+
+    @Test
+    void a_table_that_is_no_test_exercises_nothing() throws Exception {
+        var moduleModel = TableTestProjects.projectModel(Path.of("test/rules/EPBDS-16463"));
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class)));
+        var project = openedProject(webStudio, moduleModel, "SprTests", "sprTests");
+        var handle = mock(ProjectHandle.class);
+        when(handle.project()).thenReturn(moduleModel);
+        doReturn(handle).when(service).openProject(project, "sprTests");
+        var wrapper = tableNamed(moduleModel, "Wrapper");
+
+        assertTrue(service.getTableTargets(project, wrapper.getId(), "sprTests").isEmpty());
+    }
+
     /** The compiled table of the module carrying the given name. */
     private static IOpenLTable tableNamed(ProjectModel model, String name) {
         return model.getAllTableSyntaxNodes()
@@ -2127,6 +2219,7 @@ class WorkspaceProjectServiceTest {
                 tableCreatorService,
                 tableCopyService,
                 tablePropertiesService,
+                mock(TableRunStateService.class),
                 mock(TableDetailsService.class),
                 new TableVersionService(),
                 mock(ProjectMetadataService.class),

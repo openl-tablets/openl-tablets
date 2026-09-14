@@ -87,13 +87,16 @@ import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.RawTableSourceActions;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
+import org.openl.studio.projects.model.tables.TablePropertiesUpdate;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
@@ -539,11 +542,15 @@ public class ProjectsController {
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
                                       @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
-                                      @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        if (raw) {
-            return projectService.getTableRaw(project, tableId, startRow, maxRows, styles, metaInfo, module);
+                                      @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
+                                      @RequestParam(value = "runState", defaultValue = "false") @Parameter(description = "projects.table.get.param.run-state.desc") boolean runState) {
+        var read = raw
+                ? projectService.getTableRaw(project, tableId, startRow, maxRows, styles, metaInfo, module)
+                : (EditableTableView) projectService.getTable(project, tableId, module);
+        if (runState && read instanceof TableView view) {
+            view.runState = projectService.getTableRunState(project, tableId, module);
         }
-        return (EditableTableView) projectService.getTable(project, tableId, module);
+        return read;
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/tests")
@@ -554,6 +561,16 @@ public class ProjectsController {
                                              @Parameter(description = "projects.table.get.param.module.desc")
                                              String module) {
         return projectService.getTableTests(project, tableId, module);
+    }
+
+    @GetMapping("/{projectId}/tables/{tableId}/targets")
+    @Operation(summary = "projects.table.targets.summary", description = "projects.table.targets.desc")
+    public List<TableTargetView> getTableTargets(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                 @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                                 @RequestParam(value = "module", required = false)
+                                                 @Parameter(description = "projects.table.get.param.module.desc")
+                                                 String module) {
+        return projectService.getTableTargets(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/properties")
@@ -682,7 +699,37 @@ public class ProjectsController {
                                                        @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                        @Valid @RequestBody RawTableSourceAction action) throws ProjectException {
         try {
-            var newTableId = projectService.editTableSource(project, tableId, action);
+            var newTableId = projectService.editTableSource(project, tableId, List.of(action));
+            return tableWriteResponse(tableId, newTableId);
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @Operation(summary = "project.table.actions.batch.summary", description = "project.table.actions.batch.desc")
+    @ApiResponse(responseCode = "200", description = "project.table.actions.200.desc", headers = @Header(name = HttpHeaders.LOCATION, description = "header.location.desc"))
+    @ApiResponse(responseCode = "204", description = "project.table.actions.204.desc")
+    @PostMapping("/{projectId}/tables/{tableId}/actions/batch")
+    public ResponseEntity<TableIdView> editTableSourceBatch(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                            @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                                            @Valid @RequestBody RawTableSourceActions actions) throws ProjectException {
+        try {
+            var newTableId = projectService.editTableSource(project, tableId, actions.actions());
+            return tableWriteResponse(tableId, newTableId);
+        } finally {
+            getWebStudio().reset();
+        }
+    }
+
+    @Operation(summary = "project.table.properties.update.summary", description = "project.table.properties.update.desc")
+    @ApiResponse(responseCode = "200", description = "project.table.properties.update.200.desc", headers = @Header(name = HttpHeaders.LOCATION, description = "header.location.desc"))
+    @ApiResponse(responseCode = "204", description = "project.table.properties.update.204.desc")
+    @PatchMapping("/{projectId}/tables/{tableId}/properties")
+    public ResponseEntity<TableIdView> updateTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
+                                                             @Valid @RequestBody TablePropertiesUpdate update) throws ProjectException {
+        try {
+            var newTableId = projectService.updateTableProperties(project, tableId, update.properties());
             return tableWriteResponse(tableId, newTableId);
         } finally {
             getWebStudio().reset();

@@ -534,6 +534,33 @@ Insert operations allocate the complete block before applying its inline merges.
 the insertion position are shifted together and preserved; an inline merge does not expand when another item from the
 same request is inserted.
 
+### Applying Several Edits in One Request
+
+An editor keeps the actions a user performs and sends them when the user saves, so a whole editing session reaches
+the table as one change:
+
+```text
+POST /rest/projects/{projectId}/tables/{tableId}/actions/batch
+```
+
+```json
+{
+  "actions": [
+    {"operation": "update", "target": {"type": "cell", "row": 5, "column": 2, "value": "Buenos Dias"}},
+    {"operation": "insert", "target": {"type": "rows", "position": 6, "cells": [[{"value": 6}, {"value": 9}, {"value": "Good Early Morning"}]]}},
+    {"operation": "delete", "target": {"type": "rows", "position": 9, "count": 1}}
+  ]
+}
+```
+
+Each edit takes the same shape as the single-edit request and addresses the table **as the previous edit left it**: an
+insert or a delete shifts the coordinates of everything that follows it in the list.
+
+The table is written once, after the last edit. An edit that is refused ends the sequence and nothing of it reaches the
+table, so a rejected request leaves the table exactly as it was. The response is the same as for a single edit: `204`
+when the table keeps its identifier, or `200` with the new identifier and a `Location` header when the table had to be
+moved to grow.
+
 ### Read-Write Cycle
 
 A complete example of reading a table, modifying it, and writing it back:

@@ -117,7 +117,10 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.model.tables.TableRunState;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -134,6 +137,7 @@ import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TablePropertyText;
+import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -184,6 +188,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableCreatorService tableCreatorService;
     private final TableCopyService tableCopyService;
     private final TablePropertiesService tablePropertiesService;
+    private final TableRunStateService tableRunStateService;
     private final TableDetailsService tableDetailsService;
     private final TableVersionService tableVersionService;
     private final ProjectMetadataService metadataService;
@@ -212,6 +217,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             TableCreatorService tableCreatorService,
             TableCopyService tableCopyService,
             TablePropertiesService tablePropertiesService,
+            TableRunStateService tableRunStateService,
             TableDetailsService tableDetailsService,
             TableVersionService tableVersionService,
             ProjectMetadataService metadataService,
@@ -243,6 +249,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableCreatorService = tableCreatorService;
         this.tableCopyService = tableCopyService;
         this.tablePropertiesService = tablePropertiesService;
+        this.tableRunStateService = tableRunStateService;
         this.tableDetailsService = tableDetailsService;
         this.tableVersionService = tableVersionService;
         this.metadataService = metadataService;
@@ -1773,12 +1780,31 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public ProjectHandle openProject(RulesProject project, @Nullable String moduleName) {
         var projectDescriptor = getProjectDescriptor(project);
+        var asked = moduleName == null ? moduleAlreadyOpen(projectDescriptor) : moduleName;
         var moduleSelector = projectDescriptor.getModules().stream();
-        if (moduleName != null) {
-            moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(moduleName));
+        if (asked != null) {
+            moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(asked));
         }
         var module = moduleSelector.findFirst().orElse(null);
         return openProject(projectDescriptor, project, module);
+    }
+
+    /**
+     * The module of this project the session already has open, when a request names none.
+     *
+     * <p>A request that asks nothing about which module it wants is answered about the one the reader is on:
+     * opening the project's first module instead would compile it in place of the one being read, and the
+     * answer would wait for a compilation it started itself. With none open, the first module is the one to
+     * open — it is the request that opens the project.
+     *
+     * @return the module's name, or {@code null} when the session holds no module of this project
+     */
+    private @Nullable String moduleAlreadyOpen(ProjectDescriptor projectDescriptor) {
+        var open = getWebStudio().getCurrentModule();
+        return open != null && open.getProject() != null
+                && Objects.equals(open.getProject().getName(), projectDescriptor.getName())
+                ? open.getName()
+                : null;
     }
 
     private ProjectDescriptor getProjectDescriptor(RulesProject project) {
@@ -1926,6 +1952,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
         tableView.messages = mapMessages(context);
         return tableView;
+    }
+
+    /**
+     * What the reader may do with the table beyond reading it: run it, and how far a run of it may reach.
+     *
+     * <p>Answered where a screen asks for it: working it out reads what the compiler said about the table and,
+     * for a test, about the rules it exercises — worth doing for the table on screen, not for every read.
+     *
+     * @param project    project owning the table
+     * @param tableId    table being asked about
+     * @param moduleName module the table is read through
+     * @return whether the table can be run, and how far
+     */
+    public TableRunState getTableRunState(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        return tableRunStateService.of(context.module(), context.table());
     }
 
     private List<DetailedMessageDescription> mapMessages(OpenLTableContext context) {
@@ -2085,6 +2127,44 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .toList();
     }
 
+    /**
+     * The tables the given test or run table exercises.
+     *
+     * <p>A test is written against a table of its own project or of one it depends on, so each answer says where
+     * it lives — the screen showing it opens it there, as it opens any other table. A table written in several
+     * versions is tested in all of them at once, and each version is answered under the name that tells it from
+     * the others.
+     *
+     * <p>Any other kind of table exercises nothing and is answered with an empty list.
+     *
+     * @param project    project owning the table
+     * @param tableId    the test or run table the targets are asked about
+     * @param moduleName module the table is asked for through
+     * @return the tables it exercises, in the order the engine holds them
+     */
+    public List<TableTargetView> getTableTargets(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        // While only the opened module is compiled, its own methods are the ones to look the test up among.
+        var openedModuleOnly = !context.module().isProjectCompilationCompleted();
+        var targets = OpenLTableLogic.getTargetTables(context.table(), context.module(), openedModuleOnly);
+        if (targets.isEmpty()) {
+            return List.of();
+        }
+        var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);
+        return targets.stream()
+                .map(target -> {
+                    var where = modules.locationOf(target.getUri());
+                    return TableTargetView.builder()
+                            .id(target.getId())
+                            .name(target.getName())
+                            .module(where == null ? null : where.module())
+                            .project(where == null ? null : where.projectName())
+                            .projectId(where == null ? null : where.projectId())
+                            .build();
+                })
+                .toList();
+    }
+
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
         return getOpenLTable(project, tableId, false);
     }
@@ -2183,25 +2263,48 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Apply a single raw-source edit to a table.
+     * Apply raw-source edits to a table as one change.
      * <p>
-     * The table is always handled in the raw format regardless of its type. The concrete edit (append, insert or delete
-     * a row or a column, or update a cell) is carried by the action.
+     * The table is always handled in the raw format regardless of its type. The concrete edits (append, insert or
+     * delete a row or a column, update a cell, merge or unmerge a range) are carried by the actions and applied in
+     * the order they are given, each seeing the table as the previous one left it. The workbook is saved once, after
+     * the last of them.
      *
      * @param project project
      * @param tableId table id
-     * @param action  the edit to apply
-     * @return table id after the edit; differs from {@code tableId} when the table was relocated to grow
+     * @param actions the edits to apply, in order
+     * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
      * @throws ProjectException if project is locked by another user
      */
     public String editTableSource(RulesProject project,
                                   String tableId,
-                                  RawTableSourceAction action) throws ProjectException {
+                                  List<RawTableSourceAction> actions) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
         var context = getOpenLTable(project, tableId, true);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableWriterExecutor.executeSourceAction(writer, action);
+        return tableWriterExecutor.executeSourceAction(writer, actions);
+    }
+
+    /**
+     * Writes the given properties onto a table of the currently opened project.
+     *
+     * <p>Only the properties section is rewritten: a property is added, changed or taken away where it stands, and
+     * the body of the table is neither read nor sent. A property given no value is removed, and an inherited value
+     * applies again in its place.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to write to
+     * @param properties the properties to write, each with the text its value is written as
+     * @return the table's identifier after the write, which changes when the table had to be moved to grow
+     * @throws ProjectException if project is locked by another user
+     */
+    public String updateTableProperties(RulesProject project, String tableId,
+                                        List<TableProperty> properties) throws ProjectException {
+        requireGranted(project, BasePermission.WRITE);
+        var context = getOpenLTable(project, tableId, true);
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        return tablePropertiesService.write(context.table(), properties);
     }
 
     /**

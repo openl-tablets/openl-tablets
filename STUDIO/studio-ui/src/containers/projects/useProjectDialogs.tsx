@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Project } from '../../types/projects'
 import type { Repository } from '../../types/repositories'
 import { getDesignRepositories } from '../../services/repositories'
@@ -75,6 +75,10 @@ export const useProjectDialogs = (
         deploy: () => window.dispatchEvent(new CustomEvent('openDeployModal', { detail: project })),
     }
 
+    // Kept as one list across renders: the copy dialog starts afresh whenever it is handed another one, and
+    // a screen re-reading itself in the background would empty the form under the author's hands.
+    const creatable = useMemo(() => creatableRepositories(repositories ?? []), [repositories])
+
     // Each dialog hands the project back busy: its own spinner covers the request, and the busy state
     // covers the read that follows it.
     const dialogs = (
@@ -90,7 +94,7 @@ export const useProjectDialogs = (
                 onCopied={() => run('copy', async () => onChanged())}
                 open={copySource !== null}
                 project={copySource}
-                repositories={creatableRepositories(repositories ?? [])}
+                repositories={creatable}
             />
         </>
     )

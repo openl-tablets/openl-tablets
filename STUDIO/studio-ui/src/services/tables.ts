@@ -10,9 +10,10 @@ import type {
     TableInput,
     TableInputCasesPage,
     TableInputTestCase,
+    TableProperty,
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
-import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS } from './apiCall'
+import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from './apiCall'
 import { toUrlSafeId } from './projectId'
 
 /** How many cases of a test table a page carries, as the API pages them. */
@@ -143,6 +144,66 @@ export const copyTable = async (
         missingTable: i18n.t('project:copy_table_modal.copied_table_not_found'),
     }
 )
+
+/**
+ * Writes properties onto a table, leaving the ones it is not told about as they are.
+ *
+ * <p>Only the values cross the wire: the table's body takes no part in this, however large it is. A property
+ * given no value is taken away, and a value the module or the category also declares applies again in its place.
+ *
+ * @returns the table's id after the write — it changes when the table had to be moved to grow — or null when
+ *          the write failed, which is reported to the reader here
+ */
+export const updateTableProperties = async (
+    projectId: string,
+    tableId: string,
+    properties: TableProperty[]
+): Promise<string | null> => {
+    try {
+        const written = await apiCall(
+            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/properties`,
+            {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ properties }),
+            },
+            LOCAL_LOAD_API_OPTIONS
+        ) as { id?: string } | null
+        notification.success({ title: i18n.t('project:table_properties.saved') })
+        // The table keeps its id unless it had to be moved to grow, and then the answer carries the new one.
+        return written?.id ?? tableId
+    } catch (error) {
+        notifyLoadFailure(i18n.t('project:table_properties.save_failed'), error)
+        return null
+    }
+}
+
+/**
+ * Removes a table from the module it is written in.
+ *
+ * <p>The whole area the table takes is cleared from its sheet, whatever kind of table it is; what stands around
+ * it stays where it is. The table is gone from the rules once the module is compiled again, and out of the
+ * Design repository once the project is saved.
+ *
+ * @returns whether the table was removed; a failure is reported to the reader here
+ */
+export const deleteTable = async (projectId: string, tableId: string, tableName: string): Promise<boolean> => {
+    try {
+        await apiCall(
+            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}`,
+            { method: 'DELETE' },
+            LOCAL_LOAD_API_OPTIONS
+        )
+        notification.success({
+            title: i18n.t('project:delete_table.deleted'),
+            description: i18n.t('project:delete_table.deleted_description', { table: tableName }),
+        })
+        return true
+    } catch (error) {
+        notifyLoadFailure(i18n.t('project:delete_table.delete_failed'), error)
+        return false
+    }
+}
 
 /** The address of a table's input, and of the cases and single case under it. */
 const inputUrl = (projectId: string, tableId: string, suffix = ''): string =>

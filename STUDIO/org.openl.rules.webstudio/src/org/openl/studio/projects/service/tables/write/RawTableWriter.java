@@ -246,14 +246,32 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * @param action the edit to apply
      */
     public void apply(RawTableSourceAction action) {
+        apply(List.of(action));
+    }
+
+    /**
+     * Apply a sequence of in-place edits to the table's raw source matrix and save the result once.
+     * <p>
+     * The edits are applied in the order they are given, each seeing the table as the previous one left it: a row
+     * inserted by an earlier edit shifts the coordinates every later edit addresses. All coordinates are 0-based and
+     * relative to the developer view (the full table including the header row), matching the matrix returned by the
+     * raw read.
+     * <p>
+     * The whole sequence is one change: the workbook is saved once, after the last edit. An edit that is refused
+     * ends the sequence, and nothing of it reaches the workbook.
+     *
+     * @param actions the edits to apply, in order
+     */
+    public void apply(List<RawTableSourceAction> actions) {
         if (!isUpdateMode()) {
             throw new IllegalStateException("Source actions are only allowed in update mode.");
         }
         try {
             table.getGridTable().edit();
             // An action must not turn a recognized table into one OpenL cannot parse (an unknown header) — that would
-            // bypass the create/update header check and leave an invisible table.
-            preservingKnownHeader(() -> dispatch(action));
+            // bypass the create/update header check and leave an invisible table. Only the state the sequence ends in
+            // has to be readable; an edit in the middle of it may leave the header half-written.
+            preservingKnownHeader(() -> actions.forEach(this::dispatch));
             save();
         } finally {
             table.getGridTable().stopEditing();

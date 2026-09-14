@@ -77,7 +77,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         return Collections.unmodifiableList(args);
     }
 
-    private static ParsedIdentifier readIdentifier(String source, int from) {
+    static ParsedIdentifier readIdentifier(String source, int from) {
         var pos = rollWhitespaces(source, from);
         var start = pos;
         pos = rollIdentifier(source, pos);
@@ -104,7 +104,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         return pos;
     }
 
-    private record ParsedIdentifier(int pos, String identifier) {
+    record ParsedIdentifier(int pos, String identifier) {
 
         public boolean hasIdentifier() {
             return identifier != null;

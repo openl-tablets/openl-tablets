@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -115,6 +116,32 @@ class TableDetailsServiceImplTest {
     @Test
     void describesNothingForATableThatCarriesNoProperties() {
         assertTrue(service.read(table(XlsNodeTypes.XLS_PROPERTIES)).groups().isEmpty());
+    }
+
+    @Test
+    void saysThatTheTableTakesPropertiesAndWhichItMayStillBeGiven() {
+        var details = service.read(table(XlsNodeTypes.XLS_DT));
+
+        assertTrue(details.canEditProperties());
+        // Only what a table of this kind takes on a table of its own, and nothing it already shows: the two it
+        // declares, and the ones it inherits from the module.
+        assertFalse(details.available().contains("description"));
+        assertFalse(details.available().contains("lob"));
+        assertFalse(details.available().contains("effectiveDate"));
+        assertTrue(details.available().contains("category"));
+        // The version is given to a table by copying it; who edited it is recorded by OpenL Studio itself.
+        assertFalse(details.available().contains("version"));
+        assertFalse(details.available().contains("modifiedBy"));
+        // A datatype's package is no part of a rules table.
+        assertFalse(details.available().contains("datatypePackage"));
+    }
+
+    @Test
+    void offersNothingOnATableThatCarriesNoPropertiesAtAll() {
+        var details = service.read(table(XlsNodeTypes.XLS_PROPERTIES));
+
+        assertFalse(details.canEditProperties());
+        assertTrue(details.available().isEmpty());
     }
 
     private static List<String> names(List<TablePropertyDetailView> properties) {

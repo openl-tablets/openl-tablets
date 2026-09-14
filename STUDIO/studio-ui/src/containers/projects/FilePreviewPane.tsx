@@ -111,6 +111,9 @@ const useFileText = (selection: FileSelection, editable: boolean, changedFiles: 
 
     useEffect(() => {
         if (!path || !editable) {
+            // Nothing is read for it, so nothing is remembered as read: a file opened again after this one
+            // would otherwise be taken for the one already on screen and left empty.
+            lastLoaded.current = null
             setContent('')
             setOriginal('')
             setLoading(false)
@@ -175,6 +178,32 @@ interface FileSelection {
     reloadToken: number | undefined
 }
 
+/** Whether the pane is already on the file the screen is asking for, in the branch and revision it asks for. */
+const sameSelection = (one: FileSelection, other: FileSelection) =>
+    one.branch === other.branch
+    && one.path === other.path
+    && one.projectId === other.projectId
+    && one.projectName === other.projectName
+    && one.reloadToken === other.reloadToken
+    && one.repositoryId === other.repositoryId
+
+/** What the file menu offers, which is what the reader may do to the project. */
+const fileMenuItems = (
+    canWrite: boolean,
+    canDelete: boolean,
+    t: (key: string) => string
+): NonNullable<MenuProps['items']> => [
+    ...(canWrite ? [
+        { key: 'rename', icon: <FontColorsOutlined />, label: t('browser.files.rename') },
+        { key: 'move', icon: <DragOutlined />, label: t('browser.files.move') },
+        { key: 'update', icon: <UploadOutlined />, label: t('browser.files.update') },
+        { key: 'copy', icon: <CopyOutlined />, label: t('browser.files.copy') },
+    ] : []),
+    ...(canDelete
+        ? [{ key: 'delete', danger: true, icon: <DeleteOutlined />, label: t('browser.files.delete') }]
+        : []),
+]
+
 /**
  * The right pane of the Files tab: shows the selected file. Text files open read-only in a
  * syntax-highlighted viewer; the pencil switches to an editable view with save and cancel. Binary files
@@ -217,14 +246,10 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         repositoryId,
     }
 
+    // The file the screen asks for is taken up at once, unless what is on screen has unsaved changes: that
+    // one waits until the reader says whether to keep it or let it go.
     useEffect(() => {
-        const sameSelection = activeSelection.branch === incomingSelection.branch &&
-            activeSelection.path === incomingSelection.path &&
-            activeSelection.projectId === incomingSelection.projectId &&
-            activeSelection.projectName === incomingSelection.projectName &&
-            activeSelection.reloadToken === incomingSelection.reloadToken &&
-            activeSelection.repositoryId === incomingSelection.repositoryId
-        if (sameSelection) {
+        if (sameSelection(activeSelection, incomingSelection)) {
             return
         }
         if (dirty) {
@@ -233,21 +258,9 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         }
         setPendingSelection(null)
         setActiveSelection(incomingSelection)
-    }, [
-        activeSelection.branch,
-        activeSelection.path,
-        activeSelection.projectId,
-        activeSelection.projectName,
-        activeSelection.reloadToken,
-        activeSelection.repositoryId,
-        dirty,
-        incomingSelection.branch,
-        incomingSelection.path,
-        incomingSelection.projectId,
-        incomingSelection.projectName,
-        incomingSelection.reloadToken,
-        incomingSelection.repositoryId,
-    ])
+        // The incoming selection is built from these on every render, so they are what it changes with; the
+        // object itself is new each time and would run this effect — and set state from it — for ever.
+    }, [activeSelection, branch, dirty, path, projectId, projectName, reloadToken, repositoryId])
 
     // A newly accepted file — or a project reload (save/close) — returns the pane to read-only view.
     useEffect(() => {
@@ -302,25 +315,16 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
     }
 
     // Edit and Export stay to hand; the rarer file actions gather under one menu, as they do elsewhere.
-    const menuItems: MenuProps['items'] = [
-        ...(canWrite ? [{ key: 'rename', icon: <FontColorsOutlined />, label: t('browser.files.rename') }] : []),
-        ...(canWrite ? [{ key: 'move', icon: <DragOutlined />, label: t('browser.files.move') }] : []),
-        ...(canWrite ? [{ key: 'update', icon: <UploadOutlined />, label: t('browser.files.update') }] : []),
-        ...(canWrite ? [{ key: 'copy', icon: <CopyOutlined />, label: t('browser.files.copy') }] : []),
-        ...(canDelete ? [{ key: 'delete', danger: true, icon: <DeleteOutlined />, label: t('browser.files.delete') }] : []),
-    ]
+    const menuItems = fileMenuItems(canWrite, canDelete, t)
     const runFromMenu: MenuProps['onClick'] = ({ key }) => {
-        if (key === 'rename') {
-            setMoving('rename')
-        } else if (key === 'move') {
-            setMoving('move')
-        } else if (key === 'update') {
-            setUpdating(true)
-        } else if (key === 'copy') {
-            setCopying(true)
-        } else if (key === 'delete') {
-            setDeleting(true)
+        const chosen: Record<string, () => void> = {
+            rename: () => setMoving('rename'),
+            move: () => setMoving('move'),
+            update: () => setUpdating(true),
+            copy: () => setCopying(true),
+            delete: () => setDeleting(true),
         }
+        chosen[key]?.()
     }
 
     return (
