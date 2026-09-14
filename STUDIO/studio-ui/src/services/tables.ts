@@ -13,7 +13,7 @@ import type {
     TableProperty,
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
-import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS } from './apiCall'
+import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from './apiCall'
 import { toUrlSafeId } from './projectId'
 
 /** How many cases of a test table a page carries, as the API pages them. */
@@ -173,10 +173,7 @@ export const updateTableProperties = async (
         // The table keeps its id unless it had to be moved to grow, and then the answer carries the new one.
         return written?.id ?? tableId
     } catch (error) {
-        notification.error({
-            title: i18n.t('project:table_properties.save_failed'),
-            description: errorMessage(error),
-        })
+        notifyLoadFailure(i18n.t('project:table_properties.save_failed'), error)
         return null
     }
 }
@@ -203,10 +200,7 @@ export const deleteTable = async (projectId: string, tableId: string, tableName:
         })
         return true
     } catch (error) {
-        notification.error({
-            title: i18n.t('project:delete_table.delete_failed'),
-            description: errorMessage(error),
-        })
+        notifyLoadFailure(i18n.t('project:delete_table.delete_failed'), error)
         return false
     }
 }

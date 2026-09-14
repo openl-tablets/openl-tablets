@@ -73,11 +73,11 @@ const useStyles = createStyles(({ css, token }) => ({
  */
 const NOT_COPYABLE = new Set(['Datatype', 'Environment', 'Properties', 'Other'])
 
-/** The families of table that can be executed at all; the rest are read, not run. */
-const EXECUTABLE = new Set(['Rules', 'Spreadsheet', 'Method', 'Test', 'TBasic', 'Column Match', 'Run'])
-
 /** The families written against another table: they are the only ones with a table to name. */
 const EXERCISING = new Set(['Test', 'Run'])
+
+/** The families of table that can be executed at all — what the rules can call, and what calls it. */
+const EXECUTABLE = new Set([...EXECUTABLE_KINDS, ...EXERCISING])
 
 /**
  * Whether a test can be written against the table.
@@ -302,6 +302,42 @@ export const TableToolbar = ({
     const openTable = (found: TableTest | TableTarget) =>
         navigate(moduleRoute(found.projectId ?? projectId, found.module ?? moduleName, found.id))
 
+    /**
+     * The tables beside the band: what this one exercises, and what exercises it.
+     *
+     * <p>Each is a link to where that table is written. A project the session cannot address has no screen to
+     * open it on, and the reader is told where it lives instead.
+     */
+    const related = (
+        testId: string,
+        title: string,
+        items: Array<TableTest | TableTarget>,
+        idPrefix: string,
+        label: (item: TableTest & TableTarget) => string
+    ) => items.length > 0 && (
+        <div className={styles.tests} data-testid={testId}>
+            <span className={styles.testsTitle}>{title}</span>
+            {items.map(item => (
+                <Tooltip
+                    key={item.id}
+                    title={item.project && item.projectId === undefined
+                        ? t('browser.module.test_elsewhere', { project: item.project })
+                        : undefined}
+                >
+                    <Button
+                        className={styles.testLink}
+                        data-testid={`${idPrefix}${item.id}`}
+                        disabled={item.module !== undefined && item.projectId === undefined}
+                        onClick={() => openTable(item)}
+                        type="link"
+                    >
+                        {label(item as TableTest & TableTarget)}
+                    </Button>
+                </Tooltip>
+            ))}
+        </div>
+    )
+
     /** What a test is called in the list, saying where it lives when that is not the module being read. */
     const testLabel = (test: TableTest) => {
         const name = test.info ? `${test.name} (${test.info})` : test.name
@@ -328,56 +364,10 @@ export const TableToolbar = ({
                     </Tooltip>
                 )
             })}
-            {targets.length > 0 && (
-                <div className={styles.tests} data-testid="table-target-tables">
-                    <span className={styles.testsTitle}>
-                        {t(targets.length > 1 ? 'browser.module.target_tables' : 'browser.module.target_table')}
-                    </span>
-                    {targets.map(target => (
-                        <Tooltip
-                            key={target.id}
-                            title={target.project && target.projectId === undefined
-                                ? t('browser.module.test_elsewhere', { project: target.project })
-                                : undefined}
-                        >
-                            <Button
-                                className={styles.testLink}
-                                data-testid={`table-target-${target.id}`}
-                                // A project the session cannot address has no screen to open the table on.
-                                disabled={target.module !== undefined && target.projectId === undefined}
-                                onClick={() => openTable(target)}
-                                type="link"
-                            >
-                                {target.name}
-                            </Button>
-                        </Tooltip>
-                    ))}
-                </div>
-            )}
-            {tests.length > 0 && (
-                <div className={styles.tests} data-testid="table-available-tests">
-                    <span className={styles.testsTitle}>{t('browser.module.available_tests')}</span>
-                    {tests.map(test => (
-                        <Tooltip
-                            key={test.id}
-                            title={test.project && test.projectId === undefined
-                                ? t('browser.module.test_elsewhere', { project: test.project })
-                                : undefined}
-                        >
-                            <Button
-                                className={styles.testLink}
-                                data-testid={`table-test-${test.id}`}
-                                // A project the session cannot address has no screen to open the test on.
-                                disabled={test.module !== undefined && test.projectId === undefined}
-                                onClick={() => openTable(test)}
-                                type="link"
-                            >
-                                {testLabel(test)}
-                            </Button>
-                        </Tooltip>
-                    ))}
-                </div>
-            )}
+            {related('table-target-tables',
+                t(targets.length > 1 ? 'browser.module.target_tables' : 'browser.module.target_table'),
+                targets, 'table-target-', target => target.name)}
+            {related('table-available-tests', t('browser.module.available_tests'), tests, 'table-test-', testLabel)}
         </div>
     )
 }

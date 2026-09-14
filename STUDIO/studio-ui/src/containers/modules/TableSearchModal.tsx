@@ -40,6 +40,17 @@ interface PropertyFilter {
 /** The next row's id: a row keyed by its place in the list would carry its neighbour's state when one goes. */
 let nextFilterId = 0
 
+/**
+ * Where the body of one result has got to: on its way, read, or refused.
+ *
+ * <p>Each says what it is rather than being told apart by its shape — a failure carries a message, and a
+ * message is a string like any other.
+ */
+type ResultBody =
+    | { state: 'reading' }
+    | { state: 'read', table: RawTableView }
+    | { state: 'failed', message: string }
+
 const useStyles = createStyles(({ css, token }) => ({
     form: css`
         display: grid;
@@ -150,7 +161,7 @@ export const TableSearchModal = ({
     const [searching, setSearching] = useState(false)
     const [failure, setFailure] = useState<string | null>(null)
     /** The body of a result, once the reader asked for it: what was read, or why it could not be. */
-    const [bodies, setBodies] = useState<Record<string, RawTableView | string | 'reading'>>({})
+    const [bodies, setBodies] = useState<Record<string, ResultBody>>({})
 
     /**
      * The search opens as it starts, whatever was asked of it before.
@@ -228,11 +239,14 @@ export const TableSearchModal = ({
             setBodies(({ [key]: _dropped, ...rest }) => rest)
             return
         }
-        setBodies(previous => ({ ...previous, [key]: 'reading' }))
+        setBodies(previous => ({ ...previous, [key]: { state: 'reading' } }))
         const { projectId: where, module } = at(table)
         getRawTable(where, table.id, { module, maxRows: TABLE_PAGE_ROWS })
-            .then(read => setBodies(previous => ({ ...previous, [key]: read })))
-            .catch((error: unknown) => setBodies(previous => ({ ...previous, [key]: errorMessage(error) })))
+            .then(read => setBodies(previous => ({ ...previous, [key]: { state: 'read', table: read } })))
+            .catch((error: unknown) => setBodies(previous => ({
+                ...previous,
+                [key]: { state: 'failed', message: errorMessage(error) },
+            })))
     }
 
     /**
@@ -256,8 +270,9 @@ export const TableSearchModal = ({
     const entry = (table: ModuleTable) => {
         const key = keyOf(table)
         const body = bodies[key]
-        const rows = typeof body === 'object' ? body.source : null
-        const total = typeof body === 'object' ? body.totalRows ?? body.source.length : 0
+        const read = body?.state === 'read' ? body.table : null
+        const rows = read?.source ?? null
+        const total = read ? read.totalRows ?? read.source.length : 0
         return (
             <div key={key} className={styles.entry} data-testid={`table-search-result-${table.id}`}>
                 <Space size="small">
@@ -271,12 +286,12 @@ export const TableSearchModal = ({
                     </Button>
                     <Button
                         data-testid={`table-search-body-${table.id}`}
-                        loading={body === 'reading'}
+                        loading={body?.state === 'reading'}
                         onClick={() => toggleBody(table)}
                         size="small"
                         type="link"
                     >
-                        {t(body === undefined || body === 'reading'
+                        {t(body === undefined || body.state === 'reading'
                             ? 'browser.module.search_show_body'
                             : 'browser.module.search_hide_body')}
                     </Button>
@@ -288,8 +303,8 @@ export const TableSearchModal = ({
                 <span className={styles.where}>
                     {[table.project, table.module ?? moduleName].filter(Boolean).join(' · ')}
                 </span>
-                {typeof body === 'string' && body !== 'reading' && (
-                    <Alert showIcon description={body} type="error" />
+                {body?.state === 'failed' && (
+                    <Alert showIcon description={body.message} type="error" />
                 )}
                 {rows && (
                     <div className={styles.body}>

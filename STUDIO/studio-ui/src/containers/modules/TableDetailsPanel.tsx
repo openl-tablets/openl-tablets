@@ -109,7 +109,7 @@ interface PropertyRow {
 }
 
 /** What the reader has written but not saved: a value for each property they touched, {@code null} to take away. */
-type PropertyDraft = Record<string, string | boolean | null>
+type PropertyDraft = Record<string, string | null>
 
 interface TableDetailsPanelProps {
     projectId: string
@@ -223,7 +223,7 @@ export const TableDetailsPanel = ({
                 .filter(property => draft[property.name] !== null)
                 .map((property): PropertyRow => ({
                     ...property,
-                    value: property.name in draft ? String(draft[property.name] ?? '') : property.value,
+                    value: property.name in draft ? draft[property.name] ?? '' : property.value,
                 })),
         })).filter(group => group.properties.length > 0)
         // A property the reader added stands in the group the dictionary gives it, with the ones already there.
@@ -236,7 +236,7 @@ export const TableDetailsPanel = ({
             const row: PropertyRow = {
                 name,
                 displayName: definition.displayName,
-                value: String(draft[name] ?? ''),
+                value: draft[name] ?? '',
             }
             const group = shown.find(candidate => candidate.name === definition.group)
             if (group) {
@@ -260,10 +260,7 @@ export const TableDetailsPanel = ({
             return
         }
         // Only what the reader touched is sent: the table keeps every property this panel was not asked about.
-        const written = Object.entries(draft).map(([name, value]) => ({
-            name,
-            value: value === null ? null : String(value),
-        }))
+        const written = Object.entries(draft).map(([name, value]) => ({ name, value }))
         setSaving(true)
         const table = await updateTableProperties(projectId, tableId, written)
         setSaving(false)
@@ -286,7 +283,7 @@ export const TableDetailsPanel = ({
                 aria-label={property.displayName}
                 data-testid={`table-details-input-${property.name}`}
                 definition={definitionOf(property.name)}
-                onChange={value => setDraft(current => ({ ...current, [property.name]: value }))}
+                onChange={value => setDraft(current => ({ ...current, [property.name]: String(value) }))}
                 placeholder={property.displayName}
                 value={property.value}
             />
@@ -414,7 +411,7 @@ export const TableDetailsPanel = ({
                         value={null}
                         onChange={(name: string) => setDraft(current => ({
                             ...current,
-                            [name]: initialPropertyValue(definitionOf(name)),
+                            [name]: String(initialPropertyValue(definitionOf(name))),
                         }))}
                     />
                 )}

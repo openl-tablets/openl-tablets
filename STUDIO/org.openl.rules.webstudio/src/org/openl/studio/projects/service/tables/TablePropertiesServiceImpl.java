@@ -2,12 +2,10 @@ package org.openl.studio.projects.service.tables;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -17,9 +15,6 @@ import org.springframework.stereotype.Service;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableProperty;
@@ -71,12 +66,14 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
 
     @Override
     public String write(IOpenLTable table, List<TableProperty> properties) {
-        if (!table.isCanContainProperties() || TableDetailsServiceImpl.isAssembledFromParts(table)) {
+        if (!TablePropertyRules.canEditProperties(table)) {
             throw new BadRequestException("table.properties.unsupported.message");
         }
         var declared = table.getProperties() == null ? Set.<String>of() : table.getProperties().getTableProperties()
                 .keySet();
-        properties.forEach(property -> requireWritable(table, declared, property));
+        // What this kind of table takes is read once, not once per property.
+        var writable = TablePropertyRules.writable(table.getType());
+        properties.forEach(property -> requireWritable(declared, writable, property));
         var gridTable = table.getGridTable();
         gridTable.edit();
         try {
@@ -108,20 +105,12 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
      * an author. A property the table already carries is always allowed, so a value that no longer belongs there
      * can still be taken away.
      */
-    private static void requireWritable(IOpenLTable table, Set<String> declared, TableProperty property) {
+    private static void requireWritable(Set<String> declared, Set<String> writable, TableProperty property) {
         var name = property.name();
-        if (declared.contains(name) || writable(table.getType()).contains(name)) {
+        if (declared.contains(name) || writable.contains(name)) {
             return;
         }
         throw new BadRequestException("table.properties.unsupported-property.message", new Object[]{name});
-    }
-
-    /** The properties a table of this kind may be given, named as the dictionary names them. */
-    private static Set<String> writable(String tableType) {
-        return Arrays.stream(TablePropertyDefinitionUtils
-                        .getDefaultDefinitionsForTable(tableType, InheritanceLevel.TABLE, true))
-                .map(TablePropertyDefinition::getName)
-                .collect(Collectors.toSet());
     }
 
     private static TableProperty property(String name, @Nullable Object value) {
