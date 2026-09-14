@@ -4,7 +4,8 @@
 
 - Swept head is `origin/main` 9a32b54ca7, which is GREEN but for the kafka flake: EPBDS-16415 fixed the two fixture
   lines and `IT (studio)` passes again, so cleanup is no longer barred. The 10 EPBDS-1658x/16415 commits it gained
-  past acdaced8b5 (39 files, webstudio execution + studio-ui) are swept whole; only #2109 came out of them.
+  past acdaced8b5 (39 files, webstudio execution + studio-ui) are swept whole; only #2109 came out of them, and it
+  is green and waiting on a human approval — nothing to do on it but watch.
 - When `main` gains code: diff against 9a32b54ca7, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
@@ -29,9 +30,9 @@
 
 ## Open PR
 
-- #2109 `dead-code/execution-residue`, head 5 files/5 deletions, one commit: "Remove the React imports left unused by
-  the automatic JSX runtime". No review thread yet. Body records the kept `url` param and that `IT (services-data)`
-  is main's kafka flake.
+- #2109 `dead-code/execution-residue`, head a1ae242, 5 files/5 deletions, one commit: "Remove the React imports left
+  unused by the automatic JSX runtime". ALL 17 checks green and CodeRabbit found nothing; `blocked` now means only a
+  human approval is missing, so leave it alone. Body records the kept `url` param.
 
 ## Merged PRs
 
@@ -210,7 +211,7 @@
 - IT (studio): WebStudioTest.simple failed requests at ~10002ms (client timeout); Jetty hang; rerun.
 - itest.studio.repos race: two revisions share createdAt → history order flips (task_EPBDS-15439/.../500-verify); rerun.
 - Sonar analysis job: jacoco report-aggregate `Unknown block type` on ITEST/server-core/target/jacoco.exec (overlapping artifact merge); rerun.
-- SonarCloud gate on deletion-only PRs: New Code wider than the diff; pre-existing S2259/S6466 attributed to shifted lines; deterministic, no rerun; merged red before.
+- SonarCloud gate on deletion-only PRs: New Code wider than the diff; pre-existing S2259/S6466 attributed to shifted lines; deterministic, no rerun; merged red before. A diff confined to test files passes it clean (#2109, 0 new issues), so the gate only bites when production lines shift.
 - Maven build extension archetype-packaging transiently unresolvable on one runner ("could not read 2 projects"); rerun.
 - Rerun budget: 2 per check per SHA; reruns are not possible from this sandbox (no gh, no Actions write) — say so once and let the next push retry.
 
@@ -285,4 +286,4 @@
 
 - 2026-09-14 c: #2104 rebase-merged by yurkom (4 commits, 162 deletions on main); PR watch stopped, ledger closed out.
 - 2026-09-14 d: standstill; main acdaced8b5 = 0d9aab81 + 3 dependabot bumps, still red on itest.studio.repos, at 287.
-- 2026-09-14 e: main green again (EPBDS-16415 fixed the fixtures); swept its 10 new commits, opened #2109 (5 lines), at 288.
+- 2026-09-14 e: main green again (EPBDS-16415 fixed the fixtures); swept its 10 new commits, #2109 (5 lines) opened and fully green, at 288.
