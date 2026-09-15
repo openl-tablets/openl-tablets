@@ -524,6 +524,36 @@ class RawTableWriterTest {
     }
 
     @Test
+    void refusesAColumnBeforeTheFirstOne() {
+        // The first column holds the corner OpenL finds the table by. A column laid down before it would leave
+        // that corner blank and the table lost, so the table does not take one there.
+        assertThrows(BadRequestException.class,
+                () -> apply(insertColumn(0, row("n", "long", "id", "epsilon"))));
+
+        var source = reload(mainProject);
+        assertEquals(3, width(source));
+        assertEquals(HEADER, value(source, 0, 0));
+    }
+
+    @Test
+    void refusesToTakeAwayTheFirstColumn() {
+        assertThrows(BadRequestException.class, () -> apply(deleteColumn(0)));
+
+        var source = reload(mainProject);
+        assertEquals(3, width(source));
+        assertEquals(HEADER, value(source, 0, 0));
+    }
+
+    @Test
+    void refusesToTakeAwayTheRowTheHeaderStandsOn() {
+        assertThrows(BadRequestException.class, () -> apply(deleteRow(0)));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size());
+        assertEquals(HEADER, value(source, 0, 0));
+    }
+
+    @Test
     void deletesColumn() {
         apply(deleteColumn(2));
 
