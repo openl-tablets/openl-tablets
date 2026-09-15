@@ -118,10 +118,30 @@ describe('ModuleTablesTree', () => {
             />
         )
 
-        expect(screen.getByTestId('module-table-errors')).toHaveTextContent('3')
-        // A table that compiled says nothing, and only the table a test exercises is marked.
-        expect(screen.getAllByTestId('module-table-errors')).toHaveLength(1)
+        // The broken table says three, and the sheet it is written on says three for it — the tables that
+        // compiled say nothing. Only the table a test exercises is marked.
+        expect(screen.getAllByTestId('module-table-errors').map(badge => badge.textContent)).toEqual(['3', '3'])
         expect(screen.getAllByTestId('module-table-tested')).toHaveLength(1)
+    })
+
+    it('gathers on a group the errors of everything under it', () => {
+        const here = { ...tables[0], id: 'bad', name: 'Broken', sheet: 'Claims', errors: 3 } as ModuleTable
+        const alsoHere = { ...tables[0], id: 'worse', name: 'Worse', sheet: 'Claims', errors: 4 } as ModuleTable
+
+        render(
+            <ModuleTablesTree
+                currentModule="Claims"
+                modules={modules}
+                onExtendedSearch={vi.fn()}
+                onSelectModule={vi.fn()}
+                onSelectTable={vi.fn()}
+                selectedTableId="bad"
+                tables={[...tables, here, alsoHere]}
+            />
+        )
+
+        // The sheet holding both stands for seven; the sheet holding the table that compiled stands for none.
+        expect(screen.getAllByTestId('module-table-errors').map(badge => badge.textContent)).toEqual(['7', '3', '4'])
     })
 
     it('shows what a table is, in full, on the name the tree cuts short', async () => {

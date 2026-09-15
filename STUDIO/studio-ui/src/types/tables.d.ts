@@ -246,6 +246,11 @@ export interface RawTableView {
     messages?: ProjectStatusDetailedMessage[]
     /** Whether the table can be run, and how far; absent while the read that carries it is on its way. */
     runState?: TableRunState
+    /**
+     * `true` when the table is written as several partial tables gathered from more than one place in the
+     * workbook. Such a table is read here but not written — only Excel can edit the cells it is drawn from.
+     */
+    partial?: boolean
 }
 
 /** One field a Datatype table declares. */

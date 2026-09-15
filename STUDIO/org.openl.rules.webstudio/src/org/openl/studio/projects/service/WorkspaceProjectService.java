@@ -716,6 +716,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var builder = super.mapProjectResponse(src, statuses);
         builder.branchProtected(src.isBranchProtected());
         builder.branchDefault(src.isBranchDefault());
+        // An older revision was opened to be read. Nothing has been written into it yet, so a write now would
+        // save it over the revisions that came after — which the reader is asked about before the first one.
+        builder.overwritesNewerRevision(src.isOpenedOtherVersion() && !src.isModified());
         builder.repositoryInfo(mapRepositoryInfo(src));
         projectDependencyResolver.getDependencies(src).stream()
                 .sorted(DEPENDENCY_NAME_ORDER)
@@ -1878,6 +1881,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // compilation job is not carried at all: asking the session's registry for one from such a thread fails,
         // and the status endpoint adopts a compilation started this way the moment it is asked about it.
         var webStudio = getWebStudio();
+        if (reset) {
+            // Asking for the module to be built afresh is the manual compilation Verify stands for: with
+            // automatic compilation off nothing else builds a module that has been written to. A read that
+            // only asks for what is there — the screen re-reading a table it has just written — is not that,
+            // and must not compile the module the setting says to leave alone.
+            webStudio.invokeManualCompile();
+        }
         moduleCompilationLauncher.launch(moduleName, () -> {
             var moduleModel = webStudio.getModel();
             // Opening a module already open compiles nothing, so a request to build it once more has to say so:
@@ -1967,8 +1977,23 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .findFirst()
                 .orElse(null);
         var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
-        tableView.messages = mapMessages(context);
-        return tableView;
+        return described(tableView, context);
+    }
+
+    /**
+     * Says on a table's view what the module knows about it beyond its cells.
+     *
+     * <p>Done for every way of reading a table — a screen reads the same table as a grid or as the shape its
+     * kind gives it, and what the compiler made of it does not change with the reader asked for it.
+     */
+    private <T extends TableView> T described(T view, OpenLTableContext context) {
+        view.messages = mapMessages(context);
+        // Said here rather than by the reader: what makes a table partial is where its cells sit in the
+        // workbook, which the module knows and the table itself does not.
+        if (context.module().isTablePart(context.table().getUri())) {
+            view.partial = Boolean.TRUE;
+        }
+        return view;
     }
 
     /**
@@ -2259,9 +2284,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the table and the model it was resolved through
      */
     private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
-        return moduleName == null
+        var context = moduleName == null
                 ? getOpenLTable(project, tableId, true)
                 : getOpenLTableInModule(project, tableId, moduleName);
+        // A table gathered from several partial tables is drawn from cells that do not sit together, and the
+        // grid it is read through holds no place to write back into. Refused here, where every write resolves
+        // its table, rather than left to fail on the grid itself.
+        if (context.module().isTablePart(context.table().getUri())) {
+            throw new BadRequestException("table.partial.message");
+        }
+        return context;
     }
 
     /**
@@ -2279,7 +2311,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         try {
             return write.get();
         } catch (RuntimeException refused) {
-            getWebStudio().recompileCurrentModule();
+            // Read again now, not when the reader next asks for it: what the session holds is a workbook no
+            // author wrote, and every request that follows would be judged against it.
+            getWebStudio().rebuildCurrentModule();
             throw refused;
         }
     }

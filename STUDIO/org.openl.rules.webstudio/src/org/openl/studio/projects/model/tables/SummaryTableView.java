@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *
  * @author Vladyslav Pikus
  */
-@JsonIgnoreProperties("messages")
+// A row of the list says nothing a whole table read says: what the compiler raised about the table, and
+// whether it is written in pieces, are read for the table on screen and not for every row of a rail.
+@JsonIgnoreProperties({"messages", "partial"})
 public class SummaryTableView extends TableView {
 
     @Schema(description = "Return type of the table (e.g., Integer, String, etc.)")

@@ -34,6 +34,11 @@ export interface Project {
     branchProtected?: boolean
     /** Whether the project's current branch is the repository main branch. */
     branchDefault?: boolean
+    /**
+     * Whether the copy open in the workspace is an older revision carrying no changes yet, so the first write
+     * to it would save it over the revisions that came after.
+     */
+    overwritesNewerRevision?: boolean
     capabilities?: ProjectCapabilities
     /** Other projects this project depends on (from its rules.xml). */
     dependencies?: ProjectDependency[]

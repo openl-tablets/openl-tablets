@@ -285,6 +285,19 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   `AutoPolicyCalculation` is a link that looks as if it worked. Where the session cannot address the project —
   it is not open in the workspace — nothing is offered to click, and the reader is told where the table lives
   instead.
+- **A word leads somewhere only where there is somewhere to lead.** Not every table a cell's text resolves to
+  is a table an author wrote: a call to a rule that has several versions resolves to the dispatcher the engine
+  builds while compiling to choose between them, which sits in no workbook. The Editor opened it read-only and
+  took its whole action panel away; here it is never opened at all — the tree leaves it out, and the usage that
+  named it carries no table to open, only what the word stands for. So the read names a table on a usage only
+  where a module holds it.
+- **A table written in pieces is read but not written.** A table can be assembled from several partial tables
+  scattered about the workbook, and the cells it is drawn from do not sit together — there is nothing for an
+  editor to write back into. The read says so (`partial`), the screen puts the Editor's own notice at the top
+  of that table's Problems, and every write is withdrawn from the band above it. Said by the server because
+  what makes a table partial is where its cells sit, which the module knows and the table does not — and
+  refused by the server too, where every write resolves its table, rather than left to fail on the composite
+  grid it is read through, which answered a write with a cast error.
 - **A read that names a module is answered about that module.** `GET /projects/{id}/tables/{tableId}?module=X`
   used to fall back to a project-wide lookup when the module did not hold the table, so a wrong link drew one
   module's table on another module's screen, under the wrong tree and the wrong actions. It now answers "not
@@ -384,6 +397,15 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   on a stopped compilation is answered with it, not with an error — and the next request to compile the module
   builds it from the workbook, whether or not it asks for a reset: opening a module already open compiles
   nothing, so a compilation that was stopped would otherwise never start again.
+- **A setting that says "not after every edit" has to be obeyed by the writes too.** With `compile.auto`
+  switched off, the Editor did not build a module again when a table of it was written — that wait after every
+  edit is what the setting exists to avoid — and offered Verify instead. A write now marks the module as
+  waiting rather than rebuilding it, the status says so (`manualCompileNeeded`), and the module screen carries
+  Verify for as long as it does. Until it is pressed the tables read as they were written — it is the same
+  workbook — and what the compiler said about them is what it said before the write. Two things are not that
+  write: a **refused** one, which rebuilds at once whatever the setting says, because what it left behind is a
+  workbook no author wrote; and a screen re-reading a table it has just written, which asks for what is there
+  rather than for the module to be built.
 - **Refreshing is compiling again, not asking again.** Opening a module already open compiles nothing, so
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a
@@ -400,6 +422,12 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   still be given — its kind's, at table level, less the ones it already shows — because a property the kind does
   not accept is a compile error, not a preference. An inherited value is changed where it stands and lands as
   the table's own, which is what the Editor's own panel did.
+- **A revision opened for reading is still the copy that gets saved.** Opening an older revision replaces the
+  workspace copy with it, so the first write saves it back over everything committed since. The project says
+  when that is so (`overwritesNewerRevision`: an older revision, carrying no changes yet), and the module
+  screen asks before the write rather than telling after it — once, where every write goes through, because
+  they all reach the same workbook. The first write settles it: the project is modified from then on, and the
+  flag is gone.
 - **A dialog that already writes a table is the dialog the editor opens.** Creating a table, copying one and
   writing a test for one are the three dialogs the legacy Editor dispatched to (`openCreateTableModal`,
   `openCopyTableModal`), mounted once in the layout and told in the event where to write and what to do with

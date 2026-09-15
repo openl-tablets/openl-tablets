@@ -1,0 +1,40 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "farewell",
+      "returnType": "String",
+      "signature": "farewell(String name)",
+      "file": "EPBDS-16599-partial/PartialTables.xlsx",
+      "sheet": "Rules",
+      "pos": "B10:C12",
+      "module": "PartialTables",
+      "project": "EPBDS-16599-partial",
+      "projectId": "***"
+    },
+    {
+      "id": "***",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "greeting",
+      "returnType": "String",
+      "signature": "greeting(String name)",
+      "file": "EPBDS-16599-partial/PartialTables.xlsx",
+      "sheet": "Rules",
+      "pos": "B3:C8",
+      "module": "PartialTables",
+      "project": "EPBDS-16599-partial",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}
+

@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -1343,8 +1344,30 @@ class WorkspaceProjectServiceTest {
                 () -> service.updateTableProperties(project, "src-id", properties, null));
 
         // The refused write stopped part-way, leaving what it had changed in the workbook the session holds.
-        // Every request after it would read that, so the module is built from the disk again.
-        verify(webStudio).recompileCurrentModule();
+        // Every request after it would read that, so the module is built from the disk again — now, whatever
+        // the automatic-compilation setting says.
+        verify(webStudio).rebuildCurrentModule();
+    }
+
+    @Test
+    void a_table_written_in_pieces_is_not_written_to() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var model = stubResolvedSource(service, project, mock(IOpenLTable.class));
+        when(model.isTablePart("src-uri")).thenReturn(true);
+
+        var refused = assertThrows(BadRequestException.class, () -> service
+                .updateTableProperties(project, "src-id", List.of(new TableProperty("state", "AL")), null));
+
+        // The cells such a table is drawn from do not sit together, so there is nowhere to write back into:
+        // refused where the table is resolved, rather than left to fail on the grid it is read through.
+        assertEquals("openl.error.400.table.partial.message", refused.getErrorCode());
+        verifyNoInteractions(tablePropertiesService);
     }
 
     @Test
@@ -1440,7 +1463,9 @@ class WorkspaceProjectServiceTest {
     }
 
     /** Stubs the source-resolution chain so {@code getOpenLTable(project, "src-id")} returns {@code source}. */
-    private void stubResolvedSource(WorkspaceProjectService service, RulesProject project, IOpenLTable source) {
+    private ProjectModel stubResolvedSource(WorkspaceProjectService service,
+                                            RulesProject project,
+                                            IOpenLTable source) {
         var handle = mock(ProjectHandle.class);
         var model = mock(ProjectModel.class);
         when(handle.awaitCompiled()).thenReturn(model);
@@ -1451,6 +1476,7 @@ class WorkspaceProjectServiceTest {
         when(model.getModuleInfo()).thenReturn(moduleInfo);
         when(moduleInfo.containsTable("src-uri")).thenReturn(true);
         doReturn(handle).when(service).openProject(project);
+        return model;
     }
 
     private static ProjectDescriptor emptyModulesDescriptor() {
@@ -1601,6 +1627,24 @@ class WorkspaceProjectServiceTest {
         // Opening a module already open compiles nothing, so a refresh has to say that the module is to be
         // built again from the workbook.
         verify(projectModel).reset(eq(ReloadType.RELOAD), any(Module.class));
+        // And asking for it afresh is the manual compilation Verify stands for, which is what clears a module
+        // left waiting because automatic compilation is off.
+        verify(webStudio).invokeManualCompile();
+    }
+
+    @Test
+    void reading_a_module_compiles_nothing_the_reader_did_not_ask_to_be_compiled() throws Exception {
+        var launcher = mock(ModuleCompilationLauncher.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(serviceCompilingWith(webStudio, launcher));
+        var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
+        doReturn(mock(CompilationJobRegistry.class)).when(service).getCompilationJobRegistry();
+
+        service.compileModule(project, "Claims", false);
+
+        // The screen re-reading a table it has just written asks for what is there, not for the module to be
+        // built — with automatic compilation off that is the wait the setting exists to avoid.
+        verify(webStudio, never()).invokeManualCompile();
     }
 
     @Test

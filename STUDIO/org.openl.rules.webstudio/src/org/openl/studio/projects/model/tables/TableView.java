@@ -53,6 +53,13 @@ public abstract class TableView {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public TableRunState runState;
 
+    @Parameter(description = "Set when the table is written as several partial tables, gathered from more than "
+            + "one place in the workbook. Such a table is read here but not written: the cells it is drawn "
+            + "from do not sit together, and only Excel can edit them. Absent on an ordinary table")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public Boolean partial;
+
     protected TableView(Builder<?> builder) {
         this.id = builder.id;
         this.tableType = builder.tableType;

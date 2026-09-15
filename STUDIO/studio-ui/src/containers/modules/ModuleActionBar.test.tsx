@@ -134,6 +134,27 @@ describe('ModuleActionBar', () => {
             .toMatchObject({ projectId: 'p1', modulePath: 'rules/Claims.xlsx' })
     })
 
+    it('offers Verify only while the module is waiting to be compiled', async () => {
+        const onVerify = vi.fn()
+        render(<ModuleActionBar moduleName="Claims" onVerify={onVerify} project={project({} as Project['capabilities'])} verifyNeeded />)
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        await userEvent.click(screen.getByTestId('module-verify'))
+
+        expect(onVerify).toHaveBeenCalled()
+    })
+
+    it('carries no Verify where compilation follows every edit on its own', async () => {
+        render(<ModuleActionBar moduleName="Claims" project={project({} as Project['capabilities'])} />)
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        expect(screen.queryByTestId('module-verify')).not.toBeInTheDocument()
+    })
+
     it('writes a new table into the module, through the dialog that builds it', async () => {
         const opened = vi.fn()
         window.addEventListener('openCreateTableModal', opened)

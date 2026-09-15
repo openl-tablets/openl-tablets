@@ -25,6 +25,14 @@ describe('TableProblems', () => {
         expect(container).toBeEmptyDOMElement()
     })
 
+    it('says why a table of several partial tables cannot be edited here', () => {
+        render(<TableProblems messages={[]} partial />)
+
+        // Said even where the compiler raised nothing: the reader is otherwise left wondering why the table
+        // cannot be written.
+        expect(screen.getByTestId('table-problems-partial')).toHaveTextContent('browser.module.partial_table')
+    })
+
     it('counts what the table raised, and lists it by severity', () => {
         const raised = [
             message(1, 'ERROR', 'Identifier is not found'),

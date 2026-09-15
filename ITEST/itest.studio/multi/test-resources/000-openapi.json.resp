@@ -23969,6 +23969,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -24181,6 +24186,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -25644,6 +25654,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -27291,6 +27306,10 @@ Content-Type: application/json
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy"
           },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
+          },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges"
           },
@@ -27329,6 +27348,10 @@ Content-Type: application/json
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy_Detailed"
           },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
+          },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges_Detailed"
           },
@@ -27366,6 +27389,10 @@ Content-Type: application/json
           },
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy_Full"
+          },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
           },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges_Full"
@@ -27453,6 +27480,10 @@ Content-Type: application/json
           },
           "name": {
             "type": "string",
+            "description": "***"
+          },
+          "overwritesNewerRevision": {
+            "type": "boolean",
             "description": "***"
           },
           "path": {
@@ -27576,6 +27607,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "overwritesNewerRevision": {
+            "type": "boolean",
+            "description": "***"
+          },
           "path": {
             "type": "string",
             "description": "***"
@@ -27679,6 +27714,10 @@ Content-Type: application/json
           },
           "name": {
             "type": "string",
+            "description": "***"
+          },
+          "overwritesNewerRevision": {
+            "type": "boolean",
             "description": "***"
           },
           "path": {
@@ -28309,6 +28348,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "pos": {
                 "type": "string",
@@ -28982,6 +29026,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -29093,6 +29142,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -29226,6 +29280,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -29456,6 +29515,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -30829,6 +30893,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -31791,6 +31860,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",

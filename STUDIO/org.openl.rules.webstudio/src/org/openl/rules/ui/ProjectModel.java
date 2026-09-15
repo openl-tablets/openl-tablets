@@ -1736,6 +1736,17 @@ public class ProjectModel {
         return compiled != null && isUsable(compiled) && xlsModuleSyntaxNode != null;
     }
 
+    /**
+     * Whether the module that is open is waiting for the reader to compile it.
+     *
+     * <p>True only where automatic compilation is switched off and the module has been written to since it was
+     * last built: what the compiler says about it is what it said before that write, and the reader asks for it
+     * to be built again when they are ready.
+     */
+    public boolean isManualCompileNeeded() {
+        return studio.isManualCompileNeeded();
+    }
+
     /** Whether anything can be run against what was compiled, or the module failed before it had a class. */
     private static boolean isUsable(CompiledOpenClass compiled) {
         var openClass = compiled.getOpenClassWithErrors();

@@ -1,0 +1,8 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.partial.message",
+  "message": "The table is written as several partial tables, which do not sit together in the workbook. Open it in Excel to change it."
+}
+

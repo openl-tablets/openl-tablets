@@ -25,6 +25,11 @@ public record ProjectStatusViewModel (
         @Parameter(description = "Compilation details: messages and module progress.")
         CompilationDetails compilation,
 
+        @Parameter(description = "Set when the module the session has open was written to while automatic "
+                + "compilation is switched off, so it is the reader who asks for it to be compiled. Absent "
+                + "where nothing is waiting")
+        Boolean manualCompileNeeded,
+
         @Parameter(description = "Files modified locally and not yet committed to the design repository.")
         PendingChanges pendingChanges
 ) {
