@@ -2274,9 +2274,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the table and the model it was resolved through
      */
     private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
-        return moduleName == null
+        var context = moduleName == null
                 ? getOpenLTable(project, tableId, true)
                 : getOpenLTableInModule(project, tableId, moduleName);
+        // A table gathered from several partial tables is drawn from cells that do not sit together, and the
+        // grid it is read through holds no place to write back into. Refused here, where every write resolves
+        // its table, rather than left to fail on the grid itself.
+        if (context.module().isTablePart(context.table().getUri())) {
+            throw new BadRequestException("table.partial.message");
+        }
+        return context;
     }
 
     /**

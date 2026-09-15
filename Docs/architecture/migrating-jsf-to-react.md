@@ -289,7 +289,9 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   scattered about the workbook, and the cells it is drawn from do not sit together — there is nothing for an
   editor to write back into. The read says so (`partial`), the screen puts the Editor's own notice at the top
   of that table's Problems, and every write is withdrawn from the band above it. Said by the server because
-  what makes a table partial is where its cells sit, which the module knows and the table does not.
+  what makes a table partial is where its cells sit, which the module knows and the table does not — and
+  refused by the server too, where every write resolves its table, rather than left to fail on the composite
+  grid it is read through, which answered a write with a cast error.
 - **A read that names a module is answered about that module.** `GET /projects/{id}/tables/{tableId}?module=X`
   used to fall back to a project-wide lookup when the module did not hold the table, so a wrong link drew one
   module's table on another module's screen, under the wrong tree and the wrong actions. It now answers "not

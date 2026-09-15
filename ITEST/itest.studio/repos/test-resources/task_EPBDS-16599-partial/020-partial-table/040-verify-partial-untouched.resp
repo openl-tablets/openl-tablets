@@ -1,0 +1,36 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "greeting",
+  "partial": true,
+  "returnType": "String",
+  "args": [
+    {
+      "name": "name",
+      "type": "String"
+    }
+  ],
+  "headers": [
+    {
+      "title": "name"
+    },
+    {
+      "title": "greeting"
+    }
+  ],
+  "rules": [
+    {
+      "name": "John",
+      "greeting": "Hi, John"
+    },
+    {
+      "name": "Mary",
+      "greeting": "Hello, Mary"
+    }
+  ]
+}
+

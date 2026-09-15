@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -1349,6 +1350,27 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_table_written_in_pieces_is_not_written_to() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var model = stubResolvedSource(service, project, mock(IOpenLTable.class));
+        when(model.isTablePart("src-uri")).thenReturn(true);
+
+        var refused = assertThrows(BadRequestException.class, () -> service
+                .updateTableProperties(project, "src-id", List.of(new TableProperty("state", "AL")), null));
+
+        // The cells such a table is drawn from do not sit together, so there is nowhere to write back into:
+        // refused where the table is resolved, rather than left to fail on the grid it is read through.
+        assertEquals("openl.error.400.table.partial.message", refused.getErrorCode());
+        verifyNoInteractions(tablePropertiesService);
+    }
+
+    @Test
     void table_properties_are_read_from_the_summary_and_the_properties_service() throws Exception {
         var summaryTableReader = mock(SummaryTableReader.class);
         var tablePropertiesService = mock(TablePropertiesService.class);
@@ -1441,7 +1463,9 @@ class WorkspaceProjectServiceTest {
     }
 
     /** Stubs the source-resolution chain so {@code getOpenLTable(project, "src-id")} returns {@code source}. */
-    private void stubResolvedSource(WorkspaceProjectService service, RulesProject project, IOpenLTable source) {
+    private ProjectModel stubResolvedSource(WorkspaceProjectService service,
+                                            RulesProject project,
+                                            IOpenLTable source) {
         var handle = mock(ProjectHandle.class);
         var model = mock(ProjectModel.class);
         when(handle.awaitCompiled()).thenReturn(model);
@@ -1452,6 +1476,7 @@ class WorkspaceProjectServiceTest {
         when(model.getModuleInfo()).thenReturn(moduleInfo);
         when(moduleInfo.containsTable("src-uri")).thenReturn(true);
         doReturn(handle).when(service).openProject(project);
+        return model;
     }
 
     private static ProjectDescriptor emptyModulesDescriptor() {
