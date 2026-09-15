@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.acls.domain.BasePermission;
 
@@ -150,6 +151,8 @@ public class ProjectModel {
     private volatile XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
     private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
+    /** The node the last compilation of each project answers for it with. See {@link #replaceProjectNode}. */
+    private final Map<String, XlsModuleSyntaxNode> projectSyntaxNodes = new ConcurrentHashMap<>();
 
     /**
      * Delivers {@link ProjectStatusChangedEvent}s outside the compilation threads.
@@ -1252,6 +1255,7 @@ public class ProjectModel {
                 if (webStudioWorkspaceDependencyManager != null) {
                     webStudioWorkspaceDependencyManager.shutdown();
                     xlsModuleSyntaxNodesPerProject.clear();
+                    projectSyntaxNodes.clear();
                     xlsModuleSyntaxNodes.clear();
                 }
                 webStudioWorkspaceDependencyManager = null;
@@ -1323,6 +1327,7 @@ public class ProjectModel {
         if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.shutdown();
             xlsModuleSyntaxNodesPerProject.clear();
+            projectSyntaxNodes.clear();
             xlsModuleSyntaxNodes.clear();
         }
         webStudioWorkspaceDependencyManager = null;
@@ -1383,6 +1388,26 @@ public class ProjectModel {
 
     private Set<XlsModuleSyntaxNode> getModuleSyntaxNodesByProject(String projectName) {
         return xlsModuleSyntaxNodesPerProject.computeIfAbsent(projectName, e -> ConcurrentHashMap.newKeySet());
+    }
+
+    /**
+     * Puts the node a compilation of the whole project produced in place of the one before it.
+     *
+     * <p>A project is compiled again whenever a table of it is written to, and each compilation builds a node
+     * of its own from the workbooks as they stood. Unlike a module's node, it belongs to no dependency, so
+     * nothing drops it when the project is compiled again. Gathered, they hold every compilation the session
+     * has ever run — each with its own parsed workbooks — for as long as the project stays open.
+     */
+    private void replaceProjectNode(String projectName, @Nullable XlsModuleSyntaxNode node) {
+        var nodes = getModuleSyntaxNodesByProject(projectName);
+        var previous = node == null ? projectSyntaxNodes.remove(projectName)
+                : projectSyntaxNodes.put(projectName, node);
+        if (previous != null) {
+            nodes.remove(previous);
+        }
+        if (node != null) {
+            nodes.add(node);
+        }
     }
 
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
@@ -1482,8 +1507,7 @@ public class ProjectModel {
                             this.compiledOpenClass = this.validate(projectDescriptor);
                             XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
                                     .getMetaInfo();
-                            getModuleSyntaxNodesByProject(projectDescriptor.getName())
-                                    .add(metaInfo1.getXlsModuleNode());
+                            replaceProjectNode(projectDescriptor.getName(), metaInfo1.getXlsModuleNode());
                             redraw();
                         } catch (Exception | LinkageError e) {
                             onCompilationFailed(e);
@@ -1629,6 +1653,7 @@ public class ProjectModel {
             webStudioWorkspaceDependencyManager.shutdown();
             webStudioWorkspaceDependencyManager = null;
             xlsModuleSyntaxNodesPerProject.clear();
+            projectSyntaxNodes.clear();
             xlsModuleSyntaxNodes.clear();
         }
         if (webStudioWorkspaceDependencyManager == null) {
@@ -1662,6 +1687,7 @@ public class ProjectModel {
                 if (!allProjectCanBeReused) {
                     webStudioWorkspaceDependencyManager.shutdown();
                     xlsModuleSyntaxNodesPerProject.clear();
+                    projectSyntaxNodes.clear();
                     xlsModuleSyntaxNodes.clear();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                             .buildDependencyManager(projectDescriptor);
