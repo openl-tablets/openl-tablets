@@ -17,9 +17,9 @@ export type EditStep =
     | { kind: 'value', at: CellAt, value: string }
     | { kind: 'style', at: CellAt, style: RawCellStyleInput }
     | { kind: 'insertRow', at: number }
-    | { kind: 'removeRow', at: number }
+    | { kind: 'removeRow', at: number, lines: number }
     | { kind: 'insertColumn', at: number }
-    | { kind: 'removeColumn', at: number }
+    | { kind: 'removeColumn', at: number, lines: number }
 
 /** What the reader has done, and what they took back and may put again. */
 export interface EditBuffer {
@@ -50,6 +50,16 @@ export interface EditedTable {
 
 const blank = (): RawTableCell => ({ value: '' })
 
+/**
+ * A blank cell wearing the styling of the one it is laid down beside.
+ *
+ * <p>A line added to a table takes the look of the line it is written from — the row above it, the column it
+ * pushes aside — which is what the workbook ends up holding. The table on screen says so from the start rather
+ * than only once it is saved and read again.
+ */
+const blankLike = (cell: RawTableCell | undefined): RawTableCell =>
+    (cell?.style === undefined ? blank() : { value: '', style: cell.style })
+
 const idsOf = (count: number): string[] => Array.from({ length: count }, (_, index) => `o${index}`)
 
 /** The index the row or column was read at, or null when the reader added it. */
@@ -78,21 +88,24 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
             }
             return added
         }
-        case 'insertRow':
-            state.rows.splice(step.at, 0, Array.from({ length: state.columnIds.length }, blank))
+        case 'insertRow': {
+            const above = state.rows[step.at - 1]
+            state.rows.splice(step.at, 0,
+                Array.from({ length: state.columnIds.length }, (_, column) => blankLike(above?.[column])))
             state.rowIds.splice(step.at, 0, `n${added}`)
             return added + 1
+        }
         case 'removeRow':
-            state.rows.splice(step.at, 1)
-            state.rowIds.splice(step.at, 1)
+            state.rows.splice(step.at, step.lines)
+            state.rowIds.splice(step.at, step.lines)
             return added
         case 'insertColumn':
-            state.rows.forEach(row => row.splice(step.at, 0, blank()))
+            state.rows.forEach(row => row.splice(step.at, 0, blankLike(row[step.at])))
             state.columnIds.splice(step.at, 0, `n${added}`)
             return added + 1
         case 'removeColumn':
-            state.rows.forEach(row => row.splice(step.at, 1))
-            state.columnIds.splice(step.at, 1)
+            state.rows.forEach(row => row.splice(step.at, step.lines))
+            state.columnIds.splice(step.at, step.lines)
             return added
     }
 }
