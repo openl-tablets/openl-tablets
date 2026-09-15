@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- Swept head is `origin/main` 2d6ad165e74, which carries #2109's merge; no open PR, every change type done. The only
-  other commits since 9a32b54ca7 are dependabot root-pom plugin-version bumps, which add no code, so every change
-  type stays exhausted and no exhausted detector may be re-run. A poms-only diff has no cleanup to do.
-- When `main` gains code: diff against 2d6ad165e74, then rerun PMD, the identifier index and ASM on changed files
+- Swept head is `origin/main` 2781e274f8; no open PR, every change type done. Every commit since 2d6ad165e74 is a
+  dependabot root-pom version bump (s3mock-testcontainers, bc-jdk18on-bom, javacc-maven-plugin) adding no code, so
+  every change type stays exhausted and no exhausted detector may be re-run. A poms-only diff has no cleanup to do.
+- When `main` gains code: diff against 2781e274f8, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
 
@@ -284,8 +284,9 @@
 
 ## Run log
 
-- 2026-09-15 a: no-op; main still 9a32b54ca7, #2109 17/17 green and body matches 1 commit/5 files/5 deletions; stale-branch delete still 403; owner nudged once; at 290.
 - 2026-09-15 b: no-op; main advanced to 956deef01b by two dependabot pom plugin bumps only; #2109 untouched since
   2026-09-14, green, body still matches; stale-branch delete refused again; at 293.
 - 2026-09-15 c: #2109 rebase-merged by yurkom onto main 2d6ad165e74 (1 commit, 5 deletions); its branch auto-deleted,
   PR watch stopped, queue row 11 closed, ledger closed out at 291.
+- 2026-09-15 d: no-op; main 2781e274f8 = 3 dependabot pom version bumps, no code; no open dead-code PR; #2105 still
+  draft; stale-branch delete 403 again; at 291.
