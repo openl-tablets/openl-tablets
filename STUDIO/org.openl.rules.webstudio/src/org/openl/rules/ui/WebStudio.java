@@ -140,7 +140,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * session moves between modules and projects. Building the one that happens to be open next instead would
      * rebuild a module nobody wrote to and leave the written one answering from the workbook it used to have.
      */
-    private Module rewrittenModule;
+    private volatile Module rewrittenModule;
     private final Map<String, Object> externalProperties;
 
     private final RulesUserSession rulesUserSession;
@@ -528,8 +528,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * <p>What it compiled before the write was worked out from the workbook as it stood then, so it answers for
      * nothing now: a screen asking how the project stands is told the module is waiting to be compiled rather
      * than what the workbook used to say.
+     *
+     * <p>Answered without taking the session's lock: the status is asked for while the session may be opening a
+     * project, and a reader of one field has no business waiting behind that.
      */
-    public synchronized boolean isAwaitingRecompile() {
+    public boolean isAwaitingRecompile() {
         return rewrittenModule != null;
     }
 

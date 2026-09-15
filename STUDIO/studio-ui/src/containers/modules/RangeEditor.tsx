@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Alert, Button, Checkbox, Divider, InputNumber, Segmented, Space, Tooltip, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { createStyles } from 'antd-style'
 import { numberOnly } from './numberOnly'
-import { formatRange, parseRange, type RangeBounds, rangeProblem } from './rangeValue'
+import { formatRange, parseRange, type RangeBounds, rangeProblem, type RangeShape, shapeOf } from './rangeValue'
 
-/** The four shapes a range takes, which the reader picks between as the old editor let them. */
-type RangeShape = 'at-least' | 'at-most' | 'between' | 'exact'
+/**
+ * The class the panel is marked with, so the screen around it can tell a click inside the panel from one that
+ * leaves it. A test id says what a test looks for; what the page itself acts on is a class of its own.
+ */
+export const RANGE_PANEL = 'openl-range-panel'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The panel hangs under the cell, so it is sized by what it holds rather than by the cell. */
@@ -23,6 +26,7 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     bounds: css`
         flex: 1;
+        width: 100%;
     `,
     /** What the cell will hold, read back in the wording OpenL prints. */
     result: css`
@@ -36,15 +40,13 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-/** The shape the bounds already have, which is the one the panel opens on. */
-const shapeOf = (bounds: RangeBounds): RangeShape => {
-    const lower = bounds.from.trim()
-    const upper = bounds.to.trim()
-    if (lower !== '' && upper !== '') {
-        return lower === upper && bounds.fromIncluded && bounds.toIncluded ? 'exact' : 'between'
-    }
-    return upper !== '' ? 'at-most' : 'at-least'
-}
+/** The shapes the reader picks between, in the order the old editor stacked them. */
+const SHAPES = [
+    { value: 'at-least' as const, label: '>', title: 'range_at_least' },
+    { value: 'at-most' as const, label: '<', title: 'range_at_most' },
+    { value: 'between' as const, label: '−', title: 'range_between' },
+    { value: 'exact' as const, label: '=', title: 'range_exact' },
+]
 
 /**
  * The bounds as the chosen shape holds them.
@@ -85,16 +87,16 @@ interface RangeEditorProps {
  */
 export const RangeEditor: React.FC<RangeEditorProps> = ({ value, intOnly, onWrite }) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
-    const [bounds, setBounds] = useState<RangeBounds>(() => parseRange(value))
-    const [shape, setShape] = useState<RangeShape>(() => shapeOf(parseRange(value)))
-
-    // The panel opens on what the cell holds at that moment, whichever cell it was opened over.
-    useEffect(() => {
+    const { styles, cx } = useStyles()
+    // The panel opens on what the cell holds, read once: it is drawn afresh for each cell it hangs under, and
+    // that cell cannot be typed into while it stands open.
+    const [entered, setEntered] = useState(() => {
         const read = parseRange(value)
-        setBounds(read)
-        setShape(shapeOf(read))
-    }, [value])
+        return { bounds: read, shape: shapeOf(read) }
+    })
+    const { bounds, shape } = entered
+    const setBounds = (next: (current: RangeBounds) => RangeBounds) =>
+        setEntered(current => ({ ...current, bounds: next(current.bounds) }))
 
     const numeric = numberOnly(intOnly)
     const problem = rangeProblem(bounds)
@@ -129,30 +131,27 @@ export const RangeEditor: React.FC<RangeEditorProps> = ({ value, intOnly, onWrit
         </Checkbox>
     )
 
-    const shapes = [
-        { value: 'at-least' as const, label: '>', title: t('browser.module.range_at_least') },
-        { value: 'at-most' as const, label: '<', title: t('browser.module.range_at_most') },
-        { value: 'between' as const, label: '−', title: t('browser.module.range_between') },
-        { value: 'exact' as const, label: '=', title: t('browser.module.range_exact') },
-    ]
-
     return (
-        <div className={styles.panel} data-testid="range-editor">
+        <div className={cx(styles.panel, RANGE_PANEL)} data-testid="range-editor">
             <div className={styles.shapes}>
                 <Segmented
                     vertical
                     size="small"
                     value={shape}
-                    onChange={picked => {
-                        setShape(picked)
-                        setBounds(current => reshape(current, picked))
-                    }}
-                    options={shapes.map(({ value: shapeValue, label, title }) => ({
-                        value: shapeValue,
-                        label: <Tooltip placement="left" title={title}><span data-testid={`range-shape-${shapeValue}`}>{label}</span></Tooltip>,
+                    onChange={picked => setEntered(current => ({
+                        shape: picked,
+                        bounds: reshape(current.bounds, picked),
+                    }))}
+                    options={SHAPES.map(({ value: picked, label, title }) => ({
+                        value: picked,
+                        label: (
+                            <Tooltip placement="left" title={t(`browser.module.${title}`)}>
+                                <span data-testid={`range-shape-${picked}`}>{label}</span>
+                            </Tooltip>
+                        ),
                     }))}
                 />
-                <Space className={styles.bounds} orientation="vertical" size={4} style={{ width: '100%' }}>
+                <Space className={styles.bounds} orientation="vertical" size={4}>
                     {shape === 'between' && (
                         <>
                             <Typography.Text type="secondary">{t('browser.module.range_from')}</Typography.Text>

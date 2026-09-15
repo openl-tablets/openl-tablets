@@ -194,7 +194,11 @@ export const getMessageStacktrace = async (
     messageId: number,
     moduleName?: string
 ): Promise<string> => {
-    const query = moduleName === undefined ? '' : `?module=${encodeURIComponent(moduleName)}`
+    const params = new URLSearchParams()
+    if (moduleName !== undefined) {
+        params.set('module', moduleName)
+    }
+    const query = params.size > 0 ? `?${params}` : ''
     return await apiCall(
         `/projects/${toUrlSafeId(projectId)}/messages/${messageId}/stacktrace${query}`,
         undefined,

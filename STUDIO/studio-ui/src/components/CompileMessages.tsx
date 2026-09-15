@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Tooltip } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
@@ -115,14 +115,13 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-const truncate = (value: string, chars: number, lines: number): string => {
+/** What of a piece of text is shown, and whether the rest of it is being held back. */
+const shorten = (value: string, chars: number, lines: number): { text: string, long: boolean } => {
     const written = value.split(/\r?\n/)
     const byLines = written.length > lines ? written.slice(0, lines).join('\n') : value
-    return byLines.length > chars ? byLines.slice(0, chars).trimEnd() : byLines
+    const text = byLines.length > chars ? byLines.slice(0, chars).trimEnd() : byLines
+    return { text, long: text.length < value.length }
 }
-
-const isLong = (value: string, chars: number, lines: number): boolean =>
-    value.length > chars || value.split(/\r?\n/).length > lines
 
 /**
  * One piece of text, shown in full only when it is short or the reader asked for the rest of it.
@@ -142,8 +141,9 @@ const MessageText = ({
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
     const [expanded, setExpanded] = useState(false)
-    const long = isLong(value, chars, lines)
-    const text = !long || expanded ? value : `${truncate(value, chars, lines)}...`
+    const shown = useMemo(() => shorten(value, chars, lines), [value, chars, lines])
+    const long = shown.long
+    const text = expanded || !long ? value : `${shown.text}...`
 
     useEffect(() => {
         setExpanded(false)
@@ -234,7 +234,6 @@ const MessageStacktrace = ({
     const [open, setOpen] = useState(false)
     const [trace, setTrace] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
-    const [failed, setFailed] = useState(false)
 
     const toggle = () => {
         if (open) {
@@ -246,10 +245,9 @@ const MessageStacktrace = ({
             return
         }
         setLoading(true)
-        setFailed(false)
         load()
-            .then(read => setTrace(read))
-            .catch(() => setFailed(true))
+            .then(setTrace)
+            .catch(() => setTrace(t('browser.compile.stacktrace_failed')))
             .finally(() => setLoading(false))
     }
 
@@ -270,9 +268,7 @@ const MessageStacktrace = ({
             </Button>
             {open && !loading && (
                 <div className={styles.stacktrace} data-testid={testId}>
-                    {failed
-                        ? t('browser.compile.stacktrace_failed')
-                        : <MessageText chars={TRACE_CHARS} lines={TRACE_LINES} value={trace ?? ''} />}
+                    <MessageText chars={TRACE_CHARS} lines={TRACE_LINES} value={trace ?? ''} />
                 </div>
             )}
         </div>

@@ -9,7 +9,7 @@ import { getTableEditors, type TableCellEditor, type TableEditors } from '../../
 import { applyTableActions } from '../../services/tables'
 import type { RawCellStyleInput, RawTableCell } from 'types/tables'
 import { CellValueEditor, type EditorKind } from './CellValueEditor'
-import { RangeEditor } from './RangeEditor'
+import { RANGE_PANEL, RangeEditor } from './RangeEditor'
 import { TableEditToolbar } from './TableEditToolbar'
 import { useStyles } from './TableEditor.styles'
 import {
@@ -71,8 +71,8 @@ interface TableEditorProps {
     startRow?: number | undefined
     /** How many rows that window holds. */
     maxRows?: number | undefined
-    /** How many rows the table has in all, when the window holds fewer than that. */
-    totalRows?: number | undefined
+    /** Whether the whole table is on screen, which adding a column needs: it carries a cell per row. */
+    whole?: boolean | undefined
     /** The table body as it was read, which the pending edits are replayed over. */
     rows: RawTableCell[][]
     /** Draw the formula a cell was written with rather than the value it computed. */
@@ -114,7 +114,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     moduleName,
     startRow,
     maxRows,
-    totalRows,
+    whole = true,
     rows,
     formulas,
     onOpenUsage,
@@ -271,9 +271,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         try {
             const savedId = await applyTableActions(projectId, tableId, actions, moduleName)
             if (savedId !== null) {
-                setBuffer(NO_EDITS)
-                setOpen(null)
-                onEditingChange(false)
+                discard()
                 onSaved(savedId)
             }
         } finally {
@@ -332,24 +330,30 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             }))
     }
 
-    // The panel under a range cell stands open until the reader is done with it, so a click anywhere else is
-    // what closes it — the way the old editor closed its panel. What was entered is written by Done alone.
+    // The cell the range panel hangs under, named as the workbook names it, or null while no panel is open.
+    const panelOver = open !== null && kindOf(open) === 'range'
+        ? written[open.row]?.[open.column]?.cell ?? null
+        : null
+
+    // The panel stands open until the reader is done with it, so a click anywhere else is what closes it — the
+    // way the old editor closed its panel. What was entered is written by Done alone.
     useEffect(() => {
-        if (open === null || kindOf(open) !== 'range') {
+        if (panelOver === null) {
             return undefined
         }
-        const address = written[open.row]?.[open.column]?.cell
         const away = (event: MouseEvent) => {
             const target = event.target instanceof Element ? event.target : null
-            const inPanel = target?.closest('[data-testid="range-editor"]') != null
-            const inCell = address !== undefined && target?.closest(`[data-cell="${address}"]`) != null
-            if (target !== null && !inPanel && !inCell) {
-                closeCell(false)
+            const inPanel = target?.closest(`.${RANGE_PANEL}`) != null
+            const inCell = target?.closest(`[data-cell="${panelOver}"]`) != null
+            // The menu that picks how the cell is written opens beside the cell rather than in it, and
+            // choosing from it must leave the cell open for the way it chose.
+            if (target !== null && !inPanel && !inCell && !switching.current) {
+                setOpen(null)
             }
         }
         document.addEventListener('mousedown', away)
         return () => document.removeEventListener('mousedown', away)
-    })
+    }, [panelOver])
 
     /** How a cell is drawn: picked, waiting to be written, or open for writing. */
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
@@ -466,7 +470,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onUndo={() => setBuffer(undo)}
                     picked={picked}
                     saving={saving}
-                    whole={totalRows === undefined || totalRows <= rows.length}
+                    whole={whole}
                     onRemoveColumn={() => {
                         step({ kind: 'removeColumn', at: at.column })
                         setPicked(null)

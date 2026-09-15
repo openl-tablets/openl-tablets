@@ -12,13 +12,14 @@ export const splitValues = (text: string, separator: string, escaper?: string): 
         return text.split(separator).map(one => one.trim())
     }
     const values: string[] = []
+    const escapedSeparator = escaper + separator
     let value = ''
     let at = 0
     while (at < text.length) {
-        const escaped = text.startsWith(escaper + separator, at)
+        const escaped = text.startsWith(escapedSeparator, at)
         if (escaped || !text.startsWith(separator, at)) {
             value += escaped ? separator : text[at]
-            at += escaped ? escaper.length + separator.length : 1
+            at += escaped ? escapedSeparator.length : 1
         } else {
             values.push(value.trim())
             value = ''

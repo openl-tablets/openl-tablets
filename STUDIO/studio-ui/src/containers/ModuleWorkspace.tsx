@@ -160,6 +160,14 @@ export const ModuleWorkspace = () => {
 
     // The table on screen rides in the address, so a link to it opens it again, Back steps between tables, and
     // a refresh keeps the reader where they were.
+    // A message names the piece of a cell it is about by where that piece begins and ends; the text it counts
+    // in is the cell's own, which the table on screen already holds. Read once per table rather than per
+    // message: the screen redraws on every status the compilation pushes.
+    const textAt = useMemo(() => {
+        const held = new Map((table?.source ?? []).flat().map(cell => [cell.cell, cell.value?.toString()]))
+        return (cell: string) => held.get(cell)
+    }, [table?.source])
+
     const selectedId = search.get('table')
     // The cell a message was raised against, carried here by the reader who opened that message.
     const raisedCell = search.get('errorCell')
@@ -625,12 +633,6 @@ export const ModuleWorkspace = () => {
         }
         const shown = table.source.length
         const total = table.totalRows ?? shown
-        // A message names the piece of a cell it is about by where that piece begins and ends; the text it
-        // counts in is the cell's own, which the table on screen already holds.
-        const textAt = (cell: string) => table.source
-            .flat()
-            .find(candidate => candidate.cell === cell)
-            ?.value?.toString()
         return (
             <>
                 {toolbar}
@@ -657,7 +659,7 @@ export const ModuleWorkspace = () => {
                     rows={rows}
                     tableId={selected.id}
                     testId="module-table"
-                    totalRows={total}
+                    whole={shown >= total}
                 >
                     {shown < total && (
                         <div className={styles.more}>

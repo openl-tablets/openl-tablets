@@ -31,7 +31,6 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +40,6 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
 
-import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -1990,17 +1988,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the trace, or {@code null} when the message carries none
      */
     public @Nullable String getMessageStacktrace(RulesProject project, long messageId, @Nullable String moduleName) {
-        return openProject(project, moduleName).project()
-                .getCompilationStatus()
-                .getAllMessage()
-                .stream()
-                .filter(message -> message.getId() == messageId)
-                .findFirst()
-                .filter(OpenLErrorMessage.class::isInstance)
-                .map(message -> ((OpenLErrorMessage) message).getError())
-                .filter(Throwable.class::isInstance)
-                .map(error -> ExceptionUtils.getStackTrace((Throwable) error))
-                .orElse(null);
+        return openProject(project, moduleName).project().getCompilationStatus().getStacktrace(messageId);
     }
 
     private List<DetailedMessageDescription> mapMessages(OpenLTableContext context) {
