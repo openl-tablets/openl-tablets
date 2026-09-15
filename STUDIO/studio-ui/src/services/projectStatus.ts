@@ -120,6 +120,11 @@ export interface ProjectStatusUpdate {
     compileState: ProjectCompileState
     compilation?: ProjectStatusCompilation
     pendingChanges?: ProjectPendingChanges
+    /**
+     * Set when the open module was written to while automatic compilation is off, so what the compiler says
+     * about it is what it said before the write, and the reader is the one who asks for it to be compiled.
+     */
+    manualCompileNeeded?: boolean
 }
 
 /** The one subscription handle shape — an alias of the shared topic multiplexer's. */

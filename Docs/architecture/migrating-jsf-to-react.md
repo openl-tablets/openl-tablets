@@ -384,6 +384,15 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   on a stopped compilation is answered with it, not with an error — and the next request to compile the module
   builds it from the workbook, whether or not it asks for a reset: opening a module already open compiles
   nothing, so a compilation that was stopped would otherwise never start again.
+- **A setting that says "not after every edit" has to be obeyed by the writes too.** With `compile.auto`
+  switched off, the Editor did not build a module again when a table of it was written — that wait after every
+  edit is what the setting exists to avoid — and offered Verify instead. A write now marks the module as
+  waiting rather than rebuilding it, the status says so (`manualCompileNeeded`), and the module screen carries
+  Verify for as long as it does. Until it is pressed the tables read as they were written — it is the same
+  workbook — and what the compiler said about them is what it said before the write. Two things are not that
+  write: a **refused** one, which rebuilds at once whatever the setting says, because what it left behind is a
+  workbook no author wrote; and a screen re-reading a table it has just written, which asks for what is there
+  rather than for the module to be built.
 - **Refreshing is compiling again, not asking again.** Opening a module already open compiles nothing, so
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a

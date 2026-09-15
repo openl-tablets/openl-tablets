@@ -1,7 +1,7 @@
 import { useState, type MouseEvent as ReactMouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge, Button, Dropdown, Modal, Space, Tooltip } from 'antd'
-import { DownOutlined, ExperimentOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DownOutlined, ExperimentOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import type { SummaryTable } from 'types/tables'
 import type { Project } from '../../types/projects'
 import { supportsRevisionSearch } from '../../utils/repositoryFeatures'
@@ -39,6 +39,13 @@ interface ModuleActionBarProps {
     onProjectChanged?: (() => void) | undefined
     /** A table written from this row, and the module it landed in, so the editor can open it. */
     onTableCreated?: ((written: SummaryTable, moduleName: string) => void) | undefined
+    /**
+     * Whether the module is waiting for the reader to compile it: a write landed while automatic compilation
+     * is switched off, so what the compiler says about it is what it said before that write.
+     */
+    verifyNeeded?: boolean
+    /** Compiles the module the reader has been editing, and reads it back. */
+    onVerify?: (() => void) | undefined
 }
 
 /**
@@ -59,6 +66,8 @@ export const ModuleActionBar = ({
     onRevisionOpened,
     onProjectChanged,
     onTableCreated,
+    verifyNeeded = false,
+    onVerify,
 }: ModuleActionBarProps) => {
     const { t } = useTranslation('repository')
     const [revisionsOpen, setRevisionsOpen] = useState(false)
@@ -126,6 +135,20 @@ export const ModuleActionBar = ({
 
     return (
         <Space data-testid="module-actions">
+            {/*
+              * Offered only while something is waiting: with automatic compilation on there is never anything
+              * to verify, and the row does not carry a button that can do nothing.
+              */}
+            {verifyNeeded && (
+                <Button
+                    data-testid="module-verify"
+                    icon={<CheckCircleOutlined />}
+                    onClick={() => onVerify?.()}
+                    type="primary"
+                >
+                    {t('browser.module.verify')}
+                </Button>
+            )}
             {PROJECT_LEVEL.map(projectAction)}
             {canUpdateModule && (
                 <Button

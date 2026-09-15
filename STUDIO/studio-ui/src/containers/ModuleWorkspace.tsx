@@ -716,9 +716,11 @@ export const ModuleWorkspace = () => {
                                 onProjectChanged={reopenRevision}
                                 onRevisionOpened={reopenRevision}
                                 onTableCreated={openWritten}
+                                onVerify={() => refresh()}
                                 project={project}
                                 projectCompiled={projectCompiled}
                                 testCount={testCount}
+                                verifyNeeded={compilation.verifyNeeded}
                             />
                         )}
                         titleAfter={(

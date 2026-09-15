@@ -379,6 +379,7 @@ i18next.addResourceBundle('en', 'repository', {
             export: 'Export',
             export_unavailable: 'The project does not say which workbook this module is written in',
             refresh: 'Refresh',
+            verify: 'Verify',
             run: 'Run',
             run_tests: 'Run Tests',
             trace: 'Trace',

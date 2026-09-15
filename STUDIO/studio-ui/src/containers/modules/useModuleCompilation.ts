@@ -17,6 +17,11 @@ export interface ModuleCompilation {
     tests: number
     /** How the project's own compilation is going, for the screen to show beside the module. */
     state: ProjectCompileState
+    /**
+     * Set while the module is waiting for the reader to compile it — a write landed with automatic compilation
+     * switched off, so what the compiler says about the module is what it said before that write.
+     */
+    verifyNeeded: boolean
     /** The status behind all of the above, so the screen can phrase what it says about it. */
     status: ProjectStatusUpdate | null
 }
@@ -109,6 +114,7 @@ export const useModuleCompilation = (
         failure,
         tests: counted.current,
         state: status?.compileState ?? 'idle',
+        verifyNeeded: status?.manualCompileNeeded === true,
         status,
     }
 }

@@ -1878,6 +1878,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // compilation job is not carried at all: asking the session's registry for one from such a thread fails,
         // and the status endpoint adopts a compilation started this way the moment it is asked about it.
         var webStudio = getWebStudio();
+        if (reset) {
+            // Asking for the module to be built afresh is the manual compilation Verify stands for: with
+            // automatic compilation off nothing else builds a module that has been written to. A read that
+            // only asks for what is there — the screen re-reading a table it has just written — is not that,
+            // and must not compile the module the setting says to leave alone.
+            webStudio.invokeManualCompile();
+        }
         moduleCompilationLauncher.launch(moduleName, () -> {
             var moduleModel = webStudio.getModel();
             // Opening a module already open compiles nothing, so a request to build it once more has to say so:
@@ -2279,7 +2286,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         try {
             return write.get();
         } catch (RuntimeException refused) {
-            getWebStudio().recompileCurrentModule();
+            // Read again now, not when the reader next asks for it: what the session holds is a workbook no
+            // author wrote, and every request that follows would be judged against it.
+            getWebStudio().rebuildCurrentModule();
             throw refused;
         }
     }

@@ -1343,8 +1343,9 @@ class WorkspaceProjectServiceTest {
                 () -> service.updateTableProperties(project, "src-id", properties, null));
 
         // The refused write stopped part-way, leaving what it had changed in the workbook the session holds.
-        // Every request after it would read that, so the module is built from the disk again.
-        verify(webStudio).recompileCurrentModule();
+        // Every request after it would read that, so the module is built from the disk again — now, whatever
+        // the automatic-compilation setting says.
+        verify(webStudio).rebuildCurrentModule();
     }
 
     @Test
@@ -1601,6 +1602,24 @@ class WorkspaceProjectServiceTest {
         // Opening a module already open compiles nothing, so a refresh has to say that the module is to be
         // built again from the workbook.
         verify(projectModel).reset(eq(ReloadType.RELOAD), any(Module.class));
+        // And asking for it afresh is the manual compilation Verify stands for, which is what clears a module
+        // left waiting because automatic compilation is off.
+        verify(webStudio).invokeManualCompile();
+    }
+
+    @Test
+    void reading_a_module_compiles_nothing_the_reader_did_not_ask_to_be_compiled() throws Exception {
+        var launcher = mock(ModuleCompilationLauncher.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(serviceCompilingWith(webStudio, launcher));
+        var project = openedProject(webStudio, mock(ProjectModel.class), "Pricing", "Claims");
+        doReturn(mock(CompilationJobRegistry.class)).when(service).getCompilationJobRegistry();
+
+        service.compileModule(project, "Claims", false);
+
+        // The screen re-reading a table it has just written asks for what is there, not for the module to be
+        // built — with automatic compilation off that is the wait the setting exists to avoid.
+        verify(webStudio, never()).invokeManualCompile();
     }
 
     @Test

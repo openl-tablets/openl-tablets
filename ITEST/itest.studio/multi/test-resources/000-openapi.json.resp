@@ -27291,6 +27291,10 @@ Content-Type: application/json
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy"
           },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
+          },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges"
           },
@@ -27329,6 +27333,10 @@ Content-Type: application/json
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy_Detailed"
           },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
+          },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges_Detailed"
           },
@@ -27366,6 +27374,10 @@ Content-Type: application/json
           },
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy_Full"
+          },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
           },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges_Full"
