@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tooltip } from 'antd'
-import type { RawTableCell } from 'types/tables'
+import type { RawTableCell, TableLayout } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { useStyles } from './RawTableGrid.styles'
 
@@ -38,6 +38,11 @@ interface RawTableGridProps {
     onKeyDown?: ((event: React.KeyboardEvent<HTMLTableElement>) => void) | undefined
     /** The table itself, so the screen can hand it the focus once a cell is picked. */
     tableRef?: React.Ref<HTMLTableElement> | undefined
+    /**
+     * How the table is laid out, where the screen numbers the lines of its data — the cases of a test table.
+     * Absent where the lines are not numbered, which is every other table.
+     */
+    layout?: TableLayout | undefined
     testId?: string | undefined
 }
 
@@ -125,9 +130,20 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     onOpenCell,
     onKeyDown,
     tableRef,
+    layout,
     testId,
 }) => {
     const { styles, cx } = useStyles()
+    // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
+    // table, counted down the rows or across the columns according to how the table is written.
+    // The grid is as wide as its widest row; a covered cell takes a place of its own in the matrix, so the
+    // count is the column count the browser lays the table out in.
+    const columns = rows.reduce((widest, row) => Math.max(widest, row.length), 0)
+    // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
+    // table, counted down the rows or across the columns according to how the table is written.
+    const lines = layout === undefined
+        ? 0
+        : Math.max(0, (layout.transposed ? columns : rows.length) - layout.firstDataLine)
 
     return (
         <table
@@ -138,8 +154,31 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
             tabIndex={onKeyDown === undefined ? undefined : -1}
         >
             <tbody>
+                {/*
+                  * A transposed table's data runs across its columns, so its numbers run above them — one cell
+                  * per column of the grid, blank over the headings the data begins after.
+                  */}
+                {layout?.transposed && lines > 0 && (
+                    <tr>
+                        {Array.from({ length: columns }, (unused, column) => (
+                            <td className={styles.lineNumber} key={column}>
+                                {column >= layout.firstDataLine
+                                    ? <span data-testid="table-line-number">{column - layout.firstDataLine + 1}</span>
+                                    : null}
+                            </td>
+                        ))}
+                    </tr>
+                )}
                 {rows.map((row, rowIndex) => (
                     <tr key={rowKey(row, rowIndex)}>
+                        {/* A table written the usual way round is numbered down its side, as the Editor did. */}
+                        {layout !== undefined && !layout.transposed && (
+                            <td className={styles.lineNumber}>
+                                {rowIndex >= layout.firstDataLine
+                                    ? <span data-testid="table-line-number">{rowIndex - layout.firstDataLine + 1}</span>
+                                    : null}
+                            </td>
+                        )}
                         {row.map((cell, columnIndex) => {
                             if (cell.covered) return null
                             const decoration = decorate?.(cell, rowIndex, columnIndex)

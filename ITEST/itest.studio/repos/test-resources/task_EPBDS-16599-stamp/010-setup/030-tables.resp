@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "greeting",
+      "returnType": "String",
+      "signature": "greeting(String name)",
+      "file": "EPBDS-16599-stamp/Rules.xlsx",
+      "sheet": "Rules",
+      "pos": "B2:C5",
+      "module": "Rules",
+      "project": "EPBDS-16599-stamp",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}
+

@@ -28,6 +28,38 @@ describe('RawTableGrid', () => {
         expect(cells[1]).toHaveTextContent('String')
     })
 
+    it('numbers the lines of data down the side of a table written the usual way round', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Test greeting greetingTest' }, { covered: true }],
+            [{ cell: 'A2', value: 'name' }, { cell: 'B2', value: '_res_' }],
+            [{ cell: 'A3', value: 'John' }, { cell: 'B3', value: 'Hi, John' }],
+            [{ cell: 'A4', value: 'Mary' }, { cell: 'B4', value: 'Hello, Mary' }],
+        ]
+
+        render(<RawTableGrid layout={{ firstDataLine: 2 }} rows={table} testId="grid" />)
+
+        // The two lines of headings carry no number; the cases below them are counted from one.
+        expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2'])
+    })
+
+    it('numbers the lines of data across the top of a table written the other way round', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Test greeting greetingTest' }, { covered: true }, { covered: true }],
+            [{ cell: 'A2', value: 'name' }, { cell: 'B2', value: 'John' }, { cell: 'C2', value: 'Mary' }],
+            [{ cell: 'A3', value: '_res_' }, { cell: 'B3', value: 'Hi' }, { cell: 'C3', value: 'Hello' }],
+        ]
+
+        render(<RawTableGrid layout={{ firstDataLine: 1, transposed: true }} rows={table} testId="grid" />)
+
+        expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2'])
+    })
+
+    it('numbers nothing on a table that says nothing about its lines', () => {
+        render(<RawTableGrid rows={rows} testId="grid" />)
+
+        expect(screen.queryByTestId('table-line-number')).not.toBeInTheDocument()
+    })
+
     it('paints the cell the way the workbook has it', () => {
         render(<RawTableGrid rows={rows} testId="grid" />)
 
