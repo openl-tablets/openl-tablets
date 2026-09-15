@@ -41,8 +41,9 @@ public class SummaryTableView extends TableView {
             + "An inactive table is written in the module but takes no part in the rules")
     public final Boolean active;
 
-    @Schema(description = "How many errors the compilation raised about this table. Absent when it raised none, "
-            + "so a screen marking the tables that are broken has only the broken ones to read")
+    @Schema(description = """
+            How many errors the compilation raised about this table. Absent when it raised none, so a screen \
+            marking the tables that are broken has only the broken ones to read""")
     public Integer errors;
 
     @Schema(description = "Set when a test table exercises this one. Absent when nothing tests it")

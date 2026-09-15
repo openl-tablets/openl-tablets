@@ -70,8 +70,9 @@ public class ProjectViewModel extends AProjectViewModel {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public final boolean branchDefault;
 
-    @Parameter(description = "Whether the copy open in the workspace is an older revision that carries no "
-            + "changes yet, so the first write to it would overwrite a newer one. Absent otherwise")
+    @Parameter(description = """
+            Whether the copy open in the workspace is an older revision that carries no changes yet, so the \
+            first write to it would overwrite a newer one. Absent otherwise""")
     @JsonView(GenericView.Full.class)
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public final boolean overwritesNewerRevision;
