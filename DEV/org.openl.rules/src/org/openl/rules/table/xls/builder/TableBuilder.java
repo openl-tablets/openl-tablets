@@ -168,7 +168,7 @@ public class TableBuilder {
      */
     private CellStyle getDefaultCellStyle() {
         if (defaultCellStyle == null) {
-            var workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+            var workbook = gridModel.getWorkbookToWrite();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -183,7 +183,7 @@ public class TableBuilder {
 
     private CellStyle getDefaultDateCellStyle() {
         if (defaultDateCellStyle == null) {
-            var workbook = gridModel.getSheetSource().getWorkbookSource().getWorkbook();
+            var workbook = gridModel.getWorkbookToWrite();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -232,7 +232,7 @@ public class TableBuilder {
         y += region.getTop();
         var x2 = x + width - 1;
         var y2 = y + height - 1;
-        var sheet = gridModel.getSheetSource().getSheet();
+        var sheet = gridModel.getSheetToWrite();
         if (width > 1 || height > 1) {
             gridModel.addMergedRegion(new GridRegion(y, x, y2, x2));
         }
@@ -294,7 +294,7 @@ public class TableBuilder {
 
     private CellStyleCarrier carrier() {
         if (styleCarrier == null) {
-            styleCarrier = new CellStyleCarrier(gridModel.getSheetSource().getWorkbookSource().getWorkbook());
+            styleCarrier = new CellStyleCarrier(gridModel.getWorkbookToWrite());
         }
         return styleCarrier;
     }
@@ -326,7 +326,7 @@ public class TableBuilder {
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
                 Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
                         currentRow + j + region.getTop(),
-                        gridModel.getSheetSource().getSheet());
+                        gridModel.getSheetToWrite());
                 if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
                     newCell.setCellValue(cellValue.toString());
                 }
