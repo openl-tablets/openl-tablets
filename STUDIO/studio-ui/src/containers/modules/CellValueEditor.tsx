@@ -30,8 +30,13 @@ interface CellValueEditorProps {
     asked: TableCellEditor | undefined
     value: string
     onChange: (value: string) => void
-    /** Keeps what was written and closes the cell. */
-    onCommit: () => void
+    /**
+     * Keeps what was written and closes the cell.
+     *
+     * <p>A value given here is what is kept, for an editor that writes and closes in one gesture — picking a
+     * date from the calendar — where what the field reported a moment ago has not reached the screen yet.
+     */
+    onCommit: (value?: string) => void
     /** Leaves the cell as it was. */
     onCancel: () => void
     /** Asked for another way of writing the value, which Alt+Enter asks for from a one-line field. */
@@ -41,8 +46,48 @@ interface CellValueEditorProps {
 
 dayjs.extend(customParseFormat)
 
-/** How a date is written into a cell, which is how the workbook reads it back. */
-const DATE_FORMAT = 'MM/DD/YYYY'
+/**
+ * The formats a date cell is read in, in the order OpenL reads them (`String2DateConvertor`).
+ *
+ * <p>Tried longest first, so a value carrying a time is not cut down to its day by a shorter pattern matching
+ * the head of it. A date the reader picks is written back in the format the cell already held, so opening a
+ * cell and closing it does not quietly rewrite what its author put there.
+ */
+const DATE_SHAPES = [
+    'M/D/YYYY h:mm A',
+    'M/D/YYYY H:mm:ss',
+    'M/D/YYYY H:mm',
+    'M/D/YYYY',
+    'YYYY-M-D[T]H:mm:ss.SSS',
+    'YYYY-M-D[T]H:mm:ss',
+    'YYYY-M-D[T]H:mm',
+    'YYYY-M-D',
+    'M/D/YY',
+]
+
+/**
+ * The same shapes with the month, day and hour written out in two digits.
+ *
+ * <p>Java reads `3` and `03` under one pattern; dayjs matches a token's width exactly, so `2024-03-07` is
+ * refused by the pattern that reads `2024-3-7`. Each shape is therefore tried both ways.
+ */
+const widened = (shape: string) => shape.replace(/(?<![MDHh])([MDHh])(?![MDHh])/g, '$1$1')
+
+const DATE_FORMATS = DATE_SHAPES.flatMap(shape => [shape, widened(shape)])
+
+/** What a date the reader picks is written in, where the cell held nothing to follow. */
+const DATE_FORMAT = 'M/D/YYYY'
+
+/** The date the cell holds and the format it is written in, or nothing where it holds no date. */
+const dateOf = (text: string) => {
+    for (const format of DATE_FORMATS) {
+        const read = dayjs(text, format, true)
+        if (read.isValid()) {
+            return { read, format }
+        }
+    }
+    return { read: null, format: DATE_FORMAT }
+}
 
 const BOOLEAN_CHOICES = [{ value: 'true', label: 'true' }, { value: 'false', label: 'false' }]
 
@@ -114,7 +159,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                 <Input.TextArea
                     {...shared}
                     autoSize={{ minRows: 2, maxRows: 10 }}
-                    onBlur={onCommit}
+                    onBlur={() => onCommit()}
                     onChange={event => onChange(event.target.value)}
                     onKeyDown={keys}
                     value={value}
@@ -127,7 +172,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     allowClear
                     defaultOpen
                     showSearch
-                    onBlur={onCommit}
+                    onBlur={() => onCommit()}
                     onChange={chosen => onChange(chosen ?? '')}
                     onInputKeyDown={keys}
                     options={choices}
@@ -142,7 +187,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     {...shared}
                     defaultOpen
                     mode="multiple"
-                    onBlur={onCommit}
+                    onBlur={() => onCommit()}
                     onChange={(chosen: string[]) => onChange(joinValues(chosen, separator, asked?.separatorEscaper))}
                     onInputKeyDown={keys}
                     options={choices}
@@ -157,7 +202,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     {...shared}
                     allowClear
                     defaultOpen
-                    onBlur={onCommit}
+                    onBlur={() => onCommit()}
                     onChange={chosen => onChange(chosen ?? '')}
                     onInputKeyDown={keys}
                     options={BOOLEAN_CHOICES}
@@ -173,7 +218,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     {...(asked?.min === undefined ? {} : { min: String(asked.min) })}
                     {...(asked?.intOnly ? { precision: 0 } : {})}
                     stringMode
-                    onBlur={onCommit}
+                    onBlur={() => onCommit()}
                     onChange={entered => onChange(entered == null ? '' : String(entered))}
                     onPaste={numeric.onPaste}
                     value={value === '' ? null : value}
@@ -186,17 +231,31 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                 />
             )
         case 'date': {
-            const written = dayjs(value, DATE_FORMAT, true)
+            const { read, format } = dateOf(value)
             return (
                 <DatePicker
                     {...shared}
-                    open
-                    format={DATE_FORMAT}
+                    allowClear
+                    defaultOpen
+                    // Shown as the cell holds it, and read from anything OpenL would read, so a date typed in
+                    // another of its formats is understood rather than thrown away.
+                    format={[format, ...DATE_FORMATS]}
                     onKeyDown={keys}
-                    value={written.isValid() ? written : null}
+                    // The calendar closes when a date is picked and when the reader clicks away from it; both
+                    // leave the cell, as leaving the field did in the old editor.
+                    onOpenChange={opened => {
+                        if (!opened) {
+                            onCommit()
+                        }
+                    }}
+                    // A time is offered only where the cell already carries one: picking a day must neither
+                    // invent a time nor drop the one its author wrote.
+                    showTime={format.includes('H') || format.includes('h')}
+                    value={read}
                     onChange={picked => {
-                        onChange(picked ? picked.format(DATE_FORMAT) : '')
-                        onCommit()
+                        const written = picked ? picked.format(format) : ''
+                        onChange(written)
+                        onCommit(written)
                     }}
                 />
             )
@@ -212,7 +271,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             return (
                 <Input
                     {...shared}
-                    onBlur={onCommit}
+                    onBlur={() => onCommit()}
                     onChange={event => onChange(event.target.value)}
                     onPaste={entries.onPaste}
                     value={value}
@@ -229,7 +288,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             return (
                 <Input
                     {...shared}
-                    onBlur={onCommit}
+                    onBlur={() => onCommit()}
                     onChange={event => onChange(event.target.value)}
                     onKeyDown={keys}
                     value={value}

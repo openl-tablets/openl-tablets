@@ -443,6 +443,13 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   screen asks before the write rather than telling after it — once, where every write goes through, because
   they all reach the same workbook. The first write settles it: the project is modified from then on, and the
   flag is gone.
+- **A date cell is read in every format OpenL reads, and written back in the one it was written in.** The cell
+  editor parsed a single hardcoded `MM/DD/YYYY`, so a date written any other way OpenL accepts — ISO, with a
+  time, with one-digit months — opened the calendar blank and was rewritten on the way out, dropping any time
+  with it. The formats now mirror `String2DateConvertor`, each tried with one- and two-digit month, day and
+  hour (Java reads `3` and `03` under one pattern; dayjs does not), and a picked date is written back in the
+  format the cell already held. The calendar is no longer forced open either, so clicking away closes the cell
+  as leaving the field did in the Editor.
 - **A dialog that already writes a table is the dialog the editor opens.** Creating a table, copying one and
   writing a test for one are the three dialogs the legacy Editor dispatched to (`openCreateTableModal`,
   `openCopyTableModal`), mounted once in the layout and told in the event where to write and what to do with

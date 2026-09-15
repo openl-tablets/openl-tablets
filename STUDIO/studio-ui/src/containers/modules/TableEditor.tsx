@@ -325,7 +325,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     }, [onOpenedAt, openAt, openCell, written])
 
     /** Keeps what was written into the open cell, unless it is what the cell already held. */
-    const closeCell = (keep: boolean) => {
+    /**
+     * Closes the open cell, keeping what was written into it or leaving it as it was.
+     *
+     * <p>What is kept is the draft the field has been reporting, unless the caller says otherwise: an editor
+     * that writes and closes in one gesture — the calendar, where picking a date is both — knows the value
+     * before the screen does.
+     */
+    const closeCell = (keep: boolean, value = draft) => {
         if (switching.current) {
             return
         }
@@ -336,8 +343,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             return
         }
         const was = written[at.row]?.[at.column]?.value
-        if (draft !== (was == null ? '' : String(was))) {
-            step({ kind: 'value', at, value: draft })
+        if (value !== (was == null ? '' : String(was))) {
+            step({ kind: 'value', at, value })
         }
     }
 
@@ -473,7 +480,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         kind={kind}
                         onCancel={() => closeCell(false)}
                         onChange={setDraft}
-                        onCommit={() => closeCell(true)}
+                        onCommit={value => closeCell(true, value)}
                         onSwitch={setSwitched}
                         value={draft}
                     />
