@@ -26,6 +26,8 @@ export interface RawTableCell {
     value?: string | number | boolean | null
     /** The formula the cell was written with, as Excel writes it (`=B2*C2`); absent for a plain value */
     formula?: string
+    /** The note a reader left on the cell in Excel; absent when the cell carries none */
+    comment?: string
     /** Number of columns this cell spans (>= 2), when merged */
     colspan?: number
     /** Number of rows this cell spans (>= 2), when merged */

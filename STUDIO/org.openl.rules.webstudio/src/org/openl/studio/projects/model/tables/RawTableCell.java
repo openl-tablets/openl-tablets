@@ -47,6 +47,7 @@ import org.jspecify.annotations.Nullable;
  * @param colspan Number of columns this cell spans (>= 2 means merging, null if single column or covered)
  * @param rowspan Number of rows this cell spans (>= 2 means merging, null if single row or covered)
  * @param covered Whether this cell is covered by another cell's span (true for masked cells, null otherwise)
+ * @param comment note a reader left on the cell in Excel, if any
  * @param style   Excel styling of the cell, when the read asked for it
  * @param metaInfo What the compiler knows about the cell, when the read asked for it
  * @author Vladyslav Pikus
@@ -72,6 +73,12 @@ public record RawTableCell(
                 screen showing formulas needs no second read.""")
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         @Nullable String formula,
+
+        @Schema(description = """
+                Note a reader left on the cell in Excel; absent when the cell carries none. A screen marks such \
+                a cell and shows the note when the reader looks at it.""")
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        @Nullable String comment,
 
         @Schema(description = "Number of columns this cell spans (>=2 means merging, null if single column or covered)")
         Integer colspan,

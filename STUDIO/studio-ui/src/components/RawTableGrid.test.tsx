@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
 import type { RawTableCell } from 'types/tables'
 
@@ -78,6 +79,22 @@ describe('RawTableGrid', () => {
 
         const plain = screen.getByTestId('grid').querySelectorAll('td')[2] as HTMLElement
         expect(plain.style.background).toBe('')
+    })
+
+    it('shows the note a reader left on a cell, and marks the cell carrying it', async () => {
+        const noted: RawTableCell[][] = [[
+            { cell: 'A1', value: 'Premium', comment: 'Agreed with legal\non 3 May' },
+            { cell: 'B1', value: 'plain' },
+        ]]
+        render(<RawTableGrid rows={noted} testId="grid" />)
+
+        const cells = screen.getByTestId('grid').querySelectorAll('td')
+        // The cell wearing the note is marked; the one beside it is not.
+        expect(cells[0]?.className).not.toEqual(cells[1]?.className)
+
+        await userEvent.hover(cells[0] as Element)
+
+        expect(await screen.findByText(/Agreed with legal/)).toBeInTheDocument()
     })
 
     it('draws an empty table without a row', () => {

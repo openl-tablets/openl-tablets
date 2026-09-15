@@ -27985,6 +27985,11 @@ Content-Type: application/json
             "description": "***",
             "readOnly": true
           },
+          "comment": {
+            "type": "string",
+            "description": "***",
+            "readOnly": true
+          },
           "colspan": {
             "type": "integer",
             "format": "int32",

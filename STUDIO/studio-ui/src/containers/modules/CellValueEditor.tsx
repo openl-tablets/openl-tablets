@@ -20,6 +20,8 @@ export type EditorKind =
     | 'array'
     /** Entered in the panel under the cell rather than typed into it. */
     | 'range'
+    /** The formula the cell is written with, entered as Excel writes it: `=B2*C2`. */
+    | 'formula'
 
 interface CellValueEditorProps {
     /** The way the value is being written. */
@@ -182,7 +184,25 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             // The bounds are entered in the panel under the cell, so the cell itself only shows what they
             // come to — as the old editor did, where the field could not be typed into either.
             return <Input {...shared} readOnly onKeyDown={keys} value={value} />
-        case 'array':
+        case 'array': {
+            // A cell holding several numbers is written as they are read: the numbers with the separator
+            // between them. Only what can stand in one reaches the field, the separator included.
+            const entries = numberOnly(asked?.intOnly, separator)
+            return (
+                <Input
+                    {...shared}
+                    onBlur={onCommit}
+                    onChange={event => onChange(event.target.value)}
+                    onPaste={entries.onPaste}
+                    value={value}
+                    onKeyDown={event => {
+                        entries.onKeyDown(event)
+                        keys(event)
+                    }}
+                />
+            )
+        }
+        case 'formula':
         case 'text':
         default:
             return (

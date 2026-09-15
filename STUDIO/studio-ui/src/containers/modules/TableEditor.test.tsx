@@ -98,6 +98,58 @@ describe('TableEditor', () => {
         await waitFor(() => expect(onEditingChange).toHaveBeenLastCalledWith(false))
     })
 
+    it('opens a cell written with a formula as that formula, and keeps it', async () => {
+        const withFormula: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 12, formula: '=6*2' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        draw({ rows: withFormula })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        // Opening it as the number it computed would write that number back over the formula on save.
+        await userEvent.dblClick(screen.getByText('12'))
+
+        expect(screen.getByTestId('table-cell-input')).toHaveValue('=6*2')
+    })
+
+    it('writes a cell as a formula when the reader asks for the formula editor', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        await userEvent.click(screen.getByTestId('table-cell-switch'))
+        await userEvent.click(await screen.findByText('browser.module.editor_switch_formula'))
+
+        const input = screen.getByTestId('table-cell-input')
+        await userEvent.clear(input)
+        await userEvent.type(input, '=B5*2{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: '=B5*2' } },
+        ], 'Claims'))
+    })
+
+    it('writes several numbers into an array cell, and lets nothing else in', async () => {
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'array', separator: ',', entryEditor: 'integer', intOnly: true }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('0'))
+        const input = screen.getByTestId('table-cell-input')
+        await userEvent.clear(input)
+        // The separator stands in the field; a letter does not.
+        await userEvent.type(input, '1,2,x3{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '1,2,3' } },
+        ], 'Claims'))
+    })
+
     it('leaves the table alone for a reader who may not write it', async () => {
         draw({ canWrite: false })
 

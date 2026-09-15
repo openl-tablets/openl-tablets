@@ -35,6 +35,29 @@ export const useStyles = createStyles(({ css, token }) => ({
         max-width: 420px;
     `,
     /**
+     * A cell a reader left a note on in Excel, marked in its corner the way the old editor marked it.
+     *
+     * <p>The mark is drawn by the cell itself rather than by an image, so it costs the page nothing.
+     */
+    commented: css`
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            border-top: 6px solid ${token.colorError};
+            border-left: 6px solid transparent;
+        }
+    `,
+    /** The note itself, kept to the width the old editor gave it and to the lines its author typed. */
+    note: css`
+        display: block;
+        max-width: 160px;
+        white-space: pre-line;
+    `,
+    /**
      * A piece of a cell's text the compiler resolved.
      *
      * A formula is read as a sentence, and a rule under every word of it is a sentence that cannot be read —

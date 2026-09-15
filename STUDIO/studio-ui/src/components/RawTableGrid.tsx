@@ -1,4 +1,5 @@
 import React from 'react'
+import { Tooltip } from 'antd'
 import type { RawTableCell } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { useStyles } from './RawTableGrid.styles'
@@ -125,20 +126,34 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                         {row.map((cell, columnIndex) => {
                             if (cell.covered) return null
                             const decoration = decorate?.(cell, rowIndex, columnIndex)
-                            return (
+                            const key = cell.cell ?? `c${columnIndex}`
+                            const drawn = (
                                 <td
-                                    key={cell.cell ?? `c${columnIndex}`}
-                                    className={cx(styles.cell, decoration?.className)}
                                     colSpan={cell.colspan}
                                     data-cell={cell.cell}
                                     onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
                                     onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                     rowSpan={cell.rowspan}
                                     style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
+                                    className={cx(styles.cell, cell.comment !== undefined && styles.commented,
+                                        decoration?.className)}
                                 >
                                     {decoration?.content ?? cellText(cell, !!formulas, onOpenUsage)}
                                 </td>
                             )
+                            // The note is shown while the cell is read. A cell the screen has taken over — one
+                            // being written into — shows what the screen put there, not a note over the top of it.
+                            return cell.comment === undefined || decoration?.content !== undefined
+                                ? <React.Fragment key={key}>{drawn}</React.Fragment>
+                                : (
+                                    <Tooltip
+                                        key={key}
+                                        placement="rightBottom"
+                                        title={<span className={styles.note}>{cell.comment}</span>}
+                                    >
+                                        {drawn}
+                                    </Tooltip>
+                                )
                         })}
                     </tr>
                 ))}

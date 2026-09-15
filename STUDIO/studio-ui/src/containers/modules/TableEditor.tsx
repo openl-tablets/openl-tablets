@@ -203,7 +203,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (cell === undefined || cell.covered) {
             return
         }
-        const value = cell.value == null ? '' : String(cell.value)
+        // A cell written with a formula is opened as the formula: opening it as the value it computed would
+        // write that value back over the formula the moment the reader saves.
+        const value = cell.formula ?? (cell.value == null ? '' : String(cell.value))
         setPicked({ row, column })
         setOpen({ row, column })
         setSwitched(null)
@@ -291,7 +293,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             return switched
         }
         if (draft.startsWith('=')) {
-            return 'text'
+            return 'formula'
         }
         if (draft.includes('\n') || several) {
             return 'multiline'
@@ -307,6 +309,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * so only once the text parses, and a reader filling in an empty bound needs the dialog before that.
      */
     const ownKind = (at: CellAt): EditorKind | null => {
+        // A cell written with a formula asks to be written as one, whatever its type would say.
+        if (rows[at.row]?.[at.column]?.formula !== undefined) {
+            return 'formula'
+        }
         const editor = askedAt(at.row, at.column)?.editor
         if (editor !== undefined && DRAWN.has(editor)) {
             return editor as EditorKind
@@ -317,7 +323,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     /** The other ways this cell can be written, which the reader picks from beside it. */
     const switches = (at: CellAt, current: EditorKind) => {
         const own = ownKind(at)
-        const others: EditorKind[] = ['multiline', 'text']
+        // A cell can always be written as a formula, whatever it holds now — as the old editor offered it.
+        const others: EditorKind[] = ['formula', 'multiline', 'text']
         if (own !== null) {
             others.unshift(own)
         }
