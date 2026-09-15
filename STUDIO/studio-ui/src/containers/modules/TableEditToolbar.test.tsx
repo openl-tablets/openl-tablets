@@ -74,13 +74,15 @@ describe('TableEditToolbar', () => {
         expect(screen.getByTestId('table-edit-undo')).toBeEnabled()
     })
 
-    it('leaves the table header where it is', () => {
+    it('offers on the header only what leaves the corner OpenL finds the table by where it is', () => {
         draw({ picked: { row: 0, column: 0 } })
 
-        expect(screen.getByTestId('table-edit-insert_row')).toBeDisabled()
+        // A row laid down under the header and a column taken away from under it leave the corner alone.
+        expect(screen.getByTestId('table-edit-insert_row')).toBeEnabled()
+        expect(screen.getByTestId('table-edit-remove_column')).toBeEnabled()
+        // Taking the header's own row away, or laying a column down before the one it is banked from, do not.
         expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
         expect(screen.getByTestId('table-edit-insert_column')).toBeDisabled()
-        expect(screen.getByTestId('table-edit-remove_column')).toBeDisabled()
     })
 
     it('sets the font of the picked cell', async () => {

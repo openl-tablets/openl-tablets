@@ -86,8 +86,6 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
 
-    // The first row and the first column carry the table's header, which the API keeps: they are neither
-    // removed nor pushed aside, so the actions that would touch them are not offered.
     const row = picked?.row ?? -1
     const column = picked?.column ?? -1
     const style = cell?.style
@@ -114,9 +112,14 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
 
     const rule = <span className={styles.rule} />
 
-    // The table's first row and first column hold its header, and the engine finds the table by that corner:
-    // nothing is added before them and neither is taken away.
-    const header = picked === null ? t('browser.module.edit_pick_a_cell') : t('browser.module.edit_header_kept')
+    /**
+     * Why an action is off, for the two the table's header stands in the way of.
+     *
+     * <p>The header is one cell banked across the table, and OpenL finds the table by the corner it starts in.
+     * A row added under the header or a column taken away from under it leave that corner where it is; taking
+     * the header's own row away, or laying a column down before the one it starts in, do not.
+     */
+    const off = (why: string) => (picked === null ? t('browser.module.edit_pick_a_cell') : t(why))
 
     /** The colour as the API writes it: #rrggbb, without whatever the picker says about opacity. */
     const colour = (chosen: AggregationColor) => chosen.toHexString().slice(0, 7)
@@ -139,14 +142,15 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('undo', <UndoOutlined />, onUndo, { disabled: !canUndo })}
             {action('redo', <RedoOutlined />, onRedo, { disabled: !canRedo })}
             {rule}
-            {action('insert_row', <InsertRowAboveOutlined />, onInsertRow,
-                { disabled: row < 1, why: header })}
-            {action('remove_row', <DeleteRowOutlined />, onRemoveRow, { disabled: row < 1, why: header })}
+            {action('insert_row', <InsertRowAboveOutlined />, onInsertRow)}
+            {action('remove_row', <DeleteRowOutlined />, onRemoveRow,
+                { disabled: picked === null || row < 1, why: off('browser.module.edit_header_row_kept') })}
             {rule}
-            {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn,
-                { disabled: column < 1 || !whole, why: column < 1 ? header : t('browser.module.edit_whole_table') })}
-            {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn,
-                { disabled: column < 1, why: header })}
+            {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn, {
+                disabled: picked === null || column < 1 || !whole,
+                why: off(column < 1 ? 'browser.module.edit_header_column_kept' : 'browser.module.edit_whole_table'),
+            })}
+            {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
             {rule}
             {action('align_left', <AlignLeftOutlined />, () => onStyle({ align: 'left' }),
                 { on: style?.align === undefined || style.align === 'left' })}

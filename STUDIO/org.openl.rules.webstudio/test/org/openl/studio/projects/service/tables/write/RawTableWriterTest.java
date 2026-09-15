@@ -524,32 +524,60 @@ class RawTableWriterTest {
     }
 
     @Test
-    void refusesAColumnBeforeTheFirstOne() {
-        // The first column holds the corner OpenL finds the table by. A column laid down before it would leave
-        // that corner blank and the table lost, so the table does not take one there.
-        assertThrows(BadRequestException.class,
-                () -> apply(insertColumn(0, row("n", "long", "id", "epsilon"))));
+    void takesAwayTheFirstColumnAndKeepsTheHeaderBankedOverTheTable() {
+        // A table's header is one cell banked across every column, as OpenL writes it. Taking the first column
+        // away narrows the bank; the header stays where the engine looks for it.
+        apply(merge(0, 0, 1, 3));
+        apply(deleteColumn(0));
 
         var source = reload(mainProject);
-        assertEquals(3, width(source));
+        assertEquals(2, width(source));
         assertEquals(HEADER, value(source, 0, 0));
+        assertEquals(Integer.valueOf(2), source.get(0).getFirst().colspan());
+        // the column that previously sat at index 1 is shifted left
+        assertEquals("code", value(source, 1, 0));
     }
 
     @Test
-    void refusesToTakeAwayTheFirstColumn() {
-        assertThrows(BadRequestException.class, () -> apply(deleteColumn(0)));
+    void keepsAMergeReachingPastTheColumnsTakenAway() throws IOException {
+        var project = writeProject("merged", new String[][]{
+                {HEADER, null, null},
+                {"String", null, null},
+                {"int", "hour", "gamma"}
+        });
+        apply(project, merge(1, 0, 1, 3));
 
-        var source = reload(mainProject);
-        assertEquals(3, width(source));
-        assertEquals(HEADER, value(source, 0, 0));
+        apply(project, deleteColumn(1));
+
+        var source = reload(project);
+        assertEquals(2, width(source));
+        // the merge reached past the column that went, so it narrows rather than being dropped with its value
+        assertEquals("String", value(source, 1, 0));
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().colspan());
     }
 
     @Test
     void refusesToTakeAwayTheRowTheHeaderStandsOn() {
+        // Nothing bars the first row itself. What bars this write is that the table would be left starting
+        // with a line OpenL does not read as a header, which is a table nobody could find again.
         assertThrows(BadRequestException.class, () -> apply(deleteRow(0)));
 
         var source = reload(mainProject);
         assertEquals(4, source.size());
+        assertEquals(HEADER, value(source, 0, 0));
+    }
+
+    @Test
+    void refusesAColumnBeforeTheFirstOneThatLeavesTheHeaderBehind() {
+        // The header is banked from the first column, and a column laid down before it moves the bank aside:
+        // the corner OpenL finds the table by is left blank.
+        apply(merge(0, 0, 1, 3));
+
+        assertThrows(BadRequestException.class,
+                () -> apply(insertColumn(0, row(null, "long", "id", "epsilon"))));
+
+        var source = reload(mainProject);
+        assertEquals(3, width(source));
         assertEquals(HEADER, value(source, 0, 0));
     }
 
