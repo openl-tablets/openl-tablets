@@ -503,7 +503,6 @@ i18next.addResourceBundle('en', 'repository', {
                 + 'or remove the column.',
             edit_discard: 'Discard',
             edit_keep_editing: 'Keep Editing',
-            editor_switch: 'Switch editor',
             editor_switch_formula: 'Switch to: Formula Editor',
             editor_switch_text: 'Switch to: Text Editor',
             editor_switch_multiline: 'Switch to: Multiline Editor',

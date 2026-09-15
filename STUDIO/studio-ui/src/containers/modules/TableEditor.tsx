@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { MoreOutlined } from '@ant-design/icons'
-import { Button, Dropdown, Modal, Popover, Spin } from 'antd'
+import { Dropdown, Modal, Popover, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router-dom'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
@@ -494,36 +493,29 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (sameCell(open, at)) {
             const kind = kindOf(at)
             const inCell = (
-                <div className={styles.open}>
-                    <CellValueEditor
-                        asked={askedAt(at.row, at.column)}
-                        className={styles.input}
-                        kind={kind}
-                        onCancel={() => closeCell(false)}
-                        onChange={setDraft}
-                        onCommit={value => closeCell(true, value)}
-                        onSwitch={setSwitched}
-                        value={draft}
-                    />
-                    <Dropdown
-                        menu={{ items: switches(at, kind) }}
-                        onOpenChange={opened => { switching.current = opened }}
-                        trigger={['click']}
-                    >
-                        <Button
-                            data-testid="table-cell-switch"
-                            icon={<MoreOutlined />}
-                            // The menu is opened by the pointer, and opening it must not close the cell.
-                            onMouseDown={event => event.preventDefault()}
-                            size="small"
-                            title={t('browser.module.editor_switch')}
-                            type="text"
+                // Another way of writing the value is asked for with the right button, where the Editor asked
+                // for it: a button of its own beside the field would widen the cell, and a table whose columns
+                // move as a cell is opened is a table the reader loses their place in.
+                <Dropdown
+                    menu={{ items: switches(at, kind) }}
+                    onOpenChange={opened => { switching.current = opened }}
+                    trigger={['contextMenu']}
+                >
+                    <div className={styles.open} data-testid="table-cell-switch">
+                        <CellValueEditor
+                            asked={askedAt(at.row, at.column)}
+                            className={styles.input}
+                            kind={kind}
+                            onCancel={() => closeCell(false)}
+                            onChange={setDraft}
+                            onCommit={value => closeCell(true, value)}
+                            onSwitch={setSwitched}
+                            value={draft}
                         />
-                    </Dropdown>
-                </div>
+                    </div>
+                </Dropdown>
             )
             return {
-                painted: true,
                 // The bounds of a range are entered under the cell rather than in the cell, the way the old
                 // editor dropped its panel there — and the cell keeps the way out to writing it as text.
                 content: kind !== 'range' ? inCell : (

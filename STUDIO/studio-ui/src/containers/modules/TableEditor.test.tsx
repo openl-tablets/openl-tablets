@@ -181,12 +181,25 @@ describe('TableEditor', () => {
         expect(screen.getByTestId('table-cell-input')).toHaveValue('=6*2')
     })
 
+    it('puts nothing beside the field of an open cell, so the column keeps its width', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+
+        // A button beside the field would widen the column and shift the whole table as a cell is opened.
+        const inCell = screen.getByTestId('table-cell-switch')
+        expect(inCell.querySelector('button')).toBeNull()
+        expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
+    })
+
     it('writes a cell as a formula when the reader asks for the formula editor', async () => {
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.dblClick(screen.getByText('Good Morning'))
-        await userEvent.click(screen.getByTestId('table-cell-switch'))
+        // Another way of writing the value is asked for with the right button, as the Editor asked for it.
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
         await userEvent.click(await screen.findByText('browser.module.editor_switch_formula'))
 
         const input = screen.getByTestId('table-cell-input')
@@ -526,7 +539,8 @@ describe('TableEditor', () => {
         await userEvent.dblClick(screen.getByText('0'))
         expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
         // The way out of the panel is the same one every other cell has.
-        await userEvent.click(screen.getByTestId('table-cell-switch'))
+        // Another way of writing the value is asked for with the right button, as the Editor asked for it.
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
         await userEvent.click(await screen.findByText('browser.module.editor_switch_text'))
 
         expect(screen.queryByTestId('range-editor')).toBeNull()
@@ -545,7 +559,8 @@ describe('TableEditor', () => {
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.dblClick(screen.getByText('Good Morning'))
-        await userEvent.click(screen.getByTestId('table-cell-switch'))
+        // Another way of writing the value is asked for with the right button, as the Editor asked for it.
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
         // Picking the way of writing takes the pointer out of the field, which must not close the cell.
         await userEvent.click(await screen.findByText('browser.module.editor_switch_multiline'))
 
