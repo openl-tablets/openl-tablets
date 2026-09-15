@@ -42,6 +42,15 @@ const draw = (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => {
     return { onEditingChange, onSaved }
 }
 
+/** The cell drawn at the given place, for a place that holds nothing to search for by its text. */
+const cellOf = (row: number, column: number): HTMLElement => {
+    const drawn = screen.getByTestId('module-table').querySelectorAll('tr')[row]?.querySelectorAll('td')[column]
+    if (drawn === undefined) {
+        throw new Error(`No cell at row ${row}, column ${column}`)
+    }
+    return drawn as HTMLElement
+}
+
 /** Opens the cell holding the given text and writes something else into it. */
 const write = async (was: string, becomes: string) => {
     await userEvent.dblClick(screen.getByText(was))
@@ -130,11 +139,32 @@ describe('TableEditor', () => {
         // A row added and taken away again leaves the table as it was read, so there is nothing to write.
         await userEvent.click(screen.getByText('Good Morning'))
         await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+        // The row is laid down under the one the reader is on, so it is that row they take away again.
+        await userEvent.click(cellOf(2, 0))
         await userEvent.click(screen.getByTestId('table-edit-remove_row'))
         await userEvent.click(screen.getByTestId('table-edit-save'))
 
         expect(applyTableActions).not.toHaveBeenCalled()
         await waitFor(() => expect(onEditingChange).toHaveBeenLastCalledWith(false))
+    })
+
+    it('lays an added row under the one the reader is on, as the Editor did', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByText('Good Morning'))
+        await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+        // A row left blank would split the table, so it is filled in before the table is written.
+        await userEvent.dblClick(cellOf(2, 0))
+        await userEvent.type(screen.getByTestId('table-cell-input'), '12{Enter}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalled())
+        const [, , actions] = vi.mocked(applyTableActions).mock.calls[0] ?? []
+        expect(actions).toEqual([{
+            operation: 'insert',
+            target: { type: 'rows', position: 2, cells: [[{ value: '12' }, { value: '' }]]},
+        }])
     })
 
     it('opens a cell written with a formula as that formula, and keeps it', async () => {

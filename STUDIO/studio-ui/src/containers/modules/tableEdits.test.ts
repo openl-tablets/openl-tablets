@@ -101,6 +101,41 @@ describe('tableEdits', () => {
             expect(state.rows[2]?.[0]?.value).toBe(0)
         })
 
+        it('gives an added row the styling of the row above it, the way the workbook writes it', () => {
+            const state = after(
+                { kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } },
+                { kind: 'insertRow', at: 2 }
+            )
+
+            expect(state.rows[2]?.[1]?.style?.bold).toBe(true)
+            expect(state.rows[2]?.[1]?.value).toBe('')
+        })
+
+        it('gives an added column the styling of the column it pushes aside', () => {
+            const state = after(
+                { kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } },
+                { kind: 'insertColumn', at: 1 }
+            )
+
+            expect(state.rows[1]?.[1]?.style?.bold).toBe(true)
+            expect(state.rows[1]?.[1]?.value).toBe('')
+            // the column that was styled is the one that moved aside
+            expect(state.rows[1]?.[2]?.value).toBe('Good Morning')
+        })
+
+        it('takes away every row a merged cell reaches over', () => {
+            const state = after({ kind: 'removeRow', at: 1, lines: 2 })
+
+            expect(state.rows).toHaveLength(1)
+            expect(state.rows[0]?.[0]?.value).toBe('Rules')
+        })
+
+        it('takes away every column a merged cell reaches over', () => {
+            const state = after({ kind: 'removeColumn', at: 0, lines: 2 })
+
+            expect(state.rows[0]).toHaveLength(0)
+        })
+
         it('keeps the styling the reader asked for on the cell it was asked for', () => {
             const state = after({ kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } })
 
@@ -147,14 +182,21 @@ describe('tableEdits', () => {
         })
 
         it('takes rows away from the bottom up, so the ones before them do not move', () => {
-            expect(sent({ kind: 'removeRow', at: 1 }, { kind: 'removeRow', at: 1 })).toEqual([
+            expect(sent({ kind: 'removeRow', at: 1, lines: 1 }, { kind: 'removeRow', at: 1, lines: 1 })).toEqual([
+                { operation: 'delete', target: { type: 'rows', position: 2, count: 1 } },
+                { operation: 'delete', target: { type: 'rows', position: 1, count: 1 } },
+            ])
+        })
+
+        it('asks for every row of a merged block to be taken away, the bottom one first', () => {
+            expect(sent({ kind: 'removeRow', at: 1, lines: 2 })).toEqual([
                 { operation: 'delete', target: { type: 'rows', position: 2, count: 1 } },
                 { operation: 'delete', target: { type: 'rows', position: 1, count: 1 } },
             ])
         })
 
         it('takes a column away before it addresses any row', () => {
-            const edits = sent({ kind: 'removeColumn', at: 1 }, write(1, 0, '6'))
+            const edits = sent({ kind: 'removeColumn', at: 1, lines: 1 }, write(1, 0, '6'))
 
             expect(edits[0]).toEqual({ operation: 'delete', target: { type: 'columns', position: 1, count: 1 } })
             expect(edits[1]).toEqual({
@@ -177,7 +219,7 @@ describe('tableEdits', () => {
         })
 
         it('takes a row away before it adds a column, so the column is as tall as the table', () => {
-            const edits = sent({ kind: 'removeRow', at: 2 }, { kind: 'insertColumn', at: 1 }, write(0, 1, 'Note'))
+            const edits = sent({ kind: 'removeRow', at: 2, lines: 1 }, { kind: 'insertColumn', at: 1 }, write(0, 1, 'Note'))
 
             // The table takes a column that carries a cell per row it has at that moment: the row that went is
             // already gone, so the column is one shorter than the table was read as.

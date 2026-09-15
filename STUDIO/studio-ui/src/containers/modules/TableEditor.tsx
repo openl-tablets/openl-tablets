@@ -538,6 +538,11 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     /** Adding a row or a column puts it where the picked cell is, pushing that one down or along. */
     const at = picked ?? { row: -1, column: -1 }
+    // The cell the reader is on, and how far it reaches: a merged cell answers for every row and column it
+    // covers, so a line written beside it goes past the whole of it and a line taken away takes all of it.
+    const chosen = picked === null ? undefined : written[at.row]?.[at.column]
+    const rowsOfChosen = chosen?.rowspan ?? 1
+    const columnsOfChosen = chosen?.colspan ?? 1
 
     return (
         <>
@@ -572,11 +577,11 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     blocked={blocked}
                     canRedo={buffer.undone.length > 0}
                     canUndo={dirty}
-                    cell={picked === null ? undefined : written[at.row]?.[at.column]}
+                    cell={chosen}
                     dirty={dirty}
                     onCancel={stopEditing}
                     onInsertColumn={() => step({ kind: 'insertColumn', at: at.column })}
-                    onInsertRow={() => step({ kind: 'insertRow', at: at.row })}
+                    onInsertRow={() => step({ kind: 'insertRow', at: at.row + rowsOfChosen })}
                     onRedo={() => setBuffer(redo)}
                     onSave={save}
                     onStyle={(style: RawCellStyleInput) => step({ kind: 'style', at, style })}
@@ -585,11 +590,11 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     saving={saving}
                     whole={whole}
                     onRemoveColumn={() => {
-                        step({ kind: 'removeColumn', at: at.column })
+                        step({ kind: 'removeColumn', at: at.column, lines: columnsOfChosen })
                         setPicked(null)
                     }}
                     onRemoveRow={() => {
-                        step({ kind: 'removeRow', at: at.row })
+                        step({ kind: 'removeRow', at: at.row, lines: rowsOfChosen })
                         setPicked(null)
                     }}
                 />

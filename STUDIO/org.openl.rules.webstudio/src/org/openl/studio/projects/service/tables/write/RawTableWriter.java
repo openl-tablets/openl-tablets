@@ -362,7 +362,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void insertRows(int position, List<List<RawCellInput>> rows) {
         var developerView = developerView();
-        // The first row is the header; a new row goes at index 1..height (height appends to the end).
+        // A row is laid down after the one before it, whose styling it takes — so the topmost row a write can
+        // add is the second one, and index 1..height is what the table takes (height adds at the end).
         requirePosition(position, 1, Tool.height(developerView.getRegion()));
         requireNotEmpty(rows);
         var width = Tool.width(developerView.getRegion());
@@ -378,7 +379,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void insertColumns(int position, List<List<RawCellInput>> columns) {
         var developerView = developerView();
-        // The first column carries the leading labels; a new column goes at index 1..width (width appends to the end).
+        // A column is laid down where the one at that index stands, whose styling it takes, and pushes it
+        // aside. Not the first: the corner OpenL finds the table by would be left blank and the table lost.
         requirePosition(position, 1, Tool.width(developerView.getRegion()));
         requireNotEmpty(columns);
         var height = Tool.height(developerView.getRegion());
@@ -411,7 +413,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void deleteRows(int position, int count) {
         var developerView = developerView();
-        // The first row is the header; the block (position..position+count-1) must stay within the body.
+        // The first row is the header, which the table cannot be left without; the block
+        // (position..position+count-1) must stay within the body.
         requirePosition(position, 1, Tool.height(developerView.getRegion()) - count);
         // Drop merges anchored in the deleted rows first: removeRows only resizes a merge taller than the block, so a
         // merge fully inside it would otherwise linger as an orphan over the shifted-up rows.
@@ -423,6 +426,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
+        // The first column holds the corner the header stands on, which the table cannot be left without.
         requirePosition(position, 1, Tool.width(developerView.getRegion()) - count);
         // Same as deleteRows: drop merges anchored in the deleted columns so a fully-contained merge does not linger.
         var tableRegion = developerView.getRegion();
