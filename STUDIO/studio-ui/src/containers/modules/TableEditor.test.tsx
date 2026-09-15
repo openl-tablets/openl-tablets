@@ -95,12 +95,38 @@ describe('TableEditor', () => {
         await userEvent.dblClick(screen.getByText('2024-03-07'))
         await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('2024-03-07'))
 
-        await userEvent.click(screen.getByTitle('2024-03-14'))
+        // The calendar is the field's to drop when the reader goes to it, not the cell's to open unasked.
+        await userEvent.click(screen.getByTestId('table-cell-input'))
+        await userEvent.click(await screen.findByTitle('2024-03-14'))
         await userEvent.click(screen.getByTestId('table-edit-save'))
 
         // Read as ISO, written back as ISO: opening a cell and closing it must not rewrite what it held.
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '2024-03-14' } },
+        ], 'Claims'))
+    })
+
+    it('keeps a date the reader emptied when they go on to another cell', async () => {
+        const dated: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Date on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'date' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: dated })
+        await userEvent.dblClick(screen.getByText('2024-03-07'))
+        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('2024-03-07'))
+
+        // Backspace empties the cell, as it did in the Editor. The calendar was never opened, so what keeps
+        // the empty cell is the reader going elsewhere — which is what keeps every other cell too.
+        await userEvent.keyboard('{Backspace}')
+        await userEvent.click(cellOf(1, 1))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '' } },
         ], 'Claims'))
     })
 
@@ -181,13 +207,26 @@ describe('TableEditor', () => {
         expect(screen.getByTestId('table-cell-input')).toHaveValue('=6*2')
     })
 
+    it('puts nothing beside the field of an open cell, so the column keeps its width', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+
+        // A button beside the field would widen the column and shift the whole table as a cell is opened.
+        const inCell = screen.getByTestId('table-cell-switch')
+        expect(inCell.querySelector('button')).toBeNull()
+        expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
+    })
+
     it('writes a cell as a formula when the reader asks for the formula editor', async () => {
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.dblClick(screen.getByText('Good Morning'))
-        await userEvent.click(screen.getByTestId('table-cell-switch'))
-        await userEvent.click(await screen.findByText('browser.module.editor_switch_formula'))
+        // Another way of writing the value is asked for with the right button, as the Editor asked for it.
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
+        await userEvent.click(await screen.findByText('browser.module.editor_kind_formula'))
 
         const input = screen.getByTestId('table-cell-input')
         await userEvent.clear(input)
@@ -197,6 +236,106 @@ describe('TableEditor', () => {
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: '=B5*2' } },
         ], 'Claims'))
+    })
+
+    it('opens a yes-or-no cell ticked on any of the words OpenL reads as true', async () => {
+        const said: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Boolean on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 'yes' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'boolean' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: said })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('yes'))
+
+        // 'yes' is the word the workbook was written with, and the Editor read it as ticked.
+        expect(screen.getByTestId('table-cell-input')).toBeChecked()
+    })
+
+    it('writes a yes-or-no cell as the word OpenL writes, whatever word it held', async () => {
+        const said: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Boolean on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 'yes' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'boolean' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: said })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('yes'))
+        await userEvent.click(screen.getByTestId('table-cell-input'))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: 'false' } },
+        ], 'Claims'))
+    })
+
+    it('takes the whole list of choices at once and says so, as the Editor did', async () => {
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'multiselect', choices: ['a', 'b'], displayValues: ['Alpha', 'Beta'], separator: ',' }],
+            cells: [{ row: 1, column: 1, editor: 0 }],
+        })
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        await userEvent.click(screen.getByTestId('table-cell-input'))
+        await userEvent.click(await screen.findByText('browser.module.edit_select_all'))
+
+        // Everything is chosen now, so the same button offers to let it all go again.
+        expect(await screen.findByText('browser.module.edit_deselect_all')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('browser.module.edit_done'))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'a,b' } },
+        ], 'Claims'))
+    })
+
+    it('takes no date typed into the field, and empties it on Backspace', async () => {
+        const dated: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Date on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'date' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: dated })
+        await userEvent.dblClick(screen.getByText('2024-03-07'))
+        const field = await screen.findByTestId('table-cell-input')
+
+        await userEvent.type(field, '12/25/2024')
+        expect(field).toHaveValue('2024-03-07') // the date is the calendar's to give
+
+        await userEvent.type(field, '{Backspace}')
+        expect(field).toHaveValue('')
+    })
+
+    it('paints the picked cell while the pointer rests on a colour, and puts it back', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByText('Good Morning'))
+        await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+        const swatch = (await screen.findAllByTestId('table-edit-swatch'))[1] as HTMLElement
+
+        /** The cell the colour is meant for, read afresh: the screen draws it again on every change. */
+        const painted = () => (screen.getByText('Good Morning').closest('td') as HTMLElement).style.background
+
+        await userEvent.hover(swatch)
+        expect(painted()).not.toBe('')
+
+        await userEvent.unhover(swatch)
+        expect(painted()).toBe('')
     })
 
     it('writes several numbers into an array cell, and lets nothing else in', async () => {
@@ -352,6 +491,52 @@ describe('TableEditor', () => {
         expect(screen.getByTestId('table-edit-redo')).toBeDisabled()
     })
 
+    it('opens a cell on its field alone, with nothing dropped under it unasked', async () => {
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
+            cells: [{ row: 1, column: 1, editor: 0 }],
+        })
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+
+        // A reader who opened the cell to read it, or to move on from it, has no panel to dismiss.
+        expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
+        expect(screen.queryByText('Rating 1')).toBeNull()
+    })
+
+    it('drops no panel under a range cell until the reader goes to its field', async () => {
+        rangeCell()
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('0'))
+        expect(screen.queryByTestId('range-editor')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('table-cell-input'))
+
+        expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
+    })
+
+    it('offers a choice standing for none of them, which is how a cell is emptied', async () => {
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
+            cells: [{ row: 1, column: 1, editor: 0 }],
+        })
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        await userEvent.click(screen.getByTestId('table-cell-input'))
+        await screen.findByText('Rating 1')
+
+        // The list heads with the empty choice, so nothing has to be crossed out over the arrow beside it.
+        const options = document.querySelectorAll('.ant-select-item-option')
+        expect(options).toHaveLength(3)
+        expect(options[0]?.textContent?.trim()).toBe('')
+    })
+
     it('offers the values a cell is chosen from, as the table said when editing started', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
             editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
@@ -361,6 +546,8 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
         await userEvent.dblClick(screen.getByText('Good Morning'))
+        // The list is the field's to drop when the reader goes to it, not the cell's to open unasked.
+        await userEvent.click(screen.getByTestId('table-cell-input'))
 
         // The cell holds one of a known set of values, so it is chosen rather than typed.
         expect(await screen.findByText('Rating 1')).toBeInTheDocument()
@@ -384,12 +571,14 @@ describe('TableEditor', () => {
         cells: [{ row: 1, column: 0, editor: 0 }],
     })
 
-    it('enters a range in the panel under the cell, in the wording OpenL prints', async () => {
+    it('enters a range in the panel under the cell, in the wording the Editor wrote', async () => {
         rangeCell()
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
 
         await userEvent.dblClick(screen.getByText('0'))
+        // The panel is the field's to drop when the reader goes to it, not the cell's to open unasked.
+        await userEvent.click(screen.getByTestId('table-cell-input'))
         await userEvent.click(await screen.findByTestId('range-shape-between'))
         const to = screen.getByTestId('range-to')
         await userEvent.clear(to)
@@ -398,7 +587,7 @@ describe('TableEditor', () => {
         await userEvent.click(screen.getByTestId('table-edit-save'))
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
-            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '[0..200]' } },
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '0 .. 200' } },
         ], 'Claims'))
     })
 
@@ -408,6 +597,7 @@ describe('TableEditor', () => {
         await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
 
         await userEvent.dblClick(screen.getByText('0'))
+        await userEvent.click(screen.getByTestId('table-cell-input'))
         expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
 
         // A click inside the panel leaves it standing; one outside closes it, writing nothing.
@@ -419,16 +609,34 @@ describe('TableEditor', () => {
         expect(applyTableActions).not.toHaveBeenCalled()
     })
 
+    it('closes a range cell the reader leaves without ever asking for its panel', async () => {
+        rangeCell()
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('0'))
+        expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
+
+        // The field takes no typing and has no panel to close, so the click that leaves it closes the cell.
+        // A cell left open holds on to the keys the table moves between cells with.
+        await userEvent.click(cellOf(1, 1))
+
+        await waitFor(() => expect(screen.queryByTestId('table-cell-input')).toBeNull())
+        expect(applyTableActions).not.toHaveBeenCalled()
+    })
+
     it('lets the reader write a range cell as text instead', async () => {
         rangeCell()
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
 
         await userEvent.dblClick(screen.getByText('0'))
+        await userEvent.click(screen.getByTestId('table-cell-input'))
         expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
         // The way out of the panel is the same one every other cell has.
-        await userEvent.click(screen.getByTestId('table-cell-switch'))
-        await userEvent.click(await screen.findByText('browser.module.editor_switch_text'))
+        // Another way of writing the value is asked for with the right button, as the Editor asked for it.
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
+        await userEvent.click(await screen.findByText('browser.module.editor_kind_text'))
 
         expect(screen.queryByTestId('range-editor')).toBeNull()
         const input = screen.getByTestId('table-cell-input')
@@ -446,9 +654,10 @@ describe('TableEditor', () => {
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.dblClick(screen.getByText('Good Morning'))
-        await userEvent.click(screen.getByTestId('table-cell-switch'))
+        // Another way of writing the value is asked for with the right button, as the Editor asked for it.
+        fireEvent.contextMenu(screen.getByTestId('table-cell-switch'))
         // Picking the way of writing takes the pointer out of the field, which must not close the cell.
-        await userEvent.click(await screen.findByText('browser.module.editor_switch_multiline'))
+        await userEvent.click(await screen.findByText('browser.module.editor_kind_multiline'))
 
         const input = screen.getByTestId('table-cell-input')
         expect(input.tagName).toBe('TEXTAREA')

@@ -17,6 +17,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.RemoveMergedRegionsAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
@@ -281,9 +282,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
         try {
             table.getGridTable().edit();
-            // An action must not turn a recognized table into one OpenL cannot parse (an unknown header) — that would
-            // bypass the create/update header check and leave an invisible table. Only the state the sequence ends in
-            // has to be readable; an edit in the middle of it may leave the header half-written.
+            // A write must not turn a recognized table into one OpenL cannot parse (an unknown header) — that
+            // would bypass the create/update header check and leave an invisible table. Only the state the
+            // sequence ends in has to be readable; an edit in the middle of it may leave the header half-written.
             preservingKnownHeader(() -> actions.forEach(this::dispatch));
             save();
         } finally {
@@ -380,8 +381,8 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private void insertColumns(int position, List<List<RawCellInput>> columns) {
         var developerView = developerView();
         // A column is laid down where the one at that index stands, whose styling it takes, and pushes it
-        // aside. Not the first: the corner OpenL finds the table by would be left blank and the table lost.
-        requirePosition(position, 1, Tool.width(developerView.getRegion()));
+        // aside — the first column included. Index 0..width is what the table takes (width adds at the end).
+        requirePosition(position, 0, Tool.width(developerView.getRegion()));
         requireNotEmpty(columns);
         var height = Tool.height(developerView.getRegion());
         requireBatchLines(columns, position, false, height, "table.action.column.height.message");
@@ -413,25 +414,25 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void deleteRows(int position, int count) {
         var developerView = developerView();
-        // The first row is the header, which the table cannot be left without; the block
-        // (position..position+count-1) must stay within the body.
-        requirePosition(position, 1, Tool.height(developerView.getRegion()) - count);
-        // Drop merges anchored in the deleted rows first: removeRows only resizes a merge taller than the block, so a
-        // merge fully inside it would otherwise linger as an orphan over the shifted-up rows.
+        // The block (position..position+count-1) must stay within the table — the first row included, which
+        // is the reader's to take away as it was in the Editor.
+        requirePosition(position, 0, Tool.height(developerView.getRegion()) - count);
+        // Drop the merges the deleted rows hold whole first: removeRows only resizes a merge taller than the
+        // block, so a merge fully inside it would otherwise linger as an orphan over the shifted-up rows.
         var tableRegion = developerView.getRegion();
-        removeMergedRegionsIn(developerView, new GridRegion(tableRegion.getTop() + position, tableRegion.getLeft(),
-                tableRegion.getTop() + position + count - 1, tableRegion.getRight()));
+        removeMergedRegionsWithin(developerView, new GridRegion(tableRegion.getTop() + position,
+                tableRegion.getLeft(), tableRegion.getTop() + position + count - 1, tableRegion.getRight()));
         removeRows(developerView, count, position);
     }
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
-        // The first column holds the corner the header stands on, which the table cannot be left without.
-        requirePosition(position, 1, Tool.width(developerView.getRegion()) - count);
-        // Same as deleteRows: drop merges anchored in the deleted columns so a fully-contained merge does not linger.
+        requirePosition(position, 0, Tool.width(developerView.getRegion()) - count);
+        // Same as deleteRows: drop the merges the deleted columns hold whole so none of them lingers.
         var tableRegion = developerView.getRegion();
-        removeMergedRegionsIn(developerView, new GridRegion(tableRegion.getTop(), tableRegion.getLeft() + position,
-                tableRegion.getBottom(), tableRegion.getLeft() + position + count - 1));
+        removeMergedRegionsWithin(developerView, new GridRegion(tableRegion.getTop(),
+                tableRegion.getLeft() + position, tableRegion.getBottom(),
+                tableRegion.getLeft() + position + count - 1));
         removeColumns(developerView, count, position);
     }
 
@@ -655,6 +656,26 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     private void removeMergedRegionsIn(IGridTable developerView, IGridRegion region) {
         run(developerView, new RemoveMergedRegionsAction(region));
+    }
+
+    /**
+     * Drops the merges a block of lines holds whole, before the block is taken away.
+     *
+     * <p>A merge reaching past the block is left alone: the removal shrinks it, and dropping it here would take
+     * its value away with the line its top-left cell sits on. A table's header is written as one cell banked
+     * across every column, so taking the first column away would otherwise take the header with it.
+     */
+    private void removeMergedRegionsWithin(IGridTable developerView, IGridRegion block) {
+        var grid = (IWritableGrid) developerView.getGrid();
+        var held = new ArrayList<IGridRegion>();
+        for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
+            var merged = grid.getMergedRegion(i);
+            if (IGridRegion.Tool.contains(block, merged.getLeft(), merged.getTop())
+                    && IGridRegion.Tool.contains(block, merged.getRight(), merged.getBottom())) {
+                held.add(merged);
+            }
+        }
+        held.forEach(merged -> run(developerView, new RemoveMergedRegionsAction(merged)));
     }
 
     private IGridTable developerView() {

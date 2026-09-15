@@ -136,7 +136,7 @@ describe('ModuleActionBar', () => {
 
     it('offers Verify only while the module is waiting to be compiled', async () => {
         const onVerify = vi.fn()
-        render(<ModuleActionBar moduleName="Claims" onVerify={onVerify} project={project({} as Project['capabilities'])} verifyNeeded />)
+        render(<ModuleActionBar verifyNeeded moduleName="Claims" onVerify={onVerify} project={project({} as Project['capabilities'])} />)
         await act(async () => {
             await Promise.resolve()
         })

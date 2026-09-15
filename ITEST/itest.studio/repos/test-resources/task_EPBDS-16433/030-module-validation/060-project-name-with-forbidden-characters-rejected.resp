@@ -1,0 +1,14 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "*",
+  "fields": [
+    {
+      "code": "openl.error.file.descriptor.name.invalid.message",
+      "message": "*",
+      "field": "name",
+      "rejectedValue": "EPBDS/16433"
+    }
+  ]
+}

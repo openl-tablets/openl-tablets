@@ -20,6 +20,7 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
         onInsertColumn: vi.fn(),
         onRemoveColumn: vi.fn(),
         onStyle: vi.fn(),
+        onPreview: vi.fn(),
     }
     render(
         <TableEditToolbar
@@ -74,13 +75,54 @@ describe('TableEditToolbar', () => {
         expect(screen.getByTestId('table-edit-undo')).toBeEnabled()
     })
 
-    it('leaves the table header where it is', () => {
+    it('offers on the header only what leaves the corner OpenL finds the table by where it is', () => {
         draw({ picked: { row: 0, column: 0 } })
 
-        expect(screen.getByTestId('table-edit-insert_row')).toBeDisabled()
+        // A row laid down under the header and a column taken away from under it leave the corner alone.
+        expect(screen.getByTestId('table-edit-insert_row')).toBeEnabled()
+        expect(screen.getByTestId('table-edit-remove_column')).toBeEnabled()
+        // Taking the header's own row away, or laying a column down before the one it is banked from, do not.
         expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
         expect(screen.getByTestId('table-edit-insert_column')).toBeDisabled()
-        expect(screen.getByTestId('table-edit-remove_column')).toBeDisabled()
+    })
+
+    it('opens on the palette and puts the full picker in its place only when asked', async () => {
+        draw()
+
+        await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+        expect(await screen.findByTestId('table-edit-palette')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('table-edit-fill_colour-more'))
+
+        // One of the two at a time: the palette gives up its place rather than sitting behind the picker.
+        expect(screen.queryByTestId('table-edit-palette')).not.toBeInTheDocument()
+    })
+
+    it('shows a colour on the cell while the pointer rests on it, and takes it back off', async () => {
+        const acted = draw()
+
+        await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+        const swatches = await screen.findAllByTestId('table-edit-swatch')
+        const first = swatches[0] as HTMLElement
+
+        await userEvent.hover(first)
+        expect(acted.onPreview).toHaveBeenLastCalledWith({ background: '#FFFFFF' })
+        // Nothing is written by looking: the colour is on the cell, not in what the table will be saved as.
+        expect(acted.onStyle).not.toHaveBeenCalled()
+
+        await userEvent.unhover(first)
+        expect(acted.onPreview).toHaveBeenLastCalledWith(null)
+    })
+
+    it('fills the cell with the colour the reader settles on', async () => {
+        const acted = draw()
+
+        await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+        const swatches = await screen.findAllByTestId('table-edit-swatch')
+        await userEvent.click(swatches[1] as HTMLElement)
+
+        expect(acted.onStyle).toHaveBeenCalledWith({ background: '#FFDDDD' })
+        expect(acted.onPreview).toHaveBeenLastCalledWith(null)
     })
 
     it('sets the font of the picked cell', async () => {

@@ -26,7 +26,7 @@ describe('TableProblems', () => {
     })
 
     it('says why a table of several partial tables cannot be edited here', () => {
-        render(<TableProblems messages={[]} partial />)
+        render(<TableProblems partial messages={[]} />)
 
         // Said even where the compiler raised nothing: the reader is otherwise left wondering why the table
         // cannot be written.

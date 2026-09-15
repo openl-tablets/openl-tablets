@@ -25,10 +25,12 @@ import { useLoadGeneration } from '../hooks'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
-import { CompileDot, getCompileTooltip } from './projects/CompileIndicator'
+import { CompileDot, getCompileTooltip, isNoteworthyCompileState } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
 import { ValueText } from './projects/ValueText'
 import { BranchSwitcher } from './projects/BranchSwitcher'
+import { CrumbSwitcher } from './projects/CrumbSwitcher'
+import { ProjectSwitcher } from './projects/ProjectSwitcher'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
 import { ModuleActionBar } from './modules/ModuleActionBar'
@@ -353,6 +355,22 @@ export const ModuleWorkspace = () => {
     }, [moduleName, navigate, projectId, reopenRevision])
 
     // Another module of the same project opens in the same screen, on its own first table.
+    /**
+     * Opens the project the reader picked, on the project's own screen.
+     *
+     * <p>Which of its modules to read is theirs to say, as it was in the Editor: a module chosen for them
+     * would be the wrong one as often as not, and the project screen is where its modules are listed.
+     */
+    const openProject = useCallback((picked: string) => {
+        navigate(`/projects/${toUrlSafeId(picked)}`)
+    }, [navigate])
+
+    /** The modules of this project, which the name in the header opens one of. */
+    const moduleItems = useMemo(
+        () => modules.map(declared => ({ key: declared.name, label: declared.name, search: declared.name })),
+        [modules]
+    )
+
     const openModule = useCallback((picked: string) => {
         if (picked !== moduleName) {
             navigate(moduleRoute(projectId ?? '', picked))
@@ -515,6 +533,7 @@ export const ModuleWorkspace = () => {
     }
 
     const modulePath = modules.find(declared => declared.name === moduleName)?.path
+
     const testCount = compilation.tests
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && !!project.branch
 
@@ -525,6 +544,14 @@ export const ModuleWorkspace = () => {
             <ValueText className={styles.crumbValue}>
                 {project.repositoryInfo?.name ?? project.repository}
             </ValueText>
+            <span aria-hidden>/</span>
+            <ProjectSwitcher
+                currentName={project.name}
+                currentProjectId={project.id}
+                disabled={opening}
+                onSelect={openProject}
+                testId="crumb-project"
+            />
             {hasBranches && (
                 <>
                     <span aria-hidden>/</span>
@@ -540,8 +567,6 @@ export const ModuleWorkspace = () => {
                     />
                 </>
             )}
-            <span aria-hidden>/</span>
-            <Link to={`/projects/${toUrlSafeId(project.id)}`}>{project.name}</Link>
         </>
     )
 
@@ -665,9 +690,9 @@ export const ModuleWorkspace = () => {
                 <TableEditor
                     canvasClassName={styles.canvas}
                     canWrite={canWriteTable}
-                    layout={caseNumbering}
                     editing={editing}
                     formulas={showFormulas}
+                    layout={caseNumbering}
                     markCell={raisedCell}
                     maxRows={table.source.length}
                     moduleName={moduleName}
@@ -702,11 +727,7 @@ export const ModuleWorkspace = () => {
         <div className={shared.workspacePage} data-testid="module-workspace">
             <div className={shared.workspaceBody}>
                 <ModuleTablesTree
-                    compiling={!closed && !compilation.ready && compilation.state === 'compiling'}
-                    currentModule={moduleName}
-                    modules={modules}
                     onExtendedSearch={setSearchFor}
-                    onSelectModule={openModule}
                     onSelectTable={openTable}
                     selectedTableId={selected?.id}
                     tables={tables}
@@ -726,7 +747,6 @@ export const ModuleWorkspace = () => {
                     <WorkspaceHeader
                         crumbs={crumbs}
                         testId="module-header"
-                        title={moduleName}
                         actions={(
                             <ModuleActionBar
                                 // Nothing beside the module's name acts on a module that is not built yet:
@@ -744,20 +764,39 @@ export const ModuleWorkspace = () => {
                                 verifyNeeded={compilation.verifyNeeded}
                             />
                         )}
+                        title={(
+                            <CrumbSwitcher
+                                current={moduleName}
+                                emptyText={t('browser.module.module_no_match')}
+                                items={moduleItems}
+                                loading={modules.length === 0}
+                                onSelect={openModule}
+                                searchPlaceholder={t('browser.module.module_filter')}
+                                selectedKey={moduleName}
+                                testId="module-switcher"
+                                disabled={!closed && !compilation.ready
+                                    && compilation.state === 'compiling'}
+                            />
+                        )}
                         titleAfter={(
                             <>
-                                <CompileDot
-                                    showLabel
-                                    state={compilation.state}
-                                    testId="module-compile-state"
-                                    tooltip={getCompileTooltip(compilation.status, compilation.state, t)}
-                                    label={compilation.state === 'compiling' && compilation.total > 0
-                                        ? t('browser.module.compile_progress', {
-                                            compiled: compilation.compiled,
-                                            total: compilation.total,
-                                        })
-                                        : undefined}
-                                />
+                                {/* The same mark the project screens carry: nothing at all for a module that
+                                    compiled, and a coloured dot where it raised something. Only a compilation
+                                    under way says more, because how far it has come is worth reading. */}
+                                {isNoteworthyCompileState(compilation.state) && (
+                                    <CompileDot
+                                        showLabel={compilation.state === 'compiling'}
+                                        state={compilation.state}
+                                        testId="module-compile-state"
+                                        tooltip={getCompileTooltip(compilation.status, compilation.state, t)}
+                                        label={compilation.state === 'compiling' && compilation.total > 0
+                                            ? t('browser.module.compile_progress', {
+                                                compiled: compilation.compiled,
+                                                total: compilation.total,
+                                            })
+                                            : undefined}
+                                    />
+                                )}
                                 <Tooltip title={t('browser.module.refresh')}>
                                     <Button
                                         aria-label={t('browser.module.refresh')}

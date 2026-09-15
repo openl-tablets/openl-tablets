@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useUserStore } from '../../store'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, Input, Segmented, Select, Tooltip, Tree } from 'antd'
-import { CheckCircleFilled, FileExcelOutlined, FilterOutlined } from '@ant-design/icons'
+import { Button, Empty, Input, Select, Tooltip, Tree } from 'antd'
+import { CheckCircleFilled, FilterOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
-import type { ModuleInfo } from '../../services/modules'
 import { COMPILE_COLORS } from '../projects/projectsTheme'
 import { useSharedStyles } from '../projects/sharedStyles'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
@@ -27,9 +26,6 @@ const ROW_HEIGHT = 24
 /** The width the rail was last dragged to, kept so a reader who made room for long names keeps it. */
 const WIDTH_STORAGE_KEY = 'openl.module.rail.width'
 const WIDTH = { min: 180, max: 640, fallback: 256 }
-
-/** What the panel shows: the tables of the open module, or the modules to open instead. */
-type RailMode = 'tables' | 'modules'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The rail is dragged by its right edge, which the grip is laid along. */
@@ -192,28 +188,16 @@ const pathTo = (nodes: TableNode[], tableId: string, trail: string[] = []): stri
 interface ModuleTablesTreeProps {
     /** The tables of the module, or null while they have not been read — a closed project, or a compile still running. */
     tables: ModuleTable[] | null
-    /** The modules of the project, so another one can be opened from here. */
-    modules: ModuleInfo[]
-    /** The module the editor has open, marked in the module list. */
-    currentModule: string
-    /**
-     * Whether that module is still being compiled.
-     *
-     * <p>A session compiles one module at a time, so asking for another one while this is running only queues
-     * the request behind it — the reader would be left on an empty screen until the first compilation reached
-     * its end. The list is closed for as long as that lasts, and the screen offers to stop the compilation.
-     */
-    compiling?: boolean
     /** The table shown beside the tree, so the tree marks where the reader is. */
     selectedTableId?: string | undefined
     onSelectTable: (table: ModuleTable) => void
-    onSelectModule: (moduleName: string) => void
     /** Opens the extended search, carrying what the reader has typed so far. */
     onExtendedSearch: (typed: string) => void
 }
 
 /**
- * The left rail of the editor: the tables of the open module, or the modules of the project.
+ * The left rail of the editor: the tables of the module being read. Which module that is, is chosen in the
+ * header, where the module's name stands.
  *
  * The tables are grouped here rather than by the server: the list arrives flat, carrying what every view groups
  * by, so changing the view rearranges what the browser already holds and costs no request. The chosen view is
@@ -224,19 +208,14 @@ interface ModuleTablesTreeProps {
  */
 export const ModuleTablesTree = ({
     tables,
-    modules,
-    currentModule,
-    compiling = false,
     selectedTableId,
     onSelectTable,
-    onSelectModule,
     onExtendedSearch,
 }: ModuleTablesTreeProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const { styles: shared } = useSharedStyles()
     const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'right', WIDTH)
-    const [mode, setMode] = useState<RailMode>('tables')
     const [view, setView] = useState<TableView>(DEFAULT_VIEW)
     // The Default Order of the user's own settings decides what the tree opens on.
     const preferredView = useUserStore(state => state.userProfile?.treeView)
@@ -297,19 +276,8 @@ export const ModuleTablesTree = ({
     }), [styles.inactive, styles.broken, styles.errors, styles.marked, styles.tested])
     const treeData = useMemo(() => nodes.map(node => toTreeNode(node, marks)), [nodes, marks])
 
-    const moduleNodes = useMemo(() => modules.map(module => ({
-        key: module.name,
-        title: module.name,
-        icon: <FileExcelOutlined />,
-        selectable: true,
-        // Only the module already open can be picked while it compiles; the rest would wait behind it.
-        disabled: compiling && module.name !== currentModule,
-        children: [],
-    })), [modules, compiling, currentModule])
-
-    // Both trees of the rail are the same tree: a screenful of rows at a time, drawn at once rather than
-    // slid open — the height a fold animates is painted by the page, frame by frame (measured at 64
-    // repaints over 350 ms for one folder against 9).
+    // A screenful of rows at a time, drawn at once rather than slid open — the height a fold animates is
+    // painted by the page, frame by frame (measured at 64 repaints over 350 ms for one folder against 9).
     const railTree = {
         blockNode: true,
         showIcon: true,
@@ -320,21 +288,10 @@ export const ModuleTablesTree = ({
     }
 
     /**
-     * What the rail draws: the modules of the project, or the tables of the module being read — nothing
-     * while they are still being read, and a word when the search matched none of them.
+     * What the rail draws: the tables of the module being read — nothing while they are still being read,
+     * and a word when the search matched none of them.
      */
     const railBody = () => {
-        if (mode === 'modules') {
-            return (
-                <Tree
-                    {...railTree}
-                    data-testid="module-rail-modules"
-                    onSelect={(_keys, info) => onSelectModule(String(info.node.key))}
-                    selectedKeys={[currentModule]}
-                    treeData={moduleNodes as never}
-                />
-            )
-        }
         if (tables === null) {
             return null
         }
@@ -371,65 +328,41 @@ export const ModuleTablesTree = ({
         <aside className={cx(shared.rail, styles.resizable)} data-testid="module-rail" style={{ width }}>
             <ResizeHandle edge="right" onPointerDown={startResize} testId="module-rail-resizer" />
             <div className={styles.top}>
-                <Segmented
-                    block
-                    data-testid="module-rail-mode"
-                    onChange={value => setMode(value as RailMode)}
+                <Input
+                    allowClear
+                    className={styles.search}
+                    data-testid="module-tables-search"
+                    onChange={event => setSearch(event.target.value)}
+                    placeholder={t('browser.module.search_placeholder')}
                     size="small"
-                    value={mode}
-                    options={[
-                        { label: t('browser.module.rail_tables'), value: 'tables' },
-                        { label: t('browser.module.rail_modules'), value: 'modules' },
-                    ]}
+                    value={search}
+                    suffix={(
+                        <Tooltip title={t('browser.module.search_extended')}>
+                            <Button
+                                aria-label={t('browser.module.search_extended')}
+                                data-testid="module-tables-search-extended"
+                                icon={<FilterOutlined />}
+                                onClick={() => onExtendedSearch(search.trim())}
+                                size="small"
+                                type="text"
+                            />
+                        </Tooltip>
+                    )}
                 />
-                {mode === 'tables' && (
-                    <>
-                        <Input
-                            allowClear
-                            className={styles.search}
-                            data-testid="module-tables-search"
-                            onChange={event => setSearch(event.target.value)}
-                            placeholder={t('browser.module.search_placeholder')}
-                            size="small"
-                            value={search}
-                            suffix={(
-                                <Tooltip title={t('browser.module.search_extended')}>
-                                    <Button
-                                        aria-label={t('browser.module.search_extended')}
-                                        data-testid="module-tables-search-extended"
-                                        icon={<FilterOutlined />}
-                                        onClick={() => onExtendedSearch(search.trim())}
-                                        size="small"
-                                        type="text"
-                                    />
-                                </Tooltip>
-                            )}
-                        />
-                        <Select
-                            className={styles.picker}
-                            data-testid="module-tables-view"
-                            options={viewOptions}
-                            size="small"
-                            style={{ width: '100%' }}
-                            value={view}
-                            onChange={chosen => {
-                                setView(chosen)
-                                saveView(chosen)
-                            }}
-                        />
-                    </>
-                )}
+                <Select
+                    className={styles.picker}
+                    data-testid="module-tables-view"
+                    options={viewOptions}
+                    size="small"
+                    style={{ width: '100%' }}
+                    value={view}
+                    onChange={chosen => {
+                        setView(chosen)
+                        saveView(chosen)
+                    }}
+                />
             </div>
             <div ref={bodyRef} className={styles.body}>
-                {mode === 'modules' && compiling && (
-                    <Alert
-                        showIcon
-                        className={styles.state}
-                        data-testid="module-rail-compiling"
-                        title={t('browser.module.switch_blocked', { module: currentModule })}
-                        type="info"
-                    />
-                )}
                 {railBody()}
             </div>
         </aside>

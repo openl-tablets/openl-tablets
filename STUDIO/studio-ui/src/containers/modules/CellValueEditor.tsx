@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react'
-import { DatePicker, Input, InputNumber, Select } from 'antd'
+import React, { useMemo, useRef } from 'react'
+import { Button, Checkbox, DatePicker, Flex, Input, InputNumber, Select } from 'antd'
 import dayjs from 'dayjs'
+import { useTranslation } from 'react-i18next'
 // A date typed into a cell is read by the format the workbook writes, and nothing else: without this dayjs
 // falls back to guessing, and 13/01/2024 is taken for a date rather than refused.
 import customParseFormat from 'dayjs/plugin/customParseFormat'
@@ -89,7 +90,15 @@ const dateOf = (text: string) => {
     return { read: null, format: DATE_FORMAT }
 }
 
-const BOOLEAN_CHOICES = [{ value: 'true', label: 'true' }, { value: 'false', label: 'false' }]
+/**
+ * What a cell holding a yes-or-no value is read as ticked.
+ *
+ * <p>The wording is the one the Editor read: a workbook written by hand carries `yes` or `y` as readily as
+ * `true`, and a cell holding one of them opens ticked rather than blank. Anything else, blank included, is not.
+ */
+const TRUE_VALUES = ['true', 'on', 'yes', 't', 'y']
+
+const ticked = (text: string) => TRUE_VALUES.includes(text.trim().toLowerCase())
 
 /** The values to choose from, shown by whatever wording the domain gives them. */
 const choicesOf = (asked: TableCellEditor | undefined) =>
@@ -99,11 +108,23 @@ const choicesOf = (asked: TableCellEditor | undefined) =>
     }))
 
 /**
+ * A choice standing for none of them, which the Editor offered first in every list it drew.
+ *
+ * <p>It is how a cell is emptied: a cross over the list's own arrow would say the same thing twice, in the
+ * one corner the arrow already stands in.
+ */
+const NO_CHOICE = { value: '', label: '\u00a0' }
+
+/**
  * What the reader writes into a cell with.
  *
  * <p>A cell that holds one of a known set of values is chosen from that set, a number is entered within the
  * bounds of its type, a date from a calendar — as the legacy editor offered them. Whatever the cell asks for,
  * the reader can always switch to writing it as plain text, and this draws that too.
+ *
+ * <p>Opening a cell opens the field alone. What the field offers — a list, a calendar — is opened by asking
+ * for it, as the Editor did: a reader who opened a cell to read it, or to move on from it, is not made to
+ * dismiss a panel they never asked for.
  */
 export const CellValueEditor: React.FC<CellValueEditorProps> = ({
     kind,
@@ -115,7 +136,13 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
     onSwitch,
     className,
 }) => {
+    const { t } = useTranslation('repository')
+    // Whether the calendar a date cell drops stands open, so the focus it takes is not read as the reader
+    // leaving the cell. Nothing is drawn from it, so it is not worth a render of its own.
+    const calendar = useRef(false)
     const choices = useMemo(() => choicesOf(asked), [asked])
+    // The values a cell is chosen from, headed by the choice standing for none of them.
+    const listed = useMemo(() => [NO_CHOICE, ...choices], [choices])
     const separator = asked?.separator ?? ','
     const numeric = useMemo(() => numberOnly(asked?.intOnly), [asked?.intOnly])
 
@@ -169,45 +196,62 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             return (
                 <Select
                     {...shared}
-                    allowClear
-                    defaultOpen
                     showSearch
                     onBlur={() => onCommit()}
                     onChange={chosen => onChange(chosen ?? '')}
                     onInputKeyDown={keys}
-                    options={choices}
+                    options={listed}
                     popupMatchSelectWidth={false}
                     style={{ minWidth: 140 }}
                     value={value === '' ? undefined : value}
                 />
             )
-        case 'multiselect':
+        case 'multiselect': {
+            const chosen = splitValues(value, separator, asked?.separatorEscaper)
+            const every = choices.map(choice => choice.value)
+            const all = every.length > 0 && every.every(one => chosen.includes(one))
+            const write = (values: string[]) => onChange(joinValues(values, separator, asked?.separatorEscaper))
             return (
                 <Select
                     {...shared}
-                    defaultOpen
                     mode="multiple"
                     onBlur={() => onCommit()}
-                    onChange={(chosen: string[]) => onChange(joinValues(chosen, separator, asked?.separatorEscaper))}
+                    onChange={write}
                     onInputKeyDown={keys}
                     options={choices}
                     popupMatchSelectWidth={false}
                     style={{ minWidth: 180 }}
-                    value={splitValues(value, separator, asked?.separatorEscaper)}
+                    value={chosen}
+                    popupRender={menu => (
+                        <>
+                            {/* Taking the whole list at once and saying when the choosing is over, as the
+                                Editor offered them. The press must not take the focus off the field: losing
+                                it closes the cell, and the click would land on a list already gone. */}
+                            <Flex gap="small" onMouseDown={event => event.preventDefault()} style={{ padding: 8 }}>
+                                <Button onClick={() => write(all ? [] : every)} size="small">
+                                    {t(all ? 'browser.module.edit_deselect_all' : 'browser.module.edit_select_all')}
+                                </Button>
+                                <Button onClick={() => onCommit()} size="small" type="primary">
+                                    {t('browser.module.edit_done')}
+                                </Button>
+                            </Flex>
+                            {menu}
+                        </>
+                    )}
                 />
             )
+        }
         case 'boolean':
+            // Ticked or not, as the Editor asked it — a cell holding one of two values is not worth a list.
             return (
-                <Select
-                    {...shared}
-                    allowClear
-                    defaultOpen
+                <Checkbox
+                    autoFocus
+                    checked={ticked(value)}
+                    className={className ?? ''}
+                    data-testid="table-cell-input"
                     onBlur={() => onCommit()}
-                    onChange={chosen => onChange(chosen ?? '')}
-                    onInputKeyDown={keys}
-                    options={BOOLEAN_CHOICES}
-                    style={{ minWidth: 100 }}
-                    value={value === '' ? undefined : value}
+                    onChange={event => onChange(String(event.target.checked))}
+                    onKeyDown={keys}
                 />
             )
         case 'numeric':
@@ -235,27 +279,45 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
             return (
                 <DatePicker
                     {...shared}
-                    allowClear
-                    defaultOpen
+                    // The date is the calendar's to give: the Editor took no typing into the field, and a
+                    // half-typed date is a value the cell would have to refuse anyway.
+                    inputReadOnly
                     // Shown as the cell holds it, and read from anything OpenL would read, so a date typed in
                     // another of its formats is understood rather than thrown away.
                     format={[format, ...DATE_FORMATS]}
-                    onKeyDown={keys}
-                    // The calendar closes when a date is picked and when the reader clicks away from it; both
-                    // leave the cell, as leaving the field did in the old editor.
-                    onOpenChange={opened => {
-                        if (!opened) {
-                            onCommit()
-                        }
-                    }}
                     // A time is offered only where the cell already carries one: picking a day must neither
                     // invent a time nor drop the one its author wrote.
                     showTime={format.includes('H') || format.includes('h')}
                     value={read}
+                    // Leaving the field leaves the cell, as it does wherever the reader is writing. Going to
+                    // the calendar takes the focus off the field too, and that is not leaving the cell: what
+                    // closes it then is the calendar closing, below.
+                    onBlur={() => {
+                        if (!calendar.current) {
+                            onCommit()
+                        }
+                    }}
                     onChange={picked => {
                         const written = picked ? picked.format(format) : ''
                         onChange(written)
                         onCommit(written)
+                    }}
+                    // Backspace and Delete empty the cell, which is how the Editor cleared a date.
+                    onKeyDown={event => {
+                        if (event.key === 'Backspace' || event.key === 'Delete') {
+                            event.preventDefault()
+                            onChange('')
+                        } else {
+                            keys(event)
+                        }
+                    }}
+                    // The calendar closes when a date is picked and when the reader clicks away from it; both
+                    // leave the cell, as leaving the field did in the old editor.
+                    onOpenChange={opened => {
+                        calendar.current = opened
+                        if (!opened) {
+                            onCommit()
+                        }
                     }}
                 />
             )

@@ -55,8 +55,13 @@ const useStyles = createStyles(({ css, token }) => ({
 interface WorkspaceHeaderProps {
     /** The trail above the title: where the thing on screen sits, each step linking back to it. */
     crumbs: ReactNode
-    /** What the screen is about — the name of the project, or of the module opened from it. */
-    title: string
+    /**
+     * What the screen is about — the name of the project, or of the module opened from it.
+     *
+     * <p>A screen that offers to open another of the same kind puts the switcher itself here, so the name
+     * stays where the reader reads it rather than moving aside for a control.
+     */
+    title: ReactNode
     /** Shown before the title, as the state of the thing named: a status mark. */
     titleBefore?: ReactNode
     /** Shown after the title, as what is happening to it: a compile indicator. */
@@ -92,7 +97,7 @@ export const WorkspaceHeader = ({
                     {titleBefore}
                     <Typography.Title
                         className={cx(styles.title, muted && styles.titleMuted)}
-                        ellipsis={{ tooltip: title }}
+                        ellipsis={typeof title === 'string' ? { tooltip: title } : true}
                         level={3}
                     >
                         {title}

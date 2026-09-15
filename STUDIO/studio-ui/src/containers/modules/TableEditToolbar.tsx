@@ -19,11 +19,11 @@ import {
     UnderlineOutlined,
     UndoOutlined,
 } from '@ant-design/icons'
-import { Button, ColorPicker, Tooltip } from 'antd'
-import type { AggregationColor } from 'antd/es/color-picker/color'
+import { Button, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import type { RawCellStyleInput, RawTableCell } from 'types/tables'
 import type { CellAt } from './tableEdits'
+import { CellColourPicker } from './CellColourPicker'
 import { useStyles } from './TableEditToolbar.styles'
 
 interface TableEditToolbarProps {
@@ -49,6 +49,12 @@ interface TableEditToolbarProps {
     onInsertColumn: () => void
     onRemoveColumn: () => void
     onStyle: (style: RawCellStyleInput) => void
+    /**
+     * Shows a colour on the picked cell before it is chosen, and takes it back off with null.
+     *
+     * <p>What is shown this way is not an edit: nothing of it is kept, taken back or saved.
+     */
+    onPreview: (style: RawCellStyleInput | null) => void
 }
 
 /** How far one press of the indent buttons moves a cell, as the legacy editor moved it. */
@@ -81,13 +87,12 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     onInsertColumn,
     onRemoveColumn,
     onStyle,
+    onPreview,
     whole,
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
 
-    // The first row and the first column carry the table's header, which the API keeps: they are neither
-    // removed nor pushed aside, so the actions that would touch them are not offered.
     const row = picked?.row ?? -1
     const column = picked?.column ?? -1
     const style = cell?.style
@@ -114,12 +119,14 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
 
     const rule = <span className={styles.rule} />
 
-    // The table's first row and first column hold its header, and the engine finds the table by that corner:
-    // nothing is added before them and neither is taken away.
-    const header = picked === null ? t('browser.module.edit_pick_a_cell') : t('browser.module.edit_header_kept')
-
-    /** The colour as the API writes it: #rrggbb, without whatever the picker says about opacity. */
-    const colour = (chosen: AggregationColor) => chosen.toHexString().slice(0, 7)
+    /**
+     * Why an action is off, for the two the table's header stands in the way of.
+     *
+     * <p>The header is one cell banked across the table, and OpenL finds the table by the corner it starts in.
+     * A row added under the header or a column taken away from under it leave that corner where it is; taking
+     * the header's own row away, or laying a column down before the one it starts in, do not.
+     */
+    const off = (why: string) => (picked === null ? t('browser.module.edit_pick_a_cell') : t(why))
 
     return (
         <div className={styles.toolbar} data-testid="table-edit-toolbar">
@@ -139,14 +146,15 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('undo', <UndoOutlined />, onUndo, { disabled: !canUndo })}
             {action('redo', <RedoOutlined />, onRedo, { disabled: !canRedo })}
             {rule}
-            {action('insert_row', <InsertRowAboveOutlined />, onInsertRow,
-                { disabled: row < 1, why: header })}
-            {action('remove_row', <DeleteRowOutlined />, onRemoveRow, { disabled: row < 1, why: header })}
+            {action('insert_row', <InsertRowAboveOutlined />, onInsertRow)}
+            {action('remove_row', <DeleteRowOutlined />, onRemoveRow,
+                { disabled: picked === null || row < 1, why: off('browser.module.edit_header_row_kept') })}
             {rule}
-            {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn,
-                { disabled: column < 1 || !whole, why: column < 1 ? header : t('browser.module.edit_whole_table') })}
-            {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn,
-                { disabled: column < 1, why: header })}
+            {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn, {
+                disabled: picked === null || column < 1 || !whole,
+                why: off(column < 1 ? 'browser.module.edit_header_column_kept' : 'browser.module.edit_whole_table'),
+            })}
+            {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
             {rule}
             {action('align_left', <AlignLeftOutlined />, () => onStyle({ align: 'left' }),
                 { on: style?.align === undefined || style.align === 'left' })}
@@ -161,44 +169,26 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('underline', <UnderlineOutlined />, () => onStyle({ underline: !style?.underline }),
                 { on: !!style?.underline })}
             {rule}
-            <Tooltip title={t('browser.module.edit_fill_colour')}>
-                <span>
-                    <ColorPicker
-                        disabled={picked === null}
-                        format="hex"
-                        onChangeComplete={chosen => onStyle({ background: colour(chosen) })}
-                        value={style?.background ?? '#ffffff'}
-                    >
-                        <Button
-                            className={styles.button}
-                            data-testid="table-edit-fill_colour"
-                            disabled={picked === null}
-                            icon={<BgColorsOutlined />}
-                            size="small"
-                            type="text"
-                        />
-                    </ColorPicker>
-                </span>
-            </Tooltip>
-            <Tooltip title={t('browser.module.edit_font_colour')}>
-                <span>
-                    <ColorPicker
-                        disabled={picked === null}
-                        format="hex"
-                        onChangeComplete={chosen => onStyle({ color: colour(chosen) })}
-                        value={style?.color ?? '#000000'}
-                    >
-                        <Button
-                            className={styles.button}
-                            data-testid="table-edit-font_colour"
-                            disabled={picked === null}
-                            icon={<FontColorsOutlined />}
-                            size="small"
-                            type="text"
-                        />
-                    </ColorPicker>
-                </span>
-            </Tooltip>
+            <CellColourPicker
+                className={styles.button}
+                disabled={picked === null}
+                icon={<BgColorsOutlined />}
+                onPick={chosen => onStyle({ background: chosen })}
+                onPreview={chosen => onPreview(chosen === null ? null : { background: chosen })}
+                testId="table-edit-fill_colour"
+                title={t('browser.module.edit_fill_colour')}
+                value={style?.background ?? '#ffffff'}
+            />
+            <CellColourPicker
+                className={styles.button}
+                disabled={picked === null}
+                icon={<FontColorsOutlined />}
+                onPick={chosen => onStyle({ color: chosen })}
+                onPreview={chosen => onPreview(chosen === null ? null : { color: chosen })}
+                testId="table-edit-font_colour"
+                title={t('browser.module.edit_font_colour')}
+                value={style?.color ?? '#000000'}
+            />
             {rule}
             {action('outdent', <MenuUnfoldOutlined />,
                 () => onStyle({ indent: Math.max(0, (style?.indent ?? 0) - INDENT_STEP) }),
