@@ -2,12 +2,13 @@
 
 ## Resume point
 
-- Swept head is `origin/main` 9a32b54ca7, unmoved across five consecutive runs: every change type is exhausted at it,
-  so a run that finds 0 new commits there has no cleanup to do and must not re-run an exhausted detector. #2109 sits
-  on this base, fully green, needing only a human approval — watch it, touch nothing.
-- The owner was notified once (2026-09-15) that #2109 waits only on their approval; never repeat that nudge while
-  the PR state is unchanged, since the trigger fires six times a day.
-- When `main` gains code: diff against 9a32b54ca7, then rerun PMD, the identifier index and ASM on changed files
+- Swept head is `origin/main` 956deef01b; the only commits since 9a32b54ca7 are dependabot root-pom plugin-version
+  bumps, which add no code, so every change type stays exhausted and no exhausted detector may be re-run. A run
+  whose diff against the swept head is poms-only has no cleanup to do.
+- #2109 sits on 9a32b54ca7, fully green, needing only a human approval — watch it, touch nothing. The owner was
+  notified once (2026-09-15) that it waits only on their approval; never repeat that nudge while the PR state is
+  unchanged, since the trigger fires six times a day.
+- When `main` gains code: diff against 956deef01b, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
 
@@ -281,10 +282,12 @@
   sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
   org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
 - Delete stale branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods, dead-code/openapi-layouts-residue
-  (closed #2103): `push --delete` 403s every time and no MCP branch-delete tool exists; probe at most once a run.
+  (closed #2103): `push --delete` is always refused (403, latterly "remote end hung up" then "Everything up-to-date"),
+  and no MCP branch-delete tool exists; probe at most once a run.
 
 ## Run log
 
-- 2026-09-14 g: no-op; main still 9a32b54ca7, #2109 green with no review thread, body re-verified against the diff, at 288.
 - 2026-09-14 h: no-op; main still 9a32b54ca7, #2109 17/17 green, both comments bots with nothing actionable, at 288.
 - 2026-09-15 a: no-op; main still 9a32b54ca7, #2109 17/17 green and body matches 1 commit/5 files/5 deletions; stale-branch delete still 403; owner nudged once; at 290.
+- 2026-09-15 b: no-op; main advanced to 956deef01b by two dependabot pom plugin bumps only; #2109 untouched since
+  2026-09-14, green, body still matches; stale-branch delete refused again; at 293.
