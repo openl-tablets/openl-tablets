@@ -58,6 +58,15 @@ const useStyles = createStyles(({ css, token }) => ({
     warningMark: css`
         color: ${COMPILE_COLORS.warnings};
     `,
+    /** The notice on a table nothing here can write — the one the Editor put at the top of its Problems. */
+    partial: css`
+        display: flex;
+        align-items: center;
+        gap: ${token.marginXS}px;
+        padding: ${token.paddingXXS}px ${token.padding}px;
+        font-size: ${token.fontSizeSM}px;
+        color: ${token.colorTextSecondary};
+    `,
     /** Holds the messages and the grip that sizes them, so the grip is measured against what it sizes. */
     resizable: css`
         position: relative;
@@ -78,6 +87,11 @@ interface TableProblemsProps {
     onStacktrace?: ((message: ProjectStatusDetailedMessage) => Promise<string>) | undefined
     /** The text a cell of this table holds, so a message can show the rule it was raised about. */
     cellText?: ((cell: string) => string | undefined) | undefined
+    /**
+     * Set on a table written as several partial tables. It is read here but not written, and saying so is the
+     * whole point of the notice — the reader is otherwise left wondering why nothing can be edited.
+     */
+    partial?: boolean
 }
 
 /**
@@ -87,7 +101,7 @@ interface TableProblemsProps {
  * Only the messages the read returned for this table are shown; everything the project raised elsewhere stays
  * in the panel at the foot of the screen.
  */
-export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText }: TableProblemsProps) => {
+export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, partial = false }: TableProblemsProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(() => readJson(STORAGE_KEY, true, (value): value is boolean =>
@@ -103,7 +117,7 @@ export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText }: 
         writeJson(STORAGE_KEY, open)
     }, [open])
 
-    if (messages.length === 0) {
+    if (messages.length === 0 && !partial) {
         return null
     }
 
@@ -137,6 +151,12 @@ export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText }: 
                 // would size the messages to the pointer plus the header above them.
                 <div className={styles.resizable}>
                     <div className={styles.body} data-testid="table-problems-body" style={{ height }}>
+                        {partial && (
+                            <div className={styles.partial} data-testid="table-problems-partial">
+                                <WarningFilled className={styles.warningMark} />
+                                {t('browser.module.partial_table')}
+                            </div>
+                        )}
                         <CompileMessages
                             cellText={cellText}
                             messages={errors}

@@ -1975,6 +1975,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .orElse(null);
         var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
         tableView.messages = mapMessages(context);
+        // Said here rather than by the reader: what makes a table partial is where its cells sit in the
+        // workbook, which the module knows and the table itself does not.
+        if (context.module().isTablePart(table.getUri())) {
+            tableView.partial = Boolean.TRUE;
+        }
         return tableView;
     }
 

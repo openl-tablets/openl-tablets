@@ -285,6 +285,11 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   `AutoPolicyCalculation` is a link that looks as if it worked. Where the session cannot address the project —
   it is not open in the workspace — nothing is offered to click, and the reader is told where the table lives
   instead.
+- **A table written in pieces is read but not written.** A table can be assembled from several partial tables
+  scattered about the workbook, and the cells it is drawn from do not sit together — there is nothing for an
+  editor to write back into. The read says so (`partial`), the screen puts the Editor's own notice at the top
+  of that table's Problems, and every write is withdrawn from the band above it. Said by the server because
+  what makes a table partial is where its cells sit, which the module knows and the table does not.
 - **A read that names a module is answered about that module.** `GET /projects/{id}/tables/{tableId}?module=X`
   used to fall back to a project-wide lookup when the module did not hold the table, so a wrong link drew one
   module's table on another module's screen, under the wrong tree and the wrong actions. It now answers "not

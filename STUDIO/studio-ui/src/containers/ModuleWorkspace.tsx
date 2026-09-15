@@ -610,9 +610,12 @@ export const ModuleWorkspace = () => {
         // The band of actions belongs to the table that was picked, not to the body being read for it, and it
         // keeps its place while that read is on its way — a band taken away and put back asks the server again
         // for everything it shows.
+        // A table gathered from several partial tables is read here and not written: the cells it is drawn
+        // from do not sit together, so there is nothing for an editor to write back into.
+        const canWriteTable = !!project.capabilities?.canWrite && table?.partial !== true
         const toolbar = selected === null ? null : (
             <TableToolbar
-                canWrite={!!project.capabilities?.canWrite}
+                canWrite={canWriteTable}
                 moduleName={moduleName}
                 onEdit={() => setEditing(true)}
                 onRemoved={tableRemoved}
@@ -639,12 +642,13 @@ export const ModuleWorkspace = () => {
                 <TableProblems
                     cellText={textAt}
                     messages={table.messages ?? []}
-                    onEditCell={project.capabilities?.canWrite ? setEditCell : undefined}
+                    onEditCell={canWriteTable ? setEditCell : undefined}
                     onStacktrace={readStacktrace}
+                    partial={table.partial === true}
                 />
                 <TableEditor
                     canvasClassName={styles.canvas}
-                    canWrite={!!project.capabilities?.canWrite}
+                    canWrite={canWriteTable}
                     editing={editing}
                     formulas={showFormulas}
                     markCell={raisedCell}

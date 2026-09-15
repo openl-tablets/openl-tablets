@@ -23969,6 +23969,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -24181,6 +24186,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -25644,6 +25654,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -28322,6 +28337,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "pos": {
                 "type": "string",
                 "description": "***",
@@ -28994,6 +29014,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -29105,6 +29130,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -29238,6 +29268,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -29468,6 +29503,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",
@@ -30841,6 +30881,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -31803,6 +31848,11 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
               },
               "properties": {
                 "type": "object",

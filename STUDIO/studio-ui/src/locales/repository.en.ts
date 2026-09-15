@@ -425,6 +425,7 @@ i18next.addResourceBundle('en', 'repository', {
             no_match: 'No table matches the search',
             test_elsewhere: 'Written in project "{{project}}", which is not open here',
             problems: 'Problems',
+            partial_table: 'This table is written as several partial tables, so it cannot be edited here. Open it in Excel to change it.',
             details: 'Table Details',
             details_show: 'Show table details',
             details_hide: 'Hide table details',
