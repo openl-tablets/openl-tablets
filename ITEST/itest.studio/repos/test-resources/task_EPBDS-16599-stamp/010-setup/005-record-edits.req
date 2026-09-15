@@ -1,0 +1,8 @@
+PATCH /rest/admin/settings/system HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/merge-patch+json
+
+{
+  "updateSystemProperties": true
+}
+

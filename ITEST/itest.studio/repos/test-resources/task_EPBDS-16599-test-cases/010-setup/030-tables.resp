@@ -1,0 +1,66 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "acrossTheColumnsTest",
+      "signature": "greeting acrossTheColumnsTest",
+      "file": "EPBDS-16599-test-cases/TestCases.xlsx",
+      "sheet": "Rules",
+      "pos": "B13:E15",
+      "module": "TestCases",
+      "project": "EPBDS-16599-test-cases",
+      "projectId": "***"
+    },
+    {
+      "id": "***",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "downTheRowsTest",
+      "signature": "greeting downTheRowsTest",
+      "file": "EPBDS-16599-test-cases/TestCases.xlsx",
+      "sheet": "Rules",
+      "pos": "B7:C11",
+      "module": "TestCases",
+      "project": "EPBDS-16599-test-cases",
+      "projectId": "***"
+    },
+    {
+      "id": "***",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "greeting",
+      "returnType": "String",
+      "signature": "greeting(String name)",
+      "file": "EPBDS-16599-test-cases/TestCases.xlsx",
+      "sheet": "Rules",
+      "pos": "B2:C5",
+      "module": "TestCases",
+      "project": "EPBDS-16599-test-cases",
+      "projectId": "***",
+      "hasTests": true
+    },
+    {
+      "id": "***",
+      "tableType": "Test",
+      "kind": "Test",
+      "name": "oneCaseTest",
+      "signature": "greeting oneCaseTest",
+      "file": "EPBDS-16599-test-cases/TestCases.xlsx",
+      "sheet": "Rules",
+      "pos": "B17:D19",
+      "module": "TestCases",
+      "project": "EPBDS-16599-test-cases",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 4,
+  "total": 4
+}
+

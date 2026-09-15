@@ -251,6 +251,19 @@ export interface RawTableView {
      * workbook. Such a table is read here but not written — only Excel can edit the cells it is drawn from.
      */
     partial?: boolean
+    /** How the table is laid out on its sheet; absent on a table nothing asks this about. */
+    layout?: TableLayout
+}
+
+/** Which way round a table is written, and where its data begins. */
+export interface TableLayout {
+    /** `true` when a line of the table's data is a column rather than a row. */
+    transposed?: boolean
+    /**
+     * The line the data begins on, counted from the table's own first row — or first column, where the table
+     * is transposed. Everything before it is the table's headings.
+     */
+    firstDataLine: number
 }
 
 /** One field a Datatype table declares. */

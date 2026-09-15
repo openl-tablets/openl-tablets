@@ -44,6 +44,7 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
@@ -120,6 +121,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
+                mock(SystemPropertiesService.class),
                 mock(ApplicationEventPublisher.class),
                 mock(ProtectedBranchBypassService.class),
                 mock(ProjectIdentifierMapper.class),

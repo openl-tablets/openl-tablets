@@ -688,11 +688,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     reset(ReloadType.FORCED);
                 } else if (needCompile) {
                     reset(ReloadType.SINGLE);
+                } else if (rewritten) {
+                    // Its workbook was written to: the dependency it stands for is dropped and resolved
+                    // afresh. Asked for before anything else that would compile the module, because only this
+                    // drops what was compiled from the workbook as it stood before the write — opening the
+                    // module again would be answered with it.
+                    reset(ReloadType.SINGLE);
                 } else if (anotherProjectOpened) {
                     model.setModuleInfo(module, ReloadType.SINGLE);
-                } else if (rewritten) {
-                    // Its workbook was written to: the dependency it stands for is dropped and resolved afresh.
-                    reset(ReloadType.SINGLE);
                 } else if (anotherModuleOpened) {
                     model.setModuleInfo(module, ReloadType.NO);
                 } else {

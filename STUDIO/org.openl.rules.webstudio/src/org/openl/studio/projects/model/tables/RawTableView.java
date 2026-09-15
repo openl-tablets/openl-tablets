@@ -71,6 +71,14 @@ public class RawTableView extends TableView implements EditableTableView {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public final Integer headerHeight;
 
+    @Schema(description = """
+            How the table is laid out on its sheet — which way round it is written, and where its data \
+            begins. Answered for a test table, whose cases a screen numbers from it; absent on a table \
+            nothing asks this about, and on a test table whose cases carry identifiers of their own.""")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public TableLayout layout;
+
     private RawTableView(Builder builder) {
         super(builder);
         this.pos = builder.pos;

@@ -27577,7 +27577,10 @@ Content-Type: application/json
                   "Other"
                 ]
               },
-              "messages": {
+              "layout": {
+            "$ref": "#/components/schemas/TableLayout"
+          },
+          "messages": {
                 "type": "array",
                 "description": "***",
                 "items": {
@@ -29305,6 +29308,21 @@ Content-Type: application/json
             "description": "***"
           },
           "testTable": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "TableLayout": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "firstDataLine": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "transposed": {
             "type": "boolean",
             "description": "***"
           }

@@ -367,6 +367,17 @@ export const ModuleWorkspace = () => {
         [table, showHeader]
     )
 
+    // The table says where its data begins in its own rows; the screen may be drawing it without the header
+    // rows, and then the data begins that many rows earlier than the table counts it.
+    const caseNumbering = useMemo(() => {
+        const layout = table?.layout
+        if (layout === undefined) {
+            return undefined
+        }
+        const hidden = showHeader || layout.transposed ? 0 : table?.headerHeight ?? 0
+        return { ...layout, firstDataLine: layout.firstDataLine - hidden }
+    }, [table, showHeader])
+
     const openTableById = useCallback((picked: string) => {
         setSearch(params => {
             const next = new URLSearchParams(params)
@@ -654,6 +665,7 @@ export const ModuleWorkspace = () => {
                 <TableEditor
                     canvasClassName={styles.canvas}
                     canWrite={canWriteTable}
+                    layout={caseNumbering}
                     editing={editing}
                     formulas={showFormulas}
                     markCell={raisedCell}

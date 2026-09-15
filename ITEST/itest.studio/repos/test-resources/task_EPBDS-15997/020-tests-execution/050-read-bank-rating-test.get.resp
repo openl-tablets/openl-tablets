@@ -15,5 +15,8 @@ Content-Type: application/json
   ],
   "pos": "C6:E10",
   "source": "*",
-  "headerHeight": 3
+  "headerHeight": 3,
+  "layout": {
+    "firstDataLine": 4
+  }
 }

@@ -291,6 +291,14 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   took its whole action panel away; here it is never opened at all — the tree leaves it out, and the usage that
   named it carries no table to open, only what the word stands for. So the read names a table on a usage only
   where a module holds it.
+- **How a table is laid out is the compiler's knowledge, not the grid's.** A test table is a table of cases,
+  and a reader refers to them by number — the third case, the one that failed. The numbers are nowhere in the
+  workbook: they follow from which way round the table is written and from where its headings end, and a grid
+  of text shows neither. So the read carries both (`layout.transposed`, `layout.firstDataLine`) and the screen
+  numbers the lines from there — down the side of a table written the usual way round, across the top of one
+  written the other way. The Editor numbered only the first of those, and left a transposed table and a table
+  of a single case unnumbered; taking the two facts from the compiler rather than counting rows is what covers
+  all three. Said about a test table because nothing else asks it yet, in a shape that holds for any table.
 - **A table written in pieces is read but not written.** A table can be assembled from several partial tables
   scattered about the workbook, and the cells it is drawn from do not sit together — there is nothing for an
   editor to write back into. The read says so (`partial`), the screen puts the Editor's own notice at the top
@@ -410,6 +418,13 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a
   module means.
+- **A note about an edit rides in the same save as the edit.** An installation can ask for every table to
+  record who last changed it and when (`update.system.properties`, off by default) — information the
+  repository cannot give, because it knows files and a workbook holds dozens of tables. The Editor wrote that
+  note on every save; here it was written only when the table's *properties* were the thing being written, so
+  a table changed through its cells carried a note about some earlier edit — present and wrong, which is worse
+  than absent. The writers now take the note and write it in the pass that writes the change, so the two
+  cannot disagree and the workbook is saved once.
 - **A property is written where it is read, and the table's body stays out of it.** Table Details is the one
   place a property is edited, so it writes through a resource of its own —
   `PATCH /projects/{id}/tables/{tableId}/properties` — carrying only the values that changed: a property with a
@@ -428,6 +443,13 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   screen asks before the write rather than telling after it — once, where every write goes through, because
   they all reach the same workbook. The first write settles it: the project is modified from then on, and the
   flag is gone.
+- **A date cell is read in every format OpenL reads, and written back in the one it was written in.** The cell
+  editor parsed a single hardcoded `MM/DD/YYYY`, so a date written any other way OpenL accepts — ISO, with a
+  time, with one-digit months — opened the calendar blank and was rewritten on the way out, dropping any time
+  with it. The formats now mirror `String2DateConvertor`, each tried with one- and two-digit month, day and
+  hour (Java reads `3` and `03` under one pattern; dayjs does not), and a picked date is written back in the
+  format the cell already held. The calendar is no longer forced open either, so clicking away closes the cell
+  as leaving the field did in the Editor.
 - **A dialog that already writes a table is the dialog the editor opens.** Creating a table, copying one and
   writing a test for one are the three dialogs the legacy Editor dispatched to (`openCreateTableModal`,
   `openCopyTableModal`), mounted once in the layout and told in the event where to write and what to do with

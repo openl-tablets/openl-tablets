@@ -39,6 +39,7 @@ import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
 import org.openl.rules.table.actions.UndoableRemoveRowsAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.utils.XSSFOptimizer;
 import org.openl.studio.projects.model.tables.TableView;
@@ -59,6 +60,7 @@ public abstract class TableWriter<T extends TableView> {
     protected final IGridTable originalTable;
     private MetaInfoWriter metaInfoWriter;
     private Map<String, Object> stamped = Map.of();
+    private Map<String, Object> stampedOnEdit = Map.of();
 
     public TableWriter(IOpenLTable table) {
         this.table = table;
@@ -94,6 +96,21 @@ public abstract class TableWriter<T extends TableView> {
      */
     public void stampWith(Map<String, Object> properties) {
         this.stamped = properties;
+    }
+
+    /**
+     * Records what OpenL Studio notes about an edit of the table: who made it and when.
+     *
+     * <p>Written by the pass that writes the change itself, so the workbook is saved once and the note cannot
+     * end up disagreeing with the edit it is about.
+     *
+     * <p>Unlike what is noted when a table is created, these replace whatever the table carried before: they
+     * answer for the last edit rather than for the first.
+     *
+     * @param properties the properties to record, in the order they are written
+     */
+    public void stampEditWith(Map<String, Object> properties) {
+        this.stampedOnEdit = properties;
     }
 
     /**
@@ -295,8 +312,24 @@ public abstract class TableWriter<T extends TableView> {
 
     /** Persist the table that was written, refusing to leave it split by a blank line. */
     protected void save() {
+        recordEdit();
         requireNoBlankLine();
         saveWorkbook((XlsSheetGridModel) getGridTable().getGrid());
+    }
+
+    /**
+     * Writes onto the table what OpenL Studio notes about the edit being saved.
+     *
+     * <p>Nothing is written where the installation records nothing, and nothing where the table has nowhere to
+     * write it — a table of a kind that carries no properties, and a table being laid down for the first time,
+     * which is a creation and noted as one.
+     */
+    private void recordEdit() {
+        if (stampedOnEdit.isEmpty() || table == null || !isUpdateMode() || !table.isCanContainProperties()) {
+            return;
+        }
+        var editor = new TableEditorModel(table, IXlsTableNames.VIEW_DEVELOPER, false);
+        stampedOnEdit.forEach(editor::setProperty);
     }
 
     /**

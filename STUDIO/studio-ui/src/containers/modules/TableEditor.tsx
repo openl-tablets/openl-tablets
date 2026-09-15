@@ -7,7 +7,7 @@ import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
-import type { RawCellStyleInput, RawTableCell } from 'types/tables'
+import type { RawCellStyleInput, RawTableCell, TableLayout } from 'types/tables'
 import { CellValueEditor, type EditorKind } from './CellValueEditor'
 import { RANGE_PANEL, RangeEditor } from './RangeEditor'
 import { TableEditToolbar } from './TableEditToolbar'
@@ -86,6 +86,11 @@ interface TableEditorProps {
     whole?: boolean | undefined
     /** The table body as it was read, which the pending edits are replayed over. */
     rows: RawTableCell[][]
+    /**
+     * How the table is laid out, where the screen numbers the lines of its data. Given in the table's own
+     * coordinates, so a screen drawing it without its header rows counts those out itself.
+     */
+    layout?: TableLayout | undefined
     /** Draw the formula a cell was written with rather than the value it computed. */
     formulas?: boolean | undefined
     /** Follows a piece of a cell's text to the table it names. */
@@ -127,6 +132,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     maxRows,
     whole = true,
     rows,
+    layout,
     formulas,
     onOpenUsage,
     canWrite,
@@ -319,7 +325,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     }, [onOpenedAt, openAt, openCell, written])
 
     /** Keeps what was written into the open cell, unless it is what the cell already held. */
-    const closeCell = (keep: boolean) => {
+    /**
+     * Closes the open cell, keeping what was written into it or leaving it as it was.
+     *
+     * <p>What is kept is the draft the field has been reporting, unless the caller says otherwise: an editor
+     * that writes and closes in one gesture — the calendar, where picking a date is both — knows the value
+     * before the screen does.
+     */
+    const closeCell = (keep: boolean, value = draft) => {
         if (switching.current) {
             return
         }
@@ -330,8 +343,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             return
         }
         const was = written[at.row]?.[at.column]?.value
-        if (draft !== (was == null ? '' : String(was))) {
-            step({ kind: 'value', at, value: draft })
+        if (value !== (was == null ? '' : String(was))) {
+            step({ kind: 'value', at, value })
         }
     }
 
@@ -467,7 +480,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         kind={kind}
                         onCancel={() => closeCell(false)}
                         onChange={setDraft}
-                        onCommit={() => closeCell(true)}
+                        onCommit={value => closeCell(true, value)}
                         onSwitch={setSwitched}
                         value={draft}
                     />
@@ -591,6 +604,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onOpenCell={canWrite ? openCell : undefined}
                     onOpenUsage={editing ? undefined : onOpenUsage}
                     onPickCell={canWrite ? pick : undefined}
+                    layout={layout}
                     rows={written}
                     tableRef={grid}
                     testId={testId}

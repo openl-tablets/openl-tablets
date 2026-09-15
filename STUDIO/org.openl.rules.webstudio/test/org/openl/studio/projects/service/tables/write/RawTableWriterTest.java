@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,6 +80,30 @@ class RawTableWriterTest {
         assertEquals("double", value(source, 4, 0));
         assertEquals("rate", value(source, 4, 1));
         assertEquals("delta", value(source, 4, 2));
+    }
+
+    @Test
+    void writesWhatTheInstallationNotesAboutTheEditIntoTheTableItself() {
+        var writer = new RawTableWriter(load(mainProject));
+        writer.stampEditWith(Map.of("modifiedBy", "admin"));
+
+        writer.apply(appendRow(row("double", "rate", "delta")));
+
+        // The note rides in the same save as the change it is about, so the table comes back carrying both.
+        var source = reload(mainProject);
+        assertEquals("properties", value(source, 1, 0));
+        assertEquals("modifiedBy", value(source, 1, 1));
+        assertEquals("admin", value(source, 1, 2));
+        assertEquals("delta", value(source, 5, 2));
+    }
+
+    @Test
+    void writesNoteOfAnEditWhereTheInstallationRecordsNothing() {
+        apply(appendRow(row("double", "rate", "delta")));
+
+        var source = reload(mainProject);
+        // Recording is off by default, and a table nobody asked to be stamped is left as its author wrote it.
+        assertEquals("String", value(source, 1, 0));
     }
 
     @Test

@@ -56,6 +56,45 @@ describe('TableEditor', () => {
         vi.mocked(getTableEditors).mockResolvedValue({ editors: [], cells: []})
     })
 
+    it('opens a date cell on the date it holds, whichever of OpenL\'s formats it is written in', async () => {
+        const dated: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Date on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'date' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: dated })
+
+        await userEvent.dblClick(screen.getByText('2024-03-07'))
+
+        // The cell holds an ISO date, which OpenL reads and the calendar must show rather than open blank.
+        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('2024-03-07'))
+    })
+
+    it('writes a picked date back in the format the cell was written in', async () => {
+        const dated: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Date on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'date' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: dated })
+        await userEvent.dblClick(screen.getByText('2024-03-07'))
+        await waitFor(() => expect(screen.getByTestId('table-cell-input')).toHaveValue('2024-03-07'))
+
+        await userEvent.click(screen.getByTitle('2024-03-14'))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        // Read as ISO, written back as ISO: opening a cell and closing it must not rewrite what it held.
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '2024-03-14' } },
+        ], 'Claims'))
+    })
+
     it('opens a cell on a double click and starts editing', async () => {
         const { onEditingChange } = draw({ editing: false })
 

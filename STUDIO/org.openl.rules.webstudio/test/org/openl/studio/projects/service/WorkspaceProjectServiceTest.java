@@ -115,6 +115,7 @@ import org.openl.studio.projects.service.project.compile.ModuleCompilationLaunch
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
@@ -2327,6 +2328,7 @@ class WorkspaceProjectServiceTest {
                 mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
+                mock(SystemPropertiesService.class),
                 eventPublisher,
                 bypassService,
                 mock(ProjectIdentifierMapper.class),
