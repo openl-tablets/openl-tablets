@@ -71,6 +71,8 @@ interface TableEditorProps {
     startRow?: number | undefined
     /** How many rows that window holds. */
     maxRows?: number | undefined
+    /** How many rows the table has in all, when the window holds fewer than that. */
+    totalRows?: number | undefined
     /** The table body as it was read, which the pending edits are replayed over. */
     rows: RawTableCell[][]
     /** Draw the formula a cell was written with rather than the value it computed. */
@@ -112,6 +114,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     moduleName,
     startRow,
     maxRows,
+    totalRows,
     rows,
     formulas,
     onOpenUsage,
@@ -159,8 +162,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
             .finally(() => setLoadingEditors(false))
     }, [asked, editing, loadingEditors, maxRows, moduleName, projectId, startRow, tableId])
 
-    // Opening another table asks again for the cells of that one.
-    useEffect(() => { setAsked(null) }, [tableId])
+    // Opening another table asks again for the cells of that one, and so does reading more of this one: the
+    // rows that were not there before are described by nothing until they are asked about.
+    useEffect(() => { setAsked(null) }, [tableId, startRow, maxRows])
 
     /** What the cell at the given place asks to be written with, as the table said when editing started. */
     const askedAt = useCallback((row: number, column: number): TableCellEditor | undefined => {
@@ -256,9 +260,16 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     }
 
     const save = async () => {
+        const actions = compile(rows, edited)
+        // What the reader did may come to nothing — a row added and taken away again, a value written back to
+        // what it was. There is nothing to write then, and the table is left as the reader found it.
+        if (actions.length === 0) {
+            discard()
+            return
+        }
         setSaving(true)
         try {
-            const savedId = await applyTableActions(projectId, tableId, compile(rows, edited), moduleName)
+            const savedId = await applyTableActions(projectId, tableId, actions, moduleName)
             if (savedId !== null) {
                 setBuffer(NO_EDITS)
                 setOpen(null)
@@ -455,6 +466,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onUndo={() => setBuffer(undo)}
                     picked={picked}
                     saving={saving}
+                    whole={totalRows === undefined || totalRows <= rows.length}
                     onRemoveColumn={() => {
                         step({ kind: 'removeColumn', at: at.column })
                         setPicked(null)

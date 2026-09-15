@@ -657,6 +657,7 @@ export const ModuleWorkspace = () => {
                     rows={rows}
                     tableId={selected.id}
                     testId="module-table"
+                    totalRows={total}
                 >
                     {shown < total && (
                         <div className={styles.more}>

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -598,6 +599,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     branchName,
                     projectName,
                     moduleName);
+            // Two repositories may each hold a project of the same name, with a module of the same name in it,
+            // and they are two modules: what tells them apart is the repository they were read from.
+            var anotherRepositoryOpened = !Objects.equals(currentRepositoryId, repositoryId);
             currentRepositoryId = repositoryId;
             ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
             needRedirect = false;
@@ -634,10 +638,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // The module a write changed is built from its workbook again the next time it is opened, and only
             // it — a write elsewhere leaves this one alone, and opening another module does not consume it.
             boolean rewritten = ProjectModel.isSameModule(rewrittenModule, module);
-            boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
-                    .getProject()
-                    .getName()
-                    .equals(project.getName()));
+            boolean anotherProjectOpened = anotherRepositoryOpened
+                    || !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
+                            .getProject()
+                            .getName()
+                            .equals(project.getName()));
             currentModule = module;
             currentProject = project;
             if (currentProject != null) {

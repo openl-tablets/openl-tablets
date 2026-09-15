@@ -25,6 +25,7 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
         <TableEditToolbar
             canUndo
             dirty
+            whole
             blocked={null}
             canRedo={false}
             cell={{ value: 'Good Morning' } as RawTableCell}
@@ -38,6 +39,18 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
 }
 
 describe('TableEditToolbar', () => {
+    it('withholds adding a column while only part of the table is on screen', async () => {
+        const acted = draw({ whole: false })
+
+        // An added column carries a value for every row of the table, and only the loaded ones are known.
+        const insert = screen.getByTestId('table-edit-insert_column')
+        expect(insert).toBeDisabled()
+        await userEvent.click(insert)
+        expect(acted.onInsertColumn).not.toHaveBeenCalled()
+        // Taking one away needs no values, so it stays offered.
+        expect(screen.getByTestId('table-edit-remove_column')).toBeEnabled()
+    })
+
     it('carries every action the legacy editor had, in one strip', () => {
         draw()
 

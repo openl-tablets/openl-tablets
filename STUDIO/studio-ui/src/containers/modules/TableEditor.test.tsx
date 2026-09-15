@@ -84,6 +84,20 @@ describe('TableEditor', () => {
         expect(classesOf('C5')).toEqual(classesOf('B5'))
     })
 
+    it('asks the server for nothing when what the reader did comes to nothing', async () => {
+        const { onEditingChange } = draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        // A row added and taken away again leaves the table as it was read, so there is nothing to write.
+        await userEvent.click(screen.getByText('Good Morning'))
+        await userEvent.click(screen.getByTestId('table-edit-insert_row'))
+        await userEvent.click(screen.getByTestId('table-edit-remove_row'))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        expect(applyTableActions).not.toHaveBeenCalled()
+        await waitFor(() => expect(onEditingChange).toHaveBeenLastCalledWith(false))
+    })
+
     it('leaves the table alone for a reader who may not write it', async () => {
         draw({ canWrite: false })
 

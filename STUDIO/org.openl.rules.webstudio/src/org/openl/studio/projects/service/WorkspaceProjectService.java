@@ -2259,6 +2259,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param moduleName module the table is written in, or {@code null} to look across the project
      * @return the table and the model it was resolved through
      */
+    private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        return moduleName == null
+                ? getOpenLTable(project, tableId, true)
+                : getOpenLTableInModule(project, tableId, moduleName);
+    }
+
     /**
      * Runs a write of a table, and has the module built from its workbook again when the write is refused.
      *
@@ -2277,12 +2283,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             getWebStudio().recompileCurrentModule();
             throw refused;
         }
-    }
-
-    private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
-        return moduleName == null
-                ? getOpenLTable(project, tableId, true)
-                : getOpenLTableInModule(project, tableId, moduleName);
     }
 
     /**
@@ -2442,7 +2442,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableCreatorService.createTable(createTableRequest, projectModel);
+        return writing(() -> tableCreatorService.createTable(createTableRequest, projectModel));
     }
 
     /**
@@ -2476,7 +2476,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return writeCopy(projectModel, source, request, sheetName);
+        return writing(() -> writeCopy(projectModel, source, request, sheetName));
     }
 
     /** Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. */

@@ -1,7 +1,11 @@
 import React, { useMemo } from 'react'
 import { DatePicker, Input, InputNumber, Select } from 'antd'
 import dayjs from 'dayjs'
+// A date typed into a cell is read by the format the workbook writes, and nothing else: without this dayjs
+// falls back to guessing, and 13/01/2024 is taken for a date rather than refused.
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import type { TableCellEditor } from '../../services/modules'
+import { joinValues, splitValues } from './multiValue'
 import { numberOnly } from './numberOnly'
 
 /** How a value is being written, which is not always the way the cell asks for it. */
@@ -30,6 +34,8 @@ interface CellValueEditorProps {
     onCancel: () => void
     className?: string
 }
+
+dayjs.extend(customParseFormat)
 
 /** How a date is written into a cell, which is how the workbook reads it back. */
 const DATE_FORMAT = 'MM/DD/YYYY'
@@ -114,12 +120,12 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     defaultOpen
                     mode="multiple"
                     onBlur={onCommit}
-                    onChange={(chosen: string[]) => onChange(chosen.join(separator))}
+                    onChange={(chosen: string[]) => onChange(joinValues(chosen, separator, asked?.separatorEscaper))}
                     onInputKeyDown={keys}
                     options={choices}
                     popupMatchSelectWidth={false}
                     style={{ minWidth: 180 }}
-                    value={value === '' ? [] : value.split(separator).map(one => one.trim())}
+                    value={splitValues(value, separator, asked?.separatorEscaper)}
                 />
             )
         case 'boolean':

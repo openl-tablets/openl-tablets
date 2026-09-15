@@ -320,6 +320,20 @@ describe('TableToolbar', () => {
         expect(getTableTargets).toHaveBeenCalledTimes(1)
     })
 
+    it('names the table again when the reader comes back to the test', async () => {
+        vi.mocked(getTableTargets).mockResolvedValue([{ id: 'rules-1', name: 'BankRating' }])
+        const { rerender } = await draw({ table: table('Test') })
+        await waitFor(() => expect(screen.getByTestId('table-target-tables')).toHaveTextContent('BankRating'))
+
+        // A table that exercises nothing clears what the band shows; coming back must not leave it empty.
+        rerender(toolbar({ table: { ...table('Rules'), id: 'table-2' } }))
+        await waitFor(() => expect(screen.queryByTestId('table-target-tables')).toBeNull())
+        rerender(toolbar({ table: table('Test') }))
+
+        expect(await screen.findByTestId('table-target-tables')).toHaveTextContent('BankRating')
+        expect(getTableTargets).toHaveBeenCalledTimes(1)
+    })
+
     it('asks again for a target no module had named yet', async () => {
         vi.mocked(getTableTargets).mockResolvedValue([])
         const { rerender } = await draw({ table: table('Test') })
