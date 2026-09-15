@@ -16,6 +16,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
       "pos": "D54:G68",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -33,6 +34,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
       "pos": "D26:G49",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -86,6 +88,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Limit",
       "pos": "C8:M24",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -116,6 +119,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
       "pos": "D73:G83",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -133,6 +137,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
       "pos": "D9:G21",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -147,6 +152,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Rating Groups",
       "pos": "C8:D14",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -200,6 +206,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Balance Quality",
       "pos": "C8:D15",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -321,6 +328,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Central Bank Req",
       "pos": "C29:F32",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -403,6 +411,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Central Bank Req",
       "pos": "C22:E25",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -433,6 +442,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Rating Algorithm",
       "pos": "D88:G96",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -529,6 +539,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Bank Qualitative factors",
       "pos": "C8:D11",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="
@@ -640,6 +651,7 @@ Content-Type: application/json
       "file": "EPBDS-15998-git/Bank Rating.xlsx",
       "sheet": "Balance Quality in Dynamic",
       "pos": "C26:E33",
+      "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-git",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTgtZ2l0OmZlYmJkNTYyODgwN2E4OWIyN2JlOTQxZWU2NjFkOTVjOWViM2RlMGRkNjg5NTg3NzBiNzRiOWFjNDIwZTg2NWU="

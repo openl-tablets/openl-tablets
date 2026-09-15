@@ -268,6 +268,15 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   kept them — even where a branch holds a single version, so a version is always found in the same place. A
   table switched off by its `active` property says so (`active: false`, inherited values included) and is drawn
   faint, as it was drawn there.
+- **The list says what the compiler made of a table; the screen decides how to draw it.** A node marks a
+  broken table with its error count and a tested one with a check, and neither shape is the server's to
+  choose: the row carries `errors`, how many errors the compilation raised against that table, and
+  `hasTests`, set when a test table exercises it. Both are absent when there is nothing to say, so a screen
+  marking what is broken reads only the broken ones. They are worked out once for a whole list rather than
+  per row, because either question asked per table walks every message the compilation raised and every
+  method it bound. A test written against a table that has several versions marks every one of them, the
+  call being dispatched between them; a Run table is written like a test but runs the rules instead of
+  checking them, so it does not make a table tested.
 - **Whatever names a table names where it lives — the project and the module, never just the module.** A test
   that exercises a table is a table of its own, written where its author put it: another module, or a module of
   a project this one depends on. The same is true of a word in a cell that names a rule, and of a compilation

@@ -39,6 +39,7 @@ Content-Type: application/json
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
       "sheet": "CoverageRate",
       "pos": "B4:G11",
+      "hasTests": true,
       "module": "EPBDS-15381",
       "project": "EPBDS-15381",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ=="
@@ -66,6 +67,7 @@ Content-Type: application/json
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
       "sheet": "Sheet5",
       "pos": "B4:D12",
+      "hasTests": true,
       "module": "EPBDS-15381",
       "project": "EPBDS-15381",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ=="
@@ -93,6 +95,7 @@ Content-Type: application/json
       "file": "EPBDS-15381/EPBDS-15381.xlsx",
       "sheet": "Sheet6",
       "pos": "B4:D7",
+      "hasTests": true,
       "module": "EPBDS-15381",
       "project": "EPBDS-15381",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ=="

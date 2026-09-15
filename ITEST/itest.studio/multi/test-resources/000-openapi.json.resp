@@ -29683,8 +29683,17 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "errors": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
           "file": {
             "type": "string",
+            "description": "***"
+          },
+          "hasTests": {
+            "type": "boolean",
             "description": "***"
           },
           "id": {

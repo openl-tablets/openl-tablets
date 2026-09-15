@@ -1,11 +1,8 @@
 package org.openl.studio.projects.service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.util.CellReference;
@@ -25,6 +22,7 @@ import org.openl.studio.projects.model.project.status.MessageSource;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
 import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.studio.projects.service.tables.TablesByLocation;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
@@ -108,22 +106,18 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
     }
 
     /**
-     * Resolves message locations against indexes built once per project. Two tables can only overlap
-     * when they live on the same worksheet, so bucketing tables by workbook and sheet lets each message
-     * intersect-test only its own sheet's tables instead of every table in the workspace. The matching
-     * node is used directly, avoiding a second lookup by id.
+     * Resolves message locations against indexes built once per project, so a project raising thousands of
+     * messages does not walk its tables again for each of them.
      */
     private static final class MessageLocator {
 
-        private record TableEntry(TableSyntaxNode node, XlsUrlParser location) {
-        }
-
-        private final Map<String, List<TableEntry>> tablesBySheet;
+        /** Which table a message was raised in. */
+        private final TablesByLocation tables;
         /** Where a table lives — a message can come from a module of a project this one depends on. */
         private final TableModules tableModules;
 
         MessageLocator(ProjectModel model, ProjectIdentifierMapper projectIdentifierMapper) {
-            tablesBySheet = indexTables(model);
+            tables = TablesByLocation.of(model);
             tableModules = TableModules.ofWorkspace(model, projectIdentifierMapper);
         }
 
@@ -134,7 +128,7 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
             }
             var location = new XlsUrlParser(sourceLocation);
             var where = tableModules.locationOf(sourceLocation);
-            var node = findNode(location);
+            var node = tables.find(location);
             if (node != null) {
                 var tableName = new TableSyntaxNodeAdapter(node).getDisplayName();
                 var marked = markedIn(message, node, location);
@@ -186,32 +180,5 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
             return cell == null ? null : cell.getStringValue();
         }
 
-        private TableSyntaxNode findNode(XlsUrlParser location) {
-            var candidates = tablesBySheet.get(sheetKey(location));
-            if (candidates == null) {
-                return null;
-            }
-            for (TableEntry candidate : candidates) {
-                if (location.intersects(candidate.location())) {
-                    return candidate.node();
-                }
-            }
-            return null;
-        }
-
-        private static Map<String, List<TableEntry>> indexTables(ProjectModel model) {
-            var index = new HashMap<String, List<TableEntry>>();
-            for (TableSyntaxNode node : model.getAllTableSyntaxNodes()) {
-                var location = node.getUriParser();
-                if (location != null) {
-                    index.computeIfAbsent(sheetKey(location), key -> new ArrayList<>()).add(new TableEntry(node, location));
-                }
-            }
-            return index;
-        }
-
-        private static String sheetKey(XlsUrlParser location) {
-            return location.getWbPath() + '\n' + location.getWbName() + '\n' + location.getWsName();
-        }
     }
 }

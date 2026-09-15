@@ -140,6 +140,7 @@ import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TablePropertyText;
 import org.openl.studio.projects.service.tables.TableRunStateService;
+import org.openl.studio.projects.service.tables.TableStatuses;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -1642,10 +1643,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var locations = scope == SearchScope.CURRENT_MODULE ? null
                 : TableModules.ofWorkspace(moduleModel, projectIdentifierMapper);
 
+        // What the compilation made of each table — its errors, and whether anything tests it — read once for
+        // the whole list rather than worked out again for every row of it.
+        var statuses = TableStatuses.of(moduleModel);
         var selectors = buildTableSelector(query);
         var allTables = moduleModel.search(selectors, scope)
                 .stream()
-                .map(table -> locate(summaryTableReader.read(table, overloads), table, locations))
+                .map(table -> report(locate(summaryTableReader.read(table, overloads), table, locations),
+                        table, statuses))
                 .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
 
@@ -1710,6 +1715,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var where = modules.locationOf(table.getUri());
         return where == null ? view : view.locatedAt(where.module(), where.projectName(), where.projectId());
+    }
+
+    /** Hangs what the compilation made of a table onto the row that lists it. */
+    private static SummaryTableView report(SummaryTableView view, IOpenLTable table, TableStatuses statuses) {
+        var uri = table.getUri();
+        return view.reported(statuses.errorsOf(uri), statuses.isTested(uri));
     }
 
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
