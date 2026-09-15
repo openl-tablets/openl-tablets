@@ -11,6 +11,8 @@ export const useStyles = createStyles(({ css, token }) => ({
      */
     table: css`
         border-collapse: collapse;
+        /* The table takes the focus so the keyboard reaches it; the picked cell is what shows where it is. */
+        outline: none;
         width: max-content;
         max-width: none;
         table-layout: auto;

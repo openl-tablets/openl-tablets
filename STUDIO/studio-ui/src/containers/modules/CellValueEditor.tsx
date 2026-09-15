@@ -34,6 +34,8 @@ interface CellValueEditorProps {
     onCommit: () => void
     /** Leaves the cell as it was. */
     onCancel: () => void
+    /** Asked for another way of writing the value, which Alt+Enter asks for from a one-line field. */
+    onSwitch?: ((kind: EditorKind) => void) | undefined
     className?: string
 }
 
@@ -65,18 +67,37 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
     onChange,
     onCommit,
     onCancel,
+    onSwitch,
     className,
 }) => {
     const choices = useMemo(() => choicesOf(asked), [asked])
     const separator = asked?.separator ?? ','
     const numeric = useMemo(() => numberOnly(asked?.intOnly), [asked?.intOnly])
 
-    // Enter keeps what was written and Escape leaves the cell as it was, wherever the reader is writing.
+    /**
+     * Enter keeps what was written and Escape leaves the cell as it was, wherever the reader is writing.
+     *
+     * <p>A field that holds several lines takes Enter for a line of its own, so there Ctrl+Enter is what keeps
+     * what was written; and Alt+Enter is what asks a one-line field for the room to write several, as the old
+     * editor did. F2 and F3 put the caret at the two ends of what is already there.
+     */
     const keys = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter' && kind !== 'multiline') {
+        const several = kind === 'multiline'
+        if (event.key === 'Enter' && event.altKey && !several) {
+            event.preventDefault()
+            onSwitch?.('multiline')
+        } else if (event.key === 'Enter' && (several ? event.ctrlKey || event.metaKey : true)) {
             onCommit()
         } else if (event.key === 'Escape') {
             onCancel()
+        } else if (event.key === 'F2' || event.key === 'F3') {
+            // The two ends of what the cell already holds, which is where the old editor put the caret.
+            const field = event.currentTarget
+            if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
+                event.preventDefault()
+                const at = event.key === 'F2' ? 0 : field.value.length
+                field.setSelectionRange(at, at)
+            }
         }
     }
 

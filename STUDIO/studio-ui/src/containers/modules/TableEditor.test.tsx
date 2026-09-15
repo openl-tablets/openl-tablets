@@ -150,6 +150,85 @@ describe('TableEditor', () => {
         ], 'Claims'))
     })
 
+    /** The value of the cell that is open for writing, which says where the keyboard landed. */
+    const openValue = () => (screen.getByTestId('table-cell-input') as HTMLInputElement).value
+
+    it('moves between cells with the arrows, and opens one with Enter', async () => {
+        draw({ editing: false })
+        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
+
+        await userEvent.click(screen.getByText('0'))
+        await userEvent.keyboard('{ArrowRight}{Enter}')
+
+        expect(openValue()).toBe('Good Morning')
+    })
+
+    it('lands on the cell that owns the place a move reached', async () => {
+        draw({ editing: false })
+        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
+
+        // The header spans both columns, so moving up from either of them lands on the header itself.
+        await userEvent.click(screen.getByText('Good Morning'))
+        await userEvent.keyboard('{ArrowUp}{Enter}')
+
+        expect(openValue()).toBe('Rules String Greeting(Integer hour)')
+    })
+
+    it('turns back to the cell it came from rather than to the neighbour', async () => {
+        draw({ editing: false })
+        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
+
+        // Up from the second column lands on the header, which spans both; coming back must return to the
+        // cell that was left, not to the first column the header begins in.
+        await userEvent.click(screen.getByText('Good Morning'))
+        await userEvent.keyboard('{ArrowUp}{ArrowDown}{Enter}')
+
+        expect(openValue()).toBe('Good Morning')
+    })
+
+    it('opens a cell on the character the reader types, and takes it as the value', async () => {
+        draw({ editing: false })
+        await waitFor(() => expect(screen.getByText('Good Morning')).toBeInTheDocument())
+
+        await userEvent.click(screen.getByText('Good Morning'))
+        await userEvent.keyboard('N')
+
+        expect(openValue()).toBe('N')
+    })
+
+    it('puts the caret at either end of what the cell holds', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        const input = screen.getByTestId('table-cell-input') as HTMLInputElement
+        await userEvent.keyboard('{F2}')
+        expect(input.selectionStart).toBe(0)
+
+        await userEvent.keyboard('{F3}')
+        expect(input.selectionStart).toBe('Good Morning'.length)
+    })
+
+    it('gives a one-line field the room for several, and keeps what is written there with Ctrl+Enter', async () => {
+        const { onSaved } = draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        await userEvent.keyboard('{Alt>}{Enter}{/Alt}')
+
+        // Enter writes a line of its own once there is room for several, so Ctrl+Enter is what keeps the value.
+        const field = screen.getByTestId('table-cell-input')
+        await userEvent.clear(field)
+        await userEvent.type(field, 'first{Enter}second')
+        await userEvent.keyboard('{Control>}{Enter}{/Control}')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'first\nsecond' } },
+        ], 'Claims'))
+        expect(onSaved).toHaveBeenCalled()
+    })
+
     it('leaves the table alone for a reader who may not write it', async () => {
         draw({ canWrite: false })
 

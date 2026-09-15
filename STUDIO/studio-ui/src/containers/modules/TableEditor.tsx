@@ -57,6 +57,17 @@ const takesSeveralLines = (address: string | undefined, value: string): boolean 
     return lines === 0 ? value.length > LONG_ENOUGH_TO_WRAP : lines > 1
 }
 
+/** The key that takes the reader back the way they came, so pressing it returns to the cell they left. */
+const BACK: Record<string, string> = {
+    ArrowUp: 'ArrowDown',
+    ArrowDown: 'ArrowUp',
+    ArrowLeft: 'ArrowRight',
+    ArrowRight: 'ArrowLeft',
+}
+
+/** How far back the way a reader came is remembered, as the old editor remembered it. */
+const STEPS_REMEMBERED = 10
+
 /** The editors this screen draws; a cell asking for anything else is written as plain text. */
 const DRAWN: ReadonlySet<string> = new Set([
     'combo', 'multiselect', 'numeric', 'date', 'boolean', 'array', 'range',
@@ -195,17 +206,97 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     /** Notes one more thing the reader did. */
     const step = (one: EditStep) => setBuffer(current => withStep(current, one))
 
-    const pick = useCallback((row: number, column: number) => setPicked({ row, column }), [])
+    // The table takes the focus once a cell is picked, so the keys reach the table and nothing else.
+    const grid = useRef<HTMLTableElement>(null)
+    // The way the reader came, so turning back lands on the cell they left rather than on its neighbour.
+    const came = useRef<{ key: string, at: CellAt }[]>([])
 
-    /** Opens a cell for writing, starting from what it holds now. */
-    const openCell = useCallback((row: number, column: number) => {
+    const pick = useCallback((row: number, column: number) => {
+        came.current = []
+        setPicked({ row, column })
+        // The table takes the keys once a cell is picked — but never out of a field the reader is writing in,
+        // nor out of the panel hanging under it, whose clicks reach here too.
+        if (open === null) {
+            grid.current?.focus()
+        }
+    }, [open])
+
+    /**
+     * Where the cell covering a place sits.
+     *
+     * <p>A merged cell is drawn once and covers the places around it; a move that lands on one of those places
+     * lands on the cell that owns it. Worked out once per table rather than searched for on every key.
+     */
+    const ownerOf = useMemo(() => {
+        const owners = new Map<string, CellAt>()
+        written.forEach((cells, row) => cells.forEach((cell, column) => {
+            if (cell.covered) {
+                return
+            }
+            for (let down = 0; down < (cell.rowspan ?? 1); down++) {
+                for (let along = 0; along < (cell.colspan ?? 1); along++) {
+                    owners.set(`${row + down}:${column + along}`, { row, column })
+                }
+            }
+        }))
+        return owners
+    }, [written])
+
+    /** The cell a move in the given direction reaches, or null where the table ends. */
+    const reached = (from: CellAt, key: string): CellAt | null => {
+        const cell = written[from.row]?.[from.column]
+        const down = key === 'ArrowDown' ? (cell?.rowspan ?? 1) : (key === 'ArrowUp' ? -1 : 0)
+        const along = key === 'ArrowRight' ? (cell?.colspan ?? 1) : (key === 'ArrowLeft' ? -1 : 0)
+        return ownerOf.get(`${from.row + down}:${from.column + along}`) ?? null
+    }
+
+    /** What the keyboard does with the table, as the old editor did it. */
+    const onKeyDown = (event: React.KeyboardEvent<HTMLTableElement>) => {
+        // While a cell is open the keys belong to what is written into it, which handles its own.
+        if (open !== null || picked === null) {
+            return
+        }
+        if (BACK[event.key] !== undefined) {
+            event.preventDefault()
+            const back = came.current.at(-1)
+            if (back?.key === event.key) {
+                came.current.pop()
+                setPicked(back.at)
+                return
+            }
+            const next = reached(picked, event.key)
+            if (next !== null) {
+                came.current.push({ key: BACK[event.key] ?? '', at: picked })
+                came.current = came.current.slice(-STEPS_REMEMBERED)
+                setPicked(next)
+            }
+            return
+        }
+        if (event.key === 'Enter') {
+            event.preventDefault()
+            openCell(picked.row, picked.column)
+            return
+        }
+        // Typing on a picked cell opens it and takes what was typed, the way a spreadsheet does.
+        if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+            event.preventDefault()
+            openCell(picked.row, picked.column, event.key)
+        }
+    }
+
+    /**
+     * Opens a cell for writing, starting from what it holds now — or from the character the reader typed,
+     * which is what typing on a picked cell does: the cell opens and takes that character as its new value.
+     */
+    const openCell = useCallback((row: number, column: number, typed?: string) => {
         const cell = written[row]?.[column]
         if (cell === undefined || cell.covered) {
             return
         }
         // A cell written with a formula is opened as the formula: opening it as the value it computed would
         // write that value back over the formula the moment the reader saves.
-        const value = cell.formula ?? (cell.value == null ? '' : String(cell.value))
+        const held = cell.formula ?? (cell.value == null ? '' : String(cell.value))
+        const value = typed ?? held
         setPicked({ row, column })
         setOpen({ row, column })
         setSwitched(null)
@@ -234,6 +325,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         }
         const at = open
         setOpen(null)
+        grid.current?.focus()
         if (!keep || at === null) {
             return
         }
@@ -376,6 +468,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         onCancel={() => closeCell(false)}
                         onChange={setDraft}
                         onCommit={() => closeCell(true)}
+                        onSwitch={setSwitched}
                         value={draft}
                     />
                     <Dropdown
@@ -492,12 +585,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                 <RawTableGrid
                     decorate={decorate}
                     formulas={formulas}
-                    onOpenCell={canWrite ? openCell : undefined}
                     // While the table is being edited its cells lead nowhere: a click is meant for the cell
                     // under it, and a reader aiming at one must not be taken to another table by mistake.
+                    onKeyDown={canWrite ? onKeyDown : undefined}
+                    onOpenCell={canWrite ? openCell : undefined}
                     onOpenUsage={editing ? undefined : onOpenUsage}
                     onPickCell={canWrite ? pick : undefined}
                     rows={written}
+                    tableRef={grid}
                     testId={testId}
                 />
                 {children}

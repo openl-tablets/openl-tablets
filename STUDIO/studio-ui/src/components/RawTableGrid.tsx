@@ -29,6 +29,15 @@ interface RawTableGridProps {
     onPickCell?: ((row: number, column: number) => void) | undefined
     /** Told which cell the reader opened, by double-clicking it. */
     onOpenCell?: ((row: number, column: number) => void) | undefined
+    /**
+     * What the keyboard does with the table: moving between cells, opening one, writing into one.
+     *
+     * <p>Given only where the table can be written. The table takes the focus so that the keys reach it and
+     * nothing else — a screen full of other fields keeps its own.
+     */
+    onKeyDown?: ((event: React.KeyboardEvent<HTMLTableElement>) => void) | undefined
+    /** The table itself, so the screen can hand it the focus once a cell is picked. */
+    tableRef?: React.Ref<HTMLTableElement> | undefined
     testId?: string | undefined
 }
 
@@ -114,12 +123,20 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     onOpenUsage,
     onPickCell,
     onOpenCell,
+    onKeyDown,
+    tableRef,
     testId,
 }) => {
     const { styles, cx } = useStyles()
 
     return (
-        <table className={styles.table} data-testid={testId}>
+        <table
+            ref={tableRef}
+            className={styles.table}
+            data-testid={testId}
+            onKeyDown={onKeyDown}
+            tabIndex={onKeyDown === undefined ? undefined : -1}
+        >
             <tbody>
                 {rows.map((row, rowIndex) => (
                     <tr key={rowKey(row, rowIndex)}>
