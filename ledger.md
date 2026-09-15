@@ -282,6 +282,6 @@
 
 ## Run log
 
-- 2026-09-15 c: #2109 rebase-merged by yurkom onto main 2d6ad165e74 (1 commit, 5 deletions); queue row 11 closed; at 291.
-- 2026-09-15 d: no-op; main 2781e274f8 = 3 dependabot pom version bumps, no code; #2105 still draft; at 291.
-- 2026-09-15 e: no-op; main unmoved at 2781e274f8, no dead-code PR open; compacted resume point, 2109 and run log; at 287.
+- 2026-09-15 c: #2109 rebase-merged onto main 2d6ad165e74; queue row 11 closed; at 291.
+- 2026-09-15 d-f: three consecutive no-ops on unmoved main 2781e274f8 (3 dependabot pom bumps, no code); no dead-code
+  PR open, #2105 still draft, stale-branch delete still 403; at 286.
