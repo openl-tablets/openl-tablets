@@ -716,6 +716,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var builder = super.mapProjectResponse(src, statuses);
         builder.branchProtected(src.isBranchProtected());
         builder.branchDefault(src.isBranchDefault());
+        // An older revision was opened to be read. Nothing has been written into it yet, so a write now would
+        // save it over the revisions that came after — which the reader is asked about before the first one.
+        builder.overwritesNewerRevision(src.isOpenedOtherVersion() && !src.isModified());
         builder.repositoryInfo(mapRepositoryInfo(src));
         projectDependencyResolver.getDependencies(src).stream()
                 .sorted(DEPENDENCY_NAME_ORDER)

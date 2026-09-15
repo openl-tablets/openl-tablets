@@ -26722,6 +26722,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "overwritesNewerRevision": {
+            "type": "boolean",
+            "description": "***"
+          },
           "path": {
             "type": "string",
             "description": "***"
@@ -26843,6 +26847,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "overwritesNewerRevision": {
+            "type": "boolean",
+            "description": "***"
+          },
           "path": {
             "type": "string",
             "description": "***"
@@ -26946,6 +26954,10 @@ Content-Type: application/json
           },
           "name": {
             "type": "string",
+            "description": "***"
+          },
+          "overwritesNewerRevision": {
+            "type": "boolean",
             "description": "***"
           },
           "path": {

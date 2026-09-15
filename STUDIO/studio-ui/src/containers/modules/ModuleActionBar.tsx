@@ -11,6 +11,7 @@ import { openCompareWindow } from '../projects/compare'
 import { isActionAvailable, PROJECT_ACTIONS } from '../projects/projectActions'
 import { ACTION_ICONS } from '../projects/projectActionIcons'
 import { useProjectDialogs, type ProjectDialogActions } from '../projects/useProjectDialogs'
+import { useOverwriteConfirm } from './useOverwriteConfirm'
 
 /** The history and the local changes are read in a window over the module, not on a screen of their own. */
 const DIALOG_BODY = { body: { maxHeight: '70vh', overflow: 'auto' } }
@@ -81,6 +82,8 @@ export const ModuleActionBar = ({
     // Writing a table into the project is the project's own right, so it is offered by the same capability
     // the Files tab writes by.
     const canWrite = !!project.capabilities?.canWrite
+    // Writing the first table into a project opened on an older revision saves it over the newer one.
+    const confirmWrite = useOverwriteConfirm(project)
 
     // The panel of EPBDS-16560 answers this: it runs the project's tests, with the choice of only this
     // module's — which is the only choice left while the rest of the project is still being compiled.
@@ -190,13 +193,13 @@ export const ModuleActionBar = ({
                     data-testid="module-createTable"
                     disabled={disabled}
                     icon={<PlusOutlined />}
-                    onClick={() => window.dispatchEvent(new CustomEvent('openCreateTableModal', {
+                    onClick={() => confirmWrite(() => window.dispatchEvent(new CustomEvent('openCreateTableModal', {
                         detail: {
                             projectId: project.id,
                             currentModuleName: moduleName,
                             onSuccess: onTableCreated,
                         },
-                    }))}
+                    })))}
                 >
                     {t('browser.module.createTable')}
                 </Button>

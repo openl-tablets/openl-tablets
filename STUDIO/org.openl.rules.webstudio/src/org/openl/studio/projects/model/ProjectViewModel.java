@@ -70,6 +70,12 @@ public class ProjectViewModel extends AProjectViewModel {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     public final boolean branchDefault;
 
+    @Parameter(description = "Whether the copy open in the workspace is an older revision that carries no "
+            + "changes yet, so the first write to it would overwrite a newer one. Absent otherwise")
+    @JsonView(GenericView.Full.class)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public final boolean overwritesNewerRevision;
+
     @Parameter(description = "The repository the project is stored in. Travels with the project, so it is readable without access to the repository as a whole")
     @JsonView(GenericView.Full.class)
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -98,6 +104,7 @@ public class ProjectViewModel extends AProjectViewModel {
         this.descriptor = from.descriptor;
         this.branchProtected = from.branchProtected;
         this.branchDefault = from.branchDefault;
+        this.overwritesNewerRevision = from.overwritesNewerRevision;
         this.repositoryInfo = from.repositoryInfo;
         this.capabilities = from.capabilities;
         this.compileStatus = from.compileStatus;
@@ -120,6 +127,7 @@ public class ProjectViewModel extends AProjectViewModel {
         private DescriptorViewModel descriptor;
         private boolean branchProtected;
         private boolean branchDefault;
+        private boolean overwritesNewerRevision;
         private ProjectRepositoryModel repositoryInfo;
         private ProjectCapabilities capabilities;
         private ProjectStatusViewModel compileStatus;
@@ -190,6 +198,11 @@ public class ProjectViewModel extends AProjectViewModel {
 
         public Builder branchDefault(boolean branchDefault) {
             this.branchDefault = branchDefault;
+            return this;
+        }
+
+        public Builder overwritesNewerRevision(boolean overwritesNewerRevision) {
+            this.overwritesNewerRevision = overwritesNewerRevision;
             return this;
         }
 

@@ -38,6 +38,7 @@ import { TableSearchModal } from './modules/TableSearchModal'
 import { TableEditor } from './modules/TableEditor'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
+import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -153,6 +154,9 @@ export const ModuleWorkspace = () => {
     const reloadToken = reload.module === moduleName ? reload.token : 0
     const rebuild = reload.module === moduleName && reload.rebuild
     const tableLoads = useLoadGeneration()
+    // A revision opened for reading is the copy in the workspace, so a write to it saves over everything
+    // committed since — which the reader is asked about before the write, not told about after it.
+    const confirmWrite = useOverwriteConfirm(project)
 
     // Only the tables read for the module now open count as this screen's — and a module of another project
     // carrying the same name is another module, whatever it is called.
@@ -616,6 +620,7 @@ export const ModuleWorkspace = () => {
         const toolbar = selected === null ? null : (
             <TableToolbar
                 canWrite={canWriteTable}
+                confirmWrite={confirmWrite}
                 moduleName={moduleName}
                 onEdit={() => setEditing(true)}
                 onRemoved={tableRemoved}
@@ -759,6 +764,7 @@ export const ModuleWorkspace = () => {
                         {compilation.ready && !closed && (
                             <TableDetailsPanel
                                 canWrite={!!project.capabilities?.canWrite}
+                                confirmWrite={confirmWrite}
                                 moduleName={moduleName}
                                 onOpenTable={openTableById}
                                 onSaved={tableRewritten}

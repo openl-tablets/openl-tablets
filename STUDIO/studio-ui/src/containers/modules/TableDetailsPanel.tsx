@@ -18,6 +18,7 @@ import { readJson, writeJson } from '../../utils/localStore'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { toPropertyGroups } from '../tableModals/shared'
+import type { ConfirmWrite } from './useOverwriteConfirm'
 
 /** The name takes a fixed share of the panel, so a value is not squeezed into a column of its own. */
 const LABEL_WIDTH = 130
@@ -120,6 +121,8 @@ interface TableDetailsPanelProps {
     onOpenTable: (tableId: string) => void
     /** Whether the reader may edit the project; the properties are written only then. */
     canWrite?: boolean
+    /** Runs a write after asking whatever has to be asked first; absent where nothing has to be. */
+    confirmWrite?: ConfirmWrite | undefined
     /** The table after its properties were written — under a new id when it had to be moved to grow. */
     onSaved?: ((tableId: string) => void) | undefined
 }
@@ -139,6 +142,7 @@ export const TableDetailsPanel = ({
     tableId,
     onOpenTable,
     canWrite = false,
+    confirmWrite,
     onSaved,
 }: TableDetailsPanelProps) => {
     const { t } = useTranslation('repository')
@@ -339,7 +343,7 @@ export const TableDetailsPanel = ({
                             aria-label={t('browser.module.details_edit')}
                             data-testid="table-details-edit"
                             icon={<EditOutlined />}
-                            onClick={() => setEditing(true)}
+                            onClick={() => (confirmWrite ?? (write => write()))(() => setEditing(true))}
                             size="small"
                             type="text"
                         />

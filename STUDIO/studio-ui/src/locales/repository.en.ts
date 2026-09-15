@@ -390,6 +390,9 @@ i18next.addResourceBundle('en', 'repository', {
             copy: 'Copy',
             update: 'Update',
             remove: 'Remove',
+            overwrite_revision: 'Overwrite the newer revision?',
+            overwrite_revision_body: 'You are editing an older revision of the project. Saving it will overwrite everything committed since.',
+            overwrite_revision_ok: 'Overwrite',
             remove_confirm: 'Remove table "{{table}}"?',
             remove_confirm_body: 'The table is cleared from the sheet it is written on. '
                 + 'Save the project to carry the change to the Design repository.',

@@ -414,6 +414,12 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   still be given — its kind's, at table level, less the ones it already shows — because a property the kind does
   not accept is a compile error, not a preference. An inherited value is changed where it stands and lands as
   the table's own, which is what the Editor's own panel did.
+- **A revision opened for reading is still the copy that gets saved.** Opening an older revision replaces the
+  workspace copy with it, so the first write saves it back over everything committed since. The project says
+  when that is so (`overwritesNewerRevision`: an older revision, carrying no changes yet), and the module
+  screen asks before the write rather than telling after it — once, where every write goes through, because
+  they all reach the same workbook. The first write settles it: the project is modified from then on, and the
+  flag is gone.
 - **A dialog that already writes a table is the dialog the editor opens.** Creating a table, copying one and
   writing a test for one are the three dialogs the legacy Editor dispatched to (`openCreateTableModal`,
   `openCopyTableModal`), mounted once in the layout and told in the event where to write and what to do with

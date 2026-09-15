@@ -18,6 +18,7 @@ import type { ModuleTable, SummaryTable, TableRunState } from 'types/tables'
 import { getTableTargets, getTableTests, type TableTarget, type TableTest } from '../../services/modules'
 import { deleteTable } from '../../services/tables'
 import { moduleRoute } from '../../services/projectId'
+import type { ConfirmWrite } from './useOverwriteConfirm'
 import { canTargetTable, EXECUTABLE_KINDS } from '../CreateTableModal/testSkeleton'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -185,6 +186,11 @@ interface TableToolbarProps {
     onRemoved?: (() => void) | undefined
     /** Starts editing the table's cells; absent where this screen does no editing. */
     onEdit?: (() => void) | undefined
+    /**
+     * Runs a write after asking whatever has to be asked first — that the project is open on an older
+     * revision, say. Absent where nothing stands in the way of a write.
+     */
+    confirmWrite?: ConfirmWrite | undefined
 }
 
 /**
@@ -208,6 +214,7 @@ export const TableToolbar = ({
     onWritten,
     onRemoved,
     onEdit,
+    confirmWrite,
 }: TableToolbarProps) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
@@ -324,8 +331,21 @@ export const TableToolbar = ({
         })
     }
 
-    /** What the button does, or nothing at all for an action that arrives with the editing phase. */
+    /**
+     * What the button does, with whatever has to be asked before a write asked once, here — every one of them
+     * reaches the same workbook, and the question belongs to the write rather than to a button's wording.
+     */
     const answer = (action: TableAction) => {
+        const act = handler(action)
+        if (act === undefined || !action.writes || confirmWrite === undefined) {
+            return act
+        }
+        // The event is carried through: an action that opens beside its own button is anchored to it.
+        return (from: ReactMouseEvent<HTMLElement>) => confirmWrite(() => act(from))
+    }
+
+    /** What the button does before anything is asked about it. */
+    const handler = (action: TableAction) => {
         if (action.event) {
             return (from: ReactMouseEvent<HTMLElement>) => launch(action.event ?? '', from)
         }
