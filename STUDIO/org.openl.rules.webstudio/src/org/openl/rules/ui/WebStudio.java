@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -139,7 +140,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * session moves between modules and projects. Building the one that happens to be open next instead would
      * rebuild a module nobody wrote to and leave the written one answering from the workbook it used to have.
      */
-    private Module rewrittenModule;
+    private volatile Module rewrittenModule;
     private final Map<String, Object> externalProperties;
 
     private final RulesUserSession rulesUserSession;
@@ -527,8 +528,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * <p>What it compiled before the write was worked out from the workbook as it stood then, so it answers for
      * nothing now: a screen asking how the project stands is told the module is waiting to be compiled rather
      * than what the workbook used to say.
+     *
+     * <p>Answered without taking the session's lock: the status is asked for while the session may be opening a
+     * project, and a reader of one field has no business waiting behind that.
      */
-    public synchronized boolean isAwaitingRecompile() {
+    public boolean isAwaitingRecompile() {
         return rewrittenModule != null;
     }
 
@@ -598,6 +602,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     branchName,
                     projectName,
                     moduleName);
+            // Two repositories may each hold a project of the same name, with a module of the same name in it,
+            // and they are two modules: what tells them apart is the repository they were read from.
+            var anotherRepositoryOpened = !Objects.equals(currentRepositoryId, repositoryId);
             currentRepositoryId = repositoryId;
             ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
             needRedirect = false;
@@ -634,10 +641,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // The module a write changed is built from its workbook again the next time it is opened, and only
             // it — a write elsewhere leaves this one alone, and opening another module does not consume it.
             boolean rewritten = ProjectModel.isSameModule(rewrittenModule, module);
-            boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
-                    .getProject()
-                    .getName()
-                    .equals(project.getName()));
+            boolean anotherProjectOpened = anotherRepositoryOpened
+                    || !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
+                            .getProject()
+                            .getName()
+                            .equals(project.getName()));
             currentModule = module;
             currentProject = project;
             if (currentProject != null) {

@@ -102,6 +102,48 @@ describe('ModuleTablesTree', () => {
         expect(screen.getByTestId('module-tables-empty')).toHaveTextContent('browser.module.no_match')
     })
 
+    it('says how many errors a table raised, and marks the one a test exercises', async () => {
+        const broken = { ...tables[0], id: 'bad', name: 'Broken', errors: 3 } as ModuleTable
+        const covered = { ...tables[0], id: 'ok', name: 'Covered', hasTests: true } as ModuleTable
+
+        render(
+            <ModuleTablesTree
+                currentModule="Claims"
+                modules={modules}
+                onExtendedSearch={vi.fn()}
+                onSelectModule={vi.fn()}
+                onSelectTable={vi.fn()}
+                selectedTableId="bad"
+                tables={[...tables, broken, covered]}
+            />
+        )
+
+        expect(screen.getByTestId('module-table-errors')).toHaveTextContent('3')
+        // A table that compiled says nothing, and only the table a test exercises is marked.
+        expect(screen.getAllByTestId('module-table-errors')).toHaveLength(1)
+        expect(screen.getAllByTestId('module-table-tested')).toHaveLength(1)
+    })
+
+    it('shows what a table is, in full, on the name the tree cuts short', async () => {
+        const named = { ...tables[0], id: 'sig', name: 'Region', signature: 'Region (String state)' } as ModuleTable
+
+        render(
+            <ModuleTablesTree
+                currentModule="Claims"
+                modules={modules}
+                onExtendedSearch={vi.fn()}
+                onSelectModule={vi.fn()}
+                onSelectTable={vi.fn()}
+                selectedTableId="sig"
+                tables={[named]}
+            />
+        )
+
+        await userEvent.hover(screen.getByText('Region'))
+
+        expect(await screen.findByText('Region (String state)')).toBeInTheDocument()
+    })
+
     it('draws a table that takes no part in the rules apart from the others', () => {
         const switchedOff = { ...tables[0], id: 'off', name: 'Retired', active: false } as ModuleTable
 

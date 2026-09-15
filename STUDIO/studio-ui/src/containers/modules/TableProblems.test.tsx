@@ -64,6 +64,91 @@ describe('TableProblems', () => {
         expect(screen.queryByTestId('table-message-1-edit')).toBeNull()
     })
 
+    it('marks the piece of the cell a message is about', () => {
+        const raised: ProjectStatusDetailedMessage[] = [
+            {
+                ...message(1, 'ERROR', 'Identifier bonuss is not found'),
+                location: { type: 'table', cell: 'D9', start: 11, end: 17 },
+            },
+            { ...message(2, 'ERROR', 'Cannot parse the module'), location: { type: 'table', cell: 'D9' } },
+        ]
+
+        // The rule is what the cell says, and the screen holds the cell: the message names only the piece.
+        render(<TableProblems cellText={() => '=Premium * bonuss / 100'} messages={raised} />)
+
+        expect(screen.getByTestId('table-message-1-code')).toHaveTextContent('=Premium * bonuss / 100')
+        expect(screen.getByTestId('table-message-1-code-marked')).toHaveTextContent('bonuss')
+        // A message about no part of the cell in particular marks none of it.
+        expect(screen.queryByTestId('table-message-2-code')).toBeNull()
+    })
+
+    it('shows no rule where the screen does not hold the cell', () => {
+        const raised: ProjectStatusDetailedMessage[] = [{
+            ...message(1, 'ERROR', 'Identifier bonuss is not found'),
+            location: { type: 'table', cell: 'D9', start: 11, end: 17 },
+        }]
+
+        render(<TableProblems messages={raised} />)
+
+        expect(screen.queryByTestId('table-message-1-code')).toBeNull()
+    })
+
+    it('reads the stack trace behind a message only when the reader opens it', async () => {
+        const onStacktrace = vi.fn().mockResolvedValue('org.openl.OpenLRuntimeException: boom\n\tat Rules.java:1')
+        const raised: ProjectStatusDetailedMessage[] = [
+            { ...message(1, 'ERROR', 'Cannot run the rule'), stacktrace: true },
+            message(2, 'ERROR', 'Identifier is not found'),
+        ]
+        render(<TableProblems messages={raised} onStacktrace={onStacktrace} />)
+
+        // A trace runs to thousands of characters, so nothing is read until the reader asks for it.
+        expect(onStacktrace).not.toHaveBeenCalled()
+        // A message carrying no trace offers none.
+        expect(screen.queryByTestId('table-message-2-stacktrace-toggle')).toBeNull()
+
+        await userEvent.click(screen.getByTestId('table-message-1-stacktrace-toggle'))
+
+        expect(onStacktrace).toHaveBeenCalledWith(raised[0])
+        expect(await screen.findByTestId('table-message-1-stacktrace')).toHaveTextContent('at Rules.java:1')
+
+        await userEvent.click(screen.getByTestId('table-message-1-stacktrace-toggle'))
+
+        expect(screen.queryByTestId('table-message-1-stacktrace')).toBeNull()
+    })
+
+    it('draws only the head of a long stack trace until the reader asks for the rest', async () => {
+        const deep = Array.from({ length: 200 }, (_, at) => `\tat org.openl.Rules.step${at}(Rules.java:${at})`)
+        const onStacktrace = vi.fn().mockResolvedValue(`java.lang.RuntimeException: boom\n${deep.join('\n')}`)
+        render(<TableProblems
+            messages={[{ ...message(1, 'ERROR', 'Cannot run the rule'), stacktrace: true }]}
+            onStacktrace={onStacktrace}
+        />)
+
+        await userEvent.click(screen.getByTestId('table-message-1-stacktrace-toggle'))
+
+        // Two hundred lines put on screen whole are laid out and painted again on every frame of a scroll.
+        const shown = await screen.findByTestId('table-message-1-stacktrace')
+        expect(shown).toHaveTextContent('step0')
+        expect(shown).not.toHaveTextContent('step199')
+
+        await userEvent.click(screen.getByRole('button', { name: 'browser.compile.show_more_text' }))
+
+        expect(screen.getByTestId('table-message-1-stacktrace')).toHaveTextContent('step199')
+    })
+
+    it('says so when the stack trace cannot be read', async () => {
+        const onStacktrace = vi.fn().mockRejectedValue(new Error('gone'))
+        render(<TableProblems
+            messages={[{ ...message(1, 'ERROR', 'Cannot run the rule'), stacktrace: true }]}
+            onStacktrace={onStacktrace}
+        />)
+
+        await userEvent.click(screen.getByTestId('table-message-1-stacktrace-toggle'))
+
+        expect(await screen.findByTestId('table-message-1-stacktrace'))
+            .toHaveTextContent('browser.compile.stacktrace_failed')
+    })
+
     it('folds away, and stays folded for the next table', async () => {
         const { unmount } = render(<TableProblems messages={[message(1, 'ERROR', 'Identifier is not found')]} />)
         expect(screen.getByTestId('table-problems-body')).toBeInTheDocument()

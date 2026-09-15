@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useUserStore } from '../../store'
 import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, Input, Segmented, Select, Tooltip, Tree } from 'antd'
-import { FileExcelOutlined, FilterOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, FileExcelOutlined, FilterOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import type { ModuleInfo } from '../../services/modules'
+import { COMPILE_COLORS } from '../projects/projectsTheme'
 import { useSharedStyles } from '../projects/sharedStyles'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { groupIcon, tableIcon } from './tableIcons'
@@ -69,12 +70,38 @@ const useStyles = createStyles(({ css, token }) => ({
     state: css`
         padding: 12px 16px;
     `,
+    /** A table the compilation raised errors about, named the way the Editor named it: in the error colour. */
+    broken: css`
+        color: ${COMPILE_COLORS.errors};
+    `,
+    /** How many errors the table raised, beside its name — the count the Editor put there. */
+    errors: css`
+        margin-left: ${token.marginXXS}px;
+        color: ${COMPILE_COLORS.errors};
+        font-size: ${token.fontSizeSM}px;
+    `,
+    /** Holds the mark over the table's own icon, which the tree draws in a box of its own width. */
+    marked: css`
+        position: relative;
+    `,
+    /**
+     * The mark on a table some test exercises, in the corner of that table's icon, as the Editor drew it.
+     * It sits over the icon rather than beside it: the tree gives a row one icon's width, and a second glyph
+     * on that line would push the name out of place.
+     */
+    tested: css`
+        position: absolute;
+        right: -2px;
+        bottom: 0;
+        color: ${COMPILE_COLORS.ok};
+        font-size: ${token.fontSizeSM - 3}px;
+    `,
 }))
 
 /** One node as the tree draws it. */
 interface TreeDataNode {
     key: string
-    title: string
+    title: React.ReactNode
     icon: React.ReactNode
     selectable: boolean
     /** Set on a row the tree draws apart — a table that takes no part in the rules. */
@@ -83,14 +110,50 @@ interface TreeDataNode {
     children: TreeDataNode[]
 }
 
-/** One node of the tree as Ant Design draws it, with the class a switched-off table is drawn faint in. */
-const toTreeNode = (node: TableNode, inactive: string): TreeDataNode => ({
+/** What a row is called, and what the compilation made of the table it names. */
+const nodeTitle = (node: TableNode, styles: TreeStyles): React.ReactNode => {
+    const table = node.table
+    if (table === undefined) {
+        return node.title
+    }
+    const errors = table.errors ?? 0
+    const named = (
+        <>
+            <span className={errors > 0 ? styles.broken : undefined}>{node.title}</span>
+            {errors > 0 && <span className={styles.errors} data-testid="module-table-errors">{errors}</span>}
+        </>
+    )
+    // The full signature is what the Editor showed on a node, so a name cut short still says what it is.
+    return <Tooltip title={table.signature ?? table.displayName ?? table.name}>{named}</Tooltip>
+}
+
+/** The classes the tree draws a table's state in. */
+interface TreeStyles {
+    inactive: string
+    broken: string
+    errors: string
+    marked: string
+    tested: string
+}
+
+/** One node of the tree as Ant Design draws it, with what the compilation made of the table it names. */
+const toTreeNode = (node: TableNode, styles: TreeStyles): TreeDataNode => ({
     key: node.table ? node.table.id : node.key,
-    title: node.title,
-    icon: node.table ? tableIcon(node.table.kind) : groupIcon(node.groupedBy),
+    title: nodeTitle(node, styles),
+    icon: node.table
+        ? (
+            <span
+                className={styles.marked}
+                data-testid={node.table.hasTests === true ? 'module-table-tested' : undefined}
+            >
+                {tableIcon(node.table.kind)}
+                {node.table.hasTests === true && <CheckCircleFilled className={styles.tested} />}
+            </span>
+        )
+        : groupIcon(node.groupedBy),
     selectable: node.table !== undefined,
-    ...(node.table?.active === false ? { className: inactive, 'data-testid': 'module-table-inactive' } : {}),
-    children: node.children.map(child => toTreeNode(child, inactive)),
+    ...(node.table?.active === false ? { className: styles.inactive, 'data-testid': 'module-table-inactive' } : {}),
+    children: node.children.map(child => toTreeNode(child, styles)),
 })
 
 /** The keys of the groups on the way down to the given table, so only that branch stands open. */
@@ -206,7 +269,14 @@ export const ModuleTablesTree = ({
 
     // Built once per tree: the rail redraws on every status the compilation pushes and on every step of a
     // drag, and a module of hundreds of tables would be rebuilt, icons and all, each time.
-    const treeData = useMemo(() => nodes.map(node => toTreeNode(node, styles.inactive)), [nodes, styles.inactive])
+    const marks = useMemo(() => ({
+        inactive: styles.inactive,
+        broken: styles.broken,
+        errors: styles.errors,
+        marked: styles.marked,
+        tested: styles.tested,
+    }), [styles.inactive, styles.broken, styles.errors, styles.marked, styles.tested])
+    const treeData = useMemo(() => nodes.map(node => toTreeNode(node, marks)), [nodes, marks])
 
     const moduleNodes = useMemo(() => modules.map(module => ({
         key: module.name,

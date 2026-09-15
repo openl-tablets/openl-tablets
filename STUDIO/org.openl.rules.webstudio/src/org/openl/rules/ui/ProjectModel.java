@@ -1340,6 +1340,9 @@ public class ProjectModel {
      * <p>Compared by what they name rather than by being the same object: the project descriptors are resolved
      * again whenever the workspace is refreshed, so the module a request asks for is a new object every time —
      * and taking it for another module would compile the open one again on every read.
+     *
+     * <p>Says nothing about the repository the project was read from — two repositories may each hold a project
+     * of that name. The session knows which one it is reading and tells them apart itself.
      */
     static boolean isSameModule(Module one, Module other) {
         return one != null && other != null
@@ -1464,6 +1467,7 @@ public class ProjectModel {
             ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
             this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
                 Throwable failure = null;
+                var stopped = false;
                 synchronized (this) {
                     if (compilationCancelled) {
                         // The reader stopped the compilation while this load was on its way. What was built
@@ -1472,22 +1476,28 @@ public class ProjectModel {
                         // interruption, and the empty class it returns would replace both. The project is not
                         // marked as compiled through either, because it is not.
                         this.compilationInProgress = false;
-                        return;
+                        stopped = true;
+                    } else {
+                        try {
+                            this.compiledOpenClass = this.validate(projectDescriptor);
+                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                    .getMetaInfo();
+                            getModuleSyntaxNodesByProject(projectDescriptor.getName())
+                                    .add(metaInfo1.getXlsModuleNode());
+                            redraw();
+                        } catch (Exception | LinkageError e) {
+                            onCompilationFailed(e);
+                            failure = e;
+                        }
+                        this.projectCompilationCompleted = compiledDependency.getDependency();
+                        this.compilationInProgress = false;
                     }
-                    try {
-                        this.compiledOpenClass = this.validate(projectDescriptor);
-                        XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                .getMetaInfo();
-                        getModuleSyntaxNodesByProject(projectDescriptor.getName()).add(metaInfo1.getXlsModuleNode());
-                        redraw();
-                    } catch (Exception | LinkageError e) {
-                        onCompilationFailed(e);
-                        failure = e;
-                    }
-                    this.projectCompilationCompleted = compiledDependency.getDependency();
-                    this.compilationInProgress = false;
                 }
-                if (failure != null) {
+                if (stopped) {
+                    // The cycle ends however the compilation ended, a stop included: a caller waiting on it
+                    // would otherwise wait for something nothing is going to finish.
+                    cycle.future().cancel(false);
+                } else if (failure != null) {
                     cycle.future().completeExceptionally(failure);
                 } else {
                     cycle.future().complete(null);

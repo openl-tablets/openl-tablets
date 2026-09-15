@@ -26,6 +26,8 @@ export interface RawTableCell {
     value?: string | number | boolean | null
     /** The formula the cell was written with, as Excel writes it (`=B2*C2`); absent for a plain value */
     formula?: string
+    /** The note a reader left on the cell in Excel; absent when the cell carries none */
+    comment?: string
     /** Number of columns this cell spans (>= 2), when merged */
     colspan?: number
     /** Number of rows this cell spans (>= 2), when merged */
@@ -210,6 +212,10 @@ export interface ModuleTable extends ProjectTable {
     overloadGroup?: string
     /** `false` on a table switched off by the `active` property, which takes no part in the rules. */
     active?: boolean
+    /** How many errors the compilation raised about this table; absent when it raised none. */
+    errors?: number
+    /** `true` when a test table exercises this one; absent when nothing tests it. */
+    hasTests?: boolean
     /** Module the table is written in; answered by a search that spans more than the module it was asked through. */
     module?: string
     /** Name of the project that module belongs to, answered with the module. */

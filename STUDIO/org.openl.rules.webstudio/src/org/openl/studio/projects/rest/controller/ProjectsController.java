@@ -627,6 +627,18 @@ public class ProjectsController {
         return projectService.getTableEditors(project, tableId, startRow, maxRows, module);
     }
 
+    @GetMapping(value = "/{projectId}/messages/{messageId}/stacktrace", produces = MediaType.TEXT_PLAIN_VALUE)
+    @Operation(summary = "projects.message.stacktrace.summary", description = "projects.message.stacktrace.desc")
+    public String getMessageStacktrace(@ProjectId @PathVariable("projectId") RulesProject project,
+                                       @PathVariable("messageId")
+                                       @Parameter(description = "projects.message.stacktrace.param.id.desc")
+                                       long messageId,
+                                       @RequestParam(value = "module", required = false)
+                                       @Parameter(description = "projects.table.get.param.module.desc")
+                                       String module) {
+        return projectService.getMessageStacktrace(project, messageId, module);
+    }
+
     @GetMapping("/{projectId}/tables/{tableId}/input")
     @Operation(summary = "projects.table.input.summary", description = "projects.table.input.desc")
     public TableInputView getTableInput(@ProjectId @PathVariable("projectId") RulesProject project,

@@ -20,6 +20,16 @@ export const useStyles = createStyles(({ css, token }) => ({
         outline: 2px solid ${token.colorPrimary};
         outline-offset: -2px;
     `,
+    /**
+     * The cell a compilation message was raised against, outlined the way the old editor outlined it.
+     *
+     * <p>A reader arriving from a message lands on a table of any size; the mark is what tells them which cell
+     * the message was about.
+     */
+    raised: css`
+        outline: 2px solid ${token.colorError};
+        outline-offset: -2px;
+    `,
     /** A cell written since the table was read, so the reader sees what is waiting to be saved. */
     touched: css`
         box-shadow: inset 0 0 0 100vmax ${token.colorWarningBg};

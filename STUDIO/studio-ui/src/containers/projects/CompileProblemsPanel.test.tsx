@@ -183,6 +183,32 @@ describe('CompileProblemsPanel', () => {
         expect(navigate).toHaveBeenCalledWith('/projects/p9/modules/Bank%20Rating?table=table-9')
     })
 
+    it('sends the reader to the cell the problem was raised against', () => {
+        render(<CompileProblemsPanel
+            project={{
+                ...base,
+                compileStatus: status([{
+                    id: 7,
+                    severity: 'ERROR' as const,
+                    summary: 'Identifier is not found',
+                    stacktrace: false,
+                    location: {
+                        type: 'table' as const,
+                        id: 'table-9',
+                        module: 'Bank Rating',
+                        projectId: 'p9',
+                        cell: 'D101',
+                    },
+                }], 'errors'),
+            }}
+        />)
+
+        fireEvent.click(screen.getByTestId('compile-message-7'))
+
+        // The table opens with that cell marked, the way the old editor marked it.
+        expect(navigate).toHaveBeenCalledWith('/projects/p9/modules/Bank%20Rating?table=table-9&errorCell=D101')
+    })
+
     it('keeps the reader where they are while a module is being compiled', () => {
         render(<CompileProblemsPanel
             project={{

@@ -18,7 +18,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
         "project": "EPBDS-15409",
         "module": "Main",
-        "cell": "C26"
+        "cell": "C26",
+        "start": 2,
+        "end": 15
       },
       "stacktrace": true
     },
@@ -33,7 +35,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
         "project": "EPBDS-15409",
         "module": "Main",
-        "cell": "C27"
+        "cell": "C27",
+        "start": 18,
+        "end": 33
       },
       "stacktrace": true
     },
@@ -48,7 +52,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
         "project": "EPBDS-15409",
         "module": "Main",
-        "cell": "B26"
+        "cell": "B26",
+        "start": 15,
+        "end": 43
       },
       "stacktrace": true
     }

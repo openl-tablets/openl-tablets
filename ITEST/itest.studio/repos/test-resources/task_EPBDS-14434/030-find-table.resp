@@ -13,6 +13,7 @@ Content-Type: application/json
       "file": "EPBDS-14434/EPBDS-14434.xlsx",
       "sheet": "Configs",
       "pos": "B2:E18",
+      "errors": 1,
       "module": "EPBDS-14434",
       "project": "EPBDS-14434",
       "projectId": "ZGVzaWduOkVQQkRTLTE0NDM0"

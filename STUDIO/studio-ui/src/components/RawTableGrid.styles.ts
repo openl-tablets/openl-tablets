@@ -11,6 +11,8 @@ export const useStyles = createStyles(({ css, token }) => ({
      */
     table: css`
         border-collapse: collapse;
+        /* The table takes the focus so the keyboard reaches it; the picked cell is what shows where it is. */
+        outline: none;
         width: max-content;
         max-width: none;
         table-layout: auto;
@@ -33,6 +35,29 @@ export const useStyles = createStyles(({ css, token }) => ({
         white-space: pre-wrap;
         overflow-wrap: anywhere;
         max-width: 420px;
+    `,
+    /**
+     * A cell a reader left a note on in Excel, marked in its corner the way the old editor marked it.
+     *
+     * <p>The mark is drawn by the cell itself rather than by an image, so it costs the page nothing.
+     */
+    commented: css`
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            border-top: 6px solid ${token.colorError};
+            border-left: 6px solid transparent;
+        }
+    `,
+    /** The note itself, kept to the width the old editor gave it and to the lines its author typed. */
+    note: css`
+        display: block;
+        max-width: 160px;
+        white-space: pre-line;
     `,
     /**
      * A piece of a cell's text the compiler resolved.

@@ -2,4 +2,53 @@ POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUz
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
-{"actions":[{"operation":"update","target":{"type":"cell","row":5,"column":2,"value":"Buenos Dias"}},{"operation":"insert","target":{"type":"rows","position":6,"cells":[[{"value":6},{"value":9},{"value":"Good Early Morning"}]]}},{"operation":"update","target":{"type":"cell","row":7,"column":2,"value":"Buenas Tardes"}},{"operation":"delete","target":{"type":"rows","position":9,"count":1}}]}
+{
+  "actions": [
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 5,
+        "column": 2,
+        "value": "Buenos Dias"
+      }
+    },
+    {
+      "operation": "insert",
+      "target": {
+        "type": "rows",
+        "position": 6,
+        "cells": [
+          [
+            {
+              "value": 6
+            },
+            {
+              "value": 9
+            },
+            {
+              "value": "Good Early Morning"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 7,
+        "column": 2,
+        "value": "Buenas Tardes"
+      }
+    },
+    {
+      "operation": "delete",
+      "target": {
+        "type": "rows",
+        "position": 9,
+        "count": 1
+      }
+    }
+  ]
+}

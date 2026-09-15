@@ -66,27 +66,42 @@ export const parseRange = (text: string): RangeBounds => {
     return exact ? { ...NO_RANGE, from: exact[1] ?? '', to: exact[1] ?? '' } : NO_RANGE
 }
 
+/** The four shapes a range takes, which the reader picks between as the old editor let them. */
+export type RangeShape = 'at-least' | 'at-most' | 'between' | 'exact'
+
+/**
+ * The shape the bounds have: between two of them, above one, below one, or exactly one value.
+ *
+ * <p>Bounds that are no range at all read as "above one", which is the shape an empty panel offers first.
+ */
+export const shapeOf = (bounds: RangeBounds): RangeShape => {
+    const lower = bounds.from.trim()
+    const upper = bounds.to.trim()
+    if (lower !== '' && upper !== '') {
+        return lower === upper && bounds.fromIncluded && bounds.toIncluded ? 'exact' : 'between'
+    }
+    return upper !== '' ? 'at-most' : 'at-least'
+}
+
 /**
  * The text the bounds are written into the cell as, or an empty string when they are no range at all.
  *
  * <p>The wording is the one OpenL itself prints, so a cell written here reads back exactly as it was meant.
  */
-export const formatRange = ({ from, to, fromIncluded, toIncluded }: RangeBounds): string => {
-    const lower = from.trim()
-    const upper = to.trim()
-    if (lower !== '' && upper !== '') {
-        if (lower === upper && fromIncluded && toIncluded) {
+export const formatRange = (bounds: RangeBounds): string => {
+    const lower = bounds.from.trim()
+    const upper = bounds.to.trim()
+    switch (shapeOf(bounds)) {
+        case 'exact':
             return lower
-        }
-        return `${fromIncluded ? '[' : '('}${lower}..${upper}${toIncluded ? ']' : ')'}`
+        case 'between':
+            return `${bounds.fromIncluded ? '[' : '('}${lower}..${upper}${bounds.toIncluded ? ']' : ')'}`
+        case 'at-most':
+            return `${bounds.toIncluded ? '<=' : '<'} ${upper}`
+        case 'at-least':
+        default:
+            return lower === '' ? '' : `${bounds.fromIncluded ? '>=' : '>'} ${lower}`
     }
-    if (lower !== '') {
-        return `${fromIncluded ? '>=' : '>'} ${lower}`
-    }
-    if (upper !== '') {
-        return `${toIncluded ? '<=' : '<'} ${upper}`
-    }
-    return ''
 }
 
 /** Why the bounds do not make a range, or null when they do. */

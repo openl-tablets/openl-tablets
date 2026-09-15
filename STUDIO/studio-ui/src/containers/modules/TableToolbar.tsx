@@ -215,8 +215,9 @@ export const TableToolbar = ({
     const [tests, setTests] = useState<TableTest[]>([])
     // What this table exercises, which only a test or a run table does.
     const [targets, setTargets] = useState<TableTarget[]>([])
-    // The table whose targets are already known, so the question is not asked about it a second time.
-    const named = useRef<string | null>(null)
+    // What a table was answered to exercise, kept so the question is not asked about it a second time — and so
+    // the answer comes back with the table when the reader returns to it.
+    const named = useRef<{ id: string, targets: TableTarget[] } | null>(null)
 
     useEffect(() => {
         // Only a table the rules can call is covered by tests; a test table of its own, a datatype or a data
@@ -257,7 +258,9 @@ export const TableToolbar = ({
         // The table it exercises may be written in a module compiled after this one, so the question is asked
         // again when the project is compiled through — but only while it went unanswered. Once the table is
         // named, compiling the rest of the project cannot name it differently.
-        if (named.current === table.id) {
+        const answered = named.current
+        if (answered !== null && answered.id === table.id) {
+            setTargets(answered.targets)
             return
         }
         let dropped = false
@@ -267,7 +270,7 @@ export const TableToolbar = ({
                 if (!dropped) {
                     setTargets(found)
                     if (found.length > 0) {
-                        named.current = table.id
+                        named.current = { id: table.id, targets: found }
                     }
                 }
             })

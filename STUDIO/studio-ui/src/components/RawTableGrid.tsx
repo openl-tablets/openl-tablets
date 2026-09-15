@@ -1,4 +1,5 @@
 import React from 'react'
+import { Tooltip } from 'antd'
 import type { RawTableCell } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { useStyles } from './RawTableGrid.styles'
@@ -28,6 +29,15 @@ interface RawTableGridProps {
     onPickCell?: ((row: number, column: number) => void) | undefined
     /** Told which cell the reader opened, by double-clicking it. */
     onOpenCell?: ((row: number, column: number) => void) | undefined
+    /**
+     * What the keyboard does with the table: moving between cells, opening one, writing into one.
+     *
+     * <p>Given only where the table can be written. The table takes the focus so that the keys reach it and
+     * nothing else — a screen full of other fields keeps its own.
+     */
+    onKeyDown?: ((event: React.KeyboardEvent<HTMLTableElement>) => void) | undefined
+    /** The table itself, so the screen can hand it the focus once a cell is picked. */
+    tableRef?: React.Ref<HTMLTableElement> | undefined
     testId?: string | undefined
 }
 
@@ -113,32 +123,54 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     onOpenUsage,
     onPickCell,
     onOpenCell,
+    onKeyDown,
+    tableRef,
     testId,
 }) => {
     const { styles, cx } = useStyles()
 
     return (
-        <table className={styles.table} data-testid={testId}>
+        <table
+            ref={tableRef}
+            className={styles.table}
+            data-testid={testId}
+            onKeyDown={onKeyDown}
+            tabIndex={onKeyDown === undefined ? undefined : -1}
+        >
             <tbody>
                 {rows.map((row, rowIndex) => (
                     <tr key={rowKey(row, rowIndex)}>
                         {row.map((cell, columnIndex) => {
                             if (cell.covered) return null
                             const decoration = decorate?.(cell, rowIndex, columnIndex)
-                            return (
+                            const key = cell.cell ?? `c${columnIndex}`
+                            const drawn = (
                                 <td
-                                    key={cell.cell ?? `c${columnIndex}`}
-                                    className={cx(styles.cell, decoration?.className)}
                                     colSpan={cell.colspan}
                                     data-cell={cell.cell}
                                     onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
                                     onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                     rowSpan={cell.rowspan}
                                     style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
+                                    className={cx(styles.cell, cell.comment !== undefined && styles.commented,
+                                        decoration?.className)}
                                 >
                                     {decoration?.content ?? cellText(cell, !!formulas, onOpenUsage)}
                                 </td>
                             )
+                            // The note is shown while the cell is read. A cell the screen has taken over — one
+                            // being written into — shows what the screen put there, not a note over the top of it.
+                            return cell.comment === undefined || decoration?.content !== undefined
+                                ? <React.Fragment key={key}>{drawn}</React.Fragment>
+                                : (
+                                    <Tooltip
+                                        key={key}
+                                        placement="rightBottom"
+                                        title={<span className={styles.note}>{cell.comment}</span>}
+                                    >
+                                        {drawn}
+                                    </Tooltip>
+                                )
                         })}
                     </tr>
                 ))}

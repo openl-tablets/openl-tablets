@@ -167,19 +167,27 @@ export const blankLine = (state: EditedTable): 'row' | 'column' | null => {
     return addedColumn ? 'column' : null
 }
 
-/** The columns the reader took away and the ones they added, in an order the table can take them. */
-const columnEdits = (width: number, state: EditedTable): TableEdit[] => {
+/** The lines the reader took away, highest first, so taking one away does not move the ones before it. */
+const lineDeletes = (count: number, ids: string[], type: 'rows' | 'columns'): TableEdit[] => {
     const edits: TableEdit[] = []
-    const kept = new Set(state.columnIds.map(readAt))
-    // Highest position first, so taking one away does not move the ones before it.
-    for (let column = width - 1; column >= 0; column--) {
-        if (!kept.has(column)) {
-            edits.push({ operation: 'delete', target: { type: 'columns', position: column, count: 1 } })
+    const kept = new Set(ids.map(readAt))
+    for (let line = count - 1; line >= 0; line--) {
+        if (!kept.has(line)) {
+            edits.push(type === 'rows'
+                ? { operation: 'delete', target: { type: 'rows', position: line, count: 1 } }
+                : { operation: 'delete', target: { type: 'columns', position: line, count: 1 } })
         }
     }
+    return edits
+}
+
+/** The columns the reader added, each carrying a cell for every row the table has by then. */
+const columnInserts = (state: EditedTable): TableEdit[] => {
+    const edits: TableEdit[] = []
     state.columnIds.forEach((id, column) => {
         if (readAt(id) === null) {
-            // Only the rows the table already had are there at this point; the added ones come with their own.
+            // The rows the reader took away are gone by now and the ones they added are not there yet, so the
+            // column is as tall as the rows the table already had and kept — which is what the table is then.
             const cells = state.rows
                 .filter((_, row) => readAt(state.rowIds[row] ?? '') !== null)
                 .map(row => written(row[column]))
@@ -189,15 +197,9 @@ const columnEdits = (width: number, state: EditedTable): TableEdit[] => {
     return edits
 }
 
-/** The rows the reader took away and the ones they added, each carrying the values it ended with. */
-const rowEdits = (height: number, state: EditedTable): TableEdit[] => {
+/** The rows the reader added, each carrying the values it ended with — the added columns among them. */
+const rowInserts = (state: EditedTable): TableEdit[] => {
     const edits: TableEdit[] = []
-    const kept = new Set(state.rowIds.map(readAt))
-    for (let row = height - 1; row >= 0; row--) {
-        if (!kept.has(row)) {
-            edits.push({ operation: 'delete', target: { type: 'rows', position: row, count: 1 } })
-        }
-    }
     state.rowIds.forEach((id, row) => {
         if (readAt(id) === null) {
             edits.push({
@@ -253,9 +255,14 @@ const styleEdits = (state: EditedTable): TableEdit[] => {
  * <p>A cell written and written back to what it held produces nothing at all.
  */
 export const compile = (original: RawTableCell[][], state: EditedTable): TableEdit[] => [
-    // Columns first: taking one away or adding one moves no row, so every row is addressed the same after it.
-    ...columnEdits(original[0]?.length ?? 0, state),
-    ...rowEdits(original.length, state),
+    // What was taken away goes first, so nothing added has to be addressed around a line that is about to go.
+    // Rows are taken away before a column is added because an added column carries a cell per row, and the
+    // table has to be the height that column was built for.
+    ...lineDeletes(original[0]?.length ?? 0, state.columnIds, 'columns'),
+    ...lineDeletes(original.length, state.rowIds, 'rows'),
+    ...columnInserts(state),
+    // An added row carries a cell per column, the added ones among them, so it goes in once they are there.
+    ...rowInserts(state),
     ...valueEdits(original, state),
     ...styleEdits(state),
 ]

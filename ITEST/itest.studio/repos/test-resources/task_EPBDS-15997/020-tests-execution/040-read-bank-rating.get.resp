@@ -18,7 +18,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTc6MGFkMzFjMzIxY2E3ZjMwODUxYThmMzMwZWMzMDBjYzNmNmQ5NTBlMTI1MWRkMGUxZmNlMjljMjY3MzZjOWViZQ==",
         "project": "EPBDS-15997",
         "module": "Bank Rating",
-        "cell": "G21"
+        "cell": "G21",
+        "start": 16,
+        "end": 28
       },
       "stacktrace": true
     }

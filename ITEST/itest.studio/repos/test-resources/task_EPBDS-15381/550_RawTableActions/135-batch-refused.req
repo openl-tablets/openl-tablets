@@ -2,4 +2,24 @@ POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUz
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
-{"actions":[{"operation":"update","target":{"type":"cell","row":5,"column":2,"value":"Never Written"}},{"operation":"delete","target":{"type":"rows","position":99,"count":1}}]}
+{
+  "actions": [
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 5,
+        "column": 2,
+        "value": "Never Written"
+      }
+    },
+    {
+      "operation": "delete",
+      "target": {
+        "type": "rows",
+        "position": 99,
+        "count": 1
+      }
+    }
+  ]
+}

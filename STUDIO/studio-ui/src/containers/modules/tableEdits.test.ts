@@ -176,6 +176,41 @@ describe('tableEdits', () => {
             }])
         })
 
+        it('takes a row away before it adds a column, so the column is as tall as the table', () => {
+            const edits = sent({ kind: 'removeRow', at: 2 }, { kind: 'insertColumn', at: 1 }, write(0, 1, 'Note'))
+
+            // The table takes a column that carries a cell per row it has at that moment: the row that went is
+            // already gone, so the column is one shorter than the table was read as.
+            expect(edits).toEqual([
+                { operation: 'delete', target: { type: 'rows', position: 2, count: 1 } },
+                {
+                    operation: 'insert',
+                    target: {
+                        type: 'columns',
+                        position: 1,
+                        cells: [[{ value: 'Note' }, { value: '' }]],
+                    },
+                },
+            ])
+        })
+
+        it('adds a row once the columns it carries are there', () => {
+            const edits = sent({ kind: 'insertColumn', at: 1 }, write(0, 1, 'Note'),
+                { kind: 'insertRow', at: 1 }, write(1, 0, 'new'))
+
+            // The added row carries a cell for the added column too, so it goes in after that column.
+            expect(edits[0]?.operation).toBe('insert')
+            expect((edits[0] as { target: { type: string } }).target.type).toBe('columns')
+            expect(edits[1]).toEqual({
+                operation: 'insert',
+                target: {
+                    type: 'rows',
+                    position: 1,
+                    cells: [[{ value: 'new' }, { value: '' }, { value: '' }]],
+                },
+            })
+        })
+
         it('sends the styling the reader asked for, and only that', () => {
             expect(sent({ kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } })).toEqual([
                 {
