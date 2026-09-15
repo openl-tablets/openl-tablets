@@ -199,6 +199,87 @@ describe('TableEditor', () => {
         ], 'Claims'))
     })
 
+    it('opens a yes-or-no cell ticked on any of the words OpenL reads as true', async () => {
+        const said: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Boolean on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 'yes' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'boolean' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: said })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('yes'))
+
+        // 'yes' is the word the workbook was written with, and the Editor read it as ticked.
+        expect(screen.getByTestId('table-cell-input')).toBeChecked()
+    })
+
+    it('writes a yes-or-no cell as the word OpenL writes, whatever word it held', async () => {
+        const said: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Boolean on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 'yes' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'boolean' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: said })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('yes'))
+        await userEvent.click(screen.getByTestId('table-cell-input'))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: 'false' } },
+        ], 'Claims'))
+    })
+
+    it('takes the whole list of choices at once and says so, as the Editor did', async () => {
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'multiselect', choices: ['a', 'b'], displayValues: ['Alpha', 'Beta'], separator: ',' }],
+            cells: [{ row: 1, column: 1, editor: 0 }],
+        })
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        await userEvent.click(await screen.findByText('browser.module.edit_select_all'))
+
+        // Everything is chosen now, so the same button offers to let it all go again.
+        expect(await screen.findByText('browser.module.edit_deselect_all')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('browser.module.edit_done'))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'a,b' } },
+        ], 'Claims'))
+    })
+
+    it('takes no date typed into the field, and empties it on Backspace', async () => {
+        const dated: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Date on)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: '2024-03-07' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        vi.mocked(getTableEditors).mockResolvedValue({
+            editors: [{ editor: 'date' }],
+            cells: [{ row: 1, column: 0, editor: 0 }],
+        })
+        draw({ rows: dated })
+        await userEvent.dblClick(screen.getByText('2024-03-07'))
+        const field = await screen.findByTestId('table-cell-input')
+
+        await userEvent.type(field, '12/25/2024')
+        expect(field).toHaveValue('2024-03-07') // the date is the calendar's to give
+
+        await userEvent.type(field, '{Backspace}')
+        expect(field).toHaveValue('')
+    })
+
     it('writes several numbers into an array cell, and lets nothing else in', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
             editors: [{ editor: 'array', separator: ',', entryEditor: 'integer', intOnly: true }],

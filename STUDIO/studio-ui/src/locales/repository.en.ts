@@ -488,6 +488,9 @@ i18next.addResourceBundle('en', 'repository', {
             edit_this_cell: 'Edit cell {{cell}}',
             edit_whole_table: 'Show every row of the table before adding a column: a column is added with a value for each row.',
             edit_pick_a_cell: 'Pick a cell first.',
+            edit_select_all: 'Select All',
+            edit_deselect_all: 'Deselect All',
+            edit_done: 'Done',
             edit_header_kept: 'The first row and the first column hold the table header, which is where OpenL '
                 + 'finds the table: nothing goes before them and neither is taken away.',
             edit_blank_row: 'A row you added is empty. A blank row splits the table, so fill in a cell or '
