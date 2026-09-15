@@ -133,6 +133,7 @@ import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
@@ -199,6 +200,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableVersionService tableVersionService;
     private final ProjectMetadataService metadataService;
     private final TableWritersFactory tableWritersFactory;
+    private final SystemPropertiesService systemPropertiesService;
     private final ApplicationEventPublisher eventPublisher;
     private final ProtectedBranchBypassService bypassService;
     private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
@@ -230,6 +232,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectMetadataService metadataService,
             TableWriterExecutor tableWriterExecutor,
             TableWritersFactory tableWritersFactory,
+            SystemPropertiesService systemPropertiesService,
             ApplicationEventPublisher eventPublisher,
             ProtectedBranchBypassService bypassService,
             ProjectIdentifierMapper projectIdentifierMapper,
@@ -254,6 +257,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.readers = readers;
         this.newBranchValidatorFactory = newBranchValidatorFactory;
         this.validationProvider = validationProvider;
+        this.systemPropertiesService = systemPropertiesService;
         this.tableCreatorService = tableCreatorService;
         this.tableCopyService = tableCopyService;
         this.tablePropertiesService = tablePropertiesService;
@@ -2367,6 +2371,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
+        writer.stampEditWith(systemPropertiesService.onEdit());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return writing(() -> tableWriterExecutor.executeWrite(writer, tableView));
     }
@@ -2387,6 +2392,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
+        writer.stampEditWith(systemPropertiesService.onEdit());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return writing(() -> tableWriterExecutor.executeAppend(writer, tableView));
     }
@@ -2412,6 +2418,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         requireGranted(project, BasePermission.WRITE);
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
+        writer.stampEditWith(systemPropertiesService.onEdit());
         getWebStudio().getCurrentProject().tryLockOrThrow();
         return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
     }

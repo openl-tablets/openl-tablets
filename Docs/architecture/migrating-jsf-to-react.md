@@ -418,6 +418,13 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   Refresh says so: `POST .../compile?reset=true` drops what was compiled and builds the module from the
   workbook once more. Without the flag the endpoint leaves a compiled module as it is, which is what opening a
   module means.
+- **A note about an edit rides in the same save as the edit.** An installation can ask for every table to
+  record who last changed it and when (`update.system.properties`, off by default) — information the
+  repository cannot give, because it knows files and a workbook holds dozens of tables. The Editor wrote that
+  note on every save; here it was written only when the table's *properties* were the thing being written, so
+  a table changed through its cells carried a note about some earlier edit — present and wrong, which is worse
+  than absent. The writers now take the note and write it in the pass that writes the change, so the two
+  cannot disagree and the workbook is saved once.
 - **A property is written where it is read, and the table's body stays out of it.** Table Details is the one
   place a property is edited, so it writes through a resource of its own —
   `PATCH /projects/{id}/tables/{tableId}/properties` — carrying only the values that changed: a property with a
