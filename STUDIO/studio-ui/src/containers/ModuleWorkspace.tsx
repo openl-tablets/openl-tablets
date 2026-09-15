@@ -25,7 +25,7 @@ import { useLoadGeneration } from '../hooks'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
-import { CompileDot, getCompileTooltip } from './projects/CompileIndicator'
+import { CompileDot, getCompileTooltip, isNoteworthyCompileState } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
 import { ValueText } from './projects/ValueText'
 import { BranchSwitcher } from './projects/BranchSwitcher'
@@ -746,18 +746,23 @@ export const ModuleWorkspace = () => {
                         )}
                         titleAfter={(
                             <>
-                                <CompileDot
-                                    showLabel
-                                    state={compilation.state}
-                                    testId="module-compile-state"
-                                    tooltip={getCompileTooltip(compilation.status, compilation.state, t)}
-                                    label={compilation.state === 'compiling' && compilation.total > 0
-                                        ? t('browser.module.compile_progress', {
-                                            compiled: compilation.compiled,
-                                            total: compilation.total,
-                                        })
-                                        : undefined}
-                                />
+                                {/* The same mark the project screens carry: nothing at all for a module that
+                                    compiled, and a coloured dot where it raised something. Only a compilation
+                                    under way says more, because how far it has come is worth reading. */}
+                                {isNoteworthyCompileState(compilation.state) && (
+                                    <CompileDot
+                                        showLabel={compilation.state === 'compiling'}
+                                        state={compilation.state}
+                                        testId="module-compile-state"
+                                        tooltip={getCompileTooltip(compilation.status, compilation.state, t)}
+                                        label={compilation.state === 'compiling' && compilation.total > 0
+                                            ? t('browser.module.compile_progress', {
+                                                compiled: compilation.compiled,
+                                                total: compilation.total,
+                                            })
+                                            : undefined}
+                                    />
+                                )}
                                 <Tooltip title={t('browser.module.refresh')}>
                                     <Button
                                         aria-label={t('browser.module.refresh')}
