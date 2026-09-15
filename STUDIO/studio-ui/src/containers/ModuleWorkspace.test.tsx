@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ModuleWorkspace } from './ModuleWorkspace'
 import { getModuleTables, getRawTable, listModules } from '../services/modules'
-import { getProject, setProjectStatus } from '../services/repositories'
+import { getProject, getProjects, setProjectStatus } from '../services/repositories'
 
 const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -35,6 +35,7 @@ vi.mock('../hooks', async () => ({
 
 vi.mock('../services/repositories', () => ({
     getProject: vi.fn(),
+    getProjects: vi.fn(),
     setProjectStatus: vi.fn(),
 }))
 
@@ -110,6 +111,13 @@ describe('ModuleWorkspace', () => {
             return Promise.resolve(undefined as never)
         })
         vi.mocked(listModules).mockResolvedValue([{ name: 'Bank Rating', path: 'rules/Bank Rating.xlsx' }])
+        vi.mocked(getProjects).mockResolvedValue({
+            content: [{ id: 'p1', name: 'Bank Rating' }, { id: 'p2', name: 'Car Rating' }],
+            pageNumber: 0,
+            pageSize: 2,
+            numberOfElements: 2,
+            total: 2,
+        } as never)
         vi.mocked(getModuleTables).mockResolvedValue([
             { id: 't-1', name: 'BankRating', kind: 'Rules', tableType: 'SimpleRules' },
         ] as never)
@@ -135,6 +143,32 @@ describe('ModuleWorkspace', () => {
         const mark = await screen.findByTestId('module-compile-state')
         expect(mark).toBeInTheDocument()
         expect(mark.textContent).toBe('')
+    })
+
+    it('opens the project screen when another project is picked, as the Editor did', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByTestId('crumb-project-trigger'))
+        await userEvent.click(await screen.findByText('Car Rating'))
+
+        // Which of its modules to read is the reader's to say, and the project screen is where they are listed.
+        expect(navigateMock).toHaveBeenCalledWith('/projects/p2')
+    })
+
+    it('opens another module of the project from the name in the header', async () => {
+        workspace.opened = true
+        vi.mocked(listModules).mockResolvedValue([
+            { name: 'Bank Rating' }, { name: 'Pricing' },
+        ] as never)
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByTestId('module-switcher-trigger'))
+        await userEvent.click(await screen.findByText('Pricing'))
+
+        expect(navigateMock).toHaveBeenCalledWith('/projects/p1/modules/Pricing')
     })
 
     it('reads the tables of the module of the project the address names', async () => {
