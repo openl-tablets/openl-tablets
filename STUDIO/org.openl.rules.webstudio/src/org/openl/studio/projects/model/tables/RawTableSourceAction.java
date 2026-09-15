@@ -30,7 +30,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
         @JsonSubTypes.Type(value = RawTableSourceAction.Delete.class, name = "delete"),
         @JsonSubTypes.Type(value = RawTableSourceAction.Update.class, name = "update"),
         @JsonSubTypes.Type(value = RawTableSourceAction.Merge.class, name = "merge"),
-        @JsonSubTypes.Type(value = RawTableSourceAction.Unmerge.class, name = "unmerge")
+        @JsonSubTypes.Type(value = RawTableSourceAction.Unmerge.class, name = "unmerge"),
+        @JsonSubTypes.Type(value = RawTableSourceAction.Style.class, name = "style")
 })
 public sealed interface RawTableSourceAction
         permits RawTableSourceAction.Append,
@@ -38,7 +39,8 @@ public sealed interface RawTableSourceAction
         RawTableSourceAction.Delete,
         RawTableSourceAction.Update,
         RawTableSourceAction.Merge,
-        RawTableSourceAction.Unmerge {
+        RawTableSourceAction.Unmerge,
+        RawTableSourceAction.Style {
 
     @Schema(name = "Append", description = "Adds one or more rows or columns to the end of the table.")
     record Append(@NotNull @Valid AppendTarget target) implements RawTableSourceAction {
@@ -62,6 +64,10 @@ public sealed interface RawTableSourceAction
 
     @Schema(name = "Unmerge", description = "Unmerges the merged cell that covers a position.")
     record Unmerge(@NotNull @Valid UnmergeTarget target) implements RawTableSourceAction {
+    }
+
+    @Schema(name = "Style", description = "Sets the styling of a rectangular range of cells.")
+    record Style(@NotNull @Valid StyleTarget target) implements RawTableSourceAction {
     }
 
 }

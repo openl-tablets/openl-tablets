@@ -994,7 +994,7 @@ describe('ProjectsHome row actions', () => {
     })
 
     it('hands branch sync to the shared merge dialog', async () => {
-        mockProjectSearch(single({ canManageBranches: true }))
+        mockProjectSearch(single({ canMerge: true }))
         await renderHome()
 
         await userEvent.click(screen.getByText('browser.sync'))

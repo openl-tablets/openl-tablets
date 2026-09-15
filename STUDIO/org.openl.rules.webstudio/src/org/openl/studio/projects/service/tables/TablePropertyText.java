@@ -28,7 +28,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
  * @author Vladyslav Pikus
  */
 @Slf4j
-final class TablePropertyText {
+public final class TablePropertyText {
 
     private TablePropertyText() {
     }
@@ -40,7 +40,7 @@ final class TablePropertyText {
      * @param value the value the table declares
      * @return the text the value is written as, or {@code null} when there is no value
      */
-    static @Nullable String format(String name, @Nullable Object value) {
+    public static @Nullable String format(String name, @Nullable Object value) {
         if (value == null) {
             return null;
         }
@@ -64,7 +64,7 @@ final class TablePropertyText {
      * @param text the text declared for it
      * @return the value it is read as, or the text itself when the property cannot be read from it
      */
-    static Object parse(String name, String text) {
+    public static Object parse(String name, String text) {
         var definition = TablePropertyDefinitionUtils.getPropertyByName(name);
         if (definition == null) {
             return text;

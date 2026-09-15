@@ -105,5 +105,9 @@ Content-Type: application/json
         "value": 0.7
       }
     ]
-  ]
+  ],
+  "headerHeight": 2,
+  "layout": {
+    "firstDataLine": 3
+  }
 }

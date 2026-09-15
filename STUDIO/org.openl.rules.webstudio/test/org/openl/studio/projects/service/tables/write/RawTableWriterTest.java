@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,11 +34,16 @@ import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
+import org.openl.studio.projects.model.tables.RawCellStyleInput;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableCellStyle;
+import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
@@ -77,6 +83,30 @@ class RawTableWriterTest {
     }
 
     @Test
+    void writesWhatTheInstallationNotesAboutTheEditIntoTheTableItself() {
+        var writer = new RawTableWriter(load(mainProject));
+        writer.stampEditWith(Map.of("modifiedBy", "admin"));
+
+        writer.apply(appendRow(row("double", "rate", "delta")));
+
+        // The note rides in the same save as the change it is about, so the table comes back carrying both.
+        var source = reload(mainProject);
+        assertEquals("properties", value(source, 1, 0));
+        assertEquals("modifiedBy", value(source, 1, 1));
+        assertEquals("admin", value(source, 1, 2));
+        assertEquals("delta", value(source, 5, 2));
+    }
+
+    @Test
+    void writesNoteOfAnEditWhereTheInstallationRecordsNothing() {
+        apply(appendRow(row("double", "rate", "delta")));
+
+        var source = reload(mainProject);
+        // Recording is off by default, and a table nobody asked to be stamped is left as its author wrote it.
+        assertEquals("String", value(source, 1, 0));
+    }
+
+    @Test
     void insertsRowAtPosition() {
         apply(insertRow(1, row("long", "id", "epsilon")));
 
@@ -87,6 +117,78 @@ class RawTableWriterTest {
         // the row that previously sat at index 1 is shifted down
         assertEquals("String", value(source, 2, 0));
         assertEquals("code", value(source, 2, 1));
+    }
+
+    @Test
+    void appliesActionsInTheOrderGivenEachSeeingWhatThePreviousLeft() {
+        apply(List.of(
+                insertRow(1, row("long", "id", "epsilon")),
+                updateCell(2, 2, "alpha-2"),
+                deleteRow(3)));
+
+        var source = reload(mainProject);
+        // one row added and one taken away, so the table is back to the height it started at
+        assertEquals(4, source.size());
+        assertEquals("id", value(source, 1, 1));
+        // the update addressed the row the insert had shifted down, not the one that stood there before it
+        assertEquals("code", value(source, 2, 1));
+        assertEquals("alpha-2", value(source, 2, 2));
+        // and the delete took the row the insert had shifted to index 3
+        assertEquals("hour", value(source, 3, 1));
+    }
+
+    @Test
+    void writesNothingWhenAnActionOfTheSequenceIsRefused() {
+        assertBadRequest(List.of(
+                updateCell(1, 2, "alpha-2"),
+                deleteRow(9)));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size());
+        // the edit that was accepted is not saved either: the sequence is one change
+        assertEquals("alpha", value(source, 1, 2));
+    }
+
+    @Test
+    void setsTheStylingOfEveryCellOfARange() {
+        apply(style(1, 0, 3, 2, new RawCellStyleInput("#ffff00", "#ff0000",
+                RawTableHorizontalAlign.CENTER, true, true, true, 2)));
+
+        var source = reloadStyled(mainProject);
+        var styled = styleOf(source, 1, 0);
+        assertEquals("#ffff00", styled.background());
+        assertEquals("#ff0000", styled.color());
+        assertEquals(RawTableHorizontalAlign.CENTER, styled.align());
+        assertEquals(Boolean.TRUE, styled.bold());
+        assertEquals(Boolean.TRUE, styled.italic());
+        assertEquals(Boolean.TRUE, styled.underline());
+        assertEquals(2, styled.indent().intValue());
+        // the far corner of the range carries it too
+        assertEquals("#ffff00", styleOf(source, 3, 1).background());
+        // and the column just outside the range is left as it was
+        assertNull(styleOf(source, 1, 2).background());
+        assertNull(styleOf(source, 1, 2).bold());
+    }
+
+    @Test
+    void leavesTheAttributesAStyleDoesNotNameAsTheyStand() {
+        apply(style(1, 1, 1, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
+        apply(style(1, 1, 1, 1, new RawCellStyleInput("#00ff00", null, null, null, null, null, null)));
+
+        var styled = styleOf(reloadStyled(mainProject), 1, 1);
+        assertEquals("#00ff00", styled.background());
+        // the second style named no font weight, so the bold the first one set is still there
+        assertEquals(Boolean.TRUE, styled.bold());
+    }
+
+    @Test
+    void rejectsAStyleThatNamesNoAttribute() {
+        assertBadRequest(style(1, 0, 1, 1, new RawCellStyleInput(null, null, null, null, null, null, null)));
+    }
+
+    @Test
+    void rejectsAStyleRangeReachingOutsideTheTable() {
+        assertBadRequest(style(3, 0, 2, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
     }
 
     @Test
@@ -419,6 +521,64 @@ class RawTableWriterTest {
         assertNull(source.get(1).getFirst().rowspan(), "a fully-contained merge must be removed, not left stale");
         assertNull(source.get(1).getFirst().covered());
         assertEquals("int", value(source, 1, 0));
+    }
+
+    @Test
+    void takesAwayTheFirstColumnAndKeepsTheHeaderBankedOverTheTable() {
+        // A table's header is one cell banked across every column, as OpenL writes it. Taking the first column
+        // away narrows the bank; the header stays where the engine looks for it.
+        apply(merge(0, 0, 1, 3));
+        apply(deleteColumn(0));
+
+        var source = reload(mainProject);
+        assertEquals(2, width(source));
+        assertEquals(HEADER, value(source, 0, 0));
+        assertEquals(Integer.valueOf(2), source.get(0).getFirst().colspan());
+        // the column that previously sat at index 1 is shifted left
+        assertEquals("code", value(source, 1, 0));
+    }
+
+    @Test
+    void keepsAMergeReachingPastTheColumnsTakenAway() throws IOException {
+        var project = writeProject("merged", new String[][]{
+                {HEADER, null, null},
+                {"String", null, null},
+                {"int", "hour", "gamma"}
+        });
+        apply(project, merge(1, 0, 1, 3));
+
+        apply(project, deleteColumn(1));
+
+        var source = reload(project);
+        assertEquals(2, width(source));
+        // the merge reached past the column that went, so it narrows rather than being dropped with its value
+        assertEquals("String", value(source, 1, 0));
+        assertEquals(Integer.valueOf(2), source.get(1).getFirst().colspan());
+    }
+
+    @Test
+    void refusesToTakeAwayTheRowTheHeaderStandsOn() {
+        // Nothing bars the first row itself. What bars this write is that the table would be left starting
+        // with a line OpenL does not read as a header, which is a table nobody could find again.
+        assertThrows(BadRequestException.class, () -> apply(deleteRow(0)));
+
+        var source = reload(mainProject);
+        assertEquals(4, source.size());
+        assertEquals(HEADER, value(source, 0, 0));
+    }
+
+    @Test
+    void refusesAColumnBeforeTheFirstOneThatLeavesTheHeaderBehind() {
+        // The header is banked from the first column, and a column laid down before it moves the bank aside:
+        // the corner OpenL finds the table by is left blank.
+        apply(merge(0, 0, 1, 3));
+
+        assertThrows(BadRequestException.class,
+                () -> apply(insertColumn(0, row(null, "long", "id", "epsilon"))));
+
+        var source = reload(mainProject);
+        assertEquals(3, width(source));
+        assertEquals(HEADER, value(source, 0, 0));
     }
 
     @Test
@@ -842,6 +1002,10 @@ class RawTableWriterTest {
         new RawTableWriter(load(mainProject)).apply(action);
     }
 
+    private void apply(List<RawTableSourceAction> actions) {
+        new RawTableWriter(load(mainProject)).apply(actions);
+    }
+
     private void apply(Path project, RawTableSourceAction action) {
         new RawTableWriter(load(project)).apply(action);
     }
@@ -865,12 +1029,25 @@ class RawTableWriterTest {
         assertThrows(BadRequestException.class, () -> apply(action));
     }
 
+    private void assertBadRequest(List<RawTableSourceAction> actions) {
+        assertThrows(BadRequestException.class, () -> apply(actions));
+    }
+
     private void assertBadRequest(Path project, RawTableSourceAction action) {
         assertThrows(BadRequestException.class, () -> apply(project, action));
     }
 
     private List<List<RawTableCell>> reload(Path project) {
         return readSource(load(project));
+    }
+
+    /** The table read back with the styling attached, which the plain read leaves out. */
+    private List<List<RawTableCell>> reloadStyled(Path project) {
+        return new RawTableReader().read(load(project), null, null, true, false, TableModules.none()).source;
+    }
+
+    private static RawTableCellStyle styleOf(List<List<RawTableCell>> source, int row, int col) {
+        return source.get(row).get(col).style();
     }
 
     private static List<List<RawTableCell>> readSource(IOpenLTable table) {
@@ -961,6 +1138,11 @@ class RawTableWriterTest {
 
     private static RawTableSourceAction merge(int row, int column, int rowspan, int colspan) {
         return new RawTableSourceAction.Merge(new MergeTarget.Cells(row, column, rowspan, colspan));
+    }
+
+    private static RawTableSourceAction style(int row, int column, int rowspan, int colspan,
+            RawCellStyleInput style) {
+        return new RawTableSourceAction.Style(new StyleTarget.Cells(row, column, rowspan, colspan, style));
     }
 
     private static RawTableSourceAction unmerge(int row, int column) {

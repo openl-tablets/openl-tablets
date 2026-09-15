@@ -32,6 +32,7 @@ Content-Type: application/json
         "canCompare": true,
         "canViewHistory": true,
         "canCopy": true,
+        "canMerge": true,
         "canManageBranches": true,
         "canExport": true
       }
@@ -65,6 +66,7 @@ Content-Type: application/json
         "canCompare": true,
         "canViewHistory": true,
         "canCopy": true,
+        "canMerge": true,
         "canManageBranches": true,
         "canExport": true
       }

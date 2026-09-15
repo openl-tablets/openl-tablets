@@ -9,7 +9,12 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "StyledData",
       "file": "EPBDS-16194/Main.xlsx",
-      "pos": "B2:C6"
+      "sheet": "Main",
+      "pos": "B2:C6",
+      "module": "Main",
+      "project": "EPBDS-16194",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYxOTQ6MTlkZjcwNDBjMGM0NmY1ZGJjYjhjYTIwYjQxNmM4MDEwOWY0ZDgyMzdkNzQ2NGE4M2M3YzE4ZDdiZGJhNTRjMg==",
+      "signature": "StyledData"
     }
   ],
   "pageNumber": 0,

@@ -17,8 +17,24 @@ public record TableMessageSource(
         String module,
 
         @Parameter(description = """
+                Identifier of the project the table belongs to, which is not always the project being compiled: \
+                a message can be raised in a project it depends on. Absent when the project could not be named.""")
+        String projectId,
+
+        @Parameter(description = "Display name of the project the table belongs to.")
+        String project,
+
+        @Parameter(description = """
                 Address of the cell the message points to, in A1 notation. \
                 May be null when the message is associated with the table as a whole.""")
-        String cell
+        String cell,
+
+        @Parameter(description = """
+                First character of the cell's text the message is about, which a screen marks so the reader \
+                finds it among the rest. Absent when the message is about no part of the cell in particular.""")
+        Integer start,
+
+        @Parameter(description = "Character of the cell's text after the last one the message is about.")
+        Integer end
 ) implements MessageSource {
 }

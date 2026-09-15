@@ -25,6 +25,7 @@ export const COMPILE_COLORS = {
     warnings: '#c0851b',
     errors: '#cf4436',
     compiling: '#2a75ba',
+    cancelled: '#8b9199',
     idle: '#8b9199',
 } as const
 

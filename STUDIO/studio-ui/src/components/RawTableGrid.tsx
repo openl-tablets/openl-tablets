@@ -1,5 +1,7 @@
 import React from 'react'
-import type { RawTableCell } from 'types/tables'
+import { Tooltip } from 'antd'
+import type { RawTableCell, TableLayout } from 'types/tables'
+import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { useStyles } from './RawTableGrid.styles'
 
 /** How the screen showing a table marks one of its cells. */
@@ -18,8 +20,30 @@ interface RawTableGridProps {
     /** The table body as the Tables API reports it, indexed rows[row][column]. */
     rows: RawTableCell[][]
     /** How each cell is marked; a cell the screen says nothing about is drawn as the workbook has it. */
-    decorate?: (cell: RawTableCell) => CellDecoration | undefined
-    testId?: string
+    decorate?: ((cell: RawTableCell, row: number, column: number) => CellDecoration | undefined) | undefined
+    /** Draw the formula a cell was written with rather than the value it computed, where it has one. */
+    formulas?: boolean | undefined
+    /** Follows a piece of a cell's text to the table it names; absent when this screen cannot go there. */
+    onOpenUsage?: OpenUsage | undefined
+    /** Told which cell the reader picked; absent on a screen where a cell cannot be picked. */
+    onPickCell?: ((row: number, column: number) => void) | undefined
+    /** Told which cell the reader opened, by double-clicking it. */
+    onOpenCell?: ((row: number, column: number) => void) | undefined
+    /**
+     * What the keyboard does with the table: moving between cells, opening one, writing into one.
+     *
+     * <p>Given only where the table can be written. The table takes the focus so that the keys reach it and
+     * nothing else — a screen full of other fields keeps its own.
+     */
+    onKeyDown?: ((event: React.KeyboardEvent<HTMLTableElement>) => void) | undefined
+    /** The table itself, so the screen can hand it the focus once a cell is picked. */
+    tableRef?: React.Ref<HTMLTableElement> | undefined
+    /**
+     * How the table is laid out, where the screen numbers the lines of its data — the cases of a test table.
+     * Absent where the lines are not numbered, which is every other table.
+     */
+    layout?: TableLayout | undefined
+    testId?: string | undefined
 }
 
 const formatValue = (value: RawTableCell['value']): string => (value == null ? '' : String(value))
@@ -72,34 +96,120 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
 
 /**
  * Draws a table the way its author wrote it in Excel: the same cells, the same merges, the same
- * styling, with the values already evaluated.
+ * styling, with the values already evaluated — or, where the screen asks for it, with the formulas the
+ * cells were written with, which every cell carries beside its value.
  *
  * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
  * this component and only says how its own cells are marked, so a table looks the same everywhere.
  */
-export const RawTableGrid: React.FC<RawTableGridProps> = ({ rows, decorate, testId }) => {
+/**
+ * The text of one cell, marked with what the compiler knows about it.
+ *
+ * What it knows describes the value the cell holds, and the ranges it marks are measured over that text. A
+ * cell shown as the formula it was written with is another text altogether, so it is drawn plain — which is
+ * what the legacy editor did, where the formula replaced the marked content.
+ */
+const cellText = (cell: RawTableCell, formulas: boolean, onOpenUsage?: OpenUsage) => {
+    const asFormula = formulas && Boolean(cell.formula)
+    const text = formatValue(asFormula ? cell.formula : cell.value)
+    const metaInfo = asFormula ? undefined : cell.metaInfo
+    // Most cells have nothing marked — what the compiler knows about them is the type behind them and the
+    // editor they ask for. Those are drawn as the text they are, rather than through a component of their own.
+    if (!metaInfo?.usages?.length && !metaInfo?.returnCell) {
+        return text
+    }
+    return <RawTableCellText metaInfo={metaInfo} onOpenUsage={onOpenUsage} text={text} />
+}
+
+export const RawTableGrid: React.FC<RawTableGridProps> = ({
+    rows,
+    decorate,
+    formulas,
+    onOpenUsage,
+    onPickCell,
+    onOpenCell,
+    onKeyDown,
+    tableRef,
+    layout,
+    testId,
+}) => {
     const { styles, cx } = useStyles()
+    // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
+    // table, counted down the rows or across the columns according to how the table is written.
+    // The grid is as wide as its widest row; a covered cell takes a place of its own in the matrix, so the
+    // count is the column count the browser lays the table out in.
+    const columns = rows.reduce((widest, row) => Math.max(widest, row.length), 0)
+    // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
+    // table, counted down the rows or across the columns according to how the table is written.
+    const lines = layout === undefined
+        ? 0
+        : Math.max(0, (layout.transposed ? columns : rows.length) - layout.firstDataLine)
 
     return (
-        <table className={styles.table} data-testid={testId}>
+        <table
+            ref={tableRef}
+            className={styles.table}
+            data-testid={testId}
+            onKeyDown={onKeyDown}
+            tabIndex={onKeyDown === undefined ? undefined : -1}
+        >
             <tbody>
+                {/*
+                  * A transposed table's data runs across its columns, so its numbers run above them — one cell
+                  * per column of the grid, blank over the headings the data begins after.
+                  */}
+                {layout?.transposed && lines > 0 && (
+                    <tr>
+                        {Array.from({ length: columns }, (unused, column) => (
+                            <td className={styles.lineNumber} key={column}>
+                                {column >= layout.firstDataLine
+                                    ? <span data-testid="table-line-number">{column - layout.firstDataLine + 1}</span>
+                                    : null}
+                            </td>
+                        ))}
+                    </tr>
+                )}
                 {rows.map((row, rowIndex) => (
                     <tr key={rowKey(row, rowIndex)}>
+                        {/* A table written the usual way round is numbered down its side, as the Editor did. */}
+                        {layout !== undefined && !layout.transposed && (
+                            <td className={styles.lineNumber}>
+                                {rowIndex >= layout.firstDataLine
+                                    ? <span data-testid="table-line-number">{rowIndex - layout.firstDataLine + 1}</span>
+                                    : null}
+                            </td>
+                        )}
                         {row.map((cell, columnIndex) => {
                             if (cell.covered) return null
-                            const decoration = decorate?.(cell)
-                            return (
+                            const decoration = decorate?.(cell, rowIndex, columnIndex)
+                            const key = cell.cell ?? `c${columnIndex}`
+                            const drawn = (
                                 <td
-                                    key={cell.cell ?? `c${columnIndex}`}
-                                    className={cx(styles.cell, decoration?.className)}
                                     colSpan={cell.colspan}
                                     data-cell={cell.cell}
+                                    onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
+                                    onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                     rowSpan={cell.rowspan}
                                     style={cellStyle(cell.style, !!decoration?.painted, !!decoration?.muted)}
+                                    className={cx(styles.cell, cell.comment !== undefined && styles.commented,
+                                        decoration?.className)}
                                 >
-                                    {decoration?.content ?? formatValue(cell.value)}
+                                    {decoration?.content ?? cellText(cell, !!formulas, onOpenUsage)}
                                 </td>
                             )
+                            // The note is shown while the cell is read. A cell the screen has taken over — one
+                            // being written into — shows what the screen put there, not a note over the top of it.
+                            return cell.comment === undefined || decoration?.content !== undefined
+                                ? <React.Fragment key={key}>{drawn}</React.Fragment>
+                                : (
+                                    <Tooltip
+                                        key={key}
+                                        placement="rightBottom"
+                                        title={<span className={styles.note}>{cell.comment}</span>}
+                                    >
+                                        {drawn}
+                                    </Tooltip>
+                                )
                         })}
                     </tr>
                 ))}

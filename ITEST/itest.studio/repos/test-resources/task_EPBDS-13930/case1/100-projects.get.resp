@@ -12,6 +12,7 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "1",
       "comment": "Project Project is created.",
+      "overwritesNewerRevision": true,
       "repositoryInfo": {
         "id": "design",
         "name": "H2",
@@ -64,6 +65,7 @@ Content-Type: application/json
         "canViewHistory": true,
         "canManage": true,
         "canCopy": true,
+        "canMerge": true,
         "canManageBranches": true,
         "canExport": true
       }
@@ -98,6 +100,7 @@ Content-Type: application/json
         "canViewHistory": true,
         "canManage": true,
         "canCopy": true,
+        "canMerge": true,
         "canManageBranches": true,
         "canExport": true
       }
@@ -162,6 +165,7 @@ Content-Type: application/json
         "canViewHistory": true,
         "canManage": true,
         "canCopy": true,
+        "canMerge": true,
         "canManageBranches": true,
         "canDeleteBranch": true,
         "canExport": true
@@ -197,6 +201,7 @@ Content-Type: application/json
         "canViewHistory": true,
         "canManage": true,
         "canCopy": true,
+        "canMerge": true,
         "canManageBranches": true,
         "canExport": true
       }
@@ -231,6 +236,7 @@ Content-Type: application/json
         "canViewHistory": true,
         "canManage": true,
         "canCopy": true,
+        "canMerge": true,
         "canManageBranches": true,
         "canExport": true
       }
@@ -265,6 +271,7 @@ Content-Type: application/json
         "canViewHistory": true,
         "canManage": true,
         "canCopy": true,
+        "canMerge": true,
         "canManageBranches": true,
         "canExport": true
       }

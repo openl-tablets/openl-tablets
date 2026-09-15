@@ -5,14 +5,12 @@ import java.util.Optional;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.message.OpenLErrorMessage;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.MessageHandler;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -31,14 +29,7 @@ public class OpenLMessageController {
             @Parameter(description = "msg.param.message-id") @PathVariable("messageId") final long messageId) {
         return Optional.ofNullable(WebStudioUtils.getWebStudio(WebStudioUtils.getSession()))
                 .map(WebStudio::getModel)
-                .flatMap(model -> model.getCompilationStatus()
-                        .getAllMessage()
-                        .stream()
-                        .filter(m -> m.getId() == messageId)
-                        .findFirst())
-                .filter(OpenLErrorMessage.class::isInstance)
-                .map(OpenLErrorMessage.class::cast)
-                .map(message -> ExceptionUtils.getStackTrace((Throwable) message.getError()))
+                .map(model -> model.getCompilationStatus().getStacktrace(messageId))
                 .orElse(null);
     }
 

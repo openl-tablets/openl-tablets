@@ -11,6 +11,7 @@ Content-Type: application/json
   "modifiedAt": "*",
   "revision": "*",
   "path": "EPBDS-15612",
+  "overwritesNewerRevision": true,
   "comment": "*",
   "branchDefault": true,
   "repositoryInfo": {
@@ -32,6 +33,7 @@ Content-Type: application/json
     "canViewHistory": true,
     "canManage": true,
     "canCopy": true,
+    "canMerge": true,
     "canManageBranches": true,
     "canExport": true
   }

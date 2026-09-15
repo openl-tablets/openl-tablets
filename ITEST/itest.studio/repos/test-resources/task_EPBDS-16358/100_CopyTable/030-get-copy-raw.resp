@@ -260,5 +260,6 @@ Content-Type: application/json
                 "value": 0.02
             }
         ]
-    ]
+    ],
+    "headerHeight": 4
 }

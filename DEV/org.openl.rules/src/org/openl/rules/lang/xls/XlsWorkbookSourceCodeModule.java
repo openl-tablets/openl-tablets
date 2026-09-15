@@ -130,6 +130,8 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
             var fileOut = new DeferredCreateFileOutputStream(fileName);
             getWorkbook().write(fileOut);
             fileOut.close();
+            // The file says what the workbook says again, so the workbook may be unloaded and read back from it.
+            workbookLoader.setModified(false);
 
             for (XlsWorkbookListener wl : listeners) {
                 wl.afterSave(this);

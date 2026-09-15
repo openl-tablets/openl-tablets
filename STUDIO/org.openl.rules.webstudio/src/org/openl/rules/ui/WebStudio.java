@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -132,6 +133,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean forcedCompile = true;
     private boolean needCompile = true;
     private boolean manualCompile;
+    /**
+     * The module whose workbook a write has changed, waiting to be built from it again.
+     *
+     * <p>Named rather than flagged: a request to compile says nothing about which module it is for, and the
+     * session moves between modules and projects. Building the one that happens to be open next instead would
+     * rebuild a module nobody wrote to and leave the written one answering from the workbook it used to have.
+     */
+    private volatile Module rewrittenModule;
     private final Map<String, Object> externalProperties;
 
     private final RulesUserSession rulesUserSession;
@@ -313,6 +322,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
+    /**
+     * The workspace of the user this studio belongs to.
+     *
+     * <p>Reachable from any thread: the studio holds the user's session, so work carried out for it — a module
+     * compiled in the background, say — needs no HTTP request of its own to find the workspace.
+     */
+    public UserWorkspace getUserWorkspace() {
+        return rulesUserSession.getUserWorkspace();
+    }
+
     public RulesProject getCurrentProject() {
         if (currentProject != null) {
             String projectFolder = currentProject.getProjectFolder().getFileName().toString();
@@ -483,6 +502,68 @@ public class WebStudio implements DesignTimeRepositoryListener {
         needCompile = true;
     }
 
+    /**
+     * Asks for the module that is open to be built from its workbook again, and for nothing besides it.
+     *
+     * <p>Only the dependency this module stands for is dropped and resolved afresh; every other module the
+     * session has compiled stays as it is, and so does the compilation the screen is following.
+     *
+     * <p>Asked for whatever the automatic-compilation setting says: the caller has left the workbook the
+     * session holds in a state that answers for nothing, and it has to be read again before anything else is.
+     */
+    public synchronized void rebuildCurrentModule() {
+        rewrittenModule = getCurrentModule();
+        // What the session holds about the module was worked out from the workbook as it was before the write:
+        // the compilation it followed, the results of the tests it ran, the trace it kept. None of that answers
+        // for the module any more, so it is dropped — and the status says the module is waiting to be compiled
+        // rather than reporting what the workbook used to say.
+        publishWorkspaceReset();
+    }
+
+    /**
+     * Says that a write changed the workbook of the module that is open.
+     *
+     * <p>With automatic compilation on, the module is built from the changed workbook again straight away.
+     * With it off, it is not: on a project of any size compiling after every edit is the wait that setting
+     * exists to avoid, so the module is left waiting and the reader asks for it with Verify when they are
+     * ready. Until then the tables read as they are written — it is the same workbook — and what the compiler
+     * said about them is what it said before the write.
+     */
+    public synchronized void recompileCurrentModule() {
+        if (isAutoCompile()) {
+            rebuildCurrentModule();
+            return;
+        }
+        needCompile = true;
+        publishWorkspaceReset();
+    }
+
+    /**
+     * Whether a write changed a module the session has not built from the changed workbook yet.
+     *
+     * <p>What it compiled before the write was worked out from the workbook as it stood then, so it answers for
+     * nothing now: a screen asking how the project stands is told the module is waiting to be compiled rather
+     * than what the workbook used to say.
+     *
+     * <p>Answered without taking the session's lock: the status is asked for while the session may be opening a
+     * project, and a reader of one field has no business waiting behind that.
+     */
+    public boolean isAwaitingRecompile() {
+        return rewrittenModule != null;
+    }
+
+    /** Tells the session's caches that what they hold was worked out from a workbook that has since changed. */
+    private void publishWorkspaceReset() {
+        if (eventPublisher == null) {
+            return;
+        }
+        try {
+            eventPublisher.publishEvent(new WorkspaceResetEvent(this));
+        } catch (RuntimeException e) {
+            log.warn("Failed to publish workspace reset event", e);
+        }
+    }
+
     public synchronized void resetProjects() {
         doResetProjects();
     }
@@ -503,13 +584,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         // stale entries derived from the now-invalidated workspace state. A subscriber
         // failure must never break reset(): several critical flows (e.g. merge-conflict
         // resolution) rely on reset() completing so the workspace is left consistent.
-        if (eventPublisher != null) {
-            try {
-                eventPublisher.publishEvent(new WorkspaceResetEvent(this));
-            } catch (RuntimeException e) {
-                log.warn("Failed to publish workspace reset event", e);
-            }
-        }
+        publishWorkspaceReset();
     }
 
     private void reset(ReloadType reloadType) {
@@ -543,6 +618,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     branchName,
                     projectName,
                     moduleName);
+            // Two repositories may each hold a project of the same name, with a module of the same name in it,
+            // and they are two modules: what tells them apart is the repository they were read from.
+            var anotherRepositoryOpened = !Objects.equals(currentRepositoryId, repositoryId);
             currentRepositoryId = repositoryId;
             ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
             needRedirect = false;
@@ -573,11 +651,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 handleProjectNotFound();
                 return;
             }
-            boolean anotherModuleOpened = currentModule != module;
-            boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
-                    .getProject()
-                    .getName()
-                    .equals(project.getName()));
+            // The descriptors are resolved again whenever the workspace is refreshed, so the same module
+            // arrives as a new object; what it names is what tells it from another module.
+            boolean anotherModuleOpened = !ProjectModel.isSameModule(currentModule, module);
+            // The module a write changed is built from its workbook again the next time it is opened, and only
+            // it — a write elsewhere leaves this one alone, and opening another module does not consume it.
+            boolean rewritten = ProjectModel.isSameModule(rewrittenModule, module);
+            boolean anotherProjectOpened = anotherRepositoryOpened
+                    || !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
+                            .getProject()
+                            .getName()
+                            .equals(project.getName()));
             currentModule = module;
             currentProject = project;
             if (currentProject != null) {
@@ -599,10 +683,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     }
                 }
             }
-            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || anotherModuleOpened || anotherProjectOpened)) {
+            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || rewritten || anotherModuleOpened || anotherProjectOpened)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
                 } else if (needCompile) {
+                    reset(ReloadType.SINGLE);
+                } else if (rewritten) {
+                    // Its workbook was written to: the dependency it stands for is dropped and resolved
+                    // afresh. Asked for before anything else that would compile the module, because only this
+                    // drops what was compiled from the workbook as it stood before the write — opening the
+                    // module again would be answered with it.
                     reset(ReloadType.SINGLE);
                 } else if (anotherProjectOpened) {
                     model.setModuleInfo(module, ReloadType.SINGLE);
@@ -620,6 +710,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 needCompile = false;
                 forcedCompile = false;
                 manualCompile = false;
+                if (rewritten) {
+                    rewrittenModule = null;
+                }
             }
         } catch (Exception e) {
             log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);

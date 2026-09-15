@@ -47,7 +47,9 @@ export const PROJECT_ACTIONS: Record<ActionId, ProjectActionMeta> = {
     deleteBranch: { labelKey: 'browser.delete_branch_action', caps: ['canDeleteBranch']},
     // Reading the project is enough to open any of its revisions.
     openRevision: { labelKey: 'browser.open_revision', caps: ['canViewHistory']},
-    sync: { labelKey: 'browser.sync', caps: ['canManageBranches']},
+    // A merge writes over the working copy, so the server withholds it from a project whose own changes
+    // are not saved yet — the same rule the merge is refused by.
+    sync: { labelKey: 'browser.sync', caps: ['canMerge']},
     deploy: { labelKey: 'browser.deploy', caps: ['canDeploy']},
     compare: { labelKey: 'browser.compare', caps: ['canCompare']},
     export: { labelKey: 'browser.export', caps: ['canExport']},

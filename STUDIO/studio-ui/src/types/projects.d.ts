@@ -34,6 +34,11 @@ export interface Project {
     branchProtected?: boolean
     /** Whether the project's current branch is the repository main branch. */
     branchDefault?: boolean
+    /**
+     * Whether the copy open in the workspace is an older revision carrying no changes yet, so the first write
+     * to it would save it over the revisions that came after.
+     */
+    overwritesNewerRevision?: boolean
     capabilities?: ProjectCapabilities
     /** Other projects this project depends on (from its rules.xml). */
     dependencies?: ProjectDependency[]
@@ -108,6 +113,8 @@ export interface ProjectCapabilities {
     canCopy?: boolean
     /** Whether the project branches can be created, merged and deleted. */
     canManageBranches?: boolean
+    /** Whether another branch can be merged into this one; a project with unsaved changes cannot take one. */
+    canMerge?: boolean
     /** Whether the branch the project sits on can be deleted. Deleting the only branch holding the project
      *  deletes the project, so that case also takes the permission to delete it. */
     canDeleteBranch?: boolean

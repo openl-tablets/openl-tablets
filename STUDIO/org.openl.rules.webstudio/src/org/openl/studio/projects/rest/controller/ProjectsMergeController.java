@@ -180,7 +180,9 @@ public class ProjectsMergeController {
         var realPath = project.getRealPath();
         var currentBranch = project.getBranch();
         var repoId = project.getDesignRepository().getId();
-        var shouldResumeDependencies = false;
+        // The compilation is paused for the whole request and let go again at its end — whatever ends it. Only
+        // the merge that succeeded leaves it paused, because it drops the dependency manager altogether.
+        var shouldResumeDependencies = true;
         try {
             studio.freezeProject(nameBeforeMerge);
             var mergeResult = mergeService.merge(project, request.otherBranch(), request.mode(), force);
@@ -208,11 +210,11 @@ public class ProjectsMergeController {
                 if (model != null) {
                     model.clearModuleInfo();
                 }
+                shouldResumeDependencies = false;
                 if (!nameAfterMerge.equals(nameBeforeMerge)) {
                     studio.init(repoId, currentBranch, nameAfterMerge, null);
                 }
             } else {
-                shouldResumeDependencies = true;
                 var projectId = projectIdentifierMapper.map(project);
                 conflictsSessionHolder.store(projectId, mergeResult.conflictInfo());
             }
@@ -222,9 +224,6 @@ public class ProjectsMergeController {
                             .map(mergeConflictsService::getMergeConflicts)
                             .orElseGet(List::of)
             );
-        } catch (ProjectException | IOException e) {
-            shouldResumeDependencies = true;
-            throw e;
         } finally {
             if (shouldResumeDependencies && dependencyManager != null) {
                 dependencyManager.resume();
@@ -267,7 +266,9 @@ public class ProjectsMergeController {
             dependencyManager.pause();
         }
         var studio = projectService.getWebStudio();
-        var shouldResumeDependencies = false;
+        // Let go of the compilation at the end of the request, whatever ends it: a resolution the service
+        // refuses throws, and a compilation left paused holds up every later read of the project.
+        var shouldResumeDependencies = true;
         // Delegate to service for resolution
         try {
             if (!mergeOperation) {
@@ -301,13 +302,9 @@ public class ProjectsMergeController {
                 if (model != null) {
                     model.clearModuleInfo();
                 }
-            } else {
-                shouldResumeDependencies = true;
+                shouldResumeDependencies = false;
             }
             return result;
-        } catch (ProjectException | IOException e) {
-            shouldResumeDependencies = true;
-            throw e;
         } finally {
             if (shouldResumeDependencies && dependencyManager != null) {
                 dependencyManager.resume();

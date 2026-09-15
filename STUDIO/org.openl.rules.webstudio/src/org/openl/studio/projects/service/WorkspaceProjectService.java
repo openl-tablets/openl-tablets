@@ -7,6 +7,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -56,6 +58,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.ProjectState;
+import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
@@ -72,9 +75,12 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.CellValueSelector;
 import org.openl.rules.webstudio.web.SearchScope;
+import org.openl.rules.webstudio.web.TableHeaderSelector;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
@@ -110,22 +116,38 @@ import org.openl.studio.projects.model.tables.EditableTableView;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
+import org.openl.studio.projects.model.tables.TableDetailsView;
+import org.openl.studio.projects.model.tables.TableEditorsView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.model.tables.TableRunState;
+import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableTargetView;
+import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
+import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
+import org.openl.studio.projects.service.tables.TableDetailsService;
+import org.openl.studio.projects.service.tables.TableLayouts;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TablePropertyText;
+import org.openl.studio.projects.service.tables.TableRunStateService;
+import org.openl.studio.projects.service.tables.TableStatuses;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.read.TableEditorsReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
@@ -148,6 +170,8 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
+    /** Answered when a project does not declare the module a request names. */
+    private static final String NO_SUCH_MODULE = "project.module.identifier.message";
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
     private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
     /** The mark {@link TableSyntaxNodeUtils} appends to a display name it had to shorten. */
@@ -158,10 +182,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
             Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
+    private final ModuleCompilationLauncher moduleCompilationLauncher;
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
     private final SummaryTableReader summaryTableReader;
     private final RawTableReader rawTableReader;
+    private final TableEditorsReader tableEditorsReader;
     private final List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers;
     private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
     private final BeanValidationProvider validationProvider;
@@ -169,9 +195,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableCreatorService tableCreatorService;
     private final TableCopyService tableCopyService;
     private final TablePropertiesService tablePropertiesService;
+    private final TableRunStateService tableRunStateService;
+    private final TableDetailsService tableDetailsService;
     private final TableVersionService tableVersionService;
     private final ProjectMetadataService metadataService;
     private final TableWritersFactory tableWritersFactory;
+    private final SystemPropertiesService systemPropertiesService;
     private final ApplicationEventPublisher eventPublisher;
     private final ProtectedBranchBypassService bypassService;
     private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
@@ -190,16 +219,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectDependencyResolver projectDependencyResolver,
             SummaryTableReader summaryTableReader,
             RawTableReader rawTableReader,
+            TableEditorsReader tableEditorsReader,
             List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers,
             Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
             BeanValidationProvider validationProvider,
             TableCreatorService tableCreatorService,
             TableCopyService tableCopyService,
             TablePropertiesService tablePropertiesService,
+            TableRunStateService tableRunStateService,
+            TableDetailsService tableDetailsService,
             TableVersionService tableVersionService,
             ProjectMetadataService metadataService,
             TableWriterExecutor tableWriterExecutor,
             TableWritersFactory tableWritersFactory,
+            SystemPropertiesService systemPropertiesService,
             ApplicationEventPublisher eventPublisher,
             ProtectedBranchBypassService bypassService,
             ProjectIdentifierMapper projectIdentifierMapper,
@@ -212,18 +245,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             Environment environment,
             ProjectTagsCache projectTagsCache,
             ProjectListingContext listingContext,
+            ModuleCompilationLauncher moduleCompilationLauncher,
             ObjectFactory<UserWorkspace> userWorkspaceFactory) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
+        this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;
         this.rawTableReader = rawTableReader;
+        this.tableEditorsReader = tableEditorsReader;
         this.readers = readers;
         this.newBranchValidatorFactory = newBranchValidatorFactory;
         this.validationProvider = validationProvider;
+        this.systemPropertiesService = systemPropertiesService;
         this.tableCreatorService = tableCreatorService;
         this.tableCopyService = tableCopyService;
         this.tablePropertiesService = tablePropertiesService;
+        this.tableRunStateService = tableRunStateService;
+        this.tableDetailsService = tableDetailsService;
         this.tableVersionService = tableVersionService;
         this.metadataService = metadataService;
         this.tableWriterExecutor = tableWriterExecutor;
@@ -682,6 +721,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var builder = super.mapProjectResponse(src, statuses);
         builder.branchProtected(src.isBranchProtected());
         builder.branchDefault(src.isBranchDefault());
+        // An older revision was opened to be read. Nothing has been written into it yet, so a write now would
+        // save it over the revisions that came after — which the reader is asked about before the first one.
+        builder.overwritesNewerRevision(src.isOpenedOtherVersion() && !src.isModified());
         builder.repositoryInfo(mapRepositoryInfo(src));
         projectDependencyResolver.getDependencies(src).stream()
                 .sorted(DEPENDENCY_NAME_ORDER)
@@ -1564,7 +1606,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Get project tables
+     * Get project tables.
+     *
+     * <p>A query naming a module answers with that module's tables alone. Such a read is served as soon as the named
+     * module is compiled, without waiting for the rest of the project: opening a module compiles it before anything
+     * else, and the modules that follow are of no interest to the answer. A query naming no module answers for the
+     * whole project and waits for all of it, as it always has.
      *
      * @param project project
      * @param query   filter query
@@ -1581,12 +1628,37 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (modules.isEmpty()) {
             return PageResponse.of(List.of(), page, 0L);
         }
-        var moduleModel = openProject(projectDescriptor, project, modules.getFirst()).awaitCompiled();
+        var requestedModule = query.getModule().orElse(null);
+        var scope = searchScopeOf(query, requestedModule);
+        var module = requestedModule == null ? modules.getFirst() : modules.stream()
+                .filter(declared -> requestedModule.equals(declared.getName()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
 
+        var handle = openProject(projectDescriptor, project, module);
+        // Opening the module has already compiled it, so a module-scoped answer is ready. A wider answer has to
+        // wait for the modules that are still being compiled behind it.
+        var moduleModel = scope == SearchScope.CURRENT_MODULE ? handle.project() : handle.awaitCompiled();
+
+        // Which of the versions of a table answers a call is decided by its dimension properties, and only the
+        // dictionary knows which tables are versions of one another. A module-scoped list asks the opened module's
+        // dictionary; a wider one spans every module, so versions living apart are still told apart.
+        var overloads = scope == SearchScope.CURRENT_MODULE
+                ? moduleModel.getMethodNodesDictionary()
+                : moduleModel.getAllMethodNodesDictionary();
+        // A search that reaches past the module it was asked through answers with tables of other modules, and of
+        // other projects — so each of them says where it lives, or nothing could be opened from the answer.
+        var locations = scope == SearchScope.CURRENT_MODULE ? null
+                : TableModules.ofWorkspace(moduleModel, projectIdentifierMapper);
+
+        // What the compilation made of each table — its errors, and whether anything tests it — read once for
+        // the whole list rather than worked out again for every row of it.
+        var statuses = TableStatuses.of(moduleModel);
         var selectors = buildTableSelector(query);
-        var allTables = moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
+        var allTables = moduleModel.search(selectors, scope)
                 .stream()
-                .map(summaryTableReader::read)
+                .map(table -> report(locate(summaryTableReader.read(table, overloads), table, locations),
+                        table, statuses))
                 .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
 
@@ -1631,6 +1703,34 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .orElse(null);
     }
 
+    /**
+     * How wide the search reaches: what it asks for, or the module it names when it asks for nothing.
+     */
+    private static SearchScope searchScopeOf(ProjectTableCriteriaQuery query, @Nullable String requestedModule) {
+        var asked = query.getScope()
+                .orElse(requestedModule == null ? TableSearchScope.PROJECT : TableSearchScope.MODULE);
+        return switch (asked) {
+            case MODULE -> SearchScope.CURRENT_MODULE;
+            case PROJECT -> SearchScope.CURRENT_PROJECT;
+            case ALL -> SearchScope.ALL;
+        };
+    }
+
+    /** Says where a table found by a search lives, so the screen showing it can open it there. */
+    private static SummaryTableView locate(SummaryTableView view, IOpenLTable table, @Nullable TableModules modules) {
+        if (modules == null) {
+            return view;
+        }
+        var where = modules.locationOf(table.getUri());
+        return where == null ? view : view.locatedAt(where.module(), where.projectName(), where.projectId());
+    }
+
+    /** Hangs what the compilation made of a table onto the row that lists it. */
+    private static SummaryTableView report(SummaryTableView view, IOpenLTable table, TableStatuses statuses) {
+        var uri = table.getUri();
+        return view.reported(statuses.errorsOf(uri), statuses.isTested(uri));
+    }
+
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
         Predicate<TableSyntaxNode> selectors = tsn -> query.isIncludeOther()
                 || !XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType());
@@ -1656,7 +1756,25 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
 
         if (CollectionUtils.isNotEmpty(query.getProperties())) {
-            selectors = selectors.and(new TablePropertiesSelector(query.getProperties()));
+            // A property is matched against the value the table declares, which the engine holds as the type the
+            // property is defined with — a date, a flag, an enumeration. The text the search carries is read as
+            // that type first, or a filter on anything but a plain text would match nothing at all.
+            var wanted = query.getProperties()
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            entry -> TablePropertyText.parse(entry.getKey(), String.valueOf(entry.getValue()))));
+            selectors = selectors.and(new TablePropertiesSelector(wanted));
+        }
+
+        if (query.getHeader().isPresent()) {
+            selectors = selectors.and(new TableHeaderSelector(query.getHeader().get()));
+        }
+
+        // Read last: it is the only filter that reads the table itself, so everything cheaper has narrowed the
+        // tables down by the time it runs.
+        if (query.getText().isPresent()) {
+            selectors = selectors.and(new CellValueSelector(query.getText().get()));
         }
 
         return selectors;
@@ -1687,12 +1805,31 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public ProjectHandle openProject(RulesProject project, @Nullable String moduleName) {
         var projectDescriptor = getProjectDescriptor(project);
+        var asked = moduleName == null ? moduleAlreadyOpen(projectDescriptor) : moduleName;
         var moduleSelector = projectDescriptor.getModules().stream();
-        if (moduleName != null) {
-            moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(moduleName));
+        if (asked != null) {
+            moduleSelector = moduleSelector.filter(module -> module.getName() != null && module.getName().equals(asked));
         }
         var module = moduleSelector.findFirst().orElse(null);
         return openProject(projectDescriptor, project, module);
+    }
+
+    /**
+     * The module of this project the session already has open, when a request names none.
+     *
+     * <p>A request that asks nothing about which module it wants is answered about the one the reader is on:
+     * opening the project's first module instead would compile it in place of the one being read, and the
+     * answer would wait for a compilation it started itself. With none open, the first module is the one to
+     * open — it is the request that opens the project.
+     *
+     * @return the module's name, or {@code null} when the session holds no module of this project
+     */
+    private @Nullable String moduleAlreadyOpen(ProjectDescriptor projectDescriptor) {
+        var open = getWebStudio().getCurrentModule();
+        return open != null && open.getProject() != null
+                && Objects.equals(open.getProject().getName(), projectDescriptor.getName())
+                ? open.getName()
+                : null;
     }
 
     private ProjectDescriptor getProjectDescriptor(RulesProject project) {
@@ -1726,15 +1863,108 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return projectDescriptor;
     }
 
+    /**
+     * Starts a module's compilation and answers at once.
+     *
+     * <p>Opening the module is what compiles it, and on a large project that takes minutes. The work is handed to a
+     * background thread so the caller is not held for it; how far the compilation has come is reported on the
+     * project's status channel, which names every module as it finishes.
+     *
+     * @param project    project owning the module
+     * @param moduleName module to compile
+     * @param reset      compile it again from the workbook, dropping what was compiled before
+     */
+    public void compileModule(RulesProject project, String moduleName, boolean reset) {
+        var projectDescriptor = getProjectDescriptor(project);
+        var module = projectDescriptor.getModules()
+                .stream()
+                .filter(declared -> moduleName.equals(declared.getName()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
+        // The work runs on a thread of its own, where a session-scoped bean cannot be resolved. The studio is
+        // looked up here, while the request still holds the session, and the work carries it along. The
+        // compilation job is not carried at all: asking the session's registry for one from such a thread fails,
+        // and the status endpoint adopts a compilation started this way the moment it is asked about it.
+        var webStudio = getWebStudio();
+        if (reset) {
+            // Asking for the module to be built afresh is the manual compilation Verify stands for: with
+            // automatic compilation off nothing else builds a module that has been written to. A read that
+            // only asks for what is there — the screen re-reading a table it has just written — is not that,
+            // and must not compile the module the setting says to leave alone.
+            webStudio.invokeManualCompile();
+        }
+        moduleCompilationLauncher.launch(moduleName, () -> {
+            var moduleModel = webStudio.getModel();
+            // Opening a module already open compiles nothing, so a request to build it once more has to say so:
+            // the dependencies are dropped and the module is built from the workbook. A compilation the reader
+            // stopped leaves the module where it got to, and asking for it again is the same request.
+            //
+            // It is done before the module is opened: opening it first would compile it, and the reset would
+            // then throw that away and compile it a second time.
+            //
+            // A session holding no project — and one whose model is not built yet — has nothing compiled to
+            // drop, and the open below reads the workbook anyway, which is what a reset asks for. Resetting
+            // such a session has no project to name the module's history folder after, and fails.
+            var holdsProject = moduleModel != null && webStudio.getCurrentProject() != null;
+            if (holdsProject && (reset || moduleModel.isCompilationCancelled())) {
+                try {
+                    moduleModel.reset(ReloadType.RELOAD, module);
+                } catch (Exception e) {
+                    throw RuntimeExceptionWrapper.wrap(e);
+                }
+            }
+            openModule(webStudio, projectDescriptor, project, module);
+        });
+    }
+
+    /**
+     * Tells the compilation of the given module to stop.
+     *
+     * <p>Compiling a large project takes minutes, and a reader who no longer wants to wait asks for it to stop
+     * rather than sitting it out. The module being compiled at this moment is finished — a module cannot be
+     * abandoned halfway — and nothing after it is started, so this answers at once.
+     *
+     * <p>Nothing is stopped when the session has moved on to another module: what it compiles now is what that
+     * module asked for. What was compiled before the stop stays readable, and the next request to compile the
+     * module builds it from the workbook.
+     *
+     * @param project    project owning the module
+     * @param moduleName module whose compilation is to stop
+     */
+    public void cancelModuleCompilation(RulesProject project, String moduleName) {
+        var webStudio = getWebStudio();
+        var currentModule = webStudio.getCurrentModule();
+        if (currentModule == null || !moduleName.equals(currentModule.getName())) {
+            return;
+        }
+        var moduleModel = webStudio.getModel();
+        if (moduleModel != null) {
+            moduleModel.cancelCompilation();
+        }
+    }
+
     private ProjectHandle openProject(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
+        var moduleModel = openModule(getWebStudio(), projectDescriptor, project, module);
+        return ProjectHandle.of(moduleModel, getCompilationJobRegistry().acquire(projectIdentifierMapper.map(project),
+                moduleModel));
+    }
+
+    /**
+     * Opens a module against a studio the caller has already resolved, so that a thread without a session of its
+     * own can open one too.
+     *
+     * <p>Answers the model alone: the compilation job belongs to the session that asks about it, and is registered
+     * there rather than here.
+     */
+    private ProjectModel openModule(WebStudio webstudio,
+                                    ProjectDescriptor projectDescriptor,
+                                    RulesProject project,
+                                    @Nullable Module module) {
         if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
-        var webstudio = getWebStudio();
         webstudio.init(project.getRepository().getId(), project.getBranch(), projectDescriptor.getName(), module.getName());
-        var moduleModel = webstudio.getModel();
-        var job = getCompilationJobRegistry().acquire(projectIdentifierMapper.map(project), moduleModel);
-        return ProjectHandle.of(moduleModel, job);
+        return webstudio.getModel();
     }
 
     /**
@@ -1744,16 +1974,62 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId table id
      * @return table data
      */
-    public TableView getTable(RulesProject project, String tableId) {
-        var context = getOpenLTable(project, tableId);
+    public TableView getTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
         var table = context.table();
         var reader = readers.stream()
                 .filter(r -> r.supports(table))
                 .findFirst()
                 .orElse(null);
         var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
-        tableView.messages = mapMessages(context);
-        return tableView;
+        return described(tableView, context);
+    }
+
+    /**
+     * Says on a table's view what the module knows about it beyond its cells.
+     *
+     * <p>Done for every way of reading a table — a screen reads the same table as a grid or as the shape its
+     * kind gives it, and what the compiler made of it does not change with the reader asked for it.
+     */
+    private <T extends TableView> T described(T view, OpenLTableContext context) {
+        view.messages = mapMessages(context);
+        // Said here rather than by the reader: what makes a table partial is where its cells sit in the
+        // workbook, which the module knows and the table itself does not.
+        if (context.module().isTablePart(context.table().getUri())) {
+            view.partial = Boolean.TRUE;
+        }
+        return view;
+    }
+
+    /**
+     * What the reader may do with the table beyond reading it: run it, and how far a run of it may reach.
+     *
+     * <p>Answered where a screen asks for it: working it out reads what the compiler said about the table and,
+     * for a test, about the rules it exercises — worth doing for the table on screen, not for every read.
+     *
+     * @param project    project owning the table
+     * @param tableId    table being asked about
+     * @param moduleName module the table is read through
+     * @return whether the table can be run, and how far
+     */
+    public TableRunState getTableRunState(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        return tableRunStateService.of(context.module(), context.table());
+    }
+
+    /**
+     * The stack trace behind a compilation message, read only when a reader asks for it.
+     *
+     * <p>A trace runs to thousands of characters and most messages are read without one, so it is left out of
+     * the messages themselves and fetched for the one message that is opened.
+     *
+     * @param project    project the message was raised in
+     * @param messageId  message being asked about
+     * @param moduleName module the message is read through, or {@code null} for the project as a whole
+     * @return the trace, or {@code null} when the message carries none
+     */
+    public @Nullable String getMessageStacktrace(RulesProject project, long messageId, @Nullable String moduleName) {
+        return openProject(project, moduleName).project().getCompilationStatus().getStacktrace(messageId);
     }
 
     private List<DetailedMessageDescription> mapMessages(OpenLTableContext context) {
@@ -1771,7 +2047,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, null, null, false);
+        return getTableRaw(project, tableId, null, null, false, false, null);
     }
 
     /**
@@ -1786,15 +2062,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param startRow   zero-based index of the first row to return, or {@code null} for the top
      * @param maxRows    maximum number of rows to return from {@code startRow}, or {@code null} for every
      *                   remaining row
-     * @param withStyles whether to attach each cell's Excel style (background, font, alignment)
+     * @param withStyles   whether to attach each cell's Excel style (background, font, alignment)
+     * @param withMetaInfo whether to attach what the compiler knows about each cell — the pieces of its text
+     *                     that refer to something, the type it holds, the editor it asks for
      * @return raw table data, with {@code totalRows} set when the window omits rows
      */
     public RawTableView getTableRaw(RulesProject project, String tableId, @Nullable Integer startRow,
-            @Nullable Integer maxRows, boolean withStyles) {
-        var context = getOpenLTable(project, tableId);
-        var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles);
-        tableView.messages = mapMessages(context);
-        return tableView;
+            @Nullable Integer maxRows, boolean withStyles, boolean withMetaInfo, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles, withMetaInfo,
+                TableModules.ofWorkspace(context.module(), projectIdentifierMapper));
+        // Only a screen drawing the cells has anything to do with where they sit, so only the grid is told.
+        tableView.layout = TableLayouts.of(context.module(), context.table());
+        return described(tableView, context);
     }
 
     /**
@@ -1812,6 +2092,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var summary = summaryTableReader.read(table);
         return new TablePropertiesView(summary.name, summary.kind, tablePropertiesService.read(table),
                 tableVersionService.describe(table, context.module().getTableSyntaxNodes()));
+    }
+
+    /**
+     * The modules of the project, ready to say which of them holds a given table.
+     *
+     * <p>A screen that sends a reader to a table needs the module as well: the editor opens a module, and a
+     * table is read through the one that holds it.
+     *
+     * @param project project
+     * @return the modules to ask about a table
+     */
+    public TableModules getTableModules(RulesProject project) {
+        return TableModules.of(getProjectDescriptor(project));
     }
 
     /**
@@ -1842,12 +2135,193 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .stream()
                 .filter(declared -> moduleName.equals(declared.getName()))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("project.module.identifier.message"));
+                .orElseThrow(() -> new NotFoundException(NO_SUCH_MODULE));
         return metadataService.getSheets(project, module.getRulesRootPath());
+    }
+
+    /**
+     * What the table says about itself besides its cells: its name and the properties that apply to it.
+     *
+     * <p>The properties include those the table inherits from the properties table of its module or category,
+     * each saying where it came from — which is what a reader needs when the table's header is not shown.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to describe
+     * @param moduleName module the table is asked for through, so the answer is ready once that module is
+     *                   compiled
+     * @return the table's details
+     */
+    public TableDetailsView getTableDetails(RulesProject project, String tableId, @Nullable String moduleName) {
+        return tableDetailsService.read(getOpenLTableInModule(project, tableId, moduleName).table());
+    }
+
+    /**
+     * How the cells of a window of a table are written: the ways of entering a value the table needs, and which
+     * cell asks for which.
+     *
+     * <p>Read once, when a screen starts editing a table, rather than cell by cell as the user moves through it:
+     * the answer describes the whole window the table was read as, so no further request is made while editing.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to read
+     * @param startRow   zero-based index of the first row to look at, or {@code null} for the top
+     * @param maxRows    how many rows from {@code startRow} to look at, or {@code null} for all of them
+     * @param moduleName module the table is asked for through, so the answer is ready once that module is
+     *                   compiled
+     * @return the editors the table needs and the cells that ask for them
+     */
+    public TableEditorsView getTableEditors(RulesProject project, String tableId, @Nullable Integer startRow,
+            @Nullable Integer maxRows, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        return tableEditorsReader.read(context.table(), startRow, maxRows);
+    }
+
+    /**
+     * The tests and runs that exercise the given table.
+     *
+     * <p>Each is a table of its own, named by the id the Tables API addresses it by, so the screen showing them can
+     * open one as it opens any other table — and each says where it is written, because a test need not live in
+     * the module it exercises, nor even in this project.
+     *
+     * @param project project owning the table
+     * @param tableId table the tests are asked about
+     * @return the tests and runs covering it, by name
+     */
+    public List<TableTestView> getTableTests(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        var tests = context.module().getTestAndRunMethods(context.table().getUri(), false);
+        if (tests == null) {
+            return List.of();
+        }
+        var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);
+        return Arrays.stream(tests)
+                .map(test -> {
+                    var node = (TableSyntaxNode) test.getInfo().getSyntaxNode();
+                    var where = modules.locationOf(node.getUri());
+                    return TableTestView.builder()
+                            .id(node.getId())
+                            .name(TableSyntaxNodeUtils.getTestName(test))
+                            .info(ProjectHelper.getTestInfo(test))
+                            .module(where == null ? null : where.module())
+                            .project(where == null ? null : where.projectName())
+                            .projectId(where == null ? null : where.projectId())
+                            .build();
+                })
+                .sorted(Comparator.comparing(TableTestView::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    /**
+     * The tables the given test or run table exercises.
+     *
+     * <p>A test is written against a table of its own project or of one it depends on, so each answer says where
+     * it lives — the screen showing it opens it there, as it opens any other table. A table written in several
+     * versions is tested in all of them at once, and each version is answered under the name that tells it from
+     * the others.
+     *
+     * <p>Any other kind of table exercises nothing and is answered with an empty list.
+     *
+     * @param project    project owning the table
+     * @param tableId    the test or run table the targets are asked about
+     * @param moduleName module the table is asked for through
+     * @return the tables it exercises, in the order the engine holds them
+     */
+    public List<TableTargetView> getTableTargets(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = getOpenLTableInModule(project, tableId, moduleName);
+        // While only the opened module is compiled, its own methods are the ones to look the test up among.
+        var openedModuleOnly = !context.module().isProjectCompilationCompleted();
+        var targets = OpenLTableLogic.getTargetTables(context.table(), context.module(), openedModuleOnly);
+        if (targets.isEmpty()) {
+            return List.of();
+        }
+        var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);
+        return targets.stream()
+                .map(target -> {
+                    var where = modules.locationOf(target.getUri());
+                    return TableTargetView.builder()
+                            .id(target.getId())
+                            .name(target.getName())
+                            .module(where == null ? null : where.module())
+                            .project(where == null ? null : where.projectName())
+                            .projectId(where == null ? null : where.projectId())
+                            .build();
+                })
+                .toList();
     }
 
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId) {
         return getOpenLTable(project, tableId, false);
+    }
+
+    /**
+     * Resolve a table that is asked for through one named module.
+     *
+     * <p>Opening the module compiles it, so the table is there to be read as soon as that is done — the modules
+     * after it are of no interest to the answer and are not waited for.
+     *
+     * <p>A table that module does not hold is not found. Answering with it from wherever else it lives would draw
+     * one module's table on another module's screen, under the wrong tree and the wrong actions — and a link that
+     * named the wrong module would look as if it worked. Asked without a module, the lookup spans the project as
+     * it always has.
+     */
+    private OpenLTableContext getOpenLTableInModule(RulesProject project, String tableId,
+                                                    @Nullable String moduleName) {
+        if (moduleName == null) {
+            return getOpenLTable(project, tableId, false);
+        }
+        var moduleModel = openProject(project, moduleName).project();
+        var table = moduleModel.getTableById(tableId);
+        if (table == null || !moduleModel.getModuleInfo().containsTable(table.getUri())) {
+            throw new NotFoundException("table.in.module.message", moduleName);
+        }
+        return new OpenLTableContext(table, moduleModel);
+    }
+
+    /**
+     * Resolve a table that is about to be written, through the module it is written in.
+     *
+     * <p>Opening that module compiles it and nothing after it, so the write starts as soon as the module it
+     * touches is ready. Asked without a module, the table is looked for across the project — which waits for
+     * every module of it to compile, minutes on a project of any size, for a write that needs one of them.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to write to
+     * @param moduleName module the table is written in, or {@code null} to look across the project
+     * @return the table and the model it was resolved through
+     */
+    private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        var context = moduleName == null
+                ? getOpenLTable(project, tableId, true)
+                : getOpenLTableInModule(project, tableId, moduleName);
+        // A table gathered from several partial tables is drawn from cells that do not sit together, and the
+        // grid it is read through holds no place to write back into. Refused here, where every write resolves
+        // its table, rather than left to fail on the grid itself.
+        if (context.module().isTablePart(context.table().getUri())) {
+            throw new BadRequestException("table.partial.message");
+        }
+        return context;
+    }
+
+    /**
+     * Runs a write of a table, and has the module built from its workbook again when the write is refused.
+     *
+     * <p>A refused write stops part-way. Nothing of it reaches the disk, but what it had already changed stays in
+     * the workbook the session holds, where every request that follows would read it — and be judged against it:
+     * a cell cleared by a write that was then refused makes the next write look as if it emptied the line.
+     * Building the module again from the disk is what puts the session back where the refusal found it.
+     *
+     * @param write the write to run
+     * @return whatever the write answers
+     */
+    private <T> T writing(Supplier<T> write) {
+        try {
+            return write.get();
+        } catch (RuntimeException refused) {
+            // Read again now, not when the reader next asks for it: what the session holds is a workbook no
+            // author wrote, and every request that follows would be judged against it.
+            getWebStudio().rebuildCurrentModule();
+            throw refused;
+        }
     }
 
     /**
@@ -1892,12 +2366,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return table id after the write; differs from {@code tableId} when the table was relocated to grow
      * @throws ProjectException if project is locked by another user
      */
-    public String updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
+    public String updateTable(RulesProject project, String tableId, EditableTableView tableView,
+            @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
+        writer.stampEditWith(systemPropertiesService.onEdit());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableWriterExecutor.executeWrite(writer, tableView);
+        return writing(() -> tableWriterExecutor.executeWrite(writer, tableView));
     }
 
     /**
@@ -1911,34 +2387,62 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public String appendTableLines(RulesProject project,
                                    String tableId,
-                                   AppendTableView tableView) throws ProjectException {
+                                   AppendTableView tableView,
+                                   @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
+        writer.stampEditWith(systemPropertiesService.onEdit());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableWriterExecutor.executeAppend(writer, tableView);
+        return writing(() -> tableWriterExecutor.executeAppend(writer, tableView));
     }
 
     /**
-     * Apply a single raw-source edit to a table.
+     * Apply raw-source edits to a table as one change.
      * <p>
-     * The table is always handled in the raw format regardless of its type. The concrete edit (append, insert or delete
-     * a row or a column, or update a cell) is carried by the action.
+     * The table is always handled in the raw format regardless of its type. The concrete edits (append, insert or
+     * delete a row or a column, update a cell, merge or unmerge a range) are carried by the actions and applied in
+     * the order they are given, each seeing the table as the previous one left it. The workbook is saved once, after
+     * the last of them.
      *
      * @param project project
      * @param tableId table id
-     * @param action  the edit to apply
-     * @return table id after the edit; differs from {@code tableId} when the table was relocated to grow
+     * @param actions the edits to apply, in order
+     * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
      * @throws ProjectException if project is locked by another user
      */
     public String editTableSource(RulesProject project,
                                   String tableId,
-                                  RawTableSourceAction action) throws ProjectException {
+                                  List<RawTableSourceAction> actions,
+                                  @Nullable String moduleName) throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
+        writer.stampEditWith(systemPropertiesService.onEdit());
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableWriterExecutor.executeSourceAction(writer, action);
+        return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
+    }
+
+    /**
+     * Writes the given properties onto a table of the currently opened project.
+     *
+     * <p>Only the properties section is rewritten: a property is added, changed or taken away where it stands, and
+     * the body of the table is neither read nor sent. A property given no value is removed, and an inherited value
+     * applies again in its place.
+     *
+     * @param project    project owning the table
+     * @param tableId    table to write to
+     * @param properties the properties to write, each with the text its value is written as
+     * @return the table's identifier after the write, which changes when the table had to be moved to grow
+     * @throws ProjectException if project is locked by another user
+     */
+    public String updateTableProperties(RulesProject project, String tableId,
+                                        List<TableProperty> properties,
+                                        @Nullable String moduleName) throws ProjectException {
+        requireGranted(project, BasePermission.WRITE);
+        var context = getWritableTable(project, tableId, moduleName);
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        return writing(() -> tablePropertiesService.write(context.table(), properties));
     }
 
     /**
@@ -1951,12 +2455,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param tableId table id
      * @throws ProjectException if project is locked by another user
      */
-    public void deleteTable(RulesProject project, String tableId) throws ProjectException {
+    public void deleteTable(RulesProject project, String tableId, @Nullable String moduleName)
+            throws ProjectException {
         requireGranted(project, BasePermission.WRITE);
-        var context = getOpenLTable(project, tableId, true);
+        var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        writer.delete();
+        writing(() -> {
+            writer.delete();
+            return null;
+        });
     }
 
     /**
@@ -1976,7 +2484,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableCreatorService.createTable(createTableRequest, projectModel);
+        return writing(() -> tableCreatorService.createTable(createTableRequest, projectModel));
     }
 
     /**
@@ -2010,7 +2518,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return writeCopy(projectModel, source, request, sheetName);
+        return writing(() -> writeCopy(projectModel, source, request, sheetName));
     }
 
     /** Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. */

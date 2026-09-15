@@ -55,13 +55,13 @@ class TableCopyServiceTest {
     void copyKeepsTheBodyValuesStylesAndMerges(@TempDir Path projectDir) throws Exception {
         var source = bankLimitIndex(projectDir);
         // Read the source with styles before writing the copy, so the copy is compared against the original.
-        var sourceView = reader.read(source.table(), null, null, true);
+        var sourceView = reader.read(source.table(), null, null, true, false, TableModules.none());
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
         service.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid, tables(source));
         creator.save(destGrid);
 
-        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), null, null, true);
+        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), null, null, true, false, TableModules.none());
 
         // The header is renamed after the copy but keeps the source header's style.
         assertTrue(String.valueOf(cell(copyView, 0, 0).value()).contains("BankLimitIndexCopy"),
@@ -89,7 +89,7 @@ class TableCopyServiceTest {
                 List.of(new TableProperty("state", "AL"), new TableProperty("lob", " ")), destGrid, tables(source));
         creator.save(destGrid);
 
-        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), null, null, true);
+        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), null, null, true, false, TableModules.none());
         var values = copyView.source.stream()
                 .flatMap(List::stream)
                 .map(RawTableCell::value)
@@ -133,7 +133,7 @@ class TableCopyServiceTest {
         var declaredDate = dated.table().getProperties().getEffectiveDate();
 
         // What the copy dialog is prefilled with: the date the source declares, in the form its picker reads.
-        var prefilled = new TablePropertiesServiceImpl().read(dated.table());
+        var prefilled = new TablePropertiesServiceImpl(mock(SystemPropertiesService.class)).read(dated.table());
         var effectiveDate = prefilled.stream().filter(property -> "effectiveDate".equals(property.name()))
                 .findFirst().orElseThrow();
         assertEquals("2009-01-01", effectiveDate.value());

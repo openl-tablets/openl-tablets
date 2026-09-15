@@ -1,0 +1,69 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "acrossTheColumnsTest",
+  "pos": "B13:E15",
+  "source": [
+    [
+      {
+        "cell": "B13",
+        "value": "Test greeting acrossTheColumnsTest"
+      },
+      {
+        "cell": "C13"
+      },
+      {
+        "cell": "D13"
+      },
+      {
+        "cell": "E13"
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": "name"
+      },
+      {
+        "cell": "C14",
+        "value": "Name"
+      },
+      {
+        "cell": "D14",
+        "value": "John"
+      },
+      {
+        "cell": "E14",
+        "value": "Mary"
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "_res_"
+      },
+      {
+        "cell": "C15",
+        "value": "Greeting"
+      },
+      {
+        "cell": "D15",
+        "value": "Hi, John"
+      },
+      {
+        "cell": "E15",
+        "value": "Hello, Mary"
+      }
+    ]
+  ],
+  "headerHeight": 1,
+  "layout": {
+    "transposed": true,
+    "firstDataLine": 2
+  }
+}
+

@@ -69,6 +69,17 @@ Uses ASM (version in root `pom.xml` → `asm.version`). `RulesEngineFactory` is 
 - `SimpleProjectEngineFactory` / `SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder` — builder pattern for project compilation
 - `SimpleMultiModuleInstantiationStrategy` — multi-module loading
 
+### Workbook Loading (`org.openl.rules/src/org/openl/rules/lang/xls/load/`)
+
+A module's Excel workbook is held behind a `WeakReference` (`UnloadableLazyWorkbookLoader`) whenever the dependency
+manager allows unloading, and `LazySheetLoader.getSheet()` reads the file again once it has been collected. What a
+write changes lives only in that workbook until it is saved, so it must not be collected before then.
+
+**Rules**: every path that changes a workbook asks for it through `XlsSheetGridModel.getSheetToWrite()` or
+`getWorkbookToWrite()`, which marks it modified and keeps it in memory until
+`XlsWorkbookSourceCodeModule.save()` clears the mark. Reading through `getSheet()` and writing into what it
+returned loses the change whenever the workbook is collected in between.
+
 ## Rule Utility Libraries (`org.openl.rules.util`)
 
 **Registration**: every new class must be added to `org.openl.conf.LibrariesRegistry` via `DEFAULT.addJavalib(YourClass.class)` in its `static` initializer. Forgetting this leaves the methods invisible to rules.

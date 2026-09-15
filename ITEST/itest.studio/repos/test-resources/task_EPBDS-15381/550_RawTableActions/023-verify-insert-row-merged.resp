@@ -15,8 +15,12 @@ Content-Type: application/json
         "type": "table",
         "id": "5bd8922c903afffdfb749b3841eddcf1",
         "name": "Greeting1",
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==",
+        "project": "EPBDS-15381",
         "module": "EPBDS-15381",
-        "cell": "B5"
+        "cell": "B5",
+        "start": 0,
+        "end": 28
       },
       "stacktrace": true
     }
@@ -162,5 +166,6 @@ Content-Type: application/json
         "value": "Good Night"
       }
     ]
-  ]
+  ],
+  "headerHeight": 4
 }

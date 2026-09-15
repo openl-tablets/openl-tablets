@@ -300,6 +300,31 @@ class ProjectStateValidatorImplTest {
         assertTrue(validator.canDelete(project));
     }
 
+    @Test
+    void canTakeMerge_answersTheProjectState_withoutReadingTheBranches() {
+        var project = mock(RulesProject.class);
+        var repo = mock(BranchRepository.class);
+        when(repo.supports()).thenReturn(BRANCH_FEATURES);
+        when(project.getDesignRepository()).thenReturn(repo);
+
+        assertTrue(validator.canTakeMerge(project));
+
+        // What is not saved yet would be written over by the merge.
+        when(project.isModified()).thenReturn(true);
+        assertFalse(validator.canTakeMerge(project));
+    }
+
+    @Test
+    void canTakeMerge_localOnly_answersWithoutReachingForADesignRepository() {
+        var project = mock(RulesProject.class);
+        when(project.isLocalOnly()).thenReturn(true);
+
+        // A project of the workspace alone has none: asking it about branches throws, and the capabilities of
+        // every local project would be lost with the answer.
+        assertFalse(validator.canTakeMerge(project));
+        assertFalse(validator.canMerge(project));
+    }
+
     // --- canMerge ---
 
     @Test

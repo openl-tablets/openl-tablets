@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
 import type { RawTableCell } from 'types/tables'
 
@@ -13,6 +14,8 @@ const rows: RawTableCell[][] = [
     ],
 ]
 
+const computed: RawTableCell[][] = [[{ cell: 'A1', value: 3, formula: '=1+2' }, { cell: 'B1', value: 'plain' }]]
+
 describe('RawTableGrid', () => {
     it('draws the cells with their merges, leaving the covered ones out', () => {
         render(<RawTableGrid rows={rows} testId="grid" />)
@@ -23,6 +26,38 @@ describe('RawTableGrid', () => {
         expect(cells[0]).toHaveAttribute('data-cell', 'A1')
         expect(cells[0]).toHaveTextContent('Datatype Person')
         expect(cells[1]).toHaveTextContent('String')
+    })
+
+    it('numbers the lines of data down the side of a table written the usual way round', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Test greeting greetingTest' }, { covered: true }],
+            [{ cell: 'A2', value: 'name' }, { cell: 'B2', value: '_res_' }],
+            [{ cell: 'A3', value: 'John' }, { cell: 'B3', value: 'Hi, John' }],
+            [{ cell: 'A4', value: 'Mary' }, { cell: 'B4', value: 'Hello, Mary' }],
+        ]
+
+        render(<RawTableGrid layout={{ firstDataLine: 2 }} rows={table} testId="grid" />)
+
+        // The two lines of headings carry no number; the cases below them are counted from one.
+        expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2'])
+    })
+
+    it('numbers the lines of data across the top of a table written the other way round', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Test greeting greetingTest' }, { covered: true }, { covered: true }],
+            [{ cell: 'A2', value: 'name' }, { cell: 'B2', value: 'John' }, { cell: 'C2', value: 'Mary' }],
+            [{ cell: 'A3', value: '_res_' }, { cell: 'B3', value: 'Hi' }, { cell: 'C3', value: 'Hello' }],
+        ]
+
+        render(<RawTableGrid layout={{ firstDataLine: 1, transposed: true }} rows={table} testId="grid" />)
+
+        expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2'])
+    })
+
+    it('numbers nothing on a table that says nothing about its lines', () => {
+        render(<RawTableGrid rows={rows} testId="grid" />)
+
+        expect(screen.queryByTestId('table-line-number')).not.toBeInTheDocument()
     })
 
     it('paints the cell the way the workbook has it', () => {
@@ -78,9 +113,56 @@ describe('RawTableGrid', () => {
         expect(plain.style.background).toBe('')
     })
 
+    it('shows the note a reader left on a cell, and marks the cell carrying it', async () => {
+        const noted: RawTableCell[][] = [[
+            { cell: 'A1', value: 'Premium', comment: 'Agreed with legal\non 3 May' },
+            { cell: 'B1', value: 'plain' },
+        ]]
+        render(<RawTableGrid rows={noted} testId="grid" />)
+
+        const cells = screen.getByTestId('grid').querySelectorAll('td')
+        // The cell wearing the note is marked; the one beside it is not.
+        expect(cells[0]?.className).not.toEqual(cells[1]?.className)
+
+        await userEvent.hover(cells[0] as Element)
+
+        expect(await screen.findByText(/Agreed with legal/)).toBeInTheDocument()
+    })
+
     it('draws an empty table without a row', () => {
         render(<RawTableGrid rows={[]} testId="grid" />)
 
         expect(screen.getByTestId('grid').querySelectorAll('td')).toHaveLength(0)
+    })
+
+    it('draws what a cell computed, and the formula behind it when the screen asks', () => {
+        const { rerender } = render(<RawTableGrid rows={computed} testId="grid" />)
+        expect(screen.getByTestId('grid').querySelectorAll('td')[0]).toHaveTextContent('3')
+
+        rerender(<RawTableGrid formulas rows={computed} testId="grid" />)
+
+        const cells = screen.getByTestId('grid').querySelectorAll('td')
+        expect(cells[0]).toHaveTextContent('=1+2')
+        // A cell written as a plain value has no formula to show, so it reads the same either way.
+        expect(cells[1]).toHaveTextContent('plain')
+    })
+
+    it('leaves the formula unmarked: what the compiler knows describes the value, not the formula', () => {
+        const marked: RawTableCell[][] = [[{
+            cell: 'A1',
+            value: 'Premium',
+            formula: '=B1&C1',
+            metaInfo: { usages: [{ start: 0, end: 7, description: 'Rules Double Premium()', kind: 'rule' }]},
+        }]]
+
+        const { rerender } = render(<RawTableGrid rows={marked} testId="grid" />)
+        expect(screen.getByTestId('cell-usage-0')).toHaveTextContent('Premium')
+
+        rerender(<RawTableGrid formulas rows={marked} testId="grid" />)
+
+        // The ranges are measured over the value, so on the formula they would mark whatever happened to be
+        // at those positions — and lead somewhere else entirely.
+        expect(screen.queryByTestId('cell-usage-0')).toBeNull()
+        expect(screen.getByTestId('grid').querySelectorAll('td')[0]).toHaveTextContent('=B1&C1')
     })
 })

@@ -1,0 +1,55 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "editors": [
+    {
+      "editor": "numeric",
+      "min": -2147483648,
+      "max": 2147483647,
+      "intOnly": true
+    }
+  ],
+  "cells": [
+    {
+      "row": 5,
+      "column": 0,
+      "editor": 0
+    },
+    {
+      "row": 5,
+      "column": 1,
+      "editor": 0
+    },
+    {
+      "row": 6,
+      "column": 0,
+      "editor": 0
+    },
+    {
+      "row": 6,
+      "column": 1,
+      "editor": 0
+    },
+    {
+      "row": 7,
+      "column": 0,
+      "editor": 0
+    },
+    {
+      "row": 7,
+      "column": 1,
+      "editor": 0
+    },
+    {
+      "row": 8,
+      "column": 0,
+      "editor": 0
+    },
+    {
+      "row": 8,
+      "column": 1,
+      "editor": 0
+    }
+  ]
+}

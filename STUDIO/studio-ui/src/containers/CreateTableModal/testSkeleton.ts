@@ -1,6 +1,15 @@
 import type { DatatypeField, ProjectTable } from 'types/tables'
 import { EXPECTED_RESULT, type TableArgument, type TablePreset, type TargetColumn, title } from './tableSkeletons'
 
+/**
+ * Kinds of table a Test or a Run table can call.
+ *
+ * <p>The kind is what the tables list filters on: `Rules` covers the decision tables and both lookups, and the
+ * rest are the other table types OpenL compiles into a callable method. A table of any other kind is written to
+ * be read, not called, so nothing can be generated against it.
+ */
+export const EXECUTABLE_KINDS = ['Rules', 'Spreadsheet', 'Method', 'TBasic', 'Column Match']
+
 /** The fields of a project datatype, or `null` when the name is not one — a value of it stays a single column. */
 export type FieldsOfType = (typeName: string) => Promise<DatatypeField[] | null>
 

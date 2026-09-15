@@ -15,8 +15,12 @@ Content-Type: application/json
         "type": "table",
         "id": "30507d65bb546d53797e0ab23f25a719",
         "name": "FicaTaxRates",
+        "projectId": "ZGVzaWduOkVQQkRTLTE0NDM0",
+        "project": "EPBDS-14434",
         "module": "EPBDS-14434",
-        "cell": "B2"
+        "cell": "B2",
+        "start": 11,
+        "end": 34
       },
       "stacktrace": true
     }

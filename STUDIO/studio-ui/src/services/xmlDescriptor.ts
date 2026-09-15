@@ -10,6 +10,15 @@ export const directChild = (parent: Element, tag: string): Element | null =>
 export const childValue = (parent: Element, tag: string): string =>
     directChild(parent, tag)?.textContent?.trim() ?? ''
 
+/**
+ * Whether the first direct child with the given tag says yes.
+ *
+ * <p>The engine reads these as XML booleans, which are written `true` or `1`; anything else, the element
+ * missing included, is no.
+ */
+export const childFlag = (parent: Element, tag: string): boolean =>
+    ['true', '1'].includes(childValue(parent, tag))
+
 /** The trimmed text of every direct child with the given tag, dropping the blank ones. */
 export const childValues = (parent: Element, tag: string): string[] =>
     Array.from(parent.children)

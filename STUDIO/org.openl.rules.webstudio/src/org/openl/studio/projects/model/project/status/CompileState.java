@@ -24,5 +24,9 @@ public enum CompileState {
 
     @Schema(description = "Project compilation failed with errors")
     @JsonProperty("errors")
-    ERRORS
+    ERRORS,
+
+    @Schema(description = "Project compilation was stopped before it finished; what was compiled is readable")
+    @JsonProperty("cancelled")
+    CANCELLED
 }

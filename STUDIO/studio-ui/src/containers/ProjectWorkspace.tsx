@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, notification, Skeleton } from 'antd'
 import { createStyles } from 'antd-style'
 import {
-    getDesignRepositories,
     getProject,
     getProjectFiles,
     isProjectModifiedConflict,
@@ -17,18 +16,17 @@ import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '
 import { useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
-import type { Repository } from '../types/repositories'
+import { useSharedStyles } from './projects/sharedStyles'
 import type { Project } from '../types/projects'
 import type { FsNode } from '../types/files'
 import { BusyVeil } from './projects/BusyVeil'
 import { ProjectDetail } from './projects/ProjectDetail'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
-import { creatableRepositories, supportsBranches } from '../utils/repositoryFeatures'
-import { SaveProjectModal } from './projects/SaveProjectModal'
-import { CopyProjectModal } from './projects/CopyProjectModal'
+import { supportsBranches } from '../utils/repositoryFeatures'
 import { ExportProjectModal } from './projects/ExportProjectModal'
 import { OpenRevisionModal } from './projects/OpenRevisionModal'
-import { openDeleteBranchDialog, openMergeDialog } from './projects/branchDialogs'
+import { openDeleteBranchDialog } from './projects/branchDialogs'
+import { useProjectDialogs } from './projects/useProjectDialogs'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { openCompareWindow } from './projects/compare'
 import type { ProjectActionHandlers } from './projects/ProjectActionBar'
@@ -36,24 +34,10 @@ import type { BusyId } from './projects/projectActions'
 import { DiscardChangesModal } from './DiscardChangesModal'
 import { ProjectsRail } from './projects/ProjectsRail'
 import type { NodeFilters } from './projects/projectGrouping'
-import { toUrlSafeId } from '../services/projectId'
+import { moduleRoute, projectFileRoute, toUrlSafeId } from '../services/projectId'
 
 
 const useStyles = createStyles(({ css, token }) => ({
-    page: css`
-        height: calc(100vh - 64px);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        background: ${token.colorBgContainer};
-    `,
-    /** The workspace beside the tree rail: the rail on the left, the project filling the rest. */
-    withRail: css`
-        display: flex;
-        flex: 1;
-        min-width: 0;
-        min-height: 0;
-    `,
     crumb: css`
         display: inline-flex;
         align-items: center;
@@ -100,10 +84,9 @@ const useStyles = createStyles(({ css, token }) => ({
 export const ProjectWorkspace = () => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
+    const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
     const { projectId } = useParams()
-    // Read only when the copy dialog first opens; `null` until then.
-    const [repositories, setRepositories] = useState<Repository[] | null>(null)
     const [project, setProject] = useState<Project | null>(null)
     // When the read behind the shown project started, so the compile dot can tell a pushed status
     // that is newer than this answer from one this answer has already overtaken.
@@ -114,8 +97,6 @@ export const ProjectWorkspace = () => {
     // What the project is busy with, or null. Every operation on it runs through this, so the project shows
     // one busy state and offers no second operation until the first one is over.
     const [pendingId, setPendingId] = useState<BusyId | null>(null)
-    const [saveOpen, setSaveOpen] = useState(false)
-    const [copySource, setCopySource] = useState<Project | null>(null)
     const [openRevisionFor, setOpenRevisionFor] = useState<Project | null>(null)
     const [exportSource, setExportSource] = useState<Project | null>(null)
     const [discardCloseOpen, setDiscardCloseOpen] = useState(false)
@@ -210,15 +191,6 @@ export const ProjectWorkspace = () => {
     // Only the copy dialog's target picker needs the repository list — the screen itself lives off the
     // project's own repositoryInfo. So the list is read once, when the dialog first opens, and never at
     // all for the user who does not copy (for one granted a single project it reads as empty anyway).
-    useEffect(() => {
-        if (copySource === null || repositories !== null) {
-            return
-        }
-        getDesignRepositories(LOCAL_LOAD_API_OPTIONS)
-            .then(setRepositories)
-            .catch(() => setRepositories([]))
-    }, [copySource, repositories])
-
     // Drop the previous project immediately on navigation so its content never flashes under the new id.
     useEffect(() => {
         setProject(null)
@@ -271,7 +243,6 @@ export const ProjectWorkspace = () => {
         repoLabel = repoInfo?.name ?? (local ? t('home.local') : project.repository)
         repoType = repoInfo?.type ?? (local ? 'repo-file' : undefined)
     }
-    const creatableRepos = useMemo(() => creatableRepositories(repositories), [repositories])
 
     // Fetch the project's files only when the Files tab becomes visible. A failed fetch shows an error state,
     // retried on the next project reload.
@@ -355,19 +326,26 @@ export const ProjectWorkspace = () => {
     // is withdrawn on the id as well as on the way out.
     useEffect(() => closeProjectDialog, [projectId])
 
+    // Saving, copying, syncing and deploying are the project's own; the module editor offers the same ones.
+    const { actions: projectActions, dialogs: projectDialogs } = useProjectDialogs(project, {
+        busy: (id, work) => void busyWhile(id, work),
+        onChanged: () => void load(),
+    })
+
     const handlers: ProjectActionHandlers = useMemo(() => {
         if (!project) {
             // The action bar is only rendered with a project; the handlers are never reached without one.
             return {} as ProjectActionHandlers
         }
-        // Both branch dialogs read the project's branches before they can be dispatched — a whole round
-        // trip the button holds its spinner for, instead of dead-ending until a dialog appears
-        // unannounced. Nothing is reloaded behind the open dialog: it reads the project itself when it
-        // finishes, and a reload as it opens would flash the veil over a dialog still being filled in.
-        const openBranchDialog = (
-            id: 'sync' | 'deleteBranch',
-            open: (project: Project, onSuccess: () => void) => Promise<void>
-        ) => void busyWhile(id, () => open(project, () => void busyWhile(id, load)), 'browser.branch.load_failed')
+        // The dialog reads the project's branches before it can be dispatched — a whole round trip the
+        // button holds its spinner for, instead of dead-ending until a dialog appears unannounced. Nothing
+        // is reloaded behind the open dialog: it reads the project itself when it finishes, and a reload as
+        // it opens would flash the veil over a dialog still being filled in.
+        const openDeleteBranch = () => void busyWhile(
+            'deleteBranch',
+            () => openDeleteBranchDialog(project, () => void busyWhile('deleteBranch', load)),
+            'browser.branch.load_failed'
+        )
         return {
             // The detail response is already loaded, so the dialog never reads the dependencies again.
             open: () => openProjectDialog(
@@ -385,11 +363,11 @@ export const ProjectWorkspace = () => {
                     void closeProject()
                 }
             },
-            save: () => setSaveOpen(true),
-            copy: () => setCopySource(project),
+            save: projectActions.save,
+            copy: projectActions.copy,
             openRevision: () => setOpenRevisionFor(project),
-            sync: () => openBranchDialog('sync', openMergeDialog),
-            deleteBranch: () => openBranchDialog('deleteBranch', openDeleteBranchDialog),
+            sync: projectActions.sync,
+            deleteBranch: openDeleteBranch,
             export: () => setExportSource(project),
             delete: () => window.dispatchEvent(new CustomEvent('openDeleteProjectModal', {
                 detail: {
@@ -399,18 +377,14 @@ export const ProjectWorkspace = () => {
                 },
             })),
             unlock: () => runAction('unlock', () => unlockProject(project.id), 'browser.unlock_failed'),
-            deploy: () => {
-                window.dispatchEvent(new CustomEvent('openDeployModal', {
-                    detail: project,
-                }))
-            },
+            deploy: projectActions.deploy,
             compare: () => openCompareWindow(project),
         }
     }, [busyWhile, closeProject, load, navigate, project, runAction])
 
     if (loading && !project && !error) {
         return (
-            <div className={styles.page}>
+            <div className={shared.workspacePage}>
                 <div className={styles.centered} data-testid="project-workspace-loading">
                     <Skeleton active className={styles.skeleton} />
                 </div>
@@ -431,13 +405,15 @@ export const ProjectWorkspace = () => {
     }
 
     return (
-        <div className={styles.page} data-testid="project-workspace">
-            <div className={styles.withRail}>
+        <div className={shared.workspacePage} data-testid="project-workspace">
+            <div className={shared.workspaceBody}>
                 <ProjectsRail
                     currentProjectId={project?.id}
                     initialMode="tree"
                     // A group leads back to the list, showing exactly the projects it holds.
+                    onOpenFile={(other, path) => navigate(projectFileRoute(other.id, path))}
                     onOpenGroup={filters => navigate(`/projects?${groupQuery(filters)}`)}
+                    onOpenModule={(other, moduleName) => navigate(moduleRoute(other.id, moduleName))}
                     onOpenProject={other => navigate(`/projects/${toUrlSafeId(other.id)}`)}
                     onShowAll={() => navigate('/projects')}
                     reloadToken={reloadToken}
@@ -490,12 +466,7 @@ export const ProjectWorkspace = () => {
             </div>
             {/* Each dialog hands the project back busy: its own spinner covers the request, and the busy
                 state covers the read that follows, which is the slower half of the two. */}
-            <SaveProjectModal
-                onClose={() => setSaveOpen(false)}
-                onSaved={() => void busyWhile('save', load)}
-                open={saveOpen}
-                project={project}
-            />
+            {projectDialogs}
             <ExportProjectModal
                 onClose={() => setExportSource(null)}
                 open={exportSource !== null}
@@ -506,13 +477,6 @@ export const ProjectWorkspace = () => {
                 onOpened={() => void busyWhile('openRevision', load)}
                 open={openRevisionFor !== null}
                 project={openRevisionFor}
-            />
-            <CopyProjectModal
-                onClose={() => setCopySource(null)}
-                onCopied={() => void busyWhile('copy', load)}
-                open={copySource !== null}
-                project={copySource}
-                repositories={creatableRepos}
             />
             <DiscardChangesModal
                 cancelButtonTestId="discard-close-cancel"

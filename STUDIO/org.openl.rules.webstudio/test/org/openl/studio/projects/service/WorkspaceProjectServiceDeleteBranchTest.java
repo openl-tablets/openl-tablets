@@ -41,14 +41,19 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.project.compile.ModuleCompilationLauncher;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
+import org.openl.studio.projects.service.tables.TableDetailsService;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
+import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
+import org.openl.studio.projects.service.tables.read.TableEditorsReader;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -103,16 +108,20 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(ProjectDependencyResolver.class),
                 mock(SummaryTableReader.class),
                 mock(RawTableReader.class),
+                mock(TableEditorsReader.class),
                 List.of(),
                 mock(Function.class),
                 mock(BeanValidationProvider.class),
                 mock(TableCreatorService.class),
                 mock(TableCopyService.class),
                 mock(TablePropertiesService.class),
+                mock(TableRunStateService.class),
+                mock(TableDetailsService.class),
                 new TableVersionService(),
                 mock(ProjectMetadataService.class),
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
+                mock(SystemPropertiesService.class),
                 mock(ApplicationEventPublisher.class),
                 mock(ProtectedBranchBypassService.class),
                 mock(ProjectIdentifierMapper.class),
@@ -125,6 +134,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(Environment.class),
                 mock(ProjectTagsCache.class),
                 new ProjectListingContext(),
+                mock(ModuleCompilationLauncher.class),
                 () -> userWorkspace);
     }
 

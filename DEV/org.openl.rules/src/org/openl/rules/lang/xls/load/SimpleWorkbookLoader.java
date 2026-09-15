@@ -64,6 +64,14 @@ public class SimpleWorkbookLoader implements WorkbookLoader {
         //nothing to do
     }
 
+    /**
+     * Has no effect: this implementation never unloads the workbook, so a change it holds cannot be lost.
+     */
+    @Override
+    public void setModified(boolean modified) {
+        //nothing to do
+    }
+
     @Override
     public SpreadsheetConstants getSpreadsheetConstants() {
         return spreadsheetConstants;

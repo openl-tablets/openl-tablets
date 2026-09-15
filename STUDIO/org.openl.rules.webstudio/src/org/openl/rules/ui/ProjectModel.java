@@ -18,11 +18,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.acls.domain.BasePermission;
 
@@ -98,7 +101,6 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -123,6 +125,14 @@ public class ProjectModel {
     private volatile CompiledOpenClass openedModuleCompiledOpenClass;
     @Getter
     private volatile boolean compilationInProgress;
+    /**
+     * Set when the compilation was told to stop, and cleared when one is asked for again.
+     *
+     * <p>Read by the status, which would otherwise report a compilation that stopped as one still running: what
+     * ends it is the absence of further work, not a result.
+     */
+    @Getter
+    private volatile boolean compilationCancelled;
     private volatile ResolvedDependency projectCompilationCompleted;
     /**
      * The most recent registered compilation cycle. A fresh instance is published whenever the
@@ -138,9 +148,11 @@ public class ProjectModel {
         return currentCompilation.get();
     }
 
-    private XlsModuleSyntaxNode xlsModuleSyntaxNode;
+    private volatile XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
     private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
+    /** The node the last compilation of each project answers for it with. See {@link #replaceProjectNode}. */
+    private final Map<String, XlsModuleSyntaxNode> projectSyntaxNodes = new ConcurrentHashMap<>();
 
     /**
      * Delivers {@link ProjectStatusChangedEvent}s outside the compilation threads.
@@ -155,14 +167,25 @@ public class ProjectModel {
         return thread;
     });
 
+    /**
+     * Set while a status update is on its way to the notifier.
+     *
+     * <p>The notifier reads the status when it runs, not when it was asked to, so changes arriving in a row
+     * are one update rather than one each — a project of fifty modules reports fifty times, not fifty times
+     * fifty.
+     */
+    private final AtomicBoolean statusUpdateHandedOff = new AtomicBoolean();
+
     @Getter
-    private Module moduleInfo;
+    private volatile Module moduleInfo;
     private long moduleLastModified;
 
     private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
     @Getter
-    private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
+    private volatile WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
+    /** The session this model belongs to, which knows the projects of the workspace and how they are addressed. */
+    @Getter
     private final WebStudio studio;
 
     private TreeNode projectRoot;
@@ -509,17 +532,16 @@ public class ProjectModel {
     }
 
     public TestSuiteMethod[] getAllTestMethods() {
-        if (isCompiledSuccessfully()) {
-            return ProjectHelper.allTesters(compiledOpenClass.getOpenClassWithErrors());
-        }
-        return null;
+        // Read once: opening another module empties this between the question and the answer.
+        var compiled = this.compiledOpenClass;
+        return compiled != null && isCompiledSuccessfully() ? ProjectHelper
+                .allTesters(compiled.getOpenClassWithErrors()) : null;
     }
 
     public TestSuiteMethod[] getOpenedModuleTestMethods() {
-        if (isOpenedModuleCompiledSuccessfully()) {
-            return ProjectHelper.allTesters(openedModuleCompiledOpenClass.getOpenClassWithErrors());
-        }
-        return null;
+        var compiled = this.openedModuleCompiledOpenClass;
+        return compiled != null && isOpenedModuleCompiledSuccessfully() ? ProjectHelper
+                .allTesters(compiled.getOpenClassWithErrors()) : null;
     }
 
     public WorkbookSyntaxNode[] getWorkbookNodes() {
@@ -576,63 +598,108 @@ public class ProjectModel {
         isModified();
     }
 
-    public synchronized ProjectCompilationStatus getCompilationStatus() {
-        ProjectCompilationStatus.Builder compilationStatus = ProjectCompilationStatus.newBuilder();
-        if (moduleInfo != null && moduleInfo.getWebstudioConfiguration() != null && moduleInfo
-                .getWebstudioConfiguration()
-                .isCompileThisModuleOnly()) {
-            if (compiledOpenClass != null) {
-                compilationStatus.addMessages(compiledOpenClass.getAllMessages());
-            }
-            compilationStatus.setModulesCompiled(1);
-            compilationStatus.addModulesCount(1);
-        } else {
-            if (webStudioWorkspaceDependencyManager == null) {
-                return compilationStatus.build();
-            }
-            Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager
-                    .findAllProjectDependencyLoaders(moduleInfo.getProject());
-            if (isProjectCompilationCompleted()) {
-                if (compiledOpenClass != null) {
-                    compilationStatus.addMessages(compiledOpenClass.getAllMessages());
-                }
-                dependencyLoaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(e -> {
-                    compilationStatus.addModulesCount(e.getProject().getModules().size());
-                    compilationStatus.addModulesCompiled(e.getProject().getModules().size());
-                });
-            } else {
-                for (IDependencyLoader dependencyLoader : dependencyLoaders) {
-                    if (dependencyLoader.isProjectLoader()) {
-                        if (!Objects.equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
-                            if (dependencyLoader.getRefToCompiledDependency() != null) {
-                                compilationStatus.addMessages(
-                                        dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages());
-                            }
-                        }
-                    } else {
-                        compilationStatus.addModulesCount(1);
-                        boolean isOpenedModule = Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName())
-                                && Objects.equals(dependencyLoader.getProject(), moduleInfo.getProject());
-                        if (isOpenedModule && openedModuleCompiledOpenClass != null) {
-                            // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
-                            // rewrite the algorithm to handle with it is required here
-                            compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
-                                    .addModulesCompiled(1);
-                        } else {
-                            // Fallback path for the opened module BEFORE setModuleInfo publishes
-                            // `openedModuleCompiledOpenClass` (the loader's ref is set by then),
-                            // and the canonical path for all other module loaders.
-                            CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
-                            if (compiledDependency != null) {
-                                compilationStatus.addMessages(compiledDependency.getCompiledOpenClass().getMessages())
-                                        .addModulesCompiled(1);
-                            }
-                        }
-                    }
-                }
-            }
+    /**
+     * How far the compilation of this project has come, and what it has raised.
+     *
+     * <p>Answered without the model's own lock: a compilation holds that lock from its first module to its
+     * last, and a reader asking how it is going must not be made to wait for it to end. What the answer reads
+     * are the results already published by the compilation, so a status read a moment before a module finishes
+     * simply does not count that module — the next read does.
+     */
+    public ProjectCompilationStatus getCompilationStatus() {
+        var module = this.moduleInfo;
+        var status = ProjectCompilationStatus.newBuilder();
+        if (module == null) {
+            return status.build();
         }
-        return compilationStatus.build();
+        if (compilesAlone(module)) {
+            return compiledAloneStatus(status);
+        }
+        var dependencyManager = this.webStudioWorkspaceDependencyManager;
+        if (dependencyManager == null) {
+            return status.build();
+        }
+        var loaders = dependencyManager.findAllProjectDependencyLoaders(module.getProject());
+        if (isProjectCompilationCompleted()) {
+            return compiledThroughStatus(status, loaders);
+        }
+        for (IDependencyLoader loader : loaders) {
+            countWhileCompiling(status, loader, module);
+        }
+        return status.build();
+    }
+
+    /** Whether opening the module compiles it alone, leaving out the modules it does not depend on. */
+    private static boolean compilesAlone(Module module) {
+        return module.getWebstudioConfiguration() != null
+                && module.getWebstudioConfiguration().isCompileThisModuleOnly();
+    }
+
+    /** A module compiled on its own is the whole cycle: one module, counted as finished, with its messages. */
+    private ProjectCompilationStatus compiledAloneStatus(ProjectCompilationStatus.Builder status) {
+        var compiled = this.compiledOpenClass;
+        if (compiled != null) {
+            status.addMessages(compiled.getAllMessages());
+        }
+        return status.setModulesCompiled(1).addModulesCount(1).build();
+    }
+
+    /** A project compiled through counts its modules from the project loaders rather than one by one. */
+    private ProjectCompilationStatus compiledThroughStatus(ProjectCompilationStatus.Builder status,
+                                                           Collection<IDependencyLoader> loaders) {
+        var compiled = this.compiledOpenClass;
+        if (compiled != null) {
+            status.addMessages(compiled.getAllMessages());
+        }
+        loaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(loader -> {
+            var modules = loader.getProject().getModules().size();
+            status.addModulesCount(modules).addModulesCompiled(modules);
+        });
+        return status.build();
+    }
+
+    /** What one loader adds while the project is still compiling: a module of it, or another project's messages. */
+    private void countWhileCompiling(ProjectCompilationStatus.Builder status,
+                                     IDependencyLoader loader,
+                                     Module module) {
+        if (loader.isProjectLoader()) {
+            addOtherProjectMessages(status, loader, module);
+            return;
+        }
+        status.addModulesCount(1);
+        var opened = isOpenedModule(loader, module) ? this.openedModuleCompiledOpenClass : null;
+        if (opened != null) {
+            // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
+            // rewrite the algorithm to handle with it is required here
+            status.addMessages(opened.getAllMessages()).addModulesCompiled(1);
+            return;
+        }
+        // Fallback path for the opened module BEFORE setModuleInfo publishes
+        // `openedModuleCompiledOpenClass` (the loader's ref is set by then),
+        // and the canonical path for all other module loaders.
+        CompiledDependency compiledDependency = loader.getRefToCompiledDependency();
+        if (compiledDependency != null) {
+            status.addMessages(compiledDependency.getCompiledOpenClass().getMessages()).addModulesCompiled(1);
+        }
+    }
+
+    /** The messages a project other than the module's own carries into the status, once it has compiled. */
+    private static void addOtherProjectMessages(ProjectCompilationStatus.Builder status,
+                                                IDependencyLoader loader,
+                                                Module module) {
+        if (Objects.equals(loader.getProject(), module.getProject())) {
+            return;
+        }
+        var compiled = loader.getRefToCompiledDependency();
+        if (compiled != null) {
+            status.addMessages(compiled.getCompiledOpenClass().getMessages());
+        }
+    }
+
+    /** Whether the loader is the one of the module being read. */
+    private static boolean isOpenedModule(IDependencyLoader loader, Module module) {
+        return Objects.equals(loader.getModule().getName(), module.getName())
+                && Objects.equals(loader.getProject(), module.getProject());
     }
 
     public Collection<OpenLMessage> getModuleMessages() {
@@ -841,16 +908,16 @@ public class ProjectModel {
      */
     private ProjectTreeNode addToNode(ProjectTreeNode targetNode, Object object, TreeNodeBuilder treeNodeBuilder) {
 
-        // Create key for adding object. It used to check that the same node
-        // exists.
-        //
-        Comparable<?> key = treeNodeBuilder.makeKey(object);
-
         ProjectTreeNode element = null;
 
-        // If key is null the rest of building node process should be skipped.
+        // A builder is asked for a key only once it says it applies to the object: a key it cannot make for an
+        // object it does not group is not a key anyone would use. If the key is null there is nothing to add.
         //
-        if (treeNodeBuilder.isBuilderApplicableForObject(object) && key != null) {
+        Comparable<?> key = treeNodeBuilder.isBuilderApplicableForObject(object)
+                ? treeNodeBuilder.makeKey(object)
+                : null;
+
+        if (key != null) {
 
             // Try to find child node with the same object.
             //
@@ -1008,8 +1075,8 @@ public class ProjectModel {
 
     private void initProjectHistory() {
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            LocalRepository repository = getLocalRepository();
+        LocalRepository repository = getLocalRepository();
+        if (workbookNodes != null && repository != null) {
 
             for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
                 var sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
@@ -1026,9 +1093,10 @@ public class ProjectModel {
         }
     }
 
+    /** Where this project's edits are kept, or nothing when the model stands outside a workspace. */
     private LocalRepository getLocalRepository() {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-        return userWorkspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
+        var workspace = studio.getUserWorkspace();
+        return workspace == null ? null : workspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
     }
 
     public synchronized TableSyntaxNode[] getTableSyntaxNodes() {
@@ -1148,6 +1216,28 @@ public class ProjectModel {
         return executableNodes;
     }
 
+    /**
+     * Tells the compilation of this project to stop.
+     *
+     * <p>Answered without the model's own lock, which the compilation holds while it runs: the point of asking is
+     * that the compilation is long. The module being compiled at this moment is finished and nothing after it is
+     * started, so the request returns at once and the compilation ends shortly after.
+     *
+     * <p>What is already compiled stays readable, and a reader waiting on this compilation is answered with it.
+     * The next request to compile the module builds it from the workbook.
+     */
+    public void cancelCompilation() {
+        var dependencyManager = this.webStudioWorkspaceDependencyManager;
+        if (dependencyManager == null || !dependencyManager.isActive()) {
+            return;
+        }
+        compilationCancelled = true;
+        dependencyManager.cancel();
+        compilationInProgress = false;
+        currentCompilation.get().future().cancel(false);
+        publishStatusChanged();
+    }
+
     public synchronized void redraw() {
         projectRoot = null;
     }
@@ -1165,6 +1255,7 @@ public class ProjectModel {
                 if (webStudioWorkspaceDependencyManager != null) {
                     webStudioWorkspaceDependencyManager.shutdown();
                     xlsModuleSyntaxNodesPerProject.clear();
+                    projectSyntaxNodes.clear();
                     xlsModuleSyntaxNodes.clear();
                 }
                 webStudioWorkspaceDependencyManager = null;
@@ -1236,6 +1327,7 @@ public class ProjectModel {
         if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.shutdown();
             xlsModuleSyntaxNodesPerProject.clear();
+            projectSyntaxNodes.clear();
             xlsModuleSyntaxNodes.clear();
         }
         webStudioWorkspaceDependencyManager = null;
@@ -1245,6 +1337,23 @@ public class ProjectModel {
 
     public void setModuleInfo(Module moduleInfo) throws Exception {
         setModuleInfo(moduleInfo, ReloadType.NO);
+    }
+
+    /**
+     * Whether the two describe the same module of the same project.
+     *
+     * <p>Compared by what they name rather than by being the same object: the project descriptors are resolved
+     * again whenever the workspace is refreshed, so the module a request asks for is a new object every time —
+     * and taking it for another module would compile the open one again on every read.
+     *
+     * <p>Says nothing about the repository the project was read from — two repositories may each hold a project
+     * of that name. The session knows which one it is reading and tells them apart itself.
+     */
+    static boolean isSameModule(Module one, Module other) {
+        return one != null && other != null
+                && Objects.equals(one.getName(), other.getName())
+                && Objects.equals(one.getRulesRootPath(), other.getRulesRootPath())
+                && Objects.equals(one.getProject().getName(), other.getProject().getName());
     }
 
     private void addCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
@@ -1281,8 +1390,28 @@ public class ProjectModel {
         return xlsModuleSyntaxNodesPerProject.computeIfAbsent(projectName, e -> ConcurrentHashMap.newKeySet());
     }
 
+    /**
+     * Puts the node a compilation of the whole project produced in place of the one before it.
+     *
+     * <p>A project is compiled again whenever a table of it is written to, and each compilation builds a node
+     * of its own from the workbooks as they stood. Unlike a module's node, it belongs to no dependency, so
+     * nothing drops it when the project is compiled again. Gathered, they hold every compilation the session
+     * has ever run — each with its own parsed workbooks — for as long as the project stays open.
+     */
+    private void replaceProjectNode(String projectName, @Nullable XlsModuleSyntaxNode node) {
+        var nodes = getModuleSyntaxNodesByProject(projectName);
+        var previous = node == null ? projectSyntaxNodes.remove(projectName)
+                : projectSyntaxNodes.put(projectName, node);
+        if (previous != null) {
+            nodes.remove(previous);
+        }
+        if (node != null) {
+            nodes.add(node);
+        }
+    }
+
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
-        if (moduleInfo == null || this.moduleInfo == moduleInfo && reloadType == ReloadType.NO) {
+        if (moduleInfo == null || reloadType == ReloadType.NO && isSameModule(this.moduleInfo, moduleInfo)) {
             return;
         }
 
@@ -1302,11 +1431,15 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
 
+        compilationCancelled = false;
         initHistoryStoragePath();
         isModified();
         clearModuleResources(); // prevent memory leak
         projectRoot = null;
         xlsModuleSyntaxNode = null;
+        // What was compiled belongs to the module being replaced, and the new one is not compiled until the
+        // load below returns. Keeping it would report the module as ready from the moment it was asked for.
+        openedModuleCompiledOpenClass = null;
         prepareWorkspaceDependencyManager(moduleInfo.getProject());
         try {
             CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
@@ -1338,7 +1471,10 @@ public class ProjectModel {
     }
 
     public void compileProject(boolean sync, boolean prepareWorkspaceDependencyManager) {
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        if (compilationCancelled) {
+            // The module that was being compiled ended, and the reader asked for no more.
+            return;
+        }
         final RegisteredCompilation cycle;
         synchronized (this) {
             ProjectDescriptor projectDescriptor = getProjectDescriptor();
@@ -1356,22 +1492,36 @@ public class ProjectModel {
             ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
             this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
                 Throwable failure = null;
+                var stopped = false;
                 synchronized (this) {
-                    try {
-                        this.compiledOpenClass = this.validate(projectDescriptor);
-                        XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                .getMetaInfo();
-                        getModuleSyntaxNodesByProject(projectDescriptor.getName()).add(metaInfo1.getXlsModuleNode());
-                        redraw();
-                    } catch (Exception | LinkageError e) {
-                        onCompilationFailed(e);
-                        failure = e;
+                    if (compilationCancelled) {
+                        // The reader stopped the compilation while this load was on its way. What was built
+                        // stays as it is — the module they have open above all: validating the project now
+                        // would go through a dependency manager that answers every module with an
+                        // interruption, and the empty class it returns would replace both. The project is not
+                        // marked as compiled through either, because it is not.
+                        this.compilationInProgress = false;
+                        stopped = true;
+                    } else {
+                        try {
+                            this.compiledOpenClass = this.validate(projectDescriptor);
+                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                    .getMetaInfo();
+                            replaceProjectNode(projectDescriptor.getName(), metaInfo1.getXlsModuleNode());
+                            redraw();
+                        } catch (Exception | LinkageError e) {
+                            onCompilationFailed(e);
+                            failure = e;
+                        }
+                        this.projectCompilationCompleted = compiledDependency.getDependency();
+                        this.compilationInProgress = false;
                     }
-                    this.projectCompilationCompleted = compiledDependency.getDependency();
-                    this.compilationInProgress = false;
-                    countDownLatch.countDown();
                 }
-                if (failure != null) {
+                if (stopped) {
+                    // The cycle ends however the compilation ended, a stop included: a caller waiting on it
+                    // would otherwise wait for something nothing is going to finish.
+                    cycle.future().cancel(false);
+                } else if (failure != null) {
                     cycle.future().completeExceptionally(failure);
                 } else {
                     cycle.future().complete(null);
@@ -1380,10 +1530,12 @@ public class ProjectModel {
         }
         publishStatusChanged();
         if (sync) {
+            // The cycle ends the compilation however it ends — built, failed, or stopped by the reader. Waiting
+            // on the work itself would leave a caller here for good when nothing finishes it.
             try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                cycle.future().join();
+            } catch (CancellationException | CompletionException ended) {
+                // What was compiled stays readable; the status is what says how the compilation ended.
             }
         }
     }
@@ -1399,20 +1551,37 @@ public class ProjectModel {
         if (publisher == null) {
             return;
         }
+        if (Thread.holdsLock(this)) {
+            // Opening a module compiles it while this monitor is held, which on a large project is minutes,
+            // and reading the status needs the same monitor — so a hand-off would wait for the very
+            // compilation it reports on and deliver everything once it ended. This thread holds the monitor
+            // already: what it can read without waiting — how far the compilation has come — is published
+            // here, while it is still news. The full status is handed off as well, so it arrives the moment
+            // the monitor is free — a compile that publishes nothing afterwards still tells the whole story.
+            doPublishStatusChanged(publisher, true);
+        }
         // This may run on a compilation worker while the compilation monitor is held (see
         // addCompiledDependency). Publishing inline would acquire this model's monitor via
         // getProject() and deadlock against a foreground setModuleInfo() that holds the model
         // monitor and waits for the compilation monitor. Hand the update off to a dedicated
         // worker so no compilation lock is held while the model status is read and delivered.
+        if (!statusUpdateHandedOff.compareAndSet(false, true)) {
+            // An update is already on its way and will read the state this change leaves behind.
+            return;
+        }
         try {
-            statusNotifier.execute(() -> doPublishStatusChanged(publisher));
+            statusNotifier.execute(() -> {
+                statusUpdateHandedOff.set(false);
+                doPublishStatusChanged(publisher, false);
+            });
         } catch (RejectedExecutionException e) {
+            statusUpdateHandedOff.set(false);
             // The model is being torn down (destroy()); a stale status update is safe to drop.
             log.debug("Project status notifier is shut down; skipping status update", e);
         }
     }
 
-    private void doPublishStatusChanged(ApplicationEventPublisher publisher) {
+    private void doPublishStatusChanged(ApplicationEventPublisher publisher, boolean progressOnly) {
         // The notifier thread has no Spring Security context, and getProject() goes through
         // SecureUserWorkspace, so bind the session's captured Authentication for this call.
         studio.runAsSessionUser(() -> {
@@ -1421,7 +1590,8 @@ public class ProjectModel {
                 if (project == null) {
                     return;
                 }
-                publisher.publishEvent(new ProjectStatusChangedEvent(this, project, studio.getCurrentUsername()));
+                publisher.publishEvent(
+                        new ProjectStatusChangedEvent(this, project, studio.getCurrentUsername(), progressOnly));
             } catch (RuntimeException e) {
                 log.debug("Failed to publish project status changed event", e);
             }
@@ -1477,6 +1647,15 @@ public class ProjectModel {
     }
 
     private void prepareWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
+        if (webStudioWorkspaceDependencyManager != null && !webStudioWorkspaceDependencyManager.isActive()) {
+            // A manager that was told to stop compiles nothing again, so a new compilation gets a new one. The
+            // old one is shut down first: its thread and everything it compiled are held until it is.
+            webStudioWorkspaceDependencyManager.shutdown();
+            webStudioWorkspaceDependencyManager = null;
+            xlsModuleSyntaxNodesPerProject.clear();
+            projectSyntaxNodes.clear();
+            xlsModuleSyntaxNodes.clear();
+        }
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                     .buildDependencyManager(projectDescriptor);
@@ -1508,6 +1687,7 @@ public class ProjectModel {
                 if (!allProjectCanBeReused) {
                     webStudioWorkspaceDependencyManager.shutdown();
                     xlsModuleSyntaxNodesPerProject.clear();
+                    projectSyntaxNodes.clear();
                     xlsModuleSyntaxNodes.clear();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                             .buildDependencyManager(projectDescriptor);
@@ -1534,26 +1714,55 @@ public class ProjectModel {
         return new TableEditorModel(table, tableView, false);
     }
 
-    public synchronized boolean isCompiledSuccessfully() {
-        return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null && !(compiledOpenClass
-                .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
+    public boolean isCompiledSuccessfully() {
+        // Read once: opening another module empties this while a reader is in the middle of the answer.
+        var compiled = this.compiledOpenClass;
+        return compiled != null && isUsable(compiled) && xlsModuleSyntaxNode != null;
     }
 
-    public synchronized boolean isOpenedModuleCompiledSuccessfully() {
-        return openedModuleCompiledOpenClass != null && openedModuleCompiledOpenClass
-                .getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
-                .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
+    /**
+     * Whether the module now open has been compiled, with errors or without.
+     *
+     * <p>Says only that the compilation of that module is over — a module that failed to compile is compiled
+     * too, and what it raised is in the status. Use {@link #isOpenedModuleCompiledSuccessfully()} to ask
+     * whether anything can be run against it.
+     */
+    public boolean isOpenedModuleCompiled() {
+        return openedModuleCompiledOpenClass != null;
+    }
+
+    public boolean isOpenedModuleCompiledSuccessfully() {
+        var compiled = this.openedModuleCompiledOpenClass;
+        return compiled != null && isUsable(compiled) && xlsModuleSyntaxNode != null;
+    }
+
+    /**
+     * Whether the module that is open is waiting for the reader to compile it.
+     *
+     * <p>True only where automatic compilation is switched off and the module has been written to since it was
+     * last built: what the compiler says about it is what it said before that write, and the reader asks for it
+     * to be built again when they are ready.
+     */
+    public boolean isManualCompileNeeded() {
+        return studio.isManualCompileNeeded();
+    }
+
+    /** Whether anything can be run against what was compiled, or the module failed before it had a class. */
+    private static boolean isUsable(CompiledOpenClass compiled) {
+        var openClass = compiled.getOpenClassWithErrors();
+        return openClass != null && !(openClass instanceof NullOpenClass);
     }
 
     private void initHistoryStoragePath() {
-        if (WebStudioUtils.getSession() != null) {
-            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                    .getLocalWorkspace()
-                    .getLocation();
-            this.historyStoragePath = Path
-                    .of(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
-                    .toString();
+        // A model outside a workspace — a project read straight from disk — keeps no history of its edits.
+        var workspace = studio.getUserWorkspace();
+        if (workspace == null) {
+            return;
         }
+        var location = workspace.getLocalWorkspace().getLocation();
+        this.historyStoragePath = Path
+                .of(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
+                .toString();
     }
 
     public synchronized RecentlyVisitedTables getRecentlyVisitedTables() {
