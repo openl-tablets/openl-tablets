@@ -1977,13 +1977,23 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .findFirst()
                 .orElse(null);
         var tableView = reader != null ? reader.read(table) : rawTableReader.read(table);
-        tableView.messages = mapMessages(context);
+        return described(tableView, context);
+    }
+
+    /**
+     * Says on a table's view what the module knows about it beyond its cells.
+     *
+     * <p>Done for every way of reading a table — a screen reads the same table as a grid or as the shape its
+     * kind gives it, and what the compiler made of it does not change with the reader asked for it.
+     */
+    private <T extends TableView> T described(T view, OpenLTableContext context) {
+        view.messages = mapMessages(context);
         // Said here rather than by the reader: what makes a table partial is where its cells sit in the
         // workbook, which the module knows and the table itself does not.
-        if (context.module().isTablePart(table.getUri())) {
-            tableView.partial = Boolean.TRUE;
+        if (context.module().isTablePart(context.table().getUri())) {
+            view.partial = Boolean.TRUE;
         }
-        return tableView;
+        return view;
     }
 
     /**

@@ -8,7 +8,8 @@
 
 The suite covers what the editor needs to know about such a table:
 
-- the read marks it `partial`, and says nothing of the kind about the table written whole;
+- both ways of reading it — as the shape its kind gives it and as the grid the editor draws — mark it
+  `partial`, and say nothing of the kind about the table written whole;
 - a write to it is refused with `openl.error.400.table.partial.message` rather than failing on the grid it is
   read through — the cells it is drawn from do not sit together, so there is nowhere to write back into;
 - the refused write leaves the table as it was.
