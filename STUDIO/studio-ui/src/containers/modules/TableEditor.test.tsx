@@ -280,6 +280,24 @@ describe('TableEditor', () => {
         expect(field).toHaveValue('')
     })
 
+    it('paints the picked cell while the pointer rests on a colour, and puts it back', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByText('Good Morning'))
+        await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+        const swatch = (await screen.findAllByTestId('table-edit-swatch'))[1] as HTMLElement
+
+        /** The cell the colour is meant for, read afresh: the screen draws it again on every change. */
+        const painted = () => (screen.getByText('Good Morning').closest('td') as HTMLElement).style.background
+
+        await userEvent.hover(swatch)
+        expect(painted()).not.toBe('')
+
+        await userEvent.unhover(swatch)
+        expect(painted()).toBe('')
+    })
+
     it('writes several numbers into an array cell, and lets nothing else in', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
             editors: [{ editor: 'array', separator: ',', entryEditor: 'integer', intOnly: true }],
@@ -465,7 +483,7 @@ describe('TableEditor', () => {
         cells: [{ row: 1, column: 0, editor: 0 }],
     })
 
-    it('enters a range in the panel under the cell, in the wording OpenL prints', async () => {
+    it('enters a range in the panel under the cell, in the wording the Editor wrote', async () => {
         rangeCell()
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
@@ -479,7 +497,7 @@ describe('TableEditor', () => {
         await userEvent.click(screen.getByTestId('table-edit-save'))
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
-            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '[0..200]' } },
+            { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '0 .. 200' } },
         ], 'Claims'))
     })
 

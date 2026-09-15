@@ -473,6 +473,7 @@ i18next.addResourceBundle('en', 'repository', {
             edit_bold: 'Bold',
             edit_italic: 'Italic',
             edit_underline: 'Underline',
+            edit_colour: 'Colour {{colour}}',
             edit_fill_colour: 'Fill Color',
             edit_font_colour: 'Font Color',
             edit_outdent: 'Decrease Indent',

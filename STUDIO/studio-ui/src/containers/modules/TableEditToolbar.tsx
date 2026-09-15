@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
     AlignCenterOutlined,
     AlignLeftOutlined,
@@ -24,6 +24,7 @@ import type { AggregationColor } from 'antd/es/color-picker/color'
 import { useTranslation } from 'react-i18next'
 import type { RawCellStyleInput, RawTableCell } from 'types/tables'
 import type { CellAt } from './tableEdits'
+import { ColourPalette } from './ColourPalette'
 import { useStyles } from './TableEditToolbar.styles'
 
 interface TableEditToolbarProps {
@@ -49,6 +50,12 @@ interface TableEditToolbarProps {
     onInsertColumn: () => void
     onRemoveColumn: () => void
     onStyle: (style: RawCellStyleInput) => void
+    /**
+     * Shows a colour on the picked cell before it is chosen, and takes it back off with null.
+     *
+     * <p>What is shown this way is not an edit: nothing of it is kept, taken back or saved.
+     */
+    onPreview: (style: RawCellStyleInput | null) => void
 }
 
 /** How far one press of the indent buttons moves a cell, as the legacy editor moved it. */
@@ -81,10 +88,16 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     onInsertColumn,
     onRemoveColumn,
     onStyle,
+    onPreview,
     whole,
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
+
+    // Each picker is opened by its own button and closed by a colour being chosen, so the palette can say
+    // the choosing is over.
+    const [fillOpen, setFillOpen] = useState(false)
+    const [fontOpen, setFontOpen] = useState(false)
 
     const row = picked?.row ?? -1
     const column = picked?.column ?? -1
@@ -171,13 +184,29 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                         disabled={picked === null}
                         format="hex"
                         onChangeComplete={chosen => onStyle({ background: colour(chosen) })}
+                        onOpenChange={opened => { if (!opened) onPreview(null) }}
+                        open={fillOpen}
                         value={style?.background ?? '#ffffff'}
+                        panelRender={panel => (
+                            <>
+                                <ColourPalette
+                                    onPreview={chosen => onPreview(chosen === null ? null : { background: chosen })}
+                                    onPick={chosen => {
+                                        onPreview(null)
+                                        setFillOpen(false)
+                                        onStyle({ background: chosen })
+                                    }}
+                                />
+                                {panel}
+                            </>
+                        )}
                     >
                         <Button
                             className={styles.button}
                             data-testid="table-edit-fill_colour"
                             disabled={picked === null}
                             icon={<BgColorsOutlined />}
+                            onClick={() => setFillOpen(open => !open)}
                             size="small"
                             type="text"
                         />
@@ -190,13 +219,29 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                         disabled={picked === null}
                         format="hex"
                         onChangeComplete={chosen => onStyle({ color: colour(chosen) })}
+                        onOpenChange={opened => { if (!opened) onPreview(null) }}
+                        open={fontOpen}
                         value={style?.color ?? '#000000'}
+                        panelRender={panel => (
+                            <>
+                                <ColourPalette
+                                    onPreview={chosen => onPreview(chosen === null ? null : { color: chosen })}
+                                    onPick={chosen => {
+                                        onPreview(null)
+                                        setFontOpen(false)
+                                        onStyle({ color: chosen })
+                                    }}
+                                />
+                                {panel}
+                            </>
+                        )}
                     >
                         <Button
                             className={styles.button}
                             data-testid="table-edit-font_colour"
                             disabled={picked === null}
                             icon={<FontColorsOutlined />}
+                            onClick={() => setFontOpen(open => !open)}
                             size="small"
                             type="text"
                         />

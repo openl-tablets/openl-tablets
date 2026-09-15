@@ -150,6 +150,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const { styles, cx } = useStyles()
     const [buffer, setBuffer] = useState(NO_EDITS)
     const [picked, setPicked] = useState<CellAt | null>(null)
+    // The colour the reader is holding the pointer over in a palette, shown on the picked cell until they
+    // take the pointer away or choose it.
+    const [preview, setPreview] = useState<RawCellStyleInput | null>(null)
     const [open, setOpen] = useState<CellAt | null>(null)
     const [draft, setDraft] = useState('')
     const [saving, setSaving] = useState(false)
@@ -204,6 +207,24 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         return () => window.removeEventListener('beforeunload', ask)
     }, [dirty])
     const written = edited.rows
+
+    /**
+     * The table as the screen draws it, which is the table the reader has plus whatever colour they are
+     * holding the pointer over in the palette.
+     *
+     * <p>A colour shown this way is not an edit: it is not kept, cannot be taken back, and reaches no save.
+     */
+    const shown = useMemo(() => {
+        const cell = preview === null || picked === null ? undefined : written[picked.row]?.[picked.column]
+        if (cell === undefined || picked === null) {
+            return written
+        }
+        const rowsShown = [...written]
+        const row = [...(rowsShown[picked.row] ?? [])]
+        row[picked.column] = { ...cell, style: { ...cell.style, ...preview } }
+        rowsShown[picked.row] = row
+        return rowsShown
+    }, [written, picked, preview])
     const blocked = useMemo(() => {
         const line = blankLine(edited)
         return line === null ? null : t(`browser.module.edit_blank_${line}`)
@@ -582,6 +603,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onCancel={stopEditing}
                     onInsertColumn={() => step({ kind: 'insertColumn', at: at.column })}
                     onInsertRow={() => step({ kind: 'insertRow', at: at.row + rowsOfChosen })}
+                    onPreview={setPreview}
                     onRedo={() => setBuffer(redo)}
                     onSave={save}
                     onStyle={(style: RawCellStyleInput) => step({ kind: 'style', at, style })}
@@ -603,14 +625,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                 <RawTableGrid
                     decorate={decorate}
                     formulas={formulas}
+                    layout={layout}
                     // While the table is being edited its cells lead nowhere: a click is meant for the cell
                     // under it, and a reader aiming at one must not be taken to another table by mistake.
                     onKeyDown={canWrite ? onKeyDown : undefined}
                     onOpenCell={canWrite ? openCell : undefined}
                     onOpenUsage={editing ? undefined : onOpenUsage}
                     onPickCell={canWrite ? pick : undefined}
-                    layout={layout}
-                    rows={written}
+                    rows={shown}
                     tableRef={grid}
                     testId={testId}
                 />
