@@ -285,6 +285,12 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   `AutoPolicyCalculation` is a link that looks as if it worked. Where the session cannot address the project —
   it is not open in the workspace — nothing is offered to click, and the reader is told where the table lives
   instead.
+- **A word leads somewhere only where there is somewhere to lead.** Not every table a cell's text resolves to
+  is a table an author wrote: a call to a rule that has several versions resolves to the dispatcher the engine
+  builds while compiling to choose between them, which sits in no workbook. The Editor opened it read-only and
+  took its whole action panel away; here it is never opened at all — the tree leaves it out, and the usage that
+  named it carries no table to open, only what the word stands for. So the read names a table on a usage only
+  where a module holds it.
 - **A table written in pieces is read but not written.** A table can be assembled from several partial tables
   scattered about the workbook, and the cells it is drawn from do not sit together — there is nothing for an
   editor to write back into. The read says so (`partial`), the screen puts the Editor's own notice at the top

@@ -82,6 +82,19 @@ class RawTableMetaInfoTest {
     }
 
     @Test
+    void offersNoWayIntoATableNoModuleHolds() {
+        var read = new RawTableReader().read(table("Person"), null, null, false, true, TableModules.none());
+
+        var usage = cellOf(read.source, "Address").metaInfo().usages().getFirst();
+        // A word can resolve to a table the engine wrote itself while compiling — the one that chooses between
+        // the versions of an overloaded rule. It sits in no workbook and opens nowhere, so nothing about it is
+        // offered to click; what the word stands for is still said.
+        assertNull(usage.tableId(), "a table no module holds is not offered as a way in");
+        assertNull(usage.module());
+        assertNotNull(usage.description());
+    }
+
+    @Test
     void saysNothingAboutCellsUntilItIsAsked() {
         var read = new RawTableReader().read(table("Person"), null, null, false, false, TableModules.none());
 
