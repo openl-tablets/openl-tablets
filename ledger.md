@@ -210,7 +210,6 @@
 - Sonar analysis job: jacoco report-aggregate `Unknown block type` on ITEST/server-core/target/jacoco.exec (overlapping artifact merge); rerun.
 - SonarCloud gate on deletion-only PRs: New Code wider than the diff; pre-existing S2259/S6466 attributed to shifted lines; deterministic, no rerun; merged red before. A diff confined to test files passes it clean (#2109, 0 new issues), so the gate only bites when production lines shift.
 - Maven build extension archetype-packaging transiently unresolvable on one runner ("could not read 2 projects"); rerun.
-- Rerun budget: 2 per check per SHA, but no rerun is possible here (see Container facts) — let the next push be the retry.
 
 ## Container facts
 
@@ -271,17 +270,16 @@
 - site.webmanifest names `android-chrome-512x512.pngs` (trailing s): the 512px icon is unreachable; one-character bug.
 - Policy: Jira prefix for sweep commits (maintainer view: exemption excludes production deletions); public-API removal needs a ticket.
 - Confirm EPBDS-16309 authorises the OpenL2TextUtils removal (decision came from a sweep state file, not Jira).
-- CI health: LockTest load tolerance; OracleRdbmsTest ORA-12516; itest.studio.repos createdAt tiebreaker; jacoco aggregate overlap; kafka-native:latest `setup` segfault (Pwd.getpwuid), which cost 3 CI attempts on one SHA and burns runner time on every PR.
+- CI health: every entry under CI flakes deserves a real fix; the kafka-native `setup` segfault is the costliest.
 - OverviewPanel.tsx floating promise into a state setter (~lines 799/1231) is a real test defect at any speed.
 - Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR (additions, never this
   sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
   org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
-- Delete stale branches dead-code/uncalled-methods, dead-code/uncalled-internal-methods, dead-code/openapi-layouts-residue
-  (closed #2103): `push --delete` is always refused (403, latterly "remote end hung up" then "Everything up-to-date"),
-  and no MCP branch-delete tool exists; probe at most once a run.
+- Stale branches dead-code/uncalled-methods, -internal-methods, -openapi-layouts-residue (closed #2103) need a human:
+  `push --delete` is refused every run (403 / remote hung up) and no MCP branch-delete tool exists — stop probing.
 
 ## Run log
 
 - 2026-09-15 c: #2109 rebase-merged onto main 2d6ad165e74; queue row 11 closed; at 291.
-- 2026-09-15 d-f: three consecutive no-ops on unmoved main 2781e274f8 (3 dependabot pom bumps, no code); no dead-code
-  PR open, #2105 still draft, stale-branch delete still 403; at 286.
+- 2026-09-15 d-g: four no-ops on unmoved main 2781e274f8, whose newest 3 commits are dependabot pom bumps; no
+  dead-code PR open, #2105 still draft at 96 commits, stale-branch delete refused again and now retired; at 285.
