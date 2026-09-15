@@ -86,6 +86,18 @@ describe('TableEditToolbar', () => {
         expect(screen.getByTestId('table-edit-insert_column')).toBeDisabled()
     })
 
+    it('opens on the palette and puts the full picker in its place only when asked', async () => {
+        draw()
+
+        await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+        expect(await screen.findByTestId('table-edit-palette')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByTestId('table-edit-fill_colour-more'))
+
+        // One of the two at a time: the palette gives up its place rather than sitting behind the picker.
+        expect(screen.queryByTestId('table-edit-palette')).not.toBeInTheDocument()
+    })
+
     it('shows a colour on the cell while the pointer rests on it, and takes it back off', async () => {
         const acted = draw()
 

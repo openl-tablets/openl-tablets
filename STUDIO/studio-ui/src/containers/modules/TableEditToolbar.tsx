@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
     AlignCenterOutlined,
     AlignLeftOutlined,
@@ -19,12 +19,11 @@ import {
     UnderlineOutlined,
     UndoOutlined,
 } from '@ant-design/icons'
-import { Button, ColorPicker, Tooltip } from 'antd'
-import type { AggregationColor } from 'antd/es/color-picker/color'
+import { Button, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import type { RawCellStyleInput, RawTableCell } from 'types/tables'
 import type { CellAt } from './tableEdits'
-import { ColourPalette } from './ColourPalette'
+import { CellColourPicker } from './CellColourPicker'
 import { useStyles } from './TableEditToolbar.styles'
 
 interface TableEditToolbarProps {
@@ -94,11 +93,6 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
 
-    // Each picker is opened by its own button and closed by a colour being chosen, so the palette can say
-    // the choosing is over.
-    const [fillOpen, setFillOpen] = useState(false)
-    const [fontOpen, setFontOpen] = useState(false)
-
     const row = picked?.row ?? -1
     const column = picked?.column ?? -1
     const style = cell?.style
@@ -133,9 +127,6 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
      * the header's own row away, or laying a column down before the one it starts in, do not.
      */
     const off = (why: string) => (picked === null ? t('browser.module.edit_pick_a_cell') : t(why))
-
-    /** The colour as the API writes it: #rrggbb, without whatever the picker says about opacity. */
-    const colour = (chosen: AggregationColor) => chosen.toHexString().slice(0, 7)
 
     return (
         <div className={styles.toolbar} data-testid="table-edit-toolbar">
@@ -178,76 +169,26 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('underline', <UnderlineOutlined />, () => onStyle({ underline: !style?.underline }),
                 { on: !!style?.underline })}
             {rule}
-            <Tooltip title={t('browser.module.edit_fill_colour')}>
-                <span>
-                    <ColorPicker
-                        disabled={picked === null}
-                        format="hex"
-                        onChangeComplete={chosen => onStyle({ background: colour(chosen) })}
-                        onOpenChange={opened => { if (!opened) onPreview(null) }}
-                        open={fillOpen}
-                        value={style?.background ?? '#ffffff'}
-                        panelRender={panel => (
-                            <>
-                                <ColourPalette
-                                    onPreview={chosen => onPreview(chosen === null ? null : { background: chosen })}
-                                    onPick={chosen => {
-                                        onPreview(null)
-                                        setFillOpen(false)
-                                        onStyle({ background: chosen })
-                                    }}
-                                />
-                                {panel}
-                            </>
-                        )}
-                    >
-                        <Button
-                            className={styles.button}
-                            data-testid="table-edit-fill_colour"
-                            disabled={picked === null}
-                            icon={<BgColorsOutlined />}
-                            onClick={() => setFillOpen(open => !open)}
-                            size="small"
-                            type="text"
-                        />
-                    </ColorPicker>
-                </span>
-            </Tooltip>
-            <Tooltip title={t('browser.module.edit_font_colour')}>
-                <span>
-                    <ColorPicker
-                        disabled={picked === null}
-                        format="hex"
-                        onChangeComplete={chosen => onStyle({ color: colour(chosen) })}
-                        onOpenChange={opened => { if (!opened) onPreview(null) }}
-                        open={fontOpen}
-                        value={style?.color ?? '#000000'}
-                        panelRender={panel => (
-                            <>
-                                <ColourPalette
-                                    onPreview={chosen => onPreview(chosen === null ? null : { color: chosen })}
-                                    onPick={chosen => {
-                                        onPreview(null)
-                                        setFontOpen(false)
-                                        onStyle({ color: chosen })
-                                    }}
-                                />
-                                {panel}
-                            </>
-                        )}
-                    >
-                        <Button
-                            className={styles.button}
-                            data-testid="table-edit-font_colour"
-                            disabled={picked === null}
-                            icon={<FontColorsOutlined />}
-                            onClick={() => setFontOpen(open => !open)}
-                            size="small"
-                            type="text"
-                        />
-                    </ColorPicker>
-                </span>
-            </Tooltip>
+            <CellColourPicker
+                className={styles.button}
+                disabled={picked === null}
+                icon={<BgColorsOutlined />}
+                onPick={chosen => onStyle({ background: chosen })}
+                onPreview={chosen => onPreview(chosen === null ? null : { background: chosen })}
+                testId="table-edit-fill_colour"
+                title={t('browser.module.edit_fill_colour')}
+                value={style?.background ?? '#ffffff'}
+            />
+            <CellColourPicker
+                className={styles.button}
+                disabled={picked === null}
+                icon={<FontColorsOutlined />}
+                onPick={chosen => onStyle({ color: chosen })}
+                onPreview={chosen => onPreview(chosen === null ? null : { color: chosen })}
+                testId="table-edit-font_colour"
+                title={t('browser.module.edit_font_colour')}
+                value={style?.color ?? '#000000'}
+            />
             {rule}
             {action('outdent', <MenuUnfoldOutlined />,
                 () => onStyle({ indent: Math.max(0, (style?.indent ?? 0) - INDENT_STEP) }),
