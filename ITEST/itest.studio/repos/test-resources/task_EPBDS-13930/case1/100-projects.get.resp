@@ -12,6 +12,7 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "1",
       "comment": "Project Project is created.",
+      "overwritesNewerRevision": true,
       "repositoryInfo": {
         "id": "design",
         "name": "H2",

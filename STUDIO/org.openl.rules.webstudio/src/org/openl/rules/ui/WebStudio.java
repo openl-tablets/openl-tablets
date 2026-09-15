@@ -505,20 +505,36 @@ public class WebStudio implements DesignTimeRepositoryListener {
     /**
      * Asks for the module that is open to be built from its workbook again, and for nothing besides it.
      *
-     * <p>A write to one of its tables changed that workbook, so what was compiled from it no longer matches
-     * it. Only the dependency this module stands for is dropped and resolved afresh; every other module the
+     * <p>Only the dependency this module stands for is dropped and resolved afresh; every other module the
      * session has compiled stays as it is, and so does the compilation the screen is following.
      *
-     * <p>Asked for whatever the automatic-compilation setting says. That setting is about whether a reader's
-     * edits are compiled as they are made; a write that has already happened is past that question, and the
-     * table it wrote has to be readable whatever the setting is.
+     * <p>Asked for whatever the automatic-compilation setting says: the caller has left the workbook the
+     * session holds in a state that answers for nothing, and it has to be read again before anything else is.
      */
-    public synchronized void recompileCurrentModule() {
-        rewrittenModule = currentModule;
+    public synchronized void rebuildCurrentModule() {
+        rewrittenModule = getCurrentModule();
         // What the session holds about the module was worked out from the workbook as it was before the write:
         // the compilation it followed, the results of the tests it ran, the trace it kept. None of that answers
         // for the module any more, so it is dropped — and the status says the module is waiting to be compiled
         // rather than reporting what the workbook used to say.
+        publishWorkspaceReset();
+    }
+
+    /**
+     * Says that a write changed the workbook of the module that is open.
+     *
+     * <p>With automatic compilation on, the module is built from the changed workbook again straight away.
+     * With it off, it is not: on a project of any size compiling after every edit is the wait that setting
+     * exists to avoid, so the module is left waiting and the reader asks for it with Verify when they are
+     * ready. Until then the tables read as they are written — it is the same workbook — and what the compiler
+     * said about them is what it said before the write.
+     */
+    public synchronized void recompileCurrentModule() {
+        if (isAutoCompile()) {
+            rebuildCurrentModule();
+            return;
+        }
+        needCompile = true;
         publishWorkspaceReset();
     }
 

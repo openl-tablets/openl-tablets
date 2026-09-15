@@ -70,15 +70,22 @@ const useStyles = createStyles(({ css, token }) => ({
     state: css`
         padding: 12px 16px;
     `,
-    /** A table the compilation raised errors about, named the way the Editor named it: in the error colour. */
+    /** A row with errors under it, named the way the Editor named it: in the error colour. */
     broken: css`
         color: ${COMPILE_COLORS.errors};
     `,
-    /** How many errors the table raised, beside its name — the count the Editor put there. */
+    /** How many errors the row stands for, as the badge the Editor put at the end of the row. */
     errors: css`
-        margin-left: ${token.marginXXS}px;
-        color: ${COMPILE_COLORS.errors};
+        display: inline-block;
+        min-width: 17px;
+        margin-left: ${token.marginXS}px;
+        padding: 0 ${token.paddingXXS}px;
+        border-radius: ${token.borderRadiusSM}px;
+        background: ${COMPILE_COLORS.errors};
+        color: ${token.colorTextLightSolid};
         font-size: ${token.fontSizeSM}px;
+        line-height: ${token.fontSizeSM + 5}px;
+        text-align: center;
     `,
     /** Holds the mark over the table's own icon, which the tree draws in a box of its own width. */
     marked: css`
@@ -104,25 +111,26 @@ interface TreeDataNode {
     title: React.ReactNode
     icon: React.ReactNode
     selectable: boolean
+    /** How many errors were raised about the tables under this row, this row's own table included. */
+    errors: number
     /** Set on a row the tree draws apart — a table that takes no part in the rules. */
     className?: string
     'data-testid'?: string
     children: TreeDataNode[]
 }
 
-/** What a row is called, and what the compilation made of the table it names. */
-const nodeTitle = (node: TableNode, styles: TreeStyles): React.ReactNode => {
-    const table = node.table
-    if (table === undefined) {
-        return node.title
-    }
-    const errors = table.errors ?? 0
+/** What a row is called, and how many errors stand behind it. */
+const nodeTitle = (node: TableNode, styles: TreeStyles, errors: number): React.ReactNode => {
     const named = (
         <>
             <span className={errors > 0 ? styles.broken : undefined}>{node.title}</span>
             {errors > 0 && <span className={styles.errors} data-testid="module-table-errors">{errors}</span>}
         </>
     )
+    const table = node.table
+    if (table === undefined) {
+        return named
+    }
     // The full signature is what the Editor showed on a node, so a name cut short still says what it is.
     return <Tooltip title={table.signature ?? table.displayName ?? table.name}>{named}</Tooltip>
 }
@@ -136,25 +144,36 @@ interface TreeStyles {
     tested: string
 }
 
-/** One node of the tree as Ant Design draws it, with what the compilation made of the table it names. */
-const toTreeNode = (node: TableNode, styles: TreeStyles): TreeDataNode => ({
-    key: node.table ? node.table.id : node.key,
-    title: nodeTitle(node, styles),
-    icon: node.table
-        ? (
-            <span
-                className={styles.marked}
-                data-testid={node.table.hasTests === true ? 'module-table-tested' : undefined}
-            >
-                {tableIcon(node.table.kind)}
-                {node.table.hasTests === true && <CheckCircleFilled className={styles.tested} />}
-            </span>
-        )
-        : groupIcon(node.groupedBy),
-    selectable: node.table !== undefined,
-    ...(node.table?.active === false ? { className: styles.inactive, 'data-testid': 'module-table-inactive' } : {}),
-    children: node.children.map(child => toTreeNode(child, styles)),
-})
+/**
+ * One node of the tree as Ant Design draws it, with what the compilation made of the table it names.
+ *
+ * <p>A group carries the errors of everything under it, as the Editor's tree carried them: a branch says how
+ * much is broken inside it without having to be opened. Counted on the way back up, so a tree of any size is
+ * walked once.
+ */
+const toTreeNode = (node: TableNode, styles: TreeStyles): TreeDataNode => {
+    const children = node.children.map(child => toTreeNode(child, styles))
+    const errors = children.reduce((total, child) => total + child.errors, node.table?.errors ?? 0)
+    return {
+        key: node.table ? node.table.id : node.key,
+        title: nodeTitle(node, styles, errors),
+        icon: node.table
+            ? (
+                <span
+                    className={styles.marked}
+                    data-testid={node.table.hasTests === true ? 'module-table-tested' : undefined}
+                >
+                    {tableIcon(node.table.kind)}
+                    {node.table.hasTests === true && <CheckCircleFilled className={styles.tested} />}
+                </span>
+            )
+            : groupIcon(node.groupedBy),
+        selectable: node.table !== undefined,
+        errors,
+        ...(node.table?.active === false ? { className: styles.inactive, 'data-testid': 'module-table-inactive' } : {}),
+        children,
+    }
+}
 
 /** The keys of the groups on the way down to the given table, so only that branch stands open. */
 const pathTo = (nodes: TableNode[], tableId: string, trail: string[] = []): string[] | null => {

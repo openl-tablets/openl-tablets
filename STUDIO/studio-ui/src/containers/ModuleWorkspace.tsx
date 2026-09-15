@@ -38,6 +38,7 @@ import { TableSearchModal } from './modules/TableSearchModal'
 import { TableEditor } from './modules/TableEditor'
 import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
+import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -153,6 +154,9 @@ export const ModuleWorkspace = () => {
     const reloadToken = reload.module === moduleName ? reload.token : 0
     const rebuild = reload.module === moduleName && reload.rebuild
     const tableLoads = useLoadGeneration()
+    // A revision opened for reading is the copy in the workspace, so a write to it saves over everything
+    // committed since — which the reader is asked about before the write, not told about after it.
+    const confirmWrite = useOverwriteConfirm(project)
 
     // Only the tables read for the module now open count as this screen's — and a module of another project
     // carrying the same name is another module, whatever it is called.
@@ -610,9 +614,13 @@ export const ModuleWorkspace = () => {
         // The band of actions belongs to the table that was picked, not to the body being read for it, and it
         // keeps its place while that read is on its way — a band taken away and put back asks the server again
         // for everything it shows.
+        // A table gathered from several partial tables is read here and not written: the cells it is drawn
+        // from do not sit together, so there is nothing for an editor to write back into.
+        const canWriteTable = !!project.capabilities?.canWrite && table?.partial !== true
         const toolbar = selected === null ? null : (
             <TableToolbar
-                canWrite={!!project.capabilities?.canWrite}
+                canWrite={canWriteTable}
+                confirmWrite={confirmWrite}
                 moduleName={moduleName}
                 onEdit={() => setEditing(true)}
                 onRemoved={tableRemoved}
@@ -639,12 +647,13 @@ export const ModuleWorkspace = () => {
                 <TableProblems
                     cellText={textAt}
                     messages={table.messages ?? []}
-                    onEditCell={project.capabilities?.canWrite ? setEditCell : undefined}
+                    onEditCell={canWriteTable ? setEditCell : undefined}
                     onStacktrace={readStacktrace}
+                    partial={table.partial === true}
                 />
                 <TableEditor
                     canvasClassName={styles.canvas}
-                    canWrite={!!project.capabilities?.canWrite}
+                    canWrite={canWriteTable}
                     editing={editing}
                     formulas={showFormulas}
                     markCell={raisedCell}
@@ -716,9 +725,11 @@ export const ModuleWorkspace = () => {
                                 onProjectChanged={reopenRevision}
                                 onRevisionOpened={reopenRevision}
                                 onTableCreated={openWritten}
+                                onVerify={() => refresh()}
                                 project={project}
                                 projectCompiled={projectCompiled}
                                 testCount={testCount}
+                                verifyNeeded={compilation.verifyNeeded}
                             />
                         )}
                         titleAfter={(
@@ -753,6 +764,7 @@ export const ModuleWorkspace = () => {
                         {compilation.ready && !closed && (
                             <TableDetailsPanel
                                 canWrite={!!project.capabilities?.canWrite}
+                                confirmWrite={confirmWrite}
                                 moduleName={moduleName}
                                 onOpenTable={openTableById}
                                 onSaved={tableRewritten}

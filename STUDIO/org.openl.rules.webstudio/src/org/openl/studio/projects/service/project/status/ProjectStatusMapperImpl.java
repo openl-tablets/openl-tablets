@@ -116,6 +116,9 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
             var compilationStatus = model.getCompilationStatus();
             builder.compileState(deriveCompileState(model, compilationStatus));
             builder.compilation(mapCompilationDetails(model, compilationStatus, detail));
+            if (model.isManualCompileNeeded()) {
+                builder.manualCompileNeeded(Boolean.TRUE);
+            }
         }
         if (detail.pendingChanges) {
             builder.pendingChanges(pendingChangesResolver.resolve(project));
