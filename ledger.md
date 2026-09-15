@@ -2,13 +2,10 @@
 
 ## Resume point
 
-- Swept head is `origin/main` 956deef01b; the only commits since 9a32b54ca7 are dependabot root-pom plugin-version
-  bumps, which add no code, so every change type stays exhausted and no exhausted detector may be re-run. A run
-  whose diff against the swept head is poms-only has no cleanup to do.
-- #2109 sits on 9a32b54ca7, fully green, needing only a human approval — watch it, touch nothing. The owner was
-  notified once (2026-09-15) that it waits only on their approval; never repeat that nudge while the PR state is
-  unchanged, since the trigger fires six times a day.
-- When `main` gains code: diff against 956deef01b, then rerun PMD, the identifier index and ASM on changed files
+- Swept head is `origin/main` 2d6ad165e74, which carries #2109's merge; no open PR, every change type done. The only
+  other commits since 9a32b54ca7 are dependabot root-pom plugin-version bumps, which add no code, so every change
+  type stays exhausted and no exhausted detector may be re-run. A poms-only diff has no cleanup to do.
+- When `main` gains code: diff against 2d6ad165e74, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
 
@@ -26,20 +23,20 @@
 | 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | done 2026-09-11 g; merged in 2104 |
 | 9 | Legacy JS functions and .xhtml pages | done 2026-09-11 g; merged in 2104, JS clean |
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-11 g; 66 candidates all template-composed |
-| 11 | TypeScript exports, types, components, imports | in-review 2026-09-14 in #2109 |
+| 11 | TypeScript exports, types, components, imports | done 2026-09-15; merged in 2109 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 |
 | 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-11 g; merged in 2104 |
 
 ## Open PR
 
-- #2109 `dead-code/execution-residue`, head a1ae242, 5 files/5 deletions, one commit: "Remove the React imports left
-  unused by the automatic JSX runtime". ALL 17 checks green, no review thread, both comments bots; `blocked` means
-  only a human approval is missing, so leave it alone. Body matches the diff and records the kept `url` param.
+- None.
 
 ## Merged PRs
 
-- 23 sweep PRs merged (1906-2104); what each removed is covered by Exhausted veins. A repo-wide single-type commit is
+- 24 sweep PRs merged (1906-2109); what each removed is covered by Exhausted veins. A repo-wide single-type commit is
   accepted as-is (2101 and 2104 were rebase-merged, one commit per change type onto main).
+- 2109 (5 unused React imports) was rebase-merged by yurkom ~22h after opening, green and unreviewed by any human:
+  a small, fully green, evidence-backed sweep PR merges on its own, so never nudge and never pad one to look worth merging.
 - 2104 merged with `IT (studio)` still red: a failure proven to be `main`'s, with a standing-down comment naming it,
   does not block a merge. Ordering a referrer's commit before the resources only it reached survived review untouched.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
@@ -287,7 +284,8 @@
 
 ## Run log
 
-- 2026-09-14 h: no-op; main still 9a32b54ca7, #2109 17/17 green, both comments bots with nothing actionable, at 288.
 - 2026-09-15 a: no-op; main still 9a32b54ca7, #2109 17/17 green and body matches 1 commit/5 files/5 deletions; stale-branch delete still 403; owner nudged once; at 290.
 - 2026-09-15 b: no-op; main advanced to 956deef01b by two dependabot pom plugin bumps only; #2109 untouched since
   2026-09-14, green, body still matches; stale-branch delete refused again; at 293.
+- 2026-09-15 c: #2109 rebase-merged by yurkom onto main 2d6ad165e74 (1 commit, 5 deletions); its branch auto-deleted,
+  PR watch stopped, queue row 11 closed, ledger closed out at 291.
