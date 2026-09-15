@@ -12,7 +12,7 @@ To configure the email server, proceed as follows:
 3.  Define the following connection parameters of the server used to dispatch verification emails:
 
     -   **URL** — address of the mail server, such as `smtps://mail.example.com:1587`.
-    -   **Username** — account used for authentication on the mail server, such as `jhon@mail.example.com` or `jhon`.
+    -   **Username** — account used for authentication on the mail server, such as `john@mail.example.com` or `john`.
         Verification emails are sent on behalf of this account.
     -   **Password** — password of the specified account.
 
