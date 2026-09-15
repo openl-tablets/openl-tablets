@@ -35,22 +35,27 @@ export const useStyles = createStyles(({ css, token }) => ({
         box-shadow: inset 0 0 0 100vmax ${token.colorWarningBg};
     `,
     /**
-     * The cell being written into.
+     * The field a cell is written in.
      *
-     * <p>The input takes the whole cell so the value stays where the reader is looking at it, and its own frame
-     * is dropped — the cell's outline is the frame.
+     * <p>It takes the cell and no more of it: a field asking for room of its own would widen the column, and
+     * the whole table would shift under the reader as they open a cell and settle back as they leave it.
+     *
+     * <p>It wears the cell's font and alignment, so a value reads while it is being written the way it will read
+     * once it is written — which is what the Editor did by putting the cell's own styling on its field. Its
+     * ground stays a field's own, whatever colour the cell is painted: a field is what the reader writes in,
+     * and a value being typed over a dark fill is a value they cannot read.
      */
     input: css`
         width: 100%;
-        min-width: 80px;
+        min-width: 0;
         border-radius: 0;
-        font-size: inherit;
+        background: ${token.colorBgContainer};
+        font: inherit;
+        text-align: inherit;
     `,
-    /** The open cell: what the value is written with, and the way of writing it beside. */
+    /** The open cell, which the field fills. */
     open: css`
-        display: flex;
-        align-items: flex-start;
-        gap: ${token.marginXXS}px;
+        width: 100%;
     `,
     /** While the table is being edited, a cell reads as something that can be picked. */
     editable: css`

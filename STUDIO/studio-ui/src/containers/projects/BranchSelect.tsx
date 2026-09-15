@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { Select } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import { BranchListLoading } from './BranchListLoading'
+import { ListLoading } from './ListLoading'
 import { BranchMarks } from './BranchMarks'
 
 const useStyles = createStyles(({ css }) => ({
@@ -120,7 +120,7 @@ export const BranchSelect = ({
         <Select
             {...rest}
             loading={!!loading}
-            notFoundContent={loading ? <BranchListLoading /> : undefined}
+            notFoundContent={loading ? <ListLoading /> : undefined}
             options={options}
             style={{ minWidth: 0, width: '100%', ...style }}
             suffixIcon={loading ? undefined : <BranchesOutlined />}

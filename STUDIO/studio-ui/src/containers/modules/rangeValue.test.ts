@@ -29,12 +29,14 @@ describe('rangeValue', () => {
 
     describe('writing the bounds back', () => {
         it.each([
-            [{ from: '100', to: '200', fromIncluded: true, toIncluded: true }, '[100..200]'],
-            [{ from: '100', to: '200', fromIncluded: false, toIncluded: true }, '(100..200]'],
-            [{ from: '500', to: '', fromIncluded: true, toIncluded: true }, '>= 500'],
-            [{ from: '500', to: '', fromIncluded: false, toIncluded: true }, '> 500'],
-            [{ from: '', to: '14', fromIncluded: true, toIncluded: true }, '<= 14'],
-            [{ from: '', to: '14', fromIncluded: true, toIncluded: false }, '< 14'],
+            // Bounds that are both inside the range need no brackets to say so, as the Editor wrote them.
+            [{ from: '100', to: '200', fromIncluded: true, toIncluded: true }, '100 .. 200'],
+            [{ from: '100', to: '200', fromIncluded: false, toIncluded: true }, '(100 .. 200]'],
+            [{ from: '100', to: '200', fromIncluded: true, toIncluded: false }, '[100 .. 200)'],
+            [{ from: '500', to: '', fromIncluded: true, toIncluded: true }, '>=500'],
+            [{ from: '500', to: '', fromIncluded: false, toIncluded: true }, '>500'],
+            [{ from: '', to: '14', fromIncluded: true, toIncluded: true }, '<=14'],
+            [{ from: '', to: '14', fromIncluded: true, toIncluded: false }, '<14'],
             // One value standing for itself is written as that value, the way OpenL prints it.
             [{ from: '100', to: '100', fromIncluded: true, toIncluded: true }, '100'],
             [NO_RANGE, ''],
@@ -42,8 +44,8 @@ describe('rangeValue', () => {
             expect(formatRange(bounds)).toBe(expected)
         })
 
-        it('writes back what it read, for every form OpenL prints', () => {
-            ['[100..200]', '(100..200)', '>= 500', '< 14', '100'].forEach(written =>
+        it('writes back what it read, for every form the Editor wrote', () => {
+            ['100 .. 200', '(100 .. 200)', '[100 .. 200)', '>=500', '<14', '100'].forEach(written =>
                 expect(formatRange(parseRange(written))).toBe(written))
         })
     })

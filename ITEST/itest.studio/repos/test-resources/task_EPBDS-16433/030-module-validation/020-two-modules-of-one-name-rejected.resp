@@ -1,0 +1,14 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "*",
+  "fields": [
+    {
+      "code": "openl.error.file.descriptor.module.name.duplicate.message",
+      "message": "*",
+      "field": "modules[1].name",
+      "rejectedValue": "Rates"
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { MoreOutlined } from '@ant-design/icons'
-import { Button, Dropdown, Modal, Popover, Spin } from 'antd'
+import { Dropdown, Modal, Popover, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router-dom'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
@@ -150,6 +149,11 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const { styles, cx } = useStyles()
     const [buffer, setBuffer] = useState(NO_EDITS)
     const [picked, setPicked] = useState<CellAt | null>(null)
+    // The colour the reader is holding the pointer over in a palette, shown on the picked cell until they
+    // take the pointer away or choose it.
+    const [preview, setPreview] = useState<RawCellStyleInput | null>(null)
+    // Whether the reader has asked the open cell for the panel its bounds are entered in.
+    const [rangeOpen, setRangeOpen] = useState(false)
     const [open, setOpen] = useState<CellAt | null>(null)
     const [draft, setDraft] = useState('')
     const [saving, setSaving] = useState(false)
@@ -164,6 +168,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // Picking another way of writing the cell takes the pointer out of the field, which is not the reader
     // leaving the cell — without this the cell would close on the way to the menu and never switch at all.
     const switching = useRef(false)
+    // The cell already closed, so a second closer of the same cell writes nothing more; see closeCell.
+    const closedCell = useRef<CellAt | null>(null)
 
     // How the cells take a value is read once, when the reader starts editing, and for the window the table was
     // read as — so nothing is asked while they edit, however many cells they open.
@@ -204,6 +210,24 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         return () => window.removeEventListener('beforeunload', ask)
     }, [dirty])
     const written = edited.rows
+
+    /**
+     * The table as the screen draws it, which is the table the reader has plus whatever colour they are
+     * holding the pointer over in the palette.
+     *
+     * <p>A colour shown this way is not an edit: it is not kept, cannot be taken back, and reaches no save.
+     */
+    const shown = useMemo(() => {
+        const cell = preview === null || picked === null ? undefined : written[picked.row]?.[picked.column]
+        if (cell === undefined || picked === null) {
+            return written
+        }
+        const rowsShown = [...written]
+        const row = [...(rowsShown[picked.row] ?? [])]
+        row[picked.column] = { ...cell, style: { ...cell.style, ...preview } }
+        rowsShown[picked.row] = row
+        return rowsShown
+    }, [written, picked, preview])
     const blocked = useMemo(() => {
         const line = blankLine(edited)
         return line === null ? null : t(`browser.module.edit_blank_${line}`)
@@ -305,6 +329,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         const value = typed ?? held
         setPicked({ row, column })
         setOpen({ row, column })
+        setRangeOpen(false)
         setSwitched(null)
         setSeveral(takesSeveralLines(cell.cell, value))
         setDraft(value)
@@ -324,7 +349,6 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         onOpenedAt?.()
     }, [onOpenedAt, openAt, openCell, written])
 
-    /** Keeps what was written into the open cell, unless it is what the cell already held. */
     /**
      * Closes the open cell, keeping what was written into it or leaving it as it was.
      *
@@ -333,13 +357,17 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * before the screen does.
      */
     const closeCell = (keep: boolean, value = draft) => {
-        if (switching.current) {
+        const at = open
+        // Two things can close one cell in the same breath — the field losing the focus, and the click that
+        // took the focus off it — and what the cell holds is written once, not twice.
+        if (switching.current || at === null || closedCell.current === at) {
             return
         }
-        const at = open
+        closedCell.current = at
         setOpen(null)
+        setRangeOpen(false)
         grid.current?.focus()
-        if (!keep || at === null) {
+        if (!keep) {
             return
         }
         const was = written[at.row]?.[at.column]?.value
@@ -427,45 +455,53 @@ export const TableEditor: React.FC<TableEditorProps> = ({
 
     /** The other ways this cell can be written, which the reader picks from beside it. */
     const switches = (at: CellAt, current: EditorKind) => {
-        const own = ownKind(at)
         // A cell can always be written as a formula, whatever it holds now — as the old editor offered it.
-        const others: EditorKind[] = ['formula', 'multiline', 'text']
-        if (own !== null) {
-            others.unshift(own)
-        }
-        return others
-            .filter(other => other !== current)
-            .map(other => ({
-                key: other,
-                label: t(`browser.module.editor_switch_${other}`),
-                onClick: () => setSwitched(other),
-            }))
+        // The way the cell asks for comes first, and is not offered twice when it is one of those three.
+        const own = ownKind(at)
+        const others = [...new Set<EditorKind>([...(own === null ? [] : [own]), 'formula', 'multiline', 'text'])]
+        // What the menu is for is said once, over the ways of writing it offers — as the Editor said it.
+        return [{
+            key: 'switch-to',
+            type: 'group' as const,
+            label: t('browser.module.editor_switch_to'),
+            children: others
+                .filter(other => other !== current)
+                .map(other => ({
+                    key: other,
+                    label: t(`browser.module.editor_kind_${other}`),
+                    onClick: () => setSwitched(other),
+                })),
+        }]
     }
 
-    // The cell the range panel hangs under, named as the workbook names it, or null while no panel is open.
-    const panelOver = open !== null && kindOf(open) === 'range'
+    // The open range cell, named as the workbook names it, or null where another kind is open.
+    //
+    // A field the reader writes in closes the cell by losing the focus. The bounds of a range are entered in a
+    // panel of its own, and going to that panel takes the focus out of the field — so what closes a range cell
+    // is the click that lands outside both, the way the old editor closed its panel. The panel itself waits to
+    // be asked for: opening a cell opens its field, and the field drops the panel when the reader goes to it.
+    const rangeCell = open !== null && kindOf(open) === 'range'
         ? written[open.row]?.[open.column]?.cell ?? null
         : null
 
-    // The panel stands open until the reader is done with it, so a click anywhere else is what closes it — the
-    // way the old editor closed its panel. What was entered is written by Done alone.
     useEffect(() => {
-        if (panelOver === null) {
+        if (rangeCell === null) {
             return undefined
         }
         const away = (event: MouseEvent) => {
             const target = event.target instanceof Element ? event.target : null
             const inPanel = target?.closest(`.${RANGE_PANEL}`) != null
-            const inCell = target?.closest(`[data-cell="${panelOver}"]`) != null
-            // The menu that picks how the cell is written opens beside the cell rather than in it, and
-            // choosing from it must leave the cell open for the way it chose.
-            if (target !== null && !inPanel && !inCell && !switching.current) {
-                setOpen(null)
+            const inCell = target?.closest(`[data-cell="${rangeCell}"]`) != null
+            if (target !== null && !inPanel && !inCell) {
+                // Closed the way every cell is closed, which leaves the menu that picks how to write it
+                // alone: that menu opens beside the cell rather than in it, and choosing from it must not
+                // take the cell away. What was entered in the panel is written by Done alone.
+                closeCell(false)
             }
         }
         document.addEventListener('mousedown', away)
         return () => document.removeEventListener('mousedown', away)
-    }, [panelOver])
+    }, [open, rangeCell])
 
     /** How a cell is drawn: picked, waiting to be written, or open for writing. */
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
@@ -473,53 +509,46 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (sameCell(open, at)) {
             const kind = kindOf(at)
             const inCell = (
-                <div className={styles.open}>
-                    <CellValueEditor
-                        asked={askedAt(at.row, at.column)}
-                        className={styles.input}
-                        kind={kind}
-                        onCancel={() => closeCell(false)}
-                        onChange={setDraft}
-                        onCommit={value => closeCell(true, value)}
-                        onSwitch={setSwitched}
-                        value={draft}
-                    />
-                    <Dropdown
-                        menu={{ items: switches(at, kind) }}
-                        onOpenChange={opened => { switching.current = opened }}
-                        trigger={['click']}
+                // Another way of writing the value is asked for with the right button, where the Editor asked
+                // for it: a button of its own beside the field would widen the cell, and a table whose columns
+                // move as a cell is opened is a table the reader loses their place in.
+                <Dropdown
+                    menu={{ items: switches(at, kind) }}
+                    onOpenChange={opened => { switching.current = opened }}
+                    trigger={['contextMenu']}
+                >
+                    <div
+                        className={styles.open}
+                        data-testid="table-cell-switch"
+                        // The bounds are entered in the panel, which the field the reader goes to drops.
+                        onClick={kind === 'range' ? () => setRangeOpen(true) : undefined}
                     >
-                        <Button
-                            data-testid="table-cell-switch"
-                            icon={<MoreOutlined />}
-                            // The menu is opened by the pointer, and opening it must not close the cell.
-                            onMouseDown={event => event.preventDefault()}
-                            size="small"
-                            title={t('browser.module.editor_switch')}
-                            type="text"
+                        <CellValueEditor
+                            asked={askedAt(at.row, at.column)}
+                            className={styles.input}
+                            kind={kind}
+                            onCancel={() => closeCell(false)}
+                            onChange={setDraft}
+                            onCommit={value => closeCell(true, value)}
+                            onSwitch={setSwitched}
+                            value={draft}
                         />
-                    </Dropdown>
-                </div>
+                    </div>
+                </Dropdown>
             )
             return {
-                painted: true,
                 // The bounds of a range are entered under the cell rather than in the cell, the way the old
                 // editor dropped its panel there — and the cell keeps the way out to writing it as text.
                 content: kind !== 'range' ? inCell : (
                     <Popover
-                        open
+                        open={rangeOpen}
                         placement="bottomLeft"
                         trigger={[]}
                         content={(
                             <RangeEditor
                                 intOnly={askedAt(at.row, at.column)?.entryEditor === 'integer'}
+                                onWrite={entered => closeCell(true, entered)}
                                 value={draft}
-                                onWrite={entered => {
-                                    setOpen(null)
-                                    if (entered !== String(written[at.row]?.[at.column]?.value ?? '')) {
-                                        step({ kind: 'value', at, value: entered })
-                                    }
-                                }}
                             />
                         )}
                     >
@@ -582,6 +611,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onCancel={stopEditing}
                     onInsertColumn={() => step({ kind: 'insertColumn', at: at.column })}
                     onInsertRow={() => step({ kind: 'insertRow', at: at.row + rowsOfChosen })}
+                    onPreview={setPreview}
                     onRedo={() => setBuffer(redo)}
                     onSave={save}
                     onStyle={(style: RawCellStyleInput) => step({ kind: 'style', at, style })}
@@ -603,14 +633,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                 <RawTableGrid
                     decorate={decorate}
                     formulas={formulas}
+                    layout={layout}
                     // While the table is being edited its cells lead nowhere: a click is meant for the cell
                     // under it, and a reader aiming at one must not be taken to another table by mistake.
                     onKeyDown={canWrite ? onKeyDown : undefined}
                     onOpenCell={canWrite ? openCell : undefined}
                     onOpenUsage={editing ? undefined : onOpenUsage}
                     onPickCell={canWrite ? pick : undefined}
-                    layout={layout}
-                    rows={written}
+                    rows={shown}
                     tableRef={grid}
                     testId={testId}
                 />

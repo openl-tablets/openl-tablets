@@ -86,7 +86,10 @@ export const shapeOf = (bounds: RangeBounds): RangeShape => {
 /**
  * The text the bounds are written into the cell as, or an empty string when they are no range at all.
  *
- * <p>The wording is the one OpenL itself prints, so a cell written here reads back exactly as it was meant.
+ * <p>Written the way the Editor wrote it, which is the way OpenL reads it back: the two dots carry a space on
+ * either side — `IntRange` and `DoubleRange` say so in as many words — and a bound stands against its sign with
+ * nothing between them. Brackets are written only where they say something: bounds that are both inside the
+ * range need none.
  */
 export const formatRange = (bounds: RangeBounds): string => {
     const lower = bounds.from.trim()
@@ -94,13 +97,17 @@ export const formatRange = (bounds: RangeBounds): string => {
     switch (shapeOf(bounds)) {
         case 'exact':
             return lower
-        case 'between':
-            return `${bounds.fromIncluded ? '[' : '('}${lower}..${upper}${bounds.toIncluded ? ']' : ')'}`
+        case 'between': {
+            const between = `${lower} .. ${upper}`
+            return bounds.fromIncluded && bounds.toIncluded
+                ? between
+                : `${bounds.fromIncluded ? '[' : '('}${between}${bounds.toIncluded ? ']' : ')'}`
+        }
         case 'at-most':
-            return `${bounds.toIncluded ? '<=' : '<'} ${upper}`
+            return `${bounds.toIncluded ? '<=' : '<'}${upper}`
         case 'at-least':
         default:
-            return lower === '' ? '' : `${bounds.fromIncluded ? '>=' : '>'} ${lower}`
+            return lower === '' ? '' : `${bounds.fromIncluded ? '>=' : '>'}${lower}`
     }
 }
 
