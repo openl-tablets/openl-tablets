@@ -2,9 +2,8 @@
 
 ## Resume point
 
-- Swept head is `origin/main` 2781e274f8; no open PR, every change type done. Every commit since 2d6ad165e74 is a
-  dependabot root-pom version bump (s3mock-testcontainers, bc-jdk18on-bom, javacc-maven-plugin) adding no code, so
-  every change type stays exhausted and no exhausted detector may be re-run. A poms-only diff has no cleanup to do.
+- Swept head is `origin/main` 2781e274f8; no open PR, every change type done, every detector exhausted at that head.
+  `main` has not moved since, so a run finding the same SHA has no cleanup to do and may not re-run a detector.
 - When `main` gains code: diff against 2781e274f8, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
@@ -35,8 +34,7 @@
 
 - 24 sweep PRs merged (1906-2109); what each removed is covered by Exhausted veins. A repo-wide single-type commit is
   accepted as-is (2101 and 2104 were rebase-merged, one commit per change type onto main).
-- 2109 (5 unused React imports) was rebase-merged by yurkom ~22h after opening, green and unreviewed by any human:
-  a small, fully green, evidence-backed sweep PR merges on its own, so never nudge and never pad one to look worth merging.
+- A small, fully green, evidence-backed sweep PR merges unreviewed on its own (2109 in ~22h): never nudge, never pad one.
 - 2104 merged with `IT (studio)` still red: a failure proven to be `main`'s, with a standing-down comment naming it,
   does not block a merge. Ordering a referrer's commit before the resources only it reached survived review untouched.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
@@ -284,9 +282,6 @@
 
 ## Run log
 
-- 2026-09-15 b: no-op; main advanced to 956deef01b by two dependabot pom plugin bumps only; #2109 untouched since
-  2026-09-14, green, body still matches; stale-branch delete refused again; at 293.
-- 2026-09-15 c: #2109 rebase-merged by yurkom onto main 2d6ad165e74 (1 commit, 5 deletions); its branch auto-deleted,
-  PR watch stopped, queue row 11 closed, ledger closed out at 291.
-- 2026-09-15 d: no-op; main 2781e274f8 = 3 dependabot pom version bumps, no code; no open dead-code PR; #2105 still
-  draft; stale-branch delete 403 again; at 291.
+- 2026-09-15 c: #2109 rebase-merged by yurkom onto main 2d6ad165e74 (1 commit, 5 deletions); queue row 11 closed; at 291.
+- 2026-09-15 d: no-op; main 2781e274f8 = 3 dependabot pom version bumps, no code; #2105 still draft; at 291.
+- 2026-09-15 e: no-op; main unmoved at 2781e274f8, no dead-code PR open; compacted resume point, 2109 and run log; at 287.
