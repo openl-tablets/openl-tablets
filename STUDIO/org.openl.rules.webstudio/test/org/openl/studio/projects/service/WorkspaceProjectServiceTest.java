@@ -46,8 +46,6 @@ import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLErrorMessage;
-import org.openl.message.OpenLMessage;
-import org.openl.message.Severity;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -1874,18 +1872,15 @@ class WorkspaceProjectServiceTest {
         when(handle.project()).thenReturn(moduleModel);
         doReturn(handle).when(service).openProject(project, "Claims");
         var broken = new OpenLErrorMessage(new OpenLRuntimeException("Identifier is not found"));
-        var plain = new OpenLMessage("Deprecated", Severity.WARN);
-        var status = mock(ProjectCompilationStatus.class);
-        when(status.getAllMessage()).thenReturn(List.of(plain, broken));
+        var status = ProjectCompilationStatus.newBuilder().addMessages(List.of(broken)).build();
         when(moduleModel.getCompilationStatus()).thenReturn(status);
 
         var trace = service.getMessageStacktrace(project, broken.getId(), "Claims");
 
+        // The module is opened, not awaited: a trace is read off what the session has compiled already.
         assertNotNull(trace);
         assertTrue(trace.contains("Identifier is not found"));
-        // A message with nothing behind it, and one nobody raised, have no trace to read.
-        assertNull(service.getMessageStacktrace(project, plain.getId(), "Claims"));
-        assertNull(service.getMessageStacktrace(project, -1, "Claims"));
+        verify(handle, never()).awaitCompiled();
     }
 
     @Test

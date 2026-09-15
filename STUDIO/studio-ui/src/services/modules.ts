@@ -183,6 +183,29 @@ export const getTableEditors = async (
     ) as TableEditors
 }
 
+/**
+ * The stack trace behind one compilation message, read when a reader opens it.
+ *
+ * A trace runs to thousands of characters and most messages are read without one, so the messages carry only
+ * whether there is a trace, and the trace itself is asked for one message at a time.
+ */
+export const getMessageStacktrace = async (
+    projectId: string,
+    messageId: number,
+    moduleName?: string
+): Promise<string> => {
+    const params = new URLSearchParams()
+    if (moduleName !== undefined) {
+        params.set('module', moduleName)
+    }
+    const query = params.size > 0 ? `?${params}` : ''
+    return await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/messages/${messageId}/stacktrace${query}`,
+        undefined,
+        LOCAL_LOAD_API_OPTIONS
+    ) as string
+}
+
 /** A test or run table that exercises another table. */
 export interface TableTest {
     id: string

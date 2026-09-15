@@ -107,6 +107,7 @@ Content-Type: application/json
       "file": "EPBDS-15409/rules/NewRules.xlsx",
       "sheet": "Eligibility",
       "pos": "B2:C4",
+      "errors": 1,
       "module": "NewRules",
       "project": "EPBDS-15409",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
@@ -149,6 +150,7 @@ Content-Type: application/json
       "file": "EPBDS-15409/Main.xlsx",
       "sheet": "Tutorial6",
       "pos": "B31:F39",
+      "hasTests": true,
       "module": "Main",
       "project": "EPBDS-15409",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
@@ -176,6 +178,7 @@ Content-Type: application/json
       "file": "EPBDS-15409/Main.xlsx",
       "sheet": "BankRating",
       "pos": "B22:D25",
+      "hasTests": true,
       "module": "Main",
       "project": "EPBDS-15409",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
@@ -243,6 +246,7 @@ Content-Type: application/json
       "file": "EPBDS-15409/Main.xlsx",
       "sheet": "Tutorial6",
       "pos": "B50:C55",
+      "hasTests": true,
       "module": "Main",
       "project": "EPBDS-15409",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="

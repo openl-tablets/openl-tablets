@@ -18,7 +18,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
         "project": "EPBDS-15409",
         "module": "Main",
-        "cell": "C17"
+        "cell": "C17",
+        "start": 0,
+        "end": 5
       },
       "stacktrace": true
     },
@@ -33,7 +35,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
         "project": "EPBDS-15409",
         "module": "Main",
-        "cell": "B16"
+        "cell": "B16",
+        "start": 32,
+        "end": 44
       },
       "stacktrace": true
     }

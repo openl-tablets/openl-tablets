@@ -31,7 +31,6 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +40,6 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
 
-import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -142,6 +140,7 @@ import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TablePropertyText;
 import org.openl.studio.projects.service.tables.TableRunStateService;
+import org.openl.studio.projects.service.tables.TableStatuses;
 import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -1644,10 +1643,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var locations = scope == SearchScope.CURRENT_MODULE ? null
                 : TableModules.ofWorkspace(moduleModel, projectIdentifierMapper);
 
+        // What the compilation made of each table — its errors, and whether anything tests it — read once for
+        // the whole list rather than worked out again for every row of it.
+        var statuses = TableStatuses.of(moduleModel);
         var selectors = buildTableSelector(query);
         var allTables = moduleModel.search(selectors, scope)
                 .stream()
-                .map(table -> locate(summaryTableReader.read(table, overloads), table, locations))
+                .map(table -> report(locate(summaryTableReader.read(table, overloads), table, locations),
+                        table, statuses))
                 .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
                 .toList();
 
@@ -1712,6 +1715,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var where = modules.locationOf(table.getUri());
         return where == null ? view : view.locatedAt(where.module(), where.projectName(), where.projectId());
+    }
+
+    /** Hangs what the compilation made of a table onto the row that lists it. */
+    private static SummaryTableView report(SummaryTableView view, IOpenLTable table, TableStatuses statuses) {
+        var uri = table.getUri();
+        return view.reported(statuses.errorsOf(uri), statuses.isTested(uri));
     }
 
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
@@ -1990,17 +1999,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return the trace, or {@code null} when the message carries none
      */
     public @Nullable String getMessageStacktrace(RulesProject project, long messageId, @Nullable String moduleName) {
-        return openProject(project, moduleName).project()
-                .getCompilationStatus()
-                .getAllMessage()
-                .stream()
-                .filter(message -> message.getId() == messageId)
-                .findFirst()
-                .filter(OpenLErrorMessage.class::isInstance)
-                .map(message -> ((OpenLErrorMessage) message).getError())
-                .filter(Throwable.class::isInstance)
-                .map(error -> ExceptionUtils.getStackTrace((Throwable) error))
-                .orElse(null);
+        return openProject(project, moduleName).project().getCompilationStatus().getStacktrace(messageId);
     }
 
     private List<DetailedMessageDescription> mapMessages(OpenLTableContext context) {
@@ -2259,6 +2258,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param moduleName module the table is written in, or {@code null} to look across the project
      * @return the table and the model it was resolved through
      */
+    private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
+        return moduleName == null
+                ? getOpenLTable(project, tableId, true)
+                : getOpenLTableInModule(project, tableId, moduleName);
+    }
+
     /**
      * Runs a write of a table, and has the module built from its workbook again when the write is refused.
      *
@@ -2277,12 +2282,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             getWebStudio().recompileCurrentModule();
             throw refused;
         }
-    }
-
-    private OpenLTableContext getWritableTable(RulesProject project, String tableId, @Nullable String moduleName) {
-        return moduleName == null
-                ? getOpenLTable(project, tableId, true)
-                : getOpenLTableInModule(project, tableId, moduleName);
     }
 
     /**
@@ -2442,7 +2441,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return tableCreatorService.createTable(createTableRequest, projectModel);
+        return writing(() -> tableCreatorService.createTable(createTableRequest, projectModel));
     }
 
     /**
@@ -2476,7 +2475,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
         getWebStudio().getCurrentProject().tryLockOrThrow();
-        return writeCopy(projectModel, source, request, sheetName);
+        return writing(() -> writeCopy(projectModel, source, request, sheetName));
     }
 
     /** Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. */

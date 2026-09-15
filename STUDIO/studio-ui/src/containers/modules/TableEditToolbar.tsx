@@ -38,6 +38,8 @@ interface TableEditToolbarProps {
     saving: boolean
     /** Why the table cannot be written yet, shown in place of saving it. */
     blocked: string | null
+    /** Whether the whole table is on screen, which adding a column needs: it carries a cell per row. */
+    whole: boolean
     onUndo: () => void
     onRedo: () => void
     onSave: () => void
@@ -79,6 +81,7 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     onInsertColumn,
     onRemoveColumn,
     onStyle,
+    whole,
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -141,7 +144,7 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('remove_row', <DeleteRowOutlined />, onRemoveRow, { disabled: row < 1, why: header })}
             {rule}
             {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn,
-                { disabled: column < 1, why: header })}
+                { disabled: column < 1 || !whole, why: column < 1 ? header : t('browser.module.edit_whole_table') })}
             {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn,
                 { disabled: column < 1, why: header })}
             {rule}

@@ -18,7 +18,9 @@ Content-Type: application/json
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==",
         "project": "EPBDS-15381",
         "module": "EPBDS-15381",
-        "cell": "D5"
+        "cell": "D5",
+        "start": 0,
+        "end": 13
       },
       "stacktrace": true
     }

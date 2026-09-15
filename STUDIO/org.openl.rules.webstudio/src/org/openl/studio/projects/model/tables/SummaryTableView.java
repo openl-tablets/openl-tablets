@@ -39,6 +39,13 @@ public class SummaryTableView extends TableView {
             + "An inactive table is written in the module but takes no part in the rules")
     public final Boolean active;
 
+    @Schema(description = "How many errors the compilation raised about this table. Absent when it raised none, "
+            + "so a screen marking the tables that are broken has only the broken ones to read")
+    public Integer errors;
+
+    @Schema(description = "Set when a test table exercises this one. Absent when nothing tests it")
+    public Boolean hasTests;
+
     @Schema(description = "Module the table is written in. Answered where the list spans more than one module — "
             + "a search of the project, or of everything the workspace has compiled")
     public String module;
@@ -71,6 +78,18 @@ public class SummaryTableView extends TableView {
         this.module = module;
         this.project = project;
         this.projectId = projectId;
+        return this;
+    }
+
+    /**
+     * Says what the compilation made of the table: how many errors it raised, and whether anything tests it.
+     *
+     * <p>Neither is said where there is nothing to say — a table that compiled cleanly and a table nothing
+     * tests are the ordinary case, and the screen reading the list has only what stands out to read.
+     */
+    public SummaryTableView reported(int errors, boolean tested) {
+        this.errors = errors > 0 ? errors : null;
+        this.hasTests = tested ? Boolean.TRUE : null;
         return this;
     }
 

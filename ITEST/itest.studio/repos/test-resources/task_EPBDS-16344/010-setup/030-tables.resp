@@ -13,6 +13,7 @@ Content-Type: application/json
       "file": "EPBDS-16344/BugReproducing.xlsx",
       "sheet": "Alg",
       "pos": "C25:D28",
+      "errors": 1,
       "module": "BugReproducing",
       "project": "EPBDS-16344",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ=="
@@ -54,6 +55,7 @@ Content-Type: application/json
       "file": "EPBDS-16344/BugReproducing.xlsx",
       "sheet": "Alg",
       "pos": "C3:D6",
+      "hasTests": true,
       "module": "BugReproducing",
       "project": "EPBDS-16344",
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ=="

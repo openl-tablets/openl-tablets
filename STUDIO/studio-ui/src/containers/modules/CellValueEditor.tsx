@@ -1,7 +1,11 @@
 import React, { useMemo } from 'react'
 import { DatePicker, Input, InputNumber, Select } from 'antd'
 import dayjs from 'dayjs'
+// A date typed into a cell is read by the format the workbook writes, and nothing else: without this dayjs
+// falls back to guessing, and 13/01/2024 is taken for a date rather than refused.
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import type { TableCellEditor } from '../../services/modules'
+import { joinValues, splitValues } from './multiValue'
 import { numberOnly } from './numberOnly'
 
 /** How a value is being written, which is not always the way the cell asks for it. */
@@ -14,8 +18,10 @@ export type EditorKind =
     | 'date'
     | 'boolean'
     | 'array'
-    /** Entered in a dialog of its own rather than in the cell, so this draws nothing for it. */
+    /** Entered in the panel under the cell rather than typed into it. */
     | 'range'
+    /** The formula the cell is written with, entered as Excel writes it: `=B2*C2`. */
+    | 'formula'
 
 interface CellValueEditorProps {
     /** The way the value is being written. */
@@ -28,8 +34,12 @@ interface CellValueEditorProps {
     onCommit: () => void
     /** Leaves the cell as it was. */
     onCancel: () => void
+    /** Asked for another way of writing the value, which Alt+Enter asks for from a one-line field. */
+    onSwitch?: ((kind: EditorKind) => void) | undefined
     className?: string
 }
+
+dayjs.extend(customParseFormat)
 
 /** How a date is written into a cell, which is how the workbook reads it back. */
 const DATE_FORMAT = 'MM/DD/YYYY'
@@ -57,18 +67,37 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
     onChange,
     onCommit,
     onCancel,
+    onSwitch,
     className,
 }) => {
     const choices = useMemo(() => choicesOf(asked), [asked])
     const separator = asked?.separator ?? ','
     const numeric = useMemo(() => numberOnly(asked?.intOnly), [asked?.intOnly])
 
-    // Enter keeps what was written and Escape leaves the cell as it was, wherever the reader is writing.
+    /**
+     * Enter keeps what was written and Escape leaves the cell as it was, wherever the reader is writing.
+     *
+     * <p>A field that holds several lines takes Enter for a line of its own, so there Ctrl+Enter is what keeps
+     * what was written; and Alt+Enter is what asks a one-line field for the room to write several, as the old
+     * editor did. F2 and F3 put the caret at the two ends of what is already there.
+     */
     const keys = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter' && kind !== 'multiline') {
+        const several = kind === 'multiline'
+        if (event.key === 'Enter' && event.altKey && !several) {
+            event.preventDefault()
+            onSwitch?.('multiline')
+        } else if (event.key === 'Enter' && (several ? event.ctrlKey || event.metaKey : true)) {
             onCommit()
         } else if (event.key === 'Escape') {
             onCancel()
+        } else if (event.key === 'F2' || event.key === 'F3') {
+            // The two ends of what the cell already holds, which is where the old editor put the caret.
+            const field = event.currentTarget
+            if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
+                event.preventDefault()
+                const at = event.key === 'F2' ? 0 : field.value.length
+                field.setSelectionRange(at, at)
+            }
         }
     }
 
@@ -114,12 +143,12 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     defaultOpen
                     mode="multiple"
                     onBlur={onCommit}
-                    onChange={(chosen: string[]) => onChange(chosen.join(separator))}
+                    onChange={(chosen: string[]) => onChange(joinValues(chosen, separator, asked?.separatorEscaper))}
                     onInputKeyDown={keys}
                     options={choices}
                     popupMatchSelectWidth={false}
                     style={{ minWidth: 180 }}
-                    value={value === '' ? [] : value.split(separator).map(one => one.trim())}
+                    value={splitValues(value, separator, asked?.separatorEscaper)}
                 />
             )
         case 'boolean':
@@ -172,8 +201,29 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                 />
             )
         }
-        case 'array':
         case 'range':
+            // The bounds are entered in the panel under the cell, so the cell itself only shows what they
+            // come to — as the old editor did, where the field could not be typed into either.
+            return <Input {...shared} readOnly onKeyDown={keys} value={value} />
+        case 'array': {
+            // A cell holding several numbers is written as they are read: the numbers with the separator
+            // between them. Only what can stand in one reaches the field, the separator included.
+            const entries = numberOnly(asked?.intOnly, separator)
+            return (
+                <Input
+                    {...shared}
+                    onBlur={onCommit}
+                    onChange={event => onChange(event.target.value)}
+                    onPaste={entries.onPaste}
+                    value={value}
+                    onKeyDown={event => {
+                        entries.onKeyDown(event)
+                        keys(event)
+                    }}
+                />
+            )
+        }
+        case 'formula':
         case 'text':
         default:
             return (

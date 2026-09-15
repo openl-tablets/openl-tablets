@@ -250,11 +250,18 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 .cell(cell.getUri())
                 .value(cellValueReader.apply(cell))
                 .formula(StringUtils.isBlank(formula) ? null : "=" + formula)
+                .comment(commentOf(cell))
                 .colspan(cellModel.getColspan())
                 .rowspan(cellModel.getRowspan())
                 .style(withStyles ? styleOf(cellModel) : null)
                 .metaInfo(withMetaInfo ? metaInfoOf(cell, metaInfoReader, modules) : null)
                 .build();
+    }
+
+    /** The note a reader left on the cell in Excel, which a screen marks the cell by. */
+    private static @Nullable String commentOf(ICell cell) {
+        var comment = cell.getComment();
+        return comment == null ? null : StringUtils.trimToNull(comment.getText());
     }
 
     /** Notes the cells a merged one reaches over, so each of them is reported as covered rather than read. */

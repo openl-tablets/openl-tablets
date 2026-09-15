@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Tooltip } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
@@ -11,6 +11,9 @@ const PAGE_SIZE = 10
 /** How much of a long message is shown before the reader asks for the rest. */
 const PREVIEW_CHARS = 260
 const PREVIEW_LINES = 4
+/** How much of a stack trace is shown before that: enough to see where it was raised, and no more. */
+const TRACE_CHARS = 1600
+const TRACE_LINES = 16
 
 const useStyles = createStyles(({ css, token }) => ({
     list: css`
@@ -69,11 +72,41 @@ const useStyles = createStyles(({ css, token }) => ({
         word-break: break-word;
         cursor: pointer;
     `,
+    /** The rule the message was raised about, set in the typewriter face the old editor showed it in. */
+    code: css`
+        display: block;
+        margin-top: 2px;
+        font-family: ${token.fontFamilyCode};
+        font-size: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: ${token.colorText};
+    `,
+    /** The piece of the rule the message is about, marked so the reader finds it among the rest. */
+    marked: css`
+        color: ${COMPILE_COLORS.errors};
+        font-weight: bold;
+    `,
     action: css`
         margin-top: 2px;
         padding: 0;
         height: auto;
         font-size: 12px;
+    `,
+    /**
+     * The stack trace behind a message, set in the typewriter face.
+     *
+     * <p>It wraps and scrolls with the panel rather than inside a box of its own: a scroller within a scroller
+     * is scrolled by the page itself, which then redraws the whole trace on every frame of a drag.
+     */
+    stacktrace: css`
+        display: block;
+        margin-top: 4px;
+        font-family: ${token.fontFamilyCode};
+        font-size: 12px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        color: ${token.colorTextSecondary};
     `,
     pager: css`
         display: flex;
@@ -82,22 +115,35 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-const truncate = (value: string): string => {
-    const lines = value.split(/\r?\n/)
-    const byLines = lines.length > PREVIEW_LINES ? lines.slice(0, PREVIEW_LINES).join('\n') : value
-    return byLines.length > PREVIEW_CHARS ? byLines.slice(0, PREVIEW_CHARS).trimEnd() : byLines
+/** What of a piece of text is shown, and whether the rest of it is being held back. */
+const shorten = (value: string, chars: number, lines: number): { text: string, long: boolean } => {
+    const written = value.split(/\r?\n/)
+    const byLines = written.length > lines ? written.slice(0, lines).join('\n') : value
+    const text = byLines.length > chars ? byLines.slice(0, chars).trimEnd() : byLines
+    return { text, long: text.length < value.length }
 }
 
-const isLong = (value: string): boolean =>
-    value.length > PREVIEW_CHARS || value.split(/\r?\n/).length > PREVIEW_LINES
-
-/** One message, shown in full only when it is short or the reader asked for the rest of it. */
-const MessageText = ({ value }: { value: string }) => {
+/**
+ * One piece of text, shown in full only when it is short or the reader asked for the rest of it.
+ *
+ * <p>What is not shown is not drawn either: a stack trace put on screen whole is thousands of lines the page
+ * lays out and paints again on every frame of a scroll.
+ */
+const MessageText = ({
+    value,
+    chars = PREVIEW_CHARS,
+    lines = PREVIEW_LINES,
+}: {
+    value: string
+    chars?: number
+    lines?: number
+}) => {
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
     const [expanded, setExpanded] = useState(false)
-    const long = isLong(value)
-    const text = !long || expanded ? value : `${truncate(value)}...`
+    const shown = useMemo(() => shorten(value, chars, lines), [value, chars, lines])
+    const long = shown.long
+    const text = expanded || !long ? value : `${shown.text}...`
 
     useEffect(() => {
         setExpanded(false)
@@ -125,6 +171,110 @@ const MessageText = ({ value }: { value: string }) => {
     )
 }
 
+/**
+ * The rule a message was raised about, with the piece it is about marked the way the old editor marked it.
+ *
+ * <p>The rule is what the cell says, and the cell is on screen already: the message names only where in it the
+ * piece begins and ends.
+ */
+const MessageCode = ({
+    text,
+    start,
+    end,
+    testId,
+}: {
+    text: string
+    start: number
+    end: number
+    testId: string
+}) => {
+    const { styles } = useStyles()
+    return (
+        <span className={styles.code} data-testid={testId}>
+            <span>{text.slice(0, start)}</span>
+            <span className={styles.marked} data-testid={`${testId}-marked`}>
+                {text.slice(start, end)}
+            </span>
+            <span>{text.slice(end)}</span>
+        </span>
+    )
+}
+
+/** The rule a message points at, when the screen holds the cell it is written in. */
+const ruleOf = (
+    message: ProjectStatusDetailedMessage,
+    cellText: ((cell: string) => string | undefined) | undefined
+): { text: string, start: number, end: number } | null => {
+    const where = message.location
+    if (cellText === undefined || where?.type !== 'table' || where.cell === undefined
+        || where.start === undefined || where.end === undefined) {
+        return null
+    }
+    const text = cellText(where.cell)
+    return text === undefined || where.end > text.length
+        ? null
+        : { text, start: where.start, end: where.end }
+}
+
+/**
+ * The stack trace behind a message, read when the reader opens it.
+ *
+ * <p>A trace runs to thousands of characters and most messages are read without one, so nothing is asked for
+ * until it is opened, and what was read stays read for as long as the message is on screen.
+ */
+const MessageStacktrace = ({
+    load,
+    testId,
+}: {
+    load: () => Promise<string>
+    testId: string
+}) => {
+    const { styles } = useStyles()
+    const { t } = useTranslation('repository')
+    const [open, setOpen] = useState(false)
+    const [trace, setTrace] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
+
+    const toggle = () => {
+        if (open) {
+            setOpen(false)
+            return
+        }
+        setOpen(true)
+        if (trace !== null || loading) {
+            return
+        }
+        setLoading(true)
+        load()
+            .then(setTrace)
+            .catch(() => setTrace(t('browser.compile.stacktrace_failed')))
+            .finally(() => setLoading(false))
+    }
+
+    return (
+        <div>
+            <Button
+                className={styles.action}
+                data-testid={`${testId}-toggle`}
+                loading={loading}
+                size="small"
+                type="link"
+                onClick={event => {
+                    event.stopPropagation()
+                    toggle()
+                }}
+            >
+                {open ? t('browser.compile.hide_stacktrace') : t('browser.compile.show_stacktrace')}
+            </Button>
+            {open && !loading && (
+                <div className={styles.stacktrace} data-testid={testId}>
+                    <MessageText chars={TRACE_CHARS} lines={TRACE_LINES} value={trace ?? ''} />
+                </div>
+            )}
+        </div>
+    )
+}
+
 interface CompileMessagesProps {
     messages: ProjectStatusDetailedMessage[]
     /** The severity these messages carry, which decides the colour of the stripe beside them. */
@@ -147,6 +297,20 @@ interface CompileMessagesProps {
      * screen that does no editing, and on a message that names no cell there is nothing to open.
      */
     onEditCell?: ((cell: string) => void) | undefined
+    /**
+     * Reads the stack trace behind a message, when the reader opens it.
+     *
+     * <p>Offered only on a message that carries one, and asked for only once it is opened: a trace runs to
+     * thousands of characters, and a screen listing hundreds of messages reads none of them until asked.
+     */
+    onStacktrace?: ((message: ProjectStatusDetailedMessage) => Promise<string>) | undefined
+    /**
+     * The text a cell of the table on screen holds, so a message can show the rule it was raised about.
+     *
+     * <p>Absent on a screen that draws no table — there the message names a cell nobody can see, and the rule
+     * is not shown at all.
+     */
+    cellText?: ((cell: string) => string | undefined) | undefined
 }
 
 /**
@@ -163,6 +327,8 @@ export const CompileMessages = ({
     onOpen,
     canOpen,
     onEditCell,
+    onStacktrace,
+    cellText,
 }: CompileMessagesProps) => {
     const { styles, cx } = useStyles()
     const { t } = useTranslation('repository')
@@ -184,6 +350,7 @@ export const CompileMessages = ({
                     const openable = onOpen !== undefined && (canOpen === undefined || canOpen(message))
                     const text = <MessageText value={message.summary} />
                     const cell = message.location?.type === 'table' ? message.location.cell : undefined
+                    const rule = ruleOf(message, cellText)
                     return (
                         <li
                             key={message.id}
@@ -202,6 +369,20 @@ export const CompileMessages = ({
                                 </button>
                             ) : (
                                 <span data-testid={`${testIdPrefix}-${message.id}`}>{text}</span>
+                            )}
+                            {rule !== null && (
+                                <MessageCode
+                                    end={rule.end}
+                                    start={rule.start}
+                                    testId={`${testIdPrefix}-${message.id}-code`}
+                                    text={rule.text}
+                                />
+                            )}
+                            {message.stacktrace && onStacktrace !== undefined && (
+                                <MessageStacktrace
+                                    load={() => onStacktrace(message)}
+                                    testId={`${testIdPrefix}-${message.id}-stacktrace`}
+                                />
                             )}
                             {onEditCell !== undefined && cell !== undefined && (
                                 <Tooltip title={t('browser.module.edit_this_cell', { cell })}>

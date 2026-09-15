@@ -49,6 +49,13 @@ export interface ProjectStatusTableMessageSource {
     name?: string
     module?: string
     cell?: string
+    /**
+     * First character of the cell's text the message is about, which a screen marks so the reader finds it
+     * among the rest. Absent when the message is about no part of the cell in particular.
+     */
+    start?: number
+    /** Character of the cell's text after the last one the message is about. */
+    end?: number
     /** The project the table belongs to, which is not always the one compiled: a dependency is a project too */
     projectId?: string
     project?: string
