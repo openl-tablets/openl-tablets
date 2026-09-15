@@ -13,5 +13,8 @@ Content-Type: application/json
     [{"cell": "B4", "value": "Array attributes"}, {"cell": "C4", "value": "Expected first"}],
     [{"cell": "B5", "value": ["range-a", "range-b"]}, {"cell": "C5", "value": "range-a"}]
   ],
-  "headerHeight": 2
+  "headerHeight": 2,
+  "layout": {
+    "firstDataLine": 3
+  }
 }

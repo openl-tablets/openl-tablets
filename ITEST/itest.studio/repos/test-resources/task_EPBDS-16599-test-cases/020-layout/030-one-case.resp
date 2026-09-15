@@ -1,0 +1,58 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "oneCaseTest",
+  "pos": "B17:D19",
+  "source": [
+    [
+      {
+        "cell": "B17",
+        "value": "Test greeting oneCaseTest"
+      },
+      {
+        "cell": "C17"
+      },
+      {
+        "cell": "D17"
+      }
+    ],
+    [
+      {
+        "cell": "B18",
+        "value": "name"
+      },
+      {
+        "cell": "C18",
+        "value": "Name"
+      },
+      {
+        "cell": "D18",
+        "value": "John"
+      }
+    ],
+    [
+      {
+        "cell": "B19",
+        "value": "_res_"
+      },
+      {
+        "cell": "C19",
+        "value": "Greeting"
+      },
+      {
+        "cell": "D19",
+        "value": "Hi, John"
+      }
+    ]
+  ],
+  "headerHeight": 1,
+  "layout": {
+    "transposed": true,
+    "firstDataLine": 2
+  }
+}
+

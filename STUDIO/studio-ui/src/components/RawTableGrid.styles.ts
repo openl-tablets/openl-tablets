@@ -37,6 +37,22 @@ export const useStyles = createStyles(({ css, token }) => ({
         max-width: 420px;
     `,
     /**
+     * The number of a line of data, beside the table rather than in it: the workbook has no such cell, and a
+     * reader counting cases down a long table should not have to count rows to find the third one.
+     */
+    lineNumber: css`
+        border: none;
+        /* The ground the table is laid on, so the numbers read as the margin they are and not as cells. */
+        background: ${token.colorBgLayout};
+        padding: 0 ${token.paddingXS}px;
+        color: ${token.colorText};
+        font-size: ${token.fontSizeSM}px;
+        text-align: right;
+        vertical-align: middle;
+        white-space: nowrap;
+        user-select: none;
+    `,
+    /**
      * A cell a reader left a note on in Excel, marked in its corner the way the old editor marked it.
      *
      * <p>The mark is drawn by the cell itself rather than by an image, so it costs the page nothing.

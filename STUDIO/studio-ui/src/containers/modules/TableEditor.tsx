@@ -7,7 +7,7 @@ import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
-import type { RawCellStyleInput, RawTableCell } from 'types/tables'
+import type { RawCellStyleInput, RawTableCell, TableLayout } from 'types/tables'
 import { CellValueEditor, type EditorKind } from './CellValueEditor'
 import { RANGE_PANEL, RangeEditor } from './RangeEditor'
 import { TableEditToolbar } from './TableEditToolbar'
@@ -86,6 +86,11 @@ interface TableEditorProps {
     whole?: boolean | undefined
     /** The table body as it was read, which the pending edits are replayed over. */
     rows: RawTableCell[][]
+    /**
+     * How the table is laid out, where the screen numbers the lines of its data. Given in the table's own
+     * coordinates, so a screen drawing it without its header rows counts those out itself.
+     */
+    layout?: TableLayout | undefined
     /** Draw the formula a cell was written with rather than the value it computed. */
     formulas?: boolean | undefined
     /** Follows a piece of a cell's text to the table it names. */
@@ -127,6 +132,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     maxRows,
     whole = true,
     rows,
+    layout,
     formulas,
     onOpenUsage,
     canWrite,
@@ -591,6 +597,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     onOpenCell={canWrite ? openCell : undefined}
                     onOpenUsage={editing ? undefined : onOpenUsage}
                     onPickCell={canWrite ? pick : undefined}
+                    layout={layout}
                     rows={written}
                     tableRef={grid}
                     testId={testId}

@@ -136,6 +136,7 @@ import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
 import org.openl.studio.projects.service.tables.TableDetailsService;
+import org.openl.studio.projects.service.tables.TableLayouts;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TablePropertyText;
@@ -2067,8 +2068,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getOpenLTableInModule(project, tableId, moduleName);
         var tableView = rawTableReader.read(context.table(), startRow, maxRows, withStyles, withMetaInfo,
                 TableModules.ofWorkspace(context.module(), projectIdentifierMapper));
-        tableView.messages = mapMessages(context);
-        return tableView;
+        // Only a screen drawing the cells has anything to do with where they sit, so only the grid is told.
+        tableView.layout = TableLayouts.of(context.module(), context.table());
+        return described(tableView, context);
     }
 
     /**

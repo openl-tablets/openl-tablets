@@ -291,6 +291,14 @@ The React component talks to the server through REST (`services/apiCall.ts`), **
   took its whole action panel away; here it is never opened at all — the tree leaves it out, and the usage that
   named it carries no table to open, only what the word stands for. So the read names a table on a usage only
   where a module holds it.
+- **How a table is laid out is the compiler's knowledge, not the grid's.** A test table is a table of cases,
+  and a reader refers to them by number — the third case, the one that failed. The numbers are nowhere in the
+  workbook: they follow from which way round the table is written and from where its headings end, and a grid
+  of text shows neither. So the read carries both (`layout.transposed`, `layout.firstDataLine`) and the screen
+  numbers the lines from there — down the side of a table written the usual way round, across the top of one
+  written the other way. The Editor numbered only the first of those, and left a transposed table and a table
+  of a single case unnumbered; taking the two facts from the compiler rather than counting rows is what covers
+  all three. Said about a test table because nothing else asks it yet, in a shape that holds for any table.
 - **A table written in pieces is read but not written.** A table can be assembled from several partial tables
   scattered about the workbook, and the cells it is drawn from do not sit together — there is nothing for an
   editor to write back into. The read says so (`partial`), the screen puts the Editor's own notice at the top
