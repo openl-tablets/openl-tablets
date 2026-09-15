@@ -51,6 +51,20 @@ describe('TraceTableView', () => {
         useTraceStore.setState({ loadRawTable: pristineLoadRawTable })
     })
 
+    /**
+     * The cell at the given address, once the highlights the view went to fetch have reached the table.
+     *
+     * <p>The fetch having been made says nothing about its answer being drawn. Waiting for the call alone reads
+     * the table as it stood before the highlights arrived, which is the table without any of them.
+     */
+    const marked = async (cell: string, plain: string): Promise<HTMLElement> => await waitFor(() => {
+        const drawn = screen.getByTestId('trace-table')
+        const highlighted = drawn.querySelector(`[data-cell="${cell}"]`) as HTMLElement
+        const other = drawn.querySelector(`[data-cell="${plain}"]`) as HTMLElement
+        expect(highlighted.className).not.toBe(other.className)
+        return highlighted
+    })
+
     // Point the frame at a table that is not cached and control how its structure loads.
     const uncachedFrame = (loadRawTable: () => Promise<RawTableView>): void => {
         useTraceStore.setState({
@@ -75,7 +89,7 @@ describe('TraceTableView', () => {
         })
 
         render(<TraceTableView frameIndex={0} />)
-        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
+        const current = await marked('B2', 'A2')
 
         const table = screen.getByTestId('trace-table')
         expect(screen.getByText('Header')).toBeInTheDocument()
@@ -90,7 +104,6 @@ describe('TraceTableView', () => {
         expect(header.style.background).not.toBe('') // a non-highlighted styled cell keeps its Excel background
 
         // The highlighted current cell drops its Excel background so the highlight class wins.
-        const current = table.querySelector('[data-cell="B2"]') as HTMLElement
         expect(current.style.background).toBe('')
         const plain = table.querySelector('[data-cell="A2"]') as HTMLElement
         expect(current.className).not.toBe(plain.className) // current carries the extra highlight class
@@ -106,12 +119,11 @@ describe('TraceTableView', () => {
         })
 
         render(<TraceTableView dimOthers frameIndex={0} />)
-        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
+        const highlighted = await marked('B1', 'A1')
 
         const table = screen.getByTestId('trace-table')
         const plainA = table.querySelector('[data-cell="A1"]') as HTMLElement
         const plainC = table.querySelector('[data-cell="C1"]') as HTMLElement
-        const highlighted = table.querySelector('[data-cell="B1"]') as HTMLElement
         expect(plainA.className).toBe(plainC.className) // both muted the same way
         expect(plainA.className).not.toBe(highlighted.className) // the result highlight keeps its colour
     })
@@ -126,15 +138,13 @@ describe('TraceTableView', () => {
 
         // Advanced view: the current cell carries the yellow highlight class.
         render(<TraceTableView frameIndex={0} />)
-        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
-        const yellow = (screen.getByTestId('trace-table').querySelector('[data-cell="B1"]') as HTMLElement).className
+        const yellow = (await marked('B1', 'A1')).className
         cleanup()
 
         // Business view: the current cell is left in its original colour (no yellow) while the rest are muted.
         render(<TraceTableView dimOthers frameIndex={0} />)
-        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
+        const original = (await marked('B1', 'A1')).className
         const table = screen.getByTestId('trace-table')
-        const original = (table.querySelector('[data-cell="B1"]') as HTMLElement).className
         const muted = (table.querySelector('[data-cell="A1"]') as HTMLElement).className
         expect(original).not.toBe(yellow) // the yellow highlight is gone
         expect(original).not.toBe(muted) // and it is not muted like the rest — it keeps its colour
@@ -148,15 +158,17 @@ describe('TraceTableView', () => {
             source: [[{ cell: 'A1', value: 'Step' }, { cell: 'B1', value: '= x' }]],
         })
         render(<TraceTableView frameIndex={0} />)
-        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
-        const plain = screen.getByTestId('trace-table').querySelector('[data-cell="A1"]') as HTMLElement
+        await marked('B1', 'A1')
+        const plain = (screen.getByTestId('trace-table')
+            .querySelector('[data-cell="A1"]') as HTMLElement).className
 
         cleanup()
         render(<TraceTableView dimOthers frameIndex={0} />)
-        await waitFor(() => expect(getFrameHighlights).toHaveBeenCalled())
-        const muted = screen.getByTestId('trace-table').querySelector('[data-cell="A1"]') as HTMLElement
+        await marked('B1', 'A1')
+        const muted = (screen.getByTestId('trace-table')
+            .querySelector('[data-cell="A1"]') as HTMLElement).className
 
-        expect(muted.className).not.toBe(plain.className) // dimOthers adds the muting class
+        expect(muted).not.toBe(plain) // dimOthers adds the muting class
     })
 
     it('paints the given cell directly and skips the highlights fetch when highlightCell is set', async () => {
