@@ -2,9 +2,11 @@
 
 ## Resume point
 
-- Swept head is `origin/main` 9a32b54ca7, unmoved across four consecutive runs: every change type is exhausted at it,
+- Swept head is `origin/main` 9a32b54ca7, unmoved across five consecutive runs: every change type is exhausted at it,
   so a run that finds 0 new commits there has no cleanup to do and must not re-run an exhausted detector. #2109 sits
   on this base, fully green, needing only a human approval — watch it, touch nothing.
+- The owner was notified once (2026-09-15) that #2109 waits only on their approval; never repeat that nudge while
+  the PR state is unchanged, since the trigger fires six times a day.
 - When `main` gains code: diff against 9a32b54ca7, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
@@ -283,6 +285,6 @@
 
 ## Run log
 
-- 2026-09-14 f: no-op; main still 9a32b54ca7 (0 new commits), #2109 still 17/17 green awaiting approval, at 289.
 - 2026-09-14 g: no-op; main still 9a32b54ca7, #2109 green with no review thread, body re-verified against the diff, at 288.
 - 2026-09-14 h: no-op; main still 9a32b54ca7, #2109 17/17 green, both comments bots with nothing actionable, at 288.
+- 2026-09-15 a: no-op; main still 9a32b54ca7, #2109 17/17 green and body matches 1 commit/5 files/5 deletions; stale-branch delete still 403; owner nudged once; at 290.
