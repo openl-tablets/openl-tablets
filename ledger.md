@@ -139,7 +139,11 @@
 
 ## CI flakes
 
-- None observed yet since the reset.
+- IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was 3" with `ORA-12516: Listener ... does
+  not have a protocol handler for TCP ready` on three consecutive requests while MySQL, PostgreSQL and SQL Server pass;
+  the Oracle container's listener, not the diff. No rerun tool here: a new push is the only retry.
+- A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
+  `test-resources/... - FAIL` and the cause with `ORA-|SQLException|expected: <`.
 
 ## Container facts
 
