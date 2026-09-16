@@ -16,13 +16,6 @@ import org.junit.jupiter.api.Test;
  */
 class VersionTest {
 
-    /*
-     * Test for boolean equals(Object)
-     */
-    @Test
-    void testEqualsObject() {
-    }
-
     @Test
     void testIsVersion() {
         var t1 = "1.2.3";
