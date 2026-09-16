@@ -164,10 +164,20 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   (`createStyles(({ token }) => ...)`), or, for an OpenL hue with no token, `LIST_PAGE_COLORS` from
   `styles/listPageTheme.ts`. Its values are `var(--openl-*)` custom properties that `AppStyles` republishes when the
   appearance changes, so a style that uses them repaints with the theme. A new colour is added to **both**
-  `LIGHT_PALETTE` and `DARK_PALETTE`. Ant Design derives whole palettes from a colour and cannot read a custom
-  property, so a `ThemeConfig` token takes the palette itself — see `projectsTheme(isDarkMode)`.
+  `LIGHT_PALETTE` and `DARK_PALETTE`. Besides the surfaces and the text, the palette carries the compilation
+  states (`COMPILE_COLORS`), the fills of the solid status badges, and the syntax hues of a parameter value.
+  Ant Design derives whole palettes from a colour and cannot read a custom property, so a `ThemeConfig` token takes
+  the palette itself — see `projectsTheme(isDarkMode)`.
   Ant Design's **static** `notification`/`message`/`Modal` calls stay light on a dark page: they are made outside
   React and cannot consume the dynamic theme. Fixing that means routing them through `App.useApp()`.
+    - **A canvas needs a real colour.** Cytoscape paints the table dependency graph on a `<canvas>`, which cannot
+      read a custom property, so the graph takes its colours from the Ant Design token through
+      `containers/tableGraphTheme.ts` (`kindColor`, `kindRules`, `graphPalette`) and lists `token` among the
+      dependencies of the effect that builds the instance, so it is rebuilt when the appearance changes.
+    - **A shell-less screen wears the shared card.** The login page, the `403`/`404`/`500` pages and the e-mail
+      verification screen take `styles/splashCard.styles.ts` rather than repeating a card of their own.
+    - **A class component reads the theme through a child.** `createStyles` and `theme.useToken()` are hooks, so a
+      class such as `ErrorBoundary` keeps its styled part in a small function component beside it.
 - **Form field labels** use the shared `FieldRow` component (right-aligned `Label :` with the required
   asterisk to the left), matching the create-project modal and the administration screens.
 - **Label casing.** A label of **at most three words** (not counting the articles `a`/`an`/`the`) is written in

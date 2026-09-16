@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { Alert, Badge, Button, Col, Input, Modal, Row, Table, Typography, Tooltip } from 'antd'
+import { Alert, Badge, Button, Col, Input, Modal, Row, Table, Typography, Tooltip, theme } from 'antd'
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, SearchOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { apiCall } from 'services'
@@ -18,6 +18,7 @@ import { ExclamationCircleTwoTone } from '@ant-design/icons'
 
 export const Users: React.FC = () => {
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const { isExternalAuthSystem, isGroupsManagementEnabled, systemSettings } = useContext(SystemContext)
     const [selectedUser, setSelectedUser] = useState<UserDetails>()
     const [users, setUsers] = useState<UserDetails[]>([])
@@ -115,7 +116,7 @@ export const Users: React.FC = () => {
                             <span>
                                 {email}{' '}
                                 <Tooltip title={t('users:email_not_verified')}>
-                                    <ExclamationCircleTwoTone twoToneColor="#faad14" />
+                                    <ExclamationCircleTwoTone twoToneColor={token.colorWarning} />
                                 </Tooltip>
                             </span>
                         )

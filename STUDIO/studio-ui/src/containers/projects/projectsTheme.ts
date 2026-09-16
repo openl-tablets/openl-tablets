@@ -13,16 +13,19 @@ export const MOCKUP = {
 } as const
 
 /**
- * First-class palette for the compilation state — OpenL's core signal — kept deliberately distinct from
- * the brand indigo and refined off the Ant Design semantic defaults. Keyed by {@code ProjectCompileState}.
+ * The compilation state — OpenL's core signal — keyed by {@code ProjectCompileState}.
+ *
+ * The hues are deliberately distinct from the brand indigo. Each is a CSS custom property of the palette
+ * in force, so a state keeps its meaning and still repaints when the appearance changes. A state that was
+ * never compiled and one whose compilation was cancelled read the same, so they share one hue.
  */
 export const COMPILE_COLORS = {
-    ok: '#1f8a63',
-    warnings: '#c0851b',
-    errors: '#cf4436',
-    compiling: '#2a75ba',
-    cancelled: '#8b9199',
-    idle: '#8b9199',
+    ok: LIST_PAGE_COLORS.compileOk,
+    warnings: LIST_PAGE_COLORS.compileWarnings,
+    errors: LIST_PAGE_COLORS.compileErrors,
+    compiling: LIST_PAGE_COLORS.compileCompiling,
+    cancelled: LIST_PAGE_COLORS.compileIdle,
+    idle: LIST_PAGE_COLORS.compileIdle,
 } as const
 
 /**

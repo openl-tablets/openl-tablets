@@ -1,45 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Button, Spin, notification } from 'antd'
 import Logo from '../components/Logo'
 import { apiCall } from '../services'
 import { useUserStore } from 'store'
 import { useTranslation } from 'react-i18next'
-
-const containerStyle: React.CSSProperties = {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    background: 'linear-gradient(135deg, #f0f4fa 0%, #e9effa 100%)',
-}
-
-const cardStyle: React.CSSProperties = {
-    background: '#fff',
-    padding: '48px 40px',
-    borderRadius: 16,
-    boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    maxWidth: 400,
-    width: '100%',
-}
-
-const titleStyle: React.CSSProperties = {
-    fontSize: 28,
-    fontWeight: 700,
-    margin: '24px 0 8px 0',
-    textAlign: 'center',
-}
-
-const subTitleStyle: React.CSSProperties = {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 24,
-    textAlign: 'center',
-}
+import { useStyles } from '../styles/splashCard.styles'
 
 export const EmailVerification = () => {
     const location = useLocation()
@@ -51,6 +17,7 @@ export const EmailVerification = () => {
     const [cooldown, setCooldown] = useState(0)
     const [redirectCountdown, setRedirectCountdown] = useState(10)
     const { t } = useTranslation()
+    const { cx, styles } = useStyles()
 
     // navigate and reload method
     const navigateAndReload = (path: string) => {
@@ -122,7 +89,7 @@ export const EmailVerification = () => {
 
     if (loading) {
         return (
-            <div style={containerStyle}>
+            <div className={styles.container}>
                 <Spin size="large" />
             </div>
         )
@@ -130,13 +97,13 @@ export const EmailVerification = () => {
 
     if (status === 'success') {
         return (
-            <div style={containerStyle}>
-                <div style={cardStyle}>
+            <div className={styles.container}>
+                <div className={styles.card}>
                     <Logo height={72} width={72} />
-                    <div style={{ ...titleStyle, color: '#1763C6' }}>{t('users:email_verified_title')}</div>
-                    <div style={subTitleStyle}>
+                    <div className={styles.title}>{t('users:email_verified_title')}</div>
+                    <div className={styles.subTitle}>
                         {t('users:email_verified_message')}<br /><br />
-                        <span style={{ color: '#888', fontSize: 14 }}>
+                        <span className={styles.note}>
                             {t('users:email_verified_redirect', { seconds: redirectCountdown })}
                         </span>
                     </div>
@@ -149,15 +116,15 @@ export const EmailVerification = () => {
     }
     if (status === 'error') {
         return (
-            <div style={containerStyle}>
-                <div style={cardStyle}>
+            <div className={styles.container}>
+                <div className={styles.card}>
                     <Logo height={72} width={72} />
-                    <div style={{ ...titleStyle, color: '#ff4d4f' }}>{t('users:verification_failed_title')}</div>
-                    <div style={subTitleStyle}>
+                    <div className={cx(styles.title, styles.titleError)}>{t('users:verification_failed_title')}</div>
+                    <div className={styles.subTitle}>
                         {t('users:verification_failed_message_1')}<br /><br />
                         {t('users:verification_failed_message_2')}
                     </div>
-                    <div style={{ textAlign: 'center', width: '100%', color: '#888', fontSize: 14 }}>
+                    <div className={styles.note} style={{ textAlign: 'center', width: '100%' }}>
                         {t('users:verification_failed_resend_prompt')}
                         <Button
                             block
