@@ -8,6 +8,7 @@ import { CONFIG } from './services'
 import ErrorBoundary from './components/ErrorBoundary'
 import { errorHandler, setupGlobalErrorHandling } from './utils/errorHandling'
 import { AppStyles } from './App.styles.ts'
+import { AppThemeProvider } from './providers/AppThemeProvider'
 import { UserProfileCompletionModal } from './containers/users/UserProfileCompletionModal'
 import { isUserProfileComplete } from './utils/userProfile'
 
@@ -63,20 +64,22 @@ function App() {
             }}
         >
             <Suspense fallback={<div>Loading...</div>}>
-                <AntApp>
-                    <AppStyles />
-                    <SecurityProvider>
-                        <RouterProvider router={router} />
-                    </SecurityProvider>
-                    {userProfile && !isUserProfileComplete(userProfile) && (
-                        <UserProfileCompletionModal
-                            open
-                            required
-                            onSave={fetchUserInfo}
-                            profile={userProfile}
-                        />
-                    )}
-                </AntApp>
+                <AppThemeProvider>
+                    <AntApp>
+                        <AppStyles />
+                        <SecurityProvider>
+                            <RouterProvider router={router} />
+                        </SecurityProvider>
+                        {userProfile && !isUserProfileComplete(userProfile) && (
+                            <UserProfileCompletionModal
+                                open
+                                required
+                                onSave={fetchUserInfo}
+                                profile={userProfile}
+                            />
+                        )}
+                    </AntApp>
+                </AppThemeProvider>
             </Suspense>
         </ErrorBoundary>
     )
