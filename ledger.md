@@ -3,11 +3,11 @@
 ## Resume point
 
 - Swept head is `origin/main` 0429b91136; no open PR, every change type done, every detector exhausted at that head.
-  Seven runs have now found no code to sweep, the last two on a main that gained zero commits. First command of a
-  run is `git rev-list --count 0429b91136..origin/main`: 0, or a diff of pom version properties only, means stop.
+  Eight runs have found no code to sweep, the last three on a main that gained zero commits. First command of a run
+  is `git rev-list --count 0429b91136..origin/main`: 0, or a diff of pom version properties only, means stop.
 - When `main` gains code: diff against 0429b91136, then rerun PMD, the identifier index and ASM on changed files
-  only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
-  JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
+  only. #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — still draft but its head
+  moves daily; on its merge sweep the JSF editor pages, their beans and the images, CSS and JS only they reached.
 
 ## Change-type queue
 
@@ -283,7 +283,6 @@
 
 ## Run log
 
-- 2026-09-16 a: no-op on the same head; no dead-code PR open, #2105 still draft; compaction only; at 280.
-- 2026-09-16 b: main 0429b91136 adds only 3 dependabot pom bumps; verified the S125 "done" claim against Sonar's 254
-  and closed S1130/S1172 as signature edits; no code change; at 288.
+- 2026-09-16 b: verified the S125 "done" claim against Sonar's 254 and closed S1130/S1172 as signature edits; at 288.
 - 2026-09-16 c: main unmoved (0 commits since the swept head), #2105 still draft; no detector rerun; at 289.
+- 2026-09-16 d: main still unmoved, no `dead-code/*` PR open, #2105 still draft; resume point and run log only; at 288.
