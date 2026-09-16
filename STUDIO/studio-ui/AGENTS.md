@@ -42,9 +42,14 @@ src/
 
 ## Boot Sequence
 
-1. `index.tsx` initializes i18n and mounts `App` into `#appRoot`.
+The build writes two pages (`build.rollupOptions.input`):
+
+1. `index.html` → `index.tsx` initializes i18n and mounts `App` into `#appRoot`.
 2. `App` fetches the user profile, blocks rendering until auth completes, then mounts the router inside Ant Design's
    `App` provider and initializes WebSocket notifications.
+3. `api-docs.html` → `api-docs.tsx` mounts `ApiDocs` alone. The REST API documentation is read without logging in,
+   so it carries no shell, no router and no auth bootstrap; the server answers `/api-docs` with this page and
+   redirects the former `/rest/api-docs` to it.
 
 ## Key Patterns
 
