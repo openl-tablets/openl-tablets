@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.acls.domain.BasePermission;
@@ -242,23 +241,6 @@ public class ProjectModel {
         return null;
     }
 
-    private int countErrorNodes(Iterable<TableSyntaxNode> nodes) {
-        int count = 0;
-        Collection<Pair<OpenLMessage, XlsUrlParser>> messages = getModuleMessages().stream()
-                .map(e -> Pair.of(e, e.getSourceLocation() != null ? new XlsUrlParser(e.getSourceLocation()) : null))
-                .toList();
-        for (TableSyntaxNode tsn : nodes) {
-            for (Pair<OpenLMessage, XlsUrlParser> pair : messages) {
-                if (pair.getRight() != null && pair.getLeft().getSeverity() == Severity.ERROR) {
-                    if (pair.getRight().intersects(tsn.getUriParser())) {
-                        count++;
-                        break;
-                    }
-                }
-            }
-        }
-        return count;
-    }
 
     public synchronized TableSyntaxNode getTableByUri(String uri) {
         for (TableSyntaxNode tableSyntaxNode : getTableSyntaxNodes()) {
@@ -866,15 +848,6 @@ public class ProjectModel {
                 .orElse(Collections.emptySet());
     }
 
-    private int countNonOtherTables(Collection<TableSyntaxNode> nodes) {
-        int count = 0;
-        for (TableSyntaxNode table : nodes) {
-            if (!XlsNodeTypes.XLS_OTHER.toString().equals(table.getType())) {
-                count++;
-            }
-        }
-        return count;
-    }
 
     private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
 
