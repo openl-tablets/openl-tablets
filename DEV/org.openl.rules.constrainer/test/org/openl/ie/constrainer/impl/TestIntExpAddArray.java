@@ -89,10 +89,6 @@ class TestIntExpAddArray {
     }
 
     @Test
-    void testRemoveValue() {
-    }
-
-    @Test
     void testSetMax() {
         var array = new IntExpArray(C, 10, 1, 10, "array");
         var sum = new IntExpAddArray(C, array);
