@@ -139,6 +139,56 @@ public class ProjectHistoryService {
         }
     }
 
+    /**
+     * Keeps what the workbook at the given path holds now, before a write replaces it.
+     *
+     * <p>A workbook the editor saves keeps its own history: the editor writes through the workbook itself,
+     * and a listener on it records every save. A workbook written any other way — generated from a
+     * specification, restored, copied in — is written straight into the workspace, where that listener never
+     * hears of it. Such a caller keeps the version it is about to replace by asking here, before it writes,
+     * and records what it wrote by asking again afterwards.
+     *
+     * <p>A path holding no file yet is nothing to keep, and is ignored.
+     *
+     * @param project      project the workbook belongs to
+     * @param workbookPath the workbook, relative to the project
+     */
+    public void keepBeforeWrite(RulesProject project, String workbookPath) {
+        var workbook = workbookOf(project, workbookPath);
+        if (workbook != null) {
+            init(historyFolderOf(project, workbookPath), workbook);
+        }
+    }
+
+    /**
+     * Records the workbook at the given path as the version the project now reads.
+     *
+     * <p>Answered by the copy kept before the write: a version equal to the one already recorded is not
+     * recorded twice.
+     *
+     * @param project      project the workbook belongs to
+     * @param workbookPath the workbook, relative to the project
+     */
+    public void recordWritten(RulesProject project, String workbookPath) {
+        var workbook = workbookOf(project, workbookPath);
+        if (workbook != null) {
+            save(historyFolderOf(project, workbookPath), workbook);
+        }
+    }
+
+    private static String historyFolderOf(RulesProject project, String workbookPath) {
+        return FolderHelper.resolveHistoryFolder(projectFolderOf(project), workbookPath).toString();
+    }
+
+    private static @Nullable File workbookOf(RulesProject project, String workbookPath) {
+        var workbook = projectFolderOf(project).resolve(workbookPath).toFile();
+        return workbook.isFile() ? workbook : null;
+    }
+
+    private static Path projectFolderOf(RulesProject project) {
+        return project.getLocalRepository().getRoot().resolve(project.getFolderPath());
+    }
+
     private static HistoryLocation resolveHistoryLocation(RulesProject project, @Nullable String moduleName) {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");

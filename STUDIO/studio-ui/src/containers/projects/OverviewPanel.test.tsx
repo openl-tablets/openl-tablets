@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { App } from 'antd'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { getProjectFiles } from '../../services/repositories'
 import { OverviewPanel } from './OverviewPanel'
 import { ProjectStatus } from '../../constants/project'
 import { getFileContent, rootFileExists, uploadFile, writeRootFile } from '../../services/files'
@@ -568,6 +569,38 @@ describe('OverviewPanel', () => {
         const saved = vi.mocked(writeRootFile).mock.calls.at(-1)![2]
         expect(saved).toContain('<mode>GENERATION</mode>')
         expect(saved).toContain('<algorithm-module-name>Algorithms</algorithm-module-name>')
+    })
+
+    it('names the specification the engine reads, which rules.xml need not declare', async () => {
+        // A descriptor naming openapi.json for reconciliation says no more than the engine does by itself,
+        // so the model drops the block on save — and the project would read as having no specification.
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([
+            { type: 'file', path: 'openapi.json' },
+            { type: 'file', path: 'rules/Main.xlsx' },
+        ] as never)
+        setRulesXml(`
+            <project>
+                <name>P</name>
+            </project>
+        `)
+        await act(async () => {
+            render(
+                <App>
+                    <MemoryRouter>
+                        <OverviewPanel
+                            onUnlock={() => {}}
+                            project={{ ...base, capabilities: { canWrite: true } }}
+                            repoLabel="design"
+                        />
+                    </MemoryRouter>
+                </App>
+            )
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        expect(await screen.findByTestId('openapi-by-default')).toBeInTheDocument()
+        expect(screen.queryByTestId('openapi-none')).toBeNull()
     })
 
     it('removes the whole OpenAPI configuration when the file is cleared', async () => {
