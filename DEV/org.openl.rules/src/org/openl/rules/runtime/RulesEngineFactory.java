@@ -189,7 +189,6 @@ public class RulesEngineFactory<T> {
         return newEngineInstance(false);
     }
 
-    @SuppressWarnings("unchecked")
     public T newEngineInstance(boolean ignoreCompilationErrors) {
         try {
             compiledOpenClass = getCompiledOpenClass();

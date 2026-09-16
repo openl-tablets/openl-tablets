@@ -48,7 +48,6 @@ public class TextPlainMessageProvider implements MessageBodyWriter, MessageBodyR
 
     private final ObjectMapper objectMapper;
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean isWriteable(Class aClass, Type type, Annotation[] annotations, MediaType mediaType) {
         return isAcceptable(aClass, mediaType);

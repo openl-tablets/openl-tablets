@@ -71,7 +71,6 @@ class ValidatorTest extends BaseOpenlBuilderHelper {
         assertEquals("hour = 24", dtValidResult.getUncovered()[0].getValues().toString(), "Param value missing");
     }
 
-    @SuppressWarnings("deprecation")
     private DecisionTableValidationResult testTable(String tableName, Map<String, IDomainAdaptor> domains) {
         DecisionTableValidationResult result = null;
         var resultTsn = findTable(tableName);

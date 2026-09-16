@@ -195,7 +195,6 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private String resolveSubTypeRef(JsonSubTypes.Type subType, ModelConverterContext context) {
         var subSchema = context.resolve(new AnnotatedType(subType.value()));
         if (subSchema != null && subSchema.getName() != null) {
