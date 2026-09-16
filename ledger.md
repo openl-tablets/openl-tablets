@@ -2,12 +2,12 @@
 
 ## Resume point
 
-- Swept head is `origin/main` ff879e6652. EPBDS-16599 (JSF editor → React) landed 23 commits, 1063 files,
-  -57001 lines, and was the vein the previous eight idle runs were waiting for.
-- The merge closed the JSF veins for good, not merely swept them: zero `.xhtml`, zero legacy `.js`/`.css`/images
-  and zero JSF/RichFaces coordinates remain anywhere in the repository. Never re-derive those categories.
-- Every change type is swept and every detector rerun; PR #2118 is merged, so `main` is 737e6794be and carries the
-  sweep itself. First command of a run is `git rev-list --count 737e6794be..origin/main`: 0 means stop.
+- Swept head is `origin/main` 737e6794be (PR #2118, the EPBDS-16599 residue, merged and swept). Every change type
+  is swept and every detector rerun clean at that head; no `dead-code/*` PR is open.
+- First command of a run is `git rev-list --count 737e6794be..origin/main`: 0 means the run is ledger-only, stop.
+  Otherwise scan the new commits' deleted imports first (Deferred findings, first line), then rerun the detectors.
+- The React merge left zero `.xhtml`, legacy `.js`/`.css`/images and JSF/RichFaces coordinates in the repository.
+  Never re-derive those categories.
 
 ## Change-type queue
 
@@ -294,6 +294,6 @@
 
 ## Run log
 
-- 2026-09-16 c: main unmoved (0 commits since the swept head), #2105 still draft; no detector rerun; at 289.
 - 2026-09-16 d: main still unmoved, no `dead-code/*` PR open, #2105 still draft; resume point and run log only; at 288.
 - 2026-09-16 e: EPBDS-16599 merged; swept its residue into PR #2118 (2 commits, 357 lines); all detectors rerun clean; at 297.
+- 2026-09-16 f: main unmoved at 737e6794be (0 commits), no `dead-code/*` PR open; resume point and run log only; at 299.
