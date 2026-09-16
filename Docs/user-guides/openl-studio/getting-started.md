@@ -188,11 +188,13 @@ OpenL Studio is displayed in a light or a dark theme. To choose one, in the top-
 -   **Dark** — always use the dark theme
 -   **Follow System** — use the theme the operating system asks for, and switch along with it
 
-![Theme menu opened next to the user icon, offering Light, Dark, and Follow System](images/theme-switcher.png)
+Under the themes, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen. It works with any theme.
 
-*Choosing the theme*
+![Theme menu opened next to the user icon, offering Light, Dark, Follow System, and a Compact switch](images/theme-switcher.png)
 
-New users start with **Follow System**. The choice is stored in the web browser, so it applies to the same browser on the same computer and is restored on the next sign-in. Using a different browser or computer starts from **Follow System** again.
+*Choosing the theme and the density*
+
+New users start with **Follow System** and the comfortable density. Both choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. Using a different browser or computer starts from **Follow System** again.
 
 ### Displaying the OpenL Studio Help
 

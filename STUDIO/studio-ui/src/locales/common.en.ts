@@ -53,6 +53,7 @@ i18next.addResourceBundle('en', 'common', {
         light: 'Light',
         dark: 'Dark',
         system: 'Follow System',
+        compact: 'Compact',
     },
     user_menu: {
         my_profile: 'My Profile',

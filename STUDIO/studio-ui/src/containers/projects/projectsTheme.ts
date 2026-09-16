@@ -33,7 +33,9 @@ export const COMPILE_COLORS = {
  * `/projects` route elements). It never leaks to the shared Header, Editor or Administration screens.
  *
  * The colours come from the palette of the appearance in force, so the Projects screens follow the theme
- * the user picked. The shape — radii, control heights, tab metrics — is the same in both appearances.
+ * the user picked. The shape — radii, control height, type — is stated as **seed** tokens, which a density
+ * algorithm scales; the same measurement written as a per-component override would stand still while the
+ * rest of the screen tightened.
  */
 export const projectsTheme = (isDarkMode: boolean): ThemeConfig => {
     const palette: Palette = isDarkMode ? DARK_PALETTE : LIGHT_PALETTE
@@ -57,11 +59,14 @@ export const projectsTheme = (isDarkMode: boolean): ThemeConfig => {
             borderRadiusLG: 8,
             borderRadiusSM: 4,
             fontSize: 14,
+            // The mockup stands its controls 4px above the Ant Design default, in either density.
+            controlHeight: 36,
             wireframe: false,
         },
         components: {
             Tabs: {
-                horizontalItemPadding: '12px 4px',
+                // Tighter than Ant Design's 32, so the tab strip of a project reads as one group. The
+                // vertical padding is left to the default `paddingSM`, which the density algorithm scales.
                 horizontalItemGutter: 20,
                 inkBarColor: palette.primary,
                 itemColor: palette.textTertiary,
@@ -69,21 +74,12 @@ export const projectsTheme = (isDarkMode: boolean): ThemeConfig => {
                 itemHoverColor: palette.text,
             },
             Button: {
-                // Match the 36px Input/Select height so buttons align in compact input groups and toolbars.
-                controlHeight: 36,
                 defaultBorderColor: palette.border,
                 primaryShadow: 'none',
                 defaultShadow: 'none',
             },
             Segmented: {
                 trackBg: palette.secondaryBg,
-                controlHeight: 36,
-            },
-            Input: {
-                controlHeight: 36,
-            },
-            Select: {
-                controlHeight: 36,
             },
         },
     }

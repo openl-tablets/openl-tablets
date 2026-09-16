@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next'
 import { Tag } from 'antd'
 import { createStyles } from 'antd-style'
 import { useSharedStyles } from './sharedStyles'
+import { captionSize } from '../../styles/listPageStyles'
 import { ProjectStatus } from '../../constants/project'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import { formatDateTime } from '../../utils/dateFormat'
@@ -58,11 +59,11 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     tagMore: css`
         color: ${token.colorTextTertiary};
-        font-size: 11px;
+        font-size: ${captionSize(token.fontSizeSM)}px;
     `,
     branch: css`
         max-width: 200px;
-        font-size: 12px;
+        font-size: ${token.fontSizeSM}px;
     `,
 }))
 
