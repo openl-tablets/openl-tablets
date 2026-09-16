@@ -2,14 +2,12 @@
 
 ## Resume point
 
-- Reset to zero on the owner's instruction, then every change type re-derived on `origin/main` 737e6794be in one run;
-  the result is PR #2120 on `dead-code/full-resweep`. Maintain that PR first (section 4 of the prompt).
-- Another run of this routine pushed three overlapping commits to main (b48c862793) while PR #2120 was open: list open
-  `dead-code/*` PRs and re-fetch main before every push, and rebase the PR instead of re-deriving.
-- Next sweep: `git rev-list --count b48c862793..origin/main`; 0 means nothing new to scan. Otherwise scan the new
-  commits' deleted imports first, then rerun the detectors under Method rules; the veins below are exhausted at 737e6794be.
-- Not done this run for lack of time: dead `@SuppressWarnings` (needs a `-Xlint:all` recompile), plugin configuration
-  in poms (needs `help:effective-pom` before/after), and the ITEST modules' PMD hits (all in test harness code).
+- Every change type is re-derived on `origin/main` b48c862793 and the result is PR #2120 on `dead-code/full-resweep`,
+  green and waiting on a human review. Maintain that PR first (section 4 of the prompt).
+- Next sweep: `git rev-list --count b48c862793..origin/main`; 0 means nothing new to scan and the run is PR maintenance
+  plus the ledger. Otherwise scan the new commits first, then rerun the detectors under Method rules.
+- Every vein in Exhausted veins is covered at b48c862793 for the tree PR #2120 is rebased on; a new commit on main is
+  the only source of new findings.
 
 ## Change-type queue
 
@@ -19,8 +17,8 @@
 | 2 | Never-read assignments, dead stores | done; 30 PMD hits, all generated grammar or FPs |
 | 3 | Unused locals, private fields/methods/params | done; the 2 ProjectModel counters landed on main by a parallel run |
 | 4 | Unused Maven dependency declarations | in PR #2120; 1 of 250 analyze hits |
-| 5 | Pom metadata: managed entries, exclusions, properties | in PR #2120; aspectj; plugin config not checked |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | in PR #2120; `[*.scss]`; suppressions not checked |
+| 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | in PR #2120; aspectj only |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | in PR #2120; `[*.scss]` and 9 `@SuppressWarnings` |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 82 stems, 608 images, all alive |
 | 8 | CSS rules and inline styles | done; DEMO main.css only, all selectors used |
 | 9 | Legacy JS functions and pages | done; no legacy JS or pages exist |
@@ -31,12 +29,11 @@
 
 ## Open PR
 
-- PR #2120, branch `dead-code/full-resweep`, head 4e770f27f5, 7 commits, 30 files, -453/+2, rebased onto main b48c862793;
-  the private-counters commit and the OpenAPI/menu.editor hunks dropped out because main carries them. CI on this head: all
-  17 checks green after a maintainer re-ran IT (studio-acl) at 20:25 UTC (ORA-12516 twice before, commented twice); Sonar
-  gate passed. `mergeable_state` blocked = branch protection waits on a human review. Nothing left for the routine to do.
-- Commits: commented-out code; message keys; test workbook and stubs; `.editorconfig`
-  scss section; spring-security-core in security.standalone; AspectJ managed versions; webstudio members and mapper type.
+- PR #2120, branch `dead-code/full-resweep`, head 058071e382, 7 commits, 41 files, -487/+2, on main b48c862793; every
+  check was green on head 4e770f27f5 after one rerun of IT (studio-acl); CI on 058071e382 pending at the end of run h.
+- Commits: ec2e2d02bf commented-out code; c5120bb143 message keys; 64679e2f93 test workbook and stubs; 017f32d08d
+  `.editorconfig` scss section plus 9 `@SuppressWarnings`; 34cc58f7a9 spring-security-core in security.standalone;
+  f8a5ffa557 AspectJ managed versions; 058071e382 webstudio members and mapper type. No review thread is open.
 
 ## Merged PRs
 
@@ -44,7 +41,7 @@
 
 ## Module coverage
 
-- All 85 reactor modules, studio-ui, Docs and DEMO scanned for every change type at 737e6794be; only code merged after
+- All 85 reactor modules, studio-ui, Docs and DEMO scanned for every change type at b48c862793; only code merged after
   that can yield again.
 
 ## Deferred findings
@@ -80,8 +77,12 @@
   component accessors and generic bridge overrides (`InputStats.getAvgX` erasing to Number) are alive.
 - PMD UnusedAssignment blind spots: constructor early return (CellStyle), a value read back through a callback
   (DynamicPropertySource.settings), a field read by a getter (AProjectCreator), `key = null` before `System.gc()`.
-- PMD UnusedLocalVariable: try-with-resources locals, a counting for-each (`RulesUtils.getValues`), a cast hosted by an
-  assignment before `fail()`.
+- PMD UnusedLocalVariable: try-with-resources locals (`WebSocketAuthTest.stomp`), a counting for-each
+  (`RulesUtils.getValues`), a cast hosted by an assignment before `fail()`.
+- A `@SuppressWarnings` javac stays silent about is still alive when the element holds a raw cast, a raw `instanceof` or a
+  raw type argument (`(List) x`, `Class<Enum>`): javac exempts those from `rawtypes`, IDEs do not. Only an element with no
+  raw, unchecked or deprecated construct at all is dead. Keys javac does not know (`unused`, `resource`, `squid:*`,
+  `NullableProblems`, Error Prone names) are IDE or Sonar keys and are judged by that tool, not by javac.
 - Reflection fixtures asserted by name: epbds6830 BeanA.getAB, AOpenClassTest.getC, JavaOpenClassTest.gg, MyProp fields
   named in a binary .xls, YamlMapperFactoryTest transient fields, InterfaceTransformerTest.TestInterface.
 - i18n keys reached by template: `browser.module.edit_${key}`, `editor_kind_${x}`, `range_${p}`, `view_${n}`,
@@ -117,15 +118,21 @@
   technology-stack.md that CodeRabbit then flagged. Release-notes version tables are history and stay.
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p` for
   workbooks; a `.xls` is searched as latin-1 and UTF-16 bytes.
-- Removing members is a fixpoint: re-check fields, private helpers and imports the removal orphaned (tableUri,
-  workspacePath, getProjectFromWorkspace, makeUrl, Pair/Optional imports); Spotless does not remove imports in a module
-  `validate` here, so check them with a script.
+- Removing members is a fixpoint: re-check fields, private helpers, constructor parameters and imports the removal
+  orphaned; Spotless does not remove imports in a module `validate` here, so check them with a script. SonarCloud's
+  "new issues" on the PR (`sonarcloud.io/api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=N
+  &sinceLeakPeriod=true`, no auth) list exactly the members a removal left unused: read it after every push.
 - Stage every commit by explicit path (`git add -- <files>`, `git add -A -- <deleted>`); a `git rm` staged earlier rides
   into the next commit otherwise. Never `git diff --cached --stat A B` (invalid); use `git show --stat`.
 - Frontend gate: `npx tsc --noEmit --noUnusedLocals` (clean at 737e6794be), `npx vitest run src/locales`; export scan by
   regex over `src/**/*.ts(x)` with `(?<![\w$])name(?![\w$])` boundaries.
 - Whole-type scan: simple name absent from every other file → filter Spring/JUnit/JAXB annotations; a public type in a
   jar goes to Deferred, a pkg-private one is a candidate.
+- Dead-suppression scan: blank every javac-key `@SuppressWarnings` in place (same byte length), add
+  `-Xlint:deprecation,unchecked,rawtypes,serial,removal` and `-Xmaxwarns 100000` to the root compilerArgs, run
+  `mvn test-compile -Pitest -fae -T2 -pl '!STUDIO/studio-ui'`, then match `[category]` warnings to the element's line range.
+  The first warning of each compile is printed without the `[WARNING]` prefix: make the prefix optional when parsing.
+- Before every push: list open `dead-code/*` PRs and re-fetch main; a parallel run of this routine once pushed to main.
 
 ## Keep-list
 
@@ -147,7 +154,7 @@
 - IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was N" with `ORA-12516: Listener ... does
   not have a protocol handler for TCP ready` at `task_EPBDS-16253/030-read-access-revoked/1x0` while MySQL, PostgreSQL and
   SQL Server pass; hit two consecutive PR heads the same hour main passed it twice. Oracle Free container limit, not the
-  diff; no rerun tool here, a new push is the only retry; the robust fix (container process limit) is a human follow-up.
+  diff; one `actions_run_trigger rerun_failed_jobs` on the run id cleared it; the container fix is a human follow-up.
 - Tests (without ITEST): `ModuleWorkspace.test.tsx` two cases on `module-workspace-error` fail on the CI runner while the
   same tree passes all 2209 studio-ui tests locally; seen on main b48c862793.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
@@ -155,20 +162,24 @@
 
 ## Container facts
 
-- No `gh` CLI: GitHub MCP tools only (pull_request_read, create_pull_request, update_pull_request, add_issue_comment).
+- No `gh` CLI: GitHub MCP tools only (pull_request_read, update_pull_request, add_issue_comment, actions_list
+  list_workflow_jobs, actions_run_trigger rerun_failed_jobs with the workflow run id from a check's html_url).
 - Container presets `gpg.format=ssh` and `commit.gpgsign=true` globally; `~/.gitconfig` user.* may be rewritten, so set
   `git config --local user.*` and pass the identity inline on every commit and rebase.
-- `-Xmaxwarns` is not a Maven option (parsed as a lifecycle phase); Error Prone's Unused checks are not enabled in the
-  build, so PMD and the bytecode scan are the Java detectors.
+- Error Prone's Unused checks are not enabled in the build, so PMD and the bytecode scan are the Java detectors; javac
+  options go into the root pom's compilerArgs, never on the `mvn` command line.
 - 4 cores: `-T2` for the reactor; `npx tsc` runs fine beside Maven, vitest does not.
-- `.toDelete/` is gitignored: keep the PMD ruleset and scratch poms there.
+- `.toDelete/` is gitignored: keep the PMD ruleset and scratch poms there. `~/.m2` starts empty in every container.
+- ITEST artifacts are never installed: run `pmd:pmd` there as `mvn -o test-compile pmd:pmd -f ITEST/pom.xml -Pitest`.
+- A detached `setsid nohup script.sh` survives the tool timeout; wait on the process, not on the log's last line.
 
 ## Exhausted veins
 
-- At 737e6794be: commented-out code (all sources), PMD 5 rules over 85 modules, ASM member scan over 5156 classes,
-  whole-type scan, identifier count-1 scan, resources/images/workbooks by name, all message bundles and locales,
-  config defaults, tsc/eslint-free export scan, dependency:analyze-only, managed entries and exclusions by tree,
-  `.editorconfig`, `.gitignore`, Docs page graph, DEMO css.
+- At b48c862793: commented-out code (all sources), PMD 5 rules over 85 modules and the 32 ITEST modules, ASM member
+  scan over 5156 classes, whole-type scan, identifier count-1 scan, resources/images/workbooks by name, all message
+  bundles and locales, config defaults, tsc/eslint-free export scan, dependency:analyze-only, managed entries and
+  exclusions by tree, managed plugins by declaration, all 191 javac-key `@SuppressWarnings` by `-Xlint`, `.editorconfig`,
+  `.gitignore`, Docs page graph, DEMO css.
 
 ## Human follow-ups
 
@@ -179,8 +190,12 @@
 - PMD `Parsing failed in ParseLock#doParse()` on `BranchedProjectIndexService$IndexState` in workspace: a PMD 7 type
   resolution bug, harmless to the report.
 - Flyway migration `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` script; confirm Flyway applies it.
+- `RulesUtilsTest.testParseFormattedDouble` carries `@SuppressWarnings("deprecated")`, a key javac ignores, while both
+  methods it calls are deprecated: the fix is the key `deprecation`, a rename this routine may not make.
 
 ## Run log
 
 - 2026-09-16 g: ledger reset to zero; full re-sweep from `origin/main` 737e6794be; PR #2120, now 7 commits, -453 lines after
-  a rebase onto main; CI fully green by 20:44 UTC, waiting on human review.
+  a rebase onto main.
+- 2026-09-16 h: main unchanged; IT (studio-acl) rerun green; 9 dead `@SuppressWarnings` and the Sonar-flagged WebStudio
+  fixpoint folded into PR #2120 (-487 lines); ITEST PMD, managed plugins and javac-key suppressions exhausted.
