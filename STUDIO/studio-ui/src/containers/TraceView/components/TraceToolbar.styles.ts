@@ -1,4 +1,5 @@
 import { createStyles } from 'antd-style'
+import { LIST_PAGE_COLORS } from '../../../styles/listPageTheme'
 
 export const useStyles = createStyles(({ css, token }) => ({
     toolbar: css`
@@ -25,7 +26,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         flex: 0 0 auto;
     `,
     // A solid, filled status badge: saturated background with white text, readable at a glance. The fills
-    // are deepened shades chosen so white text clears WCAG AA (≥4.5:1) in either theme.
+    // come from the palette, which deepens them so that white text clears WCAG AA (≥4.5:1) in either theme.
     statusTag: css`
         flex: 0 0 auto;
         margin-inline-end: 0;
@@ -38,18 +39,18 @@ export const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorWhite};
     `,
     statusNeutral: css`
-        background: #595959; /* 7.0:1 */
+        background: ${LIST_PAGE_COLORS.statusNeutral};
     `,
     statusRunning: css`
-        background: #0958d9; /* 6.2:1 */
+        background: ${LIST_PAGE_COLORS.statusRunning};
     `,
     statusPaused: css`
-        background: #8c5a00; /* 5.9:1 */
+        background: ${LIST_PAGE_COLORS.statusPaused};
     `,
     statusFinished: css`
-        background: #237804; /* 5.6:1 */
+        background: ${LIST_PAGE_COLORS.statusFinished};
     `,
     statusFailed: css`
-        background: #cf1322; /* 5.6:1 */
+        background: ${LIST_PAGE_COLORS.statusFailed};
     `,
 }))

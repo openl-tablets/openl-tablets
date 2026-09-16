@@ -1,42 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Alert, Button, Form, Input } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CONFIG } from '../services'
 import { isSafeRedirectUrl } from '../utils/loginRedirect'
 import Logo from '../components/Logo'
-
-const containerStyle: React.CSSProperties = {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    background: 'linear-gradient(135deg, #f0f4fa 0%, #e9effa 100%)',
-}
-
-const cardStyle: React.CSSProperties = {
-    background: '#fff',
-    padding: '48px 40px',
-    borderRadius: 16,
-    boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    maxWidth: 400,
-    width: '100%',
-}
-
-const titleStyle: React.CSSProperties = {
-    fontSize: 28,
-    fontWeight: 700,
-    color: '#1763C6',
-    margin: '24px 0 16px 0',
-    textAlign: 'center',
-}
+import { useStyles } from '../styles/splashCard.styles'
 
 const LoginPage = () => {
     const { t } = useTranslation('security')
+    const { styles } = useStyles()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const { pathname, search } = useLocation()
@@ -79,10 +52,10 @@ const LoginPage = () => {
     }, [search, t])
 
     return (
-        <div style={containerStyle}>
-            <div style={cardStyle}>
+        <div className={styles.container}>
+            <div className={styles.card}>
                 <Logo height={72} width={72} />
-                <div style={titleStyle}>{t('sign_in_to_openl_studio')}</div>
+                <div className={styles.title}>{t('sign_in_to_openl_studio')}</div>
                 {error && <Alert showIcon style={{ marginBottom: 16, width: '100%' }} title={error} type="error" />}
                 <Form layout="vertical" onFinish={onFinish} style={{ width: '100%' }}>
                     <Form.Item label={t('username_label')} name="username" rules={[{ required: true, message: t('username_required') }]}>

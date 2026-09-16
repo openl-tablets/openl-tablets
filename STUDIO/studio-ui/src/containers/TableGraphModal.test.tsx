@@ -5,6 +5,8 @@ import userEvent from '@testing-library/user-event'
 import { TableGraphModal } from 'containers/TableGraphModal'
 import * as services from 'services'
 import cytoscape from 'cytoscape'
+import { useThemeMode } from 'antd-style'
+import { AppThemeProvider } from 'providers/AppThemeProvider'
 import type { MockedFunction } from 'vitest'
 
 const cyMocks = vi.hoisted(() => {
@@ -126,6 +128,13 @@ vi.mock('react-i18next', () => {
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 const mockCytoscape = cytoscape as unknown as MockedFunction<(options: { elements: Array<{ data: { id: string } }> }) => unknown>
+
+/** Flips the appearance from inside the provider, the way the header's switcher does. */
+const ThemeFlip = () => {
+    const { setThemeMode, themeMode } = useThemeMode()
+
+    return <button onClick={() => setThemeMode(themeMode === 'dark' ? 'light' : 'dark')} type="button">flip</button>
+}
 
 const dispatchOpen = async (detail: { projectId: string, projectName?: string, module?: string } | null) => {
     await act(async () => {
@@ -439,6 +448,35 @@ describe('TableGraphModal', () => {
 
         expect(screen.queryByText('graph:panel.open')).not.toBeInTheDocument()
         expect(screen.getByText('graph:panel.external')).toBeInTheDocument()
+    })
+
+    it('lays the filter and the selection back over a graph a theme switch rebuilt', async () => {
+        localStorage.clear()
+        mockApiCall.mockResolvedValueOnce([
+            { id: 'a', name: 'Alpha' },
+            { id: 'b', name: 'Beta', dependencies: ['a']},
+        ] as never)
+
+        render(
+            <AppThemeProvider>
+                <MemoryRouter><TableGraphModal /><ThemeFlip /></MemoryRouter>
+            </AppThemeProvider>
+        )
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Alpha')
+
+        const builds = mockCytoscape.mock.calls.length
+        cyMocks.remove.mockClear()
+        cyMocks.nodeAddClass.mockClear()
+
+        await userEvent.click(screen.getByText('flip'))
+
+        // A new appearance means new colours on the canvas, so the instance is built afresh...
+        await waitFor(() => expect(mockCytoscape.mock.calls.length).toBeGreaterThan(builds))
+        // ...and it starts with nothing hidden and nothing highlighted, so both must be laid over it again.
+        await waitFor(() => expect(cyMocks.remove).toHaveBeenCalledWith('edge.bridge'))
+        expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
     })
 
     it('shows the empty state when there are no tables', async () => {

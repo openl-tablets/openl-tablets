@@ -30,6 +30,27 @@ export interface Palette {
     warning: string
     info: string
     error: string
+    /** Compilation state — OpenL's core signal — kept distinct from the brand indigo. */
+    compileOk: string
+    compileWarnings: string
+    compileErrors: string
+    compileCompiling: string
+    /** A module that was never compiled, or whose compilation was cancelled. */
+    compileIdle: string
+    /**
+     * Fills of the solid status badges that carry white text. They are deepened on purpose: a badge is
+     * read at a glance, so white on the fill clears WCAG AA (>= 4.5:1) in either appearance.
+     */
+    statusNeutral: string
+    statusRunning: string
+    statusPaused: string
+    statusFinished: string
+    statusFailed: string
+    /** Syntax highlighting of a parameter value, in the manner of a code editor. */
+    syntaxName: string
+    syntaxString: string
+    syntaxNumber: string
+    syntaxBoolean: string
 }
 
 /** Colours of the light appearance — the Figma mockup palette (oklch → sRGB). */
@@ -53,6 +74,20 @@ export const LIGHT_PALETTE: Palette = {
     warning: '#df911a',
     info: '#2a75ba',
     error: '#de2024',
+    compileOk: '#1f8a63',
+    compileWarnings: '#c0851b',
+    compileErrors: '#cf4436',
+    compileCompiling: '#2a75ba',
+    compileIdle: '#8b9199',
+    statusNeutral: '#595959',
+    statusRunning: '#0958d9',
+    statusPaused: '#8c5a00',
+    statusFinished: '#237804',
+    statusFailed: '#cf1322',
+    syntaxName: '#871094',
+    syntaxString: '#067d17',
+    syntaxNumber: '#1750eb',
+    syntaxBoolean: '#0033b3',
 }
 
 /**
@@ -80,6 +115,20 @@ export const DARK_PALETTE: Palette = {
     warning: '#e8b339',
     info: '#5aa9e6',
     error: '#f2695f',
+    compileOk: '#3fba8a',
+    compileWarnings: '#dcae4a',
+    compileErrors: '#ef6f62',
+    compileCompiling: '#5aa9e6',
+    compileIdle: '#8a929e',
+    statusNeutral: '#64686f',
+    statusRunning: '#1554c9',
+    statusPaused: '#96631a',
+    statusFinished: '#2a8a10',
+    statusFailed: '#c62230',
+    syntaxName: '#c77dbb',
+    syntaxString: '#6a8759',
+    syntaxNumber: '#6897bb',
+    syntaxBoolean: '#cc7832',
 }
 
 /** The custom property a colour is published under, e.g. `textSecondary` → `--openl-text-secondary`. */

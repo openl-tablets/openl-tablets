@@ -56,7 +56,7 @@ const useStyles = createStyles(({ css, token }) => ({
         }
 
         @media (prefers-reduced-motion: reduce) {
-            box-shadow: 0 0 0 3px ${COMPILE_COLORS.compiling}4d;
+            box-shadow: 0 0 0 3px color-mix(in srgb, ${COMPILE_COLORS.compiling} 30%, transparent);
 
             &::after {
                 animation: none;

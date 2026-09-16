@@ -74,30 +74,6 @@ export const DISPATCHER_KIND = 'Dispatcher'
 /** Kind of a datatype table — a datatype or a vocabulary — the only node kind that carries a data model. */
 export const DATATYPE_KIND = 'Datatype'
 
-const KIND_COLORS: Record<string, string> = {
-    [DISPATCHER_KIND]: '#874d00',
-    'Rules': '#1677ff',
-    'Smart Rules': '#2f54eb',
-    'Spreadsheet': '#722ed1',
-    'Datatype': '#13c2c2',
-    'Vocabulary': '#08979c',
-    'Data': '#52c41a',
-    'Test': '#fa8c16',
-    'Run': '#a0d911',
-    'TBasic': '#eb2f96',
-    'Column Match': '#9254de',
-    'Method': '#4096ff',
-    'Constants': '#faad14',
-    'Conditions': '#fa541c',
-    'Actions': '#f5222d',
-    'Returns': '#597ef7',
-    'Environment': '#8c8c8c',
-    'Properties': '#bfbfbf',
-}
-const DEFAULT_COLOR = '#8c8c8c'
-
-export const kindColor = (kind?: string): string => (kind ? KIND_COLORS[kind] : undefined) ?? DEFAULT_COLOR
-
 /** How many members — fields or values — an entity box lists before the rest are counted in one line. */
 const ENTITY_ROWS = 12
 
@@ -354,7 +330,6 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
                 id: node.id,
                 label: entity ? entityLabel(node) : node.name,
                 kind: node.kind ?? '',
-                color: kindColor(node.kind),
                 weight: used,
                 ...(area ? { parent: area } : {}),
             },

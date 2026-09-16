@@ -3,8 +3,34 @@ import { Button, Result, Typography } from 'antd'
 import { ReloadOutlined, HomeOutlined, BugOutlined } from '@ant-design/icons'
 import { errorHandler } from 'utils/errorHandling'
 import { CONFIG } from '../services'
+import { useStyles } from './ErrorBoundary.styles'
 
 const { Text, Paragraph } = Typography
+
+/**
+ * The technical detail of a crash, shown by the development build only.
+ *
+ * It is a component of its own because the boundary around it is a class — the only place that can catch
+ * a render error — and the theme is read with a hook.
+ */
+const ErrorDetails = ({ componentStack, error }: { componentStack: string | null | undefined; error: Error }) => {
+    const { styles } = useStyles()
+
+    return (
+        <div className={styles.details}>
+            <Text strong>Error Details (Development):</Text>
+            <Paragraph style={{ marginTop: 8, marginBottom: 8 }}>
+                <Text code>{error.toString()}</Text>
+            </Paragraph>
+            {componentStack && (
+                <Paragraph style={{ marginBottom: 0 }}>
+                    <Text strong>Component Stack:</Text>
+                    <pre className={styles.stack}>{componentStack}</pre>
+                </Paragraph>
+            )}
+        </div>
+    )
+}
 
 interface Props {
   children: ReactNode;
@@ -77,7 +103,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     }}
                 >
                     <Result
-                        icon={<BugOutlined style={{ color: '#ff4d4f' }} />}
+                        icon={<BugOutlined />}
                         status="error"
                         subTitle="We're sorry, but something unexpected happened. Please try again or contact support if the problem persists."
                         title="Something went wrong"
@@ -101,36 +127,10 @@ export class ErrorBoundary extends Component<Props, State> {
                         ]}
                     >
                         {import.meta.env.DEV && import.meta.env.MODE !== 'test' && this.state.error && (
-                            <div
-                                style={{
-                                    marginTop: 24,
-                                    padding: 16,
-                                    backgroundColor: '#f5f5f5',
-                                    borderRadius: 6,
-                                    maxWidth: '600px',
-                                    overflow: 'auto'
-                                }}
-                            >
-                                <Text strong>Error Details (Development):</Text>
-                                <Paragraph style={{ marginTop: 8, marginBottom: 8 }}>
-                                    <Text code>{this.state.error.toString()}</Text>
-                                </Paragraph>
-                                {this.state.errorInfo && (
-                                    <Paragraph style={{ marginBottom: 0 }}>
-                                        <Text strong>Component Stack:</Text>
-                                        <pre
-                                            style={{
-                                                marginTop: 8,
-                                                fontSize: '12px',
-                                                color: '#666',
-                                                whiteSpace: 'pre-wrap'
-                                            }}
-                                        >
-                                            {this.state.errorInfo.componentStack}
-                                        </pre>
-                                    </Paragraph>
-                                )}
-                            </div>
+                            <ErrorDetails
+                                componentStack={this.state.errorInfo?.componentStack}
+                                error={this.state.error}
+                            />
                         )}
                     </Result>
                 </div>
