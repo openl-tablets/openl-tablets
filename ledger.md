@@ -4,9 +4,6 @@
 
 - Reset to zero on the owner's instruction, then every change type re-derived on `origin/main` 737e6794be in one run;
   the result is PR #2120 on `dead-code/full-resweep`. Maintain that PR first (section 4 of the prompt).
-- Two runs overlapped: PR #2119 (`dead-code/repo-sweep`) repeats #2120's ProjectModel, openapi.properties and
-  `menu.editor` deletions and adds three comment deletions and nine locale keys. The owner decides which PR stays;
-  never open a third one and never sweep while both are open.
 - Next sweep: `git rev-list --count 737e6794be..origin/main`; 0 means nothing new to scan. Otherwise scan the new
   commits' deleted imports first, then rerun the detectors under Method rules; the veins below are exhausted at 737e6794be.
 - Not done this run for lack of time: dead `@SuppressWarnings` (needs a `-Xlint:all` recompile), plugin configuration
@@ -32,10 +29,7 @@
 
 ## Open PR
 
-- PR #2120, branch `dead-code/full-resweep`, head ffda864de4, 8 commits, 31 files, -495/+2.
-- PR #2119, branch `dead-code/repo-sweep`, head 315203a96f, 3 commits, 10 files, -72: commented-out code
-  (XlsModuleOpenClass, HeadersWithSpacesTest, TestIntExpAddExp); message keys (9 locale keys + the same 17 OpenAPI keys);
-  the same ProjectModel counters. Maintainer threads on its debug-toggle deletions were reverted, answered and resolved.
+- PR #2120, branch `dead-code/full-resweep`, head ebd0f758dd, 8 commits, 32 files, -500/+2; CodeRabbit's one finding (stale AspectJ row in technology-stack.md) folded in.
 - Commits: commented-out code; private ProjectModel counters; message keys; test workbook and stubs; `.editorconfig`
   scss section; spring-security-core in security.standalone; AspectJ managed versions; webstudio members and mapper type.
 
@@ -114,6 +108,8 @@
   record invocations, field access, method handles, invokedynamic args and `ldc` strings; drop annotated members,
   overrides (unknown third-party supertype counts as override), names in literals/non-Java text/workbooks; then grep each
   survivor. Public members are candidates only in the webstudio war and in test classes.
+- Search documentation for a removed dependency case-insensitively (`grep -i`): `aspectj` missed the `AspectJ` row in
+  technology-stack.md that CodeRabbit then flagged. Release-notes version tables are history and stay.
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p` for
   workbooks; a `.xls` is searched as latin-1 and UTF-16 bytes.
 - Removing members is a fixpoint: re-check fields, private helpers and imports the removal orphaned (tableUri,
@@ -128,9 +124,6 @@
 
 ## Keep-list
 
-- Commented-out debug toggles are maintained conveniences, never dead (maintainer decision on PR #2119): the
-  `writeBodyTo` bulk-rewrite block in ITEST `HttpClient` and the `files = new File[] {...}` single-folder toggles in
-  `RulesInFolderTestRunner`, `OpenAPIGenerationTest`, `OpenAPIProjectCreatorTest`.
 - OpenL datatype beans and rules interfaces in tests are bound from Excel by property or method name (IChildBean.getMyBean,
   Tutorial4Interface.getTheft_rating, Location setters, RulesUtilsTest.testFlatten, ComputeInterface stand-ins).
 - Jackson-bound webstudio models keep every accessor: RepositorySettings, AWSS3RepositorySettings, GitRepositorySettings,
@@ -167,8 +160,6 @@
 
 ## Human follow-ups
 
-- Two concurrent runs opened overlapping PRs #2119 and #2120 (same base, same ProjectModel and openapi.properties
-  hunks); pick one, close the other, and make sure the routine fires in one session at a time.
 - Dependency hygiene (additions): 293 used-undeclared findings, notably spring-security-core in org.openl.security and
   org.openl.rules.jackson in ruleservice.ws.
 - PMD `Parsing failed in ParseLock#doParse()` on `BranchedProjectIndexService$IndexState` in workspace: a PMD 7 type
@@ -177,6 +168,4 @@
 
 ## Run log
 
-- 2026-09-16 g: ledger reset to zero; full re-sweep from `origin/main` 737e6794be; 8 commits, -495 lines, PR #2120.
-- 2026-09-16 h: parallel run from the same base; PR #2119, 3 commits, -72 lines; its ledger push overwrote run g's and
-  was merged back.
+- 2026-09-16 g: ledger reset to zero; full re-sweep from `origin/main` 737e6794be; 8 commits, -500 lines, PR #2120.
