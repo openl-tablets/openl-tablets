@@ -21,10 +21,10 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.rest.compile.OpenLTableLogic;
+import org.openl.rules.rest.compile.TableDescription;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.tableeditor.TableBean;
 
 class OpenLTableLogicTest {
 
@@ -37,12 +37,12 @@ class OpenLTableLogicTest {
         for (TableSyntaxNode tsn : allTableSyntaxNodes) {
             var tableSyntaxNodeAdapter = new TableSyntaxNodeAdapter(tsn);
             if (((IOpenLTable) tableSyntaxNodeAdapter).getDisplayName().equals("HelloTest")) {
-                List<TableBean.TableDescription> targetTables = OpenLTableLogic.getTargetTables(tableSyntaxNodeAdapter,
+                List<TableDescription> targetTables = OpenLTableLogic.getTargetTables(tableSyntaxNodeAdapter,
                         pm, false);
                 assertEquals(3, targetTables.size());
-                assertEquals("Hello [state = AL]", targetTables.getFirst().getName());
-                assertEquals("Hello [state = AZ]", targetTables.get(1).getName());
-                assertEquals("Hello", targetTables.get(2).getName());
+                assertEquals("Hello [state = AL]", targetTables.getFirst().name());
+                assertEquals("Hello [state = AZ]", targetTables.get(1).name());
+                assertEquals("Hello", targetTables.get(2).name());
             }
         }
     }

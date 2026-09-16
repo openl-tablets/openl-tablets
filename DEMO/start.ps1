@@ -317,7 +317,7 @@ $javaArgs = @(
     "-Djava.io.tmpdir=$env:TEMP",
     "-jar",
     (Join-Path $JETTY_HOME "start.jar"),
-    "--module=http,ee10-jsp,ext,ee10-deploy,ee10-websocket-jakarta,ee10-cdi"
+    "--module=http,ext,ee10-deploy,ee10-websocket-jakarta"
 )
 
 & $JAVA_CMD $javaArgs

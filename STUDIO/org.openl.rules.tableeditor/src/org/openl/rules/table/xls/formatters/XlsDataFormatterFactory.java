@@ -11,12 +11,10 @@ import java.util.Locale;
 import org.apache.poi.ss.usermodel.DataFormatter;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
-import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.formatters.FormulaFormatter;
-import org.openl.rules.table.formatters.SmartNumberFormatter;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
@@ -43,7 +41,7 @@ public final class XlsDataFormatterFactory {
      * @param cellMetaInfo meta info for the cell
      * @return found formatter
      */
-    public static IFormatter getFormatter(ICell cell, CellMetaInfo cellMetaInfo, boolean smartNumbers) {
+    public static IFormatter getFormatter(ICell cell, CellMetaInfo cellMetaInfo) {
         IFormatter formatter = null;
         IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
         if (dataType != null) {
@@ -51,7 +49,7 @@ public final class XlsDataFormatterFactory {
 
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class)) {
-                formatter = getNumberFormatter(cell, smartNumbers);
+                formatter = getNumberFormatter(cell);
                 // Numeric Array
                 if (cellMetaInfo.isMultiValue()) {
                     formatter = new ArrayFormatter(formatter, Number.class);
@@ -95,7 +93,7 @@ public final class XlsDataFormatterFactory {
         return formatter;
     }
 
-    private static IFormatter getNumberFormatter(ICell cell, boolean smartNumbers) {
+    private static IFormatter getNumberFormatter(ICell cell) {
         ICellStyle xlsStyle = cell == null ? null : cell.getStyle();
         if (xlsStyle != null) {
             short formatIndex = xlsStyle.getFormatIndex();
@@ -104,11 +102,8 @@ public final class XlsDataFormatterFactory {
                 format = format.replaceAll("#\" \"", "# ");
             }
             return new XlsNumberFormatter(formatIndex, format, dataFormatter, locale);
-        } else if (smartNumbers) {
-            return new SmartNumberFormatter(locale);
-        } else {
-            return new NumberFormatter(FormattersManager.DEFAULT_NUMBER_FORMAT, locale);
         }
+        return new NumberFormatter(FormattersManager.DEFAULT_NUMBER_FORMAT, locale);
     }
 
     private static IFormatter getDateFormatter(ICell cell) {
@@ -127,46 +122,4 @@ public final class XlsDataFormatterFactory {
         return formatter;
     }
 
-    /**
-     * Get formatted value in a user-friendly format Warning! Don't invoke this method from core. It can be memory and
-     * time consuming operation. Formatting values only from UI is allowed.
-     *
-     * @param cell formatting cell
-     * @param meta meta info for the cell
-     * @return Formatted string value
-     */
-    public static String getFormattedValue(ICell cell, CellMetaInfo meta, boolean smartNumbers) {
-        if (cell instanceof FormattedCell formattedCell) {
-            return formattedCell.getFormattedValue();
-        }
-
-        var value = cell.getObjectValue();
-
-        String formattedValue = null;
-        if (value != null) {
-            IFormatter cellDataFormatter = getFormatter(cell, meta, smartNumbers);
-
-            if (cellDataFormatter == null && value instanceof Date) {
-                // Cell type is unknown but in Excel it's stored as a Date.
-                // We cannot override getDataFormatter() or XlsDataFormatterFactory.getFormatter() to support this case
-                // because they are also invoked when editing a cell. When editing cells with unknown type null must be
-                // returned to be able to edit such cell as if it can contain any text.
-                // But we can safely format it's value when just viewing it's value.
-                cellDataFormatter = getDateFormatter(cell);
-            }
-
-            if (cellDataFormatter != null) {
-                formattedValue = cellDataFormatter.format(value);
-            }
-        }
-
-        if (formattedValue == null) {
-            formattedValue = cell.getStringValue();
-            if (formattedValue == null) {
-                formattedValue = StringUtils.EMPTY;
-            }
-        }
-
-        return formattedValue;
-    }
 }

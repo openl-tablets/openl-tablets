@@ -15,48 +15,6 @@
     <display-name>OpenL Studio</display-name>
     <description>OpenL Studio</description>
 
-    <context-param>
-        <description>
-            Comma separated list of URIs of (additional) faces config files.
-        </description>
-        <param-name>jakarta.faces.CONFIG_FILES</param-name>
-        <param-value>
-            /WEB-INF/faces/faces-config.xml
-        </param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>jakarta.faces.FACELETS_LIBRARIES</param-name>
-        <param-value>
-            /WEB-INF/taglib/html.taglib.xml
-        </param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>jakarta.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
-        <param-value>true</param-value>
-    </context-param>
-
-    <!-- We cannot use PROJECT_STAGE equal to Production (default value) because currently we show ajax errors to a user.
-     See new Message() usages or any other exceptions throwing.
-     We should rewrite that logic (show another way to show custom error messages on ajax requests, for example,
-     use WebStudioUtils.addErrorMessage()). After that we can remove this context-param. Development is too verbose,
-     so using SystemTest. -->
-    <context-param>
-        <param-name>jakarta.faces.PROJECT_STAGE</param-name>
-        <param-value>SystemTest</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>org.richfaces.skin</param-name>
-        <param-value>classic</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>org.richfaces.enableControlSkinning</param-name>
-        <param-value>false</param-value>
-    </context-param>
-
     <filter>
         <filter-name>CorsFilter</filter-name>
         <filter-class>org.openl.rules.webstudio.web.servlet.CorsFilter</filter-class>
@@ -89,21 +47,11 @@
     </filter-mapping>
 
     <filter>
-        <filter-name>WebResourceFilter</filter-name>
-        <filter-class>org.openl.rules.webstudio.web.servlet.WebResourceFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>WebResourceFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
         <filter-name>SessionTimeoutFilter</filter-name>
         <filter-class>org.openl.rules.webstudio.web.servlet.SessionTimeoutFilter</filter-class>
         <init-param>
             <param-name>redirectPage</param-name>
-            <param-value>/faces/pages/sessionExpired.xhtml</param-value>
+            <param-value>/</param-value>
         </init-param>
     </filter>
 
@@ -135,27 +83,5 @@
     <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
-
-    <servlet>
-        <servlet-name>FacesServlet</servlet-name>
-        <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-        <multipart-config>
-            <!--parameter max-file-size should not be deleted. It is necessary for the WebSphere to work correctly with the jsf file downloader, but also we do not need to limit the file size in it, so the limit is 100 gigabytes-->
-            <max-file-size>104857600000</max-file-size>
-            <max-request-size>104857600000</max-request-size>
-            <file-size-threshold>1048576</file-size-threshold>
-        </multipart-config>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>FacesServlet</servlet-name>
-        <url-pattern>/faces/*</url-pattern>
-    </servlet-mapping>
-
-    <error-page>
-        <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
-        <location>/faces/pages/sessionExpired.xhtml</location>
-    </error-page>
 
 </web-app>

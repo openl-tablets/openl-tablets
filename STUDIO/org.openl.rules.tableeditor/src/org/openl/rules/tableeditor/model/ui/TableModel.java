@@ -1,86 +1,43 @@
 package org.openl.rules.tableeditor.model.ui;
 
-import java.util.List;
-
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
-import org.openl.rules.table.ui.FilteredGrid;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.ui.filters.IGridFilter;
-import org.openl.rules.tableeditor.util.Constants;
-import org.openl.util.CollectionUtils;
 
+/**
+ * A table as it is laid out: every place of its grid, with the spans, the style and the borders of the cell that
+ * stands there.
+ */
 public class TableModel {
 
     private final ICellModel[][] cells;
 
     private final IGridTable gridTable;
 
-    private int numRowsToDisplay = -1;
-
-    private final boolean showHeader;
-
     private final int height;
 
+    /**
+     * Lays out a table.
+     *
+     * @param table          the table to lay out
+     * @param numRows        how many rows from the top to lay out, or {@code -1} for all of them
+     * @param metaInfoReader what the compiler knows about the table's cells
+     * @return the laid out table, or {@code null} when there is no table
+     */
     public static TableModel initializeTableModel(IGridTable table, int numRows, MetaInfoReader metaInfoReader) {
-        return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader, false, null);
-    }
-
-    public static TableModel initializeTableModel(IGridTable table,
-                                                  IGridFilter[] filters,
-                                                  MetaInfoReader metaInfoReader,
-                                                  boolean smartNumbers) {
-        return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader, smartNumbers, null);
-    }
-
-    public static TableModel initializeTableModel(IGridTable table,
-                                                  IGridFilter[] filters,
-                                                  int numRows,
-                                                  LinkBuilder linkBuilder,
-                                                  String mode,
-                                                  String view,
-                                                  MetaInfoReader metaInfoReader,
-                                                  boolean smartNumbers,
-                                                  List<ICell> modifiedCells) {
         if (table == null) {
             return null;
         }
-        var editing = Constants.MODE_EDIT.equals(mode);
-        if (editing) {
-            // Prepare workbook for edit (load it to memory before editing starts)
-            table.edit();
-        }
-        IGrid grid;
-
-        if (CollectionUtils.isNotEmpty(filters)) {
-            grid = new FilteredGrid(table.getGrid(), filters, metaInfoReader);
-        } else {
-            grid = table.getGrid();
-        }
-
         var region = table.getRegion();
         if (numRows > -1 && region.getTop() + numRows < region.getBottom()) {
             region = new GridRegion(region);
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
-
-        // If we display only changed rows, then to find them, we need to consider the full region of the table,
-        // since modified lines may be outside the restricted region.
-        IGridRegion displayedRegion = modifiedCells != null ? table.getRegion() : region;
-
-        return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader, smartNumbers)
-                .buildModel(table, numRows, modifiedCells, displayedRegion);
+        return new TableViewer(table.getGrid(), region, metaInfoReader).buildModel(table);
     }
 
-    public boolean isShowHeader() {
-        return showHeader;
-    }
-
-    public TableModel(int width, int height, IGridTable gridTable, boolean showHeader) {
+    TableModel(int width, int height, IGridTable gridTable) {
         this.height = height;
         this.cells = new ICellModel[height][];
         for (var i = 0; i < cells.length; i++) {
@@ -88,24 +45,15 @@ public class TableModel {
         }
 
         this.gridTable = gridTable;
-        this.showHeader = showHeader;
     }
 
-    public int getNumRowsToDisplay() {
-        return numRowsToDisplay;
-    }
-
-    public void setNumRowsToDisplay(int numRowsToDisplay) {
-        this.numRowsToDisplay = numRowsToDisplay;
-    }
-
-    public void addCell(ICellModel cm, int row, int column) {
+    void addCell(ICellModel cm, int row, int column) {
         if (row < cells.length && column < cells[row].length) {
             cells[row][column] = cm;
         }
     }
 
-    public CellModel findCellModel(int col, int row, int border) {
+    CellModel findCellModel(int col, int row, int border) {
         if (col < 0 || row < 0 || row >= cells.length || col >= cells[0].length) {
             return null;
         }
@@ -152,20 +100,6 @@ public class TableModel {
 
     }
 
-    public ICellModel findOnLeft(int row, int column) {
-        if (column == 0) {
-            return null;
-        }
-        return cells[row][column - 1];
-    }
-
-    public ICellModel findOnTop(int row, int col) {
-        if (row == 0) {
-            return null;
-        }
-        return cells[row - 1][col];
-    }
-
     /**
      * Cells property getter
      *
@@ -179,7 +113,7 @@ public class TableModel {
         return gridTable;
     }
 
-    public boolean hasCell(int r, int c) {
+    boolean hasCell(int r, int c) {
         // This is the correct case if we add empty rows to the display of the table,
         // in place of the deleted ones, when comparing tables.
         if (cells.length <= r || cells[0].length <= c) {

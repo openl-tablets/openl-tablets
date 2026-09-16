@@ -15,10 +15,10 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 import org.openl.rules.tableeditor.model.ArrayCellEditor.ArrayEditorParams;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ComboBoxCellEditor.ComboBoxParam;
+import org.openl.rules.tableeditor.model.EditorTypeResponse;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.MultiSelectCellEditor.MultiChoiceParam;
 import org.openl.rules.tableeditor.model.NumberRangeEditor.NumberRangeParams;
@@ -131,14 +131,14 @@ public class TableEditorsReader {
 
     /** The editor and its parameters as the API reports them, or {@code null} for the ones a screen knows itself. */
     private static @Nullable TableCellEditorView describe(EditorTypeResponse response) {
-        var kind = response.getEditor();
+        var kind = response.editor();
         if (ICellEditor.CE_TEXT.equals(kind)
                 || ICellEditor.CE_MULTILINE.equals(kind)
                 || ICellEditor.CE_FORMULA.equals(kind)) {
             return null;
         }
         var described = TableCellEditorView.builder().editor(kind);
-        switch (response.getParams()) {
+        switch (response.params()) {
             case MultiChoiceParam params -> described.choices(List.of(params.getChoices()))
                     .displayValues(displayValues(params))
                     .separator(params.getSeparator())

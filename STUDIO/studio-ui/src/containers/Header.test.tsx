@@ -76,8 +76,7 @@ describe('Header', () => {
 
         await waitFor(() => expect(hasDeploymentRepositories).toHaveBeenCalled())
         expect(screen.queryByTestId('menu-/deployments')).toBeNull()
-        // The tab it cannot offer never costs the user the other two.
-        expect(screen.getByTestId('menu-/')).toBeTruthy()
+        // The tab it cannot offer never costs the user the one beside it.
         expect(screen.getByTestId('menu-/projects')).toBeTruthy()
     })
 
@@ -95,12 +94,6 @@ describe('Header', () => {
         pathnameRef.current = '/administration/system'
         rerender(<Header />)
         expect(screen.getByTestId('menu-/projects').getAttribute('data-selected')).toBeNull()
-        expect(screen.getByTestId('menu-/').getAttribute('data-selected')).toBeNull()
-
-        // The legacy pages under faces/ are the Editor's own screens.
-        pathnameRef.current = '/faces/main.xhtml'
-        rerender(<Header />)
-        expect(screen.getByTestId('menu-/').getAttribute('data-selected')).toBe('true')
     })
 
     it('switches tabs through the app instead of loading the page anew', async () => {

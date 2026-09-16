@@ -17,7 +17,6 @@ import { CopyTableModal } from 'containers/CopyTableModal'
 import { CopyProjectModalHost } from 'containers/CopyProjectModalHost'
 import { SaveProjectModalHost } from 'containers/SaveProjectModalHost'
 import { ExportProjectModalHost } from 'containers/ExportProjectModalHost'
-import { JsfIslandHost } from 'components/JsfIslandHost'
 import { LoadingOverlay } from 'components/LoadingOverlay'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAppStore } from 'store'
@@ -83,7 +82,6 @@ export const DefaultLayout = () => {
             <ExportProjectModalHost />
             <ConfirmModal />
             <LoadingOverlay />
-            <JsfIslandHost />
         </Layout>
     )
 }

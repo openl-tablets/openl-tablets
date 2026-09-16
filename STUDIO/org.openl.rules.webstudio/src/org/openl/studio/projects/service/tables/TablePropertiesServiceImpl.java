@@ -77,7 +77,7 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
         var gridTable = table.getGridTable();
         gridTable.edit();
         try {
-            var editor = new TableEditorModel(table, IXlsTableNames.VIEW_DEVELOPER, false);
+            var editor = new TableEditorModel(table, IXlsTableNames.VIEW_DEVELOPER);
             for (var property : properties) {
                 editor.setProperty(property.name(), value(property));
             }

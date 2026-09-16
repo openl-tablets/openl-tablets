@@ -91,7 +91,7 @@ stateDiagram-v2
 
 - **One registry instance per `userId`, never per session.** `LocalWorkspaceManagerImpl` owns a
   `Map<userId, MetainfoRegistry>` and hands the instance to every `LocalWorkspace` and `LocalRepository`
-  created for that user. All channels of a user (browser tabs, JSF, REST, MCP) share it. Workspace
+  created for that user. All channels of a user (browser tabs, REST, MCP) share it. Workspace
   instances can churn — `UserWorkspaceImpl.release()` has no reference counting — but the registry
   survives the churn, so the dirty-set and the per-project locks are never forked.
 - The instance is created lazily on the first access (the disk read and the dirty-set reconstruction happen
@@ -151,7 +151,7 @@ A local-only project has two names with different purposes when the `<name>` in 
 - Its project id encodes `local:{workspace-folder}`. The folder identifies the project in the workspace and keeps
   REST links stable and resolvable.
 - Project dependencies use the logical name declared in `rules.xml`. OpenL Studio matches a dependency by that name,
-  displays it, and attaches the folder-based id of the project it resolved. The Overview and legacy JSF Editor links
+  displays it, and attaches the folder-based id of the project it resolved. The Overview links
   therefore open the target instead of treating the folder name as a logical name.
 - Legacy Editor hash routes identify a project by that logical name. Every project and module breadcrumb route
   therefore uses the name declared in `rules.xml`, while REST links keep using the folder-based project id.

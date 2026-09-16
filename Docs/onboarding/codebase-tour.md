@@ -139,7 +139,7 @@ constrainer, annotations, util, gen, test
 
 **`org.openl.rules.webstudio`** - Main Web Application
 - **Artifact**: `webapp.war`
-- **Technology**: Spring Boot + JSF (legacy) + React (modern)
+- **Technology**: Spring Boot (REST API) + React (every screen)
 - **What it does**:
   - Rule authoring and editing
   - Project management
@@ -305,9 +305,9 @@ constrainer, annotations, util, gen, test
 **Question**: Where is the OpenL Studio UI?
 
 **Answer**:
-1. **Modern React UI**: `/STUDIO/studio-ui/src/`
-2. **Legacy JSF**: `/STUDIO/org.openl.rules.webstudio/src/main/webapp/`
-3. **Table Editor**: `/STUDIO/org.openl.rules.tableeditor/src/`
+1. **The UI**: `/STUDIO/studio-ui/src/`
+2. **Table layout and cell editor model** (read by the table REST API):
+   `/STUDIO/org.openl.rules.tableeditor/src/`
 
 ### Finding REST API Code
 

@@ -11,9 +11,6 @@ import { AppStyles } from './App.styles.ts'
 import { UserProfileCompletionModal } from './containers/users/UserProfileCompletionModal'
 import { isUserProfileComplete } from './utils/userProfile'
 
-// Expose bridges (notifications, project status) to legacy JSF pages via window.openl.
-import './legacy'
-
 function App() {
     const { showLogin } = useAppStore()
     const { fetchUserInfo, isLoggedIn, userProfile } = useUserStore()

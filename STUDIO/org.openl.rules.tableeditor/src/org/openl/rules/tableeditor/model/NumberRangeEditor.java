@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.openl.rules.range.RangeParser;
-import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 
 public class NumberRangeEditor implements ICellEditor {
 
@@ -22,9 +21,7 @@ public class NumberRangeEditor implements ICellEditor {
         params.setEntryEditor(entryEditor);
         params.setParsedValue(parsedValue);
 
-        var typeResponse = new EditorTypeResponse(CE_RANGE);
-        typeResponse.setParams(params);
-        return typeResponse;
+        return new EditorTypeResponse(CE_RANGE, params);
     }
 
     private String parseValue(String input) {

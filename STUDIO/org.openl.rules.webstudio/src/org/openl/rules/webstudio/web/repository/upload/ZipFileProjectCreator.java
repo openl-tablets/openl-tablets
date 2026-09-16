@@ -22,7 +22,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromFile;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
@@ -31,6 +30,9 @@ import org.openl.util.IOUtils;
 
 @Slf4j
 public class ZipFileProjectCreator extends AProjectCreator {
+
+    private static final long MAX_FILE_SIZE = 1000L * 1024 * 1024;
+
     private final ZipFile zipFile;
     private final PathFilter zipFilter;
     private final File uploadedFile;
@@ -123,18 +125,13 @@ public class ZipFileProjectCreator extends AProjectCreator {
             return sortedNames;
         }
 
-        var skipped = false;
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
                 var item = items.nextElement();
                 sortedNames.add(item.getName());
             } catch (Exception e) {
                 log.warn("Cannot extract zip entry.", e);
-                skipped = true;
             }
-        }
-        if (skipped) {
-            WebStudioUtils.addWarnMessage("Warning: Some malformed zip entries were skipped.");
         }
         return sortedNames;
     }
@@ -145,16 +142,12 @@ public class ZipFileProjectCreator extends AProjectCreator {
         List<String> invalidNames = incorrectNames();
 
         if (!invalidNames.isEmpty()) {
-            WebStudioUtils.addErrorMessage("Project has not been created. Zip file contains " + invalidNames
-                    .size() + " files/folders with incorrect names:");
-
-            /*
-             * Display first 20 files/folders with incorrect names
-             */
-            for (var i = 0; i < Math.min(invalidNames.size(), 20); i++) {
-                WebStudioUtils.addErrorMessage(invalidNames.get(i));
-            }
-            throw new ProjectException(NameChecker.BAD_NAME_MSG);
+            // The names themselves are what the uploader has to correct, so the first of them are named; a zip
+            // whose every name is wrong would otherwise answer with a count and nothing to act on.
+            throw new ProjectException("Zip file contains %d files/folders with incorrect names: %s. %s"
+                    .formatted(invalidNames.size(),
+                            String.join(", ", invalidNames.subList(0, Math.min(invalidNames.size(), 20))),
+                            NameChecker.BAD_NAME_MSG));
         }
 
         var projectBuilder = getZipProjectBuilder(sortedNames, zipFilter);
@@ -171,16 +164,15 @@ public class ZipFileProjectCreator extends AProjectCreator {
                 if (item.isDirectory()) {
                     projectBuilder.addFolder(item.getName());
                 } else {
-                    if (checkFileSize(item)) {
-                        InputStream zipInputStream;
-                        try {
-                            var fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
-                            zipInputStream = changeFileIfNeeded(fileName, zipFile.getInputStream(item));
-                        } catch (IOException e) {
-                            throw new ProjectException("Error extracting zip archive", e);
-                        }
-                        projectBuilder.addFile(item.getName(), zipInputStream);
+                    requireSizeWithinLimit(item);
+                    InputStream zipInputStream;
+                    try {
+                        var fileName = projectBuilder.getFolderExtractor().extractFromRootFolder(item.getName());
+                        zipInputStream = changeFileIfNeeded(fileName, zipFile.getInputStream(item));
+                    } catch (IOException e) {
+                        throw new ProjectException("Error extracting zip archive", e);
                     }
+                    projectBuilder.addFile(item.getName(), zipInputStream);
                 }
             } catch (Exception e) {
                 projectBuilder.cancel();
@@ -209,13 +201,11 @@ public class ZipFileProjectCreator extends AProjectCreator {
         }
     }
 
-    private boolean checkFileSize(ZipEntry file) {
-        if (file.getSize() > 1000 * 1024 * 1024) {
-            WebStudioUtils.addErrorMessage("Size of the file " + file.getName() + " is more then 100MB.");
-            return false;
+    /** Refuses a file the project cannot take, rather than leaving it out of a project reported as created. */
+    private static void requireSizeWithinLimit(ZipEntry file) throws ProjectException {
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new ProjectException("Size of the file " + file.getName() + " is more then 100MB.");
         }
-
-        return true;
     }
 
     /**

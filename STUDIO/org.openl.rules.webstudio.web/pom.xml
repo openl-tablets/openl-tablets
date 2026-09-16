@@ -13,15 +13,6 @@
     <url>https://openl-tablets.org</url>
 
     <dependencies>
-        <dependency>
-            <groupId>org.openl.richfaces</groupId>
-            <artifactId>richfaces</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.faces</artifactId>
-        </dependency>
-
         <!-- OpenL dependencies -->
         <dependency>
             <groupId>org.openl.rules</groupId>

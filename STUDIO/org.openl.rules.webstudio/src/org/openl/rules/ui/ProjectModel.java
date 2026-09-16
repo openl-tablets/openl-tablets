@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -78,27 +77,19 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
-import org.openl.rules.ui.tree.ProjectTreeNode;
-import org.openl.rules.ui.tree.TreeNodeBuilder;
-import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
-import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -188,7 +179,6 @@ public class ProjectModel {
     @Getter
     private final WebStudio studio;
 
-    private TreeNode projectRoot;
 
     @Getter
     private String historyStoragePath;
@@ -448,13 +438,6 @@ public class ProjectModel {
         return tsn;
     }
 
-    public synchronized TreeNode getProjectTree() {
-        if (projectRoot == null) {
-            buildProjectTree();
-        }
-        return projectRoot;
-    }
-
     public synchronized IOpenLTable getTable(String tableUri) {
         TableSyntaxNode tsn = getNode(tableUri);
         if (tsn != null) {
@@ -469,9 +452,7 @@ public class ProjectModel {
     }
 
     public synchronized IOpenLTable getTableById(String id) {
-        if (projectRoot == null) {
-            buildProjectTree();
-        }
+        initProjectHistory();
         TableSyntaxNode tsn = getNodeById(id);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
@@ -855,142 +836,6 @@ public class ProjectModel {
         return ProjectHelper.testers(m, compiledOpenClass).length > 0;
     }
 
-    public synchronized void buildProjectTree() {
-        if (compiledOpenClass == null || studio.getCurrentModule() == null) {
-            return;
-        }
-
-        ProjectTreeNode root = makeProjectTreeRoot();
-
-        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
-
-        OverloadedMethodsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
-
-        TreeNodeBuilder<Object>[] treeSorters = studio.getTreeView().getBuilders();
-
-        // Find all group sorters defined for current subtree.
-        // Group sorter should have additional information for grouping
-        // nodes by method signature.
-        // author: Alexey Gamanovich
-        //
-        for (TreeNodeBuilder<?> treeSorter : treeSorters) {
-
-            if (treeSorter instanceof OpenMethodsGroupTreeNodeBuilder tableTreeNodeBuilder) {
-                // Set to sorter information about open methods.
-                // author: Alexey Gamanovich
-                //
-                tableTreeNodeBuilder.setOpenMethodGroupsDictionary(methodNodesDictionary);
-            }
-            if (treeSorter instanceof WorksheetTreeNodeBuilder)
-                root.setElements(new LinkedHashMap<>(root.getElements()));
-        }
-
-        for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
-            ProjectTreeNode element = root;
-            for (var treeSorter : treeSorters) {
-                element = addToNode(element, tableSyntaxNode, treeSorter);
-            }
-        }
-        projectRoot = build(root);
-
-        initProjectHistory();
-    }
-
-    /**
-     * Adds new object to target tree node.
-     * <p>
-     * The algorithm of adding new object to tree is following: the new object is passed to each tree node builder using
-     * order in which they are appear in builders array. Tree node builder makes appropriate tree node or nothing if it
-     * is not necessary (e.g. builder that makes folder nodes). The new node is added to tree.
-     *
-     * @param targetNode target node to which will be added new object
-     * @param object     object to add
-     */
-    private ProjectTreeNode addToNode(ProjectTreeNode targetNode, Object object, TreeNodeBuilder treeNodeBuilder) {
-
-        ProjectTreeNode element = null;
-
-        // A builder is asked for a key only once it says it applies to the object: a key it cannot make for an
-        // object it does not group is not a key anyone would use. If the key is null there is nothing to add.
-        //
-        Comparable<?> key = treeNodeBuilder.isBuilderApplicableForObject(object)
-                ? treeNodeBuilder.makeKey(object)
-                : null;
-
-        if (key != null) {
-
-            // Try to find child node with the same object.
-            //
-            element = targetNode.getChild(key);
-
-            // If element is null the node with same object is absent.
-            //
-            if (element == null) {
-
-                // Build new node for the object.
-                //
-                element = treeNodeBuilder.makeNode(object, 0);
-
-                // If element is null then builder has not created the new
-                // element
-                // and this builder should be skipped.
-                // author: Alexey Gamanovich
-                //
-                if (element != null) {
-                    targetNode.addChild(key, element);
-                } else {
-                    element = targetNode;
-                }
-            }
-
-            // ///////
-            // ???????????????????
-            // //////
-            else if (treeNodeBuilder.isUnique(object)) {
-
-                for (int i = 2; i < 100; ++i) {
-
-                    Comparable<?> key2 = treeNodeBuilder.makeKey(object, i);
-                    element = targetNode.getChild(key2);
-
-                    if (element == null) {
-
-                        element = treeNodeBuilder.makeNode(object, i);
-
-                        // If element is null then sorter has not created the
-                        // new
-                        // element and this sorter should be skipped.
-                        // author: Alexey Gamanovich
-                        //
-                        if (element != null) {
-                            targetNode.addChild(key2, element);
-                        } else {
-                            element = targetNode;
-                        }
-
-                        break;
-                    }
-                }
-            }
-        }
-
-        // If node is null skip the current builder: set the targetNode to
-        // current element.
-        //
-        if (element == null) {
-            element = targetNode;
-        }
-
-        return element;
-    }
-
-    private boolean isGapOverlap(ProjectTreeNode tableNode) {
-        if (tableNode.getTableSyntaxNode() != null) {
-            return isGapOverlap(tableNode.getTableSyntaxNode());
-        }
-        return false;
-    }
-
     public boolean isGapOverlap(TableSyntaxNode tsn) {
         String tableType = tsn.getType();
         if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
@@ -1008,72 +853,13 @@ public class ProjectModel {
                 .collect(Collectors.toList());
     }
 
-    private TreeNode build(ProjectTreeNode root) {
-        TreeNode node = createNode(root);
-        Iterable<ProjectTreeNode> children = root.getChildren();
-        int errors = 0;
-        for (ProjectTreeNode child : children) {
-            // Always hide dispatcher tables
-            if (isGapOverlap(child)) {
-                continue;
-            }
-            TreeNode rfChild = build(child);
-            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType())) {
-                // skip worksheet node if it has no children nodes
-                if (!rfChild.getChildrenKeysIterator().hasNext()) {
-                    continue;
-                }
-            }
-            errors += rfChild.getNumErrors();
-            node.addChild(rfChild, rfChild);
-        }
-        node.setNumErrors(node.getNumErrors() + errors);
-        return node;
-    }
-
-    private TreeNode createNode(ProjectTreeNode element) {
-
-        boolean leaf = element.getChildren().isEmpty();
-        String name = element.getDisplayName(INamedThing.SHORT);
-        String title = element.getDisplayName(INamedThing.REGULAR);
-
-        String type = element.getType();
-        String url = null;
-        int state = 0;
-        int numErrors = 0;
-        boolean active = true;
-
-        if (type.startsWith(IProjectTypes.PT_TABLE + ".")) {
-            TableSyntaxNode tsn = element.getTableSyntaxNode();
-            url = studio.url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
-            if (studio.getModel().isTestable(element.getTableSyntaxNode().getUri())) {
-                state = 2; // has tests
-            }
-
-            if (leaf) {
-                numErrors = getErrorsByUri(tsn.getUri()).size();
-            }
-            ITableProperties tableProperties = tsn.getTableProperties();
-            if (tableProperties != null) {
-                Boolean act = tableProperties.getActive();
-                if (act != null) {
-                    active = act;
-                }
-            }
-        }
-        TreeNode node = new TreeNode(leaf);
-        node.setName(name);
-        node.setTitle(title);
-        node.setType(type);
-        node.setUrl(url);
-        node.setState(state);
-        node.setNumErrors(numErrors);
-        node.setActive(active);
-
-        return node;
-    }
-
-    private void initProjectHistory() {
+    /**
+     * Listens to the module's workbooks, so that a write to one of them is kept as a revision of the project.
+     *
+     * <p>A workbook already listened to is left alone, and a module compiled afresh is listened to again: the
+     * workbooks it was compiled from are new ones.
+     */
+    public synchronized void initProjectHistory() {
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
         LocalRepository repository = getLocalRepository();
         if (workbookNodes != null && repository != null) {
@@ -1202,10 +988,6 @@ public class ProjectModel {
         return makeMethodNodesDictionary(tableSyntaxNodes);
     }
 
-    private ProjectTreeNode makeProjectTreeRoot() {
-        return new ProjectTreeNode(new String[]{null, null, null}, "root", null);
-    }
-
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
         List<TableSyntaxNode> executableNodes = new ArrayList<>();
         for (TableSyntaxNode node : nodes) {
@@ -1238,10 +1020,6 @@ public class ProjectModel {
         publishStatusChanged();
     }
 
-    public synchronized void redraw() {
-        projectRoot = null;
-    }
-
     public void reset(ReloadType reloadType) throws Exception {
         reset(reloadType, moduleInfo);
     }
@@ -1268,7 +1046,6 @@ public class ProjectModel {
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
-        projectRoot = null;
     }
 
     public synchronized TestUnitsResults runTest(TestSuite test, boolean currentOpenedModule) {
@@ -1332,7 +1109,6 @@ public class ProjectModel {
         }
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
-        projectRoot = null;
     }
 
     public void setModuleInfo(Module moduleInfo) throws Exception {
@@ -1435,7 +1211,6 @@ public class ProjectModel {
         initHistoryStoragePath();
         isModified();
         clearModuleResources(); // prevent memory leak
-        projectRoot = null;
         xlsModuleSyntaxNode = null;
         // What was compiled belongs to the module being replaced, and the new one is not compiled until the
         // load below returns. Keeping it would report the module as ready from the moment it was asked for.
@@ -1508,7 +1283,6 @@ public class ProjectModel {
                             XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
                                     .getMetaInfo();
                             replaceProjectNode(projectDescriptor.getName(), metaInfo1.getXlsModuleNode());
-                            redraw();
                         } catch (Exception | LinkageError e) {
                             onCompilationFailed(e);
                             failure = e;
@@ -1702,16 +1476,6 @@ public class ProjectModel {
                 }
             }
         }
-    }
-
-    public synchronized TableEditorModel getTableEditorModel(String tableUri) {
-        IOpenLTable table = getTable(tableUri);
-        return getTableEditorModel(table);
-    }
-
-    public synchronized TableEditorModel getTableEditorModel(IOpenLTable table) {
-        String tableView = studio.getTableView();
-        return new TableEditorModel(table, tableView, false);
     }
 
     public boolean isCompiledSuccessfully() {

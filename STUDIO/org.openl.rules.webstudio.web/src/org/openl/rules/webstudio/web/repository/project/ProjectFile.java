@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 import lombok.extern.slf4j.Slf4j;
-import org.richfaces.model.UploadedFile;
 
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -27,13 +26,6 @@ public class ProjectFile {
     public ProjectFile(String name, InputStream input) {
         this.name = name;
         this.input = input;
-    }
-
-    public ProjectFile(UploadedFile uploadedFile) throws IOException {
-        this.name = FileUtils.getName(uploadedFile.getName());
-        this.size = uploadedFile.getSize();
-        this.tempFile = saveToTempFile(uploadedFile.getInputStream());
-        uploadedFile.delete();
     }
 
     /**

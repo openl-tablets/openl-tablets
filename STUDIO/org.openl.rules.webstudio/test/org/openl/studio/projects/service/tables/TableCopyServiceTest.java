@@ -351,7 +351,7 @@ class TableCopyServiceTest {
         var grid = table.table().getGridTable();
         grid.edit();
         try {
-            new TableEditorModel(table.table(), IXlsTableNames.VIEW_DEVELOPER, false).setProperty(name, value);
+            new TableEditorModel(table.table(), IXlsTableNames.VIEW_DEVELOPER).setProperty(name, value);
         } finally {
             grid.stopEditing();
         }

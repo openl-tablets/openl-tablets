@@ -192,14 +192,13 @@ security.jwt.expiration = 86400
 ### 1. org.openl.rules.webstudio - Main Application
 
 **Type**: WAR application
-**Technology**: Spring Boot 3.5.6, JSF 4.0.12 (legacy), React 19.2.x (modern)
+**Technology**: Spring Boot 3.5.6 (REST API), React 19.2.x (every screen)
 **Build Output**: `webapp.war`
 
 **Architecture**:
 ```
 OpenL Studio (Spring Boot)
   ├─ REST Controllers (/api/*)
-  ├─ JSF Managed Beans (legacy UI)
   ├─ React SPA (/studio-ui/*)
   ├─ Security Layer
   ├─ Workspace Manager
@@ -235,7 +234,7 @@ public class ProjectController {
 - Dependency management
 
 **Rule Editing**:
-- Table editor (JSF-based, legacy)
+- Table editor
 - Modern React-based editor
 - Syntax validation
 - Type checking

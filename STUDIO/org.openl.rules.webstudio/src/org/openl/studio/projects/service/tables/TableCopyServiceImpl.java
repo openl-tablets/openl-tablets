@@ -160,7 +160,7 @@ public class TableCopyServiceImpl implements TableCopyService {
      * distinguishable. The change is left in the workbook the caller saves.
      */
     private void standDown(IOpenLTable source) {
-        var editor = new TableEditorModel(source, IXlsTableNames.VIEW_DEVELOPER, false);
+        var editor = new TableEditorModel(source, IXlsTableNames.VIEW_DEVELOPER);
         editor.setProperty(TableVersionService.VERSION_PROPERTY, versionService.currentVersion(source));
         editor.setProperty(TableVersionService.ACTIVE_PROPERTY, Boolean.FALSE.toString());
     }

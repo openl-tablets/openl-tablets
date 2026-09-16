@@ -297,7 +297,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 .usages(usagesOf(metaInfo, modules))
                 .type(dataType == null ? null : dataType.getDisplayName(INamedThing.SHORT))
                 .returnCell(metaInfo.isReturnCell() ? Boolean.TRUE : null)
-                .editor(editor == null ? null : editor.getEditorTypeAndMetadata().getEditor())
+                .editor(editor == null ? null : editor.getEditorTypeAndMetadata().editor())
                 .build();
         return reported.isEmpty() ? null : reported;
     }
