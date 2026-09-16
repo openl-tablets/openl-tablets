@@ -4,6 +4,8 @@
 
 - Reset to zero on the owner's instruction, then every change type re-derived on `origin/main` 737e6794be in one run;
   the result is PR #2120 on `dead-code/full-resweep`. Maintain that PR first (section 4 of the prompt).
+- A parallel run's PR #2119 merged into main first, carrying the same ProjectModel, openapi.properties and
+  `menu.editor` deletions: merge `origin/main` into #2120 before anything else.
 - Next sweep: `git rev-list --count 737e6794be..origin/main`; 0 means nothing new to scan. Otherwise scan the new
   commits' deleted imports first, then rerun the detectors under Method rules; the veins below are exhausted at 737e6794be.
 - Not done this run for lack of time: dead `@SuppressWarnings` (needs a `-Xlint:all` recompile), plugin configuration
@@ -36,7 +38,8 @@
 
 ## Merged PRs
 
-- None since the reset.
+- #2119 (3 commits, -72): stale comments, 10 locale + 17 OpenAPI keys, ProjectModel counters; the maintainer vetoed
+  deleting commented-out debug toggles (Keep-list).
 
 ## Module coverage
 
@@ -125,6 +128,9 @@
 
 ## Keep-list
 
+- Commented-out debug toggles are maintained conveniences, never dead (maintainer decision on PR #2119): the
+  `writeBodyTo` bulk-rewrite block in ITEST `HttpClient` and the `files = new File[] {...}` single-folder toggles in
+  `RulesInFolderTestRunner`, `OpenAPIGenerationTest`, `OpenAPIProjectCreatorTest`.
 - OpenL datatype beans and rules interfaces in tests are bound from Excel by property or method name (IChildBean.getMyBean,
   Tutorial4Interface.getTheft_rating, Location setters, RulesUtilsTest.testFlatten, ComputeInterface stand-ins).
 - Jackson-bound webstudio models keep every accessor: RepositorySettings, AWSS3RepositorySettings, GitRepositorySettings,
@@ -165,6 +171,7 @@
 
 ## Human follow-ups
 
+- The routine fired in two sessions at once and produced overlapping PRs #2119 and #2120; make it fire in one.
 - Dependency hygiene (additions): 293 used-undeclared findings, notably spring-security-core in org.openl.security and
   org.openl.rules.jackson in ruleservice.ws.
 - PMD `Parsing failed in ParseLock#doParse()` on `BranchedProjectIndexService$IndexState` in workspace: a PMD 7 type
@@ -174,3 +181,4 @@
 ## Run log
 
 - 2026-09-16 g: ledger reset to zero; full re-sweep from `origin/main` 737e6794be; 8 commits, -500 lines, PR #2120.
+- 2026-09-16 h: parallel run from the same base; PR #2119, 3 commits, -72 lines, merged the same day.
