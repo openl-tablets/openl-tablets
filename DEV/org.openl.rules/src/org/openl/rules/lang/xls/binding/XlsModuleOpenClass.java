@@ -301,12 +301,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         var dataTables = new HashMap<String, ITable>();
         // compilation issue with lazy loading
         for (CompiledDependency dependency : this.getDependencies()) {
-            // commented as there is no need to add each datatype to upper
-            // module.
-            // as now it`s will be impossible to validate from which module the
-            // datatype is.
-            //
-            // addTypes(dependency);
             addDependencyTypes(dependency);
 
             addXlsDefinitions(dependency);
