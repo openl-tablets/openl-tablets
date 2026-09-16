@@ -68,7 +68,7 @@ export const Help: React.FC = () => {
                     >
                         <Link rel="noopener noreferrer" target="_blank" to="/application.properties">application.properties example</Link>
                         <br />
-                        <Link rel="noopener noreferrer" target="_blank" to="/rest/api-docs">Internal REST API Documentation</Link>
+                        <Link rel="noopener noreferrer" target="_blank" to="/api-docs">Internal REST API Documentation</Link>
                     </Card>
                 </Col>
                 <Col md={8} sm={12} xs={24}>

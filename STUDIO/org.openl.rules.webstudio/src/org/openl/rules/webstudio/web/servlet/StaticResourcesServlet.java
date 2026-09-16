@@ -22,6 +22,9 @@ import org.openl.util.StringUtils;
  * relative address is read against, and, while a developer has the frontend running beside the server, the address
  * its scripts are served from.
  *
+ * <p>The API documentation is a page of its own, built beside this one and read without logging in, so its
+ * address is answered with that page instead.
+ *
  * <p>A file the build left beside the page is handed to the container to serve, so that it keeps its content type
  * and its caching headers.
  *
@@ -36,17 +39,38 @@ public class StaticResourcesServlet extends HttpServlet {
     /** The setting naming a frontend served from elsewhere, which a developer runs beside the server. */
     private static final String DEV_SERVER = "_REACT_UI_ROOT_";
 
+    /** The page the application is drawn on, and the source the frontend is written in. */
+    private static final String APP_PAGE = "/index.html";
+    private static final String APP_ENTRY = "/src/index.tsx";
+
+    /** Where the API documentation is read, the page the build wrote for it, and its own source. */
+    private static final String API_DOCS = "/api-docs";
+    private static final String API_DOCS_PAGE = "/api-docs.html";
+    private static final String API_DOCS_ENTRY = "/src/api-docs.tsx";
+
     private String htmlTemplate;
+    private String apiDocsTemplate;
 
     @Override
     public void init() throws ServletException {
-        try (var resource = getServletContext().getResourceAsStream("/index.html")) {
-            var built = new String(requireNonNull(resource, "index.html resource not found").readAllBytes(),
+        var devServer = Props.text(DEV_SERVER);
+        htmlTemplate = page(APP_PAGE, APP_ENTRY, devServer);
+        apiDocsTemplate = page(API_DOCS_PAGE, API_DOCS_ENTRY, devServer);
+    }
+
+    /** A page the build wrote, or the same page served by a frontend dev server where a developer runs one. */
+    private String page(String page, String entry, String devServer) throws ServletException {
+        var built = read(page);
+        return StringUtils.isBlank(devServer) ? built : servedFrom(built, entry, devServer);
+    }
+
+    /** One of the pages the frontend build wrote. */
+    private String read(String page) throws ServletException {
+        try (var resource = getServletContext().getResourceAsStream(page)) {
+            return new String(requireNonNull(resource, page + " resource not found").readAllBytes(),
                     StandardCharsets.UTF_8);
-            var devServer = Props.text(DEV_SERVER);
-            htmlTemplate = StringUtils.isBlank(devServer) ? built : servedFrom(built, devServer);
         } catch (IOException e) {
-            throw new ServletException("Failed to load index.html template", e);
+            throw new ServletException("Failed to load the " + page + " template", e);
         }
     }
 
@@ -70,7 +94,8 @@ public class StaticResourcesServlet extends HttpServlet {
 
         // Handling index.html for the React application
         var contextPath = req.getContextPath();
-        var out = htmlTemplate.replace(BUILT_BASE,
+        var page = API_DOCS.equals(path) ? apiDocsTemplate : htmlTemplate;
+        var out = page.replace(BUILT_BASE,
                 "<base href=\"" + (contextPath.isEmpty() ? "/" : contextPath + "/") + "\"/>");
 
         resp.setContentType("text/html");
@@ -85,7 +110,7 @@ public class StaticResourcesServlet extends HttpServlet {
      * The built page with its scripts swapped for the ones a frontend dev server serves: the build's scripts are
      * the ones it wrote, and there are none of those to serve yet.
      */
-    private static String servedFrom(String built, String devServer) {
+    private static String servedFrom(String built, String entry, String devServer) {
         var root = devServer.endsWith("/") ? devServer.substring(0, devServer.length() - 1) : devServer;
         var scripts = """
                 <script type="module">
@@ -96,8 +121,8 @@ public class StaticResourcesServlet extends HttpServlet {
                   window.__vite_plugin_react_preamble_installed__ = true
                 </script>
                 <script type="module" src="%s/@vite/client"></script>
-                <script type="module" src="%s/src/index.tsx"></script>
-                """.formatted(root, root, root);
+                <script type="module" src="%s%s"></script>
+                """.formatted(root, root, root, entry);
         // Everything the build wrote into the head is its own; the dev server serves its own instead.
         return built.replaceAll("(?s)<script type=\"module\".*?</head>", scripts + "</head>")
                 .replaceAll("(?s)<link rel=\"modulepreload\".*?>", "");

@@ -36,6 +36,7 @@ public class SecurityConfig {
                         "/favicon.ico",
                         "/favicon.svg",
                         "/application.properties",
+                        "/api-docs",
                         "/icons/**",
                         "/assets/**",
                         "/.well-known/**",
