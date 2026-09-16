@@ -29,7 +29,8 @@
 
 ## Open PR
 
-- PR #2120, branch `dead-code/full-resweep`, head ebd0f758dd, 8 commits, 32 files, -500/+2; CodeRabbit's one finding (stale AspectJ row in technology-stack.md) folded in.
+- PR #2120, branch `dead-code/full-resweep`, head ebd0f758dd, 8 commits, 32 files, -500/+2; all 17 checks green, Sonar gate
+  passed (3 "new issues" on shifted lines), CodeRabbit's one finding folded in; mergeable_state `blocked` = waits on a human review.
 - Commits: commented-out code; private ProjectModel counters; message keys; test workbook and stubs; `.editorconfig`
   scss section; spring-security-core in security.standalone; AspectJ managed versions; webstudio members and mapper type.
 
