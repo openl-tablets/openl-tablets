@@ -60,7 +60,6 @@ i18next.addResourceBundle('en', 'repository', {
         title: 'Projects',
         search_placeholder: 'Search by name, author, branch or tag',
         local: 'Local',
-        summary: '{{workspace}} in your workspace · {{total}} total',
         summary_total: '{{total}} projects',
         live_synced: 'Projects list synced',
         indexing: 'Discovering projects across repository branches…',
