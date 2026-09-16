@@ -268,14 +268,6 @@ org.apache.poi:poi-ooxml:5.4.1
 Resolution: Explicitly depend on commons-codec:1.19.0
 ```
 
-**Spring → AspectJ**:
-```
-spring-aop:6.2.11
-  └─ aspectjweaver:1.9.19 (old)
-
-Resolution: Explicitly depend on aspectjweaver:1.9.24
-```
-
 ---
 
 ## Maven Dependency Management

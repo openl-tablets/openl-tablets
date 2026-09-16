@@ -245,11 +245,6 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 |---------|---------|---------|
 | Guava | 33.5.0 | Core utilities, collections |
 
-### AspectJ
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| AspectJ | 1.9.24 | Aspect-oriented programming |
-
 ---
 
 ## Web Server
