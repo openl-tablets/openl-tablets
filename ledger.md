@@ -3,7 +3,7 @@
 ## Resume point
 
 - Swept head is `origin/main` 2781e274f8; no open PR, every change type done, every detector exhausted at that head.
-  `main` has not moved since, so a run finding the same SHA has no cleanup to do and may not re-run a detector.
+  Five runs have now found that same SHA: check it first, and when it matches, do not re-run a single detector.
 - When `main` gains code: diff against 2781e274f8, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
@@ -200,9 +200,8 @@
 - studio-ui vitest CPU starvation under -T1C: OverviewPanel.test.tsx (15000ms timeout, act() warning via
   vitest-fail-on-console) and UserDatailsTab.test.tsx findByText timeout when the run takes ~680s; rerun once.
 - OpenLTableLogicTest.detectsErrorsInRulesTestedByTable: `expected true was false`; getMethod right after async setModuleInfo compile; rerun once.
-- IT (services-data): apache/kafka-native:latest segfaults in its own `setup` entrypoint (Pwd.getpwuid resolving
-  `user.name`); the container exits 1, so the visible error is `Timed out waiting for ... RECOVERY to RUNNING`. It
-  picks a random Kafka module per attempt and took 3 on one SHA, so budget more than one rerun. Never pin the tag.
+- IT (services-data): apache/kafka-native:latest segfaults in its `setup` entrypoint (Pwd.getpwuid on `user.name`),
+  so the error reads `Timed out waiting for ... RECOVERY to RUNNING`; random module per attempt, budget 3 reruns.
 - IT (studio-acl): OracleRdbmsTest upgrade `Failed requests expected <0> but was <N>` with ORA-12516 (also on main), or
   a testcontainers/ryuk pull failure erroring all 4 variants at upgrade:53 (runner degraded); rerun once either way.
 - IT (studio): WebStudioTest.simple failed requests at ~10002ms (client timeout); Jetty hang; rerun.
@@ -213,9 +212,8 @@
 
 ## Container facts
 
-- No `gh` CLI: use the GitHub MCP tools (pull_request_read, update_pull_request, add_issue_comment, actions_list,
-  get_job_logs); job logs 404 while in_progress and the log API returns only the tail. No Actions-write tool exists,
-  so a CI rerun cannot be triggered from here at all.
+- No `gh` CLI: use GitHub MCP (pull_request_read, update_pull_request, add_issue_comment, actions_list, get_job_logs);
+  job logs 404 while in_progress and return only the tail. No Actions-write tool: a CI rerun cannot be triggered here.
 - Cold ~/.m2 at session start: the first `-T2` build needs the network (27 min wall clock with tests) and -Daether.syncContext.named.time=600, or resolution fails with "Could not acquire lock(s)"; never -o before that build.
 - After a build failure, `mvn -rf :<module>` cannot resolve the banned siblings or the never-installed rules.test → rerun the whole `mvn install` (no clean, ~10 min warm).
 - Container presets gpg.format=ssh, commit.gpgsign=true; JGit has no ssh signer → repository.git tests die and every module after it is skipped. Unset both **globally** (`git config --global --unset`) before the build; a local unset in the clone is not enough and env overrides do not reach JGit.
@@ -258,8 +256,7 @@
 - .gitignore/.gitconfig/.gitattributes/.editorconfig, package.json fields, eslint/vite/vitest config imports: done.
 - DEMO/** assets and archetype scripts/ all referenced; Docs/** pages none orphaned (sidebar from site.pages, full-content search); Jekyll _includes/_layouts/_data all referenced.
 - Static html/css/js outside webstudio (WSFrontend static/, DEMO/webapps/ROOT): covered by the CSS-rule and inline-style passes; studio-ui has no plain stylesheets.
-- EPBDS-16560 residue (21 JSF beans, 7 .xhtml, response-monitor.js) and EPBDS-16576 residue (5 JSF diff pages, 13
-  controllers, diff2html, legacyCompare.ts): both swept for every change type; nothing left, all of it merged in 2104.
+- EPBDS-16560 and EPBDS-16576 residue: both swept for every change type, nothing left.
 
 ## Human follow-ups
 
@@ -272,14 +269,12 @@
 - Confirm EPBDS-16309 authorises the OpenL2TextUtils removal (decision came from a sweep state file, not Jira).
 - CI health: every entry under CI flakes deserves a real fix; the kafka-native `setup` segfault is the costliest.
 - OverviewPanel.tsx floating promise into a state setter (~lines 799/1231) is a real test defect at any speed.
-- Public unused members awaiting a decision: see Deferred findings. Dependency hygiene PR (additions, never this
-  sweep): declare commons-lang3 (openapi-parser, project.openapi, validation.openapi), groovy test,
-  org.openl.rules.project, and spring-core in ruleservice.ws.common, whose only path today is org.openl.rules.jackson.
-- Stale branches dead-code/uncalled-methods, -internal-methods, -openapi-layouts-residue (closed #2103) need a human:
-  `push --delete` is refused every run (403 / remote hung up) and no MCP branch-delete tool exists — stop probing.
+- Dependency hygiene PR (additions, never this sweep): declare commons-lang3 (openapi-parser, project.openapi,
+  validation.openapi), groovy test, org.openl.rules.project, spring-core in ruleservice.ws.common (via rules.jackson).
+- Three stale `dead-code/*` branches await a human delete: `push --delete` is 403 here, no MCP tool — never probe.
 
 ## Run log
 
 - 2026-09-15 c: #2109 rebase-merged onto main 2d6ad165e74; queue row 11 closed; at 291.
-- 2026-09-15 d-g: four no-ops on unmoved main 2781e274f8, whose newest 3 commits are dependabot pom bumps; no
-  dead-code PR open, #2105 still draft at 96 commits, stale-branch delete refused again and now retired; at 285.
+- 2026-09-15 d-g: four no-ops on unmoved main 2781e274f8 (newest commits are dependabot pom bumps); at 285.
+- 2026-09-16 a: no-op on the same head; no dead-code PR open, #2105 still draft; compaction only; at 280.
