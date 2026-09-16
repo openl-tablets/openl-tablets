@@ -69,13 +69,13 @@ const useStyles = createStyles(({ css, token }) => ({
         display: inline-flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 4px 14px;
-        font-size: 12px;
+        gap: ${token.marginXXS}px ${token.margin - 2}px;
+        font-size: ${token.fontSizeSM}px;
     `,
     compileItem: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXXS}px;
         color: ${token.colorTextSecondary};
     `,
     compileNum: css`
@@ -90,11 +90,11 @@ const useStyles = createStyles(({ css, token }) => ({
     indexingToggle: css`
         height: auto;
         padding: 0;
-        font-size: 12px;
+        font-size: ${token.fontSizeSM}px;
     `,
     /** Keeps the indexing notice off the search box below it, in the header's own rhythm. */
     indexingBanner: css`
-        margin-bottom: 12px;
+        margin-bottom: ${token.marginSM}px;
     `,
     content: css`
         position: relative;
@@ -107,12 +107,12 @@ const useStyles = createStyles(({ css, token }) => ({
     paginationBar: css`
         display: flex;
         justify-content: flex-end;
-        padding: 10px 16px;
+        padding: ${token.paddingXS}px ${token.padding}px;
         border-top: 1px solid ${token.colorBorderSecondary};
         background: ${token.colorBgContainer};
     `,
     gridPad: css`
-        padding: 16px;
+        padding: ${token.padding}px;
     `,
 }))
 

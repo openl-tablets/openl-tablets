@@ -24,3 +24,17 @@ export const readThemeMode = (): ThemeMode => {
 
 /** Remembers the picked appearance for the next visit. */
 export const storeThemeMode = (mode: ThemeMode): void => writeStored(THEME_MODE_KEY, mode)
+
+/** Where the picked density is remembered between visits. */
+export const THEME_COMPACT_KEY = 'openl.theme.compact'
+
+/**
+ * Whether the compact density was picked.
+ *
+ * The comfortable density is the default, so anything but a stored `true` — nothing picked yet, a browser
+ * that refuses storage, a value this version does not know — leaves the application comfortable.
+ */
+export const readCompactMode = (): boolean => readStored(THEME_COMPACT_KEY) === 'true'
+
+/** Remembers the picked density for the next visit. */
+export const storeCompactMode = (compact: boolean): void => writeStored(THEME_COMPACT_KEY, String(compact))

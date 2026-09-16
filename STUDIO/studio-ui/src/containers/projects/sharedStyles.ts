@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style'
-import { useListPageStyles } from '../../styles/listPageStyles'
+import { captionSize, useListPageStyles } from '../../styles/listPageStyles'
 import { MOCKUP } from './projectsTheme'
 
 /**
@@ -19,27 +19,27 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
     linedList: css`
         list-style: none;
         margin: 0;
-        padding: 0 0 0 12px;
+        padding: 0 0 0 ${token.paddingSM}px;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: ${token.marginXXS}px;
         min-width: 0;
         border-left: 2px solid ${token.colorBorderSecondary};
     `,
     linedItem: css`
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: ${token.marginXS}px;
         min-width: 0;
         word-break: break-word;
     `,
     /**
-     * The explicit compact (12px) value size, for the few places that opt into it directly (module cells,
+     * The explicitly smaller value size, for the few places that opt into it directly (module cells,
      * patterns, source paths, the rail count). `ValueText` itself inherits its context size instead.
      */
     valueText: css`
-        font-size: 12px;
-        line-height: 18px;
+        font-size: ${token.fontSizeSM}px;
+        line-height: ${token.lineHeightSM};
     `,
     /** Single-line clipping. */
     ellipsis: css`
@@ -54,9 +54,9 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
     paneHeader: css`
         display: flex;
         align-items: center;
-        gap: 8px;
-        min-height: 56px;
-        padding: 12px;
+        gap: ${token.marginXS}px;
+        min-height: ${token.controlHeight + token.padding + token.paddingXS}px;
+        padding: ${token.paddingSM}px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     /** A column that fills its parent and clips instead of stretching it — the body of a pane. */
@@ -76,20 +76,20 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: ${token.marginXS}px;
         text-align: center;
         color: ${token.colorTextTertiary};
 
         .anticon {
-            font-size: 32px;
+            font-size: ${token.fontSizeHeading2}px;
             color: ${token.colorTextQuaternary};
         }
     `,
     /** A compact tag: no margin, chip-sized text, so several fit on one row without stretching it. */
     chipTag: css`
         margin: 0;
-        font-size: 11px;
-        line-height: 18px;
+        font-size: ${captionSize(token.fontSizeSM)}px;
+        line-height: ${captionSize(token.fontSizeSM) + 7}px;
     `,
     /**
      * A full-width compact pair — a text control with the button hanging off its end. The control
@@ -119,7 +119,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
     `,
     /** A dashed box standing in for a list that has nothing in it yet. */
     dashedEmpty: css`
-        padding: 24px;
+        padding: ${token.paddingLG}px;
         border: 1px dashed ${token.colorBorder};
         border-radius: ${token.borderRadiusLG}px;
         text-align: center;
@@ -147,8 +147,8 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 16px;
-        font-size: 14px;
+        padding: ${token.paddingSM}px ${token.padding}px;
+        font-size: ${token.fontSize}px;
         font-weight: 600;
     `,
     /** The scrolling body of the rail. */
@@ -156,16 +156,16 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         flex: 1;
         min-height: 0;
         overflow: auto;
-        padding-bottom: 12px;
+        padding-bottom: ${token.paddingSM}px;
     `,
     /** One selectable line of the rail: a facet value, a repository. */
     railRow: css`
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: ${token.marginXS}px;
         width: 100%;
         margin: 0;
-        padding: 4px 6px;
+        padding: ${token.paddingXXS}px ${token.paddingXS}px;
         border: none;
         border-radius: ${token.borderRadiusSM}px;
         background: transparent;
@@ -173,7 +173,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         /* A native <button> does not inherit the font family; without this its text drops to the
            browser's control font, since the app loads no CSS reset. */
         font-family: inherit;
-        font-size: 14px;
+        font-size: ${token.fontSize}px;
         text-align: left;
 
         &:hover {
@@ -221,21 +221,21 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         }
 
         .ant-tree-indent-unit {
-            width: 12px;
+            width: ${token.paddingSM}px;
         }
 
         .ant-tree-switcher {
-            width: 18px;
-            line-height: 24px;
+            width: ${token.controlHeightSM - 6}px;
+            line-height: ${token.controlHeightSM}px;
         }
 
         .ant-tree-node-content-wrapper {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            min-height: 24px;
-            line-height: 24px;
-            padding: 0 4px;
+            gap: ${token.marginXXS}px;
+            min-height: ${token.controlHeightSM}px;
+            line-height: ${token.controlHeightSM}px;
+            padding: 0 ${token.paddingXXS}px;
             overflow: visible;
         }
 
@@ -248,7 +248,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
 
         .ant-tree-iconEle {
             width: auto;
-            line-height: 24px;
+            line-height: ${token.controlHeightSM}px;
         }
     `,
     /** Everything to the right of the rail. */
@@ -296,7 +296,7 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: ${token.marginXS}px;
         flex: 1;
         min-width: 0;
         padding: 0;

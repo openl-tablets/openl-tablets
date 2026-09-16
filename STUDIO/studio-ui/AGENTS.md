@@ -75,6 +75,11 @@ The build writes two pages (`build.rollupOptions.input`):
   appearance through. A bare Ant Design `ConfigProvider` is not enough: `createStyles` takes its token from the
   nearest **antd-style** provider, so a `ConfigProvider` would restyle the Ant Design components and leave the
   co-located styles on the application-wide token.
+- **Density**: the same `ThemeSwitch` offers the compact density, remembered in `localStorage` under
+  `openl.theme.compact`. It is an Ant Design *algorithm*, not a set of tokens, so it is added through
+  `densityTheme(compact)` from `AppThemeProvider` and read with `useAppTheme()`. antd-style builds the algorithm
+  chain as `[appearance, ...theme.algorithm]`, and a nested provider starts that chain again — so **every scoped
+  theme merges `densityTheme(compact)` in**, or its area stays comfortable inside a compact application.
 
 ## Development
 

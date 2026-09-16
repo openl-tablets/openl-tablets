@@ -58,54 +58,54 @@ const STATUS_ORDER: ProjectStatus[] = [
 
 const useStyles = createStyles(({ css, token }) => ({
     section: css`
-        padding: 4px 16px 8px;
+        padding: ${token.paddingXXS}px ${token.padding}px ${token.paddingXS}px;
     `,
     /** A branch facet row: the name reads in the rail's own colour and size, only the marks are borrowed. */
     branchFacet: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXXS}px;
         min-width: 0;
     `,
     /** The group caption row; its type comes from {@link useSharedStyles.microLabel}. */
     sectionHead: css`
         display: flex;
         align-items: center;
-        gap: 4px;
-        margin: 0 0 6px;
+        gap: ${token.marginXXS}px;
+        margin: 0 0 ${token.marginXXS}px;
     `,
     /** The fold chevron of the group head, sized down; the rest is {@link useSharedStyles.sectionToggle}. */
     sectionToggle: css`
-        gap: 6px;
+        gap: ${token.marginXXS}px;
 
         .anticon {
-            font-size: 10px;
+            font-size: ${token.fontSizeIcon - 2}px;
         }
     `,
     divider: css`
-        margin: 0 16px;
+        margin: 0 ${token.margin}px;
         border-top: 1px solid ${token.colorBorderSecondary};
     `,
     headActions: css`
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: ${token.marginXXS}px;
     `,
     hidden: css`
-        padding: 4px 12px 16px;
+        padding: ${token.paddingXXS}px ${token.paddingSM}px ${token.padding}px;
     `,
     /** The caption above the put-away groups; its type comes from {@link useSharedStyles.microLabel}. */
     hiddenHead: css`
-        padding: 0 4px 2px;
+        padding: 0 ${token.paddingXXS}px ${token.paddingXXS / 2}px;
     `,
     hiddenRow: css`
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        padding: 2px 4px;
+        gap: ${token.marginXS}px;
+        padding: ${token.paddingXXS / 2}px ${token.paddingXXS}px;
         color: ${token.colorTextTertiary};
-        font-size: 12px;
+        font-size: ${token.fontSizeSM}px;
     `,
     label: css`
         flex: 1;

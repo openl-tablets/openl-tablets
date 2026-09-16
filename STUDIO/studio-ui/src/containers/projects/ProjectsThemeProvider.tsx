@@ -1,6 +1,7 @@
 import { useCallback, type PropsWithChildren } from 'react'
 import { ThemeProvider, useThemeMode, type ThemeAppearance } from 'antd-style'
 import { projectsTheme } from './projectsTheme'
+import { densityTheme, useAppTheme } from '../../providers/AppThemeProvider'
 
 /**
  * Scopes the mockup-matching theme to the Projects tab. Wrapping only the two `/projects` route elements
@@ -12,11 +13,17 @@ import { projectsTheme } from './projectsTheme'
  * Design components but leave the co-located styles on the application-wide token.
  *
  * The appearance the user picked is passed straight through, so the Projects screens turn light or dark
- * with the rest of the application and keep following the system under `auto`.
+ * with the rest of the application and keep following the system under `auto`. The density is merged in
+ * for the same reason: a theme of its own replaces the algorithm chain, so without it the Projects screens
+ * would stay comfortable inside a compact application.
  */
 export const ProjectsThemeProvider = ({ children }: PropsWithChildren) => {
     const { themeMode } = useThemeMode()
-    const theme = useCallback((appearance: ThemeAppearance) => projectsTheme(appearance === 'dark'), [])
+    const { compact } = useAppTheme()
+    const theme = useCallback(
+        (appearance: ThemeAppearance) => ({ ...projectsTheme(appearance === 'dark'), ...densityTheme(compact) }),
+        [compact]
+    )
 
     return <ThemeProvider theme={theme} themeMode={themeMode}>{children}</ThemeProvider>
 }
