@@ -48,6 +48,12 @@ i18next.addResourceBundle('en', 'common', {
         tags: 'Tags',
         mail: 'Mail',
     },
+    theme: {
+        title: 'Theme',
+        light: 'Light',
+        dark: 'Dark',
+        system: 'Follow System',
+    },
     user_menu: {
         my_profile: 'My Profile',
         my_settings: 'My Settings',

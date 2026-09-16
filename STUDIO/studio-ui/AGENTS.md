@@ -27,7 +27,7 @@ src/
 ├── components/          # Reusable widgets (accessManagement/, form/, modal/, schemaForm/, values/, shared)
 ├── containers/          # Feature screens (System, Security, Users, Groups, Tags, Repositories, Trace, execution, Merge…)
 ├── contexts/            # PermissionContext, SystemContext, GroupsContext
-├── providers/           # SecurityProvider (wraps app with SystemContext + PermissionContext)
+├── providers/           # AppThemeProvider (light/dark appearance), SecurityProvider (SystemContext + PermissionContext)
 ├── hooks/               # Shared hooks (forms, global events, websocket, scripts)
 ├── layouts/             # DefaultLayout, AdministrationLayout
 ├── pages/               # Standalone routes (403/404/500, Login)
@@ -45,8 +45,8 @@ src/
 The build writes two pages (`build.rollupOptions.input`):
 
 1. `index.html` → `index.tsx` initializes i18n and mounts `App` into `#appRoot`.
-2. `App` fetches the user profile, blocks rendering until auth completes, then mounts the router inside Ant Design's
-   `App` provider and initializes WebSocket notifications.
+2. `App` fetches the user profile, blocks rendering until auth completes, then mounts the router inside
+   `AppThemeProvider` and Ant Design's `App` provider, and initializes WebSocket notifications.
 3. `api-docs.html` → `api-docs.tsx` mounts `ApiDocs` alone. The REST API documentation is read without logging in,
    so it carries no shell, no router and no auth bootstrap; the server answers `/api-docs` with this page and
    redirects the former `/rest/api-docs` to it.
@@ -67,6 +67,14 @@ The build writes two pages (`build.rollupOptions.input`):
   `createStyles(({ css }) => ({ ... }))`; consume with `const { styles, cx } = useStyles()` and apply via
   `className={styles.foo}`. Global styles use `createGlobalStyle` (see `src/App.styles.ts`, mounted as
   `<AppStyles />` inside `<AntApp>`). Prefer component-level scoped styles over global overrides.
+- **Appearance**: `AppThemeProvider` (antd-style `ThemeProvider`) gives the application the light or dark appearance
+  the user picked in the header's `ThemeSwitch`, or the one the operating system asks for. The choice lives in
+  `localStorage` under `openl.theme.mode` (`utils/themeMode.ts`), defaulting to `auto`. Read the appearance with
+  `useThemeMode()` from antd-style, or `isDarkMode` inside `createStyles`.
+  A theme scoped to one area (`ProjectsThemeProvider`) nests another antd-style `ThemeProvider` and passes the
+  appearance through. A bare Ant Design `ConfigProvider` is not enough: `createStyles` takes its token from the
+  nearest **antd-style** provider, so a `ConfigProvider` would restyle the Ant Design components and leave the
+  co-located styles on the application-wide token.
 
 ## Development
 
@@ -152,6 +160,14 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 - Use the `apiCall` wrapper, never raw `fetch`.
 - Guard screens with `PermissionContext` and `SystemContext` flags.
 - Add translations from day one — no hardcoded user-facing strings.
+- **Colours follow the appearance.** Never hardcode a colour in a style — take an Ant Design token
+  (`createStyles(({ token }) => ...)`), or, for an OpenL hue with no token, `LIST_PAGE_COLORS` from
+  `styles/listPageTheme.ts`. Its values are `var(--openl-*)` custom properties that `AppStyles` republishes when the
+  appearance changes, so a style that uses them repaints with the theme. A new colour is added to **both**
+  `LIGHT_PALETTE` and `DARK_PALETTE`. Ant Design derives whole palettes from a colour and cannot read a custom
+  property, so a `ThemeConfig` token takes the palette itself — see `projectsTheme(isDarkMode)`.
+  Ant Design's **static** `notification`/`message`/`Modal` calls stay light on a dark page: they are made outside
+  React and cannot consume the dynamic theme. Fixing that means routing them through `App.useApp()`.
 - **Form field labels** use the shared `FieldRow` component (right-aligned `Label :` with the required
   asterisk to the left), matching the create-project modal and the administration screens.
 - **Label casing.** A label of **at most three words** (not counting the articles `a`/`an`/`the`) is written in
