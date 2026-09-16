@@ -2,9 +2,10 @@
 
 ## Resume point
 
-- Swept head is `origin/main` 2781e274f8; no open PR, every change type done, every detector exhausted at that head.
-  Five runs have now found that same SHA: check it first, and when it matches, do not re-run a single detector.
-- When `main` gains code: diff against 2781e274f8, then rerun PMD, the identifier index and ASM on changed files
+- Swept head is `origin/main` 0429b91136; no open PR, every change type done, every detector exhausted at that head.
+  The only commits since 2781e274f8 are three dependabot version-property bumps in the root pom, so nothing re-opened.
+  Six runs have now found no code to sweep: compare the head first, and when the diff is pom properties only, stop.
+- When `main` gains code: diff against 0429b91136, then rerun PMD, the identifier index and ASM on changed files
   only. Draft #2105 "EPBDS-16599 Move editor from JSF to React" is the next expected vein — on its merge sweep the
   JSF editor pages, their beans and the images, CSS and JS only they reached, as 16560/16576 residue was swept.
 
@@ -59,7 +60,9 @@
 - Same-class or super-forwarding callers only: DependencyOpenClass.getTypes/findType, CastingCustomSpreadsheetResultField.getDeclaringClass, SidExistsValidator.isValid, MethodUtil.printMethod(IOpenMethodHeader,StringBuilder,Function), SpreadsheetCell.isValueCell.
 - Unused class type parameters on public types: ReturnOperation, IStorage, ProjectService.
 - MappedRepository.create(Repository,String): the 2-arg overload now forwards `false`; only its own tests call it.
-- Sonar S1130 16 public/protected throws clauses nothing throws; S1172 229 unused params (159 public/protected, 52 test, 7 pkg-private).
+- Sonar S1130 (129) and S1172 (228) are closed, not pending: dropping an unthrown `throws` or an unused parameter is a
+  signature edit, never a deletion. 115 S1130 hits are package-private and 111 sit in tests, where `throws Exception` on
+  a JUnit method is deliberate style; the public/protected ones need a ticket. Do not re-derive either rule.
 - MergeResult record: `status` component ignored by the compact constructor; removing it changes a public record signature.
 - ServiceManagerImpl.deploy: second `serviceDescriptionInProcess` write is a no-op only if createService cannot re-enter deploy.
 - GitRepository visitors `result = null` in catch: dead store whose removal leaves an empty catch (Sonar S108); keep.
@@ -193,6 +196,7 @@
 - Icons by literal path (rules-tree, site.webmanifest); ITEST 001-Get-Static-CSS asserts only status/content-type of common.css.
 - War reachability is WEB-INF/lib, not compile: repositories are instantiated reflectively by class name from production-repository.factory.
 - SLF4J bridge log4j-slf4j2-impl runtime scope pinned by Log4jRoutingTest; swagger-core-jakarta is the deliberate substitute (root excludes swagger-core).
+- The `lz4.version` property and its `at.yawk.lz4:lz4-java` managed entry are a CVE pin overriding Kafka's transitive version; the pom comment states when it may go.
 
 ## CI flakes
 
@@ -250,7 +254,10 @@
 - Java: protected members of final classes, public members of .internal. packages: none; pkg-private top-level (246) and nested (318) publics all called.
 - Java: enum constants all alive except XlsProjectionType (deferred); classes with no bytecode reference (22) all reflection fixtures/inheritors/@Delegate excludes.
 - Java: JavaDoc tags, @SuppressWarnings keys, bare super(), empty default ctors, UnnecessaryBooleanAssertion: done; UnnecessaryFullyQualifiedName/UselessParentheses are rewrites, not deletions. STUDIO type scan (532 non-webstudio + 876 webstudio types): every zero-reference hit is a JUnit class, a Spring bean or a published jar's public type (deferred); only UiConst was deletable.
-- SonarCloud on main: S125 done (39 kept); S1128/S1116/S3985/S1596/css:S4658 zero; S1068/S1481/S1854/S1144/S2094/S1119/S3626 all FP or deferred.
+- SonarCloud on main: S125 done (39 kept). Its 254 still-open hits are not a vein — 173 are constrainer Javadoc prose
+  (the class docs embed pseudo-code) and the rest are stale line ranges; only 3 vestigial `// throws Failure` trailing
+  comments exist repo-wide, kept as signature history. Do not reopen S125 on the raw count.
+- SonarCloud on main: S1128/S1116/S3985/S1596/css:S4658 zero; S1068/S1481/S1854/S1144/S2094/S1119/S3626 all FP or deferred.
 - Test workbooks outside ITEST/test-resources/it (254): only 3 folder-loaded ones unmentioned; non-workbook test/ files (3) live.
 - Commented-out code: Java main+test, CSS, JS done; XHTML/TS none. Dead suppressions: 137 undecidable (category unchecked).
 - .gitignore/.gitconfig/.gitattributes/.editorconfig, package.json fields, eslint/vite/vitest config imports: done.
@@ -275,6 +282,7 @@
 
 ## Run log
 
-- 2026-09-15 c: #2109 rebase-merged onto main 2d6ad165e74; queue row 11 closed; at 291.
 - 2026-09-15 d-g: four no-ops on unmoved main 2781e274f8 (newest commits are dependabot pom bumps); at 285.
 - 2026-09-16 a: no-op on the same head; no dead-code PR open, #2105 still draft; compaction only; at 280.
+- 2026-09-16 b: main 0429b91136 adds only 3 dependabot pom bumps; verified the S125 "done" claim against Sonar's 254
+  and closed S1130/S1172 as signature edits; no code change; at 288.
