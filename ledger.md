@@ -28,12 +28,12 @@
 
 ## Open PR
 
-- Branch `dead-code/repo-sweep`, PR #2119, head af219865d4, 4 commits, 82 deleted lines.
-- 90c602528b Remove commented-out code that no longer matches any live member
-- 20ed35feb3 Drop translation and OpenAPI description keys that no screen or endpoint reads
-- 3b9af410a5 Remove private table-counting helpers that the React editor migration left uncalled
-- af219865d4 Remove a duplicate assignment of the service description in progress
-- No review thread yet.
+- Branch `dead-code/repo-sweep`, PR #2119, head 32bea2b6b9, 4 commits, 73 deleted lines.
+- 135a53efae Remove commented-out code that no longer matches any live member
+- 133786c4d6 Drop translation and OpenAPI description keys that no screen or endpoint reads
+- 315203a96f Remove private table-counting helpers that the React editor migration left uncalled
+- 32bea2b6b9 Remove a duplicate assignment of the service description in progress
+- Four maintainer threads (keep the debug toggles) answered and resolved; none left open.
 
 ## Merged PRs
 
@@ -87,6 +87,9 @@
 
 ## Keep-list
 
+- Commented-out debug toggles are maintained conveniences, never dead: the OpenAPI bulk-update block in ITEST
+  `HttpClient` and the `files = new File[] {...}` single-folder toggles in `RulesInFolderTestRunner`,
+  `OpenAPIGenerationTest`, `OpenAPIProjectCreatorTest` (maintainer decision on PR #2119).
 - Convention-loaded resources: Flyway SQL under `db/flyway`, `openl-db-repository-<dialect>.properties`,
   `archetype-metadata.xml`, `META-INF/cxf/org.apache.cxf.Logger`, `META-INF/spring.factories`,
   `META-INF/openl/extension-*-beans.xml`.
@@ -103,6 +106,8 @@
 ## Container facts
 
 - `gh` is absent — use the GitHub MCP tools for PRs, comments and checks.
+- The sandbox rewrites `~/.gitconfig` user.name to `Claude` between commands — pass `GIT_AUTHOR_*` and
+  `GIT_COMMITTER_*` inline on every `git commit` and `git rebase`, then verify with `git log -1 --pretty='%an|%cn'`.
 - `~/.gitconfig` sets `commit.gpgsign=true` with `gpg.format=ssh`; JGit tests fail with "No signer for ssh
   signatures" — run `git config --global commit.gpgsign false` before Maven and restore `true` afterwards.
 - The JVM default charset is not UTF-8; `ZipArchiveValidatorTest` fails on a non-ASCII file name — prefix every
@@ -130,4 +135,4 @@
 ## Run log
 
 - 2026-09-16 g: ledger reset to zero on the owner's instruction; full re-sweep started from `origin/main` 737e6794be.
-- 2026-09-16 h: types 1, 2, 3, 10 swept and committed, 7, 11 found empty; PR #2119 opened with 4 commits.
+- 2026-09-16 h: types 1, 2, 3, 10 swept and committed, 7, 11 found empty; PR #2119 opened with 4 commits; maintainer kept four debug toggles.
