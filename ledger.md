@@ -125,7 +125,9 @@
 - Dead vs live `exclusion`: the reactor tree hides duplicates; resolve the dependency alone with dependency:tree -Dverbose in a scratch pom.
 - RedundantFieldInitializer unsafe when a superclass constructor makes a virtual call (ComponentOpenClass/ADynamicClass addField).
 - Sonar S3626/UnnecessaryReturn: `synchronized(this){return;}` and symmetric chain arms are load-bearing; drain loops are not empty statements.
-- CodeRabbit walkthroughs invent behavior changes on comment-only diffs → answer with `git diff --numstat` (0 insertions).
+- CodeRabbit's walkthrough restates a deletion-only diff as "Removed Capabilities" (and a comment-only one as a
+  behavior change) even while its own review reports no actionable comments and minimal merge risk. Correct it once,
+  with `git diff --numstat` (0 insertions) and the surviving path for each named feature, so no reviewer reads it as lost work.
 - Dead suppression check: remove all, recompile; TS @ts-ignore mostly real (exactOptionalPropertyTypes antd conflicts).
 - Resource base names that match nothing but are alive by convention: Flyway `db/flyway/**`, spring.factories, extension-*.xml, archetype-metadata.xml, META-INF/cxf/*.
 
