@@ -1,25 +1,31 @@
 import { describe, expect, it } from 'vitest'
 import { theme as antdTheme } from 'antd'
 import { projectsTheme } from './projectsTheme'
-import { DARK_PALETTE, LIGHT_PALETTE } from '../../styles/listPageTheme'
+import { DARK_PALETTE, EVERGREEN_LIGHT_PALETTE, LIGHT_PALETTE } from '../../styles/listPageTheme'
 
 describe('projectsTheme', () => {
-    it('paints the Projects screens in the palette of the appearance in force', () => {
-        expect(projectsTheme(false).token?.colorText).toBe(LIGHT_PALETTE.text)
-        expect(projectsTheme(false).token?.colorBgLayout).toBe(LIGHT_PALETTE.pageBg)
-        expect(projectsTheme(true).token?.colorText).toBe(DARK_PALETTE.text)
-        expect(projectsTheme(true).token?.colorBgLayout).toBe(DARK_PALETTE.pageBg)
+    it('paints the Projects screens in the palette it is handed', () => {
+        expect(projectsTheme(LIGHT_PALETTE).token?.colorText).toBe(LIGHT_PALETTE.text)
+        expect(projectsTheme(LIGHT_PALETTE).token?.colorBgLayout).toBe(LIGHT_PALETTE.pageBg)
+        expect(projectsTheme(DARK_PALETTE).token?.colorText).toBe(DARK_PALETTE.text)
+        expect(projectsTheme(DARK_PALETTE).token?.colorBgLayout).toBe(DARK_PALETTE.pageBg)
+    })
+
+    it('follows the picked theme, not only the appearance', () => {
+        expect(projectsTheme(EVERGREEN_LIGHT_PALETTE).token?.colorPrimary).toBe(EVERGREEN_LIGHT_PALETTE.primary)
+        expect(projectsTheme(EVERGREEN_LIGHT_PALETTE).token?.colorPrimary)
+            .not.toBe(projectsTheme(LIGHT_PALETTE).token?.colorPrimary)
     })
 
     it('hands Ant Design real colours, never a custom property it cannot derive a palette from', () => {
-        const { token } = projectsTheme(true)
+        const { token } = projectsTheme(DARK_PALETTE)
 
         expect(token?.colorPrimary).toBe(DARK_PALETTE.primary)
         expect(JSON.stringify(token)).not.toContain('var(--')
     })
 
     it('states its measurements as seed tokens, so a density can still scale them', () => {
-        const config = projectsTheme(false)
+        const config = projectsTheme(LIGHT_PALETTE)
 
         // A measurement named under `components` is put back verbatim after the algorithm has run, so it
         // would stand at its comfortable size on a compact screen. Only the seed may carry one.
@@ -31,7 +37,7 @@ describe('projectsTheme', () => {
     })
 
     it('tightens its controls and its type at the compact density', () => {
-        const config = projectsTheme(false)
+        const config = projectsTheme(LIGHT_PALETTE)
         const comfortable = antdTheme.getDesignToken(config)
         const compact = antdTheme.getDesignToken({ ...config, algorithm: antdTheme.compactAlgorithm })
 
@@ -43,8 +49,9 @@ describe('projectsTheme', () => {
         expect(compact.controlHeight).toBe(32)
     })
 
-    it('keeps the same shape in both appearances', () => {
-        expect(projectsTheme(true).token?.borderRadius).toBe(projectsTheme(false).token?.borderRadius)
-        expect(projectsTheme(true).token?.controlHeight).toBe(projectsTheme(false).token?.controlHeight)
+    it('keeps the same shape under every palette', () => {
+        expect(projectsTheme(DARK_PALETTE).token?.borderRadius).toBe(projectsTheme(LIGHT_PALETTE).token?.borderRadius)
+        expect(projectsTheme(EVERGREEN_LIGHT_PALETTE).token?.controlHeight)
+            .toBe(projectsTheme(LIGHT_PALETTE).token?.controlHeight)
     })
 })

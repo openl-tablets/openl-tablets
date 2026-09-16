@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
     DEFAULT_THEME_MODE,
+    DEFAULT_THEME_NAME,
     readCompactMode,
     readThemeMode,
+    readThemeName,
     storeCompactMode,
     storeThemeMode,
+    storeThemeName,
     THEME_COMPACT_KEY,
     THEME_MODE_KEY,
+    THEME_NAME_KEY,
 } from './themeMode'
 
 describe('themeMode', () => {
@@ -49,5 +53,29 @@ describe('themeMode', () => {
         localStorage.setItem(THEME_COMPACT_KEY, 'cosy')
 
         expect(readCompactMode()).toBe(false)
+    })
+
+    it('starts in the standard theme until the user picks another', () => {
+        expect(DEFAULT_THEME_NAME).toBe('standard')
+        expect(readThemeName()).toBe('standard')
+    })
+
+    it('remembers the picked theme', () => {
+        storeThemeName('evergreen')
+
+        expect(localStorage.getItem(THEME_NAME_KEY)).toBe('evergreen')
+        expect(readThemeName()).toBe('evergreen')
+    })
+
+    it('falls back to the standard theme when the stored one is no longer offered', () => {
+        localStorage.setItem(THEME_NAME_KEY, 'midnight')
+
+        expect(readThemeName()).toBe('standard')
+    })
+
+    it('falls back to the standard theme when the stored name is one every object answers to', () => {
+        localStorage.setItem(THEME_NAME_KEY, 'toString')
+
+        expect(readThemeName()).toBe('standard')
     })
 })

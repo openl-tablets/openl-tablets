@@ -54,6 +54,10 @@ i18next.addResourceBundle('en', 'common', {
         dark: 'Dark',
         system: 'Follow System',
         compact: 'Compact',
+        names: {
+            standard: 'Standard',
+            evergreen: 'Evergreen',
+        },
     },
     user_menu: {
         my_profile: 'My Profile',

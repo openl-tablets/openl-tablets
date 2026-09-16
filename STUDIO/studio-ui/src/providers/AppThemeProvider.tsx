@@ -1,17 +1,35 @@
 import { createContext, useCallback, useContext, useMemo, useState, type PropsWithChildren } from 'react'
-import { ThemeProvider, type ThemeMode } from 'antd-style'
+import { ThemeProvider, type ThemeAppearance, type ThemeMode } from 'antd-style'
 import { theme as antdTheme, type ThemeConfig } from 'antd'
-import { readCompactMode, readThemeMode, storeCompactMode, storeThemeMode } from '../utils/themeMode'
+import {
+    readCompactMode,
+    readThemeMode,
+    readThemeName,
+    storeCompactMode,
+    storeThemeMode,
+    storeThemeName,
+} from '../utils/themeMode'
+import { appTheme } from '../styles/appTheme'
+import { paletteOf, type ThemeName } from '../styles/listPageTheme'
+import '../styles/customToken'
 
 interface AppTheme {
     /** Whether the application is laid out in the compact density. */
     compact: boolean
     setCompact: (compact: boolean) => void
+    /** The theme whose colours the application is painted in. */
+    themeName: ThemeName
+    setThemeName: (name: ThemeName) => void
 }
 
-const AppThemeContext = createContext<AppTheme>({ compact: false, setCompact: () => {} })
+const AppThemeContext = createContext<AppTheme>({
+    compact: false,
+    setCompact: () => {},
+    themeName: 'standard',
+    setThemeName: () => {},
+})
 
-/** The density the user picked, and the way to change it. */
+/** The theme and the density the user picked, and the way to change them. */
 export const useAppTheme = (): AppTheme => useContext(AppThemeContext)
 
 /**
@@ -28,15 +46,20 @@ export const densityTheme = (compact: boolean): ThemeConfig =>
     (compact ? { algorithm: antdTheme.compactAlgorithm } : {})
 
 /**
- * Gives the whole application the appearance the user picked — light, dark, or the one the operating
- * system asks for — and the density they picked with it.
+ * Gives the whole application the theme the user picked, the appearance they picked — light, dark, or the
+ * one the operating system asks for — and the density they picked with them.
  *
- * Both choices are restored from browser storage on start and written back whenever they change, so they
- * survive a reload. Under `auto` the provider follows the system and repaints when the system switches.
+ * All three choices are restored from browser storage on start and written back whenever they change, so
+ * they survive a reload. Under `auto` the provider follows the system and repaints when the system
+ * switches. The three are independent: any theme is worn in either appearance, at either density.
+ *
+ * The palette of the theme and appearance in force travels down as the `openl` custom token, so a style
+ * that needs a real colour reads it from the theme instead of importing a palette of its own.
  */
 export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     const [themeMode, setThemeMode] = useState<ThemeMode>(readThemeMode)
     const [compact, setCompactState] = useState<boolean>(readCompactMode)
+    const [themeName, setThemeNameState] = useState<ThemeName>(readThemeName)
 
     const onThemeModeChange = useCallback((mode: ThemeMode) => {
         storeThemeMode(mode)
@@ -48,11 +71,32 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
         setCompactState(next)
     }, [])
 
-    const appTheme = useMemo(() => ({ compact, setCompact }), [compact, setCompact])
+    const setThemeName = useCallback((next: ThemeName) => {
+        storeThemeName(next)
+        setThemeNameState(next)
+    }, [])
+
+    const value = useMemo(
+        () => ({ compact, setCompact, setThemeName, themeName }),
+        [compact, setCompact, setThemeName, themeName]
+    )
+
+    const theme = useCallback(
+        (appearance: ThemeAppearance) => ({
+            ...appTheme(paletteOf(themeName, appearance === 'dark')),
+            ...densityTheme(compact),
+        }),
+        [compact, themeName]
+    )
+
+    const customToken = useCallback(
+        ({ appearance }: { appearance: ThemeAppearance }) => ({ openl: paletteOf(themeName, appearance === 'dark') }),
+        [themeName]
+    )
 
     return (
-        <AppThemeContext.Provider value={appTheme}>
-            <ThemeProvider onThemeModeChange={onThemeModeChange} theme={densityTheme(compact)} themeMode={themeMode}>
+        <AppThemeContext.Provider value={value}>
+            <ThemeProvider customToken={customToken} onThemeModeChange={onThemeModeChange} theme={theme} themeMode={themeMode}>
                 {children}
             </ThemeProvider>
         </AppThemeContext.Provider>

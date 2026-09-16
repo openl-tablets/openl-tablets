@@ -1,5 +1,5 @@
 import type { ThemeConfig } from 'antd'
-import { DARK_PALETTE, LIGHT_PALETTE, LIST_PAGE_COLORS, Palette } from '../../styles/listPageTheme'
+import { LIST_PAGE_COLORS, Palette } from '../../styles/listPageTheme'
 
 /**
  * Design tokens of the Projects mockup, as CSS custom properties that follow the appearance in force.
@@ -32,13 +32,12 @@ export const COMPILE_COLORS = {
  * Ant Design theme scoped to the Projects tab only (mounted by {@link ProjectsThemeProvider} around the two
  * `/projects` route elements). It never leaks to the shared Header, Editor or Administration screens.
  *
- * The colours come from the palette of the appearance in force, so the Projects screens follow the theme
- * the user picked. The shape — radii, control height, type — is stated as **seed** tokens, which a density
- * algorithm scales; the same measurement written as a per-component override would stand still while the
- * rest of the screen tightened.
+ * It takes the palette of the theme and appearance in force, so the Projects screens follow both choices.
+ * The shape — radii, control height, type — is stated as **seed** tokens, which a density algorithm scales;
+ * the same measurement written as a per-component override would stand still while the rest of the screen
+ * tightened.
  */
-export const projectsTheme = (isDarkMode: boolean): ThemeConfig => {
-    const palette: Palette = isDarkMode ? DARK_PALETTE : LIGHT_PALETTE
+export const projectsTheme = (palette: Palette): ThemeConfig => {
     return {
         token: {
             colorPrimary: palette.primary,
