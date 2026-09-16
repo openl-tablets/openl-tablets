@@ -90,11 +90,6 @@ class TestIntExpAddArray {
 
     @Test
     void testRemoveValue() {
-        /*
-         * IntExpArray array = new IntExpArray(C, 10, 0, 5, "array"); IntExpAddArray sum = new IntExpAddArray(C, array);
-         * try{ sum.setMin(0); sum.removeValue(0); C.propagate(); assertEquals(1, sum.min()); sum.removeValue();
-         * assertEquals(-49, sum.min()); }catch(Failure f){fail("");}
-         */
     }
 
     @Test
