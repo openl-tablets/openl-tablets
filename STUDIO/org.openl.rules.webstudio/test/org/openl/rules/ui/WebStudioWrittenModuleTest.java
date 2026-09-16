@@ -43,6 +43,19 @@ class WebStudioWrittenModuleTest {
     }
 
     @Test
+    void keepsTheRequestWhenTheReaderReadsAnotherModuleBeforeVerifying() {
+        var studio = studio(false);
+        studio.recompileCurrentModule();
+
+        // The reader goes on to another module before they come back to compile the one they wrote to.
+        doReturn(new Module()).when(studio).getCurrentModule();
+
+        // Opening a module nobody wrote to must not answer the request made for the one they did: the write
+        // would be left compiled from the workbook as it stood before it, with nothing offering to build it.
+        assertTrue(studio.isManualCompileNeeded());
+    }
+
+    @Test
     void buildsTheModuleAgainAfterARefusedWriteWhateverTheSettingSays() {
         var studio = studio(false);
 

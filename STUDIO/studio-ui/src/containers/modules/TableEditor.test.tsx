@@ -130,6 +130,22 @@ describe('TableEditor', () => {
         ], 'Claims'))
     })
 
+    it('writes nothing for a formula cell the reader only looked into', async () => {
+        const computed: RawTableCell[][] = [
+            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 42, formula: '=B2*C2' }, { cell: 'C5', value: 'Good Morning' }],
+        ]
+        draw({ rows: computed })
+
+        // The cell opens on the formula it was written with, and closing it again leaves that formula alone:
+        // what it holds is the formula, not the 42 it computed.
+        await userEvent.dblClick(screen.getByText('42'))
+        expect(screen.getByTestId('table-cell-input')).toHaveValue('=B2*C2')
+        await userEvent.keyboard('{Enter}')
+
+        expect(screen.getByTestId('table-edit-save')).toBeDisabled()
+    })
+
     it('opens a cell on a double click and starts editing', async () => {
         const { onEditingChange } = draw({ editing: false })
 

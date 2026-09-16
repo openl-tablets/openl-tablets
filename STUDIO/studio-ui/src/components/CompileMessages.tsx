@@ -233,6 +233,10 @@ const MessageStacktrace = ({
     const { t } = useTranslation('repository')
     const [open, setOpen] = useState(false)
     const [trace, setTrace] = useState<string | null>(null)
+    // Set where the trace could not be read. Kept apart from the trace itself, so asking again asks the
+    // server again: a read that failed once — a connection dropped, a request refused — is worth retrying,
+    // while a trace already read is not.
+    const [failure, setFailure] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
 
     const toggle = () => {
@@ -245,9 +249,10 @@ const MessageStacktrace = ({
             return
         }
         setLoading(true)
+        setFailure(null)
         load()
             .then(setTrace)
-            .catch(() => setTrace(t('browser.compile.stacktrace_failed')))
+            .catch(() => setFailure(t('browser.compile.stacktrace_failed')))
             .finally(() => setLoading(false))
     }
 
@@ -268,7 +273,7 @@ const MessageStacktrace = ({
             </Button>
             {open && !loading && (
                 <div className={styles.stacktrace} data-testid={testId}>
-                    <MessageText chars={TRACE_CHARS} lines={TRACE_LINES} value={trace ?? ''} />
+                    <MessageText chars={TRACE_CHARS} lines={TRACE_LINES} value={trace ?? failure ?? ''} />
                 </div>
             )}
         </div>

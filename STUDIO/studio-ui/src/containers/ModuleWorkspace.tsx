@@ -131,8 +131,8 @@ export const ModuleWorkspace = () => {
     const [statusReadAt, setStatusReadAt] = useState(0)
     const [loadError, setLoadError] = useState<string | null>(null)
     const [opening, setOpening] = useState(false)
-    const [modules, setModules] = useState<ModuleInfo[]>([])
-    const [loaded, setLoaded] = useState<{ project: string, module: string, tables: ModuleTable[] } | null>(null)
+    const [modules, setModules] = useState<ModuleInfo[] | null>(null)
+    const [loaded, setLoaded] = useState<{ at: string, tables: ModuleTable[] } | null>(null)
     const [table, setTable] = useState<RawTableView | null>(null)
     const [tableError, setTableError] = useState<string | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
@@ -160,9 +160,17 @@ export const ModuleWorkspace = () => {
     // committed since — which the reader is asked about before the write, not told about after it.
     const confirmWrite = useOverwriteConfirm(project)
 
-    // Only the tables read for the module now open count as this screen's — and a module of another project
-    // carrying the same name is another module, whatever it is called.
-    const tables = loaded?.module === moduleName && loaded.project === projectId ? loaded.tables : null
+    // The branch the workspace copy of the project stands on. Switching it checks another copy out, and
+    // everything this screen read of the project — its modules, their tables, how far it has compiled —
+    // belongs to the branch it was read on.
+    const branch = project?.branch ?? null
+
+    // The module on screen, of the copy of the project it was read from: a module of another project, or of
+    // another branch of this one, is another module, whatever it is called.
+    const here = `${projectId} ${branch} ${moduleName}`
+
+    // Only the tables read for the module now open count as this screen's.
+    const tables = loaded?.at === here ? loaded.tables : null
 
     // The table on screen rides in the address, so a link to it opens it again, Back steps between tables, and
     // a refresh keeps the reader where they were.
@@ -227,7 +235,7 @@ export const ModuleWorkspace = () => {
     // spell the same project a little differently, and the channel is named after the server's spelling.
     const compilation = useModuleCompilation(
         project?.id ?? '',
-        project?.branch ?? null,
+        branch,
         moduleName,
         project?.compileStatus ?? null,
         statusReadAt,
@@ -238,16 +246,20 @@ export const ModuleWorkspace = () => {
 
     // Where the module's own workbook is named, so it can be exported. The descriptor does not always spell it
     // out — a project whose modules are discovered by pattern declares none — so the resolved list is read.
+    //
+    // Read once the project is: the list is the branch's, and asking before the project says which branch it
+    // stands on spends a read on a question nobody can answer yet.
+    const read = project !== null
     useEffect(() => {
-        if (!projectId || closed) {
+        if (!projectId || closed || !read) {
             return
         }
         listModules(projectId).then(setModules).catch(() => setModules([]))
-    }, [projectId, closed, reloadToken])
+    }, [projectId, branch, closed, read, reloadToken])
 
     // The tables are read once the module is compiled, so the read answers at once instead of waiting for the
-    // compilation to reach it. They are kept under the module they belong to: moving to another module of the
-    // same project keeps this screen mounted, and the tables left behind are none of the new module's.
+    // compilation to reach it. They are kept under the module they belong to: moving to another module, or to
+    // another branch of the project, keeps this screen mounted, and what it read before is none of theirs.
     //
     // The read on its way is remembered, because until it answers there is nothing to say it was made: anything
     // that moves while it is in flight — the project read again beside it, the compilation saying once more that
@@ -255,21 +267,20 @@ export const ModuleWorkspace = () => {
     // the same session at once, and the second takes the compilation the first is waiting on out from under it.
     const reading = useRef<string | null>(null)
     useEffect(() => {
-        const asked = `${projectId} ${moduleName} ${reloadToken}`
-        if (!projectId || !compilation.ready || reading.current === asked
-                || (loaded?.module === moduleName && loaded.project === projectId)) {
+        const asked = `${here} ${reloadToken}`
+        if (!projectId || !compilation.ready || reading.current === asked || loaded?.at === here) {
             return
         }
         reading.current = asked
         getModuleTables(projectId, moduleName)
-            .then(found => setLoaded({ project: projectId, module: moduleName, tables: found }))
+            .then(found => setLoaded({ at: here, tables: found }))
             .catch((error: unknown) => setLoadError(errorMessage(error)))
             .finally(() => {
                 if (reading.current === asked) {
                     reading.current = null
                 }
             })
-    }, [projectId, moduleName, compilation.ready, loaded, reloadToken])
+    }, [here, projectId, moduleName, compilation.ready, loaded, reloadToken])
 
     // A module opens on a table rather than on an empty canvas: the first one the list carries. The same
     // correction moves off a table named in the address that this module does not hold — the one the module
@@ -340,7 +351,7 @@ export const ModuleWorkspace = () => {
     // this module afresh is what makes the question open again.
     useEffect(() => {
         setProjectCompiled(false)
-    }, [moduleName, reloadToken])
+    }, [branch, moduleName, reloadToken])
 
     useEffect(() => {
         if (isCompiled(compilation.state)) {
@@ -367,7 +378,7 @@ export const ModuleWorkspace = () => {
 
     /** The modules of this project, which the name in the header opens one of. */
     const moduleItems = useMemo(
-        () => modules.map(declared => ({ key: declared.name, label: declared.name, search: declared.name })),
+        () => modules?.map(declared => ({ key: declared.name, label: declared.name, search: declared.name })) ?? null,
         [modules]
     )
 
@@ -532,10 +543,10 @@ export const ModuleWorkspace = () => {
         )
     }
 
-    const modulePath = modules.find(declared => declared.name === moduleName)?.path
+    const modulePath = modules?.find(declared => declared.name === moduleName)?.path
 
     const testCount = compilation.tests
-    const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && !!project.branch
+    const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && branch !== null
 
     const crumbs = (
         <>
@@ -556,7 +567,7 @@ export const ModuleWorkspace = () => {
                 <>
                     <span aria-hidden>/</span>
                     <BranchSwitcher
-                        currentBranch={project.branch ?? ''}
+                        currentBranch={branch ?? ''}
                         currentBranchDefault={project.branchDefault}
                         currentBranchProtected={project.branchProtected}
                         data-testid="crumb-branch"
@@ -769,7 +780,7 @@ export const ModuleWorkspace = () => {
                                 current={moduleName}
                                 emptyText={t('browser.module.module_no_match')}
                                 items={moduleItems}
-                                loading={modules.length === 0}
+                                loading={modules === null}
                                 onSelect={openModule}
                                 searchPlaceholder={t('browser.module.module_filter')}
                                 selectedKey={moduleName}
