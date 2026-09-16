@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNullElse;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -110,7 +111,7 @@ public class StaticResourcesServlet extends HttpServlet {
      * The built page with its scripts swapped for the ones a frontend dev server serves: the build's scripts are
      * the ones it wrote, and there are none of those to serve yet.
      */
-    private static String servedFrom(String built, String entry, String devServer) {
+    static String servedFrom(String built, String entry, String devServer) {
         var root = devServer.endsWith("/") ? devServer.substring(0, devServer.length() - 1) : devServer;
         var scripts = """
                 <script type="module">
@@ -123,8 +124,10 @@ public class StaticResourcesServlet extends HttpServlet {
                 <script type="module" src="%s/@vite/client"></script>
                 <script type="module" src="%s%s"></script>
                 """.formatted(root, root, root, entry);
-        // Everything the build wrote into the head is its own; the dev server serves its own instead.
-        return built.replaceAll("(?s)<script type=\"module\".*?</head>", scripts + "</head>")
+        // Everything the build wrote into the head is its own; the dev server serves its own instead. The
+        // replacement is quoted because the React Refresh preamble names $RefreshReg$ and $RefreshSig$, and a
+        // bare dollar in a replacement stands for a capturing group.
+        return built.replaceAll("(?s)<script type=\"module\".*?</head>", Matcher.quoteReplacement(scripts + "</head>"))
                 .replaceAll("(?s)<link rel=\"modulepreload\".*?>", "");
     }
 }
