@@ -142,9 +142,12 @@
 
 ## CI flakes
 
-- IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was 3" with `ORA-12516: Listener ... does
-  not have a protocol handler for TCP ready` on three consecutive requests while MySQL, PostgreSQL and SQL Server pass;
-  the Oracle container's listener, not the diff. No rerun tool here: a new push is the only retry.
+- IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was N" with `ORA-12516: Listener ... does
+  not have a protocol handler for TCP ready` at `task_EPBDS-16253/030-read-access-revoked/1x0` while MySQL, PostgreSQL and
+  SQL Server pass; hit two consecutive PR heads the same hour main passed it twice. Oracle Free container limit, not the
+  diff; no rerun tool here, a new push is the only retry; the robust fix (container process limit) is a human follow-up.
+- Tests (without ITEST): `ModuleWorkspace.test.tsx` two cases on `module-workspace-error` fail on the CI runner while the
+  same tree passes all 2209 studio-ui tests locally; seen on main b48c862793.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
   `test-resources/... - FAIL` and the cause with `ORA-|SQLException|expected: <`.
 
@@ -167,6 +170,8 @@
 
 ## Human follow-ups
 
+- ORA-12516 in IT (studio-acl) deserves a real fix in the Oracle container setup (process/session limit), and the
+  `ModuleWorkspace.test.tsx` timing failure a source-level fix; both bite green PRs.
 - Dependency hygiene (additions): 293 used-undeclared findings, notably spring-security-core in org.openl.security and
   org.openl.rules.jackson in ruleservice.ws.
 - PMD `Parsing failed in ParseLock#doParse()` on `BranchedProjectIndexService$IndexState` in workspace: a PMD 7 type
