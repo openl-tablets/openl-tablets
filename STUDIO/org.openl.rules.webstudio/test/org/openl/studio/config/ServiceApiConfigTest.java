@@ -23,7 +23,6 @@ import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.Props;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -76,7 +75,6 @@ class ServiceApiConfigTest {
                 mock(SimpleRepositoryAclService.class),
                 mock(ProjectDescriptorArtefactResolver.class),
                 mock(PropertyResolver.class),
-                mock(DeploymentManager.class),
                 mock(ApplicationEventPublisher.class),
                 mock(ProtectedBranchBypassService.class),
                 mock(ProjectIdentifierMapper.class),

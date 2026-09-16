@@ -18,7 +18,6 @@ import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -65,7 +64,6 @@ public class ServiceApiConfig {
                                              @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
                                              ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
                                              PropertyResolver propertyResolver,
-                                             DeploymentManager deploymentManager,
                                              ApplicationEventPublisher eventPublisher,
                                              ProtectedBranchBypassService bypassService,
                                              ProjectIdentifierMapper projectIdentifierMapper,
@@ -84,7 +82,6 @@ public class ServiceApiConfig {
                 productionRepositoryAclService,
                 projectDescriptorArtefactResolver,
                 propertyResolver,
-                deploymentManager,
                 eventPublisher,
                 bypassService,
                 projectIdentifierMapper,
