@@ -1,5 +1,6 @@
 import type { ThemeMode } from 'antd-style'
 import { readStored, writeStored } from './localStore'
+import { THEMES, type ThemeName } from '../styles/listPageTheme'
 
 /** Where the picked appearance is remembered between visits. */
 export const THEME_MODE_KEY = 'openl.theme.mode'
@@ -38,3 +39,27 @@ export const readCompactMode = (): boolean => readStored(THEME_COMPACT_KEY) === 
 
 /** Remembers the picked density for the next visit. */
 export const storeCompactMode = (compact: boolean): void => writeStored(THEME_COMPACT_KEY, String(compact))
+
+/** Where the picked theme is remembered between visits. */
+export const THEME_NAME_KEY = 'openl.theme.name'
+
+/** The theme a user who has not picked one is given. */
+export const DEFAULT_THEME_NAME: ThemeName = 'standard'
+
+// `in` would also answer for `toString` and the rest of the prototype, and a stored name such as that
+// resolves to no palette at all, so only a theme of this version's own counts.
+const isThemeName = (value: string | null): value is ThemeName => value !== null && Object.hasOwn(THEMES, value)
+
+/**
+ * The remembered theme.
+ *
+ * Falls back to {@link DEFAULT_THEME_NAME} when nothing was picked yet, when the browser refuses storage,
+ * or when the stored theme is one this version no longer offers.
+ */
+export const readThemeName = (): ThemeName => {
+    const stored = readStored(THEME_NAME_KEY)
+    return isThemeName(stored) ? stored : DEFAULT_THEME_NAME
+}
+
+/** Remembers the picked theme for the next visit. */
+export const storeThemeName = (name: ThemeName): void => writeStored(THEME_NAME_KEY, name)

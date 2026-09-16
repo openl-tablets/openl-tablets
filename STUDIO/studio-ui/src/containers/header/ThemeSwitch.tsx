@@ -1,9 +1,10 @@
 import { useMemo, type ReactNode } from 'react'
 import { Button, Dropdown, Switch, type MenuProps } from 'antd'
-import Icon, { CompressOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
+import Icon, { BgColorsOutlined, CompressOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { useThemeMode, type ThemeMode } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { useAppTheme } from '../../providers/AppThemeProvider'
+import { paletteOf, THEME_ORDER, type ThemeName } from '../../styles/listPageTheme'
 
 /**
  * A circle with one half filled — the sign an appearance that is neither light nor dark is usually given,
@@ -33,22 +34,31 @@ const MODE_ORDER: readonly ThemeMode[] = ['light', 'dark', 'auto']
 /** The density entry is not an appearance, so it carries a key no {@link ThemeMode} can collide with. */
 const COMPACT_KEY = 'compact'
 
+/** A theme entry is keyed apart from the appearances and the density, which share the same menu. */
+const themeKey = (name: ThemeName): string => `theme:${name}`
+
+const isThemeKey = (key: string): boolean => key.startsWith('theme:')
+
+const themeOf = (key: string): ThemeName => key.slice('theme:'.length) as ThemeName
+
 /**
- * Picks the appearance of OpenL Studio — light, dark, or the one the operating system asks for — and the
- * density it is laid out in.
+ * Picks how OpenL Studio looks: the appearance — light, dark, or the one the operating system asks for —
+ * the theme its colours come from, and the density it is laid out in.
  *
- * The button wears the icon of the appearance in force and opens the three choices; picking one applies it
- * at once and remembers it for the next visit. Under the appearances stands the compact density, which
- * tightens the paddings, the controls and the type so that more fits on a screen. The two are independent:
- * compact holds across light and dark alike.
+ * The button wears the icon of the appearance in force and opens the three groups; picking anything applies
+ * it at once and remembers it for the next visit. The three are independent — a theme is worn in either
+ * appearance, at either density — so the menu offers them as three groups rather than one list of
+ * combinations.
  *
- * The compact row carries a switch that shows the density rather than takes the click — the row itself is
- * the control, so the menu stays one list of choices to a keyboard and a screen reader.
+ * Each theme is shown beside a dot of its own primary colour, drawn in the appearance in force, so the
+ * choice is made by looking rather than by reading. The compact row carries a switch that shows the density
+ * rather than takes the click — the row itself is the control, so the menu stays one list of choices to a
+ * keyboard and a screen reader.
  */
 export const ThemeSwitch = () => {
     const { t } = useTranslation()
-    const { setThemeMode, themeMode } = useThemeMode()
-    const { compact, setCompact } = useAppTheme()
+    const { isDarkMode, setThemeMode, themeMode } = useThemeMode()
+    const { compact, setCompact, setThemeName, themeName } = useAppTheme()
 
     const items: MenuProps['items'] = useMemo(() => [
         ...MODE_ORDER.map(mode => ({
@@ -57,13 +67,29 @@ export const ThemeSwitch = () => {
             label: t(MODE_LABELS[mode]),
         })),
         { type: 'divider' as const },
+        ...THEME_ORDER.map(name => ({
+            icon: <BgColorsOutlined style={{ color: paletteOf(name, isDarkMode).primary }} />,
+            key: themeKey(name),
+            label: t(`common:theme.names.${name}`),
+        })),
+        { type: 'divider' as const },
         {
             extra: <Switch checked={compact} data-testid="theme-compact" size="small" tabIndex={-1} />,
             icon: <CompressOutlined />,
             key: COMPACT_KEY,
             label: t('common:theme.compact'),
         },
-    ], [compact, t])
+    ], [compact, isDarkMode, t])
+
+    const onPick = ({ key }: { key: string }): void => {
+        if (key === COMPACT_KEY) {
+            setCompact(!compact)
+        } else if (isThemeKey(key)) {
+            setThemeName(themeOf(key))
+        } else {
+            setThemeMode(key as ThemeMode)
+        }
+    }
 
     return (
         <Dropdown
@@ -71,8 +97,8 @@ export const ThemeSwitch = () => {
             trigger={['click']}
             menu={{
                 items,
-                onClick: ({ key }) => (key === COMPACT_KEY ? setCompact(!compact) : setThemeMode(key as ThemeMode)),
-                selectedKeys: [themeMode, ...(compact ? [COMPACT_KEY] : [])],
+                onClick: onPick,
+                selectedKeys: [themeMode, themeKey(themeName), ...(compact ? [COMPACT_KEY] : [])],
             }}
         >
             <Button

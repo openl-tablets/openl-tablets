@@ -71,6 +71,13 @@ The build writes two pages (`build.rollupOptions.input`):
   the user picked in the header's `ThemeSwitch`, or the one the operating system asks for. The choice lives in
   `localStorage` under `openl.theme.mode` (`utils/themeMode.ts`), defaulting to `auto`. Read the appearance with
   `useThemeMode()` from antd-style, or `isDarkMode` inside `createStyles`.
+- **Theme**: the same switcher picks which palette the colours come from — `THEMES` in `styles/listPageTheme.ts`,
+  remembered under `openl.theme.name` and defaulting to `standard`. A theme supplies a whole `Palette` per
+  appearance; `paletteOf(name, isDarkMode)` resolves the one in force, `appTheme(palette)` turns it into the
+  application-wide Ant Design tokens, and `AppStyles` republishes it as the `--openl-*` custom properties. Adding a
+  theme means adding one entry to `THEMES` (both appearances, every key) plus its name in `common.en.ts`.
+  The palette in force also travels as the **`openl` custom token** (`styles/customToken.ts`), so a style that
+  needs a real colour reads `token.openl.…` inside `createStyles` instead of importing a palette.
   A theme scoped to one area (`ProjectsThemeProvider`) nests another antd-style `ThemeProvider` and passes the
   appearance through. A bare Ant Design `ConfigProvider` is not enough: `createStyles` takes its token from the
   nearest **antd-style** provider, so a `ConfigProvider` would restyle the Ant Design components and leave the

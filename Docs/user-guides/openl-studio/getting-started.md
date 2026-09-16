@@ -182,19 +182,28 @@ To delete a token, in the tokens list, click the delete icon next to the token a
 
 ### Switching the Theme
 
-OpenL Studio is displayed in a light or a dark theme. To choose one, in the top-right corner, click the theme icon next to the user icon and select an option:
+To change how OpenL Studio looks, in the top-right corner, click the theme icon next to the user icon. The menu offers three independent choices.
 
--   **Light** — always use the light theme
--   **Dark** — always use the dark theme
--   **Follow System** — use the theme the operating system asks for, and switch along with it
+The first group selects the appearance:
 
-Under the themes, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen. It works with any theme.
+-   **Light** — always use the light appearance
+-   **Dark** — always use the dark appearance
+-   **Follow System** — use the appearance the operating system asks for, and switch along with it
 
-![Theme menu opened next to the user icon, offering Light, Dark, Follow System, and a Compact switch](images/theme-switcher.png)
+The second group selects the colour theme, shown beside a dot of its own main colour:
 
-*Choosing the theme and the density*
+-   **Standard** — the OpenL colours
+-   **Evergreen** — a deep teal alternative
 
-New users start with **Follow System** and the comfortable density. Both choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. Using a different browser or computer starts from **Follow System** again.
+Under the themes, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen.
+
+![Theme menu opened next to the user icon, offering Light, Dark, Follow System, the Standard and Evergreen themes, and a Compact switch](images/theme-switcher.png)
+
+*Choosing the appearance, the theme, and the density*
+
+The three choices are independent: any theme is displayed in either appearance, at either density.
+
+New users start with **Follow System**, the **Standard** theme, and the comfortable density. All three choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. Using a different browser or computer starts from the defaults again.
 
 ### Displaying the OpenL Studio Help
 

@@ -1,13 +1,13 @@
 /**
- * The colours OpenL Studio paints itself with, in a light and a dark variant.
+ * The colours OpenL Studio paints itself with — one set of them per theme and appearance.
  *
- * The two variants carry the same keys, so every colour has a counterpart in the other appearance. The
- * variant in force is published as CSS custom properties by `AppStyles`, and styles refer to a colour
- * through {@link LIST_PAGE_COLORS} — the custom property, not a fixed value — so switching the theme
- * repaints them without re-rendering anything.
+ * Every palette carries the same keys, so a colour has a counterpart in the other appearance and in every
+ * other theme. The palette in force is published as CSS custom properties by `AppStyles`, and styles refer
+ * to a colour through {@link LIST_PAGE_COLORS} — the custom property, not a fixed value — so switching the
+ * theme or the appearance repaints them without re-rendering anything.
  *
- * Ant Design cannot read a custom property: it derives whole palettes from a colour, so the theme
- * configuration takes the variant itself ({@link LIGHT_PALETTE} or {@link DARK_PALETTE}).
+ * Ant Design cannot read a custom property: it derives whole palettes from a colour, so a `ThemeConfig`
+ * token takes the palette itself — see {@link paletteOf}.
  */
 export interface Palette {
     primary: string
@@ -53,7 +53,7 @@ export interface Palette {
     syntaxBoolean: string
 }
 
-/** Colours of the light appearance — the Figma mockup palette (oklch → sRGB). */
+/** Colours of the standard theme in the light appearance — the Figma mockup palette (oklch → sRGB). */
 export const LIGHT_PALETTE: Palette = {
     primary: '#2757b6',
     brand: '#384f81',
@@ -91,9 +91,9 @@ export const LIGHT_PALETTE: Palette = {
 }
 
 /**
- * Colours of the dark appearance. Each one plays the role its light counterpart plays: the surfaces run
- * from the page through the container to the sidebar, and the text and accent hues are lifted until they
- * read against those surfaces.
+ * Colours of the standard theme in the dark appearance. Each one plays the role its light counterpart
+ * plays: the surfaces run from the page through the container to the sidebar, and the text and accent
+ * hues are lifted until they read against those surfaces.
  */
 export const DARK_PALETTE: Palette = {
     primary: '#6f9bec',
@@ -130,6 +130,105 @@ export const DARK_PALETTE: Palette = {
     syntaxNumber: '#6897bb',
     syntaxBoolean: '#cc7832',
 }
+
+/**
+ * Colours of the Evergreen theme in the light appearance.
+ *
+ * It answers the standard theme's indigo with a deep teal, and warms the neutrals towards green, so the
+ * two themes are told apart at a glance rather than by looking for the one control that differs.
+ */
+export const EVERGREEN_LIGHT_PALETTE: Palette = {
+    primary: '#0f766e',
+    brand: '#115e59',
+    primaryFg: '#f0fdfa',
+    pageBg: '#f4faf8',
+    containerBg: '#ffffff',
+    text: '#12201d',
+    textSecondary: '#47554f',
+    textTertiary: '#5f6d67',
+    textQuaternary: '#8a9791',
+    border: '#d7e0dc',
+    borderSecondary: '#e4ebe8',
+    secondaryBg: '#eaf1ee',
+    accent: '#d8efe9',
+    accentFg: '#17453d',
+    sidebarBg: '#f2f6f4',
+    success: '#1f8a52',
+    warning: '#c67c12',
+    info: '#0e7490',
+    error: '#c8362f',
+    compileOk: '#157f5b',
+    compileWarnings: '#b37714',
+    compileErrors: '#c33f31',
+    compileCompiling: '#0e7490',
+    compileIdle: '#8a9791',
+    statusNeutral: '#4f5a56',
+    statusRunning: '#0b6a76',
+    statusPaused: '#7d5400',
+    statusFinished: '#1f6f18',
+    statusFailed: '#b81f2a',
+    syntaxName: '#7b2f8f',
+    syntaxString: '#06703f',
+    syntaxNumber: '#0f5fa8',
+    syntaxBoolean: '#0b3f8f',
+}
+
+/** Colours of the Evergreen theme in the dark appearance, lifted until they read on its darker surfaces. */
+export const EVERGREEN_DARK_PALETTE: Palette = {
+    primary: '#4fd1c5',
+    brand: '#7fe3d6',
+    primaryFg: '#07201d',
+    pageBg: '#101917',
+    containerBg: '#16211f',
+    text: '#e3ece9',
+    textSecondary: '#b0bfba',
+    textTertiary: '#8f9f9a',
+    textQuaternary: '#6e7d78',
+    border: '#34423e',
+    borderSecondary: '#26322f',
+    secondaryBg: '#1f2b28',
+    accent: '#1d3b36',
+    accentFg: '#b8e8df',
+    sidebarBg: '#131d1b',
+    success: '#45b87f',
+    warning: '#e0ab45',
+    info: '#4fb6cf',
+    error: '#ef6f62',
+    compileOk: '#3fba8a',
+    compileWarnings: '#dcae4a',
+    compileErrors: '#ef6f62',
+    compileCompiling: '#4fb6cf',
+    compileIdle: '#8f9f9a',
+    statusNeutral: '#5b6763',
+    statusRunning: '#0f6c78',
+    statusPaused: '#8a6318',
+    statusFinished: '#26801d',
+    statusFailed: '#bf2733',
+    syntaxName: '#c77dbb',
+    syntaxString: '#7bab6a',
+    syntaxNumber: '#6ab0c8',
+    syntaxBoolean: '#d59a4a',
+}
+
+/**
+ * The themes OpenL Studio offers, each in both appearances.
+ *
+ * A theme decides the hues; the appearance decides whether they are laid on light or on dark surfaces. The
+ * two choices are independent, so every theme is picked in either appearance.
+ */
+export const THEMES = {
+    standard: { light: LIGHT_PALETTE, dark: DARK_PALETTE },
+    evergreen: { light: EVERGREEN_LIGHT_PALETTE, dark: EVERGREEN_DARK_PALETTE },
+} as const
+
+/** The theme a user may pick. */
+export type ThemeName = keyof typeof THEMES
+
+/** The themes in the order the switcher offers them, the standard one first. */
+export const THEME_ORDER: readonly ThemeName[] = ['standard', 'evergreen']
+
+/** The palette a theme paints with in the given appearance. */
+export const paletteOf = (name: ThemeName, isDarkMode: boolean): Palette => THEMES[name][isDarkMode ? 'dark' : 'light']
 
 /** The custom property a colour is published under, e.g. `textSecondary` → `--openl-text-secondary`. */
 const variableName = (key: keyof Palette): string =>
