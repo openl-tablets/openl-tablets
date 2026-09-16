@@ -1,7 +1,7 @@
 package org.openl.util.formatters;
 
 import java.text.DateFormat;
-import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -61,17 +61,26 @@ public class DateFormatter implements IFormatter {
         return format.format(value);
     }
 
+    /**
+     * The date the whole text stands for, or {@code null} where it stands for none.
+     *
+     * <p>Text the parser stops inside is not a date written differently: a pattern reading two digits of a
+     * year takes {@code 12/31/2024} for the year 20 and leaves {@code 24} unread, and answering with that
+     * date would put a value in place of what the author wrote. Space around the date is not part of it.
+     */
     @Override
     public Object parse(String value) {
         if (value == null) {
             return null;
         }
-        try {
-            return format.parse(value);
-        } catch (ParseException e) {
-            log.debug("Could not parse Date: {}", value, e);
+        var text = value.trim();
+        var readTo = new ParsePosition(0);
+        var parsed = format.parse(text, readTo);
+        if (parsed == null || readTo.getIndex() != text.length()) {
+            log.debug("Could not parse Date: {}", value);
             return null;
         }
+        return parsed;
     }
 
 }
