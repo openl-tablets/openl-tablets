@@ -7,7 +7,6 @@ import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.hierarchy.ProjectionProperty;
 
 public class ProjectionDifferImpl implements ProjectionDiffer {
-    // @Override
     @Override
     public boolean compare(Projection original, Projection other) {
         var map1 = buildMap(original);

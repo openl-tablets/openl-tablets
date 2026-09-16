@@ -32,7 +32,6 @@ public class ArgumentsHelper {
         var paramTypes = methodSignature.getParameterTypes();
         for (var i = 0; i < methodSignature.getNumberOfParameters(); i++) {
             // TODO add source
-            // String paramName = methodSignature.getParameterName(i);
             var type = paramTypes[i];
             if (!type.isSimple()) {
                 var field = type.getField(argName, false);
