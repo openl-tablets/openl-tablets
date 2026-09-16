@@ -18,7 +18,6 @@ i18next.addResourceBundle('en', 'users', {
     first_last: 'First Last',
     last_first: 'Last First',
     other: 'Custom',
-    details: 'Details',
     design_repositories: 'Design Repositories',
     deploy_repositories: 'Deploy Repositories',
     default_design_repository_role: 'Default role for design repositories',
