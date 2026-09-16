@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -35,11 +34,9 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
@@ -61,10 +58,8 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.service.ProjectAccessService;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
-import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.CollectionUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -85,7 +80,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private static final Comparator<ProjectDescriptor> PROJECT_DESCRIPTOR_COMPARATOR = Comparator
             .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
 
-    public static final String RULES_TREE_VIEW = "rules.tree.view";
     public static final String RULES_TREE_VIEW_DEFAULT = "rules.tree.view.default";
     public static final String TABLE_VIEW = "table.view";
     public static final String TABLE_FORMULAS_SHOW = "table.formulas.show";
@@ -95,15 +89,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
     public static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
 
-
-    private String workspacePath;
-    private String tableUri;
     private final ProjectModel model;
     private final ProjectResolver projectResolver;
     private Map<String, List<ProjectDescriptor>> projects;
 
     private RulesProfile defaultTreeView;
-    private RulesProfile treeView;
     private String tableView;
     private boolean showRealNumbers;
     private boolean showFormulas;
@@ -160,8 +150,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     @Getter
     private final ApplicationEventPublisher eventPublisher;
     private final ProtectedBranchBypassService bypassService;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
-    private final ProjectStateValidator projectStateValidator;
     private final ProjectAccessService projectAccessService;
 
     public WebStudio(RulesUserSession rulesUserSession,
@@ -173,8 +161,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      PropertyResolver propertyResolver,
                      ApplicationEventPublisher eventPublisher,
                      ProtectedBranchBypassService bypassService,
-                     ProjectIdentifierMapper projectIdentifierMapper,
-                     ProjectStateValidator projectStateValidator,
                      ProjectAccessService projectAccessService
 
     ) {
@@ -187,8 +173,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.propertyResolver = propertyResolver;
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
-        this.projectIdentifierMapper = projectIdentifierMapper;
-        this.projectStateValidator = projectStateValidator;
         this.projectAccessService = projectAccessService;
         authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(rulesUserSession.getUserWorkspace());
@@ -216,7 +200,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return;
         }
 
-        workspacePath = userWorkspace.getLocalWorkspace().getLocation().getAbsolutePath();
         userWorkspace.getDesignTimeRepository().addListener(this);
     }
 
@@ -231,10 +214,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, TEST_FAILURES_PERTEST);
         showComplexResult = userSettingsManager.getBooleanProperty(userName, TEST_RESULT_COMPLEX_SHOW);
         showRealNumbers = userSettingsManager.getBooleanProperty(userName, TRACE_REALNUMBERS_SHOW);
-    }
-
-    public boolean isRenamed(RulesProject project) {
-        return project != null && !getLogicalName(project).equals(project.getName());
     }
 
     public String getLogicalName(RulesProject project) {
@@ -328,15 +307,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return null;
     }
 
-    /**
-     * Canonical, base64-encoded ID of the open project, ready to use as a STOMP
-     * destination segment. Empty when no project is open.
-     */
-    public String getCurrentProjectId() {
-        RulesProject project = getCurrentProject();
-        return project == null ? "" : projectIdentifierMapper.map(project).encode();
-    }
-
     public RulesDeploy getCurrentProjectRulesDeploy() {
         try {
             RulesProject currentProject = getCurrentProject();
@@ -410,10 +380,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return projectResolver;
     }
 
-    public String getTableView() {
-        return tableView;
-    }
-
     public void setTableView(String tableView) {
         this.tableView = tableView;
         userSettingsManager.setProperty(rulesUserSession.getUserName(), TABLE_VIEW, tableView);
@@ -429,19 +395,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public ProjectModel getModel() {
         return model;
-    }
-
-    public String getTableUri() {
-        return tableUri;
-    }
-
-    /**
-     * Returns path on the file system to user workspace this instance of web studio works with.
-     *
-     * @return path to openL projects workspace, i.e. folder containing openL projects.
-     */
-    public String getWorkspacePath() {
-        return workspacePath;
     }
 
     public synchronized List<ProjectDescriptor> getAllProjects() {
@@ -732,96 +685,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
-    public ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
-        var projectFolder = oldProjectDescriptor.getProjectFolder();
-        model.resetSourceModified(); // Because we rewrite a file in the
-        // workspace
-
-        ProjectDescriptor newProjectDescriptor = null;
-        try {
-            newProjectDescriptor = projectResolver.resolve(projectFolder);
-        } catch (ProjectResolvingException e) {
-            log.warn(e.getMessage(), e);
-        }
-
-        List<ProjectDescriptor> localProjects = getAllProjects();
-        // Replace project descriptor in the list of all projects
-        for (int i = 0; i < localProjects.size(); i++) {
-            if (localProjects.get(i) == oldProjectDescriptor) {
-                if (newProjectDescriptor != null) {
-                    localProjects.set(i, newProjectDescriptor);
-                } else {
-                    localProjects.remove(i);
-                }
-                break;
-            }
-        }
-        // Project can be fully changed and renamed, we must force compile
-        forcedCompile = true;
-
-        // Note that "newProjectDescriptor == null" is correct case too: it
-        // means that it's not OpenL project anymore:
-        // newly updated project does not contain rules.xml nor xls file. Such
-        // projects are not shown in Editor but
-        // are shown in Repository.
-        // In this case we must show the list of all projects in Editor.
-        return newProjectDescriptor;
-    }
-
-    public AProject getProjectByName(final String name) {
-        try {
-            AProject project = getProjectFromWorkspace(name);
-            if (project != null) {
-                return project;
-            }
-
-            // Probably a project was renamed in local workspace
-            for (List<ProjectDescriptor> descriptors : getProjects().values()) {
-                Optional<ProjectDescriptor> descriptor = descriptors.stream()
-                        .filter(p -> p.getName().equals(name))
-                        .findFirst();
-                if (descriptor.isPresent()) {
-                    String folderName = descriptor.get().getProjectFolder().getFileName().toString();
-                    project = getProjectFromWorkspace(folderName);
-                    if (project != null) {
-                        break;
-                    }
-                }
-            }
-
-            if (project == null) {
-                log.warn("Projects descriptor is found but the project is not found.");
-            }
-            return project;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
-    }
-
-    private AProject getProjectFromWorkspace(String name) {
-        LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
-
-        for (AProject workspaceProject : localWorkspace.getProjects()) {
-            if (workspaceProject.getName().equals(name)) {
-                return workspaceProject;
-            }
-        }
-        return null;
-    }
-
     public ProjectDescriptor getProjectByName(String repositoryId, final String name) {
         return CollectionUtils.findFirst(getProjects().get(repositoryId), project -> project.getName().equals(name));
-    }
-
-    public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
-        List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
-        return CollectionUtils.findFirst(dependencies, dependency -> dependency.getName().equals(dependencyName));
-    }
-
-    private void setTreeView(RulesProfile treeView) {
-        this.treeView = treeView;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW, treeView.getName());
     }
 
     private void setDefaultTreeView(RulesProfile treeView) {
@@ -831,15 +696,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public String getCurrentUsername() {
         return rulesUserSession.getUserName();
-    }
-
-    public void setTreeView(String name) {
-        var mode = getTreeView(name);
-        if (mode != null) {
-            setTreeView(mode);
-        } else {
-            log.error("Cannot find a rules tree view named {}", name);
-        }
     }
 
     private RulesProfile getTreeView(String name) {
@@ -858,14 +714,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } else {
             log.error("Cannot find a rules tree view named {}", name);
         }
-    }
-
-    public void setTableUri(String tableUri) {
-        this.tableUri = tableUri;
-    }
-
-    public boolean isUpdateSystemProperties() {
-        return Props.bool(AdministrationSettings.UPDATE_SYSTEM_PROPERTIES);
     }
 
     public boolean isShowFormulas() {
@@ -1001,16 +849,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return project != null && project.isSupportsBranches();
     }
 
-    public String getProjectBranch() {
-        try {
-            RulesProject project = getCurrentProject();
-            return project == null ? null : project.getBranch();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return null;
-        }
-    }
-
     public boolean isBranchProtected() {
         var project = getCurrentProject();
         if (project == null || project.isLocalOnly()) {
@@ -1101,33 +939,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // A page renders this on every request, and an unreachable repository fails it every time, so the
             // cause is logged once per render at a level that does not bury the errors worth reading.
             log.warn("Cannot tell whether project '{}' can be copied: {}", project.getName(), e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean getCanMerge() {
-        RulesProject project = getCurrentProject();
-
-        if (project == null || !isSupportsBranches() || project.isLocalOnly()) {
-            return false;
-        }
-
-        try {
-            // A merge target is any other branch of the repository, not only a branch that already holds the
-            // project: a project created in its own branch is merged into the base branch, which has never
-            // seen it. The server-side guard reads it the same way — see EPBDS-16410.
-            if (!projectStateValidator.canMerge(project)) {
-                return false;
-            }
-            // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
-            for (AProjectArtefact artefact : project.getArtefacts()) {
-                if (designRepositoryAclService.isGranted(artefact,
-                        List.of(BasePermission.WRITE, BasePermission.DELETE, BasePermission.CREATE))) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (RuntimeException e) {
             return false;
         }
     }

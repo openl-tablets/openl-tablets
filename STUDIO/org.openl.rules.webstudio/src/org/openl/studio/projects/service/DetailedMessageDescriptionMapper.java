@@ -12,8 +12,8 @@ import org.openl.studio.projects.model.project.status.DetailedMessageDescription
  * message's origin (module or table) against the supplied {@link ProjectModel} so the
  * client can deep-link straight to the offending cell.
  *
- * <p>The result is sorted using the same canonical ordering as
- * {@link MessageDescriptionMapper}: by severity, then by id.</p>
+ * <p>The result is sorted using the canonical ordering of compilation messages in REST responses:
+ * by severity, then by id.</p>
  *
  * @author Vladyslav Pikus
  */
