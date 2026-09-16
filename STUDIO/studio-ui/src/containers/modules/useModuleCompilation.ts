@@ -88,15 +88,23 @@ export const useModuleCompilation = (
     // Every request made is remembered, not just the last: a reader who refreshes one module, reads another and
     // comes back would otherwise be asking for that refresh again on every return, rebuilding the module from
     // its workbook each time.
-    const asked = useRef(new Set<string>())
+    //
+    // Remembered for one copy of the project, though. Switching the branch checks another copy out and drops
+    // everything compiled from the first, so what was asked for before says nothing about what is compiled now:
+    // a module opened again on a branch already visited is compiled again rather than waited on forever.
+    const asked = useRef({ checkout: '', keys: new Set<string>() })
     useEffect(() => {
-        const key = `${projectId} ${branch ?? ''} ${moduleName} ${reloadToken}`
+        const checkout = `${projectId} ${branch ?? ''}`
+        if (asked.current.checkout !== checkout) {
+            asked.current = { checkout, keys: new Set() }
+        }
+        const key = `${moduleName} ${reloadToken}`
         // A module already compiled needs no compiling — unless a refresh asked, which is exactly a request to
         // compile it again.
-        if (!enabled || asked.current.has(key) || (ready && reloadToken === 0)) {
+        if (!enabled || asked.current.keys.has(key) || (ready && reloadToken === 0)) {
             return
         }
-        asked.current.add(key)
+        asked.current.keys.add(key)
         setFailure(null)
         startModuleCompilation(projectId, moduleName, rebuild && reloadToken > 0).catch((error: unknown) => {
             const failed = error instanceof Error ? error : new Error(String(error))

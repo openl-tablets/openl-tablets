@@ -57,7 +57,8 @@ public final class ProjectCompilationStatus {
      * The stack trace behind one of the messages, named by its identifier.
      *
      * <p>Answers {@code null} where no message carries that identifier, and where the one that does was raised
-     * about something other than an error — a warning has no trace to read.
+     * about something other than an error — a warning has no trace to read. An error raised by something that
+     * was never thrown has no trace either.
      *
      * @param messageId identifier of the message to read the trace of
      */
@@ -66,7 +67,9 @@ public final class ProjectCompilationStatus {
                 .filter(message -> message.getId() == messageId)
                 .findFirst()
                 .filter(OpenLErrorMessage.class::isInstance)
-                .map(message -> ExceptionUtils.getStackTrace((Throwable) ((OpenLErrorMessage) message).getError()))
+                .map(message -> ((OpenLErrorMessage) message).getError())
+                .filter(Throwable.class::isInstance)
+                .map(error -> ExceptionUtils.getStackTrace((Throwable) error))
                 .orElse(null);
     }
 

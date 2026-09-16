@@ -56,6 +56,15 @@ const takesSeveralLines = (address: string | undefined, value: string): boolean 
     return lines === 0 ? value.length > LONG_ENOUGH_TO_WRAP : lines > 1
 }
 
+/**
+ * What a cell holds, as the reader writes it.
+ *
+ * <p>A cell written with a formula holds the formula, not the value it computed: opening it as that value
+ * would write the value back over the formula the moment the reader saves.
+ */
+const heldBy = (cell: RawTableCell | undefined): string =>
+    cell?.formula ?? (cell?.value == null ? '' : String(cell.value))
+
 /** The key that takes the reader back the way they came, so pressing it returns to the cell they left. */
 const BACK: Record<string, string> = {
     ArrowUp: 'ArrowDown',
@@ -323,10 +332,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (cell === undefined || cell.covered) {
             return
         }
-        // A cell written with a formula is opened as the formula: opening it as the value it computed would
-        // write that value back over the formula the moment the reader saves.
-        const held = cell.formula ?? (cell.value == null ? '' : String(cell.value))
-        const value = typed ?? held
+        const value = typed ?? heldBy(cell)
         setPicked({ row, column })
         setOpen({ row, column })
         setRangeOpen(false)
@@ -370,8 +376,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         if (!keep) {
             return
         }
-        const was = written[at.row]?.[at.column]?.value
-        if (value !== (was == null ? '' : String(was))) {
+        // Compared against what the cell was opened on, which for a cell written with a formula is the
+        // formula rather than the value it computed. Comparing against the value would read every formula
+        // cell the reader merely looked into as rewritten, and write the formula over itself on the next save.
+        if (value !== heldBy(written[at.row]?.[at.column])) {
             step({ kind: 'value', at, value })
         }
     }

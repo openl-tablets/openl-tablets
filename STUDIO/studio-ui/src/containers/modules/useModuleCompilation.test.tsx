@@ -175,6 +175,19 @@ describe('useModuleCompilation', () => {
         expect(startModuleCompilation).toHaveBeenCalledTimes(2)
     })
 
+    it('compiles the module again on a branch visited before, whose copy of the project is gone', async () => {
+        captureUpdates()
+        const { rerender } = render(<Probe branch="main" />)
+        expect(startModuleCompilation).toHaveBeenCalledTimes(1)
+
+        // Another branch is checked out, and then the first one again. Switching drops everything compiled
+        // from the copy it replaces, so the module is compiled again rather than waited on forever.
+        rerender(<Probe branch="release" />)
+        rerender(<Probe branch="main" />)
+
+        expect(startModuleCompilation).toHaveBeenCalledTimes(3)
+    })
+
     it('asks once, however many statuses arrive', async () => {
         const push = captureUpdates()
         render(<Probe />)

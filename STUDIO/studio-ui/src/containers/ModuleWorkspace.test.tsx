@@ -14,7 +14,7 @@ const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace 
     setSearchParamsMock: vi.fn(),
     // What the workspace holds of the project: closed until the reader answers the question to open it, and
     // what the compilation of its module came to.
-    workspace: { opened: false, state: 'ok' },
+    workspace: { opened: false, state: 'ok', branch: 'master' },
 }))
 
 vi.mock('react-i18next', () => {
@@ -50,8 +50,9 @@ vi.mock('../services/modules', () => ({
 // The compilation is followed on the status channel, which this screen is not the place to test: the module is
 // compiled exactly when the project is open.
 vi.mock('./modules/useModuleCompilation', () => ({
-    useModuleCompilation: () => ({
-        ready: workspace.opened,
+    useModuleCompilation: (projectId: string) => ({
+        // Nothing is compiled of a project that has not been read yet: the screen does not know its id.
+        ready: workspace.opened && projectId !== '',
         compiled: workspace.opened ? 1 : 0,
         total: 1,
         failure: null,
@@ -74,7 +75,12 @@ vi.mock('./modules/TableProblems', () => ({ TableProblems: () => null }))
 vi.mock('./modules/TableSearchModal', () => ({ TableSearchModal: () => null }))
 vi.mock('./modules/TableToolbar', () => ({ TableToolbar: () => <div data-testid="table-toolbar" /> }))
 vi.mock('./projects/CompileProblemsPanel', () => ({ CompileProblemsPanel: () => null }))
-vi.mock('./projects/BranchSwitcher', () => ({ BranchSwitcher: () => null }))
+// The switcher itself is tested elsewhere; here it only has to say that a branch was switched.
+vi.mock('./projects/BranchSwitcher', () => ({
+    BranchSwitcher: ({ onSwitched }: { onSwitched?: () => void }) => (
+        <button data-testid="branch-switched" onClick={() => onSwitched?.()} type="button" />
+    ),
+}))
 // The table itself is drawn and edited elsewhere; this screen is asked only what it hands over.
 vi.mock('./modules/TableEditor', () => ({
     TableEditor: ({ testId, rows, children }: {
@@ -94,7 +100,7 @@ const project = (status: string) => ({
     name: 'Example 1 - Bank Rating',
     status,
     repository: 'design',
-    branch: 'master',
+    branch: workspace.branch,
     repositoryInfo: { id: 'design', name: 'Design', features: { branches: true } },
 })
 
@@ -102,6 +108,7 @@ describe('ModuleWorkspace', () => {
     beforeEach(() => {
         workspace.opened = false
         workspace.state = 'ok'
+        workspace.branch = 'master'
         routeParams.projectId = 'p1'
         searchParams.set('table', 't-1')
         vi.mocked(getProject).mockImplementation(() =>
@@ -181,6 +188,23 @@ describe('ModuleWorkspace', () => {
         rerender(<ModuleWorkspace />)
 
         await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p2', 'Bank Rating'))
+    })
+
+    it('reads the module again on the branch that was switched to', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledTimes(1))
+
+        // The modules a project holds are the branch's, so they are read once the project says which branch
+        // it stands on — not once before it and again after.
+        expect(listModules).toHaveBeenCalledTimes(1)
+
+        workspace.branch = 'release'
+        await userEvent.click(screen.getByTestId('branch-switched'))
+
+        // Another branch is another copy of the project: the tables read on the one left behind are none of
+        // its, and the module it holds is read afresh.
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledTimes(2))
     })
 
     it('drops the rows of a table the reader left rather than drawing them under the next one', async () => {

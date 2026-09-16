@@ -141,6 +141,15 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * rebuild a module nobody wrote to and leave the written one answering from the workbook it used to have.
      */
     private volatile Module rewrittenModule;
+    /**
+     * The module whose workbook a write has changed while compiling is the reader's to ask for, waiting for
+     * them to ask.
+     *
+     * <p>Named for the same reason the rewritten one is: the reader may read other modules before they come
+     * back to this one, and opening another module must neither take the request away nor spend it on a module
+     * nobody wrote to.
+     */
+    private volatile Module moduleToVerify;
     private final Map<String, Object> externalProperties;
 
     private final RulesUserSession rulesUserSession;
@@ -534,7 +543,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             rebuildCurrentModule();
             return;
         }
-        needCompile = true;
+        moduleToVerify = getCurrentModule();
         publishWorkspaceReset();
     }
 
@@ -604,7 +613,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public boolean isManualCompileNeeded() {
-        return !isAutoCompile() && needCompile;
+        return !isAutoCompile() && moduleToVerify != null;
     }
 
     public void invokeManualCompile() {
@@ -657,6 +666,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // The module a write changed is built from its workbook again the next time it is opened, and only
             // it — a write elsewhere leaves this one alone, and opening another module does not consume it.
             boolean rewritten = ProjectModel.isSameModule(rewrittenModule, module);
+            // The reader asked for the module a write left them to compile. Asked for by name: Verify on
+            // another module compiles that one and leaves this request standing.
+            boolean verifying = manualCompile && ProjectModel.isSameModule(moduleToVerify, module);
             boolean anotherProjectOpened = anotherRepositoryOpened
                     || !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
                             .getProject()
@@ -683,10 +695,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     }
                 }
             }
-            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || rewritten || anotherModuleOpened || anotherProjectOpened)) {
+            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || verifying || forcedCompile || rewritten || anotherModuleOpened || anotherProjectOpened)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
-                } else if (needCompile) {
+                } else if (needCompile || verifying) {
                     reset(ReloadType.SINGLE);
                 } else if (rewritten) {
                     // Its workbook was written to: the dependency it stands for is dropped and resolved
@@ -712,6 +724,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 manualCompile = false;
                 if (rewritten) {
                     rewrittenModule = null;
+                }
+                if (verifying) {
+                    moduleToVerify = null;
                 }
             }
         } catch (Exception e) {
