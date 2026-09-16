@@ -6,8 +6,8 @@
   -57001 lines, and was the vein the previous eight idle runs were waiting for.
 - The merge closed the JSF veins for good, not merely swept them: zero `.xhtml`, zero legacy `.js`/`.css`/images
   and zero JSF/RichFaces coordinates remain anywhere in the repository. Never re-derive those categories.
-- Next: the 12 tableeditor types with no user outside their own module need an intra-module check (see Deferred);
-  then rerun the studio-ui detectors, which no run has repeated at this head.
+- Every change type is swept at this head and every detector rerun; the repository is clean again. First command of
+  a run is `git rev-list --count ff879e6652..origin/main`: 0 means stop after maintaining PR #2118.
 
 ## Change-type queue
 
@@ -23,7 +23,7 @@
 | 8 | CSS rules (legacy webstudio, tableeditor, DEMO, inline) | closed by the React merge |
 | 9 | Legacy JS functions and .xhtml pages | closed by the React merge |
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done 2026-09-11 g; 66 candidates all template-composed |
-| 11 | TypeScript exports, types, components, imports | done 2026-09-15; rerun pending at ff879e6 |
+| 11 | TypeScript exports, types, components, imports | done 2026-09-16 at ff879e6; tsc clean |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done 2026-09-09 |
 | 13 | Package-private/protected members and unreferenced internal classes | done 2026-09-16 at ff879e6 |
 
@@ -55,9 +55,6 @@
 - CellFont (DEV): public, named by no other file at all. IGridSelector and RegionGridSelector name only each other,
   so the pair is dead together; all are public in a published jar.
 - Unreferenced once EPBDS-16576 retired the JSF diff UI, but public in published jars: EmptyCell (DEV).
-- tableeditor, no user outside its own module: BooleanCellEditor, CellEditorFactory, CellModelDelegator, DateCellEditor,
-  FormulaCellEditor, ICellEditorFactory, ICellModel, MultilineEditor, NumericCellEditor, TableViewer, TextCellEditor,
-  XlsNumberFormatter. Published jar, and the intra-module check has not been done — do that before judging any of them.
 - OpenLServiceFactoryBean.setProxyInterface: @Deprecated public, unreferenced; binary-compatibility break.
 - Module.wildcardName: written by 2 callers via Lombok setter, read by none; needs cross-module call-site edits. DecisionTableBuilder.methodName + setMethodName + its TableSyntaxNodeDispatcherBuilder call: inert chain, public DEV API.
 - SimpleGroup.description: public setter and 3-arg ctor parameter, read nowhere. XlsProjectionType GRID..CELL_FONT (9 constants, `// TODO do we need the rest?`): public enum, no values()/valueOf use.
@@ -248,6 +245,10 @@
 - studio-ui: package.json deps, 15 locale namespaces, enum members, Props members, public/ assets, module graph, 849 exports, CSS-in-JS keys, @ts-ignore.
 - Unused React default imports re-open with every new .tsx: `tsc --noEmit --noUnusedLocals` over src is the whole scan (5 of 64 dead at 9a32b54, removed in #2109); it also covers every other unused import and local in one pass.
 - studio-ui exports used only in their own file (~36-70): live; dropping `export` is a visibility refactor, never a deletion.
+- studio-ui at ff879e6: `tsc --noEmit --noUnusedLocals` exits clean. Adding --noUnusedParameters reports only the two
+  known FPs (a positional `Array.from` mapper arg, a mock `(url, options)` callback) — do not add that flag again.
+- tableeditor's 12 types with no outside user all have intra-module referrers: the cell-editor cluster is internal
+  machinery whose entry points webstudio still calls. Settled, not a vein.
 - At ff879e6: the 154 org.openl types the merge's deleted files imported, all 858 webstudio main types, and every
   public/protected member of the legacy org/openl/rules/ui package. Everything left there is a Spring bean or live.
 - Message bundles: openapi (625), messages (46), ValidationMessages (228) keys all reached by literal, `openl.error.<status>.` suffix, EL enum name or Bean Validation default, except the one already removed; sql-errors keyed by vendor error code at runtime.
@@ -293,4 +294,4 @@
 
 - 2026-09-16 c: main unmoved (0 commits since the swept head), #2105 still draft; no detector rerun; at 289.
 - 2026-09-16 d: main still unmoved, no `dead-code/*` PR open, #2105 still draft; resume point and run log only; at 288.
-- 2026-09-16 e: EPBDS-16599 merged; swept its residue into PR #2118 (2 commits, 357 lines); ledger at 296.
+- 2026-09-16 e: EPBDS-16599 merged; swept its residue into PR #2118 (2 commits, 357 lines); all detectors rerun clean; at 297.
