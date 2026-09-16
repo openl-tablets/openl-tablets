@@ -31,7 +31,8 @@
 
 - PR #2120, branch `dead-code/full-resweep`, head 058071e382, 7 commits, 41 files, -487/+2, on main b48c862793; every
   check was green on head 4e770f27f5 after one rerun of IT (studio-acl). On 058071e382 all checks green except
-  IT (services-data): the Kafka container segfault below, commented at 22:21 UTC, failed jobs re-run once at 22:50 UTC.
+  IT (services-data): the Kafka container start flake below, twice (22:20 and 22:52 UTC, different suites and errors);
+  commented twice, the one re-run spent, owner notified 22:58 UTC. Needs a maintainer re-run; main passed the job at 18:39.
   PR body rewritten for this head (commit 4 title, fixpoint members, totals, -Xlint verification).
 - Commits: ec2e2d02bf commented-out code; c5120bb143 message keys; 64679e2f93 test workbook and stubs; 017f32d08d
   `.editorconfig` scss section plus 9 `@SuppressWarnings`; 34cc58f7a9 spring-security-core in security.standalone;
@@ -160,7 +161,9 @@
 - IT (services-data): `RunTracingITest.setUp` "Container startup failed for image apache/kafka-native:latest" after a
   `SegfaultHandler caught a segfault` inside the native image at `===> Launching ...`, 60 s wait for "Transitioning from
   RECOVERY to RUNNING" times out; the same image started in 0.5 s for RunKafkaSmokeITest a minute earlier in the same job.
-  Floating `latest` tag; one `rerun_failed_jobs` is the retry.
+  Second shape, same image, next suite (`RunStoreLogDataITest.setUp`): "Container exited with code 126" with the
+  container log `sh: /tmp/testcontainers_start.sh: Text file busy`. Floating `latest` tag; one `rerun_failed_jobs` is
+  the retry, then a maintainer.
 - Tests (without ITEST): `ModuleWorkspace.test.tsx` two cases on `module-workspace-error` fail on the CI runner while the
   same tree passes all 2209 studio-ui tests locally; seen on main b48c862793.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
@@ -197,7 +200,7 @@
   resolution bug, harmless to the report.
 - Flyway migration `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` script; confirm Flyway applies it.
 - ITEST pulls `apache/kafka-native:latest` (RunTracingITest, RunKafkaSmokeITest); the image segfaulted at start once on
-  2026-09-16. Pinning the tag is test infrastructure outside the sweep.
+  2026-09-16 and hit "Text file busy" on the re-run. Pinning the tag is test infrastructure outside the sweep.
 - `RulesUtilsTest.testParseFormattedDouble` carries `@SuppressWarnings("deprecated")`, a key javac ignores, while both
   methods it calls are deprecated: the fix is the key `deprecation`, a rename this routine may not make.
 
