@@ -1,7 +1,6 @@
 package org.openl.rules.table.formatters;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -69,13 +68,25 @@ public class ArrayFormatter implements IFormatter {
      * @return array of elements. <code>NULL</code> if input is empty or can`t get the component type of the array.
      */
     @Override
+    /**
+     * The values the whole text stands for, or {@code null} where one of them stands for none.
+     *
+     * <p>An element left empty is a value of its own — the array holds nothing at that place — but an
+     * element carrying text that stands for no value makes the whole text no array: answering with a blank
+     * there would say less than the author wrote, and leave the reader nothing to correct.
+     */
     public Object parse(String value) {
-        if (StringUtils.isNotBlank(value)) {
-            String[] values = ArraySplitter.split(value);
-            return Arrays.stream(values)
-                    .map(elementFormat::parse)
-                    .toArray(e -> (Object[]) Array.newInstance(elementType, e));
+        if (StringUtils.isBlank(value)) {
+            return null;
         }
-        return null;
+        var elements = ArraySplitter.split(value);
+        var parsed = (Object[]) Array.newInstance(elementType, elements.length);
+        for (var at = 0; at < elements.length; at++) {
+            parsed[at] = elementFormat.parse(elements[at]);
+            if (parsed[at] == null && StringUtils.isNotBlank(elements[at])) {
+                return null;
+            }
+        }
+        return parsed;
     }
 }
