@@ -32,7 +32,9 @@
 ## Open PR
 
 - PR #2120, branch `dead-code/full-resweep`, head 4e770f27f5, 7 commits, 30 files, -453/+2, rebased onto main b48c862793;
-  the private-counters commit and the OpenAPI/menu.editor hunks dropped out because main carries them; waits on a human review.
+  the private-counters commit and the OpenAPI/menu.editor hunks dropped out because main carries them. CI on this head: all
+  green except IT (studio-acl), the Oracle ORA-12516 flake (commented twice, no rerun tool); Sonar skipped behind it. Waits
+  on a human to rerun or merge; a whole-reactor build on this exact head is green locally.
 - Commits: commented-out code; message keys; test workbook and stubs; `.editorconfig`
   scss section; spring-security-core in security.standalone; AspectJ managed versions; webstudio members and mapper type.
 
