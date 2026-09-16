@@ -1,8 +1,6 @@
 package org.openl.rules.ui;
 
 import java.io.File;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,7 +95,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
-import org.openl.util.FileUtils;
 
 @Slf4j
 public class ProjectModel {
@@ -243,10 +240,6 @@ public class ProjectModel {
         }
 
         return null;
-    }
-
-    public synchronized int getErrorNodesNumber() {
-        return countErrorNodes(Arrays.asList(getTableSyntaxNodes()));
     }
 
     private int countErrorNodes(Iterable<TableSyntaxNode> nodes) {
@@ -533,31 +526,6 @@ public class ProjectModel {
         return getXlsModuleNode().getWorkbookSyntaxNodes();
     }
 
-    /**
-     * Get all workbooks of all modules
-     *
-     * @return all workbooks
-     */
-    public Collection<WorkbookSyntaxNode> getAllEditableWorkbookNodes() {
-        if (!isCompiledSuccessfully()) {
-            return null;
-        }
-        RulesProject rulesProject = getProject();
-        List<WorkbookSyntaxNode> ret = new ArrayList<>();
-        for (XlsModuleSyntaxNode xlsModuleSyntaxNode : xlsModuleSyntaxNodes) {
-            String s = URLDecoder.decode(xlsModuleSyntaxNode.getModule().getUri(), StandardCharsets.UTF_8);
-            s = s.substring(s.indexOf("/") + 1);
-            try {
-                if (studio.getDesignRepositoryAclService()
-                        .isGranted(rulesProject.getArtefact(s), List.of(BasePermission.WRITE))) {
-                    ret.addAll(List.of(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
-                }
-            } catch (ProjectException ignored) {
-            }
-        }
-        return ret;
-    }
-
     public boolean isSourceModified() {
         RulesProject project = getProject();
         if (project == null || !project.isOpened()) {
@@ -739,22 +707,6 @@ public class ProjectModel {
         return false;
     }
 
-    public boolean isEditableProjectDescriptor() {
-        RulesProject currentProject = studio.getCurrentProject();
-        if (currentProject.hasArtefact(ProjectDescriptor.FILE_NAME)) {
-            try {
-                AProjectArtefact rulesDescriptorArtifact = currentProject
-                        .getArtefact(ProjectDescriptor.FILE_NAME);
-                return studio.getDesignRepositoryAclService()
-                        .isGranted(rulesDescriptorArtifact, List.of(BasePermission.WRITE));
-            } catch (ProjectException ignored) {
-                return false;
-            }
-        } else {
-            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(BasePermission.CREATE));
-        }
-    }
-
     private boolean isEditableProject(RulesProject rulesProject) {
         return !isCurrentBranchProtected() && (rulesProject.isLocalOnly() || !rulesProject.isLocked() || rulesProject
                 .isOpenedForEditing());
@@ -772,20 +724,6 @@ public class ProjectModel {
         return false;
     }
 
-    public boolean getCanUpdate() {
-        if (isEditable()) {
-            if (studio.getCurrentModule() == null) {
-                RulesProject currentProject = getProject();
-                var alcService = studio.getDesignRepositoryAclService();
-                return alcService.isGranted(currentProject, List.of(BasePermission.WRITE))
-                        || alcService.isGranted(currentProject, List.of(BasePermission.CREATE))
-                        || alcService.isGranted(currentProject, true, BasePermission.DELETE);
-            }
-            return true;
-        }
-        return false;
-    }
-
     /*
      * Return is editable current project
      */
@@ -797,23 +735,12 @@ public class ProjectModel {
         return false;
     }
 
-    public boolean isEditableTable(String uri) {
-        return !isTablePart(uri) && isEditable();
-    }
-
     /**
      * Check is the table is partial
      */
     public boolean isTablePart(String uri) {
         IGridTable grid = this.getGridTable(uri);
         return grid != null && grid.getGrid() instanceof CompositeGrid;
-    }
-
-    public boolean isCanEditTable(String uri) {
-        if (!isEditableTable(uri)) {
-            return false;
-        }
-        return !isCurrentBranchProtected();
     }
 
     private boolean isCurrentBranchProtected() {
@@ -937,10 +864,6 @@ public class ProjectModel {
                         .flatMap(Collection::stream)
                         .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
-    }
-
-    public synchronized int getNumberOfTables() {
-        return countNonOtherTables(Arrays.asList(getTableSyntaxNodes()));
     }
 
     private int countNonOtherTables(Collection<TableSyntaxNode> nodes) {
@@ -1529,44 +1452,6 @@ public class ProjectModel {
                 .toString();
     }
 
-    public synchronized RecentlyVisitedTables getRecentlyVisitedTables() {
-        return recentlyVisitedTables;
-    }
-
-    public synchronized XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
-        Module currentModule = studio.getCurrentModule();
-        if (currentModule == null) {
-            return null;
-        }
-
-        String rulesRootPath = currentModule.getRulesRootPath();
-
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes == null) {
-            return null;
-        }
-
-        for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
-            var module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-            if (rulesRootPath != null && module.getSourceFile()
-                    .getName()
-                    .equals(FileUtils.getName(rulesRootPath))) {
-                return module;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns true if both are true: 1) Old project version is opened and 2) project is not modified yet.
-     * <p>
-     * Otherwise return false
-     */
-    public synchronized boolean isConfirmOverwriteNewerRevision() {
-        RulesProject project = getProject();
-        return project != null && project.isOpenedOtherVersion() && !project.isModified();
-    }
-
     public void destroy() {
         clearModuleInfo();
         // Discard queued notifications and interrupt any in-flight publish: once the model is
@@ -1610,16 +1495,6 @@ public class ProjectModel {
 
     public synchronized IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
         return getMethodFromDispatcher((OpenMethodDispatcher) method, uri);
-    }
-
-    public synchronized String getMessageNodeId(String sourceLocation) {
-        XlsUrlParser xlsUrlParser = sourceLocation != null ? new XlsUrlParser(sourceLocation) : null;
-        for (TableSyntaxNode tsn : getAllTableSyntaxNodes()) { // for all modules
-            if (xlsUrlParser != null && xlsUrlParser.intersects(tsn.getUriParser())) {
-                return tsn.getId();
-            }
-        }
-        return null;
     }
 
     private class XlsModificationListener implements XlsWorkbookListener {

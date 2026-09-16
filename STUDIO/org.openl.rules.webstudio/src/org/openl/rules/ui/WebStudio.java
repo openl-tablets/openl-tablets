@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,8 +16,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.ValidationException;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +27,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -54,13 +49,9 @@ import org.openl.rules.ui.tree.view.RulesProfile;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
-import org.openl.rules.webstudio.web.repository.DeploymentRepositoriesUtil;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -157,8 +148,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final SimpleRepositoryAclService productionRepositoryAclService;
 
-    private final DeploymentManager deploymentManager;
-
     private final Authentication authentication;
     private final ProjectDescriptorArtefactResolver pdArtefactResolver;
 
@@ -167,7 +156,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * can affect their modified status.
      */
     private final Set<String> frozenProjects = Collections.synchronizedSet(new HashSet<>());
-    private boolean needRedirect;
 
     @Getter
     private final ApplicationEventPublisher eventPublisher;
@@ -183,7 +171,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      SimpleRepositoryAclService productionRepositoryAclService,
                      ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
                      PropertyResolver propertyResolver,
-                     DeploymentManager deploymentManager,
                      ApplicationEventPublisher eventPublisher,
                      ProtectedBranchBypassService bypassService,
                      ProjectIdentifierMapper projectIdentifierMapper,
@@ -198,7 +185,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.pdArtefactResolver = projectDescriptorArtefactResolver;
         this.rulesUserSession = rulesUserSession;
         this.propertyResolver = propertyResolver;
-        this.deploymentManager = deploymentManager;
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
         this.projectIdentifierMapper = projectIdentifierMapper;
@@ -593,10 +579,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
-    public String getCurrentRepositoryType() {
-        return RepositoryConfiguration.getType(currentRepositoryId, propertyResolver);
-    }
-
     public boolean isAutoCompile() {
         return Props.bool(AdministrationSettings.AUTO_COMPILE);
     }
@@ -621,7 +603,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             var anotherRepositoryOpened = !Objects.equals(currentRepositoryId, repositoryId);
             currentRepositoryId = repositoryId;
             ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
-            needRedirect = false;
             if (StringUtils.isNotBlank(projectName) && project == null) {
                 // Not empty project name is requested but it's not found
                 handleProjectNotFound();
@@ -632,7 +613,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 String newProjectName = setProjectBranch(project, branchName);
                 if (newProjectName != null) {
                     projectName = newProjectName;
-                    needRedirect = true;
                 }
 
                 // reload project descriptor. Because it might be changed
@@ -725,10 +705,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         throw new NotFoundException("project.identifier.message");
     }
 
-    public boolean isNeedRedirect() {
-        return needRedirect;
-    }
-
     /**
      * The module of the project known by that name.
      *
@@ -741,15 +717,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return null;
         }
         return CollectionUtils.findFirst(project.getModules(), module -> moduleName.equals(module.getResolvedName()));
-    }
-
-    public void storeProjectHistory() {
-        currentProject = resolveProject(getCurrentProjectDescriptor());
-        if (currentProject == null) {
-            log.warn("The project has not been resolved after update.");
-        } else {
-            processProjectHistory(currentProject, ProjectHistoryService::save);
-        }
     }
 
     public void initProjectHistory() {
@@ -801,19 +768,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return newProjectDescriptor;
     }
 
-    public synchronized void forceUpdateProjectDescriptor(String repoId,
-                                                          ProjectDescriptor newProjectDescriptor,
-                                                          ProjectDescriptor oldProjectDescriptor) {
-        newProjectDescriptor.getModules().sort(MODULES_COMPARATOR);
-        if (currentProject.equals(oldProjectDescriptor)) {
-            currentProject = newProjectDescriptor;
-        }
-        List<ProjectDescriptor> descriptors = projects.get(repoId);
-        if (descriptors.remove(oldProjectDescriptor)) {
-            descriptors.add(newProjectDescriptor);
-        }
-    }
-
     public AProject getProjectByName(final String name) {
         try {
             AProject project = getProjectFromWorkspace(name);
@@ -863,25 +817,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public ProjectDependencyDescriptor getProjectDependency(final String dependencyName) {
         List<ProjectDependencyDescriptor> dependencies = getCurrentProjectDescriptor().getDependencies();
         return CollectionUtils.findFirst(dependencies, dependency -> dependency.getName().equals(dependencyName));
-    }
-
-    /**
-     * Checks if there is any project with specified name in repository.
-     *
-     * @param name physical or logical project name
-     * @return true only if there is a project with specified name and it is not current project
-     */
-    public boolean isProjectExists(final String name) {
-        HttpSession session = WebStudioUtils.getSession();
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-
-        // The order of getting projects is important!
-        Collection<RulesProject> projects = userWorkspace.getProjects(); // #1
-        RulesProject currentProject = getCurrentProject(); // #3
-
-        return projects.stream()
-                .anyMatch(p -> p != currentProject && p.getName()
-                        .equals(name) && (p.isOpened() || p.getDesignRepository().getId().equals(currentRepositoryId)));
     }
 
     private void setTreeView(RulesProfile treeView) {
@@ -1195,79 +1130,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (RuntimeException e) {
             return false;
         }
-    }
-
-    public boolean getCanRedeploy() {
-        UserWorkspaceProject selectedProject = getCurrentProject();
-        return getCanRedeploy(selectedProject);
-    }
-
-    public boolean getCanRedeploy(UserWorkspaceProject selectedProject) {
-        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isModified()) {
-            return false;
-        }
-
-        return deploymentManager.getRepositoryConfigNames()
-                .stream()
-                .filter(e -> !DeploymentRepositoriesUtil
-                        .isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
-                .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(BasePermission.WRITE)));
-    }
-
-    public boolean getCanOpenOtherVersion() {
-        UserWorkspaceProject selectedProject = getCurrentProject();
-
-        if (selectedProject == null) {
-            return false;
-        }
-
-        if (!selectedProject.isLocalOnly()) {
-            return designRepositoryAclService.isGranted(selectedProject, List.of(BasePermission.READ));
-        }
-
-        return false;
-    }
-
-    public void setProjectVersion(String version) {
-        try {
-            UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-
-            RulesProject project = getCurrentProject();
-            AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
-            if (userWorkspace.isOpenedOtherProject(historic)) {
-                throw new Message(
-                        "OpenL Studio cannot open two projects with the same name. Close the currently opened project and try again.");
-            }
-
-            if (project.isOpened()) {
-                getModel().clearModuleInfo();
-                project.releaseMyLock();
-            }
-
-            project.openVersion(version);
-            String repositoryId = project.getRepository().getId();
-            String branch = project.getBranch();
-            String actualName = userWorkspace.getActualName(project);
-            resetProjects();
-            init(repositoryId, branch, actualName, null);
-        } catch (ValidationException e) {
-            throw e;
-        } catch (Exception e) {
-            String msg = "Failed to open project version.";
-            log.error(msg, e);
-            throw new Message(msg);
-        }
-    }
-
-    public Collection<ProjectVersion> getProjectVersions() {
-        RulesProject project = getCurrentProject();
-        if (project == null) {
-            return Collections.emptyList();
-        }
-
-        List<ProjectVersion> versions = project.getVersions();
-        Collections.reverse(versions);
-        return versions;
     }
 
     public void freezeProject(String name) {
