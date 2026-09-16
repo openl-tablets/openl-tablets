@@ -66,7 +66,6 @@ class TestIntExpAddExp {
         assertEquals(0, observer1.updtCounter());
         assertEquals(0, observer2.updtCounter());
         try {
-            // sum.setMin(5);
             sum.setMin(5);
             C.propagate();
         } catch (Failure f) {
