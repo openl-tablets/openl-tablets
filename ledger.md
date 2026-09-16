@@ -4,9 +4,9 @@
 
 - Reset to zero on the owner's instruction, then every change type re-derived on `origin/main` 737e6794be in one run;
   the result is PR #2120 on `dead-code/full-resweep`. Maintain that PR first (section 4 of the prompt).
-- A parallel run's PR #2119 merged into main first, carrying the same ProjectModel, openapi.properties and
-  `menu.editor` deletions: merge `origin/main` into #2120 before anything else.
-- Next sweep: `git rev-list --count 737e6794be..origin/main`; 0 means nothing new to scan. Otherwise scan the new
+- Another run of this routine pushed three overlapping commits to main (b48c862793) while PR #2120 was open: list open
+  `dead-code/*` PRs and re-fetch main before every push, and rebase the PR instead of re-deriving.
+- Next sweep: `git rev-list --count b48c862793..origin/main`; 0 means nothing new to scan. Otherwise scan the new
   commits' deleted imports first, then rerun the detectors under Method rules; the veins below are exhausted at 737e6794be.
 - Not done this run for lack of time: dead `@SuppressWarnings` (needs a `-Xlint:all` recompile), plugin configuration
   in poms (needs `help:effective-pom` before/after), and the ITEST modules' PMD hits (all in test harness code).
@@ -17,29 +17,28 @@
 |---|-------------|--------|
 | 1 | Commented-out code (Java, CSS, JS, TS) | in PR #2120; 27 lines |
 | 2 | Never-read assignments, dead stores | done; 30 PMD hits, all generated grammar or FPs |
-| 3 | Unused locals, private fields/methods/params | in PR #2120; 2 methods |
+| 3 | Unused locals, private fields/methods/params | done; the 2 ProjectModel counters landed on main by a parallel run |
 | 4 | Unused Maven dependency declarations | in PR #2120; 1 of 250 analyze hits |
 | 5 | Pom metadata: managed entries, exclusions, properties | in PR #2120; aspectj; plugin config not checked |
 | 6 | Redundant constructs, dead suppressions, VCS/build settings | in PR #2120; `[*.scss]`; suppressions not checked |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 82 stems, 608 images, all alive |
 | 8 | CSS rules and inline styles | done; DEMO main.css only, all selectors used |
 | 9 | Legacy JS functions and pages | done; no legacy JS or pages exist |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | in PR #2120; 4 + 17 keys |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | in PR #2120; 3 keys (17 + 1 landed on main in parallel) |
 | 11 | TypeScript exports, types, components, imports | done; tsc --noUnusedLocals clean, 0 unimported exports |
 | 12 | Test fixtures: workbooks, utility classes, stub members | in PR #2120; 1 workbook, 2 stubs |
 | 13 | Package-private/protected members and unreferenced internal classes | in PR #2120; webstudio only |
 
 ## Open PR
 
-- PR #2120, branch `dead-code/full-resweep`, head ebd0f758dd, 8 commits, 32 files, -500/+2; all 17 checks green, Sonar gate
-  passed (3 "new issues" on shifted lines), CodeRabbit's one finding folded in; mergeable_state `blocked` = waits on a human review.
-- Commits: commented-out code; private ProjectModel counters; message keys; test workbook and stubs; `.editorconfig`
+- PR #2120, branch `dead-code/full-resweep`, head 4e770f27f5, 7 commits, 30 files, -453/+2, rebased onto main b48c862793;
+  the private-counters commit and the OpenAPI/menu.editor hunks dropped out because main carries them; waits on a human review.
+- Commits: commented-out code; message keys; test workbook and stubs; `.editorconfig`
   scss section; spring-security-core in security.standalone; AspectJ managed versions; webstudio members and mapper type.
 
 ## Merged PRs
 
-- #2119 (3 commits, -72): stale comments, 10 locale + 17 OpenAPI keys, ProjectModel counters; the maintainer vetoed
-  deleting commented-out debug toggles (Keep-list).
+- None since the reset.
 
 ## Module coverage
 
@@ -128,9 +127,6 @@
 
 ## Keep-list
 
-- Commented-out debug toggles are maintained conveniences, never dead (maintainer decision on PR #2119): the
-  `writeBodyTo` bulk-rewrite block in ITEST `HttpClient` and the `files = new File[] {...}` single-folder toggles in
-  `RulesInFolderTestRunner`, `OpenAPIGenerationTest`, `OpenAPIProjectCreatorTest`.
 - OpenL datatype beans and rules interfaces in tests are bound from Excel by property or method name (IChildBean.getMyBean,
   Tutorial4Interface.getTheft_rating, Location setters, RulesUtilsTest.testFlatten, ComputeInterface stand-ins).
 - Jackson-bound webstudio models keep every accessor: RepositorySettings, AWSS3RepositorySettings, GitRepositorySettings,
@@ -171,7 +167,6 @@
 
 ## Human follow-ups
 
-- The routine fired in two sessions at once and produced overlapping PRs #2119 and #2120; make it fire in one.
 - Dependency hygiene (additions): 293 used-undeclared findings, notably spring-security-core in org.openl.security and
   org.openl.rules.jackson in ruleservice.ws.
 - PMD `Parsing failed in ParseLock#doParse()` on `BranchedProjectIndexService$IndexState` in workspace: a PMD 7 type
@@ -180,5 +175,5 @@
 
 ## Run log
 
-- 2026-09-16 g: ledger reset to zero; full re-sweep from `origin/main` 737e6794be; 8 commits, -500 lines, PR #2120.
-- 2026-09-16 h: parallel run from the same base; PR #2119, 3 commits, -72 lines, merged the same day.
+- 2026-09-16 g: ledger reset to zero; full re-sweep from `origin/main` 737e6794be; PR #2120, now 7 commits, -453 lines after
+  a rebase onto main.
