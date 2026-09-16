@@ -1,9 +1,10 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
+import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert, Space } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import { useStyles } from './Header.styles'
 import { UserMenu } from './header/UserMenu'
+import { ThemeSwitch } from './header/ThemeSwitch'
 import { Link, useLocation } from 'react-router-dom'
 import Logo from '../components/Logo'
 import { hasDeploymentRepositories } from '../services/deployments'
@@ -123,7 +124,10 @@ export const Header = () => {
                         />
                     </Col>
                     <Col>
-                        <Avatar icon={<UserOutlined />} onClick={onOpenUserMenu} />
+                        <Space size="small">
+                            <ThemeSwitch />
+                            <Avatar icon={<UserOutlined />} onClick={onOpenUserMenu} />
+                        </Space>
                     </Col>
                 </Row>
                 <UserMenu isOpen={isUserMenuOpen} onClose={onCloseUserMenu} />

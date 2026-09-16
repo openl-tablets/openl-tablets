@@ -4,6 +4,7 @@ This chapter explains logging into OpenL Studio and briefly introduces the user 
 
 -   [Signing In to OpenL Studio](#signing-in-to-openl-studio)
 -   [Modifying User Profile](#modifying-user-profile)
+-   [Switching the Theme](#switching-the-theme)
 -   [Displaying the OpenL Studio Help](#displaying-the-openl-studio-help)
 -   [Signing Out of OpenL Studio](#signing-out-of-openl-studio)
 -   [Introducing Rules Editor](#introducing-rules-editor)
@@ -178,6 +179,20 @@ To create a personal access token, proceed as follows:
     `Authorization: Token <value>`
 
 To delete a token, in the tokens list, click the delete icon next to the token and confirm the deletion.
+
+### Switching the Theme
+
+OpenL Studio is displayed in a light or a dark theme. To choose one, in the top-right corner, click the theme icon next to the user icon and select an option:
+
+-   **Light** — always use the light theme
+-   **Dark** — always use the dark theme
+-   **Follow System** — use the theme the operating system asks for, and switch along with it
+
+![Theme menu opened next to the user icon, offering Light, Dark, and Follow System](images/theme-switcher.png)
+
+*Choosing the theme*
+
+New users start with **Follow System**. The choice is stored in the web browser, so it applies to the same browser on the same computer and is restored on the next sign-in. Using a different browser or computer starts from **Follow System** again.
 
 ### Displaying the OpenL Studio Help
 
