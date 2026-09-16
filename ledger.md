@@ -6,8 +6,8 @@
   -57001 lines, and was the vein the previous eight idle runs were waiting for.
 - The merge closed the JSF veins for good, not merely swept them: zero `.xhtml`, zero legacy `.js`/`.css`/images
   and zero JSF/RichFaces coordinates remain anywhere in the repository. Never re-derive those categories.
-- Every change type is swept at this head and every detector rerun; the repository is clean again. First command of
-  a run is `git rev-list --count ff879e6652..origin/main`: 0 means stop after maintaining PR #2118.
+- Every change type is swept and every detector rerun; PR #2118 is merged, so `main` is 737e6794be and carries the
+  sweep itself. First command of a run is `git rev-list --count 737e6794be..origin/main`: 0 means stop.
 
 ## Change-type queue
 
@@ -29,16 +29,14 @@
 
 ## Open PR
 
-- `dead-code/react-editor-residue`, PR #2118, head 703ec5ab8c, both commits stranded by EPBDS-16599.
-- Remove the webstudio classes … unreferenced: IProjectTypes, ObjectRegistry, ListItem (76 lines).
-- Remove the WebStudio and ProjectModel members … unreferenced: 21 methods, 2 fields, the DeploymentManager
-  injection and its one call site and test (281 lines).
+- None.
 
 ## Merged PRs
 
-- 24 sweep PRs merged (1906-2109); what each removed is covered by Exhausted veins. A repo-wide single-type commit is
-  accepted as-is (2101 and 2104 were rebase-merged, one commit per change type onto main).
-- A small, fully green, evidence-backed sweep PR merges unreviewed on its own (2109 in ~22h): never nudge, never pad one.
+- 25 sweep PRs merged (1906-2118); what each removed is covered by Exhausted veins. A repo-wide single-type commit is
+  accepted as-is; 2101, 2104 and 2118 were rebase-merged, one commit per change type onto main.
+- A small, evidence-backed sweep PR merges unreviewed on its own and fast: 2109 in ~22h, 2118 in ~23 min, before its
+  Quick Build had even finished. Never nudge, never pad one — and get the evidence into the description, not a comment.
 - 2104 merged with `IT (studio)` still red: a failure proven to be `main`'s, with a standing-down comment naming it,
   does not block a merge. Ordering a referrer's commit before the resources only it reached survived review untouched.
 - GitHub deletes a merged PR's branch by itself; CodeRabbit reviews at most 2 pull requests an hour, silently skipping the rest.
@@ -52,9 +50,8 @@
 
 - A feature merge deletes its own referrers but not what they reached: after EPBDS-16599 the residue was three whole
   types plus 21 members on the surviving session beans. Scan a big merge's deleted imports first — highest yield.
-- CellFont (DEV): public, named by no other file at all. IGridSelector and RegionGridSelector name only each other,
-  so the pair is dead together; all are public in a published jar.
-- Unreferenced once EPBDS-16576 retired the JSF diff UI, but public in published jars: EmptyCell (DEV).
+- Unreferenced but public in published DEV jars, so a human decides: CellFont (named by no other file at all),
+  EmptyCell, and the IGridSelector/RegionGridSelector pair, which name only each other.
 - OpenLServiceFactoryBean.setProxyInterface: @Deprecated public, unreferenced; binary-compatibility break.
 - Module.wildcardName: written by 2 callers via Lombok setter, read by none; needs cross-module call-site edits. DecisionTableBuilder.methodName + setMethodName + its TableSyntaxNodeDispatcherBuilder call: inert chain, public DEV API.
 - SimpleGroup.description: public setter and 3-arg ctor parameter, read nowhere. XlsProjectionType GRID..CELL_FONT (9 constants, `// TODO do we need the rest?`): public enum, no values()/valueOf use.
@@ -291,6 +288,9 @@
 - Dependency hygiene PR (additions, never this sweep): declare commons-lang3 (openapi-parser, project.openapi,
   validation.openapi), groovy test, org.openl.rules.project, spring-core in ruleservice.ws.common (via rules.jackson).
 - Three stale `dead-code/*` branches await a human delete: `push --delete` is 403 here, no MCP tool — never probe.
+- `dead-code/ledger` was deleted on the remote minutes after #2118 merged, while those three stale branches survived,
+  so it was not a blanket sweep. Restored from local objects with its history. If the deletion was deliberate, say so
+  and this routine will stop recreating it; otherwise protect the branch, as losing it costs every run's memory.
 
 ## Run log
 
