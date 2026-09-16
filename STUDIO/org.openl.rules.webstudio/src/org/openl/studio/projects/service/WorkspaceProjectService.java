@@ -1832,7 +1832,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 : null;
     }
 
-    private ProjectDescriptor getProjectDescriptor(RulesProject project) {
+    /**
+     * The descriptor the engine resolved for the project: its modules are the workbooks the declarations and
+     * the wildcards came to, not the declarations themselves.
+     */
+    public ProjectDescriptor getProjectDescriptor(RulesProject project) {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }

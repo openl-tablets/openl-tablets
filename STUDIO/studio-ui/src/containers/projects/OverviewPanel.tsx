@@ -32,6 +32,7 @@ import {
     parseRulesDescriptor,
     serializeRulesDescriptor,
     type DeclaredDependency,
+    type DescriptorOpenApi,
     type MethodFilter,
     type ModuleDeclaration,
     type OpenApiMode,
@@ -39,6 +40,7 @@ import {
 } from '../../services/rulesDescriptor'
 import { getProjectIndex } from '../../services/projectIndex'
 import { MigrateButton, useDescriptorMigration } from './projectMigration'
+import { OpenApiActions, useOpenApiActions } from './openApiActions'
 import { getProjectFiles } from '../../services/repositories'
 import { errorMessage } from '../../utils/errorMessage'
 import { EditableList, EditableStringList } from './EditableList'
@@ -1255,6 +1257,15 @@ const SourcesSection = ({ editor, sources, sourcesDefault, hasRulesXml }: {
 const isOpenApiFile = (path: string): boolean => /\.(json|yaml|yml)$/i.test(path)
 
 /**
+ * The names the engine reads a specification from without being told to, in the order it looks for them.
+ *
+ * <p>A descriptor naming one of these for reconciliation says no more than the engine does by itself, so the
+ * model drops the block when it is written — and a project whose specification is one of these declares
+ * nothing, while reading it all the same.
+ */
+const DEFAULT_OPENAPI_FILES = ['openapi.yaml', 'openapi.yml', 'openapi.json']
+
+/**
  * The OpenAPI settings, edited in place the way the legacy editor configured them: the specification is
  * picked from the project files or from the file system, and the mode says whether the project is
  * validated against it or its tables are generated from it. The module names only matter for generation,
@@ -1263,19 +1274,17 @@ const isOpenApiFile = (path: string): boolean => /\.(json|yaml|yml)$/i.test(path
  * A specification picked from the file system reaches the project with the save that keeps it, not with
  * the picking.
  */
-const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: DescriptorEditor, projectId: string, staged: File | null, onPicked: (file: File) => void }) => {
+const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritten }: { editor: DescriptorEditor, projectId: string, staged: File | null, onPicked: (file: File) => void, canWrite: boolean, onWritten: () => void }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { editing, shown, editDraft } = editor
     const [files, setFiles] = useState<string[]>([])
+    const openApi = useOpenApiActions(projectId, onWritten)
 
-    // The pickable files are read when the editing starts; without them a file can still be picked from
-    // the file system.
+    // Read whether or not the reader is editing: they are what a file can be picked from, and they are also
+    // what says whether a project declaring nothing still has a specification the engine reads.
     useEffect(() => {
-        if (!editing) {
-            return
-        }
         let cancelled = false
         getProjectFiles(projectId)
             .then(nodes => {
@@ -1287,7 +1296,15 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: Descr
         return () => { cancelled = true }
     }, [editing, projectId])
 
-    if (!editing && !shown.openapi) {
+    // What the engine reads: the block the descriptor declares, or the file it falls back to without one.
+    const byDefault = shown.openapi ? undefined : DEFAULT_OPENAPI_FILES.find(name => files.includes(name))
+    const effective: DescriptorOpenApi | undefined = shown.openapi
+        ?? (byDefault === undefined ? undefined : { path: byDefault, mode: 'RECONCILIATION' })
+
+    // A project that declares no specification still has the section, so long as the reader may write one:
+    // writing the specification the rules answer to is how a project comes to have one at all, and it was
+    // the first thing the old dialog offered. A reader who cannot write is shown nothing to act on.
+    if (!editing && !effective && !canWrite) {
         return null
     }
 
@@ -1326,8 +1343,19 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: Descr
     const moduleRow = (testId: string, label: string, value: string, onChange: (value: string) => void) =>
         editRow(label, <Input data-testid={testId} onChange={event => onChange(event.target.value)} size="small" value={value} />)
 
+    const actions = canWrite && !editing
+        ? (
+            <OpenApiActions
+                onGenerate={() => void openApi.generateTables(effective ?? {})}
+                onWrite={() => void openApi.writeSchema()}
+                openapi={effective}
+                running={openApi.running}
+            />
+        )
+        : undefined
+
     return (
-        <Section icon={<ApiOutlined />} title={t('browser.overview.openapi')}>
+        <Section action={actions} icon={<ApiOutlined />} title={t('browser.overview.openapi')}>
             {editing
                 ? (
                     <dl className={styles.openapi}>
@@ -1384,15 +1412,22 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: Descr
                         )}
                     </dl>
                 )
-                : shown.openapi && (
-                    <dl className={styles.openapi}>
-                        {shown.openapi.path && row(t('browser.overview.openapi_path'), shown.openapi.path)}
-                        {shown.openapi.mode && row(t('browser.overview.openapi_mode'),
-                            t(shown.openapi.mode === 'GENERATION' ? 'browser.overview.openapi_generation' : 'browser.overview.openapi_reconciliation'))}
-                        {shown.openapi.algorithmModuleName && row(t('browser.overview.openapi_algorithm'), shown.openapi.algorithmModuleName)}
-                        {shown.openapi.modelModuleName && row(t('browser.overview.openapi_model'), shown.openapi.modelModuleName)}
-                    </dl>
-                )}
+                : !effective
+                    ? <span className={shared.microLabel} data-testid="openapi-none">{t('browser.overview.openapi_none')}</span>
+                    : (
+                        <dl className={styles.openapi}>
+                            {effective.path && row(t('browser.overview.openapi_path'), effective.path)}
+                            {effective.mode && row(t('browser.overview.openapi_mode'),
+                                t(effective.mode === 'GENERATION' ? 'browser.overview.openapi_generation' : 'browser.overview.openapi_reconciliation'))}
+                            {effective.algorithmModuleName && row(t('browser.overview.openapi_algorithm'), effective.algorithmModuleName)}
+                            {effective.modelModuleName && row(t('browser.overview.openapi_model'), effective.modelModuleName)}
+                            {byDefault !== undefined && (
+                                <span className={shared.microLabel} data-testid="openapi-by-default">
+                                    {t('browser.overview.openapi_by_default')}
+                                </span>
+                            )}
+                        </dl>
+                    )}
         </Section>
     )
 }
@@ -1603,7 +1638,14 @@ export const OverviewPanel = ({
                     sources={project.descriptor?.sources ?? []}
                     sourcesDefault={project.descriptor?.sourcesDefault ?? false}
                 />
-                <OpenApiSection editor={descriptor.editor} onPicked={descriptor.stageUpload} projectId={project.id} staged={descriptor.staged} />
+                <OpenApiSection
+                    canWrite={canWrite}
+                    editor={descriptor.editor}
+                    onPicked={descriptor.stageUpload}
+                    onWritten={() => onChanged?.()}
+                    projectId={project.id}
+                    staged={descriptor.staged}
+                />
             </div>
             <MetaColumn
                 busy={busy}
