@@ -184,24 +184,6 @@ public class ProjectCreationService {
         tagAssignmentValidator.applicable(collectProjectTags(project));
     }
 
-    /**
-     * Configures the tags of a freshly written design project and resyncs the user workspace with the
-     * design repository.
-     */
-    public void registerExtensibleTagsAfterDesignChange(AProject project) {
-        registerExtensibleTags(project);
-        refreshWorkspaceAfterDesignChange();
-    }
-
-    /**
-     * Configures the tags of a workspace project and resyncs the user workspace after a design-repository
-     * write.
-     */
-    public void registerExtensibleTagsAfterDesignChange(RulesProject project) {
-        registerExtensibleTags(project);
-        refreshWorkspaceAfterDesignChange();
-    }
-
     private static Map<String, String> collectProjectTags(RulesProject project) {
         var tags = new HashMap<String, String>();
         try {

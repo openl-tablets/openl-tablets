@@ -28,10 +28,6 @@ public class ProjectsMergeConflictsSessionHolder {
         return e != null && e.projectId().equals(projectId);
     }
 
-    public boolean hasAnyConflictInfo() {
-        return ref.get() != null;
-    }
-
     public MergeConflictInfo getConflictInfo(ProjectIdModel projectId) {
         var e = ref.get();
         if (e != null && e.projectId().equals(projectId)) {

@@ -71,11 +71,4 @@ public interface ProtectedBranchBypassService {
      * @return {@code true} if the action should be blocked due to branch protection.
      */
     boolean isProtectionEnforced(BranchRepository repo, String branch, AProject project);
-
-    /**
-     * Repository-scoped variant of
-     * {@link #isProtectionEnforced(BranchRepository, String, AProject)} for call sites
-     * with no project context (e.g. repository-list filters).
-     */
-    boolean isProtectionEnforced(BranchRepository repo, String branch, String repoId);
 }

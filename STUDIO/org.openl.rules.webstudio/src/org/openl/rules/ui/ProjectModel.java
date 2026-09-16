@@ -694,29 +694,6 @@ public class ProjectModel {
                 .isOpenedForEditing());
     }
 
-    public boolean getCanSave() {
-        if (isEditable()) {
-            if (studio.getCurrentModule() == null) {
-                RulesProject currentProject = getProject();
-                var alcService = studio.getDesignRepositoryAclService();
-                return alcService.isGranted(currentProject, List.of(BasePermission.WRITE));
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /*
-     * Return is editable current project
-     */
-    public boolean isEditableProject() {
-        RulesProject currentProject = getProject();
-        if (currentProject != null) {
-            return isEditableProject(currentProject);
-        }
-        return false;
-    }
-
     /**
      * Check is the table is partial
      */
@@ -734,15 +711,6 @@ public class ProjectModel {
                             (BranchRepository) repo, project.getBranch(), project);
         }
         return false;
-    }
-
-    public boolean isTestable(String uri) {
-        IOpenMethod m = getMethod(uri);
-        if (m == null) {
-            return false;
-        }
-
-        return ProjectHelper.testers(m, compiledOpenClass).length > 0;
     }
 
     public boolean isGapOverlap(TableSyntaxNode tsn) {

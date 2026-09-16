@@ -67,9 +67,4 @@ public class ProtectedBranchBypassServiceImpl implements ProtectedBranchBypassSe
     public boolean isProtectionEnforced(BranchRepository repo, String branch, AProject project) {
         return repo.isBranchProtected(branch) && !isBypassEligible(project);
     }
-
-    @Override
-    public boolean isProtectionEnforced(BranchRepository repo, String branch, String repoId) {
-        return repo.isBranchProtected(branch) && !isBypassEligible(repoId);
-    }
 }

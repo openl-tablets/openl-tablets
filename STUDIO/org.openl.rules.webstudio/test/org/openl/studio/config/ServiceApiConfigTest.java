@@ -33,9 +33,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.projects.service.ProjectAccessService;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
-import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.security.CurrentUserInfo;
 
 class ServiceApiConfigTest {
@@ -77,8 +75,6 @@ class ServiceApiConfigTest {
                 mock(PropertyResolver.class),
                 mock(ApplicationEventPublisher.class),
                 mock(ProtectedBranchBypassService.class),
-                mock(ProjectIdentifierMapper.class),
-                mock(ProjectStateValidator.class),
                 mock(ProjectAccessService.class),
                 session);
 
