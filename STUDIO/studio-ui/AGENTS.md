@@ -1,6 +1,6 @@
 # studio-ui — React/TypeScript Frontend
 
-Replaces legacy JSF screens for administration, user/group management, repository settings, notifications.
+Draws every screen of OpenL Studio: the editor, the projects, administration, user and group management, repository settings and notifications.
 
 ## Tech Stack
 
@@ -51,8 +51,8 @@ src/
 - **REST**: always use `services/apiCall.ts` — it prepends `CONFIG.CONTEXT`, handles JSON/text, surfaces validation
   errors, and updates `useAppStore` flags for 401/403/404/500.
 - **State**: Zustand stores in `src/store/`. Use selectors that subscribe to specific slices to avoid re-renders.
-- **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Legacy JSF content under `faces/*`. Admin
-  features under `administration/` with `AdministrationLayout`.
+- **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Admin features under `administration/`
+  with `AdministrationLayout`.
 - **i18n**: bundles in `src/locales/*.en.ts`, registered as namespaces. Reference keys like `t('common:menu.users')` or
   `t('system:tabs.repositories')`.
 - **Permissions**: `SecurityProvider` derives system flags from the backend. Use `PermissionContext` and `SystemContext`

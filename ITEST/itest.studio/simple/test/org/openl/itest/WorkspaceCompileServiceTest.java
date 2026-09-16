@@ -1,7 +1,6 @@
 package org.openl.itest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +18,7 @@ class WorkspaceCompileServiceTest {
     @AutoClose
     private static final HttpClient client = startServerWithSeededWorkspace();
 
-    // base64("local:Sample") — keep in sync with the project name/repository used by project.get.
+    // base64("local:Sample") — keep in sync with the project name/repository the compile request names.
     private static final String PROJECT_ID = "bG9jYWw6U2FtcGxl";
     private static final String STATUS_TOPIC = "/user/topic/projects/" + PROJECT_ID + "/status";
 
@@ -51,7 +50,7 @@ class WorkspaceCompileServiceTest {
                     status -> "errors".equals(status.compileState));
 
             // Trigger project compilation.
-            client.send("workspace-compile/project.get");
+            client.send("workspace-compile/compile-module.post");
 
             ProjectStatus status = terminal.get(10, TimeUnit.SECONDS);
             assertEquals("errors", status.compileState());
@@ -60,21 +59,6 @@ class WorkspaceCompileServiceTest {
             assertEquals(4, status.compilation().messages().errors());
             assertEquals(0, status.compilation().messages().warnings());
         }
-
-        client.send("workspace-compile/table.tests.get");
-        client.send("workspace-compile/table.errors.module.get");
-        TableErrorInfo tableErrorInfo = client.getForObject("/web/compile/table/8e514ef161e2f50d730dde1fdc4fb4ac",
-                TableErrorInfo.class, 200);
-        assertEquals("#local/Sample/Main/table", tableErrorInfo.tableUrl());
-        assertEquals(1, tableErrorInfo.errors().length);
-        TableError firstError = tableErrorInfo.errors()[0];
-        assertTrue(firstError.hasStacktrace());
-        assertEquals("B3", firstError.errorCell());
-        assertEquals("There can be only one active table.", firstError.summary());
-        assertEquals("ERROR", firstError.severity());
-        String projectError = client.getForObject("/web/message/" + firstError.id() + "/stacktrace",
-                String.class, 200);
-        assertTrue(projectError.startsWith("Error: There can be only one active table."));
     }
 
     public record ProjectStatus(String compileState, Compilation compilation) {
@@ -87,11 +71,5 @@ class WorkspaceCompileServiceTest {
     }
 
     public record Messages(int errors, int warnings) {
-    }
-
-    public record TableErrorInfo(String tableUrl, TableError[] errors) {
-    }
-
-    public record TableError(int id, String summary, boolean hasStacktrace, String errorCell, String severity) {
     }
 }

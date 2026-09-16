@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 
 public class ComboBoxCellEditor implements ICellEditor {
 
@@ -27,9 +26,7 @@ public class ComboBoxCellEditor implements ICellEditor {
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        var typeResponse = new EditorTypeResponse(CE_COMBO);
-        typeResponse.setParams(new ComboBoxParam(choices, displayValues));
-        return typeResponse;
+        return new EditorTypeResponse(CE_COMBO, new ComboBoxParam(choices, displayValues));
     }
 
     public static class ComboBoxParam {

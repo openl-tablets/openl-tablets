@@ -58,7 +58,7 @@ public class CellEditorSelector {
                         return factory.makeComboboxEditor(allObjectValues);
                     }
                 } else if (allObjects != null) {
-                    IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta, false);
+                    IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta);
                     if (formatter instanceof ArrayFormatter arrayFormatter) {
                         // We need a formatter for each element of an array.
                         formatter = arrayFormatter.getElementFormat();

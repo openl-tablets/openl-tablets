@@ -9,16 +9,6 @@
     <!-- Enable auto-wiring -->
     <context:annotation-config/>
 
-    <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
-        <property name="scopes">
-            <map>
-                <entry key="view">
-                    <bean class="org.openl.rules.webstudio.web.jsf.ViewScope"/>
-                </entry>
-            </map>
-        </property>
-    </bean>
-
     <context:property-placeholder/>
     <context:component-scan base-package="
                     org.openl.studio

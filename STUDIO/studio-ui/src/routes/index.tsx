@@ -45,11 +45,9 @@ const router = createBrowserRouter([
         errorElement: <RouteErrorFallback />,
         children: [
             {
+                // The welcome page the application opens on, as it did when the server drew the page around it.
                 index: true,
-                element: <></>,
-            },
-            {
-                path: 'faces/*', // To integrate with JSF Repository and Editor tabs
+                element: <Help />,
             },
             {
                 path: 'help',

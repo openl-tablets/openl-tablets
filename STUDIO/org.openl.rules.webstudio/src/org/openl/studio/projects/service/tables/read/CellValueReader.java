@@ -21,7 +21,7 @@ public class CellValueReader implements Function<ICell, Object> {
         var value = cell.getObjectValue();
         if (value instanceof String string) {
             var metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
-            var formatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo, false);
+            var formatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo);
             if (formatter != null) {
                 var parsedValue = formatter.parse(string);
                 if (parsedValue != null) {

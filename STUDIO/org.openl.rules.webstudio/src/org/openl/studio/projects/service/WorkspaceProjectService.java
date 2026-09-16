@@ -2241,10 +2241,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);
         return targets.stream()
                 .map(target -> {
-                    var where = modules.locationOf(target.getUri());
+                    var where = modules.locationOf(target.uri());
                     return TableTargetView.builder()
-                            .id(target.getId())
-                            .name(target.getName())
+                            .id(target.id())
+                            .name(target.name())
                             .module(where == null ? null : where.module())
                             .project(where == null ? null : where.projectName())
                             .projectId(where == null ? null : where.projectId())

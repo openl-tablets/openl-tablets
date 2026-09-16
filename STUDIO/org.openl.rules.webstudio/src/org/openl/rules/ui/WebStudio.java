@@ -17,8 +17,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import jakarta.faces.context.FacesContext;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.ValidationException;
 
@@ -52,7 +50,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.Profile;
-import org.openl.rules.ui.tree.view.RulesTreeView;
+import org.openl.rules.ui.tree.view.RulesProfile;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -106,7 +104,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
     public static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
 
-    private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
 
     private String workspacePath;
     private String tableUri;
@@ -114,8 +111,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ProjectResolver projectResolver;
     private Map<String, List<ProjectDescriptor>> projects;
 
-    private RulesTreeView defaultTreeView;
-    private RulesTreeView treeView;
+    private RulesProfile defaultTreeView;
+    private RulesProfile treeView;
     private String tableView;
     private boolean showRealNumbers;
     private boolean showFormulas;
@@ -248,10 +245,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, TEST_FAILURES_PERTEST);
         showComplexResult = userSettingsManager.getBooleanProperty(userName, TEST_RESULT_COMPLEX_SHOW);
         showRealNumbers = userSettingsManager.getBooleanProperty(userName, TRACE_REALNUMBERS_SHOW);
-    }
-
-    public RulesTreeView[] getTreeViews() {
-        return Profile.TREE_VIEWS;
     }
 
     public boolean isRenamed(RulesProject project) {
@@ -429,10 +422,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
      */
     public ProjectResolver getProjectResolver() {
         return projectResolver;
-    }
-
-    public RulesTreeView getTreeView() {
-        return treeView != null ? treeView : defaultTreeView;
     }
 
     public String getTableView() {
@@ -713,12 +702,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 } else {
                     model.setModuleInfo(module);
                 }
-                model.buildProjectTree(); // Reason: tree should be built
-                // before accessing the ProjectModel.
-                // Is is related to UI: rendering of
-                // frames is asynchronous and we
-                // should build tree before the
-                // 'content' frame
+                // Listen to the workbooks of the module that was opened, so that a write to one of them is
+                // kept as a revision of the project.
+                model.initProjectHistory();
                 needCompile = false;
                 forcedCompile = false;
                 manualCompile = false;
@@ -736,14 +722,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private void handleProjectNotFound() {
-        var facesContext = FacesContext.getCurrentInstance();
-        if (facesContext != null) {
-            facesContext.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-            facesContext.responseComplete();
-        } else {
-            // faces context may not be available in OpenL Studio if it's used from REST API
-            throw new NotFoundException("project.identifier.message");
-        }
+        throw new NotFoundException("project.identifier.message");
     }
 
     public boolean isNeedRedirect() {
@@ -905,17 +884,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         .equals(name) && (p.isOpened() || p.getDesignRepository().getId().equals(currentRepositoryId)));
     }
 
-    private void setTreeView(RulesTreeView treeView) {
+    private void setTreeView(RulesProfile treeView) {
         this.treeView = treeView;
-        model.redraw();
         userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW, treeView.getName());
     }
 
-    private void setDefaultTreeView(RulesTreeView treeView) {
+    private void setDefaultTreeView(RulesProfile treeView) {
         this.defaultTreeView = treeView;
-        if (this.treeView == null) {
-            model.redraw();
-        }
         userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW_DEFAULT, treeView.getName());
     }
 
@@ -924,16 +899,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void setTreeView(String name) {
-        RulesTreeView mode = getTreeView(name);
+        var mode = getTreeView(name);
         if (mode != null) {
             setTreeView(mode);
         } else {
-            log.error("Cannot find RulesTreeView for name {}", name);
+            log.error("Cannot find a rules tree view named {}", name);
         }
     }
 
-    private RulesTreeView getTreeView(String name) {
-        for (RulesTreeView mode : Profile.TREE_VIEWS) {
+    private RulesProfile getTreeView(String name) {
+        for (RulesProfile mode : Profile.PROFILES) {
             if (name.equals(mode.getName())) {
                 return mode;
             }
@@ -942,11 +917,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void setDefaultTreeView(String name) {
-        RulesTreeView mode = getTreeView(name);
+        var mode = getTreeView(name);
         if (mode != null) {
             setDefaultTreeView(mode);
         } else {
-            log.error("Can't find RulesTreeView for name {}", name);
+            log.error("Cannot find a rules tree view named {}", name);
         }
     }
 
@@ -1084,10 +1059,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         return moduleUrl + "/" + pageUrl;
-    }
-
-    public WebStudioLinkBuilder getLinkBuilder() {
-        return linkBuilder;
     }
 
     public boolean isSupportsBranches() {

@@ -8,19 +8,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import lombok.Getter;
-import lombok.Setter;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
 
-import org.openl.domain.EnumDomain;
-import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
-import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGrid;
@@ -35,29 +28,19 @@ import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableEditTableAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
-import org.openl.rules.table.actions.UndoableRemoveMergedColumnsAction;
 import org.openl.rules.table.actions.UndoableRemoveMergedRowsAction;
-import org.openl.rules.table.actions.UndoableSetValueAction;
-import org.openl.rules.table.actions.style.SetAlignmentAction;
-import org.openl.rules.table.actions.style.SetFillColorAction;
-import org.openl.rules.table.actions.style.SetIndentAction;
-import org.openl.rules.table.actions.style.font.SetBoldAction;
-import org.openl.rules.table.actions.style.font.SetColorAction;
-import org.openl.rules.table.actions.style.font.SetItalicAction;
-import org.openl.rules.table.actions.style.font.SetUnderlineAction;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.PropertiesHelper;
-import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
-import org.openl.rules.tableeditor.renderkit.TableEditor;
-import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaEnumDomain;
 import org.openl.util.StringUtils;
-import org.openl.util.formatters.IFormatter;
 
 /**
+ * Writes a table's properties section.
+ *
+ * <p>A property is set in place: the section grows a row where one is needed, and the table is moved when it has no
+ * room to grow. Setting a property to {@code null} takes its row away.
+ *
  * @author snshor
  */
 public class TableEditorModel {
@@ -73,35 +56,11 @@ public class TableEditorModel {
     @Getter
     private final IGridTable gridTable;
     private final String view;
-    @Getter
-    @Setter
-    private boolean showFormulas;
-    @Getter
-    @Setter
-    private boolean collapseProps;
-    @Getter
-    @Setter
-    private String beforeEditAction;
-    @Getter
-    @Setter
-    private String beforeSaveAction;
-    @Getter
-    @Setter
-    private String afterSaveAction;
     private MetaInfoWriter metaInfoWriter;
 
     private UndoableActions actions = new UndoableActions();
 
-    @Getter
-    @Setter
-    private TableEditor tableEditor;
-
-    public TableEditorModel(TableEditor editor) {
-        this(editor.getTable(), editor.getView(), editor.isShowFormulas());
-        setTableEditor(editor);
-    }
-
-    public TableEditorModel(IOpenLTable table, String view, boolean showFormulas) {
+    public TableEditorModel(IOpenLTable table, String view) {
         this.table = table;
         this.gridTable = table.getGridTable(view);
         if (gridTable == table.getGridTable()) { // table have no business view(e.g. Method Table)
@@ -109,82 +68,14 @@ public class TableEditorModel {
         } else {
             this.view = view;
         }
-        this.showFormulas = showFormulas;
     }
 
     public boolean isBusinessView() {
         return view != null && view.equalsIgnoreCase(IXlsTableNames.VIEW_BUSINESS);
     }
 
-    public synchronized void cancel() {
-        while (actions.hasUndo()) {
-            undo();
-        }
-
-        gridTable.stopEditing();
-        if (metaInfoWriter != null) {
-            metaInfoWriter = null;
-        }
-
-        table.getMetaInfoReader().release();
-    }
-
-    public synchronized boolean hasRedo() {
-        return actions.hasRedo();
-    }
-
-    public synchronized boolean hasUndo() {
-        return actions.hasUndo();
-    }
-
     public IGridTable getOriginalGridTable() {
         return GridTableUtils.getOriginalTable(gridTable);
-    }
-
-    private IGridRegion getOriginalTableRegion() {
-        return getOriginalGridTable().getRegion();
-    }
-
-    public synchronized void insertColumns(int nCols, int beforeCol, int row) {
-        var insertColumnsAction = new UndoableInsertColumnsAction(nCols,
-                beforeCol,
-                row,
-                getMetaInfoWriter());
-        insertColumnsAction.doAction(gridTable);
-        actions.addNewAction(insertColumnsAction);
-    }
-
-    public synchronized void insertRows(int nRows, int beforeRow, int col) {
-        var insertRowsAction = new UndoableInsertRowsAction(nRows,
-                beforeRow,
-                col,
-                getMetaInfoWriter());
-        insertRowsAction.doAction(gridTable);
-        actions.addNewAction(insertRowsAction);
-    }
-
-    public synchronized void redo() {
-        var ua = actions.getRedoAction();
-
-        ((IUndoableGridTableAction) ua).doAction(gridTable);
-    }
-
-    public synchronized void removeRows(int nRows, int startRow, int col) {
-        var removeRowsAction = new UndoableRemoveMergedRowsAction(nRows,
-                startRow,
-                col,
-                getMetaInfoWriter());
-        removeRowsAction.doAction(gridTable);
-        actions.addNewAction(removeRowsAction);
-    }
-
-    public synchronized void removeColumns(int nCols, int startCol, int row) {
-        var removeColumnsAction = new UndoableRemoveMergedColumnsAction(nCols,
-                startCol,
-                row,
-                getMetaInfoWriter());
-        removeColumnsAction.doAction(gridTable);
-        actions.addNewAction(removeColumnsAction);
     }
 
     /**
@@ -197,68 +88,6 @@ public class TableEditorModel {
         actions = new UndoableActions();
         var uri = getOriginalGridTable().getUri();
         return TableUtils.makeTableId(uri);
-    }
-
-    /**
-     * @return Sheet source of editable table
-     */
-    public XlsSheetSourceCodeModule getSheetSource() {
-        var xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
-        return xlsgrid.getSheetSource();
-    }
-
-    public synchronized void setCellValue(int row, int col, String value, IFormatter formatter) {
-        var originalRegion = getOriginalTableRegion();
-        var gcol = originalRegion.getLeft() + col;
-        var grow = originalRegion.getTop() + row;
-
-        IFormatter dataFormatter;
-        if (formatter != null) {
-            dataFormatter = formatter;
-        } else {
-            var cell = gridTable.getGrid().getCell(gcol, grow);
-            var metaInfo = getMetaInfoReader().getMetaInfo(grow, gcol);
-            dataFormatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo, false);
-
-            // Don't reformat value if value is belong to domain
-            IOpenClass dataType = metaInfo == null ? null : metaInfo.getDataType();
-            if (value != null && dataType != null) {
-                IDomain<?> domain = dataType.getDomain();
-                if (domain instanceof EnumDomain || domain instanceof JavaEnumDomain) {
-                    for (Object domainValue : domain) {
-                        if (value.equals(domainValue)) {
-                            // Found exact match. Don't use formatter.
-                            // This is needed to support the case: In domain exists value 1.230 but formatter tries
-                            // to write it as 1.23 so we write incorrect domain value when use formatter.
-                            dataFormatter = null;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        Object result;
-        if (dataFormatter != null) {
-            result = dataFormatter.parse(value);
-        } else {
-            result = value;
-        }
-
-        var action = new UndoableSetValueAction(gcol, grow, result, getMetaInfoWriter());
-
-        action.doAction(gridTable);
-        actions.addNewAction(action);
-    }
-
-    public MetaInfoReader getMetaInfoReader() {
-        // If metaInfoWriter is not null, then currently we edit the table, so we must return metaInfoWriter to include
-        // user changes when display the table to a user.
-        return metaInfoWriter != null ? metaInfoWriter : table.getMetaInfoReader();
-    }
-
-    public synchronized void setCellValue(int row, int col, String value) {
-        setCellValue(row, col, value, null);
     }
 
     public synchronized void setProperty(String name, Object value) {
@@ -318,6 +147,30 @@ public class TableEditorModel {
         }
     }
 
+    public synchronized void setProperty(String name, String value) {
+        Object objectValue = null;
+        if (StringUtils.isNotBlank(value)) {
+            var tablePropeprtyDefinition = TablePropertyDefinitionUtils.getPropertyByName(name);
+            if (tablePropeprtyDefinition != null) {
+                Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
+                var formatter = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
+                objectValue = formatter.parse(value);
+            } else {
+                objectValue = value;
+            }
+        }
+        setProperty(name, objectValue);
+    }
+
+    private synchronized void removeRows(int nRows, int startRow, int col) {
+        var removeRowsAction = new UndoableRemoveMergedRowsAction(nRows,
+                startRow,
+                col,
+                getMetaInfoWriter());
+        removeRowsAction.doAction(gridTable);
+        actions.addNewAction(removeRowsAction);
+    }
+
     /**
      * Checks if the table specified by its region contains property.
      */
@@ -345,120 +198,11 @@ public class TableEditorModel {
         return null;
     }
 
-    public synchronized void setProperty(String name, String value) {
-        Object objectValue = null;
-        if (StringUtils.isNotBlank(value)) {
-            TablePropertyDefinition tablePropeprtyDefinition = TablePropertyDefinitionUtils.getPropertyByName(name);
-            if (tablePropeprtyDefinition != null) {
-                Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-                IFormatter formatter = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
-                objectValue = formatter.parse(value);
-            } else {
-                objectValue = value;
-            }
-        }
-        setProperty(name, objectValue);
-    }
-
-    public synchronized void removeProperty(String name) {
-        setProperty(name, (Object) null);
-    }
-
-    public synchronized void setAlignment(int row, int col, HorizontalAlignment alignment) {
-        var region = getOriginalTableRegion();
-        var ua = new SetAlignmentAction(region.getLeft() + col,
-                region.getTop() + row,
-                alignment,
-                getMetaInfoWriter());
-        ua.doAction(gridTable);
-        actions.addNewAction(ua);
-    }
-
-    public synchronized void setIndent(int row, int col, int indent) {
-        var region = getOriginalTableRegion();
-        var ua = new SetIndentAction(region.getLeft() + col,
-                region.getTop() + row,
-                indent,
-                getMetaInfoWriter());
-        ua.doAction(gridTable);
-        actions.addNewAction(ua);
-    }
-
-    public synchronized void setFillColor(int row, int col, short[] color) {
-        var region = getOriginalTableRegion();
-        var ua = new SetFillColorAction(region.getLeft() + col,
-                region.getTop() + row,
-                color,
-                getMetaInfoWriter());
-        ua.doAction(gridTable);
-        actions.addNewAction(ua);
-    }
-
-    public synchronized void setFontBold(int row, int col, boolean bold) {
-        var region = getOriginalTableRegion();
-        var ua = new SetBoldAction(region.getLeft() + col,
-                region.getTop() + row,
-                bold,
-                getMetaInfoWriter());
-        ua.doAction(gridTable);
-        actions.addNewAction(ua);
-    }
-
-    public synchronized void setFontItalic(int row, int col, boolean italic) {
-        var region = getOriginalTableRegion();
-        var ua = new SetItalicAction(region.getLeft() + col,
-                region.getTop() + row,
-                italic,
-                getMetaInfoWriter());
-        ua.doAction(gridTable);
-        actions.addNewAction(ua);
-    }
-
-    public synchronized void setFontUnderline(int row, int col, boolean underlined) {
-        var region = getOriginalTableRegion();
-        var ua = new SetUnderlineAction(region.getLeft() + col,
-                region.getTop() + row,
-                underlined,
-                getMetaInfoWriter());
-        ua.doAction(gridTable);
-        actions.addNewAction(ua);
-    }
-
-    public synchronized void setFontColor(int row, int col, short[] color) {
-        var region = getOriginalTableRegion();
-        var ua = new SetColorAction(region.getLeft() + col,
-                region.getTop() + row,
-                color,
-                getMetaInfoWriter());
-        ua.doAction(gridTable);
-        actions.addNewAction(ua);
-    }
-
     private MetaInfoWriter getMetaInfoWriter() {
         if (metaInfoWriter == null) {
             // Initialize meta info writer and use it later instead of reader
             this.metaInfoWriter = new MetaInfoWriterImpl(table.getMetaInfoReader(), gridTable);
         }
         return metaInfoWriter;
-    }
-
-    /**
-     * @return Count of rows that is not showed.
-     */
-    public int getNumberOfNonShownRows() {
-        return GridRegion.Tool.height(getOriginalTableRegion()) - GridRegion.Tool.height(gridTable.getRegion());
-    }
-
-    /**
-     * @return Count of columns that is not showed.
-     */
-    public int getNumberOfNonShownCols() {
-        return GridRegion.Tool.width(getOriginalTableRegion()) - GridRegion.Tool.width(gridTable.getRegion());
-    }
-
-    public synchronized void undo() {
-        var ua = actions.getUndoAction();
-
-        ((IUndoableGridTableAction) ua).undoAction(gridTable);
     }
 }

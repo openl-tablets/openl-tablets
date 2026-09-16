@@ -3,7 +3,6 @@ package org.openl.rules.tableeditor.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 
 public class ArrayCellEditor implements ICellEditor {
 
@@ -19,10 +18,7 @@ public class ArrayCellEditor implements ICellEditor {
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        var typeResponse = new EditorTypeResponse(CE_ARRAY);
-        typeResponse.setParams(params);
-
-        return typeResponse;
+        return new EditorTypeResponse(CE_ARRAY, params);
     }
 
     public static class ArrayEditorParams {

@@ -393,16 +393,6 @@ Update code
 
 ### 4. Handle Legacy Code Carefully
 
-**JSF/RichFaces** (being replaced):
-```
-✅ Bug fixes only
-✅ Document "legacy" status
-✅ Don't add features
-
-❌ Don't enhance
-❌ Don't refactor extensively
-```
-
 **Deprecated APIs**:
 ```
 ✅ Migrate to replacement

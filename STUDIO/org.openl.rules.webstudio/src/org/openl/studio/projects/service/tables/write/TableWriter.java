@@ -328,7 +328,7 @@ public abstract class TableWriter<T extends TableView> {
         if (stampedOnEdit.isEmpty() || table == null || !isUpdateMode() || !table.isCanContainProperties()) {
             return;
         }
-        var editor = new TableEditorModel(table, IXlsTableNames.VIEW_DEVELOPER, false);
+        var editor = new TableEditorModel(table, IXlsTableNames.VIEW_DEVELOPER);
         stampedOnEdit.forEach(editor::setProperty);
     }
 

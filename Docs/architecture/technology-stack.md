@@ -46,17 +46,14 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 | Component | Version | Purpose |
 |-----------|---------|---------|
 | Jakarta Servlet API | 6.0.0 | Web layer |
-| Jakarta Enterprise (CDI) | 4.0.1 | Dependency injection |
-| Jakarta Faces (JSF) | 4.0.12 | Component-based UI (legacy) |
 | Jakarta XML Bind (JAXB) | 4.0.4 | XML serialization |
+| Jakarta Expression Language | 5.0.0 | Bean Validation message interpolation |
 
 **Note**: Using Jakarta namespace (Java 11+ migration from javax.*)
 
 ### Web Frameworks
 | Component | Version | Purpose |
 |-----------|---------|---------|
-| RichFaces | 10.0.0 | JSF component library (forked, maintained by OpenL) |
-| Weld Servlet | 5.1.6 | CDI container |
 | Apache CXF | 4.1.3 | JAX-RS/REST services |
 
 ---
@@ -80,10 +77,6 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 | SCSS/Sass | 1.97.x | CSS preprocessor |
 | Frontend Maven Plugin | 1.15.4 | Maven integration |
 | Node.js | 24.13.x | Runtime for build tools |
-
-### Legacy Frontend
-- **JSF/RichFaces**: Server-side component framework (being phased out)
-- **JavaScript/jQuery**: Legacy table editor components
 
 ---
 
@@ -362,11 +355,11 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 - Extensive ecosystem
 - Production-ready features (health checks, metrics)
 
-### Why React for New UI?
+### Why React for the UI?
 - Modern, component-based architecture
 - Strong TypeScript support
 - Rich ecosystem
-- Better developer experience than JSF
+- The whole screen is drawn in the browser, so the server answers only data
 
 ---
 
@@ -380,13 +373,11 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 - ✅ OpenTelemetry observability
 
 ### Legacy (Being Phased Out)
-- ⚠️ JSF/RichFaces (replaced by React)
 - ⚠️ Some deprecated APIs in `org.openl.rules`
 - ⚠️ Legacy test infrastructure
 
 ### Maintained Forks
 OpenL maintains custom forks of:
-- **RichFaces**: Updated for Jakarta EE compatibility
 - **JGit**: Custom enhancements for OpenL needs
 - **Flyway**: Custom version for database migrations
 

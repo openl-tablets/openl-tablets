@@ -56,10 +56,10 @@ public class TableRunStateService {
                                                             TableRunState state) {
         var narrowed = state;
         for (var target : OpenLTableLogic.getTargetTables(table, model, !compiledThrough)) {
-            if (model.getErrorsByUri(target.getUri()).isEmpty()) {
+            if (model.getErrorsByUri(target.uri()).isEmpty()) {
                 continue;
             }
-            if (!model.getOpenedModuleMessagesByTsn(target.getUri(), Severity.ERROR).isEmpty()) {
+            if (!model.getOpenedModuleMessagesByTsn(target.uri(), Severity.ERROR).isEmpty()) {
                 return TableRunState.CANNOT_RUN;
             }
             narrowed = TableRunState.CAN_RUN_MODULE;

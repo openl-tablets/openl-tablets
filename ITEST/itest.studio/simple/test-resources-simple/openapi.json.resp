@@ -45,16 +45,10 @@ Content-Type: application/json
       "name": "Mail"
     },
     {
-      "name": "Message"
-    },
-    {
       "name": "Notification"
     },
     {
       "name": "Production Repository"
-    },
-    {
-      "name": "Project Compilation"
     },
     {
       "description": "***",
@@ -5323,210 +5317,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/compile/table/{tableId}": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "tableId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TableInfo"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Project Compilation"
-        ]
-      }
-    },
-    "/compile/tests/{tableId}": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "tableId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TableTestsInfo"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Project Compilation"
-        ]
-      }
-    },
     "/deployments": {
       "get": {
         "description": "***",
@@ -6265,194 +6055,6 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Mail"
-        ]
-      }
-    },
-    "/message/{messageId}/stacktrace": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "messageId",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Message"
-        ]
-      }
-    },
-    "/message/{messageId}/url": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "messageId",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Message"
         ]
       }
     },
@@ -25959,44 +25561,6 @@ Content-Type: application/json
           }
         }
       },
-      "OpenlProblemMessage": {
-        "type": "object",
-        "properties": {
-          "errorCell": {
-            "type": "string"
-          },
-          "errorCode": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "hasLinkToCell": {
-            "type": "boolean"
-          },
-          "hasStacktrace": {
-            "type": "boolean"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "severity": {
-            "type": "string",
-            "enum": [
-              "INFO",
-              "WARN",
-              "ERROR"
-            ]
-          },
-          "summary": {
-            "type": "string"
-          },
-          "tableId": {
-            "type": "string"
-          }
-        }
-      },
       "PageResponseProjectRevision_Short": {
         "type": "object",
         "description": "***",
@@ -26110,23 +25674,6 @@ Content-Type: application/json
           "pageNumber",
           "pageSize"
         ]
-      },
-      "PairStringTableDescription": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "left": {
-            "type": "string"
-          },
-          "right": {
-            "$ref": "#/components/schemas/TableDescription"
-          },
-          "value": {
-            "$ref": "#/components/schemas/TableDescription"
-          }
-        }
       },
       "ParameterValue": {
         "type": "object",
@@ -29578,20 +29125,6 @@ Content-Type: application/json
           }
         }
       },
-      "TableDescription": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "uri": {
-            "type": "string"
-          }
-        }
-      },
       "TableDetailsView": {
         "type": "object",
         "properties": {
@@ -29645,40 +29178,6 @@ Content-Type: application/json
           "id": {
             "type": "string",
             "description": "***"
-          }
-        }
-      },
-      "TableInfo": {
-        "type": "object",
-        "properties": {
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OpenlProblemMessage"
-            }
-          },
-          "tableRunState": {
-            "type": "string",
-            "enum": [
-              "CAN_RUN",
-              "CAN_RUN_MODULE",
-              "CANNOT_RUN"
-            ]
-          },
-          "tableUrl": {
-            "type": "string"
-          },
-          "targetTables": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PairStringTableDescription"
-            }
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OpenlProblemMessage"
-            }
           }
         }
       },
@@ -30104,20 +29603,6 @@ Content-Type: application/json
           "projectId": {
             "type": "string",
             "description": "***"
-          }
-        }
-      },
-      "TableTestsInfo": {
-        "type": "object",
-        "properties": {
-          "allTests": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TableDescription"
-            }
-          },
-          "compiled": {
-            "type": "boolean"
           }
         }
       },

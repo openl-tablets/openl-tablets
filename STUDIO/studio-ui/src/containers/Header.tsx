@@ -50,10 +50,6 @@ export const Header = () => {
 
     const menuItems: MenuItem[] = [
         {
-            key: '/',
-            label: t('common:menu.editor'),
-        },
-        {
             key: '/projects',
             label: t('common:menu.projects'),
         },
@@ -93,10 +89,6 @@ export const Header = () => {
         if (pathname.startsWith('/deployments')) {
             return '/deployments'
         }
-        // The legacy pages under faces/ are the Editor's own screens.
-        if (pathname.startsWith('/faces/')) {
-            return '/'
-        }
         return pathname
     }, [pathname])
 
@@ -113,8 +105,7 @@ export const Header = () => {
                             </Col>
                             <Col>
                                 <div className="header-title">
-                                    {/* The Editor is a server-rendered page, so the title is a plain document link. */}
-                                    <Link reloadDocument to="/">{t('common:openl_studio')}</Link>
+                                    <Link to="/projects">{t('common:openl_studio')}</Link>
                                 </div>
                             </Col>
                         </Row>

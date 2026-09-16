@@ -2,4 +2,10 @@ HTTP/1.1 200 OK
 Content-Type: text/html;charset=utf-8
 
 <!DOCTYPE html>
-***tableeditor.min.css***
+<html lang="en">
+***
+    <base href="/"/>
+***
+  <script type="module" crossorigin src="./assets/index-***.js"></script>
+***
+</html>

@@ -47,8 +47,7 @@ public class SessionTimeoutFilter implements Filter {
             log.info("Session Expired: redirect to {} page", redirectPage);
 
             // Handle Ajax requests
-            if (Objects.equals(request.getHeader("x-requested-with"), "XMLHttpRequest") // jQuery / Prototype
-                    || Objects.equals(request.getHeader("faces-request"), "partial/ajax")) { // JSF 2 / RichFaces
+            if (Objects.equals(request.getHeader("x-requested-with"), "XMLHttpRequest")) {
                 response.setHeader("Location", redirectUrl);
                 response.sendError(REDIRECT_ERROR_CODE);
             } else {

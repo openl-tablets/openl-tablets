@@ -58,7 +58,7 @@ class ServiceApiConfigTest {
     }
 
     @Test
-    void rulesUserSession_registersLegacySessionAttributes() {
+    void rulesUserSession_isRegisteredInTheSession() {
         var session = new MockHttpSession();
         var workspace = workspace();
         var workspaceManager = mock(MultiUserWorkspaceManager.class);
@@ -85,7 +85,6 @@ class ServiceApiConfigTest {
                 session);
 
         assertSame(rulesUserSession, session.getAttribute(Constants.RULES_USER_SESSION));
-        assertSame(rulesUserSession.getWebStudio(), session.getAttribute("studio"));
     }
 
     private UserWorkspace workspace() {
@@ -102,7 +101,7 @@ class ServiceApiConfigTest {
     private UserSettingManagementService userSettings() {
         var userSettings = mock(UserSettingManagementService.class);
         when(userSettings.getStringProperty("admin", WebStudio.RULES_TREE_VIEW_DEFAULT))
-                .thenReturn(Profile.TREE_VIEWS[0].getName());
+                .thenReturn(Profile.PROFILES[0].getName());
         return userSettings;
     }
 }

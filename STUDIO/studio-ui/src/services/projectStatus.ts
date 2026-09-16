@@ -131,19 +131,6 @@ export interface ProjectStatusUpdate {
 export type ProjectStatusSubscription = TopicSubscription
 
 /**
- * Shape published to {@code window.openl.projectStatus} for legacy JSF callers.
- */
-export interface ProjectStatusBridge {
-    fetch(projectId: string): Promise<ProjectStatusUpdate>
-    subscribe(
-        projectId: string,
-        branch: string | null,
-        onUpdate: (status: ProjectStatusUpdate) => void
-    ): ProjectStatusSubscription
-}
-
-
-/**
  * Build the user-scoped STOMP destination matching
  * {@code ProjectSocketNotificationService.notifyProjectStatus} on the backend:
  *   - with branch:  /user/topic/projects/{urlEncoded(projectId)}/branches/{urlEncoded(branch)}/status

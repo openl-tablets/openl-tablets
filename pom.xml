@@ -377,16 +377,6 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty.ee10</groupId>
-                <artifactId>jetty-ee10-cdi</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.ee10</groupId>
-                <artifactId>jetty-ee10-apache-jsp</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-home</artifactId>
                 <version>${jetty.version}</version>
@@ -593,50 +583,6 @@
                 <artifactId>xmlsec</artifactId>
                 <version>${xmlsec.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.sdicons.jsontools</groupId>
-                <artifactId>jsontools-core</artifactId>
-                <version>1.7</version>
-            </dependency>
-            <!-- BEGIN of JSF, JSP, Servlets, RichFaces -->
-            <!-- JSF -->
-            <dependency>
-                <groupId>org.glassfish</groupId>
-                <artifactId>jakarta.faces</artifactId>
-                <version>4.0.15</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.enterprise</groupId>
-                <artifactId>jakarta.enterprise.cdi-api</artifactId>
-                <version>4.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.weld.servlet</groupId>
-                <artifactId>weld-servlet-core</artifactId>
-                <version>5.1.7.Final</version>
-            </dependency>
-            <!-- RichFaces -->
-            <!-- RichFaces reached end-of-life status with version 4.5.17.Final so vulnerabilities will not be fixed.
-            To fix that we use forked richfaces implementation until we stop using richfaces features. -->
-            <dependency>
-                <groupId>org.openl.richfaces</groupId>
-                <artifactId>richfaces</artifactId>
-                <version>10.0.0-openl</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.myfaces.core</groupId>
-                        <artifactId>myfaces-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.myfaces.core</groupId>
-                        <artifactId>myfaces-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>ch.qos.reload4j</groupId>
-                        <artifactId>reload4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <!-- Servlets -->
             <dependency>
                 <groupId>jakarta.servlet</groupId>
@@ -644,23 +590,11 @@
                 <version>${jakarta.servlet-api.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <!-- Jakarta Expression Language: Bean Validation interpolates its messages through it. -->
             <dependency>
-                <groupId>jakarta.servlet.jsp</groupId>
-                <artifactId>jakarta.servlet.jsp-api</artifactId>
-                <version>3.1.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.servlet.jsp.jstl</groupId>
-                <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
-                <version>3.0.2</version>
-            </dependency>
-            <!-- Provides the API for the Unified Expression Language shared by the JSP 2.1 and JSF 1.2 technologies. -->
-            <dependency>
-                <groupId>jakarta.el</groupId>
-                <artifactId>jakarta.el-api</artifactId>
-                <version>5.0.1</version>
-                <scope>provided</scope>
+                <groupId>org.glassfish.expressly</groupId>
+                <artifactId>expressly</artifactId>
+                <version>5.0.0</version>
             </dependency>
             <!-- Apache log4j, a logging library for Java -->
             <dependency>

@@ -42,8 +42,7 @@ public class JettyServer {
 
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
-                "|.*studio-ui[^/]*\\.jar$" + // For loading UI from the META-INF/resources in OpenL Studio
-                "|.*jakarta\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in OpenL Studio
+                "|.*studio-ui[^/]*\\.jar$"); // For loading UI from the META-INF/resources in OpenL Studio
 
         var server = new Server(0);
         server.setStopAtShutdown(true);
@@ -112,9 +111,8 @@ public class JettyServer {
     /**
      * Requires log4j-core in the webapp's {@code WEB-INF/lib}.
      *
-     * <p>An incremental or {@code -Dquick} build can drop it, leaving a webapp that deploys with no logging
-     * and, in OpenL Studio, fails with a cryptic RichFaces NPE. Checking here turns that into one clear
-     * error before the server starts.
+     * <p>An incremental or {@code -Dquick} build can drop it, leaving a webapp that deploys with no logging at
+     * all. Checking here turns that into one clear error before the server starts.
      */
     private void requireLog4jCore() {
         var lib = Path.of(webAppContext.getWar(), "WEB-INF", "lib");

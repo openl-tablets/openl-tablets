@@ -4,16 +4,6 @@ declare module '*.jpg'
 declare module '*.jpeg'
 declare module '*.gif'
 
-declare global {
-    // Declared as a `var` so it surfaces on both `window` and `globalThis`.
-    var openl: {
-        projectStatus?: import('./services/projectStatus').ProjectStatusBridge
-        notification?: import('./legacy/notificationBridge').NotificationBridge
-        loader?: import('./legacy/loaderBridge').LoaderBridge
-        encodeProjectId?: import('./legacy/projectIdBridge').EncodeProjectId
-    } | undefined
-}
-
 interface FieldObject<T> {
     value: T,
     readOnly?: boolean,

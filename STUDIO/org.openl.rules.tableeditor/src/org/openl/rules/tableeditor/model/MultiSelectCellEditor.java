@@ -3,7 +3,6 @@ package org.openl.rules.tableeditor.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.openl.rules.tableeditor.event.TableEditorController;
 
 public class MultiSelectCellEditor extends ComboBoxCellEditor {
     private static final String ARRAY_ELEMENTS_SEPARATOR = ",";
@@ -36,13 +35,11 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
     }
 
     @Override
-    public TableEditorController.EditorTypeResponse getEditorTypeAndMetadata() {
-        var typeResponse = new TableEditorController.EditorTypeResponse(
-                CE_MULTISELECT);
-        typeResponse.setParams(new MultiChoiceParam(getChoices(),
-                getDisplayValues(),
-                ARRAY_ELEMENTS_SEPARATOR,
-                ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
-        return typeResponse;
+    public EditorTypeResponse getEditorTypeAndMetadata() {
+        return new EditorTypeResponse(CE_MULTISELECT,
+                new MultiChoiceParam(getChoices(),
+                        getDisplayValues(),
+                        ARRAY_ELEMENTS_SEPARATOR,
+                        ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
     }
 }

@@ -8,7 +8,6 @@ import { useStyles } from './LoadingOverlay.styles'
  *
  * The overlay opens on the first {@code showLoader()} and closes when every call is paired
  * with {@code hideLoader()}, so concurrent operations keep it open until the last one ends.
- * Legacy JSF pages drive it through {@code globalThis.openl.loader}.
  */
 export const LoadingOverlay: React.FC = () => {
     const loading = useAppStore((state) => state.loaderCount > 0)

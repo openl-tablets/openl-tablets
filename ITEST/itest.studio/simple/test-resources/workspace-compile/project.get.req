@@ -1,2 +1,0 @@
-GET /web/init?project=Sample&repositoryId=local&module=Main HTTP/1.1
-

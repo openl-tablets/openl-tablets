@@ -1,10 +1,5 @@
 package org.openl.rules.webstudio.web.util;
 
-import java.util.Optional;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.validator.ValidatorException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -27,8 +22,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  */
 @Slf4j
 public abstract class WebStudioUtils {
-
-    private static final String STUDIO_ATTR = "studio";
 
     public static RulesUserSession getRulesUserSession() {
         return getRulesUserSession(getSession());
@@ -53,9 +46,6 @@ public abstract class WebStudioUtils {
 
     public static void registerRulesUserSession(HttpSession session, RulesUserSession rulesUserSession) {
         session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
-        // Immediately add OpenL Studio to the session to be able to use it in RichFaces UI.
-        // It can be removed after removing RichFaces.
-        session.setAttribute(STUDIO_ATTR, rulesUserSession.getWebStudio());
     }
 
     public static WebStudio getWebStudio() {
@@ -66,12 +56,6 @@ public abstract class WebStudioUtils {
     public static WebStudio getWebStudio(HttpSession session) {
         var rulesUserSession = getRulesUserSession(session);
         return rulesUserSession == null ? null : rulesUserSession.getWebStudio();
-    }
-
-    public static WebStudio getOrCreateWebStudio() {
-        HttpSession session = (HttpSession) getExternalContext().getSession(true);
-        return Optional.ofNullable(getWebStudio(session))
-                .orElseGet(() -> getRulesUserSession(session, true).getWebStudio());
     }
 
     public static ProjectModel getProjectModel() {
@@ -89,13 +73,6 @@ public abstract class WebStudioUtils {
         return userWorkspace;
     }
 
-    @Deprecated
-    public static Object getBackingBean(String beanName) {
-        // workaround. Needs to find other architecture solution
-        FacesContext fc = FacesContext.getCurrentInstance();
-        return fc.getApplication().evaluateExpressionGet(fc, "#{" + beanName + "}", Object.class);
-    }
-
     public static HttpSession getSession() {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes instanceof ServletRequestAttributes attributes) {
@@ -105,43 +82,4 @@ public abstract class WebStudioUtils {
         return null;
     }
 
-    public static void throwValidationError(String message) {
-        throw new ValidatorException(new FacesMessage(message));
-    }
-
-    public static void validate(boolean condition, String message) {
-        if (!condition) {
-            throwValidationError(message);
-        }
-    }
-
-    public static void addMessage(String clientId, String summary, String detail, FacesMessage.Severity severity) {
-        FacesContext.getCurrentInstance().addMessage(clientId, new FacesMessage(severity, summary, detail));
-    }
-
-    public static void addErrorMessage(String summary) {
-        addErrorMessage(summary, null);
-    }
-
-    public static void addErrorMessage(String summary, String detail) {
-        addMessage(null, summary, detail, FacesMessage.SEVERITY_ERROR);
-    }
-
-    public static void addWarnMessage(String summary) {
-        addMessage(null, summary, null, FacesMessage.SEVERITY_WARN);
-    }
-
-    /**
-     * Returns request parameter from HttpServletRequest object through current FacesContext.
-     *
-     * @param parameterName parameter name
-     * @return parameter value - if parameter exists, <code>null</code> - otherwise.
-     */
-    public static String getRequestParameter(String parameterName) {
-        return getExternalContext().getRequestParameterMap().get(parameterName);
-    }
-
-    public static ExternalContext getExternalContext() {
-        return FacesContext.getCurrentInstance().getExternalContext();
-    }
 }
