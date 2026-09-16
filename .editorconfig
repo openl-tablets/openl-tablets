@@ -38,10 +38,6 @@ indent_size = 2
 [*.{js,jsx,ts,tsx}]
 indent_size = 4
 
-# SCSS files
-[*.scss]
-indent_size = 2
-
 # CSS files
 [*.css]
 indent_size = 4 # 4 due history, can be changed to 2 in future

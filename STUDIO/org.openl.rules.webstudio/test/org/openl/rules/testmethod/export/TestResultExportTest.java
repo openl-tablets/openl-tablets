@@ -560,7 +560,6 @@ class TestResultExportTest {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private String asString(Cell cell) {
         switch (cell.getCellType()) {
             case BLANK:

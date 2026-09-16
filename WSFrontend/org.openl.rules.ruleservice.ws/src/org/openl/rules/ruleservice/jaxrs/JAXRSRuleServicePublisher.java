@@ -76,7 +76,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private Environment environment;
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
         try {
             if (service.getServiceClass().getMethods().length == 0) {
