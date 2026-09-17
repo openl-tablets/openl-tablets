@@ -24,14 +24,12 @@ import org.openl.util.NumberUtils;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
 
-// TODO Reimplement
+/** Picks the editor a cell is written with from what the compiler knows about the cell. */
 public class CellEditorSelector {
-
-    private final ICellEditorFactory factory = new CellEditorFactory();
 
     public ICellEditor selectEditor(ICell cell, CellMetaInfo meta) {
         if (cell.getFormula() != null) {
-            return factory.makeFormulaEditor();
+            return new FormulaCellEditor();
         }
         var editor = selectEditor(cell, cell.getStringValue(), meta);
         return editor == null ? defaultEditor(cell) : editor;
@@ -51,12 +49,7 @@ public class CellEditorSelector {
                 var allObjects = enumDomain.getAllObjects();
 
                 if (allObjects instanceof String[] allObjectValues) {
-
-                    if (meta.isMultiValue()) {
-                        return factory.makeMultiSelectEditor(allObjectValues);
-                    } else {
-                        return factory.makeComboboxEditor(allObjectValues);
-                    }
+                    return choiceEditor(allObjectValues, allObjectValues, meta.isMultiValue());
                 } else if (allObjects != null) {
                     IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta);
                     if (formatter instanceof ArrayFormatter arrayFormatter) {
@@ -73,27 +66,21 @@ public class CellEditorSelector {
                         allObjectValues[i] = value instanceof String s ? s : formatter.format(value);
                     }
 
-                    if (meta.isMultiValue()) {
-                        return factory.makeMultiSelectEditor(allObjectValues);
-                    } else {
-                        return factory.makeComboboxEditor(allObjectValues);
-                    }
+                    return choiceEditor(allObjectValues, allObjectValues, meta.isMultiValue());
                 }
             }
 
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class)) {
                 if (domain == null) {
+                    var intOnly = IntegerValuesUtils.isIntegerValue(instanceClass);
                     if (!meta.isMultiValue()) {
                         Number minValue = NumberUtils.getMinValue(instanceClass);
                         Number maxValue = NumberUtils.getMaxValue(instanceClass);
-                        result = factory
-                                .makeNumericEditor(minValue, maxValue, IntegerValuesUtils.isIntegerValue(instanceClass));
+                        result = new NumericCellEditor(minValue, maxValue, intOnly);
                     } else {
                         // Numeric Array
-                        return factory.makeArrayEditor(ArrayCellEditor.DEFAULT_SEPARATOR,
-                                ICellEditor.CE_NUMERIC,
-                                IntegerValuesUtils.isIntegerValue(instanceClass));
+                        return new ArrayCellEditor(ArrayCellEditor.DEFAULT_SEPARATOR, ICellEditor.CE_NUMERIC, intOnly);
                     }
                 }
 
@@ -104,38 +91,38 @@ public class CellEditorSelector {
                     || ClassUtils.isAssignable(instanceClass, LocalTime.class)
                     || ClassUtils.isAssignable(instanceClass, ZonedDateTime.class)
                     || ClassUtils.isAssignable(instanceClass, Instant.class)) {
-                result = factory.makeDateEditor();
+                result = new DateCellEditor();
 
                 // Boolean
             } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
-                result = factory.makeBooleanEditor();
+                result = new BooleanCellEditor();
 
                 // Enum
             } else if (instanceClass.isEnum()) {
-                String[] values = EnumUtils.getNames(instanceClass);
-                String[] displayValues = EnumUtils.getValues(instanceClass);
-
-                if (meta.isMultiValue()) {
-                    result = factory.makeMultiSelectEditor(values, displayValues);
-                } else {
-                    result = factory.makeComboboxEditor(values, displayValues);
-                }
+                result = choiceEditor(EnumUtils.getNames(instanceClass),
+                        EnumUtils.getValues(instanceClass),
+                        meta.isMultiValue());
                 // Range
             } else if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
-                result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
+                result = new NumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
             } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
-                result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
+                result = new NumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
             }
         }
         return result;
     }
 
+    /** One choice among the given values, or several of them when the cell holds many. */
+    private static ICellEditor choiceEditor(String[] choices, String[] displayValues, boolean multiValue) {
+        return multiValue ? new MultiSelectCellEditor(choices, displayValues)
+                : new ComboBoxCellEditor(choices, displayValues);
+    }
+
     private ICellEditor defaultEditor(ICell cell) {
         final var cellValue = cell.getStringValue();
-        return cellValue != null && cellValue.indexOf('\n') >= 0 ? factory.makeMultilineEditor()
-                : factory.makeTextEditor();
+        return cellValue != null && cellValue.indexOf('\n') >= 0 ? new MultilineEditor() : new TextCellEditor();
     }
 
 }
