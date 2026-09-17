@@ -126,6 +126,23 @@ class TestResultExportTest {
         assertFalse(xlsx.exists());
     }
 
+    /**
+     * A run that found no test to run - the tests of the table live in another module than the one it was kept
+     * to - is saved as an empty workbook rather than refused.
+     */
+    @Test
+    void savesAnEmptyWorkbookWhenNoTestRan() throws Exception {
+        try (var export = new TempFileExporter()) {
+            var xlsx = export.createExcelFile(new TestUnitsResults[0], -1);
+
+            try (var workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertEquals(0, workbook.getSheet("Result 1").getPhysicalNumberOfRows());
+                assertEquals(0, workbook.getSheet("Parameters 1").getPhysicalNumberOfRows());
+            }
+        }
+    }
+
     @Test
     void oneResultPerPage() throws Exception {
         File xlsx;
