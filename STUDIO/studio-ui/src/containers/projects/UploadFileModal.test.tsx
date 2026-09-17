@@ -14,7 +14,7 @@ vi.mock('react-i18next', () => {
 
 vi.mock('@ant-design/icons', () => ({ InboxOutlined: () => null }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Modal = ({ open, children, onOk, okButtonProps }: Record<string, unknown>) => open ? (
         <div role="dialog">
             {children as never}
@@ -48,7 +48,8 @@ vi.mock('antd', () => {
         </div>
     )
     const notification = { error: vi.fn() }
-    return { Input, Modal, Upload, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Input, Modal, Upload, notification })
 })
 
 // The path field has its own tests; here it is just an input carrying the path.

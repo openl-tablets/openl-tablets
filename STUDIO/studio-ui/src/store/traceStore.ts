@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { notification } from 'antd'
+import { notification } from 'services/popups'
 import type {
     CallNodeView,
     DebugError,

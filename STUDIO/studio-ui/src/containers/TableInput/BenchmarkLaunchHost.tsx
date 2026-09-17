@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { Button, notification } from 'antd'
+import { App, Button } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { BenchmarkResultModal } from 'containers/execution/BenchmarkResultModal'
 import { useEventProject } from 'hooks'
@@ -15,6 +15,7 @@ interface BenchmarkLaunchProps {
 }
 
 const BenchmarkLaunch: React.FC<BenchmarkLaunchProps> = ({ detail, project, onClose }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('execution')
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)

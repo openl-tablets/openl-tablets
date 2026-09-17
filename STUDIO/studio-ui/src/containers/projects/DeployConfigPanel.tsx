@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Input, notification, Select, Skeleton, Space, Switch, Tag } from 'antd'
+import { App, Alert, Input, Select, Skeleton, Space, Switch, Tag } from 'antd'
 import { createStyles } from 'antd-style'
 import { EditToolbar } from './EditToolbar'
 import { FieldRow } from '../../components/FieldRow'
@@ -112,6 +112,7 @@ interface DeployConfigPanelProps {
  * values underneath it — what a save writes over, what a cancel returns to — and leaves the draft alone.
  */
 export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }: DeployConfigPanelProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     // The working copy an edit changes; off the edit it stands for nothing and the read view is shown.

@@ -12,7 +12,8 @@ vi.mock('react-i18next', () => {
 
 vi.mock('antd', async () => {
     const actual = await vi.importActual<typeof import('antd')>('antd')
-    return { ...actual, Modal: { ...actual.Modal, confirm: vi.fn() } }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...actual, Modal: { ...actual.Modal, confirm: vi.fn() } })
 })
 
 const Writer = ({ project, onWrite }: { project: Project | null, onWrite: () => void }) => {

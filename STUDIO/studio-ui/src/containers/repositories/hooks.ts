@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
+import { App } from 'antd'
 import { RepositoryDataType } from './constants'
 import { apiCall } from '../../services'
-import { notification } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { RepositoryResponse } from './index'
 
 export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataType) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const [configuration, setConfiguration] = useState<RepositoryResponse | RepositoryResponse[] | null>(null)
     const [searchParams, setSearchParams] = useSearchParams()

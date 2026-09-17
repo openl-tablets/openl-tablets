@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { errorMessage as message } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Alert, Button, Dropdown, Modal, notification, Skeleton, Space, Tag, type MenuProps } from 'antd'
+import { App, Alert, Button, Dropdown, Modal, Skeleton, Space, Tag, type MenuProps } from 'antd'
 import {
     CloseOutlined,
     CopyOutlined,
@@ -94,6 +94,7 @@ interface FilePreviewPaneProps {
  * that brings back something other than what was last read says so, since someone else wrote the file.
  */
 const useFileText = (selection: FileSelection, editable: boolean, changedFiles: string[] | null, t: TFunction) => {
+    const { notification } = App.useApp()
     const [content, setContent] = useState('')
     const [original, setOriginal] = useState('')
     const [loading, setLoading] = useState(false)
@@ -135,7 +136,7 @@ const useFileText = (selection: FileSelection, editable: boolean, changedFiles: 
                 }
                 setContent(text)
                 setOriginal(text)
-                announceOtherWriter(lastLoaded.current, key, text, path, tRef.current)
+                announceOtherWriter(notification, lastLoaded.current, key, text, path, tRef.current)
                 lastLoaded.current = { key, text }
             })
             .catch(e => { if (!cancelled) setError(message(e)) })
@@ -154,6 +155,7 @@ const useFileText = (selection: FileSelection, editable: boolean, changedFiles: 
 
 /** Says that the file changed under the reader, when the re-read brought back something else. */
 const announceOtherWriter = (
+    notification: ReturnType<typeof App.useApp>['notification'],
     last: { key: string, text: string } | null,
     key: string,
     text: string,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Checkbox, Input, Modal, notification, Select } from 'antd'
+import { App, Alert, Checkbox, Input, Modal, Select } from 'antd'
 import {
     copyProject,
     createProjectBranch,
@@ -45,6 +45,7 @@ interface CopyProjectModalProps {
  * from an older revision of the project instead of its latest state.
  */
 export const CopyProjectModal = ({ open, project, repositories, onClose, onCopied }: CopyProjectModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
     const username = useUserStore(state => state.userProfile?.username)

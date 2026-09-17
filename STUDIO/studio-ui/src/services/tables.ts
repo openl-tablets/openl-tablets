@@ -1,4 +1,4 @@
-import { notification } from 'antd'
+import { notification } from './popups'
 import i18n from '../i18n'
 import type {
     CopyTableRequest,

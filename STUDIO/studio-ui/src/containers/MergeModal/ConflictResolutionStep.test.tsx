@@ -29,8 +29,9 @@ vi.mock('react-i18next', () => {
 
 // Ant Design Table causes infinite update loops in jsdom during act() flushes.
 // Mock heavy components with simple HTML equivalents to avoid this.
-vi.mock('antd', () => {
-    return {
+vi.mock('antd', async () => {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         Space: ({ children }: any) => <div>{children}</div>,
         Button: ({ children, onClick, disabled, loading, icon }: any) => (
             <button disabled={disabled || loading} onClick={onClick}>{icon}{children}</button>
@@ -111,7 +112,7 @@ vi.mock('antd', () => {
             warning: vi.fn(),
             info: vi.fn(),
         },
-    }
+    })
 })
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>

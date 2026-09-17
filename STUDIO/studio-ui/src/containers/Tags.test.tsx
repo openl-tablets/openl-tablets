@@ -34,14 +34,15 @@ vi.mock('react-i18next', async () => {
 
 vi.mock('antd', async () => {
     const actual = await vi.importActual('antd')
-    return {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         ...actual,
         notification: {
             success: vi.fn(),
             error: vi.fn(),
             warning: vi.fn(),
         },
-    }
+    })
 })
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>

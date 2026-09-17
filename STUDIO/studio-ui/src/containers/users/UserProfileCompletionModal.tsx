@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Alert, Form, Input, Modal, notification, Select, Space } from 'antd'
+import { App, Alert, Form, Input, Modal, Select, Space } from 'antd'
 import { MailOutlined, UserOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { apiCall } from '../../services'
@@ -48,6 +48,7 @@ export const UserProfileCompletionModal: React.FC<UserProfileCompletionModalProp
     onSave,
     onCancel,
 }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const [form] = Form.useForm<UserProfileFormValues>()
     const [isSaving, setIsSaving] = useState(false)

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Button, Empty, notification, Skeleton, Switch, Tag, Tooltip } from 'antd'
+import { App, Button, Empty, Skeleton, Switch, Tag, Tooltip } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { SearchInput } from '../../components/SearchInput'
@@ -142,6 +142,7 @@ export const RevisionsPanel = ({
     onOpened,
     reloadToken,
 }: RevisionsPanelProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()

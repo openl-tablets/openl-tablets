@@ -1,4 +1,4 @@
-import { notification } from 'antd'
+import { notification } from './popups'
 import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray, type ApiCallOptions } from './apiCall'
 import i18n from '../i18n'

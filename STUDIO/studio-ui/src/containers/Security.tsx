@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react'
-import { Button, Divider, Form, Modal, notification, Row, Typography } from 'antd'
+import { App, Button, Divider, Form, Row, Typography } from 'antd'
 import { Trans, useTranslation } from 'react-i18next'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { Checkbox, RadioGroup } from '../components/form'
@@ -63,6 +63,7 @@ const BypassProtectedBranchesModal = (
 )
 
 export const Security = () => {
+    const { modal, notification } = App.useApp()
     const { t } = useTranslation()
     const [form] = Form.useForm()
     const [securitySettings, setSecuritySettings] = React.useState<any>(undefined)
@@ -142,7 +143,7 @@ export const Security = () => {
     }
 
     const onFinish = (values: any) => {
-        Modal.confirm({
+        modal.confirm({
             title: t('security:confirm_apply_configuration'),
             content: t('security:confirm_apply_configuration_message'),
             onOk: () => {

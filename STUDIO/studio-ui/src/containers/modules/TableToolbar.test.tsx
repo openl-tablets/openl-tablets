@@ -13,7 +13,8 @@ vi.mock('../../services/tables', () => ({ deleteTable: vi.fn() }))
 
 vi.mock('antd', async importOriginal => {
     const antd = await importOriginal<typeof import('antd')>()
-    return { ...antd, Modal: { ...antd.Modal, confirm: vi.fn() } }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...antd, Modal: { ...antd.Modal, confirm: vi.fn() } })
 })
 
 vi.mock('react-i18next', () => {

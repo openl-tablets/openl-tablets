@@ -3,7 +3,7 @@ import { errorMessage } from '../utils/errorMessage'
 import { creatableRepositories } from '../utils/repositoryFeatures'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, notification, Pagination, Skeleton, Spin, type InputRef } from 'antd'
+import { App, Alert, Button, Empty, Pagination, Skeleton, Spin, type InputRef } from 'antd'
 import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
@@ -182,6 +182,7 @@ const renderFilterRail = (props: ComponentProps<typeof ProjectsFilterRail>) => <
  * the project's workspace page.
  */
 export const ProjectsHome = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()

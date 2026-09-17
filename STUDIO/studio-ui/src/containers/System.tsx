@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Typography, Row, Modal, notification } from 'antd'
+import { App, Button, Col, Divider, Form, Typography, Row, theme } from 'antd'
 import React, { useEffect } from 'react'
 import { WarningFilled } from '@ant-design/icons'
 import { Trans, useTranslation } from 'react-i18next'
@@ -24,7 +24,9 @@ interface SystemSettings {
 }
 
 export const System: React.FC = () => {
+    const { modal, notification } = App.useApp()
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const [systemSettings, setSystemSettings] = React.useState<SystemSettings | undefined>()
     const [form] = Form.useForm()
 
@@ -46,7 +48,7 @@ export const System: React.FC = () => {
 
     const showDeleteAllHistoryConfirm = () => {
         // Show confirmation dialog before deleting all history
-        Modal.confirm({
+        modal.confirm({
             title: t('system:confirm_delete_all_history'),
             content: t('system:confirm_delete_all_history_message'),
             onOk: deleteAllHistory,
@@ -55,7 +57,7 @@ export const System: React.FC = () => {
 
     const showApplyConfirm = () => {
         // Show confirmation dialog before applying changes
-        Modal.confirm({
+        modal.confirm({
             title: t('system:confirm_apply_settings'),
             content: t('system:confirm_apply_settings_message'),
             onOk: () => {
@@ -66,7 +68,7 @@ export const System: React.FC = () => {
 
     const showRestoreDefaultsConfirm = () => {
         // Show confirmation dialog before restoring defaults
-        Modal.confirm({
+        modal.confirm({
             title: t('system:confirm_restore_defaults'),
             content: t('system:confirm_restore_defaults_message'),
             onOk: () => {
@@ -171,10 +173,13 @@ export const System: React.FC = () => {
                     {t('common:btn.apply')}
                 </Button>
             </Row>
-            <Divider style={{ color: 'red' }} titlePlacement="start">{t('system:reset_settings')}</Divider>
+            <Divider style={{ color: token.colorError }} titlePlacement="start">{t('system:reset_settings')}</Divider>
             <p>
-                <WarningFilled style={{ color: 'red' }} />
-                <Trans components={[<b style={{ color: 'red' }} />]} i18nKey="system:restore_defaults_warning" />
+                <WarningFilled style={{ color: token.colorError }} />
+                <Trans
+                    components={[<b style={{ color: token.colorError }} />]}
+                    i18nKey="system:restore_defaults_warning"
+                />
             </p>
             <Row justify="end">
                 <Button danger onClick={showRestoreDefaultsConfirm}>

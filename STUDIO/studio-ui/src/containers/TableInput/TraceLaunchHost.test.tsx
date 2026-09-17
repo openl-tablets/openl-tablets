@@ -27,7 +27,8 @@ vi.mock('services/traceLaunch', () => ({
 // auto-close timer that would fire after jsdom is gone. The tests assert on the launch, not the toast.
 vi.mock('antd', async (importOriginal) => {
     const actual = await importOriginal<typeof import('antd')>()
-    return { ...actual, notification: { ...actual.notification, error: vi.fn() } }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...actual, notification: { ...actual.notification, error: vi.fn() } })
 })
 
 vi.mock('react-i18next', () => {

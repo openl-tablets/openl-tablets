@@ -64,7 +64,7 @@ const cmatchIcon = icon(KIND_SIZE, (
 
 // method.gif — italic "fx" for methods
 const methodIcon = icon(KIND_SIZE, (
-    <text fill="#333" fontFamily="Times, serif" fontSize="11" fontStyle="italic" x="2" y="12">
+    <text fill="currentColor" fontFamily="Times, serif" fontSize="11" fontStyle="italic" x="2" y="12">
         fx
     </text>
 ))
@@ -77,7 +77,7 @@ const valueIcon = icon(STEP_SIZE, (
 // test_ok.gif — checkbox with a checkmark for a decision-table rule
 const ruleIcon = icon(STEP_SIZE, (
     <>
-        <rect fill="#fff" height="12" rx="1" stroke="#333" strokeWidth="1" width="12" x="2" y="2" />
+        <rect fill="none" height="12" rx="1" stroke="currentColor" strokeWidth="1" width="12" x="2" y="2" />
         <path
             d="M4 8 L7 11 L12 5"
             fill="none"

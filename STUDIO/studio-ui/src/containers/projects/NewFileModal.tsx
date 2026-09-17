@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input, Modal, notification } from 'antd'
+import { App, Input, Modal } from 'antd'
 import { errorMessage } from '../../utils/errorMessage'
 import { createTextFile } from '../../services/files'
 import { FieldRow } from '../../components/FieldRow'
@@ -29,6 +29,7 @@ export const NewFileModal = ({
     onClose,
     onCreated,
 }: NewFileModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const [name, setName] = useState('')
     const [folder, setFolder] = useState('')

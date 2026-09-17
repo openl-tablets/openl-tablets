@@ -3,7 +3,7 @@ import { useCopyToClipboard } from './useCopyToClipboard'
 
 const { notificationError, logError } = vi.hoisted(() => ({ notificationError: vi.fn(), logError: vi.fn() }))
 
-vi.mock('antd', () => ({
+vi.mock('antd', async () => (await import('testing/staticAntdApp')).withStaticApp({
     notification: { error: notificationError },
 }))
 

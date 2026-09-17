@@ -1,18 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-    Alert,
-    Button,
-    Descriptions,
-    Input,
-    notification,
-    Radio,
-    Space,
-    Spin,
-    Table,
-    Tooltip,
-    Typography,
-    Upload,
-} from 'antd'
+import { App, Alert, Button, Descriptions, Input, Radio, Space, Spin, Table, Tooltip, Typography, Upload } from 'antd'
 import {
     CheckCircleOutlined,
     DeleteOutlined,
@@ -57,6 +44,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     onCancel,
     onCompare,
 }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()
 

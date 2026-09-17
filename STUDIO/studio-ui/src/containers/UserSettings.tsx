@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Button, Divider, Form, notification, Row } from 'antd'
+import { App, Button, Divider, Form, Row } from 'antd'
 import { Checkbox, Select } from '../components'
 import { useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
@@ -8,6 +8,7 @@ import { WIDTH_OF_FORM_LABEL } from '../constants'
 import { useUserStore } from 'store'
 
 export const UserSettings: React.FC = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { userProfile, fetchUserProfile } = useUserStore()
 

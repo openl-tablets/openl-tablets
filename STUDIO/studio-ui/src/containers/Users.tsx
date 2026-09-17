@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { Alert, Badge, Button, Col, Input, Modal, Row, Table, Typography, Tooltip, theme } from 'antd'
+import { App, Alert, Badge, Button, Col, Input, Row, Table, Typography, Tooltip, theme } from 'antd'
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, SearchOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { apiCall } from 'services'
@@ -17,6 +17,7 @@ import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
 import { ExclamationCircleTwoTone } from '@ant-design/icons'
 
 export const Users: React.FC = () => {
+    const { modal } = App.useApp()
     const { t } = useTranslation()
     const { token } = theme.useToken()
     const { isExternalAuthSystem, isGroupsManagementEnabled, systemSettings } = useContext(SystemContext)
@@ -54,7 +55,7 @@ export const Users: React.FC = () => {
     }, [])
 
     const removeUser = (username: string) => {
-        Modal.confirm({
+        modal.confirm({
             className: 'confirm-user-modal',
             title: t('users:confirm_deletion'),
             content: t('users:confirm_delete_user'),
@@ -91,7 +92,7 @@ export const Users: React.FC = () => {
                     if (unsafePassword) {
                         userNameComponent.push(
                             <Tooltip key="unsafe-password" title={t('users:unsafe_default_password')}>
-                                <ExclamationCircleOutlined style={{ color: 'red', marginLeft: 6 }} />
+                                <ExclamationCircleOutlined style={{ color: token.colorError, marginLeft: 6 }} />
                             </Tooltip>
                         )
                     }

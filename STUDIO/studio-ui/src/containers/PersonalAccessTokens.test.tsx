@@ -19,7 +19,7 @@ vi.mock('./PersonalAccessTokens.styles', () => ({
 }))
 
 // Ant Design Table hangs act() in jsdom (see AGENTS.md) — mock antd with plain HTML equivalents.
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const formInstance = {
         submit: () => formInstance._onFinish?.({ name: 'ci-token', expirationOption: '7_days' }),
         resetFields: vi.fn(),
@@ -41,7 +41,8 @@ vi.mock('antd', () => {
         Paragraph: ({ children }: { children?: React.ReactNode }) => <p>{children}</p>,
         Text: ({ children }: { children?: React.ReactNode }) => <span>{children}</span>,
     }
-    return {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         Alert: ({ title }: { title?: React.ReactNode }) => <div>{title}</div>,
         Button: ({ children, icon, onClick, ...rest }: {
             children?: React.ReactNode
@@ -98,7 +99,7 @@ vi.mock('antd', () => {
             </>
         ),
         Typography,
-    }
+    })
 })
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>

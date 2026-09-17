@@ -145,7 +145,8 @@ vi.mock('antd', async () => {
             value={value ?? ''}
         />
     )
-    return {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         ...actual,
         AutoComplete: MockAutoComplete,
         DatePicker: MockDatePicker,
@@ -154,7 +155,7 @@ vi.mock('antd', async () => {
         Select: MockSelect,
         Spin: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
         notification: { error: vi.fn() },
-    }
+    })
 })
 
 vi.mock('react-i18next', () => ({

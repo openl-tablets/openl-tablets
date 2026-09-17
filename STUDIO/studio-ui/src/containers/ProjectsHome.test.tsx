@@ -280,7 +280,12 @@ vi.mock('antd', async () => {
         : null), { confirm: vi.fn() })
     const notification = { error: vi.fn(), info: vi.fn(), success: vi.fn() }
 
-    return { Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert, Typography, Modal, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+
+    return withStaticApp({
+        Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert,
+        Typography, Modal, notification
+    })
 })
 
 const repositories = [

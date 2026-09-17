@@ -6,7 +6,7 @@ import { yaml } from '@codemirror/lang-yaml'
 import { StreamLanguage } from '@codemirror/language'
 import { properties } from '@codemirror/legacy-modes/mode/properties'
 import { groovy } from '@codemirror/legacy-modes/mode/groovy'
-import { createStyles } from 'antd-style'
+import { createStyles, useThemeMode } from 'antd-style'
 import { MOCKUP } from './projectsTheme'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -74,10 +74,12 @@ interface CodeEditorProps {
 /**
  * Syntax-highlighted view of a project text file, backed by CodeMirror. Highlighting is chosen from the
  * file extension (XML, JSON, YAML, .properties, Groovy); other types show as plain monospace text. When
- * {@link CodeEditorProps.readOnly} is set the content is shown for viewing only.
+ * {@link CodeEditorProps.readOnly} is set the content is shown for viewing only. The editor is drawn in the
+ * appearance in force, light or dark, and follows it when the user switches.
  */
 export const CodeEditor = ({ value, path, readOnly, onChange }: CodeEditorProps) => {
     const { styles } = useStyles()
+    const { isDarkMode } = useThemeMode()
     const extensions = useMemo(() => languageFor(path), [path])
     return (
         <CodeMirror
@@ -85,7 +87,7 @@ export const CodeEditor = ({ value, path, readOnly, onChange }: CodeEditorProps)
             editable={!readOnly}
             extensions={extensions}
             height="100%"
-            theme="light"
+            theme={isDarkMode ? 'dark' : 'light'}
             value={value}
             {...(onChange ? { onChange } : {})}
         />

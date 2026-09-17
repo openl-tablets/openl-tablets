@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { notification } from 'antd'
 import { errorMessage } from '../../utils/errorMessage'
 import { getProjects } from '../../services/repositories'
 import type { Project } from '../../types/projects'
@@ -38,6 +38,7 @@ export const ProjectSwitcher = ({
     disabled = false,
     testId = 'project-switcher',
 }: ProjectSwitcherProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const [projects, setProjects] = useState<Project[] | null>(null)
     const [loading, setLoading] = useState(false)

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Button, Spin, notification } from 'antd'
+import { App, Button, Spin } from 'antd'
 import Logo from '../components/Logo'
 import { apiCall } from '../services'
 import { useUserStore } from 'store'
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { useStyles } from '../styles/splashCard.styles'
 
 export const EmailVerification = () => {
+    const { notification } = App.useApp()
     const location = useLocation()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)

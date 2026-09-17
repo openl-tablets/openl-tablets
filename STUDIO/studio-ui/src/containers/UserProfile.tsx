@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { Button, Divider, Form, notification, Row } from 'antd'
+import { App, Button, Divider, Form, Row } from 'antd'
 import { InputPassword } from '../components'
 import { useTranslation } from 'react-i18next'
 import { WIDTH_OF_FORM_LABEL } from 'constants/'
@@ -13,6 +13,7 @@ import { useUserStore } from 'store'
 import { useIsFormChanged } from '../hooks/useIsFormChanged'
 
 export const UserProfile: React.FC = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { systemSettings } = useContext(SystemContext)
     const { userProfile, fetchUserProfile } = useUserStore()
