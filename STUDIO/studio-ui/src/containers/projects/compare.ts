@@ -12,6 +12,14 @@ export const openCompareWindow = (project: Pick<Project, 'id'>): void => {
 }
 
 /**
+ * Opens the comparison of two Excel files the reader picks from their own computer - the Compare Excel
+ * Files tool of the editor, which reads no project at all.
+ */
+export const openExcelFilesCompareWindow = (): void => {
+    openCompare('')
+}
+
+/**
  * Opens the comparison of the two versions of a conflicted file: the one being merged in against the
  * one the workspace holds.
  *
@@ -40,8 +48,9 @@ export const openVersionsCompareWindow = (
  * time: a second window would take the comparison the first one is reading.
  */
 const openCompare = (query: string): void => {
+    const search = query ? `?${query}` : ''
     window.open(
-        `${CONFIG.CONTEXT}/compare?${query}`,
+        `${CONFIG.CONTEXT}/compare${search}`,
         'compare_win',
         'width=1240,height=800,resizable=yes,scrollbars=yes'
     )
