@@ -139,19 +139,19 @@ public class TableEditorsReader {
         }
         var described = TableCellEditorView.builder().editor(kind);
         switch (response.params()) {
-            case MultiChoiceParam params -> described.choices(List.of(params.getChoices()))
-                    .displayValues(displayValues(params))
-                    .separator(params.getSeparator())
-                    .separatorEscaper(params.getSeparatorEscaper());
-            case ComboBoxParam params -> described.choices(List.of(params.getChoices()))
-                    .displayValues(displayValues(params));
-            case RangeParam params -> described.min(params.getMin())
-                    .max(params.getMax())
-                    .intOnly(params.isIntOnly());
-            case ArrayEditorParams params -> described.separator(params.getSeparator())
-                    .entryEditor(params.getEntryEditor())
-                    .intOnly(params.isIntOnly());
-            case NumberRangeParams params -> described.entryEditor(params.getEntryEditor());
+            case MultiChoiceParam params -> described.choices(List.of(params.choices()))
+                    .displayValues(displayValues(params.displayValues()))
+                    .separator(params.separator())
+                    .separatorEscaper(params.separatorEscaper());
+            case ComboBoxParam params -> described.choices(List.of(params.choices()))
+                    .displayValues(displayValues(params.displayValues()));
+            case RangeParam params -> described.min(params.min())
+                    .max(params.max())
+                    .intOnly(params.intOnly());
+            case ArrayEditorParams params -> described.separator(params.separator())
+                    .entryEditor(params.entryEditor())
+                    .intOnly(params.intOnly());
+            case NumberRangeParams params -> described.entryEditor(params.entryEditor());
             case null, default -> {
                 // A date or a boolean is entered the same way wherever it stands, so it carries nothing.
             }
@@ -160,8 +160,8 @@ public class TableEditorsReader {
     }
 
     /** What to show for each choice, or the choices themselves when the domain gives no other wording. */
-    private static @Nullable List<String> displayValues(ComboBoxParam params) {
-        return params.getDisplayValues() == null ? null : List.of(params.getDisplayValues());
+    private static @Nullable List<String> displayValues(String @Nullable [] displayValues) {
+        return displayValues == null ? null : List.of(displayValues);
     }
 
     /** The table's meta info, or an empty one when the table carries none. */
