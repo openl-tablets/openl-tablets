@@ -1,0 +1,6 @@
+HTTP/1.1 202
+Access-Control-Allow-Origin: https://trusted.example
+Access-Control-Allow-Methods: GET,OPTIONS,HEAD,PUT,POST
+Access-Control-Allow-Headers: Content-Type,Accept,api_key,Authorization,Mcp-Session-Id,MCP-Protocol-Version,Mcp-Method,Mcp-Name,Last-Event-ID
+Access-Control-Max-Age: 7200
+
