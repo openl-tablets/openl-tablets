@@ -58,6 +58,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.ProjectModel;
@@ -817,24 +818,28 @@ public class ProjectsController {
                             @RequestParam(value = "fromModule", required = false) String fromModule,
                             @RequestParam(value = "tableId", required = false) String tableId,
                             @RequestParam(value = "testRanges", required = false) String testRanges) {
+        // A blank `?fromModule=` means the whole project, not a module named "", the way the benchmark reads it.
+        var moduleName = StringUtils.trimToNull(fromModule);
+        var projectModel = projectService.openProject(project, moduleName).awaitCompiled();
+        var currentOpenedModule = moduleName != null;
+        // Refused before any run is cancelled or announced: a request refused leaves the run before it going,
+        // and announces no run whose end nobody would hear.
+        var table = StringUtils.isBlank(tableId) ? null : requireTable(projectModel, tableId);
+        if (table != null && StringUtils.isNotBlank(testRanges)) {
+            requireKnownCases(projectModel, table, testRanges, currentOpenedModule);
+        }
         executionTestsResultRegistry.cancelIfAny();
         var projectId = projectIdentifierMapper.map(project);
         var user = projectService.getUserWorkspace().getUser();
-        var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
-        var currentOpenedModule = fromModule != null;
         CompletableFuture<List<TestUnitsResults>> testTask;
         var mapper = testsSummaryMapper(project);
-        if (StringUtils.isBlank(tableId)) {
+        if (table == null) {
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
                     testCase -> mapper.mapToTestCaseResult(testCase, TestExecutionSummaryQuery.noFilter()));
             listener.onStatusChanged(TestExecutionStatus.PENDING);
             testTask = testsExecutorService.runAll(listener, projectModel, currentOpenedModule);
         } else {
-            var table = projectModel.getTableById(tableId);
-            if (table == null) {
-                throw new NotFoundException("table.message");
-            }
             var listener = socketProjectAllTestsExecutionProgressListenerFactory.create(user,
                     projectId,
                     tableId,
@@ -847,6 +852,23 @@ public class ProjectsController {
             }
         }
         executionTestsResultRegistry.setTask(projectId, testTask);
+    }
+
+    /**
+     * Refuses a range that names a case the test table does not have.
+     *
+     * <p>The run itself resolves the range on another thread, where a refusal would reach nobody; asked here, it
+     * answers the request instead. A table that is not a test table takes no range, so it is asked nothing.
+     */
+    private static void requireKnownCases(ProjectModel projectModel,
+                                          IOpenLTable table,
+                                          String testRanges,
+                                          boolean currentOpenedModule) {
+        var uri = table.getUri();
+        var method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
+        if (method instanceof TestSuiteMethod testSuiteMethod) {
+            TestCaseRanges.requireKnownCases(testSuiteMethod, testRanges);
+        }
     }
 
     @Operation(summary = "projects.tests.summary.summary")

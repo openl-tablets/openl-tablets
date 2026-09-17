@@ -1,0 +1,3 @@
+POST /rest/projects/{PROJECT_ID}/benchmarks?tableId=451b35be727af55a2b1ec9409f5ae72d&testRanges=1-99 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

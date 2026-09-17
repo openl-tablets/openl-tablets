@@ -26,6 +26,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.messaging.SocketBenchmarkExecutionProgressListenerFactory;
@@ -144,6 +145,19 @@ class ProjectsBenchmarkControllerTest {
 
         verify(benchmarkExecutorService).benchmark(eq(listener), eq(model), eq(table), isNull(), isNull(), isNull(),
                 eq(false));
+    }
+
+    @Test
+    void startBenchmark_refusesACaseTheTableDoesNotHaveBeforeMeasuringAnything() {
+        var method = mock(TestSuiteMethod.class);
+        when(method.getIndices("9")).thenThrow(new IllegalArgumentException("Test case '9' is not found."));
+        tableIsExecutedBy(method);
+
+        assertThrows(BadRequestException.class, () -> controller.startBenchmark(project, TABLE_ID, "9", null, null));
+
+        // The measurement before it, if any, goes on, and none is announced.
+        verify(listener, never()).onStatusChanged(any());
+        verify(benchmarkExecutorService, never()).benchmark(any(), any(), any(), any(), any(), any(), anyBoolean());
     }
 
     @Test

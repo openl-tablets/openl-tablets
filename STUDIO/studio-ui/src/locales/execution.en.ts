@@ -29,6 +29,11 @@ i18next.addResourceBundle('en', 'execution', {
         total: 'Total test cases: {{count}}',
         noCase: 'Select a test case',
         none: 'Select at least one test case',
+        useRange: 'Use the Range',
+        useRangeHint: 'Define a range of IDs instead of ticking the cases',
+        range: 'Range of IDs',
+        rangeHint: 'Define ranges like: 2-4,7,10-12 or id3-id7',
+        rangeRequired: 'Enter a range of test case IDs',
     },
 
     run: {
@@ -78,7 +83,6 @@ i18next.addResourceBundle('en', 'execution', {
         start: 'Test',
         intoFile: 'Test into File',
         startFailed: 'Failed to run the tests',
-        allCases: 'All cases',
     },
 
     benchmark: {

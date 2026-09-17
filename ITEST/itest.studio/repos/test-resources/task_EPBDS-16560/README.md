@@ -8,3 +8,7 @@ cases are read from `GET .../input/cases`, 25 to a page.
 In a page of cases a value with inner structure (a datatype) is marked `lazy` and left out.
 `GET .../input/cases/{caseId}` reads one case with every value written in full. An unknown table, a rule table
 asked for its cases, and an unknown case are all a 404; a page size below 1 is a 400.
+
+A run or a benchmark of the test table may name its cases by a range of ids (`testRanges=1-3,5`). A range that
+names a case the table does not have is refused with a 400 before the run is scheduled, so the refusal reaches
+the caller instead of failing on the run's own thread.

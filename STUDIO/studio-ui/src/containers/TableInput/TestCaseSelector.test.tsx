@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { TestCaseSelector, type TestCaseSelectorProps } from 'containers/TableInput/TestCaseSelector'
+import { EVERY_CASE, TestCaseSelector, type TestCaseSelectorProps } from 'containers/TableInput/TestCaseSelector'
 import type { TableInputTestCase } from 'types/tables'
 
 vi.mock('react-i18next', () => {
@@ -70,17 +70,46 @@ describe('TestCaseSelector', () => {
         expect(onChange).toHaveBeenLastCalledWith(['1'])
     })
 
-    it('picks every case of the page at once, and clears them the same way', async () => {
+    it('picks every case of the table by the box in the header, and clears them the same way', async () => {
         const onChange = vi.fn()
         const { unmount } = renderSelector({ onChange, selection: 'multiple', value: []})
 
         await userEvent.click(screen.getByTestId('pick-all-cases'))
-        expect(onChange).toHaveBeenLastCalledWith(['1', '2'])
+        expect(onChange).toHaveBeenLastCalledWith(EVERY_CASE)
         unmount()
 
-        renderSelector({ onChange, selection: 'multiple', value: ['1', '2']})
+        renderSelector({ onChange, selection: 'multiple', value: EVERY_CASE })
+        // Every case reads as picked, on this page and the others.
+        expect(screen.getByTestId('pick-all-cases')).toBeChecked()
+        expect(screen.getByTestId('pick-case-1')).toBeChecked()
+        expect(screen.getByTestId('pick-case-2')).toBeChecked()
         await userEvent.click(screen.getByTestId('pick-all-cases'))
         expect(onChange).toHaveBeenLastCalledWith([])
+    })
+
+    it('leaves one case out of all of them, on this page and the others, and takes it back the same way', async () => {
+        const onChange = vi.fn()
+        const { unmount } = renderSelector({ onChange, selection: 'multiple', value: EVERY_CASE })
+
+        await userEvent.click(screen.getByTestId('pick-case-2'))
+        expect(onChange).toHaveBeenLastCalledWith({ except: ['2']})
+        unmount()
+
+        renderSelector({ onChange, selection: 'multiple', value: { except: ['2']} })
+        // The rest stay picked, so the box in the header is neither clear nor fully ticked.
+        expect(screen.getByTestId('pick-case-1')).toBeChecked()
+        expect(screen.getByTestId('pick-case-2')).not.toBeChecked()
+        expect(screen.getByTestId('pick-all-cases')).not.toBeChecked()
+        expect(screen.getByTestId('pick-all-cases')).toHaveProperty('indeterminate', true)
+        await userEvent.click(screen.getByTestId('pick-case-2'))
+        expect(onChange).toHaveBeenLastCalledWith(EVERY_CASE)
+    })
+
+    it('reads as no case at all once every case is left out one by one', () => {
+        renderSelector({ selection: 'multiple', value: { except: ['1', '2']} })
+
+        expect(screen.getByTestId('pick-all-cases')).not.toBeChecked()
+        expect(screen.getByTestId('pick-all-cases')).toHaveProperty('indeterminate', false)
     })
 
     it('does not pick a case when a value of it is read or opened', async () => {

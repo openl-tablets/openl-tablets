@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.tests.run.range.unknown-case.message",
+  "message": "The range names a test case the table does not have: Test case '99' is not found."
+}

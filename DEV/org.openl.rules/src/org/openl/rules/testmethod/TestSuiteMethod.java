@@ -108,7 +108,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
     public synchronized int[] getIndices(String ids) {
         if (tests == null) {
-            initTestsAndIndexes();
+            this.tests = initTestsAndIndexes();
         }
         var result = new TreeSet<Integer>();
 
@@ -124,27 +124,39 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 continue;
             }
             String[] edges = StringUtils.split(v, '-');
+            if (edges.length == 0) {
+                // Dashes and nothing else: the case named by a dash alone was found above, so nothing is named.
+                throw unknownCase(v);
+            }
             if (edges.length > 2 || edges[edges.length - 1].trim().isEmpty()) {
                 edges = DASH_SEPARATOR.split(v);
             }
-            if (edges.length == 0) {
-                if (indexes.containsKey("-")) {
-                    result.add(indexes.get("-"));
-                }
-            } else {
-                var startIdValue = edges[0].trim();
-                var endIdValue = edges[edges.length - 1].trim();
+            var startIndex = requireIndex(edges[0].trim());
+            var endIndex = requireIndex(edges[edges.length - 1].trim());
 
-                var startIndex = indexes.get(startIdValue);
-                var endIndex = indexes.get(endIdValue);
-
-                for (var i = startIndex; i <= endIndex; i++) {
-                    result.add(i);
-                }
+            for (var i = startIndex; i <= endIndex; i++) {
+                result.add(i);
             }
         }
         Integer[] indices = new Integer[result.size()];
         return ArrayUtils.toPrimitive(result.toArray(indices));
+    }
+
+    /**
+     * The index of the test case with the given id.
+     *
+     * @throws IllegalArgumentException when no test case has the id
+     */
+    private int requireIndex(String id) {
+        var index = indexes.get(id);
+        if (index == null) {
+            throw unknownCase(id);
+        }
+        return index;
+    }
+
+    private static IllegalArgumentException unknownCase(String id) {
+        return new IllegalArgumentException("Test case '%s' is not found.".formatted(id));
     }
 
     @Override
