@@ -105,10 +105,6 @@ vi.mock('containers/users/UserDatailsTab', async () => {
     }
 })
 
-vi.mock('containers/users/EditUserModal', async () => ({
-    __esModule: true,
-}))
-
 vi.mock('containers/users/RenderGroupCell', async () => ({
     __esModule: true,
 }))
