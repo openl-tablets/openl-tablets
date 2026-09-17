@@ -1,8 +1,10 @@
 package org.openl.studio.projects.model.trace;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +36,47 @@ import org.openl.types.IOpenClass;
 class FieldAccessInputTest {
 
     private static final String SRC = "test/rules/trace-debug/fieldAccessProject.xlsx";
+
+    @Test
+    @DisplayName("The root frame's parameters carry the keys of the traced case, a called table's do not")
+    void theRootFrameParametersCarryTheKeysOfTheTracedCase() {
+        var compiled = new RulesEngineFactory<>(SRC).getCompiledOpenClass();
+        var module = compiled.getOpenClass();
+        var policyType = module.findType("Policy");
+        var caller = module.getMethod("Caller", new IOpenClass[]{ policyType });
+        var classLoader = compiled.getClassLoader();
+
+        var debugger = new TraceDebugger(DebugListener.NOOP);
+        debugger.setBreakpoints(Set.of("CountCensus"));
+        debugger.start("case-keys", classLoader, false, () -> {
+            var env = new SimpleRulesVM().getRuntimeEnv();
+            env.setTracer(debugger.tracer());
+            var policy = policyType.newInstance(env);
+            policyType.getField("census").set(policy, 5, env);
+            caller.invoke(module.newInstance(env), new Object[]{ policy }, env);
+        });
+        try {
+            assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(20_000));
+            var stack = debugger.stack();
+            var objectMapper = new ObjectMapper();
+            // The case names the policy by the key of the data table row it took it from.
+            var mapper = new TraceDebugMapper(objectMapper,
+                    new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper),
+                    new TraceParameterRegistry(),
+                    Map.of("policy", "P-5"));
+
+            var root = mapper.freezeVariables(stack.get(0), classLoader, false).parameters();
+            var callee = mapper.freezeVariables(stack.get(1), classLoader, false).parameters();
+
+            assertEquals("policy", root.get(0).name());
+            assertEquals("Policy", root.get(0).type(), "a value not read yet is named by its type, as the case list names it");
+            assertEquals("P-5", root.get(0).key(), "the case's key stands for the policy the table was given");
+            assertEquals("census", callee.get(0).name());
+            assertNull(callee.get(0).key(), "a value the rules computed is referred to by no key");
+        } finally {
+            debugger.terminate(20_000);
+        }
+    }
 
     @Test
     @DisplayName("A field read off a parameter lists the dotted field, not the whole parameter")

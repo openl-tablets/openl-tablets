@@ -7,7 +7,8 @@ Content-Type: application/json
       "name": "ratingDetails",
       "description": "SpreadsheetResultRatingDetails",
       "lazy": true,
-      "parameterId": 1
+      "parameterId": 1,
+      "type": "SpreadsheetResultRatingDetails"
     }
   ],
   "context": "***",

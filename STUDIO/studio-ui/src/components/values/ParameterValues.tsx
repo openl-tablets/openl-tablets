@@ -30,14 +30,26 @@ const SimpleValue: React.FC<{ value: unknown, styles: Styles }> = ({ value, styl
     return <span className={styles[KIND_CLASS[kind]]}>{display}</span>
 }
 
-/** One node title of a value tree, `name (type) = value`. A value with inner structure shows a summary. */
-const renderTitle = ({ name, value, type }: ValueNodeTitle, styles: Styles): React.ReactNode => (
+/**
+ * What a value with inner structure is known as: its type and, in braces, the key it is referred to by -
+ * `Driver (Sara)`. It stands for the value before it is read and stays as its title once it is. A value that
+ * is referred to by no key is known as nothing: read, it is counted by its fields.
+ */
+export const valueLabel = ({ type, key }: Pick<TraceParameterValue, 'type' | 'key'>): string | undefined => (
+    type && key ? `${type} (${key})` : undefined
+)
+
+/**
+ * One node title of a value tree, `name (type) = value`. A value with inner structure shows what it is known
+ * as, or else a count of its fields.
+ */
+const renderTitle = ({ name, value, type, summary }: ValueNodeTitle, styles: Styles): React.ReactNode => (
     <span className={styles.treeTitle}>
         <span className={styles.valueName}>{name}</span>
         {type && <span className={styles.valueType}>{type}</span>}
         <span className={styles.valueEquals}>=</span>
         {isComplexValue(value)
-            ? <span className={styles.valueSummary}>{complexValueSummary(value)}</span>
+            ? <span className={styles.valueSummary}>{summary ?? complexValueSummary(value)}</span>
             : <SimpleValue styles={styles} value={value} />}
     </span>
 )
@@ -142,7 +154,8 @@ const placeholderOf = (
     lazy: boolean,
     testId: string,
     styles: Styles,
-    t: (key: string) => string
+    t: (key: string) => string,
+    label?: string
 ): React.ReactNode => {
     if (state.loading) {
         return <Spin indicator={<LoadingOutlined spin />} size="small" />
@@ -158,7 +171,14 @@ const placeholderOf = (
         return <><span className={styles.valueError}>{state.error}</span>{lazy && readLink(t('value.retry'))}</>
     }
     if (lazy && !state.loaded && state.value == null) {
-        return readLink(t('value.load'))
+        // What the value is known as before it is read - its type and the key it is referred to by - tells the
+        // values of a list apart, the way the legacy tree showed a folded value.
+        return (
+            <>
+                {label && <span className={styles.valueSummary} data-testid={`summary-${testId}`}>{label}</span>}
+                {readLink(t('value.load'))}
+            </>
+        )
     }
     if (state.loaded && state.value === undefined) {
         return <span className={styles.valueEmpty}>{'{}'}</span>
@@ -174,6 +194,11 @@ export interface ValueCellProps {
     lazy?: boolean | undefined
     /** Reads the value the API left out. Absent when the screen cannot read it. */
     onLoad?: (() => Promise<TraceParameterValue | undefined>) | undefined
+    /**
+     * What the value is known as, such as `Driver (Sara)`: stands for it while it is only referred to, and
+     * titles it once it is read. Absent, a read value is counted by its fields.
+     */
+    label?: string | undefined
 }
 
 /**
@@ -184,20 +209,21 @@ export interface ValueCellProps {
  *
  * A value the API only referred to is a link that reads it, and a spinner while it is read.
  */
-export const ValueCell: React.FC<ValueCellProps> = ({ value, path, lazy, onLoad }) => {
+export const ValueCell: React.FC<ValueCellProps> = ({ value, path, lazy, onLoad, label }) => {
     const { t } = useTranslation('common')
     const { styles } = useStyles()
     const state = useReadOnDemand(value, onLoad)
     const treeData = useMemo(
         () => (isComplexValue(state.value)
-            ? [buildValueTreeData({ name: '', value: state.value }, title => renderTitle(title, styles), path)]
+            ? [buildValueTreeData({ name: '', value: state.value, summary: label }, title => renderTitle(title, styles), path)]
             : []),
-        [state.value, path, styles]
+        [state.value, path, styles, label]
     )
 
-    const placeholder = placeholderOf(state, Boolean(lazy) && onLoad !== undefined, path, styles, t)
+    const placeholder = placeholderOf(state, Boolean(lazy) && onLoad !== undefined, path, styles, t, label)
     if (placeholder !== null) {
-        return <>{placeholder}</>
+        // The same spacing as a labelled line, so the label and the link that follows it do not run together.
+        return <span className={styles.treeTitle}>{placeholder}</span>
     }
     if (!isComplexValue(state.value)) {
         return <SimpleValue styles={styles} value={state.value} />
@@ -232,20 +258,21 @@ export const ParameterValueTree: React.FC<ParameterValueTreeProps> = ({ param, p
 
     const displayValue = state.value
     const isComplex = isComplexValue(displayValue)
+    const label = valueLabel(param)
 
     const treeData = useMemo(() => (isComplex
         ? [buildValueTreeData(
-            { name: param.name, value: displayValue, type: param.description },
+            { name: param.name, value: displayValue, type: param.description, summary: label },
             title => renderTitle(title, styles),
             paramKey
         )]
-        : []), [param.name, param.description, displayValue, paramKey, isComplex, styles])
+        : []), [param.name, param.description, label, displayValue, paramKey, isComplex, styles])
 
     const line = (children: React.ReactNode) => (
         <ParameterLine name={param.name} styles={styles} type={param.description}>{children}</ParameterLine>
     )
 
-    const placeholder = placeholderOf(state, Boolean(param.lazy) && onLoad !== undefined, paramKey, styles, t)
+    const placeholder = placeholderOf(state, Boolean(param.lazy) && onLoad !== undefined, paramKey, styles, t, label)
     if (placeholder !== null) {
         return line(placeholder)
     }

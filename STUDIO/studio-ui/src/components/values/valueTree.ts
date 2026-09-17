@@ -50,11 +50,15 @@ const childrenOf = (value: unknown): ValueNodeTitle[] => {
         : Object.entries(value).map(([name, item]) => ({ name, value: item }))
 }
 
-/** One node of a value tree. The name it is shown under, its value and, for a root, its declared type. */
+/**
+ * One node of a value tree. The name it is shown under, its value and, for a root, its declared type and what
+ * the value is known as - `Driver (Sara)` - in place of the count of its fields.
+ */
 export interface ValueNodeTitle {
     name: string
     value: unknown
     type?: string | undefined
+    summary?: string | undefined
 }
 
 /**

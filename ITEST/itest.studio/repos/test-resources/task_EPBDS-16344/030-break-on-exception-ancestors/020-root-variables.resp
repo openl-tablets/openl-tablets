@@ -7,13 +7,15 @@ Content-Type: application/json
       "name": "originalValue",
       "description": "***",
       "lazy": true,
-      "parameterId": "###"
+      "parameterId": "###",
+      "type": "***"
     },
     {
       "name": "overriddenValuess",
       "description": "***",
       "lazy": true,
-      "parameterId": "###"
+      "parameterId": "###",
+      "type": "***"
     }
   ],
   "context": "***",

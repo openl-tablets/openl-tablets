@@ -1,5 +1,8 @@
 package org.openl.studio.projects.service.trace;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -8,6 +11,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.service.AbstractMethodExecutorService;
 
 /**
@@ -43,6 +47,7 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
         // in-place recompile between start and export cannot pair a fresh method with the stale start-time class.
         var session = new DebugSession(request.projectId(), request.tableId(), debugger, classLoader,
                 tracer -> buildTestSuite(request).invokeSequentially(compiledOf(request).getOpenClassWithErrors(), 1, tracer),
+                caseKeysOf(request, testSuite),
                 request.sessionId());
 
         debugger.start("trace-debug-" + request.tableId(), classLoader, request.stopAtEntry(), request.profiling(),
@@ -67,6 +72,32 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
                 request.currentOpenedModule(), parsed.runtimeContext());
         var db = getDb(request.projectModel(), request.currentOpenedModule());
         return new TestSuite(new TestDescription(resolvedMethod, parsed.runtimeContext(), parsed.params(), db));
+    }
+
+    /**
+     * The key each parameter of the traced case is referred to by in its data table, by parameter name.
+     *
+     * <p>A test table names a driver by the key of the data table it takes the driver from; the trace shows the
+     * root frame's parameters by those keys, as the case list does. Resolved here, from the case as it was read,
+     * so a key of the data table's own - a row number - is still answered once the trace holds copies of the
+     * values.
+     *
+     * <p>An input typed in for a rule table names no data table row, so it carries no keys - whatever field its
+     * type is indexed by. Neither does a parameter the case gives no key for.
+     */
+    private static Map<String, String> caseKeysOf(TraceDebugStartRequest request, TestSuite testSuite) {
+        if (!(request.method() instanceof TestSuiteMethod)) {
+            return Map.of();
+        }
+        var keys = new HashMap<String, String>();
+        // The suite holds the one case traced.
+        for (var param : testSuite.getTest(0).getExecutionParams()) {
+            var key = ExecutionValueMapper.keyOf(param);
+            if (key != null) {
+                keys.put(param.getName(), key);
+            }
+        }
+        return Map.copyOf(keys);
     }
 
     /** The single test case to trace: the first of the requested range, or the first case for the whole suite. */

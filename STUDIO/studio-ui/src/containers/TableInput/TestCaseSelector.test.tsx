@@ -9,7 +9,7 @@ vi.mock('react-i18next', () => {
 })
 
 const testCases: TableInputTestCase[] = [
-    { id: '1', description: 'Young', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }, { name: 'car', description: 'Car', lazy: true }]},
+    { id: '1', description: 'Young', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 25 }, { name: 'car', description: 'Car', lazy: true, type: 'Car', key: 'VIN-1' }]},
     { id: '2', description: 'Senior', parameters: [{ name: 'age', description: 'Age', lazy: false, value: 70 }, { name: 'car', description: 'Car', lazy: false, value: null }]},
 ]
 
@@ -49,6 +49,14 @@ describe('TestCaseSelector', () => {
         expect(radios[0]).toBeChecked()
         // Every case fits on one page, so there is nothing to page through.
         expect(screen.queryByText('testCases.total')).toBeNull()
+    })
+
+    it('tells a lazy value by its type and data table key before it is read', () => {
+        renderSelector()
+
+        // The case is told apart at a glance; the value is still read only on request.
+        expect(screen.getByTestId('summary-case-1-1')).toHaveTextContent('Car (VIN-1)')
+        expect(screen.getByTestId('load-case-1-1')).toBeInTheDocument()
     })
 
     it('picks a case by its radio and by a click on the row', async () => {
@@ -126,9 +134,12 @@ describe('TestCaseSelector', () => {
         await userEvent.click(screen.getByTestId('load-case-1-1'))
         expect(await screen.findByText('the project is being compiled')).toBeInTheDocument()
 
-        // The link stays, so a case that failed once while the project compiled can be read again.
+        // The link stays, so a case that failed once while the project compiled can be read again. The value
+        // read keeps the key it is known by as its title, in place of a count of its fields.
         await userEvent.click(screen.getByTestId('load-case-1-1'))
-        await waitFor(() => expect(screen.getByText('{1 fields}')).toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByTestId('load-case-1-1')).toBeNull())
+        expect(screen.getByText('Car (VIN-1)')).toBeInTheDocument()
+        expect(screen.queryByText('{1 fields}')).toBeNull()
         expect(loadCase).toHaveBeenCalledTimes(2)
     })
 

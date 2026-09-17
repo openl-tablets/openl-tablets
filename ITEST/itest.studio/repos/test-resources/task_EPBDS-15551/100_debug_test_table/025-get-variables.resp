@@ -1,0 +1,198 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "parameters": [
+    {
+      "name": "bank",
+      "description": "Bank",
+      "lazy": true,
+      "parameterId": 1,
+      "type": "Bank",
+      "key": "commerz"
+    }
+  ],
+  "context": {
+    "name": "context",
+    "description": "DefaultRulesRuntimeContext",
+    "lazy": false,
+    "value": {
+      "currentDate": null,
+      "requestDate": null,
+      "lob": null,
+      "nature": null,
+      "usState": null,
+      "country": null,
+      "usRegion": null,
+      "currency": null,
+      "lang": null,
+      "region": null,
+      "caProvince": null,
+      "caRegion": null,
+      "locale": null
+    }
+  },
+  "steps": [
+    {
+      "ref": "R0C1",
+      "label": "$Value$CheckCurrentFinancialData",
+      "cell": "G13",
+      "status": "current"
+    },
+    {
+      "ref": "R1C1",
+      "label": "$Value$CheckPreviousPeriodFinancialData",
+      "cell": "G14",
+      "status": "pending"
+    },
+    {
+      "ref": "R2C1",
+      "label": "$Value$BalanceQualityIndexCalculation",
+      "cell": "G15",
+      "status": "pending"
+    },
+    {
+      "ref": "R3C0",
+      "label": "$Description$BalanceDynamicIndexCalculation",
+      "cell": "F16",
+      "status": "executed",
+      "value": {
+        "name": "R3C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators"
+      }
+    },
+    {
+      "ref": "R3C1",
+      "label": "$Value$BalanceDynamicIndexCalculation",
+      "cell": "G16",
+      "status": "pending"
+    },
+    {
+      "ref": "R4C0",
+      "label": "$Description$BankQualitativeIndexCalculation",
+      "cell": "F16",
+      "status": "executed",
+      "value": {
+        "name": "R4C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators"
+      }
+    },
+    {
+      "ref": "R4C1",
+      "label": "$Value$BankQualitativeIndexCalculation",
+      "cell": "G17",
+      "status": "pending"
+    },
+    {
+      "ref": "R5C0",
+      "label": "$Description$IsAdequateNormativeIndexCalculation",
+      "cell": "F16",
+      "status": "executed",
+      "value": {
+        "name": "R5C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Indices B, B1, B2, B3 accoding to Financial Data and Quality Indicators"
+      }
+    },
+    {
+      "ref": "R5C1",
+      "label": "$Value$IsAdequateNormativeIndexCalculation",
+      "cell": "G18",
+      "status": "pending"
+    },
+    {
+      "ref": "R6C0",
+      "label": "$Description$BankRating",
+      "cell": "F19",
+      "status": "executed",
+      "value": {
+        "name": "R6C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Bank Rating R = B x B1 x B2 x B3"
+      }
+    },
+    {
+      "ref": "R6C1",
+      "label": "$Value$BankRating",
+      "cell": "G19",
+      "status": "pending"
+    },
+    {
+      "ref": "R7C0",
+      "label": "$Description$BankRatingGroup",
+      "cell": "F20",
+      "status": "executed",
+      "value": {
+        "name": "R7C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Bank Rating Group"
+      }
+    },
+    {
+      "ref": "R7C1",
+      "label": "$Value$BankRatingGroup",
+      "cell": "G20",
+      "status": "pending"
+    },
+    {
+      "ref": "R8C0",
+      "label": "$Description$LimitIndex",
+      "cell": "F21",
+      "status": "executed",
+      "value": {
+        "name": "R8C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Calculate Limit Index Kl"
+      }
+    },
+    {
+      "ref": "R8C1",
+      "label": "$Value$LimitIndex",
+      "cell": "G21",
+      "status": "pending"
+    },
+    {
+      "ref": "R9C0",
+      "label": "$Description$Limit",
+      "cell": "F22",
+      "status": "executed",
+      "value": {
+        "name": "R9C0",
+        "description": "String",
+        "lazy": false,
+        "value": "Max Limit which Bank is Allowed\nL = Kl x Lmax"
+      }
+    },
+    {
+      "ref": "R9C1",
+      "label": "$Value$Limit",
+      "cell": "G22",
+      "status": "pending"
+    }
+  ],
+  "gridColumns": [
+    "Description",
+    "Value"
+  ],
+  "gridRows": [
+    "CheckCurrentFinancialData",
+    "CheckPreviousPeriodFinancialData",
+    "BalanceQualityIndexCalculation",
+    "BalanceDynamicIndexCalculation",
+    "BankQualitativeIndexCalculation",
+    "IsAdequateNormativeIndexCalculation",
+    "BankRating",
+    "BankRatingGroup",
+    "LimitIndex",
+    "Limit"
+  ],
+  "errors": []
+}

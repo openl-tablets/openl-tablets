@@ -25561,6 +25561,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "key": {
+            "type": "string",
+            "description": "***"
+          },
           "lazy": {
             "type": "boolean",
             "description": "***"
@@ -25576,6 +25580,10 @@ Content-Type: application/json
           },
           "schema": {
             "type": "object",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
             "description": "***"
           },
           "value": {
