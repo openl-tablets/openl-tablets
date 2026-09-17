@@ -105,10 +105,10 @@ public class CellEditorSelector {
                 // Range
             } else if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
-                result = new NumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
+                result = new NumberRangeEditor(ICellEditor.CE_INTEGER);
             } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
-                result = new NumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
+                result = new NumberRangeEditor(ICellEditor.CE_DOUBLE);
             }
         }
         return result;
