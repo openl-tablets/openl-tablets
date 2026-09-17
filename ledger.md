@@ -33,7 +33,8 @@
   diff is byte-identical to the previous head 058071e382, on which every check was green except IT (services-data),
   the Kafka container start flake below (twice, re-run spent). The rebase is the retry: read its checks first, and a
   third Kafka failure on an untouched diff goes to a maintainer by comment, not to another rebase.
-  PR body and a comment describe the rebase; the body's totals were re-derived on this head.
+  CI on f77a6fd9ee: every check green except IT (services-data), the third Kafka failure (04:25 UTC), commented at 04:26
+  with the digest evidence below; Sonar skipped behind it. Waits on a maintainer re-run or a main run of that job.
 - Commits: 230ca74113 commented-out code; 893f2d0912 message keys; c49bde2605 test workbook and stubs; ae11bd94ee
   `.editorconfig` scss section plus 9 `@SuppressWarnings`; 93a59f375d spring-security-core in security.standalone;
   017b088c77 AspectJ managed versions; f77a6fd9ee webstudio members and mapper type. No review thread is open.
@@ -162,8 +163,10 @@
   `SegfaultHandler caught a segfault` inside the native image at `===> Launching ...`, 60 s wait for "Transitioning from
   RECOVERY to RUNNING" times out; the same image started in 0.5 s for RunKafkaSmokeITest a minute earlier in the same job.
   Second shape, same image, next suite (`RunStoreLogDataITest.setUp`): "Container exited with code 126" with the
-  container log `sh: /tmp/testcontainers_start.sh: Text file busy`. Floating `latest` tag; one `rerun_failed_jobs` is
-  the retry, then a maintainer.
+  container log `sh: /tmp/testcontainers_start.sh: Text file busy`. Third run (rebased head): the segfault again in
+  RunTracingITest. 3 of 3 runs since 22:12 UTC fail at the 2nd or 3rd image start of the job; main passed at 18:39 and
+  has not run since. Docker Hub: `latest` last pushed 2026-06-23, same digest as `4.3.1`, so the image did not change
+  and pinning the tag changes nothing. One `rerun_failed_jobs` is the retry, then a maintainer by comment.
 - Tests (without ITEST): `ModuleWorkspace.test.tsx` two cases on `module-workspace-error` fail on the CI runner while the
   same tree passes all 2209 studio-ui tests locally; seen on main b48c862793.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
@@ -203,7 +206,9 @@
   resolution bug, harmless to the report.
 - Flyway migration `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` script; confirm Flyway applies it.
 - ITEST pulls `apache/kafka-native:latest` (RunTracingITest, RunKafkaSmokeITest); the image segfaulted at start once on
-  2026-09-16 and hit "Text file busy" on the re-run. Pinning the tag is test infrastructure outside the sweep.
+  2026-09-16, hit "Text file busy" on the re-run and segfaulted again on the rebased head (3 of 3). `latest` equals
+  `4.3.1`, so a pin is no fix; the robust options are the JVM image `apache/kafka:4.3.1` or a `KafkaContainer` startup
+  retry in the three suites. Test infrastructure outside the sweep.
 - `RulesUtilsTest.testParseFormattedDouble` carries `@SuppressWarnings("deprecated")`, a key javac ignores, while both
   methods it calls are deprecated: the fix is the key `deprecation`, a rename this routine may not make.
 
@@ -216,4 +221,5 @@
   session then verified the new head (per-file `javac -Xlint`, webstudio tests), rewrote the PR body and re-ran the
   Kafka-container failure of IT (services-data) once.
 - 2026-09-17: main moved by one plugin bump; PR #2120 rebased onto it (head f77a6fd9ee, diff unchanged) as the retry of
-  IT (services-data); npm dependency vein swept, nothing dead; no new commit.
+  IT (services-data); npm dependency vein swept, nothing dead; no new commit. The retry failed the same way (3 of 3);
+  run g's session commented with the Docker Hub digest evidence and the JVM-image/retry options for maintainers.
