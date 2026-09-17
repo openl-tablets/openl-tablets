@@ -57,7 +57,7 @@ public class ProjectAccessService {
         // must be opened for editing first. canModify folds in the branch-protection and lock state.
         var editable = projectStateValidator.canModify(workspaceProject)
                 && (localOnly || workspaceProject.isOpenedForEditing());
-        // Compare, view-history and export are all "read a shared (non-local) project".
+        // Compare and view-history are both "read a shared (non-local) project".
         var readShared = !localOnly && read.getAsBoolean();
         return ProjectCapabilities.builder()
                 .project(Capabilities.builder()
@@ -82,7 +82,9 @@ public class ProjectAccessService {
                 // one until they are saved — the same rule the merge itself is refused by.
                 .canMerge(flag(canMerge(workspaceProject, write)))
                 .canDeleteBranch(flag(canDeleteBranch(workspaceProject, write, delete)))
-                .canExport(flag(readShared))
+                // A local project is its own working copy and nobody else's, so it is always exported; an
+                // archive is also its only way into a Design repository.
+                .canExport(flag(localOnly || readShared))
                 .build();
     }
 
