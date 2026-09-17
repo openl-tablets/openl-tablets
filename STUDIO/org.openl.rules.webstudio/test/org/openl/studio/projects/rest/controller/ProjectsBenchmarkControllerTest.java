@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.IOpenLTable;
@@ -27,10 +28,11 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.projects.messaging.SocketBenchmarkExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.model.benchmark.BenchmarkResult;
 import org.openl.studio.projects.service.ExecutionProgressListener;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -65,6 +67,14 @@ class ProjectsBenchmarkControllerTest {
     private void tableIsExecutedBy(IOpenMethod method) {
         lenient().when(model.getMethod(TABLE_URI)).thenReturn(method);
         lenient().when(model.getOpenedModuleMethod(TABLE_URI)).thenReturn(method);
+    }
+
+    /**
+     * The measurements the session reports once nothing is going on any more.
+     */
+    @SuppressWarnings("unchecked")
+    private List<BenchmarkResult> benchmarks() {
+        return (List<BenchmarkResult>) controller.getBenchmarks(project).getBody();
     }
 
     @BeforeEach
@@ -179,7 +189,7 @@ class ProjectsBenchmarkControllerTest {
         tableIsExecutedBy(mock(TestSuiteMethod.class));
         controller.startBenchmark(project, TABLE_ID, null, null, null);
 
-        var results = controller.getBenchmarks(project);
+        var results = benchmarks();
 
         assertEquals(1, results.size());
         var result = results.getFirst();
@@ -190,6 +200,10 @@ class ProjectsBenchmarkControllerTest {
         assertEquals(3200.0, result.executionTimeMs(), 0.001);
     }
 
+    /**
+     * A measurement still going on has nothing to report: the request is accepted rather than refused, so a
+     * screen asking after the measurements raises no error while it waits.
+     */
     @Test
     void getBenchmarks_whileTheMeasurementIsStillGoingOn() {
         tableIsExecutedBy(mock(TestSuiteMethod.class));
@@ -197,12 +211,15 @@ class ProjectsBenchmarkControllerTest {
                 .thenReturn(new CompletableFuture<>());
         controller.startBenchmark(project, TABLE_ID, null, null, null);
 
-        assertThrows(ConflictException.class, () -> controller.getBenchmarks(project));
+        var answer = controller.getBenchmarks(project);
+
+        assertEquals(HttpStatus.ACCEPTED, answer.getStatusCode());
+        assertEquals(ResultNotReadyView.ResultState.NOT_READY, ((ResultNotReadyView) answer.getBody()).status());
     }
 
     @Test
     void getBenchmarks_nothingMeasuredYet() {
-        assertTrue(controller.getBenchmarks(project).isEmpty());
+        assertEquals(List.of(), benchmarks());
     }
 
     @Test
@@ -213,7 +230,7 @@ class ProjectsBenchmarkControllerTest {
 
         controller.deleteBenchmarks(project, List.of("m1"));
 
-        assertTrue(controller.getBenchmarks(project).isEmpty());
+        assertTrue(benchmarks().isEmpty());
     }
 
     @Test
@@ -227,7 +244,7 @@ class ProjectsBenchmarkControllerTest {
         controller.deleteBenchmarks(project, null);
 
         assertTrue(running.isCancelled());
-        assertTrue(controller.getBenchmarks(project).isEmpty());
+        assertTrue(benchmarks().isEmpty());
         assertNull(registry.getResultIfDone(projectId));
     }
 }

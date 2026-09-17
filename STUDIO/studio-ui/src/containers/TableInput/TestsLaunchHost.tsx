@@ -7,7 +7,6 @@ import { testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
 import {
     ALL_TESTS_ON_A_PAGE,
-    isStillRunning,
     readTestsSummaryWorkbook,
     runTests,
     TESTS_PAGE_SIZE,
@@ -15,6 +14,7 @@ import {
     XLSX_MEDIA_TYPE,
     type TestsQuery,
 } from 'services/execution'
+import { isStillRunning } from 'services/taskResult'
 import { useUserStore } from 'store'
 import type { Project } from 'types/projects'
 import { saveFile } from 'utils/download'

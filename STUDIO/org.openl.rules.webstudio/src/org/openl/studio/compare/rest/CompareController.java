@@ -1,6 +1,7 @@
 package org.openl.studio.compare.rest;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.model.ComparisonTableView;
 import org.openl.studio.compare.model.ComparisonView;
@@ -77,12 +80,15 @@ public class CompareController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ComparisonView.class)))
     @ApiResponse(responseCode = "404", description = "compare.not-found.message")
-    @ApiResponse(responseCode = "409", description = "compare.not-completed.message")
+    @ApiResponse(responseCode = "202", description = "compare.202.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping("/{comparisonId}")
-    public ComparisonView getComparison(
+    public ResponseEntity<?> getComparison(
             @Parameter(description = "compare.param.comparison-id.desc")
             @PathVariable("comparisonId") String comparisonId) {
-        return mapper.toView(comparisonId, resultOf(comparisonId));
+        return resultOf(comparisonId)
+                .<ResponseEntity<?>>map(result -> ResponseEntity.ok(mapper.toView(comparisonId, result)))
+                .orElseGet(ResultNotReadyView::accepted);
     }
 
     @Operation(summary = "compare.get-table.summary", description = "compare.get-table.desc")
@@ -90,18 +96,23 @@ public class CompareController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ComparisonTableView.class)))
     @ApiResponse(responseCode = "404", description = "compare.table.not-found.message")
-    @ApiResponse(responseCode = "409", description = "compare.not-completed.message")
+    @ApiResponse(responseCode = "202", description = "compare.202.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping("/{comparisonId}/tables/{tableId}")
-    public ComparisonTableView getTable(
+    public ResponseEntity<?> getTable(
             @Parameter(description = "compare.param.comparison-id.desc")
             @PathVariable("comparisonId") String comparisonId,
             @Parameter(description = "compare.param.table-id.desc")
             @PathVariable("tableId") String tableId) {
-        var table = mapper.toTable(resultOf(comparisonId), tableId);
+        var result = resultOf(comparisonId);
+        if (result.isEmpty()) {
+            return ResultNotReadyView.accepted();
+        }
+        var table = mapper.toTable(result.get(), tableId);
         if (table == null) {
             throw new NotFoundException("compare.table.not-found.message");
         }
-        return table;
+        return ResponseEntity.ok(table);
     }
 
     @Operation(summary = "compare.drop.summary", description = "compare.drop.desc")
@@ -114,21 +125,21 @@ public class CompareController {
     }
 
     /**
-     * What the named comparison found. A comparison this session no longer holds is gone, and one
-     * that is still running has nothing to report yet.
+     * What the named comparison found. A comparison this session no longer holds is gone, and one that is
+     * still running has nothing to report yet: the request is accepted, and answered once it has ended.
      */
-    private DiffTreeNode resultOf(String comparisonId) {
+    private Optional<DiffTreeNode> resultOf(String comparisonId) {
         if (!registry.has(comparisonId)) {
             throw new NotFoundException("compare.not-found.message");
         }
         if (!registry.isDone(comparisonId)) {
-            throw new ConflictException("compare.not-completed.message");
+            return Optional.empty();
         }
         var result = registry.result(comparisonId);
         if (result == null) {
             // The comparison is still this session's; it was stopped before it found anything.
             throw new ConflictException("compare.interrupted.message");
         }
-        return result;
+        return Optional.of(result);
     }
 }

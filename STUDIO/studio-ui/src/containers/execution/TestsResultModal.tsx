@@ -13,13 +13,13 @@ import {
     FAILURES_PER_TEST_OPTIONS,
     getTestCaseResult,
     getTestsSummaryWorkbook,
-    isStillRunning,
     readTestsSummary,
     TESTS_PAGE_SIZE,
     TESTS_PAGE_SIZES,
     XLSX_MEDIA_TYPE,
     type TestsQuery,
 } from 'services/execution'
+import { isStillRunning } from 'services/taskResult'
 import { useUserStore } from 'store'
 import type { TestsSummary, TestStatus, TestTableResult, TestUnitResult } from 'types/execution'
 import type { UserProfile } from 'types/user'

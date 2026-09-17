@@ -10,7 +10,6 @@ vi.mock('services/execution', () => ({
     readBenchmarks: vi.fn(),
     getBenchmarks: vi.fn(),
     deleteBenchmarks: vi.fn(),
-    isStillRunning: () => false,
 }))
 
 // What the measurement reports while the window is open. A test that follows a measurement to its end sets it.

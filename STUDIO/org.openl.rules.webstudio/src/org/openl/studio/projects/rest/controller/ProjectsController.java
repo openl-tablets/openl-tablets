@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import jakarta.validation.Valid;
@@ -68,6 +69,7 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.BranchScope;
@@ -867,7 +869,8 @@ public class ProjectsController {
 
     @Operation(summary = "projects.tests.summary.summary")
     @ApiResponse(responseCode = "404", description = "projects.tests.summary.404.desc")
-    @ApiResponse(responseCode = "409", description = "projects.tests.summary.409.desc")
+    @ApiResponse(responseCode = "202", description = "projects.tests.summary.202.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @ApiResponse(responseCode = "406", description = "projects.tests.summary.406.desc")
     @ApiResponse(
             responseCode = "200",
@@ -900,15 +903,22 @@ public class ProjectsController {
                                              @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
                                              @RequestHeader(name = HttpHeaders.ACCEPT)
                                              String acceptMediaType) throws IOException {
-        var executionResults = completedTests(project);
-
+        var completed = completedTests(project);
         if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
+            if (completed.isEmpty()) {
+                return ResultNotReadyView.accepted();
+            }
+            var executionResults = completed.get();
             var mapper = testsSummaryMapper(project);
             var query = new TestExecutionSummaryQuery(failuresOnly, failures, compoundResult, lazyValues);
             return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
+            // A client that asked for a workbook is told by the status alone: it did not ask for JSON.
+            if (completed.isEmpty()) {
+                return ResponseEntity.accepted().build();
+            }
             var output = new ByteArrayOutputStream();
-            new TestResultExport().export(output, page.getPageSize(), executionResults.toArray(new TestUnitsResults[0]));
+            new TestResultExport().export(output, page.getPageSize(), completed.get().toArray(new TestUnitsResults[0]));
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("test-results.xlsx"))
                     .header(HttpHeaders.CONTENT_TYPE, APPLICATION_XLSX_MEDIATYPE)
@@ -922,14 +932,19 @@ public class ProjectsController {
     @ApiResponse(responseCode = "200", description = "projects.tests.case.200.desc",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = TestUnitExecutionResult.class)))
     @ApiResponse(responseCode = "404", description = "projects.tests.case.404.desc")
-    @ApiResponse(responseCode = "409", description = "projects.tests.summary.409.desc")
+    @ApiResponse(responseCode = "202", description = "projects.tests.summary.202.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping("/{projectId}/tests/summary/{tableId}/cases/{caseId}")
-    public TestUnitExecutionResult getTestCaseResult(
+    public ResponseEntity<?> getTestCaseResult(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable("tableId") @Parameter(description = "projects.tests.case.param.table-id.desc") String tableId,
             @PathVariable("caseId") @Parameter(description = "projects.tests.case.param.case-id.desc") String caseId) {
 
-        var testCase = completedTests(project).stream()
+        var completed = completedTests(project);
+        if (completed.isEmpty()) {
+            return ResultNotReadyView.accepted();
+        }
+        var testCase = completed.get().stream()
                 .filter(candidate -> tableId.equals(TableUtils.makeTableId(candidate.getTestSuite().getUri())))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
@@ -938,8 +953,8 @@ public class ProjectsController {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
 
-        return testsSummaryMapper(project).mapToTestUnitResult(testCase, testUnit,
-                TestExecutionSummaryQuery.inFull());
+        return ResponseEntity.ok(testsSummaryMapper(project).mapToTestUnitResult(testCase, testUnit,
+                TestExecutionSummaryQuery.inFull()));
     }
 
     /**
@@ -958,22 +973,24 @@ public class ProjectsController {
     /**
      * The results of the test run that has ended, for the project of the request.
      *
+     * <p>Empty while the tests are still running: the request is accepted, and there is nothing to report until
+     * they have ended. Answered so rather than refused, so a screen asking after the result raises no error.
+     *
      * @throws NotFoundException when no test run is remembered for the project
-     * @throws ConflictException when the tests are still running
      */
-    private List<TestUnitsResults> completedTests(RulesProject project) {
+    private Optional<List<TestUnitsResults>> completedTests(RulesProject project) {
         var projectId = projectIdentifierMapper.map(project);
         if (!executionTestsResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("tests.execution.task.message");
         }
         if (!executionTestsResultRegistry.isDone(projectId)) {
-            throw new ConflictException("tests.execution.not.completed.message");
+            return Optional.empty();
         }
         var executionResults = executionTestsResultRegistry.getResultIfDone(projectId);
         if (executionResults == null) {
             throw new NotFoundException("tests.execution.task.message");
         }
-        return executionResults;
+        return Optional.of(executionResults);
     }
 
     /**

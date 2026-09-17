@@ -1,14 +1,23 @@
 import type { BenchmarkResult, RunResult, TestsSummary, TestUnitResult } from 'types/execution'
-import apiCall, { asArray, isApiHttpError } from './apiCall'
+import apiCall, { asArray, readTaskResult } from './apiCall'
 import { toUrlSafeId } from './projectId'
+import { isStillRunning } from './taskResult'
 
 const EXECUTION_API_OPTIONS = { throwError: true, suppressErrorPages: true }
 
 // A result is served as JSON or as a workbook, and the endpoint asks which of them is wanted.
 const AS_JSON = { headers: { Accept: 'application/json' } }
 
+/** Reads a result as JSON, once the execution that produces it has ended. */
+const readJson = async (url: string): Promise<unknown> =>
+    (await readTaskResult(url, AS_JSON, EXECUTION_API_OPTIONS)).json()
+
 /** The workbook the run and the test results are saved as. */
 export const XLSX_MEDIA_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+/** Reads a result as the workbook the user saves, once the execution that produces it has ended. */
+const readWorkbook = async (url: string): Promise<Blob> =>
+    (await readTaskResult(url, { headers: { Accept: XLSX_MEDIA_TYPE } }, EXECUTION_API_OPTIONS)).blob()
 
 /** How many test tables one page of the results holds, and the sizes the screen offers instead. */
 export const TESTS_PAGE_SIZE = 20
@@ -31,14 +40,6 @@ export interface TestsQuery {
     /** How many test tables a page holds, or {@link ALL_TESTS_ON_A_PAGE} for all of them at once. */
     size?: number
 }
-
-/**
- * Whether a result is missing because the run is still going on, rather than because it failed.
- *
- * A run that has not ended yet answers that its result is not ready. Any other answer means the result will
- * not come.
- */
-export const isStillRunning = (error: unknown): boolean => isApiHttpError(error) && error.status === 409
 
 /**
  * How long a screen keeps asking for a result after the run says it has ended.
@@ -104,7 +105,7 @@ export const startRun = async (
  */
 export const getRunResult = async (projectId: string, options: { spreadsheet?: boolean } = {}): Promise<RunResult> => {
     const params = new URLSearchParams({ spreadsheet: String(options.spreadsheet ?? false) })
-    return await apiCall(projectUrl(projectId, `/run/result?${params}`), AS_JSON, EXECUTION_API_OPTIONS) as RunResult
+    return await readJson(projectUrl(projectId, `/run/result?${params}`)) as RunResult
 }
 
 /** Reads the result of a run that has just ended, waiting out the moment the run needs to publish it. */
@@ -129,11 +130,7 @@ export const getRunResultWorkbook = async (projectId: string, options: RunFileOp
         ...(options.flattenParameters !== undefined && { flattenParameters: String(options.flattenParameters) }),
     })
     const query = params.toString()
-    return await apiCall(
-        projectUrl(projectId, `/run/result${query === '' ? '' : `?${query}`}`),
-        { headers: { Accept: XLSX_MEDIA_TYPE } },
-        { ...EXECUTION_API_OPTIONS, responseType: 'blob' }
-    ) as Blob
+    return await readWorkbook(projectUrl(projectId, `/run/result${query === '' ? '' : `?${query}`}`))
 }
 
 /** Reads the workbook of a run that has just ended, waiting out the moment the run needs to publish it. */
@@ -185,10 +182,8 @@ const testsQueryParams = (query: TestsQuery): URLSearchParams => {
 
 /** Reads a page of the test tables that ran, with the totals of the whole run. */
 export const getTestsSummary = async (projectId: string, query: TestsQuery = {}): Promise<TestsSummary> => {
-    const summary = await apiCall(
-        projectUrl(projectId, `/tests/summary?${testsQueryParams(query)}`),
-        AS_JSON,
-        EXECUTION_API_OPTIONS
+    const summary = await readJson(
+        projectUrl(projectId, `/tests/summary?${testsQueryParams(query)}`)
     ) as TestsSummary | null
     return { ...summary, testCases: asArray(summary?.testCases) } as TestsSummary
 }
@@ -204,10 +199,8 @@ export const readTestsSummary = (projectId: string, query: TestsQuery = {}): Pro
  * that holds it.
  */
 export const getTestCaseResult = async (projectId: string, tableId: string, caseId: string): Promise<TestUnitResult> =>
-    await apiCall(
-        projectUrl(projectId, `/tests/summary/${encodeURIComponent(tableId)}/cases/${encodeURIComponent(caseId)}`),
-        AS_JSON,
-        EXECUTION_API_OPTIONS
+    await readJson(
+        projectUrl(projectId, `/tests/summary/${encodeURIComponent(tableId)}/cases/${encodeURIComponent(caseId)}`)
     ) as TestUnitResult
 
 /**
@@ -240,7 +233,7 @@ export const startBenchmark = async (
 
 /** Reads the measurements taken in this session, the newest first. */
 export const getBenchmarks = async (projectId: string): Promise<BenchmarkResult[]> =>
-    asArray<BenchmarkResult>(await apiCall(projectUrl(projectId, '/benchmarks'), AS_JSON, EXECUTION_API_OPTIONS))
+    asArray<BenchmarkResult>(await readJson(projectUrl(projectId, '/benchmarks')))
 
 /** Reads the measurements of a benchmark that has just ended, waiting out the moment it needs to publish them. */
 export const readBenchmarks = (projectId: string): Promise<BenchmarkResult[]> =>
@@ -261,11 +254,7 @@ export const deleteBenchmarks = async (projectId: string, ids: string[] = []): P
 
 /** Reads the test results as the workbook the user saves. */
 export const getTestsSummaryWorkbook = async (projectId: string, query: TestsQuery = {}): Promise<Blob> =>
-    await apiCall(
-        projectUrl(projectId, `/tests/summary?${testsQueryParams(query)}`),
-        { headers: { Accept: XLSX_MEDIA_TYPE } },
-        { ...EXECUTION_API_OPTIONS, responseType: 'blob' }
-    ) as Blob
+    await readWorkbook(projectUrl(projectId, `/tests/summary?${testsQueryParams(query)}`))
 
 /** Reads the workbook of a test run that has just ended, waiting out the moment the run needs to publish it. */
 export const readTestsSummaryWorkbook = (projectId: string, query: TestsQuery = {}): Promise<Blob> =>
