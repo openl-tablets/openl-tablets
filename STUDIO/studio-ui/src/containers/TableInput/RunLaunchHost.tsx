@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Checkbox, Space } from 'antd'
+import { Checkbox, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { RunResultModal } from 'containers/execution/RunResultModal'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
 import { runStatusTopic, testsTopics } from 'containers/execution/topics'
+import { carriesCases, isRunTable } from 'constants/tableKinds'
 import { useEventProject } from 'hooks'
 import {
     isStillRunning,
@@ -44,6 +45,10 @@ interface RunLaunchProps {
 const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
     const { t } = useTranslation('execution')
     const profile = useUserStore(state => state.userProfile)
+    // A test table runs the cases it carries; a Run table among them states no expected values, so its cases
+    // are run rather than tested.
+    const testTable = carriesCases(detail.kind)
+    const runTable = isRunTable(detail.kind)
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
     const [results, setResults] = useState<RunResults | null>(null)
@@ -214,27 +219,25 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
             onClose={onClose}
             onError={setError}
             project={project}
-            actions={(launch, state) => (
-                <>
-                    <Button
-                        data-testid="run-start"
-                        loading={starting && savingFile === null}
-                        onClick={() => launch(value => start(value).catch(startError => setError(errorMessage(startError))))}
-                        type="primary"
-                    >
-                        {t('run.start')}
-                    </Button>
-                    <Button
-                        data-testid="run-into-file"
-                        loading={savingFile !== null}
-                        onClick={() => launch(startIntoFile)}
-                    >
-                        {state.testTable ? t('tests.intoFile') : t('run.intoFile')}
-                    </Button>
-                </>
-            )}
-            options={state => (state.testTable
-                ? (
+            actions={[
+                {
+                    key: 'run-start',
+                    label: t('run.start'),
+                    primary: true,
+                    loading: starting && savingFile === null,
+                    run: value => start(value).catch(startError => setError(errorMessage(startError))),
+                },
+                {
+                    key: 'run-into-file',
+                    label: testTable && !runTable ? t('tests.intoFile') : t('run.intoFile'),
+                    loading: savingFile !== null,
+                    run: startIntoFile,
+                },
+            ]}
+            // A Run table states no expected values: none of its cases can fail, and what each returned is its
+            // result, so the options of a test run do not apply to it.
+            options={testTable
+                ? !runTable && (
                     <Space wrap size="middle">
                         {testsOption('failuresOnly', 'tests-failures-only', t('tests.failuresOnly'))}
                         {testsOption('compoundResult', 'tests-compound-result', t('tests.compoundResult'))}
@@ -246,7 +249,7 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
                         {fileOption('flattenParameters', t('run.flattenParameters'))}
                         {fileOption('resultInJson', t('run.resultInJson'))}
                     </Space>
-                ))}
+                )}
         />
     )
 }

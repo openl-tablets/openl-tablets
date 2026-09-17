@@ -33,15 +33,27 @@ public class TestResultExport extends ResultExport {
         return rowNum;
     }
 
+    /**
+     * The result columns: one per value the test compares, or, for a run table, which states nothing to compare
+     * against, the one value each run returned.
+     */
     @Override
     protected void writeResultHeader(TestUnitsResults result, Row row, int colNum) {
+        if (result.isRunmethod()) {
+            createCell(row, colNum, "Result", styles.header);
+            return;
+        }
         for (String name : result.getTestResultColumnDisplayNames()) {
             createCell(row, colNum++, name, styles.header);
         }
     }
 
     @Override
-    protected void writeResult(Row row, int colNum, ITestUnit testUnit) {
+    protected void writeResult(Row row, int colNum, TestUnitsResults result, ITestUnit testUnit) {
+        if (result.isRunmethod()) {
+            createCell(row, colNum, testUnit.getActualParam(), styles.resultOther);
+            return;
+        }
         for (ComparedResult parameter : testUnit.getResultParams()) {
             var okField = parameter.getStatus() == TestStatus.TR_OK;
 

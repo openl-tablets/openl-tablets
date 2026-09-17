@@ -78,15 +78,14 @@ const anchor = { left: 10, top: 20, width: 40, height: 30 }
 const ruleTable: TableInput = {
     tableId: 't1',
     name: 'Premium',
-    testTable: false,
     parameters: [{ name: 'age', description: 'int', lazy: false, schema: { type: 'integer' } }],
 }
 
-const testTable: TableInput = { tableId: 't1', name: 'PremiumTest', testTable: true }
+const testTable: TableInput = { tableId: 't1', name: 'PremiumTest' }
 
 const open = (detail: Record<string, unknown> = {}) => act(async () => {
     window.dispatchEvent(new CustomEvent('openRunLaunch', {
-        detail: { projectId: 'p1', tableId: 't1', moduleName: 'Main', anchor, ...detail },
+        detail: { projectId: 'p1', tableId: 't1', kind: 'Rules', moduleName: 'Main', anchor, ...detail },
     }))
     await new Promise(resolve => setTimeout(resolve, 20))
 })
@@ -131,7 +130,7 @@ describe('RunLaunchHost', () => {
         inputRead.mockResolvedValue(testTable)
         render(<RunLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await screen.findByTestId('test-cases')
         await userEvent.click(screen.getByTestId('run-start'))
 
@@ -139,11 +138,26 @@ describe('RunLaunchHost', () => {
         expect(await screen.findByTestId('tests-result-modal')).toBeInTheDocument()
     })
 
+    it('offers a Run table its cases and a run into a file, with no options of a test run', async () => {
+        inputRead.mockResolvedValue(testTable)
+        render(<RunLaunchHost />)
+
+        await open({ kind: 'Run' })
+        await screen.findByTestId('test-cases')
+
+        // A Run table states no expected values: its cases run rather than pass or fail, and the file holds a run.
+        expect(screen.getByTestId('run-into-file')).toHaveTextContent('run.intoFile')
+        expect(screen.queryByTestId('tests-failures-only')).toBeNull()
+        expect(screen.queryByTestId('tests-compound-result')).toBeNull()
+        await userEvent.click(screen.getByTestId('run-start'))
+        await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1' }))
+    })
+
     it('runs only the cases that are ticked', async () => {
         inputRead.mockResolvedValue(testTable)
         render(<RunLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         // Every case starts ticked; the box in the header clears them, then one is ticked back.
         await userEvent.click(await screen.findByTestId('pick-all-cases'))
         await userEvent.click(screen.getByTestId('pick-case-2'))
@@ -161,7 +175,7 @@ describe('RunLaunchHost', () => {
         })
         render(<RunLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await userEvent.click(await screen.findByTestId('pick-case-2'))
         casesRead.mockResolvedValueOnce({
             total: 4,
@@ -179,7 +193,7 @@ describe('RunLaunchHost', () => {
         casesRead.mockResolvedValue({ total: 3, content: [{ id: '1', parameters: []}, { id: '2', parameters: []}]})
         render(<RunLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await userEvent.click(await screen.findByTestId('pick-case-2'))
         let releaseRest!: (page: unknown) => void
         casesRead.mockImplementationOnce(() => new Promise(resolve => {
@@ -188,7 +202,7 @@ describe('RunLaunchHost', () => {
         await userEvent.click(screen.getByTestId('run-start'))
         // The buttons are held under a spinner while the read is on its way; a click that reaches one anyway
         // starts nothing more.
-        expect(screen.getByTestId('run-start').closest('.ant-spin')).toHaveAttribute('aria-busy', 'true')
+        expect(screen.getByTestId('launch-actions')).toHaveAttribute('aria-busy', 'true')
         fireEvent.click(screen.getByTestId('run-start'))
         await act(async () => {
             releaseRest({ total: 3, content: ['1', '2', '3'].map(id => ({ id, parameters: []})) })
@@ -203,7 +217,7 @@ describe('RunLaunchHost', () => {
         casesRead.mockResolvedValue({ total: 3, content: [{ id: '1', parameters: []}, { id: '2', parameters: []}]})
         render(<RunLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await userEvent.click(await screen.findByTestId('pick-case-2'))
         casesRead.mockRejectedValueOnce(new Error('The project is being compiled'))
         await userEvent.click(screen.getByTestId('run-start'))
@@ -216,7 +230,7 @@ describe('RunLaunchHost', () => {
         inputRead.mockResolvedValue(testTable)
         render(<RunLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await userEvent.click(await screen.findByTestId('pick-case-2'))
         await userEvent.click(screen.getByTestId('launch-use-range'))
         // The list steps aside for the range, and its total says what the range can reach.
@@ -232,7 +246,7 @@ describe('RunLaunchHost', () => {
         inputRead.mockResolvedValue(testTable)
         render(<RunLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await screen.findByTestId('test-cases')
         await userEvent.click(screen.getByTestId('launch-use-range'))
         await userEvent.click(screen.getByTestId('run-start'))
@@ -252,7 +266,7 @@ describe('RunLaunchHost', () => {
         inputRead.mockResolvedValue(testTable)
         render(<RunLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await screen.findByTestId('test-cases')
 
         // A test table has nothing to lay out in a workbook of a run; it has results to show.

@@ -330,8 +330,6 @@ export interface TableInputTestCase {
 export interface TableInput {
     tableId: string
     name: string
-    /** Whether the table is a test table. A test table carries cases, a rule table declares parameters. */
-    testTable: boolean
     /** Declared parameters of a rule table. Absent when there are none, as every empty list of the API is. */
     parameters?: TraceParameterValue[]
     /** Schema of the runtime context, present when the project provides one to its rules. */

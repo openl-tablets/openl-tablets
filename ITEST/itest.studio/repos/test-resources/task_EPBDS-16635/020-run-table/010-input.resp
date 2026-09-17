@@ -1,0 +1,7 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableId": "6fe237d6eb32481c6d41bb91a560349e",
+  "name": "HelloRun"
+}

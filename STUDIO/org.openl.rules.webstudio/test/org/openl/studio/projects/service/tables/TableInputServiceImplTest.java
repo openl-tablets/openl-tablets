@@ -76,7 +76,6 @@ class TableInputServiceImplTest {
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
-        assertFalse(view.testTable());
         assertEquals("Premium", view.name());
         assertNotNull(view.tableId());
         assertEquals(List.of("age", "since"), view.parameters().stream().map(ParameterValue::name).toList());
@@ -96,7 +95,6 @@ class TableInputServiceImplTest {
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
-        assertTrue(view.testTable());
         assertEquals("PremiumTest", view.name());
         assertTrue(view.parameters().isEmpty());
         assertNull(view.runtimeContext());

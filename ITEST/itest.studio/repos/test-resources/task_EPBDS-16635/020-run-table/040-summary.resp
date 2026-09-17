@@ -1,0 +1,49 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1,
+  "executionTimeMs": "##.##",
+  "numberOfTests": 1,
+  "numberOfFailures": 0,
+  "testCases": [
+    {
+      "name": "HelloRun",
+      "tableId": "6fe237d6eb32481c6d41bb91a560349e",
+      "module": "Main",
+      "executionTimeMs": "##.##",
+      "numberOfTests": 1,
+      "numberOfFailures": 0,
+      "runTable": true,
+      "testUnits": [
+        {
+          "id": "1",
+          "executionTimeMs": "##.##",
+          "status": "TR_OK",
+          "result": {
+            "name": "result",
+            "value": "Good Morning",
+            "schema": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "type": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "hour",
+              "description": "Hour",
+              "value": 1,
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "integer"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

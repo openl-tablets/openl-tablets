@@ -260,7 +260,7 @@ value that was compared, and a case that failed says how many of its comparisons
 value that was expected under the value that came out.
 
 A Run table states no expected values, so its results carry no ticks and no crosses: they only show what every
-run returned.
+run returned, in a **Result** column of their own — in the window and in the workbook it is saved to alike.
 
 ![Test results with the options above them](images/test-results.png "Reading test results")
 
@@ -307,7 +307,9 @@ A rule table can be run on its own, without a test table for it.
 
 To save the result without reading it first, click **Run into File** instead of **Run**. The table runs and the
 result is written straight to a file, which is what a result too large to read on screen is taken with. A test
-table offers **Test into File** in the same place, and saves the results of its cases as a workbook.
+table offers **Test into File** in the same place, and saves the results of its cases as a workbook. A Run table
+keeps **Run into File**, and none of the test options: its cases are run, not tested, and the workbook holds what
+every run returned.
 
 Three options above the input decide what the file of a rule table holds:
 

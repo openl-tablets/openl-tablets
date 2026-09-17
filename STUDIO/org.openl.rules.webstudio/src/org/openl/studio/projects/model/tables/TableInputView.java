@@ -16,12 +16,12 @@ import org.openl.studio.projects.model.ParameterValue;
  * schema of the values it accepts and the value it starts with. The runtime context is described the same way
  * when the project provides one to its rules.
  *
- * <p>A test table declares no parameters of its own. Its input is the cases it carries, which are read a page at
- * a time from the cases sub-resource.
+ * <p>A test table, and a run table with it, declares no parameters of its own. Its input is the cases it carries,
+ * which are read a page at a time from the cases sub-resource. Which of the two a table is, the page that lists
+ * the tables says already.
  *
  * @param tableId        id of the table
  * @param name           name of the table
- * @param testTable      whether the table is a test table that carries its own cases
  * @param parameters     declared input parameters of a rule table, empty for a test table
  * @param runtimeContext schema of the runtime context, absent when the project provides none
  */
@@ -33,9 +33,6 @@ public record TableInputView(
 
         @Parameter(description = "Name of the table")
         String name,
-
-        @Parameter(description = "Whether the table is a test table that carries its own cases")
-        boolean testTable,
 
         @Parameter(description = """
                 Declared input parameters of a rule table; each carries the JSON schema of the values it \
