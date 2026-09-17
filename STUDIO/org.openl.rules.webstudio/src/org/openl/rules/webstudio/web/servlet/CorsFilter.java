@@ -68,8 +68,4 @@ public class CorsFilter implements Filter {
         allowedHeaders = env.getProperty("cors.allowed.headers");
         maxAge = env.getProperty("cors.preflight.maxage");
     }
-
-    @Override
-    public void destroy() {
-    }
 }
