@@ -670,51 +670,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public RulesProject uploadLocalProject(Repository designRepository,
-                                           String name,
-                                           String projectFolder,
-                                           String comment) throws ProjectException {
-        var repositoryId = designRepository.getId();
-        try {
-            var designPath = designTimeRepository.getRulesLocation() + name;
-            var designData = new FileData();
-            designData.setName(designPath);
-
-            var createdProject = new AProject(designRepository, designData);
-            var project = localWorkspace.getProject(null, name);
-            project.refresh();
-            if (designRepository.supports().mappedFolders()) {
-                var fileData = createdProject.getFileData();
-                fileData.addAdditionalData(FileMappingData.forProject(designPath, projectFolder, name));
-            }
-            createdProject.getFileData().setComment(comment);
-            createdProject.update(project, user);
-            designData.setName(createdProject.getFolderPath());
-
-            var rulesProject = new RulesProject(getUser(),
-                    localWorkspace.getRepository(repositoryId),
-                    project.getFileData(),
-                    designRepository,
-                    designData,
-                    projectsLockEngine);
-            rulesProject.open();
-
-            refreshRulesProjects();
-
-            return rulesProject;
-        } catch (ProjectException e) {
-            try {
-                if (designTimeRepository.hasProject(repositoryId, name)) {
-                    designTimeRepository.getProject(repositoryId, name).delete(user, comment);
-                }
-            } catch (ProjectException e1) {
-                log.error(e1.getMessage(), e1);
-            }
-            throw e;
-        }
-    }
-
-    @Override
     public boolean isOpenedOtherProject(AProject project) {
         String name;
         try {

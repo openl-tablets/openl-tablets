@@ -95,9 +95,7 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   `@ProjectId` path parameter uses, narrowed to one repository — instead of reaching for
   `UserWorkspace.getProjectsByName` or for a single `ProjectResolveStrategy`. Leave reading the project to the
   endpoint, so its own refusal message survives. An identity more than one project answers to is reported as
-  `project.identifier.ambiguous.message`, naming the ids to choose from. A body that names a project of the
-  user's own workspace (`createProjectsFromWorkspace`) is not covered — a local project has no design folder to
-  tell apart.
+  `project.identifier.ambiguous.message`, naming the ids to choose from.
 
 ## Request Validation
 

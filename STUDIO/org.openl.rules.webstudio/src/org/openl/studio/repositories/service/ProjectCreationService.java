@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.ProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -62,7 +61,6 @@ public class ProjectCreationService {
 
     private static final String CUSTOM_TYPE = "custom";
     private static final String PREDEFINED_TYPE = "predefined";
-    private static final String ROLLBACK_UPLOAD_COMMENT = "Rollback project upload.";
     private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
 
     private final AclProjectsHelper aclProjectsHelper;
@@ -84,11 +82,6 @@ public class ProjectCreationService {
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
-        return null;
-    }
-
-    @Lookup("commentService")
-    protected Comments getCommentsService(String repoId) {
         return null;
     }
 
@@ -410,77 +403,6 @@ public class ProjectCreationService {
                 designProject.getRepository(),
                 designProject.getFileData(),
                 workspace.getProjectsLockEngine());
-    }
-
-    /**
-     * Publish local workspace projects to a design repository, keeping each project's name and granting
-     * the creator a CONTRIBUTOR ACL on every published project.
-     */
-    public void uploadLocalProjects(String repositoryId, List<String> names, String path, String comment) {
-        requireCreatePermission(repositoryId);
-        uploadLocalProjects(getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId),
-                names, path, comment);
-    }
-
-    public void uploadLocalProjects(Repository repository, List<String> names, String path, String comment) {
-        var repositoryId = repository.getId();
-        requireCreatePermission(repositoryId);
-        var workspace = getUserWorkspace();
-        var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
-        var comments = getCommentsService(repositoryId);
-        var uploaded = new ArrayList<RulesProject>();
-        try {
-            for (String name : names) {
-                // Generate a default commit message when the user gave none, so the publish commit is never
-                // empty (matching the archive and copy create paths).
-                var resolvedComment = StringUtils.isNotBlank(comment) ? comment : comments.createProject(name);
-                var project = workspace.uploadLocalProject(repository, name, StringUtils.trimToEmpty(path), resolvedComment);
-                uploaded.add(project);
-                grantContributorAclIfAbsent(designRepoAclService, project);
-                registerExtensibleTags(project);
-            }
-        } catch (ProjectException e) {
-            rollbackUploadedProjects(workspace, designRepoAclService, uploaded);
-            throw new ConflictException("project.workspace.upload.failed.message");
-        } catch (RuntimeException e) {
-            rollbackUploadedProjects(workspace, designRepoAclService, uploaded);
-            throw e;
-        }
-        awaitProjectVisibility(repository);
-        refreshWorkspaceAfterDesignChange();
-    }
-
-    private static void rollbackUploadedProjects(UserWorkspace workspace,
-                                                 RepositoryAclService designRepoAclService,
-                                                 List<RulesProject> uploaded) {
-        for (var project : uploaded.reversed()) {
-            rollbackUploadedProject(workspace, designRepoAclService, project);
-        }
-    }
-
-    private static void rollbackUploadedProject(UserWorkspace workspace,
-                                                RepositoryAclService designRepoAclService,
-                                                RulesProject project) {
-        var projectName = projectNameOf(project);
-        try {
-            project.delete(workspace.getUser(), ROLLBACK_UPLOAD_COMMENT);
-        } catch (ProjectException | RuntimeException e) {
-            log.warn("Cannot roll back published workspace project '{}'", projectName, e);
-            return;
-        }
-        try {
-            designRepoAclService.deleteAcl(project);
-        } catch (RuntimeException e) {
-            log.warn("Cannot delete ACL for rolled back workspace project '{}'", projectName, e);
-        }
-    }
-
-    private static String projectNameOf(RulesProject project) {
-        try {
-            return project.getName();
-        } catch (RuntimeException e) {
-            return "<unknown>";
-        }
     }
 
     /**

@@ -158,8 +158,8 @@ A local-only project has two names with different purposes when the `<name>` in 
 
 The local project is its own working copy, so its files can be edited, exported as an archive and the project can
 be deleted. It has no Design repository revision to commit, so the project capabilities do not offer **Save**.
-Publishing it uses **Create Project > Workspace**, which imports the project into a Design repository, or the
-exported archive with **Create Project > From archive**.
+Publishing it uses the exported archive with **Create Project > From archive**. The local project counts as an
+opened project of that name, so the imported one stays closed until the local project is deleted.
 
 ## Local Edit History
 

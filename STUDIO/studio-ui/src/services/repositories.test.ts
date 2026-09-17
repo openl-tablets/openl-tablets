@@ -4,7 +4,6 @@ import {
     copyProject,
     createProject,
     createProjectBranch,
-    createProjectsFromWorkspace,
     deleteProject,
     downloadProject,
     getDesignRepositoryBranches,
@@ -276,32 +275,11 @@ describe('getProjects', () => {
         expect(request?.body).toBeInstanceOf(FormData)
     })
 
-    it('loads templates and workspace publish targets', async () => {
+    it('loads templates', async () => {
         vi.mocked(apiCall).mockResolvedValue([])
 
         await getProjectTemplates()
         expect(apiCall).toHaveBeenCalledWith('/repos/project-templates', undefined, { throwError: true })
-
-        await createProjectsFromWorkspace('design', {
-            names: ['Local'],
-            path: 'folder',
-            comment: 'Publish',
-            branch: 'feature/rates',
-        })
-        expect(apiCall).toHaveBeenCalledWith(
-            '/repos/design/projects/from-workspace',
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    names: ['Local'],
-                    path: 'folder',
-                    comment: 'Publish',
-                    branch: 'feature/rates',
-                }),
-            },
-            { throwError: true }
-        )
     })
 
     it('downloads project archives', async () => {

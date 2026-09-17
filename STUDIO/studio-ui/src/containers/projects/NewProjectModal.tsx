@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Checkbox, Input, Modal, Segmented, Select, Typography, Upload, type UploadFile } from 'antd'
+import { Alert, Button, Input, Modal, Segmented, Select, Typography, Upload, type UploadFile } from 'antd'
 import {
     ApiOutlined,
     ArrowLeftOutlined,
     CheckCircleFilled,
-    CloudUploadOutlined,
     CopyOutlined,
     FileExcelOutlined,
     FolderOutlined,
@@ -18,7 +17,6 @@ import { createStyles } from 'antd-style'
 import {
     copyProject,
     createProject,
-    createProjectsFromWorkspace,
     getProjects,
     getProjectTemplates,
     type ProjectInclude,
@@ -31,7 +29,6 @@ import { FieldRow } from '../../components/FieldRow'
 import { BranchSelect } from './BranchSelect'
 import { branchMarksFromConfig } from './configBranchMarks'
 import { RepoFolderInput } from './RepoFolderInput'
-import { ProjectStatus } from '../../constants/project'
 import { useSharedStyles } from './sharedStyles'
 import { creatableRepositories, supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { inspectOpenLArchive, zipProjectFolder, type OpenLArchiveInfo } from '../../utils/openlArchive'
@@ -43,7 +40,7 @@ import { trimTrailingSlashes } from './projectPaths'
 /** Capitalise a template category name for display (e.g. "examples" → "Examples"). */
 const titleCase = (value: string): string => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value)
 
-type CreateMode = 'template' | 'archive' | 'excel' | 'openapi' | 'workspace' | 'copy'
+type CreateMode = 'template' | 'archive' | 'excel' | 'openapi' | 'copy'
 
 interface MethodMeta {
     id: CreateMode
@@ -57,11 +54,10 @@ const METHODS: MethodMeta[] = [
     { id: 'archive', icon: FileZipOutlined, labelKey: 'browser.create.mode_archive', descKey: 'browser.create.mode_archive_desc' },
     { id: 'excel', icon: FileExcelOutlined, labelKey: 'browser.create.mode_excel', descKey: 'browser.create.mode_excel_desc' },
     { id: 'openapi', icon: ApiOutlined, labelKey: 'browser.create.mode_openapi', descKey: 'browser.create.mode_openapi_desc' },
-    { id: 'workspace', icon: CloudUploadOutlined, labelKey: 'browser.create.mode_workspace', descKey: 'browser.create.mode_workspace_desc' },
     { id: 'copy', icon: CopyOutlined, labelKey: 'browser.create.mode_copy', descKey: 'browser.create.mode_copy_desc' },
 ]
 
-const loadProjectSources = async (query: { includes?: ProjectInclude[], statuses?: ProjectStatus[] } = {}): Promise<Project[]> => {
+const loadProjectSources = async (query: { includes?: ProjectInclude[] } = {}): Promise<Project[]> => {
     const projects: Project[] = []
     for (let page = 0; ; page++) {
         const response = await getProjects({
@@ -192,26 +188,6 @@ const useStyles = createStyles(({ css, token }) => ({
             color: ${token.colorPrimary};
         }
     `,
-    selectAllRow: css`
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 8px;
-    `,
-    workspaceList: css`
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    `,
-    workspaceCard: css`
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-    `,
-    workspaceEmpty: css`
-        font-size: 13px;
-    `,
     footer: css`
         display: flex;
         align-items: center;
@@ -226,16 +202,14 @@ const useStyles = createStyles(({ css, token }) => ({
 interface NewProjectModalProps {
     open: boolean
     repositories: Repository[]
-    /** Names of the current user's local-only projects, offered for the "from workspace" mode. */
-    localProjects?: string[]
     /** All visible projects, offered as sources for the "copy project" mode. */
     projects?: Project[]
     onClose: () => void
     /**
-     * A project was created. Carries the created project's repository and name so the caller can open its
-     * page; omitted when the workspace publish created several projects at once.
+     * A project was created. Carries the created project's repository, name and, on a branch-capable
+     * repository, the branch it was created on, so the caller can open its page.
      */
-    onCreated: (created?: { repositoryId: string, name: string }) => void
+    onCreated: (created: { repositoryId: string, name: string, branch?: string }) => void
 }
 
 /**
@@ -247,7 +221,6 @@ interface NewProjectModalProps {
 export const NewProjectModal = ({
     open,
     repositories,
-    localProjects: initialLocalProjects = [],
     projects: initialProjects = [],
     onClose,
     onCreated,
@@ -282,9 +255,7 @@ export const NewProjectModal = ({
     const [template, setTemplate] = useState<string | null>(null)
     const [openApiFile, setOpenApiFile] = useState<File | null>(null)
     const [openApi, setOpenApi] = useState(openApiDefaults)
-    const [workspaceProjects, setWorkspaceProjects] = useState<string[]>([])
     const [copyProjects, setCopyProjects] = useState<Project[] | null>(null)
-    const [localProjects, setLocalProjects] = useState<string[] | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [submitting, setSubmitting] = useState(false)
     // The name input auto-fills from the selection until the user edits it (which locks in their value).
@@ -306,7 +277,6 @@ export const NewProjectModal = ({
         () => projectSources.filter(project => project.capabilities?.canCopy),
         [projectSources]
     )
-    const workspaceSources = localProjects ?? initialLocalProjects
 
     useEffect(() => {
         if (open) {
@@ -326,14 +296,6 @@ export const NewProjectModal = ({
             loadProjectSources({ includes: ['deleted']}).then(setCopyProjects).catch(() => setCopyProjects(initialProjects))
         }
     }, [copyProjects, initialProjects, mode, open])
-
-    useEffect(() => {
-        if (open && mode === 'workspace' && localProjects === null) {
-            loadProjectSources({ statuses: [ProjectStatus.Local]})
-                .then(projects => setLocalProjects(projects.map(project => project.name)))
-                .catch(() => setLocalProjects(initialLocalProjects))
-        }
-    }, [initialLocalProjects, localProjects, mode, open])
 
     // Name suggested by the current selection: the template name, the source name with a "(Copy)" suffix,
     // or the name derived from the uploaded archive. Empty when nothing is selected yet.
@@ -479,7 +441,6 @@ export const NewProjectModal = ({
         setTemplate(null)
         setOpenApiFile(null)
         setOpenApi(openApiDefaults)
-        setWorkspaceProjects([])
         setCopySource(null)
         setError(null)
         inspectSeq.current++
@@ -496,23 +457,12 @@ export const NewProjectModal = ({
         setMode('template')
         resetFields()
         setCopyProjects(null)
-        setLocalProjects(null)
         templatesLoaded.current = false
         onClose()
     }
 
     const groupKey = (group: ProjectTemplateGroup) => `${group.type}:${group.category}`
     const activeGroup = templateGroup ? templates.find(group => groupKey(group) === templateGroup) ?? null : null
-
-    const toggleWorkspace = (projectName: string) => {
-        setWorkspaceProjects(prev => prev.includes(projectName)
-            ? prev.filter(item => item !== projectName)
-            : [...prev, projectName])
-    }
-
-    const toggleAllWorkspace = () => {
-        setWorkspaceProjects(prev => (prev.length === workspaceSources.length ? [] : [...workspaceSources]))
-    }
 
     const contentFiles = (): File[] => {
         if (mode === 'excel') {
@@ -539,12 +489,8 @@ export const NewProjectModal = ({
 
     const submit = async () => {
         const trimmedName = name.trim()
-        if (mode !== 'workspace' && !trimmedName) {
+        if (!trimmedName) {
             setError(t('browser.create.name_required'))
-            return
-        }
-        if (mode === 'workspace' && workspaceProjects.length === 0) {
-            setError(t('browser.create.workspace_required'))
             return
         }
         if (mode === 'archive' && !archive) {
@@ -602,13 +548,6 @@ export const NewProjectModal = ({
                         undefined,
                         repositorySupportsBranches ? branch.trim() : undefined
                     )
-                } else if (mode === 'workspace') {
-                    await createProjectsFromWorkspace(repository.id, {
-                        names: workspaceProjects,
-                        path: repositoryPath(),
-                        comment: comment.trim() || undefined,
-                        ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
-                    })
                 } else if (mode === 'template') {
                     const [type, category, name_] = JSON.parse(template!) as [string, string, string]
                     await createProject(repository.id, trimmedName, {
@@ -630,9 +569,11 @@ export const NewProjectModal = ({
                         ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
                     })
                 }
-                // Publishing the workspace creates several projects at once, so there is no single one
-                // to open; every other source creates exactly one and lands on its page.
-                onCreated(mode === 'workspace' ? undefined : { repositoryId: repository.id, name: trimmedName })
+                onCreated({
+                    repositoryId: repository.id,
+                    name: trimmedName,
+                    ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
+                })
                 close()
             } catch (e) {
                 setError(errorMessage(e))
@@ -644,7 +585,6 @@ export const NewProjectModal = ({
 
     const fileList: UploadFile[] = archive ? [{ uid: '1', name: archive.name }] : []
     const activeMethod = METHODS.find(method => method.id === mode)!
-    const showName = mode !== 'workspace'
 
     const repoSelectInput = (
         <Select
@@ -755,49 +695,6 @@ export const NewProjectModal = ({
                     </div>
                 </>
             ))}
-            {mode === 'workspace' && (
-                <div className={styles.field}>
-                    <div className={styles.selectAllRow}>
-                        <Checkbox
-                            checked={workspaceSources.length > 0 && workspaceProjects.length === workspaceSources.length}
-                            data-testid="new-project-workspace-all"
-                            disabled={workspaceSources.length === 0}
-                            indeterminate={workspaceProjects.length > 0 && workspaceProjects.length < workspaceSources.length}
-                            onChange={toggleAllWorkspace}
-                        >
-                            {t('browser.create.workspace_select_all')}
-                        </Checkbox>
-                        <span className={styles.cardCount}>{workspaceProjects.length}/{workspaceSources.length}</span>
-                    </div>
-                    {workspaceSources.length === 0 ? (
-                        <div className={cx(shared.dashedEmpty, styles.workspaceEmpty)}>{t('browser.create.workspace_empty')}</div>
-                    ) : (
-                        <div className={styles.cardScroll} data-testid="new-project-workspace">
-                            <div className={styles.workspaceList}>
-                                {workspaceSources.map(projectName => (
-                                    <div
-                                        key={projectName}
-                                        className={cx(shared.selectableCard, styles.workspaceCard, workspaceProjects.includes(projectName) && styles.cardActive)}
-                                        data-testid={`workspace-${projectName}`}
-                                        onClick={() => toggleWorkspace(projectName)}
-                                        role="button"
-                                        tabIndex={0}
-                                        onKeyDown={event => {
-                                            if (event.key === 'Enter' || event.key === ' ') {
-                                                event.preventDefault()
-                                                toggleWorkspace(projectName)
-                                            }
-                                        }}
-                                    >
-                                        <Checkbox checked={workspaceProjects.includes(projectName)} />
-                                        <span className={styles.cardLabel}>{projectName}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
             {mode === 'copy' && (
                 <FieldRow required label={t('browser.create.copy_source_label')}>
                     <Select
@@ -922,7 +819,7 @@ export const NewProjectModal = ({
                     </FieldRow>
                 </>
             )}
-            {showName && mode !== 'openapi' && nameField}
+            {mode !== 'openapi' && nameField}
             <FieldRow required label={t('browser.create.repository_label')}>
                 {repoSelectInput}
             </FieldRow>

@@ -309,18 +309,6 @@ export async function getProjectTemplates(): Promise<ProjectTemplateGroup[]> {
     return asArray(response)
 }
 
-/** Publish one or more local workspace projects to a design repository, keeping their names. */
-export async function createProjectsFromWorkspace(
-    repositoryId: string,
-    body: { names: string[], path?: string | undefined, comment?: string | undefined, branch?: string | undefined }
-): Promise<void> {
-    await apiCall(
-        `/repos/${encodeURIComponent(repositoryId)}/projects/from-workspace`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
-        { throwError: true }
-    )
-}
-
 /** List the actual Git branches of a design repository. */
 export async function getDesignRepositoryBranches(repositoryId: string): Promise<string[]> {
     const response = await apiCall(

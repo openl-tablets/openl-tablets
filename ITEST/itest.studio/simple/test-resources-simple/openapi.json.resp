@@ -19571,102 +19571,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/repos/{repo-name}/projects/from-workspace": {
-      "post": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "repo-name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateFromWorkspaceModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Design Repository"
-        ]
-      }
-    },
     "/repos/{repo-name}/projects/{project-name}": {
       "put": {
         "description": "***",
@@ -22944,32 +22848,6 @@ Content-Type: application/json
           "sourceProject",
           "sourceRepositoryId"
         ]
-      },
-      "CreateFromWorkspaceModel": {
-        "type": "object",
-        "properties": {
-          "branch": {
-            "type": "string",
-            "description": "***"
-          },
-          "comment": {
-            "type": "string",
-            "description": "***"
-          },
-          "names": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 100,
-            "minItems": 0
-          },
-          "path": {
-            "type": "string",
-            "description": "***"
-          }
-        }
       },
       "CreateNewTableRequest": {
         "type": "object",
