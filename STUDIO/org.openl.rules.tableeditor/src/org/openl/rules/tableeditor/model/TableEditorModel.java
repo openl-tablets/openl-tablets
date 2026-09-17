@@ -10,11 +10,8 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
-import org.openl.rules.table.CellKey;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.GridTool;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.actions.GridRegionAction;
@@ -24,7 +21,6 @@ import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
 import org.openl.rules.table.actions.UndoableRemoveMergedRowsAction;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.StringUtils;
@@ -45,6 +41,9 @@ public class TableEditorModel {
      * Number of columns in Properties section
      */
     private static final int NUMBER_PROPERTIES_COLUMNS = 3;
+
+    /** The column of the properties section that holds a property's name. */
+    private static final int PROPERTY_NAME_COLUMN = 1;
 
     private final IOpenLTable table;
     private final IGridTable gridTable;
@@ -74,14 +73,12 @@ public class TableEditorModel {
         var fullTable = getOriginalGridTable();
         var fullTableRegion = fullTable.getRegion();
 
-        var propertyCoordinates = getPropertyCoordinates(fullTableRegion, gridTable.getGrid(), name);
+        var propertyRow = GridTool.getPropertyRowIndex(fullTableRegion, gridTable.getGrid(), name);
+        var propExists = propertyRow != -1;
 
-        var propExists = propertyCoordinates != null;
-        var propIsBlank = value == null;
-
-        if (propIsBlank) {
+        if (value == null) {
             if (propExists) {
-                removeRows(1, propertyCoordinates.getRow(), propertyCoordinates.getColumn());
+                removeRows(1, propertyRow - fullTableRegion.getTop(), PROPERTY_NAME_COLUMN);
             }
             return;
         }
@@ -129,33 +126,6 @@ public class TableEditorModel {
 
     private void removeRows(int nRows, int startRow, int col) {
         new UndoableRemoveMergedRowsAction(nRows, startRow, col, getMetaInfoWriter()).doAction(gridTable);
-    }
-
-    /**
-     * Checks if the table specified by its region contains property.
-     */
-    private CellKey getPropertyCoordinates(IGridRegion region, IGrid grid, String propName) {
-        var left = region.getLeft();
-        var top = region.getTop();
-
-        var propsHeaderCell = grid.getCell(left, top + 1);
-        var propsHeader = propsHeaderCell.getStringValue();
-        if (propsHeader == null || !propsHeader.equals(PropertiesHelper.PROPERTIES_HEADER)) {
-            // There is no properties
-            return null;
-        }
-        var propsCount = propsHeaderCell.getHeight();
-
-        for (var i = 0; i < propsCount; i++) {
-            var propNameCell = grid.getCell(left + propsHeaderCell.getWidth(), top + 1 + i);
-            var pName = propNameCell.getStringValue();
-
-            if (pName != null && pName.equals(propName)) {
-                return CellKey.CellKeyFactory.getCellKey(1, 1 + i);
-            }
-        }
-
-        return null;
     }
 
     private MetaInfoWriter getMetaInfoWriter() {
