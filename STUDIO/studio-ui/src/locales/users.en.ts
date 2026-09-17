@@ -36,7 +36,6 @@ i18next.addResourceBundle('en', 'users', {
         last_name: 'Last Name',
         last_name_info: 'Family Name',
         display_name: 'Display Name',
-        cancel: 'Cancel',
         first_name_max_length: 'First Name must be at most 25 characters long',
         last_name_max_length: 'Last Name must be at most 25 characters long',
         display_name_max_length: 'Display Name must be at most 64 characters long',
