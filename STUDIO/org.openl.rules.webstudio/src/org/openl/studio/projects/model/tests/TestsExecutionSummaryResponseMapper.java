@@ -101,12 +101,15 @@ public class TestsExecutionSummaryResponseMapper {
     public TestUnitExecutionResult mapToTestUnitResult(TestUnitsResults testCase,
                                                        ITestUnit testUnit,
                                                        TestExecutionSummaryQuery query) {
+        // A run table states no expectation to compare against, so what its case returned is the result of
+        // the case: it is written whether or not the whole result was asked for.
+        var runTable = testCase.getTestSuite().getTestSuiteMethod().isRunMethod();
         var builder = TestUnitExecutionResult.builder()
                 .id(testUnit.getTest().getId())
                 .description(testUnit.getTest().getDescription())
                 .status(testUnit.getResultStatus())
                 .executionTimeMs(testUnit.getExecutionTime() / 1_000_000.0)
-                .result(query.compoundResult() ? wholeResult(testUnit, query) : null);
+                .result(query.compoundResult() || runTable ? wholeResult(testUnit, query) : null);
 
         // Map test assertions. Skip them for TR_EXCEPTION (unexpected exception thrown by the test)
         // to mirror the legacy RichFaces UI (test.xhtml renders only #{testCase.errors} when

@@ -3,7 +3,10 @@ package org.openl.studio.projects.rest.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -24,6 +27,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
@@ -55,6 +59,7 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
+import org.openl.studio.projects.service.tests.ProjectTestsExecutionProgressListener;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
 import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.RepositoryConfigService;
@@ -317,8 +322,16 @@ class ProjectsControllerTest {
     private static ProjectsController controller(WorkspaceProjectService projectService,
                                                  ExecutionTestsResultRegistry testsResultRegistry,
                                                  SocketProjectAllTestsExecutionProgressListenerFactory listeners) {
+        return controller(projectService, mock(TestsExecutorService.class), testsResultRegistry, listeners);
+    }
+
+    private static ProjectsController controller(WorkspaceProjectService projectService,
+                                                 TestsExecutorService testsExecutorService,
+                                                 ExecutionTestsResultRegistry testsResultRegistry,
+                                                 SocketProjectAllTestsExecutionProgressListenerFactory listeners) {
         return controller(projectService, mock(ProjectStatusMapper.class), mock(ProjectMetadataService.class),
-                mock(TableInputService.class), mock(ProjectObjectMapperService.class), testsResultRegistry, listeners);
+                mock(TableInputService.class), mock(ProjectObjectMapperService.class), testsExecutorService,
+                testsResultRegistry, listeners);
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,
@@ -334,7 +347,8 @@ class ProjectsControllerTest {
                                                  TableInputService tableInputService,
                                                  ProjectObjectMapperService objectMapperService) {
         return controller(projectService, projectStatusMapper, metadataService, tableInputService, objectMapperService,
-                mock(ExecutionTestsResultRegistry.class), mock(SocketProjectAllTestsExecutionProgressListenerFactory.class));
+                mock(TestsExecutorService.class), mock(ExecutionTestsResultRegistry.class),
+                mock(SocketProjectAllTestsExecutionProgressListenerFactory.class));
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,
@@ -342,12 +356,13 @@ class ProjectsControllerTest {
                                                  ProjectMetadataService metadataService,
                                                  TableInputService tableInputService,
                                                  ProjectObjectMapperService objectMapperService,
+                                                 TestsExecutorService testsExecutorService,
                                                  ExecutionTestsResultRegistry testsResultRegistry,
                                                  SocketProjectAllTestsExecutionProgressListenerFactory listeners) {
         var webStudio = mock(WebStudio.class);
         return new ProjectsController(
                 projectService,
-                mock(TestsExecutorService.class),
+                testsExecutorService,
                 testsResultRegistry,
                 listeners,
                 objectMapperService,
@@ -500,6 +515,32 @@ class ProjectsControllerTest {
         // The run before it goes on, and no run is announced whose end nobody would hear.
         verify(testsResultRegistry, never()).cancelIfAny();
         verifyNoInteractions(listeners);
+    }
+
+    /**
+     * A run table compiles to a test suite the way a test table does, so it is run as it stands: run through
+     * the test tables that cover it, it would have nothing to show.
+     */
+    @Test
+    void aRunTableIsRunAsItStandsRatherThanThroughTheTestsThatCoverIt() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var testsExecutorService = mock(TestsExecutorService.class);
+        var listeners = mock(SocketProjectAllTestsExecutionProgressListenerFactory.class);
+        var controller = controller(projectService, testsExecutorService, mock(ExecutionTestsResultRegistry.class),
+                listeners);
+        var project = mock(RulesProject.class);
+        var model = compiledModel(projectService, project);
+        var table = mock(IOpenLTable.class);
+        when(model.getTableById("t1")).thenReturn(table);
+        when(table.getUri()).thenReturn("file.xlsx?sheet=Runs&range=A1:B2");
+        when(model.getMethod("file.xlsx?sheet=Runs&range=A1:B2")).thenReturn(mock(TestSuiteMethod.class));
+        when(projectService.getUserWorkspace()).thenReturn(mock(UserWorkspace.class));
+        when(listeners.create(any(), any(), any(), any())).thenReturn(mock(ProjectTestsExecutionProgressListener.class));
+
+        controller.runAllTests(project, null, "t1", null);
+
+        verify(testsExecutorService).runSingle(any(), eq(model), eq(table), isNull(), eq(false));
+        verify(testsExecutorService, never()).runAllForTable(any(), any(), any(), anyBoolean());
     }
 
     @Test

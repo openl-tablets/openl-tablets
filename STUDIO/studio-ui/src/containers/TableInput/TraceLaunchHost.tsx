@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { Button, Checkbox, Tooltip } from 'antd'
+import { Checkbox, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useEventProject } from 'hooks'
 import { launchTrace, TRACE_WINDOW_BLOCKED } from 'services/traceLaunch'
@@ -50,26 +50,11 @@ const TraceLaunch: React.FC<TraceLaunchProps> = ({ detail, project, onClose }) =
             onClose={onClose}
             onError={setError}
             project={project}
-            actions={launch => (
-                <>
-                    <Button
-                        data-testid="trace-start"
-                        loading={starting}
-                        onClick={() => launch(value => start(value, false))}
-                        type="primary"
-                    >
-                        {t('launch.trace')}
-                    </Button>
-                    <Button
-                        data-testid="trace-download"
-                        disabled={starting}
-                        onClick={() => launch(value => start(value, true))}
-                    >
-                        {t('launch.traceIntoFile')}
-                    </Button>
-                </>
-            )}
-            options={() => (
+            actions={[
+                { key: 'trace-start', label: t('launch.trace'), primary: true, loading: starting, run: value => start(value, false) },
+                { key: 'trace-download', label: t('launch.traceIntoFile'), disabled: starting, run: value => start(value, true) },
+            ]}
+            options={(
                 <Tooltip title={t('launch.advancedHint')}>
                     <Checkbox
                         checked={advanced}

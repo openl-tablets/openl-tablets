@@ -132,9 +132,11 @@ const columnsOf = (
                 )
             },
         })),
-        ...(compoundResult ? [{
+        // A Run table states no expected values: what a case returned is its result, shown whether or not the
+        // compound result is asked for.
+        ...(compoundResult || table.runTable ? [{
             key: 'compound',
-            title: t('tests.compoundResult'),
+            title: table.runTable ? t('tests.result') : t('tests.compoundResult'),
             render: (unit: TestUnitResult) => (
                 <Space size={4}>
                     {!table.runTable && <StatusMark status={unit.status} title={t(STATUS[unit.status])} />}

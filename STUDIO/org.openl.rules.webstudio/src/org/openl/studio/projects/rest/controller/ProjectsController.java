@@ -116,7 +116,6 @@ import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
-import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.GraphLayer;
@@ -825,8 +824,9 @@ public class ProjectsController {
         // Refused before any run is cancelled or announced: a request refused leaves the run before it going,
         // and announces no run whose end nobody would hear.
         var table = StringUtils.isBlank(tableId) ? null : requireTable(projectModel, tableId);
-        if (table != null && StringUtils.isNotBlank(testRanges)) {
-            requireKnownCases(projectModel, table, testRanges, currentOpenedModule);
+        var testSuite = table == null ? null : testSuiteOf(projectModel, table, currentOpenedModule);
+        if (testSuite != null && StringUtils.isNotBlank(testRanges)) {
+            TestCaseRanges.requireKnownCases(testSuite, testRanges);
         }
         executionTestsResultRegistry.cancelIfAny();
         var projectId = projectIdentifierMapper.map(project);
@@ -845,7 +845,9 @@ public class ProjectsController {
                     tableId,
                     testCase -> mapper.mapToTestCaseResult(testCase, TestExecutionSummaryQuery.noFilter()));
             listener.onStatusChanged(TestExecutionStatus.PENDING);
-            if (StringUtils.isBlank(testRanges) && !OpenLTableUtils.isTestTable(table)) {
+            // A test table, and a run table with it, is run as it stands; any other table is run through the
+            // test tables that cover it.
+            if (testSuite == null && StringUtils.isBlank(testRanges)) {
                 testTask = testsExecutorService.runAllForTable(listener, projectModel, table, currentOpenedModule);
             } else {
                 testTask = testsExecutorService.runSingle(listener, projectModel, table, testRanges, currentOpenedModule);
@@ -854,21 +856,13 @@ public class ProjectsController {
         executionTestsResultRegistry.setTask(projectId, testTask);
     }
 
-    /**
-     * Refuses a range that names a case the test table does not have.
-     *
-     * <p>The run itself resolves the range on another thread, where a refusal would reach nobody; asked here, it
-     * answers the request instead. A table that is not a test table takes no range, so it is asked nothing.
-     */
-    private static void requireKnownCases(ProjectModel projectModel,
-                                          IOpenLTable table,
-                                          String testRanges,
-                                          boolean currentOpenedModule) {
+    /** The test suite the table compiles to: a test table or a run table, or {@code null} for any other table. */
+    private static @Nullable TestSuiteMethod testSuiteOf(ProjectModel projectModel,
+                                                         IOpenLTable table,
+                                                         boolean currentOpenedModule) {
         var uri = table.getUri();
         var method = currentOpenedModule ? projectModel.getOpenedModuleMethod(uri) : projectModel.getMethod(uri);
-        if (method instanceof TestSuiteMethod testSuiteMethod) {
-            TestCaseRanges.requireKnownCases(testSuiteMethod, testRanges);
-        }
+        return method instanceof TestSuiteMethod testSuiteMethod ? testSuiteMethod : null;
     }
 
     @Operation(summary = "projects.tests.summary.summary")

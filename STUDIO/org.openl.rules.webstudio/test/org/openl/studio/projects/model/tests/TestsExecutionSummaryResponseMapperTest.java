@@ -115,6 +115,11 @@ class TestsExecutionSummaryResponseMapperTest {
 
         assertEquals(42, asked.testUnits().getFirst().result().value().asInt());
         assertNull(plain.testUnits().getFirst().result());
+
+        // A run table states no expectation: what its case returned is the result of the case, asked for or not.
+        when(results.getTestSuite().getTestSuiteMethod().isRunMethod()).thenReturn(true);
+        var run = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, false, false));
+        assertEquals(42, run.testUnits().getFirst().result().value().asInt());
     }
 
     @Test

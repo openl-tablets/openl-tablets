@@ -19,6 +19,7 @@ import { getTableTargets, getTableTests, type TableTarget, type TableTest } from
 import { deleteTable } from '../../services/tables'
 import { moduleRoute } from '../../services/projectId'
 import type { ConfirmWrite } from './useOverwriteConfirm'
+import { EXERCISING_KINDS } from 'constants/tableKinds'
 import { canTargetTable, EXECUTABLE_KINDS } from '../CreateTableModal/testSkeleton'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -93,7 +94,7 @@ const useStyles = createStyles(({ css, token }) => ({
 const NOT_COPYABLE = new Set(['Datatype', 'Environment', 'Properties', 'Other'])
 
 /** The families written against another table: they are the only ones with a table to name. */
-const EXERCISING = new Set(['Test', 'Run'])
+const EXERCISING = new Set<string>(EXERCISING_KINDS)
 
 /** The families of table that can be executed at all — what the rules can call, and what calls it. */
 const EXECUTABLE = new Set([...EXECUTABLE_KINDS, ...EXERCISING])
@@ -298,6 +299,7 @@ export const TableToolbar = ({
             detail: {
                 projectId,
                 tableId: table.id,
+                kind: table.kind,
                 moduleName,
                 anchor: { top, left, width, height },
                 // Where what is built beyond this module has errors, the run stays inside the module.

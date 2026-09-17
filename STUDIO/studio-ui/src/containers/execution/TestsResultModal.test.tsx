@@ -303,6 +303,28 @@ describe('TestsResultModal', () => {
         expect(screen.queryByText('{1 fields}')).toBeNull()
     })
 
+    it('shows what every case of a Run table returned, with no compound result asked for', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                runTable: true,
+                testUnits: [{
+                    ...summary.testCases[0]?.testUnits[0],
+                    testAssertions: [],
+                    result: { name: 'result', lazy: false, value: 'Good Morning' },
+                }],
+            }],
+        })
+
+        await show()
+
+        // The result stands under its own heading, as the returned value of the case rather than a comparison.
+        expect(screen.getByText('tests.result')).toBeInTheDocument()
+        expect(screen.getByText('"Good Morning"')).toBeInTheDocument()
+        expect(screen.queryByText('tests.compoundResult', { selector: 'th *' })).toBeNull()
+    })
+
     it('reads the whole returned value only when the compound result is asked for', async () => {
         readSummary.mockResolvedValue({
             ...summary,

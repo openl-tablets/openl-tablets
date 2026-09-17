@@ -439,7 +439,8 @@ describe('TableToolbar', () => {
         await userEvent.click(screen.getByTestId('table-run'))
 
         window.removeEventListener('openRunLaunch', opened)
-        expect((opened.mock.calls[0]?.[0] as CustomEvent).detail).toMatchObject({ moduleOnlyLocked: true })
+        // The panel is told what kind of table it opens for: the band knows, and the input does not say.
+        expect((opened.mock.calls[0]?.[0] as CustomEvent).detail).toMatchObject({ moduleOnlyLocked: true, kind: 'Spreadsheet' })
     })
 
 })

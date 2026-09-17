@@ -64,7 +64,7 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
                 .tableId(TableUtils.makeTableId(table.getUri()))
                 .name(method.getName());
         if (method instanceof TestSuiteMethod) {
-            return builder.testTable(true).parameters(List.of()).build();
+            return builder.parameters(List.of()).build();
         }
         return describeRuleTable(builder, method, valueMapper(objectMapper, schemaGenerator));
     }
@@ -127,7 +127,6 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
                 })
                 .toList();
         return builder
-                .testTable(false)
                 .parameters(parameters)
                 .runtimeContext(providesRuntimeContext()
                         ? valueMapper.describeParameter(RUNTIME_CONTEXT,

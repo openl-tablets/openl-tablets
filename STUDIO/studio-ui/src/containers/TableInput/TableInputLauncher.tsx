@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Checkbox, Input, Space, Tooltip, Typography } from 'antd'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Alert, Button, Checkbox, Input, Space, Tooltip, Typography } from 'antd'
 import { FieldRow } from 'components/FieldRow'
+import { carriesCases } from 'constants/tableKinds'
 import { useTranslation } from 'react-i18next'
 import type { EventProjectDetail } from 'hooks'
 import { notifyLoadFailure } from 'services/apiCall'
@@ -17,6 +18,8 @@ import { testRangesOf } from './testRanges'
 /** What the table page sends to start an action on the table it shows. */
 export interface TableLaunchDetail extends EventProjectDetail {
     tableId: string
+    /** The kind of the table, as the page lists it: a Test or Run table carries cases, any other takes an input. */
+    kind: string
     moduleName: string
     /** Viewport rectangle of the button the panel hangs under. */
     anchor: PopoverAnchor
@@ -24,10 +27,16 @@ export interface TableLaunchDetail extends EventProjectDetail {
     moduleOnlyLocked?: boolean
 }
 
-/** What the panel is asking for, so that an action offers only what applies to the table. */
-export interface TableLaunchState {
-    /** Whether the table is a test table, whose cases are picked instead of an input. */
-    testTable: boolean
+/** A button under the panel that starts the action with what the panel holds. */
+export interface TableLaunchAction {
+    /** Names the button for the tests of the screen. */
+    key: string
+    label: React.ReactNode
+    primary?: boolean
+    loading?: boolean
+    disabled?: boolean
+    /** Started with what the panel collected. When the panel is not ready it says why itself and starts nothing. */
+    run: (value: TableLaunchValue) => void
 }
 
 /** What the panel collected: the input of a rule table, or the cases of a test table, and where to look. */
@@ -47,15 +56,14 @@ export interface TableInputLauncherProps {
     /** Why the action could not be started, shown under the panel. */
     error?: string | null | undefined
     /** Options of the action, shown next to "Within Current Module Only". */
-    options?: ((state: TableLaunchState) => React.ReactNode) | undefined
+    options?: React.ReactNode
     /**
-     * The buttons that start the action.
+     * The buttons that start the action, right-aligned under the panel.
      *
-     * `launch` hands what the panel holds to the action; when the panel is not ready it says why itself and
-     * starts nothing. The action starts later when the cases to run are every page of the table but some:
-     * the rest are read first.
+     * A button starts its action with what the panel holds - later, when the cases to run are every page of the
+     * table but some: the rest are read first. While they are read, the buttons wait under a spinner.
      */
-    actions: (launch: (action: (value: TableLaunchValue) => void) => void, state: TableLaunchState) => React.ReactNode
+    actions: TableLaunchAction[]
     /** Starts the action for a table that asks for nothing, so no panel is shown for it. */
     onNothingToAsk?: ((value: TableLaunchValue) => void) | undefined
     /** Reports a reason of its own, such as a case that is not picked. */
@@ -93,6 +101,11 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
     // Whether what the panel holds is still being collected - the rest of the cases read - so that neither the
     // cases nor the buttons take a click that would start the action twice or change what it is given.
     const [collecting, setCollecting] = useState(false)
+    // A read that lands once the panel is closed starts nothing: the reader has left.
+    const open = useRef(true)
+    useEffect(() => () => {
+        open.current = false
+    }, [])
     const [page, setPage] = useState(1)
     // An action that takes several cases starts with every case ticked; one that takes a single case is offered
     // the first of the table once it is read.
@@ -106,7 +119,7 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
     // for, and always so while the project is still loading.
     const fromModule = moduleOnly ? detail.moduleName : undefined
     const readWithin = useMemo(() => (fromModule ? { fromModule } : {}), [fromModule])
-    const testTable = input?.testTable ?? false
+    const testTable = carriesCases(detail.kind)
     // The API leaves an empty list out, so a rule table without parameters carries none at all. The list is
     // the one the table was read with: built anew on every render, it would look like another description of
     // the table each time, and the form would start again under the user.
@@ -234,6 +247,9 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
         }
         setCollecting(true)
         collect().then(value => {
+            if (!open.current) {
+                return
+            }
             setCollecting(false)
             if (value) {
                 action(value)
@@ -252,8 +268,6 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
         return null
     }
 
-    const launchState: TableLaunchState = { testTable }
-
     const moduleOnlyOption = (
         <Checkbox
             checked={moduleOnly}
@@ -271,16 +285,27 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
             anchor={detail.anchor}
             busy={busy}
             collecting={collecting}
-            footer={actions(launch, launchState)}
             onClose={onClose}
             width={withCases ? 560 : 520}
+            footer={actions.map(action => (
+                <Button
+                    key={action.key}
+                    data-testid={action.key}
+                    disabled={action.disabled ?? false}
+                    loading={action.loading ?? false}
+                    onClick={() => launch(action.run)}
+                    type={action.primary ? 'primary' : 'default'}
+                >
+                    {action.label}
+                </Button>
+            ))}
         >
             <Space orientation="vertical" size="small" style={{ width: '100%' }}>
                 <Space wrap size="middle">
                     {detail.moduleOnlyLocked
                         ? <Tooltip title={t('input.moduleOnlyLocked')}>{moduleOnlyOption}</Tooltip>
                         : moduleOnlyOption}
-                    {options?.(launchState)}
+                    {options}
                     {withCases && caseSelection === 'multiple' && (
                         <Tooltip title={t('testCases.useRangeHint')}>
                             <Checkbox

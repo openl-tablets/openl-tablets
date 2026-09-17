@@ -4,7 +4,6 @@ Content-Type: application/json
 {
   "tableId": "218bd402f36ae8f4cd411fb9abbd99c8",
   "name": "BalanceDynamicIndexCalculation",
-  "testTable": false,
   "parameters": [
     {
       "name": "currentFinancialData",

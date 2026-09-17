@@ -29848,10 +29848,6 @@ Content-Type: application/json
           "tableId": {
             "type": "string",
             "description": "***"
-          },
-          "testTable": {
-            "type": "boolean",
-            "description": "***"
           }
         }
       },
