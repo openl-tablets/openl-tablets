@@ -3,10 +3,9 @@
 ## Resume point
 
 - Full re-sweep from zero completed at main `000e6d889f` (every detector re-run over all 16,550 tracked files, not a
-  delta). Result: one dead key. PR #2129 `dead-code/full-sweep` open with that single commit.
-- Next run: maintain #2129 first (CI, review, Sonar), then sweep only `git rev-list 000e6d889f..origin/main`.
-  A second full re-sweep is not worth a run until main moves substantially; every vein below is exhausted at
-  `000e6d889f`.
+  delta) and merged the same day. Result: one dead key. No `dead-code/*` PR is open.
+- Next run: sweep only `git rev-list 3707ef66d0..origin/main`; 0 means the run is ledger upkeep only. A second full
+  re-sweep is not worth a run until main moves substantially; every vein below is exhausted at `000e6d889f`.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
@@ -22,20 +21,21 @@
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 634 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done |
 | 9 | Legacy JS functions and pages | done; no legacy JS or pages exist |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done (PR #2129); 1 key of 1,590 |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done (PR #2129 merged); 1 key of 1,590 |
 | 11 | TypeScript exports, types, components, imports | done; 1,094 exports, all referenced |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 0 non-public dead types |
 
 ## Open PR
 
-- #2129 `dead-code/full-sweep`, head `670dea78e6`, base main `000e6d889f`. One commit: "Remove the unreferenced
-  users edit_modal.cancel locale key" (-1 line). Body carries the full detector report and the `.pngs` follow-up.
+- none
 
 ## Merged PRs
 
 - #2120 merged 2026-09-17: 7 commits, -487/+2, across commented-out code, locale keys, a test workbook, dead
   `@SuppressWarnings`, spring-security-core in security.standalone, AspectJ managed versions and webstudio members.
+- #2129 merged 2026-09-17 (main `3707ef66d0`): 1 commit, -1 line, the dead `users:edit_modal.cancel` locale key.
+  Merged 31 minutes after opening, before any CI job left the queue — a one-line locale deletion needs no wait.
 
 ## Module coverage
 
@@ -202,7 +202,8 @@
 
 - `site.webmanifest` in `WSFrontend/org.openl.rules.ruleservice.ws/resources/static/` and
   `STUDIO/studio-ui/public/icons/` names the 512x512 icon `android-chrome-512x512.pngs` (trailing `s`), so that
-  icon resolves in neither module. The DEMO copy is correct. A typo to fix, not dead code — raised on PR #2129.
+  icon resolves in neither module. The DEMO copy is correct. A typo to fix, not dead code — raised on PR #2129,
+  still unfixed on main; re-raise it if a maintainer has not acted.
 - ORA-12516 in IT (studio-acl) deserves a real fix in the Oracle container setup (process/session limit), and the
   `ModuleWorkspace.test.tsx` timing failure a source-level fix; both bite green PRs.
 - Dependency hygiene (additions): ~293 used-undeclared findings, notably spring-security-core in org.openl.security
@@ -221,4 +222,5 @@
 - 2026-09-17 a: PR #2120 rebased twice through a Kafka-container flake, went green and merged; ledger closed out.
 - 2026-09-17 b: full re-sweep from zero at main `000e6d889f` on user instruction — every detector re-run over the
   whole repository rather than the delta. Two detector bugs found and fixed (extension allowlist, constant
-  inlining); one dead locale key removed in PR #2129; a broken webmanifest icon reference raised for a maintainer.
+  inlining); one dead locale key removed in PR #2129, merged the same hour; a broken webmanifest icon reference
+  raised for a maintainer.
