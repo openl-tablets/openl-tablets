@@ -74,6 +74,7 @@ i18next.addResourceBundle('en', 'common', {
         apply: 'Apply',
         create: 'Create',
         invite: 'Invite',
+        delete: 'Delete',
     },
     confirm: {
         title: 'Confirm',

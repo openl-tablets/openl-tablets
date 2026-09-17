@@ -440,7 +440,7 @@ describe('Users', () => {
         expect(adminCell.tagName).toBe('STRONG')
     })
 
-    it('shows unverified email icon when email is not verified', async () => {
+    it('explains the icon next to an unverified email in a tooltip', async () => {
         const usersWithUnverified = [
             {
                 ...mockUsers[1],
@@ -460,9 +460,10 @@ describe('Users', () => {
             })
         })
 
-        await waitFor(() => {
-            expect(screen.getByText('viewer@test.com')).toBeInTheDocument()
-        })
+        const emailCell = await screen.findByText('viewer@test.com')
+        await userEvent.hover(within(emailCell).getByRole('img', { name: 'exclamation-circle' }))
+
+        expect(await screen.findByText('users:email_not_verified')).toBeInTheDocument()
     })
 
     it('disables delete button for superuser', async () => {
