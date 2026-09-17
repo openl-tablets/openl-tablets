@@ -129,6 +129,24 @@ describe('useModuleCompilation', () => {
         expect(getByTestId('state')).toHaveTextContent('ready')
     })
 
+    it('answers for the module switched to at once, not for the one left', async () => {
+        const push = captureUpdates()
+        const { getByTestId, rerender } = render(<Probe module="Claims" />)
+        push(compiling(12, 12, 'Claims'))
+        expect(getByTestId('state')).toHaveTextContent('ready')
+
+        // The channel has not named the other module, so nothing of it is read on the strength of the first.
+        rerender(<Probe module="Policies" />)
+        expect(getByTestId('state')).toHaveTextContent('waiting')
+        push(compiling(13, 14, 'Policies'))
+        expect(getByTestId('state')).toHaveTextContent('ready')
+
+        // Back on the first, what was learnt about it still stands, even under a report that names no module.
+        push(compiling(14, 14))
+        rerender(<Probe module="Claims" />)
+        expect(getByTestId('state')).toHaveTextContent('ready')
+    })
+
     it('asks for no compilation when the module is already compiled', async () => {
         captureUpdates()
         const { getByTestId } = render(<Probe initial={compiling(12, 12, 'Claims')} />)

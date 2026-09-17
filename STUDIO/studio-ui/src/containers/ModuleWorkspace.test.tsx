@@ -73,7 +73,12 @@ vi.mock('./modules/ModuleActionBar', () => ({ ModuleActionBar: () => null }))
 vi.mock('./modules/TableDetailsPanel', () => ({ TableDetailsPanel: () => <div data-testid="table-details" /> }))
 vi.mock('./modules/TableProblems', () => ({ TableProblems: () => null }))
 vi.mock('./modules/TableSearchModal', () => ({ TableSearchModal: () => null }))
-vi.mock('./modules/TableToolbar', () => ({ TableToolbar: () => <div data-testid="table-toolbar" /> }))
+// The band shows what it is handed, so a test can read what the screen decided.
+vi.mock('./modules/TableToolbar', () => ({
+    TableToolbar: ({ runState, projectCompiled }: { runState?: string, projectCompiled?: boolean }) => (
+        <div data-compiled={String(projectCompiled)} data-testid="table-toolbar">{runState}</div>
+    ),
+}))
 vi.mock('./projects/CompileProblemsPanel', () => ({ CompileProblemsPanel: () => null }))
 // The switcher itself is tested elsewhere; here it only has to say that a branch was switched.
 vi.mock('./projects/BranchSwitcher', () => ({
@@ -106,6 +111,8 @@ const project = (status: string) => ({
 
 describe('ModuleWorkspace', () => {
     beforeEach(() => {
+        routeParams.projectId = 'p1'
+        routeParams.moduleName = 'Bank Rating'
         workspace.opened = false
         workspace.state = 'ok'
         workspace.branch = 'master'
@@ -237,6 +244,126 @@ describe('ModuleWorkspace', () => {
 
         // Still the one row of the table on screen: the other table's rows were not added to it.
         expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1')
+    })
+
+    it('asks again how far a table may run once the rest of the project is built', async () => {
+        workspace.opened = true
+        // Read while only the module was built: a run had to stay inside it.
+        workspace.state = 'compiling'
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-1',
+            name: 'BankRating',
+            source: [[{ cell: 'A1', value: 'Bank' }]],
+            runState: 'can-run-module',
+        } as never)
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run-module'))
+
+        // The rest of the project is built: the state is asked again, for the run state alone, and the band
+        // offers the whole project.
+        vi.mocked(getRawTable).mockResolvedValue({ id: 't-1', name: 'BankRating', source: [], runState: 'can-run' } as never)
+        workspace.state = 'ok'
+        rerender(<ModuleWorkspace />)
+
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run'))
+        expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, runState: true })
+        // The rows drawn stay as they were: only the run state was asked for.
+        expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1')
+    })
+
+    it('asks again how far a table may run after a refresh builds the module again', async () => {
+        workspace.opened = true
+        workspace.state = 'ok'
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-1',
+            name: 'BankRating',
+            source: [[{ cell: 'A1', value: 'Bank' }]],
+            runState: 'can-run',
+        } as never)
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'true'))
+
+        // A refresh builds the module again, and the rest of the project after it: the table read once the
+        // module is back has to keep a run inside it, and the project is no longer as built as it was - even
+        // before the status channel says so.
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-1',
+            name: 'BankRating',
+            source: [[{ cell: 'A1', value: 'Bank' }]],
+            runState: 'can-run-module',
+        } as never)
+        await userEvent.click(screen.getByTestId('module-refresh'))
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run-module'))
+        expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'false')
+        workspace.state = 'compiling'
+        rerender(<ModuleWorkspace />)
+        expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'false')
+
+        // The build ends: the state is asked again, and the band offers the whole project once more.
+        vi.mocked(getRawTable).mockResolvedValue({ id: 't-1', name: 'BankRating', source: [], runState: 'can-run' } as never)
+        workspace.state = 'ok'
+        rerender(<ModuleWorkspace />)
+
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run'))
+        expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'true')
+        expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, runState: true })
+    })
+
+    it('asks again about a table read during the build whose answer arrives after the build ended', async () => {
+        workspace.opened = true
+        workspace.state = 'compiling'
+        let releaseTable!: (read: unknown) => void
+        vi.mocked(getRawTable)
+            .mockImplementationOnce(() => new Promise(resolve => {
+                releaseTable = resolve
+            }) as never)
+            .mockResolvedValue({ id: 't-1', name: 'BankRating', source: [], runState: 'can-run' } as never)
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledTimes(1))
+
+        // The build ends while the read is still on its way, so what it answers is already out of date.
+        workspace.state = 'ok'
+        rerender(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'true'))
+        await act(async () => {
+            releaseTable({
+                id: 't-1', name: 'BankRating', source: [[{ cell: 'A1', value: 'Bank' }]], runState: 'can-run-module',
+            })
+        })
+
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run'))
+        expect(getRawTable).toHaveBeenCalledTimes(2)
+        expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1')
+    })
+
+    it('keeps the project compiled when another compiled module of it is opened', async () => {
+        workspace.opened = true
+        workspace.state = 'ok'
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'true'))
+
+        // The other module is compiled already, so no compilation is asked for and no status will arrive: the
+        // project is as built as it was, and a run may still reach all of it.
+        routeParams.moduleName = 'Car Rating'
+        rerender(<ModuleWorkspace />)
+
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Car Rating'))
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'true'))
+    })
+
+    it('does not ask again about a table that could run against the whole project from the start', async () => {
+        workspace.opened = true
+        workspace.state = 'ok'
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-1',
+            name: 'BankRating',
+            source: [[{ cell: 'A1', value: 'Bank' }]],
+            runState: 'can-run',
+        } as never)
+        render(<ModuleWorkspace />)
+
+        await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run'))
+        expect(getRawTable).toHaveBeenCalledTimes(1)
     })
 
     it('reads no table of a project nobody opened, and draws the one the link names once it is opened', async () => {

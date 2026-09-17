@@ -308,10 +308,12 @@ export const ModuleWorkspace = () => {
     }, [moduleName, projectId])
 
     // Refresh compiles the module again and re-reads its tables. What the reader was looking at is kept: the
-    // address still names it, and it is drawn again as soon as the tables are back.
+    // address still names it, and it is drawn again as soon as the tables are back. Whether the project has
+    // compiled through is an open question again until the compilation asked for has finished.
     const refresh = useCallback((rebuilding = true) => {
         setLoaded(null)
         setTableError(null)
+        setProjectCompiled(false)
         setReload(asked => ({ module: moduleName, token: asked.token + 1, rebuild: rebuilding }))
     }, [moduleName])
 
@@ -348,10 +350,13 @@ export const ModuleWorkspace = () => {
     //
     // Held once it is true: the status says "compiled" as each module finishes and "compiling" again while the
     // next is built, and a screen that asks the server on this answer would ask again on every flip. Compiling
-    // this module afresh is what makes the question open again.
+    // this module afresh is what makes the question open again; see refresh.
+    //
+    // A module switched to that is compiled already, of a project built already, is answered as it stands: no
+    // compilation is asked for it, so no status will come to say so.
     useEffect(() => {
-        setProjectCompiled(false)
-    }, [branch, moduleName, reloadToken])
+        setProjectCompiled(compilation.ready && isCompiled(compilation.state))
+    }, [branch, moduleName])
 
     useEffect(() => {
         if (isCompiled(compilation.state)) {
@@ -493,6 +498,37 @@ export const ModuleWorkspace = () => {
                 }
             })
     }, [projectId, selectedId, listed, moduleName, tableLoads])
+
+    // The run state a table is read with can age. Read while the rest of the project was still being built -
+    // which is where a switch to another module leaves it - it says a run must stay inside the module, and
+    // that is no longer so once the build ends. It is asked again then, and only it: the rows stay as drawn.
+    // A state that never kept a run inside the module has nothing to ask again about, and one read after the
+    // build ended, which is where a read begun during it lands, is asked again as soon as it arrives.
+    const runState = table?.runState
+    const keptInModule = runState === 'can-run-module'
+    useEffect(() => {
+        if (!projectCompiled || !projectId || selectedId === null || !listed || !keptInModule) {
+            return undefined
+        }
+        let stale = false
+        getRawTable(projectId, selectedId, { module: moduleName, maxRows: 1, runState: true })
+            .then(loaded => {
+                // The answer is for the table on screen alone - the one left may still be there while the one
+                // selected is on its way - and a state that has not changed leaves the rows as drawn.
+                const answered = loaded.runState
+                if (!stale && answered !== undefined) {
+                    setTable(current => (current?.id === loaded.id && current.runState !== answered
+                        ? { ...current, runState: answered }
+                        : current))
+                }
+            })
+            .catch(() => {
+                // The band keeps the state it was read with.
+            })
+        return () => {
+            stale = true
+        }
+    }, [projectCompiled, projectId, selectedId, listed, moduleName, keptInModule])
 
     // The next window of the same table, appended to what is already drawn.
     const showMoreRows = useCallback(() => {
@@ -674,7 +710,7 @@ export const ModuleWorkspace = () => {
                 onWritten={openWritten}
                 projectCompiled={projectCompiled}
                 projectId={project.id}
-                runState={table?.runState}
+                runState={runState}
                 table={selected}
             />
         )
