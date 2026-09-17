@@ -5,9 +5,6 @@
 package org.openl.rules.tableeditor.model;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import lombok.Getter;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -22,9 +19,6 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
-import org.openl.rules.table.actions.IUndoableGridTableAction;
-import org.openl.rules.table.actions.UndoableActions;
-import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableEditTableAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
@@ -41,6 +35,8 @@ import org.openl.util.StringUtils;
  * <p>A property is set in place: the section grows a row where one is needed, and the table is moved when it has no
  * room to grow. Setting a property to {@code null} takes its row away.
  *
+ * <p>The table is always written as the developer sees it, with its properties section in view.
+ *
  * @author snshor
  */
 public class TableEditorModel {
@@ -50,31 +46,16 @@ public class TableEditorModel {
      */
     private static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
-    @Getter
     private final IOpenLTable table;
-
-    @Getter
     private final IGridTable gridTable;
-    private final String view;
     private MetaInfoWriter metaInfoWriter;
 
-    private UndoableActions actions = new UndoableActions();
-
-    public TableEditorModel(IOpenLTable table, String view) {
+    public TableEditorModel(IOpenLTable table) {
         this.table = table;
-        this.gridTable = table.getGridTable(view);
-        if (gridTable == table.getGridTable()) { // table have no business view(e.g. Method Table)
-            this.view = IXlsTableNames.VIEW_DEVELOPER;
-        } else {
-            this.view = view;
-        }
+        this.gridTable = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
     }
 
-    public boolean isBusinessView() {
-        return view != null && view.equalsIgnoreCase(IXlsTableNames.VIEW_BUSINESS);
-    }
-
-    public IGridTable getOriginalGridTable() {
+    private IGridTable getOriginalGridTable() {
         return GridTableUtils.getOriginalTable(gridTable);
     }
 
@@ -82,17 +63,14 @@ public class TableEditorModel {
      * @return New table id on the sheet where it was saved. It is needed for tables that were moved to new place during
      * adding new rows and columns on editing. We need to know new destination of the table.
      */
-    public synchronized String save() throws IOException {
+    public String save() throws IOException {
         var xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
         xlsgrid.getSheetSource().getWorkbookSource().save();
-        actions = new UndoableActions();
         var uri = getOriginalGridTable().getUri();
         return TableUtils.makeTableId(uri);
     }
 
-    public synchronized void setProperty(String name, Object value) {
-        var createdActions = new ArrayList<IUndoableGridTableAction>();
-
+    public void setProperty(String name, Object value) {
         var fullTable = getOriginalGridTable();
         var fullTableRegion = fullTable.getRegion();
 
@@ -119,35 +97,22 @@ public class TableEditorModel {
             }
             if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1) || !UndoableInsertColumnsAction
                     .canInsertColumns(gridTable, nColsToInsert)) {
-                createdActions.add(UndoableEditTableAction.moveTable(fullTable, metaInfoWriter));
+                UndoableEditTableAction.moveTable(fullTable, metaInfoWriter);
             }
-            var allTable = new GridRegionAction(fullTableRegion,
+            new GridRegionAction(fullTableRegion,
                     UndoableEditTableAction.ROWS,
                     UndoableEditTableAction.INSERT,
                     ActionType.EXPAND,
-                    1);
-            allTable.doAction(gridTable);
-            createdActions.add(allTable);
-            if (isBusinessView()) {
-                var displayedTable = new GridRegionAction(gridTable
-                        .getRegion(), UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, 1);
-                displayedTable.doAction(gridTable);
-                createdActions.add(displayedTable);
-            }
+                    1).doAction(gridTable);
         }
 
-        IUndoableGridTableAction action = GridTool
-                .insertProp(fullTableRegion, gridTable.getGrid(), name, value, metaInfoWriter);
+        var action = GridTool.insertProp(fullTableRegion, gridTable.getGrid(), name, value, metaInfoWriter);
         if (action != null) {
             action.doAction(gridTable);
-            createdActions.add(action);
-        }
-        if (!createdActions.isEmpty()) {
-            actions.addNewAction(new UndoableCompositeAction(createdActions));
         }
     }
 
-    public synchronized void setProperty(String name, String value) {
+    public void setProperty(String name, String value) {
         Object objectValue = null;
         if (StringUtils.isNotBlank(value)) {
             var tablePropeprtyDefinition = TablePropertyDefinitionUtils.getPropertyByName(name);
@@ -162,13 +127,8 @@ public class TableEditorModel {
         setProperty(name, objectValue);
     }
 
-    private synchronized void removeRows(int nRows, int startRow, int col) {
-        var removeRowsAction = new UndoableRemoveMergedRowsAction(nRows,
-                startRow,
-                col,
-                getMetaInfoWriter());
-        removeRowsAction.doAction(gridTable);
-        actions.addNewAction(removeRowsAction);
+    private void removeRows(int nRows, int startRow, int col) {
+        new UndoableRemoveMergedRowsAction(nRows, startRow, col, getMetaInfoWriter()).doAction(gridTable);
     }
 
     /**
