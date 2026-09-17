@@ -200,6 +200,8 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   application mounts. Outside `<AntApp>`, `App.useApp()` answers with empty objects, so a test of a component
   that pops something up either renders it inside `<AntApp>` or mocks `antd` with
   `App: { useApp: () => ({ notification, modal }) }` (see `staticAntdApp` in `src/testing/`).
+    - **The logo is part of the palette.** `components/Logo.tsx` draws the cube from `primary`, `brand` and
+      `primaryFg`, so it turns with the theme and the appearance; it carries no colour of its own.
     - **A canvas needs a real colour.** Cytoscape paints the table dependency graph on a `<canvas>`, which cannot
       read a custom property, so the graph takes its colours from the Ant Design token through
       `containers/tableGraphTheme.ts` (`kindColor`, `kindRules`, `graphPalette`) and lists `token` among the
