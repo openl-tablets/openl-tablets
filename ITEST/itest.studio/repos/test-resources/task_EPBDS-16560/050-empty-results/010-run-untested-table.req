@@ -1,0 +1,3 @@
+POST /rest/projects/{PROJECT_ID}/tests/run?tableId=50a81a64b72af9311884cbf69ba45f4c HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

@@ -14,3 +14,7 @@ asked for its cases, and an unknown case are all a 404; a page size below 1 is a
 A run or a benchmark of the test table may name its cases by a range of ids (`testRanges=1-3,5`). A range that
 names a case the table does not have is refused with a 400 before the run is scheduled, so the refusal reaches
 the caller instead of failing on the run's own thread.
+
+A run that finds no test to run - a rule table no test table covers, or the tests of the table kept in another
+module than the one the run was limited to - completes with an empty summary, and `GET .../tests/summary`
+asked for as a workbook saves it as an empty workbook rather than failing (`050-empty-results`).
