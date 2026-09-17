@@ -29,12 +29,12 @@
 
 ## Open PR
 
-- PR #2120, branch `dead-code/full-resweep`, head f77a6fd9ee, 7 commits, 41 files, -487/+2, on main 323e86c76f; the
-  diff is byte-identical to the previous head 058071e382, on which every check was green except IT (services-data),
-  the Kafka container start flake below (twice, re-run spent). The rebase is the retry: read its checks first, and a
-  third Kafka failure on an untouched diff goes to a maintainer by comment, not to another rebase.
-  CI on f77a6fd9ee: every check green except IT (services-data), the third Kafka failure (04:25 UTC), commented at 04:26
-  with the digest evidence below; Sonar skipped behind it. Waits on a maintainer re-run or a main run of that job.
+- PR #2120, branch `dead-code/full-resweep`, head 4ab5c00ca7, 7 commits, 41 files, -487/+2, on main 63532cebf5; the
+  diff is byte-identical on every head since 058071e382. Heads 058071e382 and f77a6fd9ee were green on every check
+  except IT (services-data), the Kafka container start flake below (3 of 3, re-run spent, commented three times).
+  Main 63532cebf5 passed the whole Quick Build at 07:18 UTC 2026-09-17, IT (services-data) included, so the PR was
+  rebased onto it at 08:10 UTC as the base-recovered retry (`npx vitest run src/locales` green after the rebase).
+  Read the checks on 4ab5c00ca7 first; a fourth Kafka failure while main passes goes to the owner, not to a rebase.
 - Commits: 230ca74113 commented-out code; 893f2d0912 message keys; c49bde2605 test workbook and stubs; ae11bd94ee
   `.editorconfig` scss section plus 9 `@SuppressWarnings`; 93a59f375d spring-security-core in security.standalone;
   017b088c77 AspectJ managed versions; f77a6fd9ee webstudio members and mapper type. No review thread is open.
@@ -222,4 +222,5 @@
   Kafka-container failure of IT (services-data) once.
 - 2026-09-17: main moved by one plugin bump; PR #2120 rebased onto it (head f77a6fd9ee, diff unchanged) as the retry of
   IT (services-data); npm dependency vein swept, nothing dead; no new commit. The retry failed the same way (3 of 3);
-  run g's session commented with the Docker Hub digest evidence and the JVM-image/retry options for maintainers.
+  run g's session commented with the Docker Hub digest evidence and the JVM-image/retry options for maintainers, then
+  rebased the PR onto main 63532cebf5 (head 4ab5c00ca7) once main had passed IT (services-data) again.
