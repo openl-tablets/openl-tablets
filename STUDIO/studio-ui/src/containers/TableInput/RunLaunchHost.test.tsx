@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { getProject } from 'services/repositories'
 import { readRunResult, readRunResultWorkbook, readTestsSummaryWorkbook, runTests, startRun } from 'services/execution'
@@ -144,10 +144,108 @@ describe('RunLaunchHost', () => {
         render(<RunLaunchHost />)
 
         await open()
-        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        // Every case starts ticked; the box in the header clears them, then one is ticked back.
+        await userEvent.click(await screen.findByTestId('pick-all-cases'))
+        await userEvent.click(screen.getByTestId('pick-case-2'))
         await userEvent.click(screen.getByTestId('run-start'))
 
         await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1', testRanges: '2' }))
+    })
+
+    it('leaves an unticked case out of every page of a long table', async () => {
+        inputRead.mockResolvedValue(testTable)
+        // The table is longer than its page: the ids of the cases the page does not show are read when it runs.
+        casesRead.mockResolvedValue({
+            total: 4,
+            content: [{ id: '1', parameters: []}, { id: '2', parameters: []}],
+        })
+        render(<RunLaunchHost />)
+
+        await open()
+        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        casesRead.mockResolvedValueOnce({
+            total: 4,
+            content: ['1', '2', '3', '4'].map(id => ({ id, parameters: []})),
+        })
+        await userEvent.click(screen.getByTestId('run-start'))
+
+        // The cases kept one after another are named by their ends, so a long table is asked for in few words.
+        await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1', testRanges: '1,3 - 4' }))
+        expect(casesRead).toHaveBeenLastCalledWith('real-p1', 't1', { page: 0, size: 4 })
+    })
+
+    it('starts the run once however often it is asked for while the rest of the cases are read', async () => {
+        inputRead.mockResolvedValue(testTable)
+        casesRead.mockResolvedValue({ total: 3, content: [{ id: '1', parameters: []}, { id: '2', parameters: []}]})
+        render(<RunLaunchHost />)
+
+        await open()
+        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        let releaseRest!: (page: unknown) => void
+        casesRead.mockImplementationOnce(() => new Promise(resolve => {
+            releaseRest = resolve
+        }))
+        await userEvent.click(screen.getByTestId('run-start'))
+        // The buttons are held under a spinner while the read is on its way; a click that reaches one anyway
+        // starts nothing more.
+        expect(screen.getByTestId('run-start').closest('.ant-spin')).toHaveAttribute('aria-busy', 'true')
+        fireEvent.click(screen.getByTestId('run-start'))
+        await act(async () => {
+            releaseRest({ total: 3, content: ['1', '2', '3'].map(id => ({ id, parameters: []})) })
+        })
+
+        await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1', testRanges: '1,3' }))
+        expect(tests).toHaveBeenCalledTimes(1)
+    })
+
+    it('says why the rest of the cases could not be read, and runs nothing', async () => {
+        inputRead.mockResolvedValue(testTable)
+        casesRead.mockResolvedValue({ total: 3, content: [{ id: '1', parameters: []}, { id: '2', parameters: []}]})
+        render(<RunLaunchHost />)
+
+        await open()
+        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        casesRead.mockRejectedValueOnce(new Error('The project is being compiled'))
+        await userEvent.click(screen.getByTestId('run-start'))
+
+        expect(await screen.findByTestId('launch-error')).toHaveTextContent('The project is being compiled')
+        expect(tests).not.toHaveBeenCalled()
+    })
+
+    it('runs the cases a range of ids names, in place of the ticked ones', async () => {
+        inputRead.mockResolvedValue(testTable)
+        render(<RunLaunchHost />)
+
+        await open()
+        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        await userEvent.click(screen.getByTestId('launch-use-range'))
+        // The list steps aside for the range, and its total says what the range can reach.
+        expect(screen.queryByTestId('test-cases')).toBeNull()
+        expect(screen.getByText('testCases.total')).toBeInTheDocument()
+        await userEvent.type(screen.getByTestId('launch-range'), ' 1-2, 4 ')
+        await userEvent.click(screen.getByTestId('run-start'))
+
+        await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1', testRanges: '1-2, 4' }))
+    })
+
+    it('asks for a range before running by one, and takes every case again once the range is put away', async () => {
+        inputRead.mockResolvedValue(testTable)
+        render(<RunLaunchHost />)
+
+        await open()
+        await screen.findByTestId('test-cases')
+        await userEvent.click(screen.getByTestId('launch-use-range'))
+        await userEvent.click(screen.getByTestId('run-start'))
+        expect(await screen.findByTestId('launch-error')).toHaveTextContent('testCases.rangeRequired')
+        expect(tests).not.toHaveBeenCalled()
+
+        // Putting the range away brings the list back, with every case still ticked, so every case runs.
+        await userEvent.click(screen.getByTestId('launch-use-range'))
+        expect(screen.queryByTestId('launch-range')).toBeNull()
+        expect(screen.getByTestId('pick-all-cases')).toBeChecked()
+        await userEvent.click(screen.getByTestId('run-start'))
+
+        await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1' }))
     })
 
     it('offers a test table the options of its results and saves them as a workbook', async () => {

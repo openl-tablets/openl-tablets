@@ -52,17 +52,12 @@ const BenchmarkLaunch: React.FC<BenchmarkLaunchProps> = ({ detail, project, onCl
             onClose={onClose}
             onError={setError}
             project={project}
-            actions={collect => (
+            actions={launch => (
                 <Button
                     data-testid="benchmark-start"
                     loading={starting}
+                    onClick={() => launch(value => start(value).catch(startError => setError(errorMessage(startError))))}
                     type="primary"
-                    onClick={() => {
-                        const value = collect()
-                        if (value) {
-                            start(value).catch(startError => setError(errorMessage(startError)))
-                        }
-                    }}
                 >
                     {t('benchmark.start')}
                 </Button>

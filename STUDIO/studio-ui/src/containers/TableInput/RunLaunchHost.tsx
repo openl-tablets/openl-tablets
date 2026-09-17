@@ -214,30 +214,20 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
             onClose={onClose}
             onError={setError}
             project={project}
-            actions={(collect, state) => (
+            actions={(launch, state) => (
                 <>
                     <Button
                         data-testid="run-start"
                         loading={starting && savingFile === null}
+                        onClick={() => launch(value => start(value).catch(startError => setError(errorMessage(startError))))}
                         type="primary"
-                        onClick={() => {
-                            const value = collect()
-                            if (value) {
-                                start(value).catch(startError => setError(errorMessage(startError)))
-                            }
-                        }}
                     >
                         {t('run.start')}
                     </Button>
                     <Button
                         data-testid="run-into-file"
                         loading={savingFile !== null}
-                        onClick={() => {
-                            const value = collect()
-                            if (value) {
-                                startIntoFile(value)
-                            }
-                        }}
+                        onClick={() => launch(startIntoFile)}
                     >
                         {state.testTable ? t('tests.intoFile') : t('run.intoFile')}
                     </Button>

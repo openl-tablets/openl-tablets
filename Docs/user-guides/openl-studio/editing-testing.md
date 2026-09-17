@@ -230,9 +230,15 @@ included in this section:
     table. Closing the window returns to the table, so a rule can be corrected and the tests run again.
     **Test into File** runs them and saves the results as a workbook without showing them.
 
-To run a test table itself, open it and click **Run**: the panel lists its cases, every one of them runs unless
-some are ticked, and the results open in the same window. Selecting the cases is described in
-[Starting a Trace](#starting-a-trace), which lists them the same way.
+To run a test table itself, open it and click **Run**: the panel lists its cases, every one of them ticked, and
+the results open in the same window. Untick the cases to leave out, or clear the box in the header of the list and
+tick the cases to run; the box in the header stands for every case of the table, on every page of the list, and a
+case unticked stays out while the cases of the other pages stay in.
+Selecting the cases is described in [Starting a Trace](#starting-a-trace), which lists them the same way. To name
+the cases by their IDs instead of ticking them, select **Use the Range** and enter the IDs in **Range of IDs**:
+single IDs and ranges separated by commas, such as `2-4,7,10-12` or `id3-id7`. The list steps aside while the
+range is in use, and the total under the field says how many cases the table holds. A range that names a case
+the table does not have starts nothing: the panel says which case it is.
 
 ##### Running All Tests of a Module
 
@@ -542,9 +548,10 @@ section:
 
     *Measuring a test table over its cases*
 
-1.  The panel lists the cases of the table. Leave **All cases** selected to measure the table the way it runs,
-    over every case at once, or tick the cases to measure each of them on its own. Selecting the cases is
-    described in [Starting a Trace](#starting-a-trace), which lists them the same way.
+1.  The panel lists the cases of the table, every one of them ticked. Leave them so to measure the table the way
+    it runs, over every case at once, or untick the cases to leave out. Selecting the cases is described in
+    [Starting a Trace](#starting-a-trace), which lists them the same way, and **Use the Range** names them by
+    their IDs instead, as described in [Running the Tests of a Table](#running-the-tests-of-a-table).
 1.  To measure only the rules of the current module and skip the modules it depends on, select **Within Current
     Module Only**.
 1.  Click **Benchmark**. The table runs over and over until the measurement lasts long enough to be meaningful,

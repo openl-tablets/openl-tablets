@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Checkbox, Space, Tooltip } from 'antd'
+import { Alert, Checkbox, Input, Space, Tooltip, Typography } from 'antd'
+import { FieldRow } from 'components/FieldRow'
 import { useTranslation } from 'react-i18next'
 import type { EventProjectDetail } from 'hooks'
 import { notifyLoadFailure } from 'services/apiCall'
@@ -10,7 +11,8 @@ import type { TableInput, TableInputCasesPage, TableInputTestCase } from 'types/
 import { errorMessage } from 'utils/errorMessage'
 import { ParametersInput, type ParametersInputValue } from './ParametersInput'
 import { TableInputPopover, type PopoverAnchor } from './TableInputPopover'
-import { TestCaseSelector } from './TestCaseSelector'
+import { type CaseSelection, EVERY_CASE, isEveryCase, TestCaseSelector } from './TestCaseSelector'
+import { testRangesOf } from './testRanges'
 
 /** What the table page sends to start an action on the table it shows. */
 export interface TableLaunchDetail extends EventProjectDetail {
@@ -49,9 +51,11 @@ export interface TableInputLauncherProps {
     /**
      * The buttons that start the action.
      *
-     * `collect` answers what the panel holds, or `null` when it is not ready - it then says why itself.
+     * `launch` hands what the panel holds to the action; when the panel is not ready it says why itself and
+     * starts nothing. The action starts later when the cases to run are every page of the table but some:
+     * the rest are read first.
      */
-    actions: (collect: () => TableLaunchValue | null, state: TableLaunchState) => React.ReactNode
+    actions: (launch: (action: (value: TableLaunchValue) => void) => void, state: TableLaunchState) => React.ReactNode
     /** Starts the action for a table that asks for nothing, so no panel is shown for it. */
     onNothingToAsk?: ((value: TableLaunchValue) => void) | undefined
     /** Reports a reason of its own, such as a case that is not picked. */
@@ -86,9 +90,16 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
     const [moduleOnly, setModuleOnly] = useState(detail.moduleOnlyLocked ?? false)
     const [casesPage, setCasesPage] = useState<TableInputCasesPage | null>(null)
     const [casesLoading, setCasesLoading] = useState(false)
+    // Whether what the panel holds is still being collected - the rest of the cases read - so that neither the
+    // cases nor the buttons take a click that would start the action twice or change what it is given.
+    const [collecting, setCollecting] = useState(false)
     const [page, setPage] = useState(1)
-    const [caseIds, setCaseIds] = useState<string[]>([])
-    const [allCases, setAllCases] = useState(caseSelection === 'multiple')
+    // An action that takes several cases starts with every case ticked; one that takes a single case is offered
+    // the first of the table once it is read.
+    const [cases, setCases] = useState<CaseSelection>(caseSelection === 'multiple' ? EVERY_CASE : [])
+    // The cases can be named by a range of ids instead of ticked one by one, as the legacy editor offered.
+    const [useRange, setUseRange] = useState(false)
+    const [range, setRange] = useState('')
     const [parameters, setParameters] = useState<ParametersInputValue>({ inputJson: '{}' })
 
     // The table is described the way it will be run: within the current module when that is what is asked
@@ -139,7 +150,9 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
                     setCasesPage(loaded)
                     // One case is asked for: the first of the table is offered. Several are all of them at once.
                     if (caseSelection === 'single') {
-                        setCaseIds(current => (current.length > 0 ? current : [loaded.content[0]?.id ?? ''].filter(Boolean)))
+                        setCases(current => (Array.isArray(current) && current.length > 0
+                            ? current
+                            : [loaded.content[0]?.id ?? ''].filter(Boolean)))
                     }
                 }
             })
@@ -163,23 +176,69 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
         [project.id, readWithin]
     )
 
-    const collect = (): TableLaunchValue | null => {
-        onError(null)
-        if (withCases) {
-            if (allCases) {
-                return { fromModule }
+    // The cases picked, named by ids and ranges. Every case but some are the rest of every page of the table,
+    // read in one go unless the page at hand holds them all.
+    const pickedCases = async (): Promise<string> => {
+        if (!isEveryCase(cases)) {
+            return cases.join(',')
+        }
+        const total = casesPage?.total ?? 0
+        const all = casesPage && casesPage.content.length >= total
+            ? casesPage
+            : await getTableInputCases(project.id, detail.tableId, { ...readWithin, page: 0, size: total })
+        const left = new Set(cases.except)
+        return testRangesOf(all.content.map(testCase => testCase.id), id => !left.has(id))
+    }
+
+    const collectCases = async (): Promise<TableLaunchValue | null> => {
+        if (useRange) {
+            const testRanges = range.trim()
+            if (!testRanges) {
+                onError(t('testCases.rangeRequired'))
+                return null
             }
-            if (caseIds.length === 0) {
+            return { testRanges, fromModule }
+        }
+        if (isEveryCase(cases) && cases.except.length === 0) {
+            return { fromModule }
+        }
+        try {
+            const testRanges = await pickedCases()
+            if (!testRanges) {
                 onError(caseSelection === 'single' ? t('testCases.noCase') : t('testCases.none'))
                 return null
             }
-            return { testRanges: caseIds.join(','), fromModule }
+            return { testRanges, fromModule }
+        } catch (readError) {
+            onError(errorMessage(readError))
+            return null
+        }
+    }
+
+    // What the panel holds, or null when it is not ready - the reason is shown under the panel.
+    const collect = async (): Promise<TableLaunchValue | null> => {
+        onError(null)
+        if (withCases) {
+            return collectCases()
         }
         if (parameters.error) {
             onError(parameters.error)
             return null
         }
         return { inputJson: parameters.inputJson, fromModule }
+    }
+
+    const launch = (action: (value: TableLaunchValue) => void) => {
+        if (collecting) {
+            return
+        }
+        setCollecting(true)
+        collect().then(value => {
+            setCollecting(false)
+            if (value) {
+                action(value)
+            }
+        })
     }
 
     useEffect(() => {
@@ -194,11 +253,6 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
     }
 
     const launchState: TableLaunchState = { testTable }
-
-    const pickCases = (picked: string[]) => {
-        setCaseIds(picked)
-        setAllCases(false)
-    }
 
     const moduleOnlyOption = (
         <Checkbox
@@ -216,7 +270,8 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
             open
             anchor={detail.anchor}
             busy={busy}
-            footer={actions(collect, launchState)}
+            collecting={collecting}
+            footer={actions(launch, launchState)}
             onClose={onClose}
             width={withCases ? 560 : 520}
         >
@@ -227,25 +282,37 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
                         : moduleOnlyOption}
                     {options?.(launchState)}
                     {withCases && caseSelection === 'multiple' && (
-                        <Checkbox
-                            checked={allCases}
-                            data-testid="launch-all-cases"
-                            onChange={event => {
-                                setAllCases(event.target.checked)
-                                if (event.target.checked) {
-                                    setCaseIds([])
-                                }
-                            }}
-                        >
-                            {t('tests.allCases')}
-                        </Checkbox>
+                        <Tooltip title={t('testCases.useRangeHint')}>
+                            <Checkbox
+                                checked={useRange}
+                                data-testid="launch-use-range"
+                                onChange={event => setUseRange(event.target.checked)}
+                            >
+                                {t('testCases.useRange')}
+                            </Checkbox>
+                        </Tooltip>
                     )}
                 </Space>
-                {withCases ? (
+                {withCases && useRange && (
+                    <Space orientation="vertical" size={4} style={{ width: '100%' }}>
+                        <FieldRow required label={t('testCases.range')}>
+                            <Input
+                                data-testid="launch-range"
+                                onChange={event => setRange(event.target.value)}
+                                placeholder={t('testCases.rangeHint')}
+                                value={range}
+                            />
+                        </FieldRow>
+                        <Typography.Text type="secondary">
+                            {t('testCases.total', { count: casesPage?.total ?? 0 })}
+                        </Typography.Text>
+                    </Space>
+                )}
+                {withCases && !useRange && (
                     <TestCaseSelector
                         loadCase={loadCase}
-                        loading={casesLoading}
-                        onChange={pickCases}
+                        loading={casesLoading || collecting}
+                        onChange={setCases}
                         onPageChange={setPage}
                         page={page}
                         pageSize={TEST_CASES_PAGE_SIZE}
@@ -253,9 +320,10 @@ export const TableInputLauncher: React.FC<TableInputLauncherProps> = ({
                         tableId={detail.tableId}
                         testCases={casesPage?.content ?? []}
                         total={casesPage?.total ?? 0}
-                        value={caseIds}
+                        value={cases}
                     />
-                ) : (
+                )}
+                {!withCases && (
                     <ParametersInput
                         onChange={setParameters}
                         parameters={declaredParameters}

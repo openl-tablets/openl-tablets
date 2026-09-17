@@ -50,30 +50,20 @@ const TraceLaunch: React.FC<TraceLaunchProps> = ({ detail, project, onClose }) =
             onClose={onClose}
             onError={setError}
             project={project}
-            actions={collect => (
+            actions={launch => (
                 <>
                     <Button
                         data-testid="trace-start"
                         loading={starting}
+                        onClick={() => launch(value => start(value, false))}
                         type="primary"
-                        onClick={() => {
-                            const value = collect()
-                            if (value) {
-                                start(value, false)
-                            }
-                        }}
                     >
                         {t('launch.trace')}
                     </Button>
                     <Button
                         data-testid="trace-download"
                         disabled={starting}
-                        onClick={() => {
-                            const value = collect()
-                            if (value) {
-                                start(value, true)
-                            }
-                        }}
+                        onClick={() => launch(value => start(value, true))}
                     >
                         {t('launch.traceIntoFile')}
                     </Button>

@@ -110,6 +110,9 @@ public class ProjectsBenchmarkController {
         // measured over the input the caller gives it, the way the Run API runs it.
         Object[] params = null;
         IRulesRuntimeContext runtimeContext = null;
+        if (method instanceof TestSuiteMethod testSuiteMethod && StringUtils.isNotBlank(testRanges)) {
+            TestCaseRanges.requireKnownCases(testSuiteMethod, testRanges);
+        }
         if (!(method instanceof TestSuiteMethod)) {
             var parseResult = inputParserService.parseInput(inputJson, method,
                     objectMapperService.createObjectMapper());

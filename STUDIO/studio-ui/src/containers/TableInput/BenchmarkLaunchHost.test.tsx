@@ -105,7 +105,9 @@ describe('BenchmarkLaunchHost', () => {
         render(<BenchmarkLaunchHost />)
 
         await open()
-        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        // Every case starts ticked; the box in the header clears them, then one is ticked back.
+        await userEvent.click(await screen.findByTestId('pick-all-cases'))
+        await userEvent.click(screen.getByTestId('pick-case-2'))
         await userEvent.click(screen.getByTestId('launch-module-only'))
         await userEvent.click(screen.getByTestId('benchmark-start'))
 
