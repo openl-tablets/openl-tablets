@@ -273,6 +273,20 @@ class ProjectAccessServiceTest {
     }
 
     @Test
+    void a_local_only_project_is_exported_without_asking_for_a_permission() {
+        when(project.isLocalOnly()).thenReturn(true);
+
+        var caps = service.computeCapabilities(project);
+
+        // The archive is the only way a local project reaches a Design repository, and nobody but its
+        // owner can read the workspace copy anyway.
+        assertEquals(Boolean.TRUE, caps.canExport());
+        assertNull(caps.canCompare());
+        assertNull(caps.canViewHistory());
+        verify(aclProjectsHelper, never()).hasPermission(project, BasePermission.READ);
+    }
+
+    @Test
     void a_local_only_project_is_neither_copied_nor_branched() {
         when(project.isLocalOnly()).thenReturn(true);
         when(listingContext.canCreateInAnyRepository(any())).thenReturn(true);

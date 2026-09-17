@@ -156,9 +156,10 @@ A local-only project has two names with different purposes when the `<name>` in 
 - Legacy Editor hash routes identify a project by that logical name. Every project and module breadcrumb route
   therefore uses the name declared in `rules.xml`, while REST links keep using the folder-based project id.
 
-The local project is its own working copy, so its files can be edited and the project can be deleted. It has no
-Design repository revision to commit, so the project capabilities do not offer **Save**. Publishing it uses
-**Create Project > Workspace**, which imports the project into a Design repository.
+The local project is its own working copy, so its files can be edited, exported as an archive and the project can
+be deleted. It has no Design repository revision to commit, so the project capabilities do not offer **Save**.
+Publishing it uses **Create Project > Workspace**, which imports the project into a Design repository, or the
+exported archive with **Create Project > From archive**.
 
 ## Local Edit History
 

@@ -177,6 +177,7 @@ i18next.addResourceBundle('en', 'repository', {
             file_revision: 'File Revision',
             viewing: 'Viewing',
             in_editing: 'In Editing',
+            local: 'Local',
             submit: 'Export',
             load_more: 'Load older revisions',
             file_missing: '"{{name}}" does not exist in the selected revision.',

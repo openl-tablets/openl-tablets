@@ -12,7 +12,8 @@ Content-Type: application/json
       "modifiedAt": "*",
       "capabilities": {
         "canWrite": true,
-        "canDelete": true
+        "canDelete": true,
+        "canExport": true
       }
     }
   ],

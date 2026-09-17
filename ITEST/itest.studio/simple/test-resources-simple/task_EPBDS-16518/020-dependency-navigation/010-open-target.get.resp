@@ -8,6 +8,7 @@ Content-Type: application/json
   "repository": "local",
   "capabilities": {
     "canWrite": true,
-    "canDelete": true
+    "canDelete": true,
+    "canExport": true
   }
 }

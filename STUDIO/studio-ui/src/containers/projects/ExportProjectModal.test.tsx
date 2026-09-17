@@ -260,6 +260,21 @@ describe('ExportProjectModal', () => {
         await waitFor(() => expect(downloadFile).toHaveBeenCalled())
     })
 
+    it('exports the workspace copy of a local project, which has no revisions', async () => {
+        // Never published, so the history answers with nothing; the workspace copy is the one entry left.
+        vi.mocked(getProjectRevisions).mockResolvedValue({
+            content: [], pageNumber: 0, pageSize: 50, numberOfElements: 0, total: 0,
+        })
+        render(<ExportProjectModal open onClose={vi.fn()} project={{ ...project, status: ProjectStatus.Local }} />)
+        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
+
+        expect(within(screen.getByTestId('export-project-revision')).getAllByRole('option')).toHaveLength(1)
+        expect(screen.getByText('browser.export_dialog.local')).toBeInTheDocument()
+        await userEvent.click(screen.getByTestId('export-ok'))
+
+        expect(downloadProject).toHaveBeenCalledWith('p1', undefined)
+    })
+
     it('offers revisions only for a closed project, starting with the latest', async () => {
         await renderModal({ status: ProjectStatus.Closed })
 

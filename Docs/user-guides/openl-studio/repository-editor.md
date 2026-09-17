@@ -733,7 +733,8 @@ To export any revision of a file from Repository, proceed as follows:
 
 *Exporting a file from a project*
 
-**Note:** If the project is in the Local status, these options are not available.
+**Note:** A project in the **Local** status has no revisions in a Design repository, so the export window offers
+its working copy only, listed as **Local**.
 
 ### Unlocking a Project
 
