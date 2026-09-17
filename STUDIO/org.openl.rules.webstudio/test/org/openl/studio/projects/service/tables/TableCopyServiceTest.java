@@ -22,7 +22,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -351,7 +350,7 @@ class TableCopyServiceTest {
         var grid = table.table().getGridTable();
         grid.edit();
         try {
-            new TableEditorModel(table.table(), IXlsTableNames.VIEW_DEVELOPER).setProperty(name, value);
+            new TableEditorModel(table.table()).setProperty(name, value);
         } finally {
             grid.stopEditing();
         }

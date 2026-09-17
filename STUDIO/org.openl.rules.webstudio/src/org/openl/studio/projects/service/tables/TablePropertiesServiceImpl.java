@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -77,7 +76,7 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
         var gridTable = table.getGridTable();
         gridTable.edit();
         try {
-            var editor = new TableEditorModel(table, IXlsTableNames.VIEW_DEVELOPER);
+            var editor = new TableEditorModel(table);
             for (var property : properties) {
                 editor.setProperty(property.name(), value(property));
             }
