@@ -69,18 +69,19 @@ export const useModuleCompilation = (
     // progress report carries only what it could read without waiting — often not the names — so a screen
     // reading this answer alone would open on the module and close again with the next report. Compiling this
     // module afresh is what makes the question open again.
-    const [wasReady, setWasReady] = useState(false)
-    const ready = wasReady || named
-
-    useEffect(() => {
-        setWasReady(false)
-    }, [projectId, branch, moduleName, reloadToken])
+    //
+    // Remembered under the name of the module and the copy of the project it was compiled in, so that the
+    // module switched to is answered for itself in the very render it is switched to, not for the one left -
+    // and a module come back to is still ready, whatever the report at hand carries.
+    const compiledKey = `${projectId} ${branch ?? ''} ${moduleName} ${reloadToken}`
+    const [compiledKeys, setCompiledKeys] = useState<ReadonlySet<string>>(new Set())
+    const ready = compiledKeys.has(compiledKey) || named
 
     useEffect(() => {
         if (named) {
-            setWasReady(true)
+            setCompiledKeys(keys => (keys.has(compiledKey) ? keys : new Set(keys).add(compiledKey)))
         }
-    }, [named])
+    }, [named, compiledKey])
 
     // Asked for once per module, and once more for every refresh. Re-asking on each pushed status would restart
     // the very compilation the pushes are reporting on, and the session compiles one module at a time.
