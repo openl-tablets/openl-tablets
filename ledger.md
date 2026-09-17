@@ -2,11 +2,11 @@
 
 ## Resume point
 
-- Every change type is re-derived on `origin/main` b48c862793 and the result is PR #2120 on `dead-code/full-resweep`,
-  green and waiting on a human review. Maintain that PR first (section 4 of the prompt).
-- Next sweep: `git rev-list --count b48c862793..origin/main`; 0 means nothing new to scan and the run is PR maintenance
+- Every change type is re-derived on `origin/main` 323e86c76f and the result is PR #2120 on `dead-code/full-resweep`,
+  waiting on CI for head f77a6fd9ee and then on a human review. Maintain that PR first (section 4 of the prompt).
+- Next sweep: `git rev-list --count 323e86c76f..origin/main`; 0 means nothing new to scan and the run is PR maintenance
   plus the ledger. Otherwise scan the new commits first, then rerun the detectors under Method rules.
-- Every vein in Exhausted veins is covered at b48c862793 for the tree PR #2120 is rebased on; a new commit on main is
+- Every vein in Exhausted veins is covered at 323e86c76f for the tree PR #2120 is rebased on; a new commit on main is
   the only source of new findings.
 
 ## Change-type queue
@@ -29,14 +29,14 @@
 
 ## Open PR
 
-- PR #2120, branch `dead-code/full-resweep`, head 058071e382, 7 commits, 41 files, -487/+2, on main b48c862793; every
-  check was green on head 4e770f27f5 after one rerun of IT (studio-acl). On 058071e382 all checks green except
-  IT (services-data): the Kafka container start flake below, twice (22:20 and 22:52 UTC, different suites and errors);
-  commented twice, the one re-run spent, owner notified 22:58 UTC. Needs a maintainer re-run; main passed the job at 18:39.
-  PR body rewritten for this head (commit 4 title, fixpoint members, totals, -Xlint verification).
-- Commits: ec2e2d02bf commented-out code; c5120bb143 message keys; 64679e2f93 test workbook and stubs; 017f32d08d
-  `.editorconfig` scss section plus 9 `@SuppressWarnings`; 34cc58f7a9 spring-security-core in security.standalone;
-  f8a5ffa557 AspectJ managed versions; 058071e382 webstudio members and mapper type. No review thread is open.
+- PR #2120, branch `dead-code/full-resweep`, head f77a6fd9ee, 7 commits, 41 files, -487/+2, on main 323e86c76f; the
+  diff is byte-identical to the previous head 058071e382, on which every check was green except IT (services-data),
+  the Kafka container start flake below (twice, re-run spent). The rebase is the retry: read its checks first, and a
+  third Kafka failure on an untouched diff goes to a maintainer by comment, not to another rebase.
+  PR body and a comment describe the rebase; the body's totals were re-derived on this head.
+- Commits: 230ca74113 commented-out code; 893f2d0912 message keys; c49bde2605 test workbook and stubs; ae11bd94ee
+  `.editorconfig` scss section plus 9 `@SuppressWarnings`; 93a59f375d spring-security-core in security.standalone;
+  017b088c77 AspectJ managed versions; f77a6fd9ee webstudio members and mapper type. No review thread is open.
 
 ## Merged PRs
 
@@ -44,7 +44,7 @@
 
 ## Module coverage
 
-- All 85 reactor modules, studio-ui, Docs and DEMO scanned for every change type at b48c862793; only code merged after
+- All 85 reactor modules, studio-ui, Docs and DEMO scanned for every change type at 323e86c76f; only code merged after
   that can yield again.
 
 ## Deferred findings
@@ -168,6 +168,8 @@
   same tree passes all 2209 studio-ui tests locally; seen on main b48c862793.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
   `test-resources/... - FAIL` and the cause with `ORA-|SQLException|expected: <`.
+- The `Sonar analysis` job is skipped when any job of the run fails, so a red flake also hides Sonar's verdict on that
+  head; `sonarcloud.io/api/project_pull_requests/list?project=org.openl.rules:openl-tablets` names the analysed SHA.
 
 ## Container facts
 
@@ -184,11 +186,12 @@
 
 ## Exhausted veins
 
-- At b48c862793: commented-out code (all sources), PMD 5 rules over 85 modules and the 32 ITEST modules, ASM member
-  scan over 5156 classes, whole-type scan, identifier count-1 scan, resources/images/workbooks by name, all message
-  bundles and locales, config defaults, tsc/eslint-free export scan, dependency:analyze-only, managed entries and
-  exclusions by tree, managed plugins by declaration, all 191 javac-key `@SuppressWarnings` by `-Xlint`, `.editorconfig`,
-  `.gitignore`, Docs page graph, DEMO css.
+- At 323e86c76f (b48c862793 plus one plugin version bump): commented-out code (all sources), PMD 5 rules over 85
+  modules and the 32 ITEST modules, ASM member scan over 5156 classes, whole-type scan, identifier count-1 scan,
+  resources/images/workbooks by name, all message bundles and locales, config defaults, tsc/eslint-free export scan,
+  dependency:analyze-only, managed entries and exclusions by tree, managed plugins by declaration, all 191 javac-key
+  `@SuppressWarnings` by `-Xlint`, `.editorconfig`, `.gitignore`, Docs page graph, DEMO css, and every studio-ui
+  `package.json` dependency by name (`@types/*` via tsconfig, coverage-v8 and license-checker via the scripts).
 
 ## Human follow-ups
 
@@ -212,3 +215,5 @@
   fixpoint folded into PR #2120 (-487 lines); ITEST PMD, managed plugins and javac-key suppressions exhausted. Run g's
   session then verified the new head (per-file `javac -Xlint`, webstudio tests), rewrote the PR body and re-ran the
   Kafka-container failure of IT (services-data) once.
+- 2026-09-17: main moved by one plugin bump; PR #2120 rebased onto it (head f77a6fd9ee, diff unchanged) as the retry of
+  IT (services-data); npm dependency vein swept, nothing dead; no new commit.
