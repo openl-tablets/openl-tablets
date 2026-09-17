@@ -2,8 +2,10 @@
 
 `GET /projects/{projectId}/tables/{tableId}/input` describes what the Trace launcher (and later Run and
 Benchmark) asks for. A rule table answers with its declared parameters, each with the JSON schema of the values
-it accepts, and with the schema of the runtime context. A test table declares no parameters of its own: its
-cases are read from `GET .../input/cases`, 25 to a page.
+it accepts, and with the schema of the runtime context once the project's `rules-deploy.xml` says it provides
+one (`040-runtime-context`); a project without the file, or with the option off, is asked for no context, as
+OpenL Rule Services provides none by default. A test table declares no parameters of its own: its cases are
+read from `GET .../input/cases`, 25 to a page.
 
 In a page of cases a value with inner structure (a datatype) is marked `lazy` and left out.
 `GET .../input/cases/{caseId}` reads one case with every value written in full. An unknown table, a rule table
