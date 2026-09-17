@@ -14,8 +14,7 @@ class WebSocketTest {
     @Test
     void echoes_payload_back_on_topic() throws Exception {
         try (var httpClient = JettyServer.get().start()) {
-            httpClient.test("test-resources-socket/no-auth");
-
+            // Single-user mode authenticates every request as the one user, the handshake included.
             try (var stomp = new StompTester(httpClient)) {
                 var received = stomp.awaitFirst("/topic/public/notification.txt", String.class);
                 stomp.send("/app/admin/notification.txt", "Hello, World!");
