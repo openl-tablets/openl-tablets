@@ -219,6 +219,22 @@ describe('ModuleActionBar', () => {
         expect(onRevisionOpened).toHaveBeenCalledTimes(1)
     })
 
+    it('compares two Excel files of the reader\'s own, not two revisions of the project', async () => {
+        const opened = vi.spyOn(window, 'open').mockReturnValue(null)
+        try {
+            await bar()
+
+            await userEvent.click(screen.getByTestId('module-more'))
+            await userEvent.click(await screen.findByText('browser.module.compare'))
+
+            // The window opens on the file picker: no project is named, so no revision of one is offered.
+            expect(opened).toHaveBeenCalledTimes(1)
+            expect(opened.mock.calls[0]?.[0]).toBe('/compare')
+        } finally {
+            opened.mockRestore()
+        }
+    })
+
     it('offers no history to a reader who may not read it', async () => {
         await bar({ canViewHistory: false } as Project['capabilities'])
 

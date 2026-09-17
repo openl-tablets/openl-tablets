@@ -7,7 +7,7 @@ import type { Project } from '../../types/projects'
 import { supportsRevisionSearch } from '../../utils/repositoryFeatures'
 import { LocalChangesView } from '../projects/LocalChangesView'
 import { RevisionsPanel } from '../projects/RevisionsPanel'
-import { openCompareWindow } from '../projects/compare'
+import { openExcelFilesCompareWindow } from '../projects/compare'
 import { isActionAvailable, PROJECT_ACTIONS } from '../projects/projectActions'
 import { ACTION_ICONS } from '../projects/projectActionIcons'
 import { useProjectDialogs, type ProjectDialogActions } from '../projects/useProjectDialogs'
@@ -118,7 +118,8 @@ export const ModuleActionBar = ({
                 detail: { projectId: project.id, projectName: project.name, module: moduleName },
             }))
         } else if (key === 'compare') {
-            openCompareWindow({ id: project.id })
+            // Two files of the reader's own, not two revisions of the project: those the project screen compares.
+            openExcelFilesCompareWindow()
         }
     }
 
