@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Checkbox, Empty, Modal, notification, Spin, Typography } from 'antd'
+import { App, Alert, Button, Checkbox, Empty, Modal, Spin, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { createStyles } from 'antd-style'
 import { notifyLoadFailure } from '../../services/apiCall'
@@ -80,6 +80,7 @@ const useStyles = createStyles(({ css, token }) => ({
 }))
 
 export const LocalChangesView = ({ projectId, moduleName, onRestored }: LocalChangesViewProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles: shared } = useListPageStyles()
     const { styles, cx } = useStyles()

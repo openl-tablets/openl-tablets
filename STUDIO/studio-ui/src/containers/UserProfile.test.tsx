@@ -43,10 +43,11 @@ vi.mock('store', () => ({
 
 vi.mock('antd', async () => {
     const actual = await vi.importActual('antd')
-    return {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         ...actual,
         notification: { error: vi.fn(), success: vi.fn(), warning: vi.fn() },
-    }
+    })
 })
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>

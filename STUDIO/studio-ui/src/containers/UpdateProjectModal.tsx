@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Modal, notification, Segmented, Space, Typography, Upload } from 'antd'
+import { App, Modal, Segmented, Space, Typography, Upload } from 'antd'
 import type { UploadFile, UploadProps } from 'antd'
 import { InboxOutlined, UploadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -47,6 +47,7 @@ export const toUploadEntries = (files: File[]): ProjectUploadEntry[] => {
  * @example globalThis.dispatchEvent(new CustomEvent('openUpdateProjectModal', {detail: {projectId, projectName}}))
  */
 export const UpdateProjectModal: React.FC = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { detail } = useGlobalEvents<UpdateProjectModalDetail>('openUpdateProjectModal')
     const [visible, setVisible] = useState(false)

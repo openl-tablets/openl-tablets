@@ -11,7 +11,8 @@ vi.mock('services/repositories', () => ({
 
 vi.mock('antd', async () => {
     const actual = await vi.importActual<typeof import('antd')>('antd')
-    return { ...actual, notification: { ...actual.notification, error: vi.fn() } }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...actual, notification: { ...actual.notification, error: vi.fn() } })
 })
 
 // The dialog itself is covered by its own test; here only the props it is handed matter.

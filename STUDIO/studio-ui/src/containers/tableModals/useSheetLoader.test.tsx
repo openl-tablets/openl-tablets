@@ -6,7 +6,7 @@ import { getModuleSheets } from 'services/projects'
 
 vi.mock('services/projects', () => ({ getModuleSheets: vi.fn() }))
 
-vi.mock('antd', () => ({ notification: { error: vi.fn() } }))
+vi.mock('antd', async () => (await import('testing/staticAntdApp')).withStaticApp({ notification: { error: vi.fn() } }))
 
 const MODULES = [{ name: 'Main' }]
 

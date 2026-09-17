@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { Button, Divider, Form, Modal, Row, Tabs, Spin } from 'antd'
+import { App, Button, Divider, Form, Row, Tabs, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { isFormValuesEqual } from './formComparison'
 import { RepositoryDataType, RepositoryType } from './constants'
@@ -17,6 +17,7 @@ interface DesignRepositoriesConfigurationProps {
 }
 
 export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRepositoriesConfigurationProps>(({ repositoryDataType, onEditingStateChange }, ref) => {
+    const { modal } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()
     const { isLoading: isConfigurationLoading,
@@ -260,7 +261,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     }
 
     const handleDeleteRepository = async (id: string) => {
-        Modal.confirm({
+        modal.confirm({
             title: t('repository:confirm_delete_repository'),
             content: t('repository:confirm_delete_repository_message'),
             onOk: () => {
@@ -281,7 +282,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     }
 
     const handleApplyConfiguration = async (values: any) => {
-        Modal.confirm({
+        modal.confirm({
             title: t('repository:confirm_apply_configuration'),
             content: t('repository:confirm_apply_configuration_message'),
             onOk: () => {
@@ -375,7 +376,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         const hasChanges = checkHasUnsavedChanges()
 
         if (hasChanges || tabType === 'card') {
-            Modal.confirm({
+            modal.confirm({
                 title: t('repository:confirm_leave_without_saving'),
                 content: t('repository:confirm_leave_without_saving_message'),
                 onOk: () => {

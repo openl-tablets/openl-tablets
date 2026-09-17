@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Modal, notification, Typography } from 'antd'
+import { App, Modal, Typography } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { apiCall, isApiHttpError } from '../../services'
 import { saveProject } from '../../services/repositories'
@@ -41,6 +41,7 @@ const hasMergeConflicts = async (projectId: string): Promise<boolean> => {
  * change and the server reports a merge conflict, the shared merge resolver is opened on its conflicts step.
  */
 export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjectModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()
     const [comment, setComment] = useState('')

@@ -1,4 +1,4 @@
-import { notification } from 'antd'
+import { notification } from './popups'
 import CONFIG from './config'
 import { errorMessage } from '../utils/errorMessage'
 import { CLIENT_ID, CLIENT_ID_HEADER } from './clientId'

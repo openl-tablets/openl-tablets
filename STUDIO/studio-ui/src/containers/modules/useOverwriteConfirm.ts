@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
+import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { Modal } from 'antd'
 import type { Project } from '../../types/projects'
 
 /** Runs a write, asking first where it would save over a revision the reader has not seen. */
@@ -17,6 +17,7 @@ export type ConfirmWrite = (write: () => void) => void
  * A project opened on the latest revision — and one the reader only reads — is never asked about.
  */
 export const useOverwriteConfirm = (project: Project | null | undefined): ConfirmWrite => {
+    const { modal } = App.useApp()
     const { t } = useTranslation('repository')
     const asks = project?.overwritesNewerRevision === true
     return useCallback((write: () => void) => {
@@ -24,7 +25,7 @@ export const useOverwriteConfirm = (project: Project | null | undefined): Confir
             write()
             return
         }
-        Modal.confirm({
+        modal.confirm({
             title: t('browser.module.overwrite_revision'),
             content: t('browser.module.overwrite_revision_body'),
             okText: t('browser.module.overwrite_revision_ok'),

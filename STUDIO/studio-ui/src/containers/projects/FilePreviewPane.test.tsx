@@ -62,7 +62,7 @@ vi.mock('./CodeEditor', () => ({
 }))
 
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Button = ({ children, onClick, ...rest }: Record<string, unknown>) => {
         const { danger, disabled, icon, loading, size, type, ...dom } = rest
         void danger; void icon; void loading; void size; void type
@@ -130,7 +130,10 @@ vi.mock('antd', () => {
         return <div {...dom}>{title as never}</div>
     }
     const notification = { error: vi.fn(), info: vi.fn() }
-    return { Alert, Button, Dropdown, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
+        Alert, Button, Dropdown, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip
+    })
 })
 
 vi.mock('./CopyFileModal', () => ({

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Form, Typography, Row, notification, Modal } from 'antd'
+import { App, Button, Form, Typography, Row } from 'antd'
 import { Input, InputPassword, Checkbox } from '../components'
 import { useTranslation } from 'react-i18next'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
@@ -12,6 +12,7 @@ interface EmailSettings {
 }
 
 export const Email: React.FC = () => {
+    const { modal, notification } = App.useApp()
     const { t } = useTranslation()
     const [form] = Form.useForm()
     const isActive = Form.useWatch('isActive', form)
@@ -58,7 +59,7 @@ export const Email: React.FC = () => {
     }
 
     const showChangeEmailConfirm = () => {
-        Modal.confirm({
+        modal.confirm({
             title: t('email:confirm_change_email_settings'),
             content: t('email:confirm_change_email_settings_message'),
             onOk:  () => {

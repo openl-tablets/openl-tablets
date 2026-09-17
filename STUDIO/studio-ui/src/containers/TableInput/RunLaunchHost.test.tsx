@@ -54,7 +54,8 @@ vi.mock('containers/execution/TestsResultModal', () => ({
 // The static notification renders outside the tree and schedules a timer; the tests assert on the run.
 vi.mock('antd', async importOriginal => {
     const actual = await importOriginal<typeof import('antd')>()
-    return { ...actual, notification: { ...actual.notification, error: vi.fn() } }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...actual, notification: { ...actual.notification, error: vi.fn() } })
 })
 
 vi.mock('react-i18next', () => {

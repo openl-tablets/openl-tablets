@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Button, Dropdown, Modal, Tooltip } from 'antd'
+import { App, Button, Dropdown, Tooltip } from 'antd'
 import {
     CaretDownOutlined,
     CopyOutlined,
@@ -216,6 +216,7 @@ export const TableToolbar = ({
     onEdit,
     confirmWrite,
 }: TableToolbarProps) => {
+    const { modal } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const navigate = useNavigate()
@@ -318,7 +319,7 @@ export const TableToolbar = ({
     // Asked before it is done, as the old Editor asked: the table goes from the sheet it is written on, and
     // only saving the project carries that to the Design repository.
     const remove = () => {
-        Modal.confirm({
+        modal.confirm({
             title: t('browser.module.remove_confirm', { table: table.displayName ?? table.name }),
             content: t('browser.module.remove_confirm_body'),
             okButtonProps: { danger: true },

@@ -39,7 +39,8 @@ vi.mock('containers/repositories/DesignRepositoriesConfiguration', async () => (
 const mockConfirm = vi.fn()
 vi.mock('antd', async () => {
     const actual = await vi.importActual<typeof import('antd')>('antd')
-    return {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         ...actual,
         Modal: {
             ...actual.Modal,
@@ -48,7 +49,7 @@ vi.mock('antd', async () => {
                 return () => {}
             },
         },
-    }
+    })
 })
 
 const renderRepositories = (initialRoute = '/administration/repositories/design') =>

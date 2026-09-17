@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Modal, notification, Select } from 'antd'
+import { App, Alert, Button, Modal, Select } from 'antd'
 import { downloadProject } from '../../services/repositories'
 import { downloadFile, fileExistsAt } from '../../services/files'
 import { ProjectStatus } from '../../constants/project'
@@ -44,6 +44,7 @@ interface ExportProjectModalProps {
  * file can actually be read from.
  */
 export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportProjectModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const [chosen, setChosen] = useState<string | undefined>(undefined)
     const [checking, setChecking] = useState(false)

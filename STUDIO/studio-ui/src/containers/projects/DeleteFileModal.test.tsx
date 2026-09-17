@@ -11,7 +11,7 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t }) }
 })
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Modal = ({ open, children, onOk, okButtonProps }: Record<string, unknown>) => {
         // `danger` is an Ant Design prop, not a DOM attribute.
         const { danger, ...dom } = (okButtonProps ?? {}) as Record<string, unknown>
@@ -24,7 +24,8 @@ vi.mock('antd', () => {
         ) : null
     }
     const notification = { error: vi.fn() }
-    return { Modal, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Modal, notification })
 })
 
 const props = {

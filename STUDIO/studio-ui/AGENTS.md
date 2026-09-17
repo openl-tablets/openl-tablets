@@ -44,9 +44,12 @@ src/
 
 The build writes two pages (`build.rollupOptions.input`):
 
-1. `index.html` → `index.tsx` initializes i18n and mounts `App` into `#appRoot`.
+1. `index.html` → an inline script paints `color-scheme` from the remembered appearance (`openl.theme.mode`,
+   mirrored by a test against `THEME_MODE_KEY`) so a dark reader sees no white flash, then `index.tsx`
+   initializes i18n and mounts `App` into `#appRoot`.
 2. `App` fetches the user profile, blocks rendering until auth completes, then mounts the router inside
-   `AppThemeProvider` and Ant Design's `App` provider, and initializes WebSocket notifications.
+   `AppThemeProvider` and Ant Design's `App` provider (with `PopupsBridge`, see Quality Rules), and initializes
+   WebSocket notifications.
 3. `api-docs.html` → `api-docs.tsx` mounts `ApiDocs` alone. The REST API documentation is read without logging in,
    so it carries no shell, no router and no auth bootstrap; the server answers `/api-docs` with this page and
    redirects the former `/rest/api-docs` to it.
@@ -72,7 +75,14 @@ The build writes two pages (`build.rollupOptions.input`):
 - **Appearance**: `AppThemeProvider` (antd-style `ThemeProvider`) gives the application the light or dark appearance
   the user picked in the header's `ThemeSwitch`, or the one the operating system asks for. The choice lives in
   `localStorage` under `openl.theme.mode` (`utils/themeMode.ts`), defaulting to `auto`. Read the appearance with
-  `useThemeMode()` from antd-style, or `isDarkMode` inside `createStyles`.
+  `useThemeMode()` from antd-style, or `isDarkMode` inside `createStyles`. The provider passes
+  `defaultAppearance={appearanceOf(themeMode)}`, because antd-style starts every appearance as light and
+  switches in an effect — without it a dark reader sees a white frame on every load. `App` mounts the provider
+  and `AppStyles` before the auth gate, so the surface is painted while the profile is still loading. A
+  third-party widget with a theme of
+  its own (CodeMirror in `CodeEditor`) is handed `isDarkMode` too. The provider also keeps the `theme-color`
+  meta on the surface colour in force, and `AppStyles` sits directly under it, so the loading fallback is
+  themed as well.
 - **Theme**: the same switcher picks which palette the colours come from — `THEMES` in `styles/listPageTheme.ts`,
   remembered under `openl.theme.name` and defaulting to `standard`. A theme supplies a whole `Palette` per
   appearance; `paletteOf(name, isDarkMode)` resolves the one in force, `appTheme(palette)` turns it into the
@@ -182,8 +192,14 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   states (`COMPILE_COLORS`), the fills of the solid status badges, and the syntax hues of a parameter value.
   Ant Design derives whole palettes from a colour and cannot read a custom property, so a `ThemeConfig` token takes
   the palette itself — see `projectsTheme(isDarkMode)`.
-  Ant Design's **static** `notification`/`message`/`Modal` calls stay light on a dark page: they are made outside
-  React and cannot consume the dynamic theme. Fixing that means routing them through `App.useApp()`.
+  Ant Design's **static** `notification`/`message`/`Modal.confirm` calls render outside React and stay light on a
+  dark page, so ESLint forbids them. A component or a hook takes `notification` and `modal` from
+  `App.useApp()` — the instances of the application's `<AntApp>`, which sits inside the theme provider. Only a
+  module that cannot call a hook — a service or a store — imports them from `services/popups`, a bridge that
+  `<PopupsBridge />` points at the same instances and that falls back to the static ones before the
+  application mounts. Outside `<AntApp>`, `App.useApp()` answers with empty objects, so a test of a component
+  that pops something up either renders it inside `<AntApp>` or mocks `antd` with
+  `App: { useApp: () => ({ notification, modal }) }` (see `staticAntdApp` in `src/testing/`).
     - **A canvas needs a real colour.** Cytoscape paints the table dependency graph on a `<canvas>`, which cannot
       read a custom property, so the graph takes its colours from the Ant Design token through
       `containers/tableGraphTheme.ts` (`kindColor`, `kindRules`, `graphPalette`) and lists `token` among the

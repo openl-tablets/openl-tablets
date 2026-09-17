@@ -12,7 +12,7 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t }) }
 })
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Modal = ({ open, children, onOk, okButtonProps, title }: Record<string, unknown>) => open ? (
         <div role="dialog">
             <h2>{title as never}</h2>
@@ -25,7 +25,8 @@ vi.mock('antd', () => {
         return <input data-testid={rest['data-testid'] as string} onChange={onChange as never} value={value as string} />
     }
     const notification = { error: vi.fn() }
-    return { Input, Modal, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Input, Modal, notification })
 })
 
 vi.mock('./ProjectFolderInput', () => ({

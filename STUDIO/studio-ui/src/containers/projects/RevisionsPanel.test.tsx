@@ -26,7 +26,7 @@ vi.mock('antd-style', () => ({
     useTheme: () => new Proxy({}, { get: () => '#000' }),
 }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const domProps = (props: unknown): Record<string, unknown> => {
         if (!props || typeof props !== 'object') {
             return {}
@@ -76,7 +76,8 @@ vi.mock('antd', () => {
         return <input checked={checked as boolean} onChange={e => (onChange as (v: boolean) => void)(e.target.checked)} role="switch" type="checkbox" {...dom} />
     }
     const notification = { error: vi.fn(), success: vi.fn() }
-    return { Alert, Button, Skeleton, Empty, Modal, Switch, Tag, Tooltip, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Alert, Button, Skeleton, Empty, Modal, Switch, Tag, Tooltip, notification })
 })
 
 const REVS = [

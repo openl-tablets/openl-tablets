@@ -65,7 +65,7 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t }) }
 })
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Modal = ({ open, children, onOk, okText, okButtonProps }: Record<string, unknown>) =>
         open
             ? (
@@ -122,7 +122,8 @@ vi.mock('antd', () => {
             return <span {...rest}>{children as never}</span>
         },
     }
-    return { Alert, Button, Checkbox, Input, Modal, notification, Select, Space, Tooltip, Typography }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Alert, Button, Checkbox, Input, Modal, notification, Select, Space, Tooltip, Typography })
 })
 
 vi.mock('./RepoFolderPicker', () => ({ RepoFolderPicker: () => null }))

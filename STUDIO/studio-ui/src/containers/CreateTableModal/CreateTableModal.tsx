@@ -1,15 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import {
-    Alert,
-    Checkbox,
-    Input,
-    Modal,
-    notification,
-    Select,
-    Space,
-    Spin,
-    Tooltip,
-} from 'antd'
+import { App, Alert, Checkbox, Input, Modal, Select, Space, Spin, Tooltip } from 'antd'
 import {
     DeleteColumnOutlined,
     DeleteRowOutlined,
@@ -164,6 +154,7 @@ const normalizeArguments = (argumentsValue: TableArgument[]): TableArgument[] =>
     withTrailingBlank(argumentsValue, isCompleteArgument, blankArgument)
 
 const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()

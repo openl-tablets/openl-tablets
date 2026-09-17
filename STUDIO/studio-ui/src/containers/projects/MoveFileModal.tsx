@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input, Modal, notification } from 'antd'
+import { App, Input, Modal } from 'antd'
 import { errorMessage } from '../../utils/errorMessage'
 import { moveFile } from '../../services/files'
 import { FieldRow } from '../../components/FieldRow'
@@ -28,6 +28,7 @@ interface MoveFileModalProps {
  * offers — a rename is a move within the same folder — so this dialog does whichever the mode asks for.
  */
 export const MoveFileModal = ({ open, projectId, path, folders, mode, onClose, onMoved }: MoveFileModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const [name, setName] = useState('')
     const [target, setTarget] = useState('')

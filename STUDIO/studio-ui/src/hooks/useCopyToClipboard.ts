@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { notification } from 'antd'
+import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { errorHandler } from 'utils/errorHandling'
 
@@ -71,6 +71,7 @@ const writeToClipboard = async (text: string, sourceDialog: HTMLElement | null):
  * origins (legacy `execCommand` fallback).
  */
 export const useCopyToClipboard = (): UseCopyToClipboardResult => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const [copied, setCopied] = useState(false)
     const [copying, setCopying] = useState(false)

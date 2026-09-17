@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { notification } from 'antd'
 import { errorMessage } from '../../utils/errorMessage'
 import {
     getProjectBranches,
@@ -59,6 +59,7 @@ export const BranchSwitcher = ({
     tone,
     'data-testid': testId = 'branch-switcher',
 }: BranchSwitcherProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const [branchInfo, setBranchInfo] = useState<ProjectBranch[] | null>(null)
     const [loading, setLoading] = useState(false)

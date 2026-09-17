@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Modal, notification, Typography } from 'antd'
+import { App, Modal, Typography } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from '../../hooks'
@@ -15,6 +15,7 @@ import { openConflictCompareWindow } from '../projects/compare'
  * window.dispatchEvent(new CustomEvent('openMergeModal', {detail: {...}}))
  */
 export const MergeModal: React.FC = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { detail } = useGlobalEvents<MergeModalDetail>('openMergeModal')
     const { runWithCommitInfo, commitInfoModal } = useCommitInfoGuard()

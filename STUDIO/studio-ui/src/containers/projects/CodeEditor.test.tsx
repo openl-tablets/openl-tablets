@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+import { ThemeProvider } from 'antd-style'
 import { CodeEditor } from './CodeEditor'
 
 describe('CodeEditor', () => {
@@ -24,6 +25,16 @@ describe('CodeEditor', () => {
         expect(render(<CodeEditor path="config.json" value="{}" />).container.querySelector('.cm-editor')).toBeTruthy()
         expect(render(<CodeEditor path="deploy.yaml" value="a: b" />).container.querySelector('.cm-editor')).toBeTruthy()
         expect(render(<CodeEditor path="rules/Script.groovy" value="println 1" />).container.querySelector('.cm-editor')).toBeTruthy()
+    })
+
+    it('is drawn light by default and dark when the appearance is dark', () => {
+        expect(render(<CodeEditor path="a.xml" value="" />).container.querySelector('.cm-theme-light')).toBeTruthy()
+        const dark = render(
+            <ThemeProvider themeMode="dark">
+                <CodeEditor path="a.xml" value="" />
+            </ThemeProvider>
+        )
+        expect(dark.container.querySelector('.cm-theme-dark')).toBeTruthy()
     })
 
     it('forwards edit changes when not read-only', async () => {

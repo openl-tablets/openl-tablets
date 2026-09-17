@@ -148,7 +148,7 @@ vi.mock('antd-style', () => ({
 interface Node { key: string, title?: unknown, children?: Node[] }
 interface Item { key: string, label?: unknown, children?: unknown, title?: unknown }
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const drop = <T extends Record<string, unknown>>(props: T) => props
     const domProps = (props: unknown): Record<string, unknown> => {
         if (!props || typeof props !== 'object') {
@@ -263,7 +263,12 @@ vi.mock('antd', () => {
     const Divider = () => <span />
     const notification = { error: vi.fn(), info: vi.fn() }
 
-    return { Button, Input, Dropdown, Popconfirm, Tag, Tooltip, Empty, Skeleton, Spin, Modal, Tabs, Tree, Descriptions, Alert, Typography, Space, Divider, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+
+    return withStaticApp({
+        Button, Input, Dropdown, Popconfirm, Tag, Tooltip, Empty, Skeleton, Spin, Modal, Tabs, Tree, Descriptions,
+        Alert, Typography, Space, Divider, notification
+    })
 })
 
 const repositories = [

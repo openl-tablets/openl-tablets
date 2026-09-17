@@ -26,6 +26,7 @@ const ThemeProbe = () => {
             <span data-testid="theme">{themeName}</span>
             <span data-testid="palette">{theme.openl.primary}</span>
             <span data-testid="primary">{theme.colorPrimary}</span>
+            <span data-testid="surface">{theme.colorBgContainer}</span>
             <button onClick={() => setThemeMode('dark')} type="button">go dark</button>
             <button onClick={() => setCompact(!compact)} type="button">toggle density</button>
             <button onClick={() => setThemeName('evergreen')} type="button">go evergreen</button>
@@ -38,6 +39,17 @@ const renderProbe = () => render(<AppThemeProvider><ThemeProbe /></AppThemeProvi
 describe('AppThemeProvider', () => {
     beforeEach(() => localStorage.clear())
 
+    it('tints the browser chrome in the surface colour of the appearance in force', async () => {
+        renderProbe()
+        const meta = () => document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.content
+        expect(meta()).toBe(screen.getByTestId('surface').textContent)
+
+        await userEvent.click(screen.getByText('go dark'))
+
+        expect(screen.getByTestId('dark').textContent).toBe('true')
+        expect(meta()).toBe(screen.getByTestId('surface').textContent)
+    })
+
     it('follows the system when nothing was picked yet', () => {
         renderProbe()
 
@@ -46,6 +58,15 @@ describe('AppThemeProvider', () => {
 
     it('starts in the appearance remembered from the previous visit', () => {
         localStorage.setItem(THEME_MODE_KEY, 'dark')
+
+        // the first frame counts: a light frame repainted dark a moment later is a white flash to the reader
+        const frames: boolean[] = []
+        const FirstFrame = () => {
+            frames.push(useThemeMode().isDarkMode)
+            return null
+        }
+        render(<AppThemeProvider><FirstFrame /></AppThemeProvider>)
+        expect(frames[0]).toBe(true)
 
         renderProbe()
 

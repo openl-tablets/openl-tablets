@@ -25,7 +25,8 @@ vi.mock('../../src/i18n', async () => ({
 
 vi.mock('antd', async () => {
     const actual = await vi.importActual('antd')
-    return {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         ...actual,
         Drawer: ({ open, title, extra, children }: any) => {
             if (!open) return null
@@ -41,7 +42,7 @@ vi.mock('antd', async () => {
             success: vi.fn(),
             error: vi.fn(),
         },
-    }
+    })
 })
 
 vi.mock('components/accessManagement', async () => {

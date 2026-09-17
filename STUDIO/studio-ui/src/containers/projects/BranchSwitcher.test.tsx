@@ -38,7 +38,7 @@ vi.mock('@ant-design/icons', () => ({
     SafetyOutlined: (props: Record<string, unknown>) => <i data-testid={props['data-testid'] as string} />,
 }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const domProps = (props: unknown): Record<string, unknown> => {
         if (!props || typeof props !== 'object') {
             return {}
@@ -84,7 +84,8 @@ vi.mock('antd', () => {
     }
     const notification = { error: vi.fn() }
     const Spin = () => <div data-testid="spin" />
-    return { Alert, Dropdown, Modal, Spin, Tag, Tooltip, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Alert, Dropdown, Modal, Spin, Tag, Tooltip, notification })
 })
 
 const props = {

@@ -1,5 +1,8 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
+    appearanceOf,
     DEFAULT_THEME_MODE,
     DEFAULT_THEME_NAME,
     readCompactMode,
@@ -14,7 +17,19 @@ import {
 } from './themeMode'
 
 describe('themeMode', () => {
+    it('is read by the page shell under the same key before the bundle loads', () => {
+        const shell = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8')
+        expect(shell).toContain(`localStorage.getItem('${THEME_MODE_KEY}')`)
+    })
+
     beforeEach(() => localStorage.clear())
+
+    it('names the appearance a mode stands for without waiting for an effect', () => {
+        expect(appearanceOf('dark')).toBe('dark')
+        expect(appearanceOf('light')).toBe('light')
+        const system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        expect(appearanceOf('auto')).toBe(system)
+    })
 
     it('follows the system until the user picks an appearance', () => {
         expect(DEFAULT_THEME_MODE).toBe('auto')

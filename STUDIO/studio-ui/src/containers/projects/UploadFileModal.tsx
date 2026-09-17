@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input, Modal, notification, type UploadFile } from 'antd'
+import { App, Input, Modal, type UploadFile } from 'antd'
 import { errorMessage } from '../../utils/errorMessage'
 import { uploadFile, uploadFiles } from '../../services/files'
 import { FieldRow } from '../../components/FieldRow'
@@ -35,6 +35,7 @@ export const UploadFileModal = ({
     onClose,
     onUploaded,
 }: UploadFileModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const [fileList, setFileList] = useState<UploadFile[]>([])
     const [name, setName] = useState('')

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { App, Button, Modal, Space, Tooltip } from 'antd'
+import { App, Button, Space, Tooltip } from 'antd'
 import { ApiOutlined, TableOutlined } from '@ant-design/icons'
 import { errorMessage } from '../../utils/errorMessage'
 import {
@@ -21,6 +21,7 @@ import type { DescriptorOpenApi } from '../../services/rulesDescriptor'
  * wrote is read back by the caller rather than guessed at here.
  */
 export const useOpenApiActions = (projectId: string, onWritten: () => void) => {
+    const { modal } = App.useApp()
     const { t } = useTranslation('repository')
     const { notification } = App.useApp()
     const [running, setRunning] = useState(false)
@@ -49,7 +50,7 @@ export const useOpenApiActions = (projectId: string, onWritten: () => void) => {
         setRunning(true)
         try {
             const plan = await getOpenApiGenerationPlan(projectId, openapi.algorithmModuleName, openapi.modelModuleName)
-            Modal.confirm({
+            modal.confirm({
                 title: t('browser.overview.openapi_generate'),
                 content: <GenerationPlan plan={plan} />,
                 okText: t('browser.overview.openapi_generate'),

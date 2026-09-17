@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, notification } from 'antd'
+import { App, Modal } from 'antd'
 import { errorMessage } from '../../utils/errorMessage'
 import { deleteFile } from '../../services/files'
 import { basename } from './projectPaths'
@@ -18,6 +18,7 @@ interface DeleteFileModalProps {
 
 /** Asks before deleting a file or folder of the project, in a dialog rather than over the button. */
 export const DeleteFileModal = ({ open, projectId, path, folder = false, onClose, onDeleted }: DeleteFileModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const [busy, setBusy] = useState(false)
 

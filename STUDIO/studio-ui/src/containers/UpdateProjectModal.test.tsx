@@ -40,7 +40,8 @@ vi.mock('antd', async () => {
                 <button disabled={okButtonProps?.disabled} onClick={onOk}>{okText}</button>
             </div>
         ) : null
-    return { ...actual, Modal: MockModal }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...actual, Modal: MockModal })
 })
 
 vi.mock('react-i18next', () => {

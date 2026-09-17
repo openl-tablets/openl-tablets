@@ -1,4 +1,4 @@
-import type { ThemeMode } from 'antd-style'
+import type { ThemeAppearance, ThemeMode } from 'antd-style'
 import { readStored, writeStored } from './localStore'
 import { THEMES, type ThemeName } from '../styles/listPageTheme'
 
@@ -25,6 +25,19 @@ export const readThemeMode = (): ThemeMode => {
 
 /** Remembers the picked appearance for the next visit. */
 export const storeThemeMode = (mode: ThemeMode): void => writeStored(THEME_MODE_KEY, mode)
+
+/**
+ * The appearance a mode stands for right now: itself, or the one the operating system asks for under `auto`.
+ *
+ * Answered synchronously, so the very first render is already drawn in it rather than in a light frame that
+ * is repainted a moment later.
+ */
+export const appearanceOf = (mode: ThemeMode): ThemeAppearance => {
+    if (mode !== 'auto') {
+        return mode
+    }
+    return globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 
 /** Where the picked density is remembered between visits. */
 export const THEME_COMPACT_KEY = 'openl.theme.compact'

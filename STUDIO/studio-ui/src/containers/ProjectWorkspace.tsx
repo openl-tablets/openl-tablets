@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { errorMessage } from '../utils/errorMessage'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, notification, Skeleton } from 'antd'
+import { App, Alert, Button, Empty, Skeleton } from 'antd'
 import { createStyles } from 'antd-style'
 import {
     getProject,
@@ -82,6 +82,7 @@ const useStyles = createStyles(({ css, token }) => ({
  * Editor's features move here.
  */
 export const ProjectWorkspace = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
     const { styles: shared } = useSharedStyles()

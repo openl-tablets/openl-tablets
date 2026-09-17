@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useCallback } from 'react'
 import { apiCall } from '../../services'
-import { Button, Form, Select, Space, notification } from 'antd'
+import { App, Button, Form, Select, Space } from 'antd'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import { roleOptions } from './utils'
 import { Project } from '../../types/projects'
@@ -14,6 +14,7 @@ interface ProjectsTabProps {
 }
 
 export const ProjectsTab: React.FC<ProjectsTabProps> = ({ designRepositories, selectedProjects }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const [projects, setProjects] = React.useState<SelectOption[]>([])
 

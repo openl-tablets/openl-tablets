@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useState, type PropsWithChildren } from 'react'
-import { ThemeProvider, type ThemeAppearance, type ThemeMode } from 'antd-style'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
+import { ThemeProvider, useTheme, type ThemeAppearance, type ThemeMode } from 'antd-style'
 import { theme as antdTheme, type ThemeConfig } from 'antd'
 import {
+    appearanceOf,
     readCompactMode,
     readThemeMode,
     readThemeName,
@@ -46,11 +47,30 @@ export const densityTheme = (compact: boolean): ThemeConfig =>
     (compact ? { algorithm: antdTheme.compactAlgorithm } : {})
 
 /**
+ * Tints the browser's own chrome — the address bar on a phone, the title bar of an installed app — in the
+ * page's surface colour, so it follows the theme and the appearance like the page does. Renders nothing.
+ */
+const ThemeColorMeta = () => {
+    const { colorBgContainer } = useTheme()
+    useEffect(() => {
+        let meta = document.head.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+        if (!meta) {
+            meta = document.createElement('meta')
+            meta.name = 'theme-color'
+            document.head.append(meta)
+        }
+        meta.content = colorBgContainer
+    }, [colorBgContainer])
+    return null
+}
+
+/**
  * Gives the whole application the theme the user picked, the appearance they picked — light, dark, or the
  * one the operating system asks for — and the density they picked with them.
  *
  * All three choices are restored from browser storage on start and written back whenever they change, so
- * they survive a reload. Under `auto` the provider follows the system and repaints when the system
+ * they survive a reload. The first render is already drawn in the remembered appearance: antd-style would
+ * otherwise start light and switch in an effect, which a dark reader sees as a white flash on every load. Under `auto` the provider follows the system and repaints when the system
  * switches. The three are independent: any theme is worn in either appearance, at either density.
  *
  * The palette of the theme and appearance in force travels down as the `openl` custom token, so a style
@@ -96,7 +116,14 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
 
     return (
         <AppThemeContext.Provider value={value}>
-            <ThemeProvider customToken={customToken} onThemeModeChange={onThemeModeChange} theme={theme} themeMode={themeMode}>
+            <ThemeProvider
+                customToken={customToken}
+                defaultAppearance={appearanceOf(themeMode)}
+                onThemeModeChange={onThemeModeChange}
+                theme={theme}
+                themeMode={themeMode}
+            >
+                <ThemeColorMeta />
                 {children}
             </ThemeProvider>
         </AppThemeContext.Provider>

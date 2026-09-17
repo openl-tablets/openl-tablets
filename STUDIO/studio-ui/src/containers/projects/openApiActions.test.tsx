@@ -23,8 +23,7 @@ const confirm = vi.hoisted(() => vi.fn())
 
 vi.mock('antd', async importOriginal => ({
     ...(await importOriginal<typeof import('antd')>()),
-    App: { useApp: () => ({ notification }) },
-    Modal: { confirm },
+    App: { useApp: () => ({ modal: { confirm }, notification }) },
 }))
 
 /** The section heading, with the actions it offers for the given settings. */

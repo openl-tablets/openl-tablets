@@ -23,7 +23,7 @@ vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: translate }),
 }))
 
-vi.mock('antd', () => ({
+vi.mock('antd', async () => (await import('testing/staticAntdApp')).withStaticApp({
     Alert: ({ title }: { title: React.ReactNode }) => <div role="alert">{title}</div>,
     Button: ({ children, disabled, onClick, ...props }: {
         children: React.ReactNode

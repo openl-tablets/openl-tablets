@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Alert, Modal, Form, Button, Space, notification, Spin } from 'antd'
+import { App, Alert, Modal, Form, Button, Space, Spin } from 'antd'
 import { RocketOutlined, BranchesOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from 'hooks'
@@ -33,6 +33,7 @@ interface ProjectDeployedDetail {
  * window.dispatchEvent(new CustomEvent('openDeployModal', {detail: {test:'test'}}))
  */
 export const DeployModal: React.FC = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const [form] = Form.useForm()
     const selectedRepository = Form.useWatch('repository', form)

@@ -1,4 +1,4 @@
-import { Input, Divider, Button, Row, Typography, notification } from 'antd'
+import { App, Input, Divider, Button, Row, Typography } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import React, { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -8,6 +8,7 @@ import { FillTagsModal } from './tags/FillTagsModal'
 
 
 export const Tags: React.FC = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const [tagTypes, setTagTypes] = useState<TagType[]>([])
     const [isLoading, setIsLoading] = useState(false)

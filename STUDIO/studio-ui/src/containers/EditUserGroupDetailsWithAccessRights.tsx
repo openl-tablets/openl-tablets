@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useEffect, useState, ReactNode } from 'react'
-import { Form, Tabs, TabsProps, notification, Divider, Button, Drawer } from 'antd'
+import { App, Form, Tabs, TabsProps, Divider, Button, Drawer, theme } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName, RepositoryType, Role, ROOT_REPOSITORY_ID_MAP } from 'constants/'
 import { deriveDisplayNameMode } from 'utils/displayName'
@@ -78,7 +78,9 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     onClose,
     newUser
 }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const { isGroupsManagementEnabled } = useContext(SystemContext)
     const { userProfile, fetchUserProfile } = useUserStore()
     const [form] = Form.useForm()
@@ -425,24 +427,30 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             label: t('users:design_repositories'),
             key: TabKeys.DESIGN_REPOSITORIES,
             forceRender: true,
-            icon: hasErrorOnTab[TabKeys.DESIGN_REPOSITORIES] ? <WarningOutlined style={{ color: 'red' }} /> : null,
+            icon: hasErrorOnTab[TabKeys.DESIGN_REPOSITORIES]
+                ? <WarningOutlined style={{ color: token.colorError }} />
+                : null,
             children: <DesignRepositoriesTab designRepositories={designRepositories} selectedRepositories={selectedRepositories} />
         },
         {
             label: t('users:deploy_repositories'),
             key: TabKeys.DEPLOY_REPOSITORIES,
             forceRender: true,
-            icon: hasErrorOnTab[TabKeys.DEPLOY_REPOSITORIES] ? <WarningOutlined style={{ color: 'red' }} /> : null,
+            icon: hasErrorOnTab[TabKeys.DEPLOY_REPOSITORIES]
+                ? <WarningOutlined style={{ color: token.colorError }} />
+                : null,
             children: <DeployRepositoriesTab selectedRepositories={selectedRepositories} />
         },
         {
             label: t('users:projects'),
             key: TabKeys.PROJECTS,
             forceRender: true,
-            icon: hasErrorOnTab[TabKeys.PROJECTS] ? <WarningOutlined style={{ color: 'red' }} /> : null,
+            icon: hasErrorOnTab[TabKeys.PROJECTS]
+                ? <WarningOutlined style={{ color: token.colorError }} />
+                : null,
             children: <ProjectsTab designRepositories={designRepositories} selectedProjects={selectedProjects} />
         }
-    ], [hasErrorOnTab, selectedRepositories, selectedProjects, designRepositories, t])
+    ], [hasErrorOnTab, selectedRepositories, selectedProjects, designRepositories, t, token])
 
     const onFinish = async (values: FormValues) => {
         try {
