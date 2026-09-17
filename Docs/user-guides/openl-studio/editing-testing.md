@@ -360,7 +360,7 @@ Tracing is available for everything that can be run:
 
     *Starting a trace from the table toolbar*
 
-1.  For a test table, select the test case to trace. Every case is listed by ID with the values of its columns, shown the way the trace window shows them, and the first case is selected at first. A trace runs one case, so click the case to trace. A value with inner structure, such as a whole datatype, is not read until you ask for it. Click **Load value** next to it to see it.
+1.  For a test table, select the test case to trace. Every case is listed by ID with the values of its columns, shown the way the trace window shows them, and the first case is selected at first. A trace runs one case, so click the case to trace. A value with inner structure, such as a whole datatype, is not read until you ask for it: until then it reads as its type and, in parentheses, the key it is referred to by in the data table, such as `Driver (Sara)`, so the cases are told apart at a glance. Click **Load value** next to it to see it; the value keeps that name as its title once it is read, and a value without such a key is titled by the number of its fields instead.
 
     ![Test case selection for tracing a test table](images/trace-test-table-popup.png "Tracing a test table")
 
@@ -413,7 +413,7 @@ The business view runs once, on open. To trace the table again — for example a
 
 #### Reading a Step
 
-Click a rule in the tree to inspect it in the **Details** panel. (In the advanced mode, select a step while the calculation is **paused**; the same panel opens.) It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them.
+Click a rule in the tree to inspect it in the **Details** panel. (In the advanced mode, select a step while the calculation is **paused**; the same panel opens.) It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them; a value the traced case took from a data table is named by its type and key, such as `Driver (Sara)`, before and after it is loaded.
 
 The selected step's table is shown below, with the calculation highlighted.
 

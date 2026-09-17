@@ -488,11 +488,12 @@ public class ProjectsTraceDebugController {
     }
 
     private TraceDebugMapper createMapper(DebugSession session) {
-        return session.mapper(this::buildMapper);
+        return session.mapper(() -> buildMapper(session));
     }
 
-    private TraceDebugMapper buildMapper() {
+    private TraceDebugMapper buildMapper(DebugSession session) {
         var objectMapper = objectMapperService.createObjectMapper();
-        return new TraceDebugMapper(objectMapper, getSchemaGenerator(objectMapper), parameterRegistry);
+        return new TraceDebugMapper(objectMapper, getSchemaGenerator(objectMapper), parameterRegistry,
+                session.getCaseKeys());
     }
 }

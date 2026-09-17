@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.studio.common.utils.SpreadsheetResultBean;
 import org.openl.studio.config.SafeSchemaGenerator;
@@ -140,7 +141,9 @@ public class ExecutionValueMapper {
      * Writes an execution parameter for a list of values.
      *
      * <p>A plain value is written as it stands. A value with inner structure is written as a lazy reference
-     * without the value, the way the trace publishes the values of a frame.
+     * without the value, the way the trace publishes the values of a frame. The reference names the type of the
+     * value and the key the value is referred to by in a data table, so that the cases of a test table are told
+     * apart before any of them is opened.
      *
      * <p>The reference carries no id. A client addresses the value by the parameter name within its case.
      *
@@ -156,7 +159,30 @@ public class ExecutionValueMapper {
                 .name(param.getName())
                 .description(description)
                 .lazy(true)
+                .type(param.getType().getDisplayName(INamedThing.SHORT))
+                .key(keyOf(param))
                 .build();
+    }
+
+    /**
+     * The key a value is referred to by, formatted for display.
+     *
+     * <p>A value a test case takes from a data table is referred to by the column the case names it by: the one
+     * the reference points at, the table's primary key, or its first column. A value nothing refers to that way,
+     * or whose key is itself a structure, has none.
+     */
+    public static @Nullable String keyOf(ParameterWithValueDeclaration param) {
+        var keyField = param.getKeyField();
+        if (keyField == null || param.getValue() == null || !keyField.getType().isSimple()) {
+            return null;
+        }
+        try {
+            var key = keyField.get(param.getValue(), null);
+            return key == null ? null : FormattersManager.format(key);
+        } catch (RuntimeException e) {
+            // A key field the value cannot answer: the value reads by its type alone.
+            return null;
+        }
     }
 
     /**

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
-import { ValueCell } from 'components/values/ParameterValues'
+import { ValueCell, valueLabel } from 'components/values/ParameterValues'
 import { useTestCase } from 'hooks/useTestCase'
 import {
     ALL_TESTS_ON_A_PAGE,
@@ -100,6 +100,7 @@ const columnsOf = (
                 const value = inputsOf(unit)[index]
                 return (
                     <ValueCell
+                        label={value ? valueLabel(value) : undefined}
                         lazy={value?.lazy ?? false}
                         onLoad={() => readCase(table.tableId, unit.id).then(read => inputsOf(read)[index])}
                         path={`${key}-in-${unit.id}-${index}`}
@@ -138,6 +139,7 @@ const columnsOf = (
                 <Space size={4}>
                     {!table.runTable && <StatusMark status={unit.status} title={t(STATUS[unit.status])} />}
                     <ValueCell
+                        label={unit.result ? valueLabel(unit.result) : undefined}
                         lazy={unit.result?.lazy ?? false}
                         onLoad={() => readCase(table.tableId, unit.id).then(read => read.result)}
                         path={`${key}-whole-${unit.id}`}

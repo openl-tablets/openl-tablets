@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.studio.common.model.GenericView;
 
@@ -32,6 +33,14 @@ public record ParameterValue(
         @Schema(description = "trace.field.param.parameter-id.desc")
         @JsonView(GenericView.Full.class)
         Integer parameterId,
+
+        @Schema(description = "trace.field.param.type.desc")
+        @JsonView(GenericView.Full.class)
+        @Nullable String type,
+
+        @Schema(description = "trace.field.param.key.desc")
+        @JsonView(GenericView.Full.class)
+        @Nullable String key,
 
         @Schema(description = "trace.field.param.value.desc", implementation = Object.class)
         JsonNode value,

@@ -282,7 +282,7 @@ describe('TestsResultModal', () => {
                 ...summary.testCases[0],
                 testUnits: [{
                     ...summary.testCases[0]?.testUnits[0],
-                    parameters: [{ name: 'driver', description: 'Driver', lazy: true }],
+                    parameters: [{ name: 'driver', description: 'Driver', lazy: true, type: 'Driver', key: 'Sara' }],
                 }],
             }],
         })
@@ -292,10 +292,15 @@ describe('TestsResultModal', () => {
         })
 
         await show()
+        // Until it is read, the value is known by its type and the key its data table row is referred to by.
+        expect(screen.getByTestId('summary-tt1-in-1-0')).toHaveTextContent('Driver (Sara)')
         await userEvent.click(screen.getByTestId('load-tt1-in-1-0'))
 
         await waitFor(() => expect(readCase).toHaveBeenCalledWith('p1', 'tt1', '1'))
-        expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
+        // Read, the value keeps the key it is known by as its title instead of a count of its fields.
+        await waitFor(() => expect(screen.queryByTestId('load-tt1-in-1-0')).toBeNull())
+        expect(screen.getByText('Driver (Sara)')).toBeInTheDocument()
+        expect(screen.queryByText('{1 fields}')).toBeNull()
     })
 
     it('reads the whole returned value only when the compound result is asked for', async () => {

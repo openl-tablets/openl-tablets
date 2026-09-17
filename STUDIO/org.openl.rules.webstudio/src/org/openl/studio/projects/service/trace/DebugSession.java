@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.trace;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
@@ -29,6 +30,13 @@ public final class DebugSession {
 
     /** Replays the traced execution with a fresh tracer, so the full tree can be exported on demand. */
     private final @Nullable TraceReplay replay;
+
+    /**
+     * The key each parameter of the traced test case is referred to by in its data table, by parameter name -
+     * `Sara` for a driver the case takes from a data table by name. Empty for a trace of a rule table, whose
+     * input names no data table row.
+     */
+    private final Map<String, String> caseKeys;
 
     /**
      * Identity of this session, carried by every stack view and WebSocket status event. Sessions of the

@@ -276,6 +276,13 @@ export interface TraceParameterValue {
     lazy: boolean
     /** Parameter ID for lazy loading (null if value is included) */
     parameterId?: number | null
+    /** Display name of the declared type of a lazy value, such as `Driver`. Absent when the value is present. */
+    type?: string | null
+    /**
+     * The key a lazy value is referred to by, such as `Sara` for a driver a test case takes from a data table by
+     * name. Absent when the value is present or no test case refers to it that way.
+     */
+    key?: string | null
     /** Full JSON value (null if lazy=true) */
     value?: any
     /** JSON Schema for the type */

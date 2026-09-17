@@ -9,7 +9,9 @@ Content-Type: application/json
         {
           "name": "bank",
           "description": "bank ID",
-          "lazy": true
+          "lazy": true,
+          "type": "Bank",
+          "key": "commerz"
         }
       ]
     }

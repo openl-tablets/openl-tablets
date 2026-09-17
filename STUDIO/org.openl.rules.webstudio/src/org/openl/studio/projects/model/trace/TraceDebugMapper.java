@@ -77,9 +77,21 @@ import org.openl.types.impl.OpenFieldDelegator;
 @RequiredArgsConstructor
 public class TraceDebugMapper {
 
+    /** The stack depth of the traced table's own frame, the one entered first. */
+    private static final int ROOT_DEPTH = 1;
+
     private final ObjectMapper objectMapper;
     private final SchemaGenerator schemaGenerator;
     private final TraceParameterRegistry parameterRegistry;
+    /** The key each parameter of the traced case is referred to by in its data table, by parameter name. */
+    private final Map<String, String> caseKeys;
+
+    /** A mapper of a trace whose parameters name no data table row. */
+    public TraceDebugMapper(ObjectMapper objectMapper,
+                            SchemaGenerator schemaGenerator,
+                            TraceParameterRegistry parameterRegistry) {
+        this(objectMapper, schemaGenerator, parameterRegistry, Map.of());
+    }
 
     /** Upper bound on the technical stack-trace detail, so a deep failure cannot bloat the response. */
     private static final int MAX_DETAIL = 8_000;
@@ -344,11 +356,15 @@ public class TraceDebugMapper {
         var count = Math.min(params.length, signature.getNumberOfParameters());
         var result = new ArrayList<ParameterValue>(count);
         for (var i = 0; i < count; i++) {
+            var name = signature.getParameterName(i);
             var param = new ParameterWithValueDeclaration(
-                    signature.getParameterName(i),
+                    name,
                     safeClone(params[i], clones, !frame.isCompleted()),
                     signature.getParameterType(i));
-            result.add(buildParameterValue(param, true, includeSchema));
+            // The traced case names the values it gives the traced table; a table called from it is given
+            // whatever the rules computed, which no data table row stands behind.
+            var key = frame.getDepth() == ROOT_DEPTH ? caseKeys.get(name) : null;
+            result.add(buildParameterValue(param, true, includeSchema, key));
         }
         return result;
     }
@@ -1254,9 +1270,24 @@ public class TraceDebugMapper {
         return new DecisionView(fired, conditions);
     }
 
-    /** Build a parameter value, registering large values for lazy retrieval. */
+    /**
+     * Build a parameter value, registering large values for lazy retrieval.
+     *
+     * <p>A parameter of a trace names no data table row of its own: the keys of the traced case are known to the
+     * root frame alone, which is written by {@link #freezeParameters}.
+     */
     public ParameterValue buildParameterValue(ParameterWithValueDeclaration param, boolean preferLazy,
                                               boolean includeSchema) {
+        return buildParameterValue(param, preferLazy, includeSchema, null);
+    }
+
+    /**
+     * Writes a parameter with the key it is referred to by, when something refers to it that way.
+     *
+     * @param key the key a lazy value is shown by, or {@code null} for a value nothing refers to by a key
+     */
+    private ParameterValue buildParameterValue(ParameterWithValueDeclaration param, boolean preferLazy,
+                                               boolean includeSchema, @Nullable String key) {
         var type = param.getType();
         var rawValue = param.getValue();
         var description = type != null ? type.getDisplayName(INamedThing.SHORT) : null;
@@ -1268,9 +1299,13 @@ public class TraceDebugMapper {
                 // JSON-schema pass that is expensive for a large spreadsheet result, and no Studio client reads it.
                 .schema(includeSchema ? generateSchema(type) : null);
         if (preferLazy && rawValue != null && !isSimple) {
+            // The type and the key tell values of one type apart before any of them is fetched, the way the
+            // case list names them.
             return builder
                     .lazy(true)
                     .parameterId(parameterRegistry.register(param))
+                    .type(description)
+                    .key(key)
                     .build();
         }
         return builder

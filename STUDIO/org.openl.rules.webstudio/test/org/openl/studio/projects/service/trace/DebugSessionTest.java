@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,7 +24,7 @@ class DebugSessionTest {
 
     private static DebugSession session() {
         var projectId = ProjectIdModel.builder().repository("repo").projectName("A").build();
-        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, "session-1");
+        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, Map.of(), "session-1");
     }
 
     @Test
