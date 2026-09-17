@@ -14,7 +14,7 @@ import org.openl.rules.table.ui.ICellStyle;
 /** Lays a table's region out place by place, so that every place of the grid says what stands there. */
 @RequiredArgsConstructor
 @Slf4j
-public class TableViewer {
+class TableViewer {
 
     private final IGrid grid;
     private final IGridRegion reg;
@@ -63,7 +63,7 @@ public class TableViewer {
         return cm;
     }
 
-    public TableModel buildModel(IGridTable gt) {
+    TableModel buildModel(IGridTable gt) {
         var tm = new TableModel(IGridRegion.Tool.width(reg), IGridRegion.Tool.height(reg), gt);
 
         if (gt.getGrid() instanceof CompositeGrid compositeGrid) {
