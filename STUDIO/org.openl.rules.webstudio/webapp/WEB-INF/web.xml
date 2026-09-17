@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-         version="3.0">
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
 
     <session-config>
         <session-timeout>30</session-timeout>
@@ -14,6 +14,12 @@
 
     <display-name>OpenL Studio</display-name>
     <description>OpenL Studio</description>
+
+    <!-- Set default encoding for incoming requests -->
+    <request-character-encoding>UTF-8</request-character-encoding>
+
+    <!-- Set default encoding for outgoing responses -->
+    <response-character-encoding>UTF-8</response-character-encoding>
 
     <filter>
         <filter-name>CorsFilter</filter-name>
