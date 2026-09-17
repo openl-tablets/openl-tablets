@@ -7,7 +7,6 @@ import { RunResultModal } from 'containers/execution/RunResultModal'
 
 vi.mock('services/execution', () => ({
     readRunResult: vi.fn(),
-    isStillRunning: () => false,
     getRunResultWorkbook: vi.fn(),
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))

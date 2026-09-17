@@ -34,8 +34,8 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.export.RulesResultExport;
 import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketRunExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.run.RunExecutionResult;
@@ -127,7 +127,8 @@ public class ProjectsRunController {
 
     @Operation(summary = "run.get-result.summary", description = "run.get-result.desc")
     @ApiResponse(responseCode = "404", description = "run.execution.task.message")
-    @ApiResponse(responseCode = "409", description = "run.execution.not.completed.message")
+    @ApiResponse(responseCode = "202", description = "run.get-result.202.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @ApiResponse(responseCode = "406", description = "Requested media type is not acceptable")
     @ApiResponse(
             responseCode = "200",
@@ -160,7 +161,11 @@ public class ProjectsRunController {
             throw new NotFoundException("run.execution.task.message");
         }
         if (!runResultRegistry.isDone(projectId)) {
-            throw new ConflictException("run.execution.not.completed.message");
+            // The run goes on: the request is accepted, and there is nothing to report until it has ended. A
+            // client that asked for a workbook is told by the status alone: it did not ask for JSON.
+            return acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)
+                    ? ResultNotReadyView.accepted()
+                    : ResponseEntity.accepted().build();
         }
         var results = runResultRegistry.getResultIfDone(projectId);
         if (results == null) {

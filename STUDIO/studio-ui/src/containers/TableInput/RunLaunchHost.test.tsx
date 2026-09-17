@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { getProject } from 'services/repositories'
 import { readRunResult, readRunResultWorkbook, readTestsSummaryWorkbook, runTests, startRun } from 'services/execution'
+import { ResultNotReadyError } from 'services/taskResult'
 import { getTableInput, getTableInputCases } from 'services/tables'
 import type { TableInput } from 'types/tables'
 import { saveFile } from 'utils/download'
@@ -22,7 +23,6 @@ vi.mock('services/execution', () => ({
     readRunResult: vi.fn(),
     readRunResultWorkbook: vi.fn(),
     readTestsSummaryWorkbook: vi.fn(),
-    isStillRunning: (error: unknown) => (error as { status?: number })?.status === 409,
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))
 
@@ -409,7 +409,7 @@ describe('RunLaunchHost', () => {
         // for the result; told that the run is still going on, it keeps waiting rather than reporting.
         progress.current = { status: 'STARTED', error: null, subscribed: true }
         inputRead.mockResolvedValue(ruleTable)
-        workbook.mockRejectedValue(Object.assign(new Error('still running'), { status: 409 }))
+        workbook.mockRejectedValue(new ResultNotReadyError())
         render(<RunLaunchHost />)
         await open()
         await screen.findByTestId('run-into-file')

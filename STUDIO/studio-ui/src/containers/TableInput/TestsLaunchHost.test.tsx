@@ -2,6 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { getProject } from 'services/repositories'
 import { readTestsSummaryWorkbook, runTests } from 'services/execution'
+import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { TestsLaunchHost } from 'containers/TableInput/TestsLaunchHost'
 
@@ -10,7 +11,6 @@ vi.mock('services/repositories', () => ({ getProject: vi.fn() }))
 vi.mock('services/execution', () => ({
     runTests: vi.fn(),
     readTestsSummaryWorkbook: vi.fn(),
-    isStillRunning: (error: unknown) => (error as { status?: number })?.status === 409,
     ALL_TESTS_ON_A_PAGE: -1,
     TESTS_PAGE_SIZE: 20,
     TESTS_PAGE_SIZES: [1, 5, 20, -1],
@@ -184,7 +184,7 @@ describe('TestsLaunchHost', () => {
         // Asked for while the tests are still running, the results answer that they are not ready. That is
         // not a failure: the panel keeps waiting rather than reporting one.
         reported.status = 'STARTED'
-        workbook.mockRejectedValue(Object.assign(new Error('still running'), { status: 409 }))
+        workbook.mockRejectedValue(new ResultNotReadyError())
         render(<TestsLaunchHost />)
         await open({ tableId: 't1' })
         await screen.findByTestId('tests-into-file')

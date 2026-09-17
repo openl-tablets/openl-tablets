@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import apiCall from './apiCall'
+import apiCall, { readTaskResult } from './apiCall'
 import {
     comparisonStatusTopic,
     dropComparison,
@@ -7,10 +7,11 @@ import {
     getComparisonTable,
     startFileComparison,
 } from './compare'
+import { jsonResponse } from 'testing/responses'
 
 vi.mock('./apiCall', async (importOriginal) => {
     const original = await importOriginal<typeof import('./apiCall')>()
-    return { ...original, default: vi.fn() }
+    return { ...original, default: vi.fn(), readTaskResult: vi.fn() }
 })
 
 const OPTIONS = { throwError: true, suppressErrorPages: true }
@@ -35,20 +36,22 @@ describe('compare service', () => {
         expect((body.get('file2') as File).name).toBe('second.xlsx')
     })
 
-    it('reads what the comparison found', async () => {
-        vi.mocked(apiCall).mockResolvedValue({ id: 'cmp 1', identical: true, sheets: []})
+    it('reads what the comparison found, once the comparison has ended', async () => {
+        vi.mocked(readTaskResult).mockResolvedValue(jsonResponse({ id: 'cmp 1', identical: true, sheets: []}))
 
-        await getComparison('cmp 1')
+        const comparison = await getComparison('cmp 1')
 
-        expect(apiCall).toHaveBeenCalledWith('/compare/cmp%201', undefined, OPTIONS)
+        expect(comparison.identical).toBe(true)
+        expect(readTaskResult).toHaveBeenCalledWith('/compare/cmp%201', undefined, OPTIONS)
     })
 
     it('reads one table of the comparison', async () => {
-        vi.mocked(apiCall).mockResolvedValue({ id: '0-1', name: 'Rules', status: 'changed' })
+        vi.mocked(readTaskResult).mockResolvedValue(jsonResponse({ id: '0-1', name: 'Rules', status: 'changed' }))
 
-        await getComparisonTable('cmp-1', '0-1')
+        const table = await getComparisonTable('cmp-1', '0-1')
 
-        expect(apiCall).toHaveBeenCalledWith('/compare/cmp-1/tables/0-1', undefined, OPTIONS)
+        expect(table.name).toBe('Rules')
+        expect(readTaskResult).toHaveBeenCalledWith('/compare/cmp-1/tables/0-1', undefined, OPTIONS)
     })
 
     it('releases the comparison', async () => {

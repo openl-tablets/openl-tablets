@@ -8,7 +8,6 @@ import { TestsResultModal } from 'containers/execution/TestsResultModal'
 
 vi.mock('services/execution', () => ({
     readTestsSummary: vi.fn(),
-    isStillRunning: () => false,
     getTestCaseResult: vi.fn(),
     getTestsSummaryWorkbook: vi.fn(),
     ALL_TESTS_ON_A_PAGE: -1,

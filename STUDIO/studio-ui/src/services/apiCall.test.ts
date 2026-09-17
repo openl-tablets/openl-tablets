@@ -4,8 +4,10 @@ import apiCall, {
     NotFoundError,
     isApiHttpError,
     notifyLoadFailure,
+    readTaskResult,
     WORKSPACE_CHANGED_EVENT,
 } from 'services/apiCall'
+import { isStillRunning, ResultNotReadyError } from 'services/taskResult'
 import { CLIENT_ID } from 'services/clientId'
 import { notification } from 'antd'
 import * as storeModule from 'store'
@@ -157,6 +159,36 @@ describe('apiCall', () => {
             throwError: true,
             responseType: 'response',
         })).resolves.toBe(response)
+    })
+
+    describe('readTaskResult', () => {
+        const OPTIONS = { throwError: true, suppressErrorPages: true }
+
+        it('hands back the response of a result that is there', async () => {
+            const response = mockResponse({ status: 200, jsonData: { tableName: 'Premium' } })
+            fetchMock.mockResolvedValueOnce(response)
+
+            await expect(readTaskResult('/run/result', undefined, OPTIONS)).resolves.toBe(response)
+        })
+
+        it('raises the accepted answer of a task still going on as "not ready"', async () => {
+            // Accepted, not refused: the browser logs no error while the screen waits for the task to end.
+            fetchMock.mockResolvedValueOnce(mockResponse({ status: 202, jsonData: { status: 'notReady' } }))
+
+            const read = readTaskResult('/run/result', undefined, OPTIONS)
+
+            await expect(read).rejects.toBeInstanceOf(ResultNotReadyError)
+            await expect(read).rejects.toSatisfy(isStillRunning)
+        })
+
+        it('lets any other failure through as it is', async () => {
+            fetchMock.mockResolvedValueOnce(mockResponse({ status: 404, jsonData: { message: 'no run' } }))
+
+            const read = readTaskResult('/run/result', undefined, OPTIONS)
+
+            await expect(read).rejects.toBeInstanceOf(NotFoundError)
+            await expect(read).rejects.toSatisfy(failure => !isStillRunning(failure))
+        })
     })
 
     it('returns a blob when responseType is blob', async () => {

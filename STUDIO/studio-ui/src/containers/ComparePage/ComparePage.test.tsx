@@ -11,26 +11,11 @@ import {
     startLocalHistoryComparison,
     startProjectComparison,
 } from 'services/compare'
+import { ResultNotReadyError } from 'services/taskResult'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
-class HttpError extends Error {
-    status: number
-
-    payload: unknown
-
-    constructor(status: number, payload?: unknown) {
-        super('http ' + status)
-        this.status = status
-        this.payload = payload
-    }
-}
-
-/** The refusal the server answers with while the comparison is still being made. */
-const stillRunning = () => new HttpError(409, { code: 'openl.error.409.compare.not-completed.message' })
-
-vi.mock('services', () => ({
-    isApiHttpError: (error: unknown) => error instanceof HttpError,
-}))
+/** What the service raises while the comparison is still being made: nothing to read yet. */
+const stillRunning = () => new ResultNotReadyError()
 
 vi.mock('services/compare', () => ({
     comparisonStatusTopic: (id: string) => `/user/topic/compare/${id}/status`,
@@ -257,7 +242,7 @@ describe('ComparePage', () => {
 
     it('asks for the result again once it is listening, in case the comparison ended before', async () => {
         // The connection comes up after the comparison was started, so its COMPLETED is never heard;
-        // the first ask, made while it was still running, was answered with 409.
+        // the first ask, made while it was still running, was answered with nothing to read yet.
         connected = false
         vi.mocked(getComparison).mockRejectedValueOnce(stillRunning())
         const page = await openPage()
@@ -275,12 +260,10 @@ describe('ComparePage', () => {
     })
 
     it('says that a comparison stopped before it found anything is over', async () => {
-        // Both a comparison still being made and one that was stopped are refused the same way; only
-        // what the refusal says tells them apart.
+        // A comparison that was stopped is refused, unlike one still being made, which is only not
+        // ready yet: there is nothing left to wait for.
         connected = false
-        vi.mocked(getComparison).mockRejectedValue(
-            new HttpError(409, { code: 'openl.error.409.compare.interrupted.message' })
-        )
+        vi.mocked(getComparison).mockRejectedValue(new Error('The comparison was stopped'))
 
         await openPage()
         await startComparison()
@@ -529,7 +512,7 @@ describe('ComparePage', () => {
     })
 
     it('waits for the comparison that is still running', async () => {
-        // A comparison that has not finished answers 409, however often it is asked.
+        // A comparison that has not finished answers that it is not ready, however often it is asked.
         vi.mocked(getComparison).mockRejectedValue(stillRunning())
         await openPage()
         await startComparison()

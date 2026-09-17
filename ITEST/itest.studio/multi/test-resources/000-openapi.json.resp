@@ -5356,6 +5356,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -5380,6 +5390,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -5453,6 +5470,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -5477,6 +5504,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -7094,6 +7128,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -7125,6 +7169,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -11860,6 +11911,16 @@ Content-Type: application/json
               }
             }
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -11887,6 +11948,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -14981,6 +15049,16 @@ Content-Type: application/json
               }
             }
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -15008,6 +15086,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -15090,6 +15175,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -15114,6 +15209,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -28508,6 +28610,19 @@ Content-Type: application/json
         "required": [
           "version"
         ]
+      },
+      "ResultNotReadyView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "notReady"
+            ]
+          }
+        }
       },
       "RevisionDetails": {
         "type": "object",
