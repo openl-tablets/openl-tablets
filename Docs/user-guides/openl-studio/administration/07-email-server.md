@@ -14,7 +14,8 @@ To manage email server configuration, proceed as follows:
 
    ![Defining verification emails sender](../images/verification-email-sender.png "Defining verification emails sender")
 
-   If the user email is not verified, a red exclamation mark is displayed next to this user email in the user list.
+   If the user email is not verified, an orange exclamation mark is displayed next to this user email in the user
+   list. Hover over the mark to see the **Email not verified** tooltip.
 
    ![A user with unverified email](../images/user-unverified-email.png "A user with unverified email")
 

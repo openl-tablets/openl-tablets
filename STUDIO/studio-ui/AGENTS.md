@@ -59,7 +59,9 @@ The build writes two pages (`build.rollupOptions.input`):
 - **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Admin features under `administration/`
   with `AdministrationLayout`.
 - **i18n**: bundles in `src/locales/*.en.ts`, registered as namespaces. Reference keys like `t('common:menu.users')` or
-  `t('system:tabs.repositories')`.
+  `t('system:tabs.repositories')`. A key that no bundle defines renders as the key itself, and component tests mock `t`
+  so they cannot notice — `src/locales/lookups.test.ts` resolves every literal `t('…')` and `i18nKey` in the sources
+  against the bundles and fails on the first miss.
 - **Permissions**: `SecurityProvider` derives system flags from the backend. Use `PermissionContext` and `SystemContext`
   to gate features (e.g., `isUserManagementEnabled`, `isExternalAuthSystem`).
 - **Forms**: `components/form` wraps Ant Design inputs. `hooks/useIsFormChanged.ts` drives dirty-state detection.
