@@ -102,15 +102,13 @@ class TableInputServiceImplTest {
         assertNull(view.runtimeContext());
     }
 
-    /**
-     * A project without a deployment configuration provides the runtime context, so its schema is described.
-     */
+    /** A project whose deployment configuration provides the runtime context has its schema described. */
     @Test
     void describesRuntimeContextWhenTheProjectProvidesIt() {
         var method = ruleMethod();
         when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
         when(projectService.getWebStudio()).thenReturn(webStudio);
-        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(null);
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(providingRuntimeContext(true));
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
@@ -123,16 +121,36 @@ class TableInputServiceImplTest {
 
     @Test
     void omitsRuntimeContextWhenTheDeploymentConfigurationDisablesIt() {
-        var rulesDeploy = new RulesDeploy();
-        rulesDeploy.setProvideRuntimeContext(false);
         var method = ruleMethod();
         when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
         when(projectService.getWebStudio()).thenReturn(webStudio);
-        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(rulesDeploy);
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(providingRuntimeContext(false));
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
         assertNull(view.runtimeContext());
+    }
+
+    /**
+     * A project without a deployment configuration, or with one that leaves the option out, provides no runtime
+     * context - as OpenL Rule Services does not by default - so the form offers none.
+     */
+    @Test
+    void omitsRuntimeContextWhenTheProjectDoesNotSayItProvidesOne() {
+        var method = ruleMethod();
+        when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
+        when(projectService.getWebStudio()).thenReturn(webStudio);
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(null);
+        assertNull(service.describe(projectModel, table, false, objectMapper, schemaGenerator).runtimeContext());
+
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(providingRuntimeContext(null));
+        assertNull(service.describe(projectModel, table, false, objectMapper, schemaGenerator).runtimeContext());
+    }
+
+    private static RulesDeploy providingRuntimeContext(Boolean provided) {
+        var rulesDeploy = new RulesDeploy();
+        rulesDeploy.setProvideRuntimeContext(provided);
+        return rulesDeploy;
     }
 
     @Test
@@ -299,6 +317,7 @@ class TableInputServiceImplTest {
         when(signature.getParameterType(0)).thenReturn(JavaOpenClass.getOpenClass(Bank.class));
         when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
         when(projectService.getWebStudio()).thenReturn(webStudio);
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(providingRuntimeContext(true));
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
