@@ -1,45 +1,35 @@
 package org.openl.rules.tableeditor.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
+public class MultiSelectCellEditor implements ICellEditor {
 
-public class MultiSelectCellEditor extends ComboBoxCellEditor {
     private static final String ARRAY_ELEMENTS_SEPARATOR = ",";
     private static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
 
-    public static class MultiChoiceParam extends ComboBoxParam {
-        @Getter
-        @Setter
-        private String separator;
-        @Getter
-        @Setter
-        private String separatorEscaper;
-
-        public MultiChoiceParam(String[] choices, String[] displayValues, String separator, String separatorEscaper) {
-
-            super(choices, displayValues);
-            this.separator = separator;
-            this.setSeparatorEscaper(separatorEscaper);
-        }
-    }
-
-    public MultiSelectCellEditor(String[] choices, String[] displayValues) {
-        super(displayValues);
-        String[] insertedEscChoices = new String[choices.length];
-        for (var i = 0; i < choices.length; i++) {
-            insertedEscChoices[i] = choices[i].replaceAll(ARRAY_ELEMENTS_SEPARATOR,
-                    ARRAY_ELEMENTS_SEPARATOR_ESCAPER + ARRAY_ELEMENTS_SEPARATOR);
-        }
-        super.setChoices(insertedEscChoices);
-    }
+    private final String[] choices;
+    private final String[] displayValues;
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
         return new EditorTypeResponse(CE_MULTISELECT,
-                new MultiChoiceParam(getChoices(),
-                        getDisplayValues(),
+                new MultiChoiceParam(choices,
+                        displayValues,
                         ARRAY_ELEMENTS_SEPARATOR,
                         ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
     }
+
+    /**
+     * The values several of which are chosen, and how the chosen ones are written into one cell.
+     *
+     * @param choices          the values to choose from
+     * @param displayValues    what to show for each choice, in the same order
+     * @param separator        what separates the chosen values in the cell
+     * @param separatorEscaper what precedes a separator that belongs to a value
+     */
+    public record MultiChoiceParam(String[] choices, String[] displayValues, String separator,
+                                   String separatorEscaper) {
+    }
+
 }

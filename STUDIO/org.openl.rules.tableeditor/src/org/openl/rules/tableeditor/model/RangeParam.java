@@ -1,23 +1,11 @@
 package org.openl.rules.tableeditor.model;
 
-import lombok.Getter;
-import lombok.Setter;
-
-public class RangeParam {
-
-    @Getter
-    @Setter
-    private Number min;
-    @Getter
-    @Setter
-    private Number max;
-    @Getter
-    @Setter
-    private boolean intOnly;
-
-    public RangeParam(Number min, Number max, boolean intOnly) {
-        this.min = min;
-        this.max = max;
-        this.intOnly = intOnly;
-    }
+/**
+ * The bounds a number is entered within.
+ *
+ * @param min     the smallest value the cell's type holds
+ * @param max     the largest value the cell's type holds
+ * @param intOnly {@code true} when only whole numbers are accepted
+ */
+public record RangeParam(Number min, Number max, boolean intOnly) {
 }
