@@ -41,9 +41,7 @@ class WorkspaceCompileServiceTest {
     @Test
     @Timeout(value = 15_000, unit = TimeUnit.MILLISECONDS)
     void compile() throws Exception {
-        // Initialize OpenL Studio (also creates the session cookie used by STOMP).
-        client.send("workspace-compile/empty.get");
-
+        // Single-user mode authenticates every request as the one user, so the handshake needs no session.
         try (var stomp = new StompTester(client)) {
             // Subscribe BEFORE triggering compilation so we don't miss the terminal event.
             var terminal = stomp.awaitMatching(STATUS_TOPIC, ProjectStatus.class,
