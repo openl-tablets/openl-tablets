@@ -2,46 +2,41 @@
 
 ## Resume point
 
-- Every change type is re-derived on `origin/main` 323e86c76f and the result is PR #2120 on `dead-code/full-resweep`,
-  waiting on CI for head f77a6fd9ee and then on a human review. Maintain that PR first (section 4 of the prompt).
-- Next sweep: `git rev-list --count 323e86c76f..origin/main`; 0 means nothing new to scan and the run is PR maintenance
-  plus the ledger. Otherwise scan the new commits first, then rerun the detectors under Method rules.
-- Every vein in Exhausted veins is covered at 323e86c76f for the tree PR #2120 is rebased on; a new commit on main is
-  the only source of new findings.
+- PR #2120 merged into main on 2026-09-17 08:57 UTC (main tip 02ba9fb73b, 7 rebased commits, -487/+2). No `dead-code/*`
+  PR is open; the next run opens a new one only from new findings.
+- Next sweep: `git rev-list --count 02ba9fb73b..origin/main`; 0 means nothing new to scan and the run is ledger upkeep only.
+  Otherwise scan the new commits first (deleted imports, orphaned members, keys), then rerun the detectors under
+  Method rules; every vein in Exhausted veins is covered at 63532cebf5, the base the merged diff was verified on.
+- Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
 
 | # | Change type | Status |
 |---|-------------|--------|
-| 1 | Commented-out code (Java, CSS, JS, TS) | in PR #2120; 27 lines |
+| 1 | Commented-out code (Java, CSS, JS, TS) | done (PR #2120 merged 2026-09-17); 27 lines |
 | 2 | Never-read assignments, dead stores | done; 30 PMD hits, all generated grammar or FPs |
 | 3 | Unused locals, private fields/methods/params | done; the 2 ProjectModel counters landed on main by a parallel run |
-| 4 | Unused Maven dependency declarations | in PR #2120; 1 of 250 analyze hits |
-| 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | in PR #2120; aspectj only |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | in PR #2120; `[*.scss]` and 9 `@SuppressWarnings` |
+| 4 | Unused Maven dependency declarations | done (PR #2120 merged 2026-09-17); 1 of 250 analyze hits |
+| 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done (PR #2120 merged 2026-09-17); aspectj only |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | done (PR #2120 merged 2026-09-17); `[*.scss]` and 9 `@SuppressWarnings` |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 82 stems, 608 images, all alive |
 | 8 | CSS rules and inline styles | done; DEMO main.css only, all selectors used |
 | 9 | Legacy JS functions and pages | done; no legacy JS or pages exist |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | in PR #2120; 3 keys (17 + 1 landed on main in parallel) |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done (PR #2120 merged 2026-09-17); 3 keys (17 + 1 landed on main in parallel) |
 | 11 | TypeScript exports, types, components, imports | done; tsc --noUnusedLocals clean, 0 unimported exports |
-| 12 | Test fixtures: workbooks, utility classes, stub members | in PR #2120; 1 workbook, 2 stubs |
-| 13 | Package-private/protected members and unreferenced internal classes | in PR #2120; webstudio only |
+| 12 | Test fixtures: workbooks, utility classes, stub members | done (PR #2120 merged 2026-09-17); 1 workbook, 2 stubs |
+| 13 | Package-private/protected members and unreferenced internal classes | done (PR #2120 merged 2026-09-17); webstudio only |
 
 ## Open PR
 
-- PR #2120, branch `dead-code/full-resweep`, head 4ab5c00ca7, 7 commits, 41 files, -487/+2, on main 63532cebf5; the
-  diff is byte-identical on every head since 058071e382. Heads 058071e382 and f77a6fd9ee were green on every check
-  except IT (services-data), the Kafka container start flake below (3 of 3, re-run spent, commented three times).
-  Main 63532cebf5 passed the whole Quick Build at 07:18 UTC 2026-09-17, IT (services-data) included, so the PR was
-  rebased onto it at 08:10 UTC as the base-recovered retry (`npx vitest run src/locales` green after the rebase).
-  Read the checks on 4ab5c00ca7 first; a fourth Kafka failure while main passes goes to the owner, not to a rebase.
-- Commits: 230ca74113 commented-out code; 893f2d0912 message keys; c49bde2605 test workbook and stubs; ae11bd94ee
-  `.editorconfig` scss section plus 9 `@SuppressWarnings`; 93a59f375d spring-security-core in security.standalone;
-  017b088c77 AspectJ managed versions; f77a6fd9ee webstudio members and mapper type. No review thread is open.
+- none
 
 ## Merged PRs
 
-- None since the reset.
+- #2120 `dead-code/full-resweep` merged 2026-09-17 08:57 UTC by yurkom (rebase, main 685b83db67..02ba9fb73b): 7 commits,
+  41 files, -487/+2; commented-out code, 3 locale keys, an unreferenced test workbook and 2 empty stubs, the `[*.scss]`
+  section and 9 dead `@SuppressWarnings`, spring-security-core in security.standalone, AspectJ managed versions, webstudio
+  members and the `MessageDescriptionMapper` pair. CI: IT (services-data) Kafka-container flake 3 times, then green.
 
 ## Module coverage
 
@@ -223,4 +218,5 @@
 - 2026-09-17: main moved by one plugin bump; PR #2120 rebased onto it (head f77a6fd9ee, diff unchanged) as the retry of
   IT (services-data); npm dependency vein swept, nothing dead; no new commit. The retry failed the same way (3 of 3);
   run g's session commented with the Docker Hub digest evidence and the JVM-image/retry options for maintainers, then
-  rebased the PR onto main 63532cebf5 (head 4ab5c00ca7) once main had passed IT (services-data) again.
+  rebased the PR onto main 63532cebf5 (head 4ab5c00ca7) once main had passed IT (services-data) again. The
+  head went green (IT (services-data) passed twice in a row) and the PR was merged at 08:57 UTC; ledger closed out.
