@@ -25,7 +25,7 @@ The **Permit creating and deleting projects** check box (`security.allow-project
 
 When this option is disabled:
 
--   No user can create a new project in any design repository, including by uploading a local project to a design repository.
+-   No user can create a new project in any design repository.
 -   No user can delete an existing project from a design repository.
 -   Existing projects remain fully editable subject to the user's role.
 

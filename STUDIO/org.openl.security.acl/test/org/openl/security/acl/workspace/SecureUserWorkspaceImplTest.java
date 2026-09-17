@@ -36,7 +36,7 @@ class SecureUserWorkspaceImplTest {
     void init() {
         designRepositoryAclService = mock(RepositoryAclService.class);
         delegate = mock(UserWorkspace.class);
-        secureWorkspace = new SecureUserWorkspaceImpl(delegate, designRepositoryAclService, false);
+        secureWorkspace = new SecureUserWorkspaceImpl(delegate, designRepositoryAclService);
     }
 
     @Test

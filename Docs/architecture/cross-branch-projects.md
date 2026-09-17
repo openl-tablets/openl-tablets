@@ -364,11 +364,9 @@ Every project creation mode must accept the same optional `branch` value:
 - Excel file creation;
 - OpenAPI creation;
 - template creation;
-- project copy;
-- publish from workspace.
+- project copy.
 
-Multipart creation must use a request parameter. JSON models for copy and publish must carry the equivalent
-component.
+Multipart creation must use a request parameter. The JSON model of a copy must carry the equivalent component.
 
 For a branch-capable repository, every New Project mode must show one **Branch** `SuggestInput`. It must suggest actual
 repository refs, accept a free-form valid name and preselect the configured branch. A repository without branch

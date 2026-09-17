@@ -480,10 +480,6 @@ export const ProjectsHome = () => {
         }
         return tally
     }, [compileStatuses])
-    const localProjectNames = useMemo(
-        () => projects.filter(project => project.status === ProjectStatus.Local).map(project => project.name),
-        [projects]
-    )
 
     // Each project reports its own repository, so the list stays complete for a user who was granted single
     // projects and cannot read the repositories they live in.
@@ -508,24 +504,24 @@ export const ProjectsHome = () => {
     )
 
     // After a create, land on the new project's page. Its server id is not known here (the create
-    // response omits it), so a freshly read index is searched by repository and name; if the project
+    // response omits it), so a freshly read index is searched by repository, name and — where one was
+    // chosen — branch, since a same-named project may already live on another branch; if the project
     // cannot be resolved the screen just refreshes its list instead.
-    const openCreated = useCallback(async (created?: { repositoryId: string, name: string }) => {
+    const openCreated = useCallback(async (created: { repositoryId: string, name: string, branch?: string }) => {
         setCreateOpen(false)
         invalidateProjectIndex()
-        if (created) {
-            try {
-                const index = await getProjectIndex()
-                const match = index.projects.find(
-                    project => project.repository === created.repositoryId && project.name === created.name
-                )
-                if (match) {
-                    navigate(`/projects/${encodeURIComponent(match.id)}`)
-                    return
-                }
-            } catch {
-                // Fall back to refreshing the list below.
+        try {
+            const index = await getProjectIndex()
+            const match = index.projects.find(
+                project => project.repository === created.repositoryId && project.name === created.name
+                    && (created.branch === undefined || project.branch === created.branch)
+            )
+            if (match) {
+                navigate(`/projects/${encodeURIComponent(match.id)}`)
+                return
             }
+        } catch {
+            // Fall back to refreshing the list below.
         }
         void load(true)
     }, [load, navigate])
@@ -913,7 +909,6 @@ export const ProjectsHome = () => {
                 )}
             </div>
             <NewProjectModal
-                localProjects={localProjectNames}
                 onClose={() => setCreateOpen(false)}
                 onCreated={openCreated}
                 open={createOpen}

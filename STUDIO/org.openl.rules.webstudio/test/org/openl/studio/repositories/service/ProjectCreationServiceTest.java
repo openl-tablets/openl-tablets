@@ -15,7 +15,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -40,7 +38,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
@@ -52,7 +49,6 @@ class ProjectCreationServiceTest {
 
     private AclProjectsHelper aclProjectsHelper;
     private RepositoryAclServiceProvider aclServiceProvider;
-    private Comments comments;
     private TagAssignmentValidator tagAssignmentValidator;
     private ProjectCreationService service;
 
@@ -60,7 +56,6 @@ class ProjectCreationServiceTest {
     void setUp() {
         aclProjectsHelper = mock(AclProjectsHelper.class);
         aclServiceProvider = mock(RepositoryAclServiceProvider.class);
-        comments = mock(Comments.class);
         tagAssignmentValidator = mock(TagAssignmentValidator.class);
         service = new ProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 tagAssignmentValidator, mock(PathFilter.class), mock(ZipCharsetDetector.class), "");
@@ -83,74 +78,6 @@ class ProjectCreationServiceTest {
         List<ProjectFile> files = List.of();
         assertThrows(ForbiddenException.class, () -> service.createFromFiles("design", "Project", null,
                 files, "comment", "rules/Models.xlsx", "rules/Algorithms.xlsx", "Models", "Algorithms", null));
-    }
-
-    @Test
-    void upload_local_projects_is_denied_without_create_permission() {
-        var names = List.of("Local");
-        assertThrows(ForbiddenException.class,
-                () -> service.uploadLocalProjects("design", names, null, "comment"));
-    }
-
-    @Test
-    void upload_local_projects_rolls_back_previous_publishes_when_batch_fails() throws ProjectException {
-        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
-        var workspace = mock(UserWorkspace.class);
-        var user = mock(WorkspaceUser.class);
-        when(workspace.getUser()).thenReturn(user);
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
-        when(comments.createProject("First")).thenReturn("Create First");
-        when(comments.createProject("Second")).thenReturn("Create Second");
-        var targetRepository = mock(Repository.class);
-        when(targetRepository.getId()).thenReturn("design");
-        when(targetRepository.supports()).thenReturn(new FeaturesBuilder(targetRepository).build());
-
-        var first = publishedProject("First");
-        when(workspace.uploadLocalProject(targetRepository, "First", "target/", "Create First")).thenReturn(first);
-        when(workspace.uploadLocalProject(targetRepository, "Second", "target/", "Create Second"))
-                .thenThrow(new ProjectException("failed"));
-
-        service = serviceWithWorkspace(workspace);
-
-        var names = List.of("First", "Second");
-        assertThrows(ConflictException.class,
-                () -> service.uploadLocalProjects(targetRepository, names, "target/", null));
-
-        verify(first).delete(user, "Rollback project upload.");
-        verify(acl).deleteAcl(first);
-        verify(workspace, never()).refresh();
-    }
-
-    @Test
-    void upload_local_projects_does_not_roll_back_a_finalized_write_when_indexing_fails() throws Exception {
-        when(aclProjectsHelper.hasCreateProjectPermission("design")).thenReturn(true);
-        var repository = mock(BranchRepository.class);
-        when(repository.getId()).thenReturn("design");
-        when(repository.getBranch()).thenReturn("feature");
-        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
-        var designTimeRepository = mock(DesignTimeRepository.class);
-        when(designTimeRepository.refreshBranch("design", "feature"))
-                .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("failed")));
-        var workspace = mock(UserWorkspace.class);
-        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
-        var user = mock(WorkspaceUser.class);
-        when(workspace.getUser()).thenReturn(user);
-        var acl = mock(RepositoryAclService.class);
-        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
-        var project = publishedProject("First");
-        when(workspace.uploadLocalProject(repository, "First", "", "comment")).thenReturn(project);
-
-        service = serviceWithWorkspace(workspace);
-        var names = List.of("First");
-        assertThrows(ConflictException.class,
-                () -> service.uploadLocalProjects(repository, names, null, "comment"));
-
-        verify(acl).createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
-        verify(tagAssignmentValidator).applicable(Map.of());
-        verify(project, never()).delete(any(), any());
-        verify(acl, never()).deleteAcl(project);
-        verify(workspace, never()).refresh();
     }
 
     @Test
@@ -252,7 +179,7 @@ class ProjectCreationServiceTest {
         when(project.isOpened()).thenReturn(false);
         var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
-                workspace, comments);
+                workspace);
         testService.designWorkspaceProject = project;
 
         testService.applyStatusAfterCreate("design", "Alpha", ProjectStatus.VIEWING);
@@ -277,7 +204,7 @@ class ProjectCreationServiceTest {
         var project = mock(RulesProject.class);
         var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
-                workspace, comments);
+                workspace);
         testService.designWorkspaceProject = project;
 
         testService.applyStatusAfterCreate(repository, "Alpha", ProjectStatus.VIEWING);
@@ -307,7 +234,7 @@ class ProjectCreationServiceTest {
         var project = mock(RulesProject.class);
         var testService = new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 mock(TagAssignmentValidator.class), mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
-                workspace, comments);
+                workspace);
         testService.designWorkspaceProject = project;
 
         testService.applyStatusAfterCreate(repository, "Alpha", ProjectStatus.VIEWING);
@@ -464,7 +391,7 @@ class ProjectCreationServiceTest {
     private ProjectCreationService serviceWithWorkspace(UserWorkspace workspace) {
         return new TestProjectCreationService(aclProjectsHelper, aclServiceProvider,
                 tagAssignmentValidator, mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
-                workspace, comments);
+                workspace);
     }
 
     private static FileData fileData(String version) {
@@ -474,18 +401,9 @@ class ProjectCreationServiceTest {
         return data;
     }
 
-    private static RulesProject publishedProject(String name) {
-        var project = mock(RulesProject.class);
-        when(project.getName()).thenReturn(name);
-        when(project.getDesignTags()).thenReturn(Map.of());
-        when(project.getLocalTags()).thenReturn(Map.of());
-        return project;
-    }
-
     private static class TestProjectCreationService extends ProjectCreationService {
 
         private final UserWorkspace workspace;
-        private final Comments comments;
         /** When set, stands in for the workspace view assembled from a design project. */
         private RulesProject designWorkspaceProject;
 
@@ -495,21 +413,14 @@ class ProjectCreationServiceTest {
                                    PathFilter zipFilter,
                                    ZipCharsetDetector zipCharsetDetector,
                                    String openlHome,
-                                   UserWorkspace workspace,
-                                   Comments comments) {
+                                   UserWorkspace workspace) {
             super(aclProjectsHelper, aclServiceProvider, tagAssignmentValidator, zipFilter, zipCharsetDetector, openlHome);
             this.workspace = workspace;
-            this.comments = comments;
         }
 
         @Override
         public UserWorkspace getUserWorkspace() {
             return workspace;
-        }
-
-        @Override
-        protected Comments getCommentsService(String repoId) {
-            return comments;
         }
 
         @Override

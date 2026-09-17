@@ -40,7 +40,7 @@ The status of each project in the tree is identified by a specific icon. The fol
 | ![](images/project-status-in-editing-icon.png) | Project is edited by the current user. It is copied to user's workspace and is modified. Other users cannot edit the project. <br/>To save changes, the project must be saved.                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ![](images/project-status-closed-locked-icon.png) | Project is closed by the current user but edited by another user (Closed – Locked). Current user cannot edit the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ![](images/project-status-viewing-locked-icon.png) | Project is opened for viewing by the current user but edited by another user (Viewing Revision - Locked). <br/>Current user cannot edit the project but can browse the project in Rules Editor.                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ![](images/project-status-local-icon.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project or import it into Design repository as described in the [Creating Projects in Design Repository](#creating-projects-in-design-repository).                                                                                                                                                                                                                                                                                                             |
+| ![](images/project-status-local-icon.png) | Project exists only in user's workspace but not in Design repository (Local). Other users do not see this project. <Br/>User can delete the project, or export it and import the archive into Design repository as described in [Saving a Project](#saving-a-project).                                                                                                                                                                                                                                                                                                             |
 
 ### Filtering and Grouping the Project Tree
 
@@ -66,7 +66,6 @@ OpenL Studio allows users to create new rule projects in the Design repository i
 | Create a rule project from Excel files     | [Creating a Project from Excel Files](#creating-a-project-from-excel-files)   |
 | Create a rule project from an OpenAPI file | [Creating a Project from OpenAPI file](#creating-a-project-from-openapi-file) |
 | Create a rule project from a zip archive   | [Creating a Project from ZIP Archive](#creating-a-project-from-zip-archive) |
-| Import a rule project from workspace       | [Importing a Project from Workspace](#importing-a-project-from-workspace)                   |
 | Copy an existing rule project              | [Copying a Project](#copying-a-project)                                   |
 
 Whatever the way used, new projects are created in the **No Changes** status that means they are open and can be modified.
@@ -271,26 +270,6 @@ in older Excel formats are declared as individual modules so they remain availab
 
 If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
 
-#### Importing a Project from Workspace
-
-A new project can be created in Design repository by loading a project with the **Local** status from user workspace.
-
-1.  Click **Create Project** in the top line menu.
-2.  In the **Create Project from** dialog, click the **Workspace** tab.
-
-    The system displays rule projects available in the workspace:
-
-    ![Selecting workspace projects to publish](images/create-project-from-workspace.png "Creating projects from the workspace")
-
-    *Creating a project from Workspace*
-
-1.  Select check boxes for projects to be uploaded.
-1.  Select a Design repository.
-1.  For a branch-capable repository, select an existing branch or enter a new branch name in the **Branch** field.
-1.  To complete creation, click **Create**.
-
-If tag types are defined as described in the [Managing Tags](administration/06-tags.md#managing-tags) section, or if the project already contains tags, a tag pop-up window appears. For more details, see the [Specifying tags for a new project](#specifying-tags-for-a-new-project) section.
-
 ### Specifying tags for a new project
 
 Project tags are stored in the `tags.properties` file located in the root directory of the project.
@@ -402,8 +381,11 @@ To close a project, in the project tree, select the project and, in the right pa
 A modified project is saved and copied from the user's workspace to Design repository as a new revision.
 
 **Save** is available only for a project linked to a Design repository. A project with the **Local** status has no
-Design repository revision to update; import it as described in
-[Importing a Project from Workspace](#importing-a-project-from-workspace) instead.
+Design repository revision to update; export it as described in
+[Exporting a Project or a File](#exporting-a-project-or-a-file) and import the archive as described in
+[Creating a Project from ZIP Archive](#creating-a-project-from-zip-archive) instead. The imported project cannot be
+opened while the **Local** project of the same name is still in the workspace, so delete the **Local** project after
+the import.
 
 To save a project, proceed as follows:
 

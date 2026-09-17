@@ -204,7 +204,6 @@ OpenL Studio allows users to create new rule projects in the Repository in one o
 -   creating a rule project from template
 -   creating a rule project from Excel files
 -   creating a rule project from zip archive
--   importing a rule project from workspace
 
 The following diagram explains how projects are stored in OpenL Studio and then deployed and used by OpenL Rule Services:
 

@@ -62,7 +62,6 @@ import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
-import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.studio.repositories.model.ProjectRevision;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
@@ -324,27 +323,6 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.list-project-templates.summary", description = "repos.list-project-templates.desc")
     public List<ProjectTemplateGroup> getProjectTemplates() {
         return projectCreationService.listTemplates();
-    }
-
-    @PostMapping(value = "/{repo-name}/projects/from-workspace", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "repos.create-from-workspace.summary", description = "repos.create-from-workspace.desc")
-    public void createProjectsFromWorkspace(@DesignRepository("repo-name") Repository repository,
-                                            @Valid @RequestBody CreateFromWorkspaceModel request) {
-        if (request.names() == null || request.names().isEmpty()) {
-            throw new BadRequestException("repos.create-project.no-source.message");
-        }
-        requireCreatePermission(repository);
-        // Reject a duplicate name or an invalid comment before publishing.
-        for (String name : request.names()) {
-            validatedCreateModel(repository, name, request.path(), request.comment(), request.branch());
-        }
-        allowedToPushRequestedBranch(repository, request.branch(), false);
-        var targetRepository = projectCreationTargetResolver.resolve(repository, request.branch());
-        allowedToPush(targetRepository, false);
-        projectCreationService.uploadLocalProjects(targetRepository,
-                request.names(),
-                request.path(),
-                request.comment());
     }
 
     @PostMapping(value = "/{repo-name}/projects/{project-name}/from-project", consumes = MediaType.APPLICATION_JSON_VALUE)

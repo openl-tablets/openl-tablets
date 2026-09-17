@@ -55,9 +55,8 @@ public class SecureRepository implements Repository, RepositoryDelegate {
 
     @Override
     public FileData check(String name) throws IOException {
-        // Checking permissions here is a problem for
-        // org.openl.rules.workspace.uw.impl.UserWorkspaceImpl.uploadLocalProject method
-        // checkReadPermission(name);
+        // Deliberately no read-permission check: whether a project exists is asked before the permission on
+        // it is decided.
         return repository.check(name);
     }
 

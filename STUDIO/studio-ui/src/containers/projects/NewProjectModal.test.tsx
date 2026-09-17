@@ -5,7 +5,6 @@ import { NewProjectModal } from './NewProjectModal'
 import {
     copyProject,
     createProject,
-    createProjectsFromWorkspace,
     getDesignRepositoryBranches,
     getDesignRepositoryConfig,
     getProjects,
@@ -16,7 +15,6 @@ import { inspectOpenLArchive, zipProjectFolder } from '../../utils/openlArchive'
 vi.mock('../../services/repositories', () => ({
     copyProject: vi.fn(),
     createProject: vi.fn(),
-    createProjectsFromWorkspace: vi.fn(),
     getDesignRepositoryBranches: vi.fn(),
     getDesignRepositoryConfig: vi.fn(),
     getProjects: vi.fn(),
@@ -230,7 +228,7 @@ describe('NewProjectModal', () => {
         vi.mocked(getDesignRepositoryBranches).mockResolvedValue(['main', 'feature/rates'])
     })
 
-    it.each(['template', 'archive', 'excel', 'openapi', 'workspace', 'copy'])(
+    it.each(['template', 'archive', 'excel', 'openapi', 'copy'])(
         'shows one shared branch selector for the %s creation method',
         async method => {
             vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
@@ -475,32 +473,6 @@ describe('NewProjectModal', () => {
         expect(createProject).not.toHaveBeenCalled()
     })
 
-    it('publishes selected local projects from the workspace', async () => {
-        vi.mocked(createProjectsFromWorkspace).mockResolvedValue()
-        vi.mocked(getProjects).mockResolvedValue({
-            content: [
-                { id: 'local1', name: 'Draft', status: 'LOCAL' },
-                { id: 'local2', name: 'Sandbox', status: 'LOCAL' },
-            ],
-            pageNumber: 0,
-            pageSize: 2,
-            numberOfElements: 2,
-            total: 2,
-        } as never)
-        const onCreated = vi.fn()
-        renderWizard({ localProjects: ['Draft', 'Sandbox'], onCreated })
-
-        await toConfig('workspace')
-        await userEvent.click(screen.getByTestId('workspace-Draft'))
-        await userEvent.click(screen.getByTestId('new-project-submit'))
-
-        await waitFor(() => expect(createProjectsFromWorkspace).toHaveBeenCalledTimes(1))
-        const [repoId, body] = vi.mocked(createProjectsFromWorkspace).mock.calls[0]!
-        expect(repoId).toBe('design')
-        expect(body.names).toEqual(['Draft'])
-        await waitFor(() => expect(onCreated).toHaveBeenCalled())
-    })
-
     it('creates a project from a selected template', async () => {
         const onCreated = vi.fn()
         renderWizard({ onCreated })
@@ -526,7 +498,8 @@ describe('NewProjectModal', () => {
             newBranch: { pattern: '[A-Za-z0-9/_-]+', invalidNameHint: 'Invalid branch' },
             comment: { templates: {} },
         })
-        renderWizard({ repositories: branchingRepositories })
+        const onCreated = vi.fn()
+        renderWizard({ repositories: branchingRepositories, onCreated })
 
         await toConfig('template')
         await waitFor(() => expect(screen.getByTestId('new-project-branch')).toHaveValue('main'))
@@ -542,6 +515,9 @@ describe('NewProjectModal', () => {
 
         await waitFor(() => expect(createProject).toHaveBeenCalledTimes(1))
         expect(vi.mocked(createProject).mock.calls[0]![2].branch).toBe('feature/new-project')
+        // The caller opens the created project by that branch: a same-named project may sit on another one.
+        await waitFor(() => expect(onCreated).toHaveBeenCalledWith(
+            { repositoryId: 'design', name: 'InBranch', branch: 'feature/new-project' }))
     })
 
     it('ignores a stale branch response after the target repository changes', async () => {
@@ -631,32 +607,6 @@ describe('NewProjectModal', () => {
 
         expect(screen.getByTestId('new-project-branch-error')).toHaveTextContent('valid Git branch name')
         expect(createProject).not.toHaveBeenCalled()
-    })
-
-    it('sends the selected branch when publishing workspace projects', async () => {
-        vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
-            branch: 'main',
-            comment: { templates: {} },
-        })
-        vi.mocked(createProjectsFromWorkspace).mockResolvedValue()
-        vi.mocked(getProjects).mockResolvedValue({
-            content: [{ id: 'local1', name: 'Draft', status: 'LOCAL' }],
-            pageNumber: 0,
-            pageSize: 1,
-            numberOfElements: 1,
-            total: 1,
-        } as never)
-        renderWizard({ repositories: branchingRepositories })
-
-        await toConfig('workspace')
-        await waitFor(() => expect(screen.getByTestId('new-project-branch')).toHaveValue('main'))
-        await userEvent.click(screen.getByTestId('workspace-Draft'))
-        await userEvent.click(screen.getByTestId('new-project-submit'))
-
-        await waitFor(() => expect(createProjectsFromWorkspace).toHaveBeenCalledWith(
-            'design',
-            expect.objectContaining({ names: ['Draft'], branch: 'main' })
-        ))
     })
 
     it('passes the repository path when provided', async () => {
