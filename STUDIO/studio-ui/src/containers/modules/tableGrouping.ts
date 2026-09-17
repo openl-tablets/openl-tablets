@@ -26,21 +26,99 @@ export const loadView = (preferred?: string): TableView =>
 
 export const saveView = (view: TableView): void => writeJson(STORAGE_KEY, view)
 
-/** What a level files a table under: the sheet, the kind, or a step of its category. */
+/** Reads a label of the tree in the user's language. */
+export type Translate = (key: string) => string
+
+/**
+ * The groups of the Type view, in the order the Editor's tree listed them.
+ *
+ * A group gathers a family of tables - the kind the server files a table under - told apart further where
+ * the Editor told it apart: a vocabulary is a datatype that declares values rather than fields, and it stood
+ * in a group of its own. The name of the group is the Editor's, which is not always the name of the kind: the
+ * decision tables are the `Rules` family, and the environment table is `Configuration`.
+ */
+const TYPE_GROUPS: readonly { id: string, key: string }[] = [
+    { id: 'Rules', key: 'decision' },
+    { id: 'Spreadsheet', key: 'spreadsheet' },
+    { id: 'TBasic', key: 'tbasic' },
+    { id: 'Column Match', key: 'columnMatch' },
+    { id: 'Data', key: 'data' },
+    { id: 'Run', key: 'run' },
+    { id: 'Test', key: 'test' },
+    { id: 'Datatype', key: 'datatype' },
+    { id: 'Vocabulary', key: 'vocabulary' },
+    { id: 'Method', key: 'method' },
+    { id: 'Constants', key: 'constants' },
+    { id: 'Conditions', key: 'conditions' },
+    { id: 'Actions', key: 'actions' },
+    { id: 'Returns', key: 'returns' },
+    { id: 'Environment', key: 'configuration' },
+    { id: 'Other', key: 'other' },
+    { id: 'Properties', key: 'properties' },
+]
+
+/** The datatype header type of a table that declares values rather than fields. */
+const VOCABULARY = 'Vocabulary'
+
+/** The group of the Type view a table belongs to. */
+const typeGroupOf = (table: ModuleTable): string | null => {
+    if (!table.kind) {
+        return null
+    }
+    return table.kind === 'Datatype' && table.tableType === VOCABULARY ? VOCABULARY : table.kind
+}
+
+/** Where a group of the Type view stands: the Editor's order for the groups it knew, after them for the rest. */
+const typeGroupOrder = (id: string): number => {
+    const known = TYPE_GROUPS.findIndex(group => group.id === id)
+    return known === -1 ? TYPE_GROUPS.length : known
+}
+
+/**
+ * What a level files a table under: the sheet, the kind, a step of its category, or the folder of a properties
+ * table.
+ *
+ * A properties table is filed by the scope it declares: one for the module stands in a folder of its own at
+ * the root, one for a category in a folder inside that category. A folder of properties tables is the end of
+ * the way down: what it holds is not grouped any further.
+ */
 type Level =
     | { by: 'sheet' }
     | { by: 'kind' }
     | { by: 'category' }
-    /** One step of a dotted category, counted from the left; the inversed view reads the steps the other way. */
+    /** One step of a dashed category, counted from the left; the inversed view reads the steps the other way. */
     | { by: 'categoryStep', step: number }
+    | { by: 'moduleProperties' }
+    | { by: 'categoryProperties' }
 
 /** The levels each view groups by, in order, mirroring the builders of the JSF views. */
 const LEVELS: Record<TableView, Level[]> = {
     excelSheet: [{ by: 'sheet' }],
     type: [{ by: 'kind' }],
-    category: [{ by: 'category' }],
-    categoryDetailed: [{ by: 'categoryStep', step: 0 }, { by: 'categoryStep', step: 1 }],
-    categoryInversed: [{ by: 'categoryStep', step: 1 }, { by: 'categoryStep', step: 0 }],
+    category: [{ by: 'moduleProperties' }, { by: 'category' }, { by: 'categoryProperties' }],
+    categoryDetailed: [
+        { by: 'moduleProperties' },
+        { by: 'categoryStep', step: 0 },
+        { by: 'categoryStep', step: 1 },
+        { by: 'categoryProperties' },
+    ],
+    categoryInversed: [
+        { by: 'moduleProperties' },
+        { by: 'categoryStep', step: 1 },
+        { by: 'categoryStep', step: 0 },
+        { by: 'categoryProperties' },
+    ],
+}
+
+/** The kind of the tables that declare properties for others, and the scopes they declare them for. */
+const PROPERTIES = 'Properties'
+const MODULE_SCOPE = 'Module'
+const CATEGORY_SCOPE = 'Category'
+
+/** The scope a properties table declares, or null for any other table. */
+const propertiesScopeOf = (table: ModuleTable): string | null => {
+    const scope = table.kind === PROPERTIES ? table.properties?.['scope'] : null
+    return typeof scope === 'string' ? scope : null
 }
 
 export const levelsOf = (view: TableView): Level[] => LEVELS[view]
@@ -52,6 +130,8 @@ export interface TableNode {
     title: string
     /** What the node groups by, absent on a table leaf; the icon is chosen from it. */
     groupedBy?: Level['by'] | 'overload'
+    /** What the group holds, said when the pointer rests on it; only a group of the Type view has one. */
+    hint?: string
     /** Set on a table leaf. */
     table?: ModuleTable
     children: TableNode[]
@@ -76,25 +156,49 @@ export const widthOf = (nodes: TableNode[], depth = 0): number => nodes.reduce((
     widthOf(node.children, depth + 1)
 ), 0)
 
+/**
+ * The category a table is filed under: the one it declares, or else the sheet it is written on, which is
+ * what the Editor's tree fell back on.
+ */
 const categoryOf = (table: ModuleTable): string | null => {
     const value = table.properties?.['category']
-    return typeof value === 'string' && value !== '' ? value : null
+    if (typeof value === 'string' && value !== '') {
+        return value
+    }
+    return table.sheet || null
+}
+
+/** The steps of a category, which the Editor's detailed views read between the dashes of its name. */
+const categorySteps = (category: string): string[] => category.split('-').map(step => step.trim()).filter(Boolean)
+
+/** What a table is filed under at a category level, or null when it carries no value for it. */
+const categoryValueOf = (table: ModuleTable, level: { by: 'category' } | { by: 'categoryStep', step: number }): string | null => {
+    // The properties of the module stand in a folder of their own, not in a category.
+    if (propertiesScopeOf(table) === MODULE_SCOPE) {
+        return null
+    }
+    const category = categoryOf(table)
+    if (category === null || level.by === 'category') {
+        return category
+    }
+    // A category with fewer steps than the level asks for is filed by the steps it has.
+    return categorySteps(category)[level.step] ?? null
 }
 
 /** What a table is filed under at a level, or null when it carries no value for it. */
-const valueOf = (table: ModuleTable, level: Level): string | null => {
-    if (level.by === 'sheet') {
-        return table.sheet || null
+const valueOf = (table: ModuleTable, level: Level, t: Translate): string | null => {
+    switch (level.by) {
+        case 'sheet':
+            return table.sheet || null
+        case 'kind':
+            return typeGroupOf(table)
+        case 'moduleProperties':
+            return propertiesScopeOf(table) === MODULE_SCOPE ? t('browser.module.module_properties') : null
+        case 'categoryProperties':
+            return propertiesScopeOf(table) === CATEGORY_SCOPE ? t('browser.module.category_properties') : null
+        default:
+            return categoryValueOf(table, level)
     }
-    if (level.by === 'kind') {
-        return table.kind || null
-    }
-    const category = categoryOf(table)
-    if (level.by === 'category') {
-        return category
-    }
-    // A category reads as steps separated by dots, the way the Editor's detailed views read it.
-    return category === null ? null : category.split('.')[level.step] ?? null
 }
 
 const tableNode = (table: ModuleTable, keyPrefix: string): TableNode => ({
@@ -166,6 +270,7 @@ const tableNodes = (tables: ModuleTable[], keyPrefix: string): TableNode[] => {
 export const buildTableTree = (
     tables: ModuleTable[],
     levels: Level[],
+    t: Translate,
     keyPrefix = 'grp'
 ): TableNode[] => {
     if (levels.length === 0) {
@@ -175,7 +280,7 @@ export const buildTableTree = (
     const groups = new Map<string, ModuleTable[]>()
     const ungrouped: ModuleTable[] = []
     for (const table of tables) {
-        const value = valueOf(table, level)
+        const value = valueOf(table, level, t)
         if (value === null) {
             ungrouped.push(table)
             continue
@@ -187,20 +292,30 @@ export const buildTableTree = (
             groups.set(value, [table])
         }
     }
+    // The groups of the Type view stand in the Editor's order, under the Editor's names; the groups of any
+    // other level are read by name, together with whatever stands beside them, the way the Editor ordered a
+    // branch. A folder of properties tables holds them as they are; any other group goes on down the levels.
+    const folder = level.by === 'moduleProperties' || level.by === 'categoryProperties'
     const nodes: TableNode[] = [...groups.entries()]
-        .sort(([left], [right]) => byLabel(left, right))
+        .sort(([left], [right]) => (level.by === 'kind' ? typeGroupOrder(left) - typeGroupOrder(right) : 0)
+            || byLabel(left, right))
         .map(([value, grouped]) => {
             const key = `${keyPrefix}/${level.by}${level.by === 'categoryStep' ? level.step : ''}/${value}`
+            const typeGroup = level.by === 'kind' ? TYPE_GROUPS.find(group => group.id === value) : undefined
             return {
                 key,
-                title: value,
+                title: typeGroup ? t(`browser.module.types.${typeGroup.key}`) : value,
+                ...(typeGroup && { hint: t(`browser.module.type_hints.${typeGroup.key}`) }),
                 groupedBy: level.by,
-                children: buildTableTree(grouped, rest, key),
+                children: folder ? tableNodes(grouped, key) : buildTableTree(grouped, rest, t, key),
             }
         })
-    return [...nodes, ...buildTableTree(ungrouped, rest, `${keyPrefix}/rest`)]
+    const beside = buildTableTree(ungrouped, rest, t, `${keyPrefix}/rest`)
+    return level.by === 'kind'
+        ? [...nodes, ...beside]
+        : [...nodes, ...beside].sort((left, right) => byLabel(left.title, right.title))
 }
 
-/** The tree of the given view. */
-export const treeOf = (tables: ModuleTable[], view: TableView): TableNode[] =>
-    buildTableTree(tables, levelsOf(view))
+/** The tree of the given view, its groups named in the user's language. */
+export const treeOf = (tables: ModuleTable[], view: TableView, t: Translate): TableNode[] =>
+    buildTableTree(tables, levelsOf(view), t)

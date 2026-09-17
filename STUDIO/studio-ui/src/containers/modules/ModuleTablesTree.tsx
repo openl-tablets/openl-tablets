@@ -125,7 +125,7 @@ const nodeTitle = (node: TableNode, styles: TreeStyles, errors: number): React.R
     )
     const table = node.table
     if (table === undefined) {
-        return named
+        return node.hint ? <Tooltip title={node.hint}>{named}</Tooltip> : named
     }
     // The full signature is what the Editor showed on a node, so a name cut short still says what it is.
     return <Tooltip title={table.signature ?? table.displayName ?? table.name}>{named}</Tooltip>
@@ -250,7 +250,7 @@ export const ModuleTablesTree = ({
             .filter(table => (table.displayName ?? table.name).toLowerCase().includes(wanted))
     }, [tables, search])
 
-    const nodes = useMemo(() => treeOf(shown, view), [shown, view])
+    const nodes = useMemo(() => treeOf(shown, view, t), [shown, view, t])
     // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
     // what is on screen leaves the virtual list pushed to the right of an empty rail.
     const rowWidth = useMemo(() => Math.max(Math.ceil(widthOf(nodes)), body.width), [nodes, body.width])
