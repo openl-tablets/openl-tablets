@@ -34,6 +34,20 @@ export interface UserDetails {
     userGroups: UserDetailsGroup[]
 }
 
+export interface UpdatedUserRequest {
+    email: string
+    displayName: string
+    firstName: string
+    lastName: string
+    password: string | null
+    groups?: string[]
+    // Attributes for new user
+    username?: string
+    internalPassword?: {
+        password: string | null
+    }
+}
+
 export interface UserProfile {
     administrator: boolean
     displayName: string
