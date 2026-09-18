@@ -29,7 +29,7 @@ vi.mock('./repositories', async importOriginal => ({
     getProjectFiles: vi.fn(),
 }))
 
-vi.mock('./config', () => ({ default: { CONTEXT: '/studio' } }))
+vi.mock('./config', () => ({ API_PREFIX: '/rest', default: { CONTEXT: '/studio', API_ROOT: '/studio/rest' } }))
 
 vi.mock('../utils/download', () => ({
     triggerDownload: vi.fn(),
@@ -161,11 +161,11 @@ describe('files service', () => {
         downloadFolder('project', 'rules/module')
 
         expect(triggerDownload).toHaveBeenCalledWith(
-            '/studio/web/projects/project/files/rules/Main.xlsx?download=true',
+            '/studio/rest/projects/project/files/rules/Main.xlsx?download=true',
             'Main.xlsx'
         )
         expect(triggerDownload).toHaveBeenCalledWith(
-            '/studio/web/projects/project/files/rules/module/?download=true',
+            '/studio/rest/projects/project/files/rules/module/?download=true',
             'module.zip'
         )
     })
@@ -175,7 +175,7 @@ describe('files service', () => {
         downloadFile('project', 'rules/Main.xlsx', 'rev-1')
 
         expect(triggerDownload).toHaveBeenCalledWith(
-            '/studio/web/projects/project/files/rules/Main.xlsx?download=true&version=rev-1',
+            '/studio/rest/projects/project/files/rules/Main.xlsx?download=true&version=rev-1',
             'Main.xlsx'
         )
     })

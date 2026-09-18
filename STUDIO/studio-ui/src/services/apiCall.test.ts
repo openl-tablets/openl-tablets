@@ -29,7 +29,8 @@ vi.mock('store', () => {
 
 vi.mock('services/config', () => ({
     __esModule: true,
-    default: { CONTEXT: '/ctx' },
+    API_PREFIX: '/rest',
+    default: { CONTEXT: '/ctx', API_ROOT: '/ctx/rest' },
 }))
 
 vi.mock('antd', () => ({
@@ -76,6 +77,14 @@ describe('apiCall', () => {
             text: vi.fn().mockResolvedValue(textData),
             blob: vi.fn().mockResolvedValue(blobData),
         }) as unknown as Response
+
+    it('addresses the request to the deployment context plus the API prefix', async () => {
+        fetchMock.mockResolvedValueOnce(mockResponse({ status: 200, jsonData: {} }))
+
+        await apiCall('/projects')
+
+        expect(fetchMock).toHaveBeenCalledWith('/ctx/rest/projects', expect.anything())
+    })
 
     it('throws ApiHttpError with status and payload for 500 JSON errors', async () => {
         fetchMock.mockResolvedValueOnce(

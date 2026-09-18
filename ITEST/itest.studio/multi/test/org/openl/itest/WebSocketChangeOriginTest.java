@@ -77,7 +77,7 @@ class WebSocketChangeOriginTest {
         var topic = "/user/topic/projects/"
                 + URLEncoder.encode(project.projectId(), StandardCharsets.UTF_8) + "/changed";
 
-        try (var stomp = new StompTester(client, client.getWebSocketURL("/rest/ws"),
+        try (var stomp = new StompTester(client, client.getWebSocketBaseURL(),
                 Map.of("Authorization", ADMIN_BASIC))) {
             // One subscription for the whole test that only notes the traffic, so a step can tell
             // the previous one is over. Its predicate never matches, so it never settles.

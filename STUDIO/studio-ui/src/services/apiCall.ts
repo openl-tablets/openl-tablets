@@ -138,7 +138,7 @@ const apiCall = async (
         responseParams.headers = headers
     }
 
-    return fetch(`${CONFIG.CONTEXT}/web${url}`, responseParams)
+    return fetch(`${CONFIG.API_ROOT}${url}`, responseParams)
         .then(async response => {
             const { status } = response
             if (status >= 200 && status < 300) {

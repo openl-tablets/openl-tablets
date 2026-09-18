@@ -152,7 +152,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
         var registration = sc.addServlet("springDispatcher", dispatcherServlet);
         registration.setLoadOnStartup(1);
-        registration.addMapping("/rest/*", "/web/*");
+        registration.addMapping("/rest/*");
 
         var multipartConfigElement = new MultipartConfigElement("", -1L, -1L, MULTIPART_FILE_SIZE_THRESHOLD);
         registration.setMultipartConfig(multipartConfigElement);

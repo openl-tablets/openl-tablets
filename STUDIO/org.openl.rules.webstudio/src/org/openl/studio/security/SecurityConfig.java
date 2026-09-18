@@ -40,8 +40,7 @@ public class SecurityConfig {
                         "/icons/**",
                         "/assets/**",
                         "/.well-known/**",
-                        "/web/public/**",
-                        "/web/settings",
+                        "/rest/public/**",
                         "/rest/settings",
                         "/rest/api-docs",
                         "/rest/openapi.json"

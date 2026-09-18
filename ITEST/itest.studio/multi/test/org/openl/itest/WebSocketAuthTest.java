@@ -29,7 +29,6 @@ import org.openl.itest.core.StompTester;
  */
 class WebSocketAuthTest {
 
-    private static final String REST_WS = "/rest/ws";
     // Base64 of "admin:admin" — the design repo administrator from application.properties.
     private static final String VALID_BASIC = "Basic YWRtaW46YWRtaW4=";
     private static final String WRONG_BASIC = "Basic "
@@ -40,7 +39,7 @@ class WebSocketAuthTest {
 
     @Test
     void rest_ws_rejects_handshake_without_credentials() {
-        var restWs = client.getWebSocketURL(REST_WS);
+        var restWs = client.getWebSocketBaseURL();
         assertThrows(AssertionError.class,
                 () -> new StompTester(client, restWs, Map.of()),
                 "/rest/ws must reject a handshake without credentials or cookies");
@@ -48,7 +47,7 @@ class WebSocketAuthTest {
 
     @Test
     void rest_ws_rejects_handshake_with_invalid_credentials() {
-        var restWs = client.getWebSocketURL(REST_WS);
+        var restWs = client.getWebSocketBaseURL();
         var headers = Map.of("Authorization", WRONG_BASIC);
         assertThrows(AssertionError.class,
                 () -> new StompTester(client, restWs, headers),
@@ -59,7 +58,7 @@ class WebSocketAuthTest {
     void rest_ws_accepts_handshake_with_valid_credentials() {
         // Positive control: valid Basic credentials authenticate the handshake; the connection
         // is established (construction blocks until connected and throws otherwise).
-        try (var stomp = new StompTester(client, client.getWebSocketURL(REST_WS), Map.of("Authorization", VALID_BASIC))) {
+        try (var stomp = new StompTester(client, client.getWebSocketBaseURL(), Map.of("Authorization", VALID_BASIC))) {
             // Connected successfully — nothing else to assert.
         }
     }

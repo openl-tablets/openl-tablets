@@ -146,10 +146,10 @@ class UsersRestTest {
         newMailConfig.password = "password";
         newMailConfig.url = mailUrl;
         newMailConfig.username = "username@email";
-        client.postForObject("/web/admin/settings/mail", newMailConfig, "Authorization", "Basic YWRtaW46YWRtaW4=");
+        client.postForObject("/rest/admin/settings/mail", newMailConfig, "Authorization", "Basic YWRtaW46YWRtaW4=");
         client.send("users-service/mail/studio-settings");
 
-        var mailConfig = client.getForObject("/web/admin/settings/mail", MailConfigResponse.class, 200, "Authorization", "Basic YWRtaW46YWRtaW4=");
+        var mailConfig = client.getForObject("/rest/admin/settings/mail", MailConfigResponse.class, 200, "Authorization", "Basic YWRtaW46YWRtaW4=");
         assertTrue(mailConfig.password.secret); // password must not be exposed to the user due to security reasons
         assertEquals("username@email", mailConfig.username);
         assertEquals(mailUrl, mailConfig.url);
@@ -189,7 +189,7 @@ class UsersRestTest {
         String content = bufferedReader.lines().collect(Collectors.joining());
         int tokenStartIndex = content.indexOf(TOKEN_PARAM) + TOKEN_PARAM.length();
         String token = content.substring(tokenStartIndex, tokenStartIndex + TOKEN_LENGTH);
-        client.getForObject("/web/mail/verify/" + token, String.class, 204, "Authorization", "Basic YWRtaW46YWRtaW4=");
+        client.getForObject("/rest/mail/verify/" + token, String.class, 204, "Authorization", "Basic YWRtaW46YWRtaW4=");
         inputStreamReader.close();
         bufferedReader.close();
 

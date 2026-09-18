@@ -33,22 +33,9 @@ public class FormBasedAuthenticationConfig {
                 .build();
     }
 
-    // Web endpoints
-    @Bean
-    @Order(2)
-    public SecurityFilterChain webEndpointsFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .securityMatcher("/web/**")
-                .csrf(AbstractHttpConfigurer::disable)
-                .requestCache(AbstractHttpConfigurer::disable)
-                .httpBasic(basic -> basic.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .build();
-    }
-
     // All other patterns - catch-all
     @Bean
-    @Order(3)
+    @Order(2)
     public SecurityFilterChain defaultFilterChain(
             HttpSecurity http, SessionRegistry sessionRegistry) throws Exception {
         return http

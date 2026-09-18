@@ -26,10 +26,6 @@ declare module 'react' {
  * version. The server is the one the page is served from, so a request tried out from here is sent with the
  * session the reader already has.
  *
- * <p>It is read from `/rest`, not from the `/web` the rest of the screens call. The two reach the same
- * endpoints, but `/rest` is the surface this documentation is about, and the server writes that address into
- * the specification as the one a tried-out request goes to.
- *
  * <p>It is a page of its own, drawn without the application's header, and the renderer keeps the colours and
  * the settings it was read in before — its own dark palette, the endpoints of one tag at a time, sorted by
  * path.
@@ -41,7 +37,7 @@ export const ApiDocs: React.FC = () => (
         show-header="false"
         show-method-in-nav-bar="as-colored-text"
         sort-endpoints-by="path"
-        spec-url={`${CONFIG.CONTEXT}/rest/openapi.json`}
+        spec-url={`${CONFIG.API_ROOT}/openapi.json`}
         style={{ height: '100vh', width: '100%' }}
     />
 )

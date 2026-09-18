@@ -151,7 +151,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     }
 
     const handleDownload = async (filePath: string, side: FileSide) => {
-        const url = `${CONFIG.CONTEXT}/web/projects/${projectId}/merge/conflicts/files?file=${encodeURIComponent(filePath)}&side=${side}`
+        const url = `${CONFIG.API_ROOT}/projects/${projectId}/merge/conflicts/files?file=${encodeURIComponent(filePath)}&side=${side}`
         window.open(url, '_blank')
     }
 

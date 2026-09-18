@@ -379,8 +379,13 @@ closes it: the JDK sends a request again on a connection the server has just clo
 
 `StompTester` (in `server-core`) wraps a STOMP-over-WebSocket client:
 
-- `new StompTester(client, client.getWebSocketURL("/rest/ws"), Map.of("Authorization", basic))` — the way a multi-user suite connects: the handshake is authenticated by the `/rest/**` chain from its own header.
-- `new StompTester(client)` — connects to `/web/ws`; enough in single-user mode, where every request is the one user, but in multi-user mode the handshake is anonymous and the per-user topics stay silent.
+- There is **one** endpoint, `/rest/ws`, and it is authenticated — by the session cookie or by an
+  `Authorization` header, whichever the `/rest/**` chain finds. An anonymous handshake is refused in every
+  multi-user mode.
+- `new StompTester(client, client.getWebSocketBaseURL(), Map.of("Authorization", basic))` — the way a multi-user suite connects: the handshake carries its own header, like any API client.
+- `new StompTester(client)` — connects to the same endpoint with whatever session cookie the client already
+  holds. Enough in single-user mode, where every request is the one user; in multi-user mode sign in first
+  (`client.send("005-login-admin")`) or pass an `Authorization` header, or the handshake is rejected.
 - `awaitMatching(topic, Type.class, predicate)` returns a future completing on the first matching frame (`awaitFirst` takes any frame). Subscribe **before** triggering the action that publishes, so the terminal frame isn't missed.
 - A rejected handshake (e.g. `401` on `/rest/ws` without credentials) makes the constructor throw — assert it with `assertThrows(AssertionError.class, ...)`.
 

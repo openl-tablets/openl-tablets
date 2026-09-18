@@ -1,2 +1,2 @@
-DELETE /web/admin/settings/authentication HTTP/1.1
+DELETE /rest/admin/settings/authentication HTTP/1.1
 

@@ -56,8 +56,10 @@ The build writes two pages (`build.rollupOptions.input`):
 
 ## Key Patterns
 
-- **REST**: always use `services/apiCall.ts` — it prepends `CONFIG.CONTEXT`, handles JSON/text, surfaces validation
-  errors, and updates `useAppStore` flags for 401/403/404/500.
+- **REST**: always use `services/apiCall.ts` — it prepends `CONFIG.API_ROOT` (the deployment context path plus
+  `/rest`, the one prefix the API is served on), handles JSON/text, surfaces validation errors, and updates
+  `useAppStore` flags for 401/403/404/500. A call that needs a raw URL instead — a browser download, a viewer
+  source — builds it from `CONFIG.API_ROOT` too, never from a literal.
 - **Execution results**: a screen that follows a run, a test run or a benchmark over the socket reads the result
   once while it goes on (`get*` in `services/execution.ts`, answered `202` until the end). It retries a `202`
   (`read*`) only after the status says the execution ended. A screen that follows a run or a test run also reads

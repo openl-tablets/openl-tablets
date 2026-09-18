@@ -13,7 +13,7 @@ export default defineConfig({
             clientFiles: ['./src/index.tsx', './src/App.tsx'],
         },
         proxy: {
-            '/web/ws': {
+            '/rest/ws': {
                 target: 'ws://localhost:8080',
                 ws: true,
                 changeOrigin: true,
@@ -21,7 +21,7 @@ export default defineConfig({
                     Origin: 'http://localhost:8080'
                 }
             },
-            '/web': {
+            '/rest': {
                 target: 'http://localhost:8080',
                 changeOrigin: true,
             },

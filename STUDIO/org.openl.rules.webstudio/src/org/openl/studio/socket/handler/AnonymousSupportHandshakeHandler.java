@@ -13,10 +13,10 @@ import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
  * instead of being broadcast.
  * <p>
  * {@link DefaultHandshakeHandler#determineUser} relies on {@code request.getUserPrincipal()}, which is
- * {@code null} for anonymous users and for the manually-assembled {@code /rest/**} filter chains (they do
- * not install the servlet security wrapper). In those cases the principal is taken from the current
- * {@link SecurityContextHolder}, so anonymous {@code /web/ws} sessions and header-authenticated
- * ({@code /rest/ws}) sessions both get a routable principal.
+ * {@code null} for the manually-assembled {@code /rest/**} filter chains, because they do not install the
+ * servlet security wrapper. In that case the principal is taken from the current
+ * {@link SecurityContextHolder}, so a header-authenticated ({@code /rest/ws}) session still gets a routable
+ * principal.
  */
 public class AnonymousSupportHandshakeHandler extends DefaultHandshakeHandler {
 

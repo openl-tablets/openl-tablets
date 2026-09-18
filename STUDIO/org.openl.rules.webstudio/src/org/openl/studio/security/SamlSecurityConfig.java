@@ -117,19 +117,6 @@ public class SamlSecurityConfig {
                 filterSecurityInterceptor);
     }
 
-    @Bean
-    @Order(6)
-    public SecurityFilterChain webEndpointsFilterChain(
-            @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
-            @Qualifier("webExceptionTranslationFilter") ExceptionTranslationFilter webExceptionTranslationFilter,
-            @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
-
-        return new DefaultSecurityFilterChain(RequestMatchers.matcher("/web/**"),
-                securityContextPersistenceFilter,
-                webExceptionTranslationFilter,
-                filterSecurityInterceptor);
-    }
-
     // All other patterns - catch-all
     @Bean
     @Order(Ordered.LOWEST_PRECEDENCE)

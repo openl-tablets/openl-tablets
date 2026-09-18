@@ -40,7 +40,7 @@ vi.mock('./apiCall', () => ({
     },
 }))
 
-vi.mock('./config', () => ({ default: { CONTEXT: '/studio' } }))
+vi.mock('./config', () => ({ API_PREFIX: '/rest', default: { CONTEXT: '/studio', API_ROOT: '/studio/rest' } }))
 
 vi.mock('../utils/download', () => ({
     triggerDownload: vi.fn(),
@@ -291,11 +291,11 @@ describe('getProjects', () => {
 
         downloadProject('abc')
         expect(triggerDownload).toHaveBeenCalledWith(
-            `/studio/web/projects/abc/files/?download=true&zone=${encodeURIComponent(zone)}`)
+            `/studio/rest/projects/abc/files/?download=true&zone=${encodeURIComponent(zone)}`)
 
         downloadProject('abc', 'rev-1')
         expect(triggerDownload).toHaveBeenCalledWith(
-            `/studio/web/projects/abc/files/?download=true&version=rev-1&zone=${encodeURIComponent(zone)}`)
+            `/studio/rest/projects/abc/files/?download=true&version=rev-1&zone=${encodeURIComponent(zone)}`)
     })
 
     it('loads branches, revisions and tags', async () => {

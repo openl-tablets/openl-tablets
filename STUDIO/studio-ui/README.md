@@ -87,5 +87,5 @@ docker compose up --build
 ## Troubleshooting
 
 - If `npm install` keeps reinstalling dependencies unexpectedly, ensure you ran the Maven sync (`mvn clean install ...`) first; the Maven plugin will overwrite `node_modules/`.
-- Websocket connection errors usually mean the backend isn’t exposing `${CONTEXT}/web/ws`; check reverse proxy rules.
+- Websocket connection errors usually mean the backend isn’t exposing `${CONTEXT}/rest/ws`; check reverse proxy rules.
 - Missing translations? Import the relevant locale bundle in `src/locales/index.ts` and restart the dev server so webpack picks up the new module.
