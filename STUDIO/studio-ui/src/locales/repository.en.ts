@@ -503,7 +503,7 @@ i18next.addResourceBundle('en', 'repository', {
             edit_close: 'Close',
             edit_undo: 'Undo',
             edit_redo: 'Redo',
-            edit_insert_row: 'Insert Row Before',
+            edit_insert_row: 'Insert Row After',
             edit_remove_row: 'Remove Row',
             edit_insert_column: 'Insert Column Before',
             edit_remove_column: 'Remove Column',

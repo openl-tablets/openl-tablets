@@ -343,9 +343,9 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-save-icon.png) | Saves changes in table.                                 |
     | ![](images/edit-undo-icon.png) | Reverses last changes.                                  |
     | ![](images/edit-redo-icon.png) | Reapplies reversed changes.                             |
-    | ![](images/edit-insert-row-icon.png) | Inserts a row.                                          |
+    | ![](images/edit-insert-row-icon.png) | Inserts a row after the selected one.                   |
     | ![](images/edit-delete-row-icon.png) | Deletes a row.                                          |
-    | ![](images/edit-insert-column-icon.png) | Inserts a column.                                       |
+    | ![](images/edit-insert-column-icon.png) | Inserts a column before the selected one.               |
     | ![](images/edit-delete-column-icon.png) | Deletes a column.                                       |
     | ![](images/edit-align-left-icon.png) | Aligns text in currently selected cell with left edge.  |
     | ![](images/edit-align-center-icon.png) | Centers text in currently selected cell.                |
