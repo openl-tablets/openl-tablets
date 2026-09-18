@@ -630,7 +630,7 @@ i18next.addResourceBundle('en', 'repository', {
             openapi_model: 'Data types module',
             openapi_algorithm: 'Services module',
             openapi_none: 'The project declares no OpenAPI specification.',
-            openapi_by_default: 'Read by default: rules.xml need not name it.',
+            openapi_by_default: 'Found automatically by its default name. It is not declared in the project configuration.',
             openapi_write: 'Generate specification',
             openapi_write_hint: 'Writes the OpenAPI specification the project\'s compiled rules answer to, and points the project at it.',
             openapi_written: 'The OpenAPI specification was written',

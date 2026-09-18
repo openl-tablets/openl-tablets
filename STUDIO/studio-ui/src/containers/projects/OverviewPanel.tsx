@@ -1274,7 +1274,16 @@ const DEFAULT_OPENAPI_FILES = ['openapi.yaml', 'openapi.yml', 'openapi.json']
  * A specification picked from the file system reaches the project with the save that keeps it, not with
  * the picking.
  */
-const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritten }: { editor: DescriptorEditor, projectId: string, staged: File | null, onPicked: (file: File) => void, canWrite: boolean, onWritten: () => void }) => {
+const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritten, reloadToken }: {
+    editor: DescriptorEditor
+    projectId: string
+    staged: File | null
+    onPicked: (file: File) => void
+    canWrite: boolean
+    onWritten: () => void
+    /** Bumped when the project reloads, so the files a specification is looked for among are read again. */
+    reloadToken: number | undefined
+}) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -1283,7 +1292,9 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritt
     const openApi = useOpenApiActions(projectId, onWritten)
 
     // Read whether or not the reader is editing: they are what a file can be picked from, and they are also
-    // what says whether a project declaring nothing still has a specification the engine reads.
+    // what says whether a project declaring nothing still has a specification the engine reads. Read again
+    // whenever the project reloads: writing the specification adds the very file the section looks for,
+    // and rules.xml, read again by then, need not name it.
     useEffect(() => {
         let cancelled = false
         getProjectFiles(projectId)
@@ -1292,9 +1303,14 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritt
                     setFiles(nodes.filter(node => node.type === 'file' && isOpenApiFile(node.path)).map(node => node.path))
                 }
             })
-            .catch(() => setFiles([]))
+            .catch(() => {
+                // A read a later one has overtaken says nothing about the files any more, failed or not.
+                if (!cancelled) {
+                    setFiles([])
+                }
+            })
         return () => { cancelled = true }
-    }, [editing, projectId])
+    }, [editing, projectId, reloadToken])
 
     // What the engine reads: the block the descriptor declares, or the file it falls back to without one.
     const byDefault = shown.openapi ? undefined : DEFAULT_OPENAPI_FILES.find(name => files.includes(name))
@@ -1355,7 +1371,13 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritt
         : undefined
 
     return (
-        <Section action={actions} icon={<ApiOutlined />} title={t('browser.overview.openapi')}>
+        <Section
+            action={actions}
+            hint={!editing && byDefault !== undefined ? t('browser.overview.openapi_by_default') : undefined}
+            hintTestId="openapi-by-default"
+            icon={<ApiOutlined />}
+            title={t('browser.overview.openapi')}
+        >
             {editing
                 ? (
                     <dl className={styles.openapi}>
@@ -1421,11 +1443,6 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritt
                                 t(effective.mode === 'GENERATION' ? 'browser.overview.openapi_generation' : 'browser.overview.openapi_reconciliation'))}
                             {effective.algorithmModuleName && row(t('browser.overview.openapi_algorithm'), effective.algorithmModuleName)}
                             {effective.modelModuleName && row(t('browser.overview.openapi_model'), effective.modelModuleName)}
-                            {byDefault !== undefined && (
-                                <span className={shared.microLabel} data-testid="openapi-by-default">
-                                    {t('browser.overview.openapi_by_default')}
-                                </span>
-                            )}
                         </dl>
                     )}
         </Section>
@@ -1644,6 +1661,7 @@ export const OverviewPanel = ({
                     onPicked={descriptor.stageUpload}
                     onWritten={() => onChanged?.()}
                     projectId={project.id}
+                    reloadToken={reloadToken}
                     staged={descriptor.staged}
                 />
             </div>

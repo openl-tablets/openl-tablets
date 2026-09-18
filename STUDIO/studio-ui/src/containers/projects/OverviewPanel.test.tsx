@@ -603,6 +603,30 @@ describe('OverviewPanel', () => {
         expect(screen.queryByTestId('openapi-none')).toBeNull()
     })
 
+    it('finds the specification a write added once the project is read again', async () => {
+        // The project holds no specification when the overview opens.
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([{ type: 'file', path: 'rules/Main.xlsx' }] as never)
+        setRulesXml('<project><name>P</name></project>')
+        const project = { ...base, capabilities: { canWrite: true } }
+        const result = await renderPanel(project)
+        expect(await screen.findByTestId('openapi-none')).toBeInTheDocument()
+
+        // Writing the specification adds openapi.json, which rules.xml need not name, and reloads the
+        // project; the section looks for the file again rather than keeping the answer it read on opening.
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([
+            { type: 'file', path: 'openapi.json' },
+            { type: 'file', path: 'rules/Main.xlsx' },
+        ] as never)
+        await act(async () => {
+            result.rerender(panel(project, { reloadToken: 1 }))
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        expect(await screen.findByTestId('openapi-by-default')).toBeInTheDocument()
+        expect(screen.queryByTestId('openapi-none')).toBeNull()
+    })
+
     it('removes the whole OpenAPI configuration when the file is cleared', async () => {
         setRulesXml(`
             <project>
