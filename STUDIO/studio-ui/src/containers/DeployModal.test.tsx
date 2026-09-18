@@ -232,6 +232,7 @@ describe('DeployModal', () => {
             undefined,
             { throwError: true, suppressErrorPages: true }
         ))
+        await screen.findByRole('option', { name: 'Deploy1' })
         await userEvent.selectOptions(screen.getByLabelText('deploy:deployment_name.label'), 'dep-1')
         await userEvent.type(screen.getByLabelText('deploy:comment.label'), 'Deploy changes')
         await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
@@ -327,6 +328,7 @@ describe('DeployModal', () => {
             undefined,
             { throwError: true, suppressErrorPages: true }
         ))
+        await screen.findByRole('option', { name: 'Deploy1' })
         await userEvent.selectOptions(screen.getByLabelText('deploy:deployment_name.label'), 'dep-1')
         await userEvent.type(screen.getByLabelText('deploy:comment.label'), 'Deploy changes')
         await userEvent.click(screen.getByRole('button', { name: /deploy:buttons.deploy/i }))
