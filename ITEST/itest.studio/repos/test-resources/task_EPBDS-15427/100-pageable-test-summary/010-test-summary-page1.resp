@@ -282,7 +282,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             }
           ]
@@ -315,7 +335,27 @@ Content-Type: application/json
               "value": "IT",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             }
           ]
@@ -348,7 +388,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             }
           ]
@@ -381,7 +441,27 @@ Content-Type: application/json
               "value": "FR",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             }
           ]
@@ -639,7 +719,14 @@ Content-Type: application/json
               "value": "R2",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "R5",
+                  "R4",
+                  "R3",
+                  "R2",
+                  "R1"
+                ]
               }
             }
           ]
@@ -1115,7 +1202,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             },
             {
@@ -1148,7 +1255,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             },
             {
@@ -1181,7 +1308,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             },
             {
@@ -1214,7 +1361,27 @@ Content-Type: application/json
               "value": "IT",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             },
             {
@@ -1257,7 +1424,27 @@ Content-Type: application/json
               "value": "CH",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             },
             {
@@ -1290,7 +1477,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             },
             {
@@ -1323,7 +1530,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             },
             {
@@ -1356,7 +1583,27 @@ Content-Type: application/json
               "value": "IT",
               "schema": {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             },
             {

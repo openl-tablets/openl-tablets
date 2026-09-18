@@ -1,6 +1,8 @@
 package org.openl.studio.projects.model;
 
 import java.util.Arrays;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,6 +20,7 @@ import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.studio.common.utils.SpreadsheetResultBean;
 import org.openl.studio.config.SafeSchemaGenerator;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.DomainOpenClass;
 
 /**
  * Writes the values of a run or a test the way OpenL Rule Services publishes them.
@@ -34,6 +37,8 @@ public class ExecutionValueMapper {
     private final ObjectMapper objectMapper;
     private final SchemaGenerator schemaGenerator;
     private final @Nullable SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy;
+    /** The schemas already described: a summary describes the same parameter type once per test unit. */
+    private final Map<IOpenClass, ObjectNode> schemas = new IdentityHashMap<>();
 
     /**
      * Converts a value to the shape it is published in.
@@ -205,9 +210,29 @@ public class ExecutionValueMapper {
                 type.getDisplayName(INamedThing.SHORT), true);
     }
 
+    /**
+     * Describes the values a declared type accepts.
+     *
+     * <p>The schema describes the Java class the values are written as. A vocabulary datatype is written as its
+     * base type, so the values it allows are added as the {@code enum} of the schema; an array of a vocabulary
+     * restricts its elements, so the values go to the schema of the elements.
+     */
     private @Nullable ObjectNode schemaOfType(IOpenClass type) {
+        return schemas.computeIfAbsent(type, this::describe);
+    }
+
+    private @Nullable ObjectNode describe(IOpenClass type) {
         var spreadsheetResult = SpreadsheetResultBean.of(type);
-        return SafeSchemaGenerator.generate(schemaGenerator,
+        var schema = SafeSchemaGenerator.generate(schemaGenerator,
                 spreadsheetResult != null ? spreadsheetResult.beanClass() : type.getInstanceClass());
+        if (schema != null && type instanceof DomainOpenClass vocabulary) {
+            var elements = schema;
+            while (elements.get("items") instanceof ObjectNode items) {
+                elements = items;
+            }
+            var values = elements.putArray("enum");
+            vocabulary.getDomain().forEach(value -> values.add(objectMapper.valueToTree(value)));
+        }
+        return schema;
     }
 }

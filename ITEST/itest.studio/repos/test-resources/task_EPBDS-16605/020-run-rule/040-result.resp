@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "Hello",
+  "tableId": "d528b389bfa2e1fc819b25dd744de122",
+  "executionTimeMs": "##.##",
+  "result": "Good Afternoon",
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string"
+  },
+  "parameters": [
+    {
+      "name": "a",
+      "description": "a",
+      "value": "b",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string",
+        "enum": ["a", "b", "c"]
+      }
+    }
+  ]
+}
