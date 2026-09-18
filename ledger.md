@@ -29,14 +29,13 @@
 
 ## Open PR
 
-- #2135 on `dead-code/session-activation-callbacks`, head `49ad0b4388`, 1 commit, -34/+1, opened 2026-09-18.
-- Commit: remove the session activation callbacks the servlet container never invokes (SessionListener's
-  HttpSessionActivationListener half plus the two RulesUserSession methods it alone called).
-- Head `49ad0b4388` is fully green: 17 checks, 16 success and dependabot skipped, Sonar quality gate passed with
-  0 new issues. `mergeable_state` is `blocked`, i.e. waiting on a human approval; nothing is left for this routine.
-- Maintainer (yurkom) asked on a review thread to revert both files, calling it working code. Answered with the
-  bytecode proof above plus an offer to revert on request; awaiting his decision. Do not revert unprompted.
-- CodeRabbit: no actionable comments, merge risk minimal. Its Docstring Coverage warning was declined by comment;
+- #2135 on `dead-code/session-activation-callbacks`, head `7f40512465`, 1 commit, -54/+1, 6 files.
+- Commit: remove the session passivation path the servlet container never invokes — SessionListener's
+  HttpSessionActivationListener half, the two RulesUserSession methods, UserWorkspace.passivate with both
+  implementations, and the two Docs mentions.
+- Maintainer accepted the bytecode evidence and asked to drop UserWorkspace.activate() and passivate(). passivate()
+  is done; activate() was kept and explained — RulesUserSession.getUserWorkspace() calls it. Awaiting his answer.
+- CodeRabbit on the previous head: no actionable comments. Its Docstring Coverage warning was declined by comment;
   do not re-litigate it.
 
 ## Merged PRs
@@ -68,9 +67,6 @@
 - `STUDIO/org.openl.rules.diff/doc/Diff Algorithm.xlsx`: unreferenced design material, not code.
 - `org.eclipse.jetty:jetty-home` managed entry: in no dependency tree and declared by no pom; the DEMO scripts fetch
   Jetty by `jetty.version` themselves. Confirm nothing resolves it before dropping it.
-- `UserWorkspace.passivate()` with UserWorkspaceImpl's and SecureUserWorkspaceImpl's overrides: unreferenced in
-  production once PR #2135 lands, but public API on a published interface and documented in
-  `Docs/analysis/repository-layer-overview.md`. A maintainer decides.
 - `org.openl.rules.jackson` in ruleservice.ws.common and `spring-security-config` in org.openl.security are unused
   where declared but are the transitive providers their consumers compile against undeclared; fixing that is an
   addition (hygiene PR), never a deletion here.
@@ -158,6 +154,11 @@
 - CodeRabbit's `Docstring Coverage` pre-merge check fails every deletion-only PR: it scores the functions inside
   the touched hunks, which on a sweep PR are the removed ones, so the metric is unreachable without adding JavaDoc
   to untouched methods. Decline it by comment citing `git diff -U0`; never widen a sweep PR to satisfy it.
+- The container resets `git config --global user.*` to Claude mid-session, so an amend or a later commit silently
+  gets the wrong committer even though the first commit was right. Re-assert the identity and re-check
+  `git log -1 --pretty='%an <%ae> | %cn <%ce>'` after EVERY commit, not just the first.
+- Public API deferred under rail 8.2 is worth naming explicitly in the PR body: the maintainer approved removing
+  UserWorkspace.passivate() straight off that 'Deliberately kept' line. Deferring is not dropping.
 - Search documentation for a removed dependency case-insensitively (`grep -i`).
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p`
   for workbooks; a `.xls` is searched as latin-1 and UTF-16 bytes. Use `git ls-files`, never a raw `grep -r`:
@@ -245,10 +246,9 @@
   proxy"), and both call sites set `xForwardedPrefixStrategy=PREPEND` while Spring's filter exposes only
   `setRemoveOnly`/`setRelativeRedirects` and always REPLACES the context path with `X-Forwarded-Prefix`. Swapping
   changes proxy behaviour. Needs a maintainer decision; also touches WSFrontend RuleServicesFilter, not just web.xml.
-- Workspace passivation is wired to the wrong object: `RulesUserSession` IS a session attribute
-  (`WebStudioUtils.registerRulesUserSession`) but does not implement `HttpSessionActivationListener`, while
-  `SessionListener`, which forwarded to it, is only registered. If the behaviour is wanted, RulesUserSession must
-  implement the interface itself. An addition, not this routine's work.
+- Workspace passivation never ran and is now removed. If it is wanted back, `RulesUserSession` must implement
+  `HttpSessionActivationListener` itself — it IS a session attribute (`WebStudioUtils.registerRulesUserSession`),
+  whereas `SessionListener`, which forwarded to it, was only registered. An addition, not this routine's work.
 - ORA-12516 in IT (studio-acl) deserves a real fix in the Oracle container setup (process/session limit), and the
   `ModuleWorkspace.test.tsx` timing failure a source-level fix; both bite green PRs.
 - Dependency hygiene (additions): ~293 used-undeclared findings, notably spring-security-core in org.openl.security
