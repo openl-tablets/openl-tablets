@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-    DeployConfigConfigurationError,
-    DeployConfigParseError,
-    EMPTY_DEPLOY_CONFIG,
-    parseDeployConfig,
-    serializeDeployConfig,
-} from './rulesDeploy'
+import { EMPTY_DEPLOY_CONFIG, parseDeployConfig, serializeDeployConfig } from './rulesDeploy'
+import { MalformedXmlError } from './xmlDescriptor'
 
 const SAMPLE = `<rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
@@ -30,7 +25,7 @@ describe('parseDeployConfig', () => {
     })
 
     it('rejects malformed XML instead of treating it as a new descriptor', () => {
-        expect(() => parseDeployConfig('not xml <')).toThrow(DeployConfigParseError)
+        expect(() => parseDeployConfig('not xml <')).toThrow(MalformedXmlError)
     })
 
     it('reads groups and falls back from a legacy interceptingTemplateClassName', () => {
@@ -45,7 +40,7 @@ describe('parseDeployConfig', () => {
 
 describe('serializeDeployConfig', () => {
     it('round-trips the sample through parse and serialize', () => {
-        const reparsed = parseDeployConfig(serializeDeployConfig(parseDeployConfig(SAMPLE), SAMPLE))
+        const reparsed = parseDeployConfig(serializeDeployConfig(parseDeployConfig(SAMPLE)))
         expect(reparsed).toEqual(parseDeployConfig(SAMPLE))
     })
 
@@ -63,7 +58,7 @@ describe('serializeDeployConfig', () => {
         expect(parsed.configuration).toContain('<entry>')
         expect(parsed.configuration).toContain('<string>key</string>')
 
-        const out = serializeDeployConfig(parsed, withConfig)
+        const out = serializeDeployConfig(parsed)
         expect(out).toContain('<configuration>')
         expect(out).toContain('<string>value</string>')
         expect(parseDeployConfig(out).configuration).toContain('<string>key</string>')
@@ -74,13 +69,14 @@ describe('serializeDeployConfig', () => {
     <serviceName>svc</serviceName>
     <lazyModulesForCompilationPatterns>keep-me</lazyModulesForCompilationPatterns>
 </rules-deploy>`
-        const out = serializeDeployConfig(parseDeployConfig(withCustom), withCustom)
+        const out = serializeDeployConfig({ ...parseDeployConfig(withCustom), serviceName: 'renamed' })
+        expect(out).toContain('<serviceName>renamed</serviceName>')
         expect(out).toContain('<lazyModulesForCompilationPatterns>keep-me</lazyModulesForCompilationPatterns>')
     })
 
-    it('writes a fresh descriptor when there is no original', () => {
+    it('writes a fresh descriptor from an empty config', () => {
         const config = { ...EMPTY_DEPLOY_CONFIG, serviceName: 'new-svc', provideRuntimeContext: true, publishers: ['KAFKA']}
-        const out = serializeDeployConfig(config, '')
+        const out = serializeDeployConfig(config)
         expect(out).toContain('<rules-deploy>')
         expect(out).toContain('<serviceName>new-svc</serviceName>')
         expect(out).toContain('<isProvideRuntimeContext>true</isProvideRuntimeContext>')
@@ -88,25 +84,34 @@ describe('serializeDeployConfig', () => {
         expect(parseDeployConfig(out).serviceName).toBe('new-svc')
     })
 
+    it('leaves the runtime context out when it is off, the way a migrate leaves the descriptor', () => {
+        // A descriptor that says `false` says what the engine assumes anyway. Written back, that line is what a
+        // migrate would take away again, so the save would put the migrate on offer after every edit.
+        const out = serializeDeployConfig({ ...parseDeployConfig(SAMPLE), serviceName: 'renamed' })
+        expect(out).not.toContain('isProvideRuntimeContext')
+        expect(out).toContain('<serviceName>renamed</serviceName>')
+        expect(parseDeployConfig(out).provideRuntimeContext).toBe(false)
+    })
+
     it('migrates a legacy interceptingTemplateClassName and drops the stale element', () => {
         const legacy = `<rules-deploy>
     <interceptingTemplateClassName>com.acme.Tpl</interceptingTemplateClassName>
 </rules-deploy>`
-        const out = serializeDeployConfig(parseDeployConfig(legacy), legacy)
+        const out = serializeDeployConfig(parseDeployConfig(legacy))
         expect(out).toContain('<annotationTemplateClassName>com.acme.Tpl</annotationTemplateClassName>')
         expect(out).not.toContain('interceptingTemplateClassName')
     })
 
     it('round-trips the groups field', () => {
         const config = { ...EMPTY_DEPLOY_CONFIG, groups: 'ADMIN,USER' }
-        const out = serializeDeployConfig(config, '')
+        const out = serializeDeployConfig(config)
         expect(out).toContain('<groups>ADMIN,USER</groups>')
         expect(parseDeployConfig(out).groups).toBe('ADMIN,USER')
     })
 
     it('escapes special characters in scalar values', () => {
         const config = { ...EMPTY_DEPLOY_CONFIG, url: 'a&b<c' }
-        const out = serializeDeployConfig(config, '')
+        const out = serializeDeployConfig(config)
         expect(out).toContain('<url>a&amp;b&lt;c</url>')
         expect(parseDeployConfig(out).url).toBe('a&b<c')
     })
@@ -117,12 +122,6 @@ describe('serializeDeployConfig', () => {
             configuration: '</configuration><serviceName>evil</serviceName>',
         }
 
-        expect(() => serializeDeployConfig(config, '')).toThrow(DeployConfigConfigurationError)
-    })
-
-    it('preserves malformed original XML verbatim if serialization is called', () => {
-        const original = '<rules-deploy><serviceName>svc</rules-deploy>'
-
-        expect(serializeDeployConfig({ ...EMPTY_DEPLOY_CONFIG, serviceName: 'new' }, original)).toBe(original)
+        expect(() => serializeDeployConfig(config)).toThrow(MalformedXmlError)
     })
 })
