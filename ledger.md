@@ -195,10 +195,11 @@
 
 - IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was N" with `ORA-12516` while
   the other vendors pass. Oracle Free container limit, not the diff; one rerun clears it.
-- IT (services-data) flake: `apache/kafka-native:latest` exits code 1 in its own `setup`, GraalVM segfault at
-  `Pwd.getpwuid`, Testcontainers then times out on "RECOVERY to RUNNING". It can hit TWICE IN A ROW and can strike
-  a different suite each time (WS Tracing, then Kafka Smoke) on the SAME commit. Two failures are still a flake
-  here, not a regression.
+- IT (services-data) flake, HIGH RATE: `apache/kafka-native:latest` exits code 1 in its own `setup`, GraalVM
+  segfault at `Pwd.getpwuid`; Testcontainers then times out on "RECOVERY to RUNNING". The job starts the container
+  once per suite, so any of Kafka Smoke / WS Tracing / WS Store Log Data can be the victim, a different one each
+  time. Observed 3 failures in 4 runs across two SHAs, i.e. roughly one container start in three dies. Budget two
+  reruns per SHA and expect to need them; repeated failures here are still the flake, not a regression.
 - Before calling such a failure a tag regression, check whether ANOTHER PR ran the same job in the same window:
   #2132 passed it at 07:51 between this PR's 07:42 and 08:03 failures, which disproved exactly that theory.
   A repo-wide claim needs a repo-wide check; the base branch's own `Build` workflow is a multi-JDK matrix that
@@ -209,7 +210,8 @@
   `test-resources/... - FAIL` and the cause with `ORA-|SQLException|expected: <`.
 - The `Sonar analysis` job is skipped when any job of the run fails, so a red flake also hides Sonar's verdict on
   that head; `sonarcloud.io/api/project_pull_requests/list?project=org.openl.rules:openl-tablets` names the SHA.
-- `rerun_failed_jobs` reuses the workspace, so exec files left truncated by the crashed attempt make the later
+- `rerun_failed_jobs` returns 403 "This workflow is already running" while ANY job of the run is still in flight;
+  wait for the run to finish, then retry. It also reuses the workspace, so exec files left truncated by the crashed attempt make the later
   `Sonar analysis` die in `report-aggregate` with "Unknown block type f9". That is corrupt jacoco data, not a
   quality gate. Re-running Sonar alone re-reads the same files; rebase onto main for a fresh run instead.
 
