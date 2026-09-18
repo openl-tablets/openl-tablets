@@ -3,9 +3,12 @@
 ## Resume point
 
 - Delta sweep of `3707ef66d0..bbe6fccd00` (7 commits) done: every new export, locale key and type is referenced;
-  no new dead code. Sweep the next delta from `bbe6fccd00`; 0 commits means ledger upkeep only.
-- PR #2134 open: one filter removal, awaiting CI and review. Maintain it before any new cutting.
-- A full re-sweep is not worth a run until main moves substantially; every vein below is exhausted at `000e6d889f`.
+  no new dead code. Sweep the next delta from `1dc89c91e0`; 0 commits means ledger upkeep only.
+- Open vein, not yet worked: audit every container registration for behavioural deadness — each `web.xml`
+  filter/servlet/listener and each `@WebFilter`/`@WebServlet`/`@WebListener`. SessionTimeoutFilter was found this
+  way; the rest of the registrations have never been checked against whether their behaviour can still fire.
+- No `dead-code/*` PR is open. A full re-sweep is not worth a run until main moves substantially; every vein under
+  Exhausted veins is exhausted at `000e6d889f`.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
@@ -28,9 +31,7 @@
 
 ## Open PR
 
-- `dead-code/webstudio-session-timeout-filter`, PR #2134, head `ea00c37071`.
-- 1 commit: remove the session-timeout redirect filter the React migration left unreachable (-87).
-- No review threads yet.
+- none
 
 ## Merged PRs
 
@@ -38,6 +39,10 @@
   `@SuppressWarnings`, spring-security-core in security.standalone, AspectJ managed versions and webstudio members.
 - #2129 merged 2026-09-17 (main `3707ef66d0`): 1 commit, -1 line, the dead `users:edit_modal.cancel` locale key.
   Merged 31 minutes after opening, before any CI job left the queue — a one-line locale deletion needs no wait.
+
+- #2134 merged 2026-09-18 (main `1dc89c91e0`): 1 commit, -87 lines, SessionTimeoutFilter and its web.xml
+  registration. Merged by the maintainer 3 minutes after opening, before CI finished — as #2129 was. A removal
+  proven by unreachable behaviour rather than by non-reference is accepted on that evidence alone.
 
 ## Module coverage
 
@@ -235,6 +240,6 @@
 - 2026-09-17 b: full re-sweep from zero at main `000e6d889f` on user instruction. Two detector bugs found and fixed
   (extension allowlist, constant inlining); one dead locale key removed in PR #2129; a broken webmanifest icon
   raised for a maintainer.
-- 2026-09-18: delta sweep of 7 commits found nothing; on user instruction removed SessionTimeoutFilter, a filter
-  registered in web.xml yet unreachable since the React migration, in PR #2134. A second user request (swap the
-  X-Forwarded filter for Spring's) was blocked on a documented contrary decision and recorded above.
+- 2026-09-18: delta sweep of 7 commits found nothing; on user instruction removed SessionTimeoutFilter in PR #2134,
+  merged the same hour. A second user request (swap the X-Forwarded filter for Spring's) was blocked on a
+  documented contrary decision and recorded under Human follow-ups.
