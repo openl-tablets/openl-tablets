@@ -41,4 +41,9 @@ public record AllowedOrigins(Set<String> origins, boolean any) {
     public boolean contains(@Nullable String origin) {
         return origin != null && (any || origins.contains(origin.toLowerCase(Locale.ROOT)));
     }
+
+    /** Whether no origin is trusted at all, so that no response depends on the {@code Origin} header. */
+    public boolean isEmpty() {
+        return !any && origins.isEmpty();
+    }
 }

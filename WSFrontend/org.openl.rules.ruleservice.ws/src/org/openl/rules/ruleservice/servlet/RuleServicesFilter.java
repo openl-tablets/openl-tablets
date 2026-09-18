@@ -27,7 +27,7 @@ import org.openl.rules.ruleservice.api.AccessDeniedHandler;
 import org.openl.rules.ruleservice.api.AuthorizationChecker;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployLock;
 import org.openl.util.StringUtils;
-import org.openl.web.AllowedOrigins;
+import org.openl.web.CorsPolicy;
 
 /**
  * An uber filter which process different parts of the request logic.
@@ -60,10 +60,7 @@ public class RuleServicesFilter implements Filter {
     private AccessDeniedHandler accessDeniedHandler;
 
     // CORS
-    private AllowedOrigins allowedOrigins;
-    private String allowedMethods;
-    private String allowedHeaders;
-    private String maxAge;
+    private CorsPolicy cors;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -87,10 +84,7 @@ public class RuleServicesFilter implements Filter {
         accessDeniedHandler = appContext.getBeansOfType(AccessDeniedHandler.class).values().stream().min(AnnotationAwareOrderComparator.INSTANCE).get();
 
         //CORS
-        allowedOrigins = AllowedOrigins.parse(env.getProperty("cors.allowed.origins"));
-        allowedMethods = env.getProperty("cors.allowed.methods");
-        allowedHeaders = env.getProperty("cors.allowed.headers");
-        maxAge = env.getProperty("cors.preflight.maxage");
+        cors = CorsPolicy.read(env);
     }
 
     @Override
@@ -143,23 +137,16 @@ public class RuleServicesFilter implements Filter {
             return;
         }
 
+        // CORS. Ahead of the security: a pre-flight carries no credentials, and a refusal must carry the CORS headers
+        // for a page of an allowed origin to read it.
+        if (cors.handle(request, response)) {
+            return;
+        }
+
         // Security
         if (authorizationCheckers.length > 0 && !skipAuthorization(path) && !isAuthorized(request)) {
             accessDeniedHandler.handle(request, response);
             return;
-        }
-
-        // CORS
-        var requestOrigin = request.getHeader("Origin");
-        if (allowedOrigins.contains(requestOrigin)) {
-            response.addHeader("Access-Control-Allow-Origin", requestOrigin);
-            response.addHeader("Access-Control-Max-Age", maxAge);
-            response.addHeader("Access-Control-Allow-Methods", allowedMethods);
-            response.addHeader("Access-Control-Allow-Headers", allowedHeaders);
-            if ("OPTIONS".equals(method)) {
-                response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                return;
-            }
         }
 
         // Lock RuleServices until all services are available

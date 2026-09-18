@@ -492,7 +492,7 @@ headers include the ones of the MCP protocol.
 | `cors.allowed.methods`  | Comma-separated allowed HTTP methods.                                          |
 | `cors.allowed.headers`  | Comma-separated allowed request headers.                                       |
 | `cors.exposed.headers`  | Comma-separated response headers a page of an allowed origin may read.         |
-| `cors.preflight.maxage` | Seconds a browser may cache a pre-flight response.                             |
+| `cors.preflight.maxage` | Pre-flight cache time in seconds. A negative value leaves the header out.      |
 
 ```properties
 cors.allowed.origins = https://apps.example.com
@@ -501,6 +501,10 @@ cors.allowed.headers = Content-Type,Accept,api_key,Authorization,Mcp-Session-Id,
 cors.exposed.headers = Mcp-Session-Id
 cors.preflight.maxage = 7200
 ```
+
+A browser application on another origin authenticates every call with the `Authorization` header, either HTTP Basic
+or a personal access token, because the OpenL Studio session cookie is never shared with another origin. Only the
+response headers CORS exposes by default, such as `Content-Type`, are readable to it.
 
 ### Password Hashing
 
