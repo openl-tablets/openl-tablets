@@ -19,6 +19,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.StaticOpenClass;
+import org.openl.util.DomainUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -53,6 +54,14 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
         this.metaInfo = metaInfo;
         this.domain = domain;
         this.module = module;
+    }
+
+    /**
+     * The values a vocabulary datatype allows, or {@code null} for any other type: a Java enum publishes its own
+     * values. An array of a vocabulary answers the values of its elements.
+     */
+    public static String[] vocabularyValues(IOpenClass type) {
+        return type instanceof DomainOpenClass vocabulary ? DomainUtils.values(vocabulary.getDomain()) : null;
     }
 
     @Override

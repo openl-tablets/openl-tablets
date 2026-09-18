@@ -16,6 +16,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
 import org.openl.gen.ByteCodeUtils;
+import org.openl.gen.OpenApiSchemaAnnotations;
 import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
 import org.openl.util.StringUtils;
@@ -207,11 +208,11 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         av.visit("namespace", propertyNameSpace);
         av.visitEnd();
 
-        if (fieldDescription.description != null) {
-            av = mg.visitAnnotation("Lio/swagger/v3/oas/annotations/media/Schema;", true);
-            av.visit("description", fieldDescription.description);
-            av.visitEnd();
-        }
+        OpenApiSchemaAnnotations.visit(mg::visitAnnotation,
+                fieldDescription.type.getDescriptor(),
+                fieldDescription.description,
+                null,
+                fieldDescription.allowableValues);
 
         mg.endMethod();
     }
@@ -344,11 +345,17 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         final String column;
         final String cell;
         final String description;
+        /** The values the cell's vocabulary type allows, or {@code null} for any other type. */
+        final String[] allowableValues;
         String fieldName;
         String xmlName;
         private String suffix = "";
 
-        FieldDescription(String canonicalClassName, String row, String column, String description) {
+        FieldDescription(String canonicalClassName,
+                         String row,
+                         String column,
+                         String description,
+                         String[] allowableValues) {
             this.className = canonicalClassName;
             this.type = Type.getType(ByteCodeUtils.toTypeDescriptor(canonicalClassName));
             this.row = row;
@@ -373,6 +380,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
             }
             this.fieldName = ClassUtils.decapitalize(fieldName);
             this.description = description;
+            this.allowableValues = allowableValues;
         }
     }
 }

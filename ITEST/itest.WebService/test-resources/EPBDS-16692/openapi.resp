@@ -1,0 +1,763 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "openapi": "3.0.1",
+  "info": {
+    "description": "Auto-generated OpenAPI schema from the OpenL rules",
+    "title": "***",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "***"
+    }
+  ],
+  "paths": {
+    "/calc": {
+      "post": {
+        "description": "Rules method: SpreadsheetResultcalc calc(myType a, org.openl.generated.beans.Bean b)",
+        "operationId": "calc",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalcRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Calc"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "Calc calc(String, Bean)"
+      }
+    },
+    "/r1": {
+      "post": {
+        "description": "Rules method: java.lang.String r1(myType a)",
+        "operationId": "r1",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "bla1",
+                  "bla2",
+                  "bla3"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain;charset=UTF-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "String r1(String)"
+      }
+    },
+    "/r2": {
+      "post": {
+        "description": "Rules method: java.lang.String r2(myType[] a)",
+        "operationId": "r2",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "bla1",
+                    "bla2",
+                    "bla3"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain;charset=UTF-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "String r2(String[])"
+      }
+    },
+    "/r3": {
+      "post": {
+        "description": "Rules method: org.openl.generated.beans.Bean r3(org.openl.generated.beans.Bean b)",
+        "operationId": "r3",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Bean"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bean"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "Bean r3(Bean)"
+      }
+    },
+    "/r4": {
+      "post": {
+        "description": "Rules method: myType r4(java.lang.String s)",
+        "operationId": "r4",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain;charset=UTF-8": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bla1",
+                    "bla2",
+                    "bla3"
+                  ]
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "String r4(String)"
+      }
+    },
+    "/r5": {
+      "post": {
+        "description": "Rules method: myType r5(SpreadsheetResultcalc r)",
+        "operationId": "r5",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Calc"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain;charset=UTF-8": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bla1",
+                    "bla2",
+                    "bla3"
+                  ]
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "String r5(Calc)"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Bean": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "bla1",
+              "bla2",
+              "bla3"
+            ]
+          },
+          "kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "bla1",
+                "bla2",
+                "bla3"
+              ]
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "Calc": {
+        "type": "object",
+        "properties": {
+          "Kind": {
+            "type": "string",
+            "enum": [
+              "bla1",
+              "bla2",
+              "bla3"
+            ]
+          },
+          "Kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "bla1",
+                "bla2",
+                "bla3"
+              ]
+            }
+          },
+          "Note": {
+            "type": "string"
+          }
+        }
+      },
+      "CalcRequest": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "string",
+            "enum": [
+              "bla1",
+              "bla2",
+              "bla3"
+            ]
+          },
+          "b": {
+            "$ref": "#/components/schemas/Bean"
+          }
+        }
+      },
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          }
+        }
+      },
+      "JAXRSUserErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -42,6 +42,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ADynamicClass;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
@@ -754,8 +755,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         var fieldDescription = new FieldDescription(typeName,
                                 simpleRefByRow || !simpleRefByColumn ? rowNames[row] : null,
                                 !simpleRefByRow ? columnNames[column] : null,
-                                descriptions[row][column]
-                        );
+                                descriptions[row][column],
+                                DomainOpenClass.vocabularyValues(field.getType()));
                         beanFields.add(fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
                         usedXmlNames.put(fieldName, xmlName);

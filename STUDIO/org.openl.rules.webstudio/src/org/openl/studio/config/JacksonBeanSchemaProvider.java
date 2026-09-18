@@ -1,9 +1,13 @@
 package org.openl.studio.config;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.members.ResolvedMethod;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.github.victools.jsonschema.generator.CustomDefinition;
@@ -82,11 +86,21 @@ public class JacksonBeanSchemaProvider implements CustomDefinitionProviderV2 {
 
         var propertiesNode = schema.putObject(context.getKeyword(SchemaKeyword.TAG_PROPERTIES));
 
+        var typeContext = context.getTypeContext();
+        var members = typeContext.resolveWithMembers(typeContext.resolve(erasedType));
+        var getters = Arrays.stream(members.getMemberMethods())
+                .collect(Collectors.toMap(ResolvedMethod::getRawMember, Function.identity(), (a, b) -> a));
         for (BeanPropertyDefinition property : properties) {
             var propertyName = property.getName();
             var propertyType = property.getPrimaryType();
+            var getter = property.getGetter() == null ? null : getters.get(property.getGetter().getAnnotated());
 
-            if (propertyType != null) {
+            if (getter != null) {
+                // The getter is described the way a getter is: with the annotations the bean generator wrote on it,
+                // such as the values a vocabulary cell allows.
+                var getterSchema = context.createStandardDefinitionReference(typeContext.createMethodScope(getter, members), null);
+                propertiesNode.set(propertyName, getterSchema);
+            } else if (propertyType != null) {
                 // Recursively generate schema for property type using victools
                 var rawType = propertyType.getRawClass();
                 var propertySchema = context.createDefinitionReference(
