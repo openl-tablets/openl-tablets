@@ -194,12 +194,14 @@
 
 - IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was N" with `ORA-12516` while
   the other vendors pass. Oracle Free container limit, not the diff; one rerun clears it.
-- IT (services-data) is BLOCKED, not flaky, since ~2026-09-18 07:40 UTC: `apache/kafka-native:latest` exits code 1
-  in its own `setup`, GraalVM segfault at `Pwd.getpwuid`, so Testcontainers times out on "RECOVERY to RUNNING".
-  It passed at 05:00 and failed twice after, in DIFFERENT suites on the SAME commit — the floating tag regressed.
-  Do not burn reruns on it. Fix is to pin the tag in RunKafkaSmokeITest:43, RunStoreLogDataITest:68,
-  RunTracingITest:51 plus `ITEST/AGENTS.md:54`; test infrastructure, so a maintainer's, not this routine's.
-  The old note that `latest` equals `4.3.1` so pinning is a no-op is superseded.
+- IT (services-data) flake: `apache/kafka-native:latest` exits code 1 in its own `setup`, GraalVM segfault at
+  `Pwd.getpwuid`, Testcontainers then times out on "RECOVERY to RUNNING". It can hit TWICE IN A ROW and can strike
+  a different suite each time (WS Tracing, then Kafka Smoke) on the SAME commit. Two failures are still a flake
+  here, not a regression.
+- Before calling such a failure a tag regression, check whether ANOTHER PR ran the same job in the same window:
+  #2132 passed it at 07:51 between this PR's 07:42 and 08:03 failures, which disproved exactly that theory.
+  A repo-wide claim needs a repo-wide check; the base branch's own `Build` workflow is a multi-JDK matrix that
+  has been red since August for unrelated reasons, so it proves nothing either way.
 - Tests (without ITEST): `ModuleWorkspace.test.tsx` two cases on `module-workspace-error` fail on the CI runner
   while the same tree passes all studio-ui tests locally.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
@@ -258,8 +260,9 @@
 - PMD `Parsing failed in ParseLock#doParse()` on `BranchedProjectIndexService$IndexState`: a PMD 7 type resolution
   bug, harmless to the report.
 - Flyway migration `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` script; confirm Flyway applies it.
-- ITEST pulls `apache/kafka-native:latest` in three suites; that floating tag regressed on 2026-09-18 and now
-  blocks every PR. Pin it, or move to the JVM image `apache/kafka:4.3.1`. Test infrastructure outside the sweep.
+- ITEST pulls `apache/kafka-native:latest` in three suites (RunKafkaSmokeITest:43, RunStoreLogDataITest:68,
+  RunTracingITest:51, documented at `ITEST/AGENTS.md:54`); its startup flake is frequent enough to cost reruns.
+  Pinning the tag or moving to the JVM image `apache/kafka:4.3.1` would help. Infrastructure, outside the sweep.
 - `RulesUtilsTest.testParseFormattedDouble` carries `@SuppressWarnings("deprecated")`, a key javac ignores, while
   both methods it calls are deprecated: the fix is the key `deprecation`, a rename this routine may not make.
 
