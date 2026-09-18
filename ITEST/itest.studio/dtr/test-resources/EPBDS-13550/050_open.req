@@ -1,4 +1,4 @@
-PATCH /web/projects/EPBDS-13550%20Main%20Project HTTP/1.1
+PATCH /rest/projects/EPBDS-13550%20Main%20Project HTTP/1.1
 Content-Type: application/json
 
 {

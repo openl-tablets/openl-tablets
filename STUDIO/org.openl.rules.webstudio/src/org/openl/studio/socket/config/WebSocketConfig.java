@@ -49,10 +49,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Servlet-relative endpoint reachable under every DispatcherServlet mapping:
-        //   /web/ws  - native UI, authenticated by the session cookie;
-        //   /rest/ws - third-party clients, authenticated by an Authorization header (PAT/Bearer/Basic)
-        //              through the /rest/** chain in org.openl.studio.security.
+        // Servlet-relative endpoint, so it is served at /rest/ws - the one address, for the UI and for
+        // third-party clients alike. The /rest/** chain in org.openl.studio.security authenticates the
+        // handshake by the session cookie or by an Authorization header (PAT/Bearer/Basic).
         registry.addEndpoint("/ws")
                 .setHandshakeHandler(new AnonymousSupportHandshakeHandler())
                 .addInterceptors(new HttpSessionHandshakeInterceptor(),  // pass the HTTP Session to the WebSocket

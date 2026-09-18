@@ -21,8 +21,8 @@ import org.openl.rules.webstudio.web.servlet.SpringInitializer;
  * the whole time its consequences are still arriving.
  *
  * <p>A filter rather than a handler interceptor: the writes come from every mount of the
- * application — the REST API an integration or an MCP server calls, and the legacy pages, which the
- * Spring dispatcher never sees.
+ * application — the REST API an integration or an MCP server calls, and the top-level servlets, which
+ * the Spring dispatcher never sees.
  *
  * <p>The filter belongs to the container, and it takes the resolver from the application context
  * once per request. Taking it when the filter starts instead would tie the start of the whole web

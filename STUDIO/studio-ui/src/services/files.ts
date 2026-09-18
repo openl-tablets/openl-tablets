@@ -173,7 +173,7 @@ export function downloadFile(projectId: string, path: string, version?: string):
         params.set('version', version)
     }
     triggerDownload(
-        `${CONFIG.CONTEXT}/web${fileUrl(projectId, path)}?${params}`,
+        `${CONFIG.API_ROOT}${fileUrl(projectId, path)}?${params}`,
         path.slice(path.lastIndexOf('/') + 1)
     )
 }
@@ -181,7 +181,7 @@ export function downloadFile(projectId: string, path: string, version?: string):
 /** Trigger a browser download of a project folder as a zip archive (the trailing slash selects the folder). */
 export function downloadFolder(projectId: string, path: string): void {
     const name = path.slice(path.lastIndexOf('/') + 1)
-    triggerDownload(`${CONFIG.CONTEXT}/web${fileUrl(projectId, path)}/?download=true`, `${name}.zip`)
+    triggerDownload(`${CONFIG.API_ROOT}${fileUrl(projectId, path)}/?download=true`, `${name}.zip`)
 }
 
 /**

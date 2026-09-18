@@ -6,7 +6,8 @@ import type {
 
 vi.mock('services/config', () => ({
     __esModule: true,
-    default: { CONTEXT: '/ctx' },
+    API_PREFIX: '/rest',
+    default: { CONTEXT: '/ctx', API_ROOT: '/ctx/rest' },
 }))
 
 vi.mock('services/websocket', () => ({
@@ -70,14 +71,14 @@ describe('projectStatus service', () => {
     })
 
     describe('fetchProjectStatus', () => {
-        it('GETs /web/projects/{projectId}/status?branch= via shared apiCall', async () => {
+        it('GETs /rest/projects/{projectId}/status?branch= via shared apiCall', async () => {
             const payload = { projectId: 'abc', compileState: 'ok' }
             fetchMock.mockResolvedValue(jsonResponse(payload))
 
             const result = await fetchProjectStatus('abc=')
 
             expect(fetchMock).toHaveBeenCalledWith(
-                '/ctx/web/projects/abc%3D/status?branch=',
+                '/ctx/rest/projects/abc%3D/status?branch=',
                 expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
             )
             expect(result).toEqual(payload)
@@ -118,12 +119,12 @@ describe('projectStatus service', () => {
             expect(fetchMock).toHaveBeenCalledTimes(2)
             expect(fetchMock).toHaveBeenNthCalledWith(
                 1,
-                '/ctx/web/projects/abc/status?branch=',
+                '/ctx/rest/projects/abc/status?branch=',
                 expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
             )
             expect(fetchMock).toHaveBeenNthCalledWith(
                 2,
-                '/ctx/web/projects/def%3D/status?branch=',
+                '/ctx/rest/projects/def%3D/status?branch=',
                 expect.objectContaining({ method: 'GET', credentials: 'same-origin' })
             )
             expect(first).toEqual(firstPayload)

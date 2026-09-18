@@ -37,6 +37,9 @@ public class HttpClient implements AutoCloseable {
     public static final String ANSI_GREEN_BOLD = "\u001B[1;32m";
     public static final String ANSI_BLUE_BOLD = "\u001B[1;34m";
 
+    /** The one STOMP endpoint OpenL Studio serves, under the same prefix as the rest of the API. */
+    private static final String WEB_SOCKET_PATH = "/rest/ws";
+
     private final JettyServer server;
     private final URI baseURL;
     private final URI webSocketBaseURL;
@@ -49,7 +52,7 @@ public class HttpClient implements AutoCloseable {
     HttpClient(JettyServer server, URI baseURL) {
         this.server = server;
         this.baseURL = baseURL;
-        this.webSocketBaseURL = URI.create(baseURL.toString().replaceFirst("^http", "ws") + "/web/ws");
+        this.webSocketBaseURL = URI.create(baseURL.toString().replaceFirst("^http", "ws") + WEB_SOCKET_PATH);
         var builder = java.net.http.HttpClient.newBuilder().version(java.net.http.HttpClient.Version.HTTP_1_1);
 
         int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
@@ -380,19 +383,6 @@ public class HttpClient implements AutoCloseable {
      */
     public URI getWebSocketBaseURL() {
         return webSocketBaseURL;
-    }
-
-    /**
-     * Builds a {@code ws://...} URL for a specific servlet-relative STOMP endpoint on this server.
-     * The same controllers are exposed under both DispatcherServlet mappings, so the path is
-     * typically {@code "/web/ws"} (UI, cookie-authenticated) or {@code "/rest/ws"} (third-party
-     * clients, Authorization-header authenticated).
-     *
-     * @param path servlet-relative endpoint path, e.g. {@code "/rest/ws"}.
-     * @return the {@code ws://...} URL for that endpoint.
-     */
-    public URI getWebSocketURL(String path) {
-        return URI.create(baseURL.toString().replaceFirst("^http", "ws") + path);
     }
 
     /**

@@ -15,7 +15,7 @@ vi.mock('services/traceLaunchToken', () => ({
     retireTraceLaunch: vi.fn(),
 }))
 
-vi.mock('services/config', () => ({ default: { CONTEXT: '/webstudio' } }))
+vi.mock('services/config', () => ({ API_PREFIX: '/rest', default: { CONTEXT: '/webstudio', API_ROOT: '/webstudio/rest' } }))
 
 const startTrace = traceService.startTrace as ReturnType<typeof vi.fn>
 const exportTrace = traceService.exportTrace as ReturnType<typeof vi.fn>

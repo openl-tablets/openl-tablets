@@ -59,14 +59,13 @@ public final class StompTester implements AutoCloseable {
     /**
      * Connects to a specific STOMP endpoint with extra handshake headers.
      *
-     * <p>The session cookie established by previous HTTP calls is always sent when present, so
-     * cookie-authenticated {@code /web/ws} sessions keep working. {@code handshakeHeaders} adds
-     * headers on top of it — e.g. {@code Authorization: Basic ...} for the {@code /rest/ws}
-     * endpoint, which is authenticated by the {@code /rest/**} security chain rather than the
-     * session.
+     * <p>The {@code /rest/ws} handshake is authenticated by the {@code /rest/**} security chain, which
+     * accepts either credential. The session cookie established by previous HTTP calls is always sent when
+     * present, so a scenario that signed in through the form needs nothing else; {@code handshakeHeaders}
+     * adds headers on top of it — e.g. {@code Authorization: Basic ...} for a client that carries no session.
      *
      * @param http             established HTTP client (provides the base URL and session cookie)
-     * @param wsUrl            the {@code ws://...} endpoint to connect to, see {@link HttpClient#getWebSocketURL(String)}
+     * @param wsUrl            the {@code ws://...} endpoint to connect to, see {@link HttpClient#getWebSocketBaseURL()}
      * @param handshakeHeaders extra HTTP headers to send during the WebSocket handshake
      */
     public StompTester(HttpClient http, URI wsUrl, Map<String, String> handshakeHeaders) {

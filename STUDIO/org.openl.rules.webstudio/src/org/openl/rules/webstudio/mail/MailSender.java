@@ -29,6 +29,9 @@ public class MailSender {
 
     private static final String MAIL_VERIFICATION_TEMPLATE = "/templates/email-verification.eml";
 
+    /** The one prefix every API endpoint is served under, and therefore where the application root ends. */
+    private static final String API_PREFIX = "/rest";
+
     private final MailSenderProperties settings;
     private final UserSettingManagementService userSettingManagementService;
 
@@ -47,7 +50,7 @@ public class MailSender {
         var token = RandomStringUtils.secure().next(8, false, true);
         var emailWasSent = false;
 
-        var verificationLink = createVerificationLink(httpServletRequest, token);
+        var verificationLink = createVerificationLink(httpServletRequest.getRequestURL().toString(), token);
 
         try {
             if (isValidEmailSettings()) {
@@ -93,13 +96,20 @@ public class MailSender {
         return transport;
     }
 
-    private String createVerificationLink(HttpServletRequest httpServletRequest, String token) {
-        var root = httpServletRequest.getRequestURL().toString();
-        if (root.contains("/web")) {
-            root = root.substring(0, root.lastIndexOf("/web"));
-        } else if (root.contains("/rest")) {
-            root = root.substring(0, root.lastIndexOf("/rest"));
-        }
+    /**
+     * Builds the address the recipient follows to confirm their e-mail.
+     *
+     * <p>The application is rooted where the API prefix begins, so the link is the request address with that
+     * prefix and everything after it dropped. A deployment context path is kept: only the last occurrence of
+     * the prefix is cut, so a context path that itself ends in {@code /rest} survives.
+     *
+     * @param requestUrl the full address the request arrived at
+     * @param token      the verification token to carry
+     * @return the verification address
+     */
+    static String createVerificationLink(String requestUrl, String token) {
+        var prefixAt = requestUrl.lastIndexOf(API_PREFIX);
+        var root = prefixAt < 0 ? requestUrl : requestUrl.substring(0, prefixAt);
         return root + "/email?token=" + token;
     }
 

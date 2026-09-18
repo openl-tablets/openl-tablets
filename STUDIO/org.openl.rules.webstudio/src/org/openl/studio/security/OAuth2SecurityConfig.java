@@ -84,7 +84,7 @@ public class OAuth2SecurityConfig {
                 oauth2RedirectFilter);
     }
 
-    // Web endpoints
+    // REST endpoints
     @Bean
     @Order(4)
     public SecurityFilterChain restEndpointsFilterChain(
@@ -99,19 +99,6 @@ public class OAuth2SecurityConfig {
                 patAuthenticationFilter,
                 bearerTokenAuthenticationFilter,
                 bearerExceptionTranslationFilter,
-                filterSecurityInterceptor);
-    }
-
-    @Bean
-    @Order(6)
-    public SecurityFilterChain webEndpointsFilterChain(
-            @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
-            @Qualifier("webExceptionTranslationFilter") ExceptionTranslationFilter webExceptionTranslationFilter,
-            @Qualifier("filterSecurityInterceptor") AuthorizationFilter filterSecurityInterceptor) {
-
-        return new DefaultSecurityFilterChain(RequestMatchers.matcher("/web/**"),
-                securityContextPersistenceFilter,
-                webExceptionTranslationFilter,
                 filterSecurityInterceptor);
     }
 

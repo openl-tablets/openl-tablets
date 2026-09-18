@@ -1,4 +1,4 @@
-PUT /web/admin/tag-config/types/2 HTTP/1.1
+PUT /rest/admin/tag-config/types/2 HTTP/1.1
 Content-Type: application/json
 
 {

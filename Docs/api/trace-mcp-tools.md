@@ -20,8 +20,8 @@ plus `?fields=` to trim the response. The MCP server itself lives in a separate 
 
 ## 1. Transport, authentication, session
 
-- **Base:** `{context}/rest/projects/{projectId}/trace` (the same controllers are also available on `/web` for
-  the UI; for MCP use `/rest` with a token).
+- **Base:** `{context}/rest/projects/{projectId}/trace` — `/rest` is the one prefix the API is served on, for
+  MCP and for the user interface alike.
 - **Auth:** a Personal Access Token in the header (as for the other `/rest` calls).
 - **Session (critical):** the debug session is server-side and bound to the HTTP session (`@SessionScope`). The
   whole flow is many calls within ONE HTTP session. **MCP must keep the cookie/sessionId** (`JSESSIONID`) and

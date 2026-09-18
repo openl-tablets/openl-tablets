@@ -34,7 +34,7 @@ class ChangeOriginFilterTest {
 
     @Test
     void marks_the_client_of_a_change_as_a_recent_writer() throws Exception {
-        handle("PATCH", "/web/projects/p1");
+        handle("PATCH", "/rest/projects/p1");
 
         // Twice: when the request starts and when it ends, so a slow write stays attributable while
         // the disk events and the index rebuild it causes are still arriving.
@@ -53,7 +53,7 @@ class ChangeOriginFilterTest {
 
     @Test
     void a_read_changes_nothing_and_marks_nobody() throws Exception {
-        handle("GET", "/web/projects");
+        handle("GET", "/rest/projects");
 
         verify(changeOrigin, never()).remember(any());
     }
@@ -70,10 +70,10 @@ class ChangeOriginFilterTest {
 
     @Test
     void takes_the_resolver_of_the_configuration_in_force() throws Exception {
-        handle("POST", "/web/projects/p1");
+        handle("POST", "/rest/projects/p1");
         var afterReload = publishResolver();
 
-        handle("POST", "/web/projects/p1");
+        handle("POST", "/rest/projects/p1");
 
         // A configuration reload replaces the beans of the application context. A filter holding the resolver
         // it asked for once would go on naming the clients in an instance nothing reads any more.

@@ -14,14 +14,10 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * Captures the security context resolved during the handshake and stores it in the WebSocket session
  * attributes, so it can be replayed on every STOMP frame by the inbound channel interceptor.
  * <p>
- * This covers the cases that are not persisted in the HTTP session:
- * <ul>
- *     <li>anonymous users on the native {@code /web/ws} endpoint, whose context is never stored in the
- *     session;</li>
- *     <li>third-party clients authenticated by an {@code Authorization} header on the {@code /rest/ws}
- *     handshake (PAT/Bearer/Basic), resolved statelessly by the {@code org.openl.studio.security} filter
- *     chains and therefore absent from the session.</li>
- * </ul>
+ * This covers the case that is not persisted in the HTTP session: a third-party client authenticated by an
+ * {@code Authorization} header on the {@code /rest/ws} handshake (PAT/Bearer/Basic), resolved statelessly by
+ * the {@code org.openl.studio.security} filter chains and therefore absent from the session.
+ * <p>
  * When the context already comes from the HTTP session (cookie-authenticated UI), it is left untouched.
  */
 public class SecurityContextHandshakeInterceptor implements HandshakeInterceptor {

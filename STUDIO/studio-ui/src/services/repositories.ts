@@ -335,7 +335,7 @@ export function downloadProject(projectId: string, version?: string): void {
     // rather than a header, and the server writes the name in it.
     params.set('zone', Intl.DateTimeFormat().resolvedOptions().timeZone)
     triggerDownload(
-        `${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/files/?${params.toString()}`
+        `${CONFIG.API_ROOT}/projects/${encodeURIComponent(projectId)}/files/?${params.toString()}`
     )
 }
 

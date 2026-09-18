@@ -72,7 +72,7 @@ class ChangeOriginResolverTest {
     }
 
     private MockHttpServletRequest request() {
-        var request = new MockHttpServletRequest("POST", "/web/projects/p1/files/a.txt");
+        var request = new MockHttpServletRequest("POST", "/rest/projects/p1/files/a.txt");
         request.setSession(new MockHttpSession());
         return request;
     }

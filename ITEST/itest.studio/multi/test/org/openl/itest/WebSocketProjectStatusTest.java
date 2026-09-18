@@ -71,7 +71,7 @@ class WebSocketProjectStatusTest {
 
         // 4. Subscribe to the per-user project status topic. The server URL-encodes the project id in
         //    the destination, so mirror that here.
-        try (var stomp = new StompTester(client, client.getWebSocketURL("/rest/ws"),
+        try (var stomp = new StompTester(client, client.getWebSocketBaseURL(),
                 Map.of("Authorization", ADMIN_BASIC))) {
             var statusTopic = "/user/topic/projects/"
                     + URLEncoder.encode(initial.projectId(), StandardCharsets.UTF_8) + "/status";

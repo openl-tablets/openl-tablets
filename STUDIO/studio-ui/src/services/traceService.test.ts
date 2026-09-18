@@ -13,7 +13,8 @@ vi.mock('services/apiCall', async () => {
 
 vi.mock('services/config', () => ({
     __esModule: true,
-    default: { CONTEXT: '/ctx' },
+    API_PREFIX: '/rest',
+    default: { CONTEXT: '/ctx', API_ROOT: '/ctx/rest' },
 }))
 
 describe('traceService retry behavior', () => {
