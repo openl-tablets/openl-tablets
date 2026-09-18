@@ -32,7 +32,8 @@
 - #2135 on `dead-code/session-activation-callbacks`, head `49ad0b4388`, 1 commit, -34/+1, opened 2026-09-18.
 - Commit: remove the session activation callbacks the servlet container never invokes (SessionListener's
   HttpSessionActivationListener half plus the two RulesUserSession methods it alone called).
-- No review thread yet.
+- CodeRabbit reviewed head `49ad0b4388`: no actionable comments, merge risk minimal, title and description checks
+  passed. Its Docstring Coverage warning was declined by comment; do not re-litigate it.
 
 ## Merged PRs
 
@@ -149,6 +150,9 @@
   callbacks. Check each interface a registered listener implements against that list separately.
 - A servlet guard pairing `isRequestedSessionIdValid()` with `getSession(false) == null` is unsatisfiable by the
   servlet contract: a valid requested id always yields that session. Read filter guards for contradictions.
+- CodeRabbit's `Docstring Coverage` pre-merge check fails every deletion-only PR: it scores the functions inside
+  the touched hunks, which on a sweep PR are the removed ones, so the metric is unreachable without adding JavaDoc
+  to untouched methods. Decline it by comment citing `git diff -U0`; never widen a sweep PR to satisfy it.
 - Search documentation for a removed dependency case-insensitively (`grep -i`).
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p`
   for workbooks; a `.xls` is searched as latin-1 and UTF-16 bytes. Use `git ls-files`, never a raw `grep -r`:
