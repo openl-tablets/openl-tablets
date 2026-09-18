@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Input, Modal, Segmented, Select, Typography, Upload, type UploadFile } from 'antd'
+import { Alert, App, Button, Input, Modal, Segmented, Select, Typography, Upload, type UploadFile } from 'antd'
 import {
     ApiOutlined,
     ArrowLeftOutlined,
@@ -226,6 +226,7 @@ export const NewProjectModal = ({
     onCreated,
 }: NewProjectModalProps) => {
     const { t } = useTranslation('repository')
+    const { notification } = App.useApp()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { runWithCommitInfo, commitInfoModal, busy: committing } = useCommitInfoGuard()
@@ -569,6 +570,10 @@ export const NewProjectModal = ({
                         ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
                     })
                 }
+                // The dialog closes onto the new project's page, so the confirmation is the one thing that says
+                // the action went through — the way a copy or a deletion is confirmed.
+                const confirmation = mode === 'copy' ? 'browser.copy_dialog.success' : 'browser.create.success'
+                notification.success({ title: t(confirmation, { name: trimmedName }) })
                 onCreated({
                     repositoryId: repository.id,
                     name: trimmedName,
