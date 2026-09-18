@@ -3,3 +3,11 @@ ERROR: OpenAPI Reconciliation: Expected operation 'PUT' is not found for path '/
 ERROR: OpenAPI Reconciliation: Expected operation 'HEAD' is not found for path '/PlanDetails'.
 ERROR: OpenAPI Reconciliation: Expected operation 'PATCH' is not found for path '/PlanDetails'.
 ERROR: OpenAPI Reconciliation: Expected operation 'OPTIONS' is not found for path '/PlanDetails'.
+ERROR: OpenAPI Reconciliation: Type of field 'country' in type 'MyDatatype' must be compatible with OpenAPI type 'string' with the values [AE, AL, AR, AS, AT, VN, VU, WS, YE, ZA] that incompatible with actual type 'string'.
+ERROR: OpenAPI Reconciliation: Type of field 'usRegion' in type 'MyDatatype' must be compatible with OpenAPI type 'string' with the values [MW, NE, SE, SW, W] that incompatible with actual type 'string'.
+ERROR: OpenAPI Reconciliation: Type of field 'currency' in type 'MyDatatype' must be compatible with OpenAPI type 'string' with the values [ALL, GBP, USD, UYU, VEF, VND, YER] that incompatible with actual type 'string'.
+ERROR: OpenAPI Reconciliation: Type of field 'lang' in type 'MyDatatype' must be compatible with OpenAPI type 'string' with the values [ALB, SLO, SPA, THA, TUR, UKR, VIE] that incompatible with actual type 'string'.
+ERROR: OpenAPI Reconciliation: Type of field 'region' in type 'MyDatatype' must be compatible with OpenAPI type 'string' with the values [NCSA, EU, EMEA, APJ] that incompatible with actual type 'string'.
+ERROR: OpenAPI Reconciliation: Type of field 'usState' in type 'MyDatatype' must be compatible with OpenAPI type 'string' with the values [AL, AK, AZ, AR, CA, CO, WA, WV, WI, WY] that incompatible with actual type 'string'.
+ERROR: OpenAPI Reconciliation: Type of field 'caProvince' in type 'MyDatatype' must be compatible with OpenAPI type 'string' with the values [AB, BC, PE, MB, NB, NS, NU, ON, QC, SK, NL, YT, NT] that incompatible with actual type 'string'.
+ERROR: OpenAPI Reconciliation: Type of field 'caRegion' in type 'MyDatatype' must be compatible with OpenAPI type 'string' with the values [QC, HQ] that incompatible with actual type 'string'.

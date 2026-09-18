@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.DELETE;
@@ -81,6 +83,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenEnum;
 import org.openl.types.java.JavaOpenField;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.ClassUtils;
@@ -880,8 +883,11 @@ public class OpenApiProjectValidator {
         }
         var type = resolveType(schema);
         var format = schema.getFormat();
+        var values = CollectionUtils.isEmpty(schema.getEnum())
+                ? StringUtils.EMPTY
+                : " with the values " + schema.getEnum();
         return (dim == 0 && isSimpleJavaType(
-                s) ? "type" : "schema") + " '" + prefix + type + (format != null ? "(" + format + ")" : "") + "'";
+                s) ? "type" : "schema") + " '" + prefix + type + (format != null ? "(" + format + ")" : "") + "'" + values;
     }
 
     private String getMethodForPathStringPart(String methodName, String path) {
@@ -1132,6 +1138,41 @@ public class OpenApiProjectValidator {
             return true;
         }
         return Objects.equals(actualType, expectedType);
+    }
+
+    /**
+     * Whether the project allows exactly the values the OpenAPI declares.
+     *
+     * <p>An OpenAPI schema without an enum takes any value of its type, so the project may restrict them to a
+     * vocabulary or not. A schema with an enum is matched by a vocabulary with the same values, no more and no
+     * less; a type without a vocabulary would accept and return values the OpenAPI does not declare.
+     *
+     * <p>A Java enum is left alone: its values are fixed by the code that defines it, like the states and the
+     * countries of the runtime context, and are not the project's to declare.
+     */
+    private static boolean hasTheValuesDeclared(IOpenClass openClass,
+                                                Schema<?> actualSchema,
+                                                Schema<?> expectedSchema) {
+        var expectedValues = valuesOf(expectedSchema);
+        return expectedValues.isEmpty()
+                || openClass instanceof JavaOpenEnum
+                || expectedValues.equals(valuesOf(actualSchema));
+    }
+
+    /**
+     * The values a schema restricts a value to, written the same way on both sides: a number by its value, so
+     * that {@code 1} and {@code 1.0} are the same value. A {@code null} value is not a value of a vocabulary.
+     */
+    private static Set<String> valuesOf(Schema<?> schema) {
+        return schema.getEnum() == null
+                ? Set.of()
+                : schema.getEnum().stream().filter(Objects::nonNull).map(OpenApiProjectValidator::writtenValue).collect(Collectors.toSet());
+    }
+
+    private static String writtenValue(Object value) {
+        return value instanceof Number number
+                ? new BigDecimal(number.toString()).stripTrailingZeros().toPlainString()
+                : String.valueOf(value);
     }
 
     private boolean isSimpleJavaType(String type) {
@@ -1411,7 +1452,8 @@ public class OpenApiProjectValidator {
                     if (isSimpleJavaType(resolvedActualSchemaSimplifiedName) && isSimpleJavaType(
                             resolvedExpectedSchemaSimplifiedName)) {
                         if (!isCompatibleSimpleTypes(resolvedActualSchemaSimplifiedName,
-                                resolvedExpectedSchemaSimplifiedName)) {
+                                resolvedExpectedSchemaSimplifiedName)
+                                || !hasTheValuesDeclared(openClass, resolvedActualSchema, resolvedExpectedSchema)) {
                             throw new DifferentTypesException();
                         }
                     } else {
