@@ -1,0 +1,5 @@
+OPTIONS /simple/ping HTTP/1.1
+Origin: https://trusted.example
+Access-Control-Request-Method: GET
+Access-Control-Request-Headers: Authorization
+

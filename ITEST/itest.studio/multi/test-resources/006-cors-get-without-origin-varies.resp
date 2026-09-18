@@ -1,0 +1,6 @@
+HTTP/1.1 200
+Access-Control-Allow-Origin:
+Content-Type: application/json***
+Vary: Origin
+
+***

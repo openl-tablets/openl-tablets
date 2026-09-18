@@ -681,7 +681,7 @@ To log the runtime context, the arguments, and the result or the exception of ev
 
 #### CORS Filter Support
 
-**Cross-Origin Resource Sharing (CORS)** is a specification which is a standard mechanism that enables cross-origin requests. The specification defines a set of Access-Control-\* headers that allow the browser and server to communicate about which requests are allowed. The filter also protects against HTTP response splitting. If request is invalid or is not permitted, the request is rejected with HTTP status code 403 (Forbidden). For more information on CORS, see <https://fetch.spec.whatwg.org/>.
+**Cross-Origin Resource Sharing (CORS)** is a specification which is a standard mechanism that enables cross-origin requests. The specification defines a set of Access-Control-\* headers that allow the browser and server to communicate about which requests are allowed. A response to an allowed origin names that origin in the `Access-Control-Allow-Origin` header, and once any origin is allowed, every response carries `Vary: Origin`. A pre-flight request is answered with `204` before authentication, because a browser sends no credentials with it, so a page of an allowed origin can also call services that require a token. A request from an origin that is not allowed gets no CORS headers, and the browser hides the response from the page. For more information on CORS, see <https://fetch.spec.whatwg.org/>.
 
 The CORS filter supports the following initialization parameters:
 
@@ -690,6 +690,7 @@ The CORS filter supports the following initialization parameters:
 | cors.allowed.origins  | A list of [origins](https://tools.ietf.org/html/rfc6454) that are allowed to access the resource. <br/>A \* can be specified to enable access to resource from any origin. <br/>Otherwise, an allowed list of comma-separated origins can be provided.  <br/>**Examples:** `https://www.w3.org`, `https://www.example.com`.  <br/>The empty string means that no origin is allowed to access the resource. |
 | cors.allowed.methods  | A comma separated list of HTTP methods that can be used to access the resource using cross-origin requests. <br/>These methods are also included as a part of the `Access-Control-Allow-Methods` header in pre-flight response.  <br/>**Example:** GET,POST.                                                                                                                                 |
 | cors.allowed.headers  | A comma separated list of request headers for making an actual request. <br/>These headers are also returned as a part of the `Access-Control-Allow-Headers` header in pre-flight response.  <br/>**Example:** Origin,Accept.                                                                                                                                                                |
+| cors.exposed.headers  | A comma separated list of response headers a page of an allowed origin may read. These headers are returned as a part of the `Access-Control-Expose-Headers` header. **Example:** X-Request-Id. |
 | cors.preflight.maxage | The number of seconds a browser is allowed to cache the result of the pre-flight request. <br/>This attribute is included as a part of the `Access-Control-Max-Age` header in the pre-flight response. <br/>A negative value prevents a CORS filter from adding this response header to the pre-flight response.                                                                         |
 
 The default CORS configuration is as follows:
@@ -698,6 +699,7 @@ The default CORS configuration is as follows:
 cors.allowed.origins =
 cors.allowed.methods = GET,OPTIONS,HEAD,PUT,POST
 cors.allowed.headers = Content-Type,Accept,api_key,Authorization
+cors.exposed.headers =
 cors.preflight.maxage = 7200
 ```
 
