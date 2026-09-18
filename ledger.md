@@ -34,6 +34,8 @@
   HttpSessionActivationListener half plus the two RulesUserSession methods it alone called).
 - Head `49ad0b4388` is fully green: 17 checks, 16 success and dependabot skipped, Sonar quality gate passed with
   0 new issues. `mergeable_state` is `blocked`, i.e. waiting on a human approval; nothing is left for this routine.
+- Maintainer (yurkom) asked on a review thread to revert both files, calling it working code. Answered with the
+  bytecode proof above plus an offer to revert on request; awaiting his decision. Do not revert unprompted.
 - CodeRabbit: no actionable comments, merge risk minimal. Its Docstring Coverage warning was declined by comment;
   do not re-litigate it.
 
@@ -146,10 +148,11 @@
 - A class named only by a container registration (`web.xml` filter/servlet/listener, `@WebFilter`) is NOT proven
   alive by that reference: judge it by whether its behaviour is still reachable. SessionTimeoutFilter was mapped to
   `/*` yet could never act. Ask what removed the consumers (here: zero `.xhtml` left after the React migration).
-- A `<listener>` registration serves only the listener interfaces the container supports
-  (ServletContext/Request/Session, attribute and id listeners). `HttpSessionActivationListener` is NOT among them:
-  it notifies only objects bound as session attributes, so a registered-but-unbound class never gets those
-  callbacks. Check each interface a registered listener implements against that list separately.
+- A `<listener>` registration serves only the interfaces the container sorts it into. Verified in bytecode on
+  Jetty 12.1.13 and Tomcat 10.1.55: `SessionHandler.addEventListener` keeps only attribute, session and id
+  listener lists (no activation list), while `onSessionPassivation`/`StandardSession.passivate` iterate session
+  ATTRIBUTES and call `HttpSessionActivationListener` only on those. So a registered-but-unbound activation
+  listener never fires. Prove such claims by unzipping the container jar and reading `javap -c`, not from the spec.
 - A servlet guard pairing `isRequestedSessionIdValid()` with `getSession(false) == null` is unsatisfiable by the
   servlet contract: a valid requested id always yields that session. Read filter guards for contradictions.
 - CodeRabbit's `Docstring Coverage` pre-merge check fails every deletion-only PR: it scores the functions inside
@@ -242,6 +245,10 @@
   proxy"), and both call sites set `xForwardedPrefixStrategy=PREPEND` while Spring's filter exposes only
   `setRemoveOnly`/`setRelativeRedirects` and always REPLACES the context path with `X-Forwarded-Prefix`. Swapping
   changes proxy behaviour. Needs a maintainer decision; also touches WSFrontend RuleServicesFilter, not just web.xml.
+- Workspace passivation is wired to the wrong object: `RulesUserSession` IS a session attribute
+  (`WebStudioUtils.registerRulesUserSession`) but does not implement `HttpSessionActivationListener`, while
+  `SessionListener`, which forwarded to it, is only registered. If the behaviour is wanted, RulesUserSession must
+  implement the interface itself. An addition, not this routine's work.
 - ORA-12516 in IT (studio-acl) deserves a real fix in the Oracle container setup (process/session limit), and the
   `ModuleWorkspace.test.tsx` timing failure a source-level fix; both bite green PRs.
 - Dependency hygiene (additions): ~293 used-undeclared findings, notably spring-security-core in org.openl.security
