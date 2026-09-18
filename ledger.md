@@ -2,13 +2,11 @@
 
 ## Resume point
 
-- Delta sweep of `3707ef66d0..bbe6fccd00` (7 commits) done: every new export, locale key and type is referenced;
-  no new dead code. Sweep the next delta from `1dc89c91e0`; 0 commits means ledger upkeep only.
-- Open vein, not yet worked: audit every container registration for behavioural deadness — each `web.xml`
-  filter/servlet/listener and each `@WebFilter`/`@WebServlet`/`@WebListener`. SessionTimeoutFilter was found this
-  way; the rest of the registrations have never been checked against whether their behaviour can still fire.
-- No `dead-code/*` PR is open. A full re-sweep is not worth a run until main moves substantially; every vein under
-  Exhausted veins is exhausted at `000e6d889f`.
+- Main is still `1dc89c91e0`; the last delta sweep found nothing. Sweep the next delta from `1dc89c91e0`;
+  0 commits means ledger upkeep plus PR #2135 maintenance only.
+- The container-registration vein is worked out (see Exhausted veins); no vein is left open.
+- A full re-sweep is not worth a run until main moves substantially; every vein under Exhausted veins is
+  exhausted at `000e6d889f`.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
@@ -31,18 +29,19 @@
 
 ## Open PR
 
-- none
+- #2135 on `dead-code/session-activation-callbacks`, head `49ad0b4388`, 1 commit, -34/+1, opened 2026-09-18.
+- Commit: remove the session activation callbacks the servlet container never invokes (SessionListener's
+  HttpSessionActivationListener half plus the two RulesUserSession methods it alone called).
+- No review thread yet.
 
 ## Merged PRs
 
 - #2120 merged 2026-09-17: 7 commits, -487/+2, across commented-out code, locale keys, a test workbook, dead
   `@SuppressWarnings`, spring-security-core in security.standalone, AspectJ managed versions and webstudio members.
-- #2129 merged 2026-09-17 (main `3707ef66d0`): 1 commit, -1 line, the dead `users:edit_modal.cancel` locale key.
-  Merged 31 minutes after opening, before any CI job left the queue — a one-line locale deletion needs no wait.
-
-- #2134 merged 2026-09-18 (main `1dc89c91e0`): 1 commit, -87 lines, SessionTimeoutFilter and its web.xml
-  registration. Merged by the maintainer 3 minutes after opening, before CI finished — as #2129 was. A removal
+- #2129 merged 2026-09-17: 1 commit, -1 line, the dead `users:edit_modal.cancel` locale key.
+- #2134 merged 2026-09-18: 1 commit, -87 lines, SessionTimeoutFilter and its web.xml registration. A removal
   proven by unreachable behaviour rather than by non-reference is accepted on that evidence alone.
+- The maintainer merges a small, well-evidenced sweep PR within the hour, before CI finishes; do not wait on green.
 
 ## Module coverage
 
@@ -64,6 +63,9 @@
 - `STUDIO/org.openl.rules.diff/doc/Diff Algorithm.xlsx`: unreferenced design material, not code.
 - `org.eclipse.jetty:jetty-home` managed entry: in no dependency tree and declared by no pom; the DEMO scripts fetch
   Jetty by `jetty.version` themselves. Confirm nothing resolves it before dropping it.
+- `UserWorkspace.passivate()` with UserWorkspaceImpl's and SecureUserWorkspaceImpl's overrides: unreferenced in
+  production once PR #2135 lands, but public API on a published interface and documented in
+  `Docs/analysis/repository-layer-overview.md`. A maintainer decides.
 - `org.openl.rules.jackson` in ruleservice.ws.common and `spring-security-config` in org.openl.security are unused
   where declared but are the transitive providers their consumers compile against undeclared; fixing that is an
   addition (hygiene PR), never a deletion here.
@@ -141,6 +143,10 @@
 - A class named only by a container registration (`web.xml` filter/servlet/listener, `@WebFilter`) is NOT proven
   alive by that reference: judge it by whether its behaviour is still reachable. SessionTimeoutFilter was mapped to
   `/*` yet could never act. Ask what removed the consumers (here: zero `.xhtml` left after the React migration).
+- A `<listener>` registration serves only the listener interfaces the container supports
+  (ServletContext/Request/Session, attribute and id listeners). `HttpSessionActivationListener` is NOT among them:
+  it notifies only objects bound as session attributes, so a registered-but-unbound class never gets those
+  callbacks. Check each interface a registered listener implements against that list separately.
 - A servlet guard pairing `isRequestedSessionIdValid()` with `getSession(false) == null` is unsatisfiable by the
   servlet contract: a valid requested id always yields that session. Read filter guards for contradictions.
 - Search documentation for a removed dependency case-insensitively (`grep -i`).
@@ -203,6 +209,9 @@
 
 ## Exhausted veins
 
+- Container registrations audited for behavioural deadness at `1dc89c91e0`: webstudio web.xml (4 filters,
+  3 listeners) and all 8 `@WebFilter`/`@WebServlet` classes in webstudio and ruleservice.ws. One finding
+  (PR #2135); everything else is reachable. Re-run only when a registration is added or a consumer removed.
 - At `000e6d889f`: commented-out code (all sources), PMD 5 rules over 86 modules and ITEST, ASM member scan over
   5,150 classes in 106 output dirs, whole-type scan over 4,021 Java files, identifier count-1 scan, resources and
   images by name and stem over text and binaries, all message bundles and locales (1,590 studio-ui keys plus the
@@ -216,6 +225,10 @@
   `STUDIO/studio-ui/public/icons/` names the 512x512 icon `android-chrome-512x512.pngs` (trailing `s`), so that
   icon resolves in neither module. The DEMO copy is correct. A typo to fix, not dead code — raised on PR #2129,
   still unfixed on main; re-raise it if a maintainer has not acted.
+- `CorsFilter` is registered twice: `@WebFilter("/*")` (default name = the FQCN) and web.xml's `CorsFilter`. The
+  names differ, so both registrations apply and the filter runs twice per request, adding each `Access-Control-*`
+  header twice; browsers reject a duplicated `Access-Control-Allow-Origin`. Latent while `cors.allowed.origins` is
+  unset. De-duplicating changes behaviour, so it is a fix, not a deletion. Raised on PR #2135.
 - Request to swap `de.qaware.xff.filter.ForwardedHeaderFilter` (artifact `org.openl:x-forwarded-filter:2.0`) for
   Spring's `org.springframework.web.filter.ForwardedHeaderFilter` is BLOCKED and was not done: the root pom
   documents the opposite decision ("Neither Spring filter, nor CXF filter works correctly within the same reverse
@@ -236,10 +249,11 @@
 
 ## Run log
 
-- 2026-09-17 a: PR #2120 rebased twice through a Kafka-container flake, went green and merged; ledger closed out.
 - 2026-09-17 b: full re-sweep from zero at main `000e6d889f` on user instruction. Two detector bugs found and fixed
   (extension allowlist, constant inlining); one dead locale key removed in PR #2129; a broken webmanifest icon
   raised for a maintainer.
 - 2026-09-18: delta sweep of 7 commits found nothing; on user instruction removed SessionTimeoutFilter in PR #2134,
   merged the same hour. A second user request (swap the X-Forwarded filter for Spring's) was blocked on a
   documented contrary decision and recorded under Human follow-ups.
+- 2026-09-18 b: main unmoved, so the run worked the container-registration vein: SessionListener's activation
+  callbacks removed in PR #2135, the CorsFilter double registration raised for a maintainer.
