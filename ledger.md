@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- Full re-sweep from zero completed at main `000e6d889f` (every detector re-run over all 16,550 tracked files, not a
-  delta) and merged the same day. Result: one dead key. No `dead-code/*` PR is open.
-- Next run: sweep only `git rev-list 3707ef66d0..origin/main`; 0 means the run is ledger upkeep only. A second full
-  re-sweep is not worth a run until main moves substantially; every vein below is exhausted at `000e6d889f`.
+- Delta sweep of `3707ef66d0..bbe6fccd00` (7 commits) done: every new export, locale key and type is referenced;
+  no new dead code. Sweep the next delta from `bbe6fccd00`; 0 commits means ledger upkeep only.
+- PR #2134 open: one filter removal, awaiting CI and review. Maintain it before any new cutting.
+- A full re-sweep is not worth a run until main moves substantially; every vein below is exhausted at `000e6d889f`.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
@@ -28,7 +28,9 @@
 
 ## Open PR
 
-- none
+- `dead-code/webstudio-session-timeout-filter`, PR #2134, head `ea00c37071`.
+- 1 commit: remove the session-timeout redirect filter the React migration left unreachable (-87).
+- No review threads yet.
 
 ## Merged PRs
 
@@ -131,6 +133,11 @@
   apply the constant-inlining and Lombok filters above — without them it reports 1,568 members, with them 0.
 - `pkill -f <script>.py` from a Bash tool call kills the calling shell too, because the pattern matches the shell's
   own command line. Anchor it (`pkill -f 'name[.]py'`).
+- A class named only by a container registration (`web.xml` filter/servlet/listener, `@WebFilter`) is NOT proven
+  alive by that reference: judge it by whether its behaviour is still reachable. SessionTimeoutFilter was mapped to
+  `/*` yet could never act. Ask what removed the consumers (here: zero `.xhtml` left after the React migration).
+- A servlet guard pairing `isRequestedSessionIdValid()` with `getSession(false) == null` is unsatisfiable by the
+  servlet contract: a valid requested id always yields that session. Read filter guards for contradictions.
 - Search documentation for a removed dependency case-insensitively (`grep -i`).
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p`
   for workbooks; a `.xls` is searched as latin-1 and UTF-16 bytes. Use `git ls-files`, never a raw `grep -r`:
@@ -204,6 +211,12 @@
   `STUDIO/studio-ui/public/icons/` names the 512x512 icon `android-chrome-512x512.pngs` (trailing `s`), so that
   icon resolves in neither module. The DEMO copy is correct. A typo to fix, not dead code — raised on PR #2129,
   still unfixed on main; re-raise it if a maintainer has not acted.
+- Request to swap `de.qaware.xff.filter.ForwardedHeaderFilter` (artifact `org.openl:x-forwarded-filter:2.0`) for
+  Spring's `org.springframework.web.filter.ForwardedHeaderFilter` is BLOCKED and was not done: the root pom
+  documents the opposite decision ("Neither Spring filter, nor CXF filter works correctly within the same reverse
+  proxy"), and both call sites set `xForwardedPrefixStrategy=PREPEND` while Spring's filter exposes only
+  `setRemoveOnly`/`setRelativeRedirects` and always REPLACES the context path with `X-Forwarded-Prefix`. Swapping
+  changes proxy behaviour. Needs a maintainer decision; also touches WSFrontend RuleServicesFilter, not just web.xml.
 - ORA-12516 in IT (studio-acl) deserves a real fix in the Oracle container setup (process/session limit), and the
   `ModuleWorkspace.test.tsx` timing failure a source-level fix; both bite green PRs.
 - Dependency hygiene (additions): ~293 used-undeclared findings, notably spring-security-core in org.openl.security
@@ -218,9 +231,10 @@
 
 ## Run log
 
-- 2026-09-16 h: 9 dead `@SuppressWarnings` and the Sonar-flagged WebStudio fixpoint folded into PR #2120.
 - 2026-09-17 a: PR #2120 rebased twice through a Kafka-container flake, went green and merged; ledger closed out.
-- 2026-09-17 b: full re-sweep from zero at main `000e6d889f` on user instruction — every detector re-run over the
-  whole repository rather than the delta. Two detector bugs found and fixed (extension allowlist, constant
-  inlining); one dead locale key removed in PR #2129, merged the same hour; a broken webmanifest icon reference
+- 2026-09-17 b: full re-sweep from zero at main `000e6d889f` on user instruction. Two detector bugs found and fixed
+  (extension allowlist, constant inlining); one dead locale key removed in PR #2129; a broken webmanifest icon
   raised for a maintainer.
+- 2026-09-18: delta sweep of 7 commits found nothing; on user instruction removed SessionTimeoutFilter, a filter
+  registered in web.xml yet unreachable since the React migration, in PR #2134. A second user request (swap the
+  X-Forwarded filter for Spring's) was blocked on a documented contrary decision and recorded above.
