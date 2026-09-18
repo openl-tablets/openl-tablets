@@ -38,6 +38,13 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+        <!-- Only OpenL Studio opens a WebSocket, so the container that serves it stays with the Studio
+             suites instead of weighing down every Rule Services suite through server-core. -->
+        <dependency>
+            <groupId>org.eclipse.jetty.ee10.websocket</groupId>
+            <artifactId>jetty-ee10-websocket-jakarta-server</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -328,3 +328,9 @@ Share one server and isolate state instead of restarting — e.g. give each para
 - `new StompTester(client)` — connects to `/web/ws`; enough in single-user mode, where every request is the one user, but in multi-user mode the handshake is anonymous and the per-user topics stay silent.
 - `awaitMatching(topic, Type.class, predicate)` returns a future completing on the first matching frame (`awaitFirst` takes any frame). Subscribe **before** triggering the action that publishes, so the terminal frame isn't missed.
 - A rejected handshake (e.g. `401` on `/rest/ws` without credentials) makes the constructor throw — assert it with `assertThrows(AssertionError.class, ...)`.
+
+Only OpenL Studio opens a WebSocket, so the Jetty container that serves the handshake is declared once in
+`ITEST/itest.studio/pom.xml` rather than in `server-core` — every Rule Services suite would otherwise carry it for
+nothing. A new suite that needs a WebSocket and does not sit under `itest.studio/` declares
+`org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server` itself; without it the handshake never
+upgrades and the server answers the plain page with `200 OK`.
