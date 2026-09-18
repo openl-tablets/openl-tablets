@@ -905,8 +905,12 @@ public class ProjectModel {
 
                 break;
             case SINGLE:
-                webStudioWorkspaceDependencyManager
-                        .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
+                // The session may hold nothing compiled at all - the module was cleared when its project was
+                // closed elsewhere - and then there is nothing to drop before the module is built again.
+                if (webStudioWorkspaceDependencyManager != null) {
+                    webStudioWorkspaceDependencyManager
+                            .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
+                }
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
