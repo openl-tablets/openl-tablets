@@ -1,0 +1,74 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "calc",
+  "tableId": "07fdc6c65523a24e6a05b3dacc723403",
+  "executionTimeMs": "##.##",
+  "result": {
+    "Kind": "bla1",
+    "Kinds": ["bla1", "bla3"],
+    "Note": "n"
+  },
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "Kind": {
+        "type": "string",
+        "enum": ["bla1", "bla2", "bla3"]
+      },
+      "Kinds": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["bla1", "bla2", "bla3"]
+        }
+      },
+      "Note": {
+        "type": "string"
+      }
+    }
+  },
+  "parameters": [
+    {
+      "name": "a",
+      "description": "a",
+      "value": "bla1",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string",
+        "enum": ["bla1", "bla2", "bla3"]
+      }
+    },
+    {
+      "name": "b",
+      "description": "b",
+      "value": {
+        "kind": "bla2",
+        "kinds": ["bla1", "bla3"],
+        "note": "n"
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["bla1", "bla2", "bla3"]
+          },
+          "kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["bla1", "bla2", "bla3"]
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

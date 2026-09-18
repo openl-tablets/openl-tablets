@@ -17,7 +17,12 @@ Content-Type: application/json
       "value": "001",
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "string"
+        "type": "string",
+        "enum": [
+          "001",
+          "002",
+          "999"
+        ]
       }
     },
     {
@@ -26,7 +31,15 @@ Content-Type: application/json
       "value": "HO3",
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "string"
+        "type": "string",
+        "enum": [
+          "DP3",
+          "HO2",
+          "HO3",
+          "HO4",
+          "HO5",
+          "HO6"
+        ]
       }
     },
     {
@@ -35,7 +48,13 @@ Content-Type: application/json
       "value": "Gold",
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "string"
+        "type": "string",
+        "enum": [
+          "Platinum",
+          "Gold",
+          "Silver",
+          "Base"
+        ]
       }
     }
   ]

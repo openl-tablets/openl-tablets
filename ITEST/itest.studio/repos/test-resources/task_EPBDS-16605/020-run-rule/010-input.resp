@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableId": "d528b389bfa2e1fc819b25dd744de122",
+  "name": "Hello",
+  "parameters": [
+    {
+      "name": "a",
+      "description": "MyList",
+      "value": null,
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string",
+        "enum": ["a", "b", "c"]
+      }
+    }
+  ]
+}

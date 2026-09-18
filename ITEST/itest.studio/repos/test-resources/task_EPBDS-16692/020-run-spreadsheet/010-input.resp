@@ -1,0 +1,43 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableId": "07fdc6c65523a24e6a05b3dacc723403",
+  "name": "calc",
+  "parameters": [
+    {
+      "name": "a",
+      "description": "myType",
+      "value": null,
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string",
+        "enum": ["bla1", "bla2", "bla3"]
+      }
+    },
+    {
+      "name": "b",
+      "description": "Bean",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["bla1", "bla2", "bla3"]
+          },
+          "kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["bla1", "bla2", "bla3"]
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}
