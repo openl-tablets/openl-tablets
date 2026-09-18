@@ -192,12 +192,14 @@
 
 ## CI flakes
 
-- Both flakes below passed first try on `49ad0b4388`; they are intermittent, not constant.
 - IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was N" with `ORA-12516` while
   the other vendors pass. Oracle Free container limit, not the diff; one rerun clears it.
-- IT (services-data): `RunTracingITest.setUp` / `RunStoreLogDataITest.setUp` fail on `apache/kafka-native:latest`
-  with a segfault at image start or "Text file busy"; the same image starts fine for an earlier suite in the same
-  job. `latest` equals `4.3.1`, so pinning changes nothing. One rerun is the retry, then a maintainer by comment.
+- IT (services-data) is BLOCKED, not flaky, since ~2026-09-18 07:40 UTC: `apache/kafka-native:latest` exits code 1
+  in its own `setup`, GraalVM segfault at `Pwd.getpwuid`, so Testcontainers times out on "RECOVERY to RUNNING".
+  It passed at 05:00 and failed twice after, in DIFFERENT suites on the SAME commit — the floating tag regressed.
+  Do not burn reruns on it. Fix is to pin the tag in RunKafkaSmokeITest:43, RunStoreLogDataITest:68,
+  RunTracingITest:51 plus `ITEST/AGENTS.md:54`; test infrastructure, so a maintainer's, not this routine's.
+  The old note that `latest` equals `4.3.1` so pinning is a no-op is superseded.
 - Tests (without ITEST): `ModuleWorkspace.test.tsx` two cases on `module-workspace-error` fail on the CI runner
   while the same tree passes all studio-ui tests locally.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
@@ -256,8 +258,8 @@
 - PMD `Parsing failed in ParseLock#doParse()` on `BranchedProjectIndexService$IndexState`: a PMD 7 type resolution
   bug, harmless to the report.
 - Flyway migration `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` script; confirm Flyway applies it.
-- ITEST pulls `apache/kafka-native:latest`; the robust options are the JVM image `apache/kafka:4.3.1` or a
-  `KafkaContainer` startup retry in the three suites. Test infrastructure outside the sweep.
+- ITEST pulls `apache/kafka-native:latest` in three suites; that floating tag regressed on 2026-09-18 and now
+  blocks every PR. Pin it, or move to the JVM image `apache/kafka:4.3.1`. Test infrastructure outside the sweep.
 - `RulesUtilsTest.testParseFormattedDouble` carries `@SuppressWarnings("deprecated")`, a key javac ignores, while
   both methods it calls are deprecated: the fix is the key `deprecation`, a rename this routine may not make.
 
