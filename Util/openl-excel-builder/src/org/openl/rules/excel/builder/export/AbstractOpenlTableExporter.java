@@ -35,11 +35,10 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
     }
 
     protected void exportTables(Collection<T> models, Sheet sheet) {
-        var startPosition = getStartPosition();
-        Cursor endPosition;
+        var startPosition = getStartPosition(sheet);
         for (T table : models) {
-            endPosition = exportTable(table, startPosition, getTableStyle(), sheet);
-            startPosition = startPosition.equals(endPosition) ? startPosition : nextFreePosition(endPosition);
+            var endPosition = exportTable(table, startPosition, getTableStyle(), sheet);
+            startPosition = nextFreePosition(endPosition);
         }
     }
 
@@ -61,16 +60,14 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
 
     protected abstract Cursor exportTable(T model, Cursor position, TableStyle tableStyle, Sheet sheet);
 
-    protected abstract String getExcelSheetName();
-
-    protected Cursor getStartPosition() {
-        return TOP_LEFT_POSITION;
+    /** Where the first table goes: the top of an empty sheet, or below the tables the sheet already holds. */
+    private static Cursor getStartPosition(Sheet sheet) {
+        return sheet.getPhysicalNumberOfRows() == 0
+                ? TOP_LEFT_POSITION
+                : nextFreePosition(new Cursor(TOP_LEFT_POSITION.getColumn(), sheet.getLastRowNum()));
     }
 
-    protected Cursor nextFreePosition(Cursor endPosition) {
-        if (endPosition == null) {
-            return TOP_LEFT_POSITION;
-        }
+    private static Cursor nextFreePosition(Cursor endPosition) {
         return new Cursor(endPosition.getColumn(), endPosition.getRow() + DEFAULT_MARGIN);
     }
 }

@@ -24,6 +24,10 @@ public class ProjectModel {
     private boolean isRuntimeContextProvided;
     @Getter
     private Set<DatatypeModel> datatypeModels = new HashSet<>();
+    /** The vocabulary datatypes the OpenAPI enums declare, in the order they were met. */
+    @Getter
+    @Setter
+    private List<VocabularyModel> vocabularyModels = new ArrayList<>();
     private List<SpreadsheetModel> spreadsheetModels;
     @Getter
     private List<DataModel> dataModels = new ArrayList<>();
@@ -85,6 +89,9 @@ public class ProjectModel {
         if (!Objects.equals(datatypeModels, that.datatypeModels)) {
             return false;
         }
+        if (!Objects.equals(vocabularyModels, that.vocabularyModels)) {
+            return false;
+        }
         if (!Objects.equals(dataModels, that.dataModels)) {
             return false;
         }
@@ -99,6 +106,7 @@ public class ProjectModel {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (isRuntimeContextProvided ? 1 : 0);
         result = 31 * result + (datatypeModels != null ? datatypeModels.hashCode() : 0);
+        result = 31 * result + (vocabularyModels != null ? vocabularyModels.hashCode() : 0);
         result = 31 * result + (dataModels != null ? dataModels.hashCode() : 0);
         result = 31 * result + (spreadsheetModels != null ? spreadsheetModels.hashCode() : 0);
         result = 31 * result + (notOpenLModels != null ? notOpenLModels.hashCode() : 0);

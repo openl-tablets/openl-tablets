@@ -1,0 +1,266 @@
+{
+  "openapi": "3.0.1",
+  "paths": {
+    "/calc": {
+      "post": {
+        "description": "Rules method: SpreadsheetResultcalc calc(myType a, org.openl.generated.beans.Bean b)",
+        "operationId": "calc",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalcRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Calc"
+                }
+              }
+            },
+            "description": "Successful operation"
+          }
+        },
+        "summary": "Calc calc(String, Bean)"
+      }
+    },
+    "/r1": {
+      "post": {
+        "description": "Rules method: java.lang.String r1(myType a)",
+        "operationId": "r1",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "bla1",
+                  "bla2",
+                  "bla3"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain;charset=UTF-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful operation"
+          }
+        },
+        "summary": "String r1(String)"
+      }
+    },
+    "/r2": {
+      "post": {
+        "description": "Rules method: java.lang.String r2(myType[] a)",
+        "operationId": "r2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "bla1",
+                    "bla2",
+                    "bla3"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain;charset=UTF-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful operation"
+          }
+        },
+        "summary": "String r2(String[])"
+      }
+    },
+    "/r3": {
+      "post": {
+        "description": "Rules method: org.openl.generated.beans.Bean r3(org.openl.generated.beans.Bean b)",
+        "operationId": "r3",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Bean"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Bean"
+                }
+              }
+            },
+            "description": "Successful operation"
+          }
+        },
+        "summary": "Bean r3(Bean)"
+      }
+    },
+    "/r4": {
+      "post": {
+        "description": "Rules method: myType r4(java.lang.String s)",
+        "operationId": "r4",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain;charset=UTF-8": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "bla1",
+                    "bla2",
+                    "bla3"
+                  ]
+                }
+              }
+            },
+            "description": "Successful operation"
+          }
+        },
+        "summary": "String r4(String)"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Bean": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "bla1",
+              "bla2",
+              "bla3"
+            ]
+          },
+          "kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "bla1",
+                "bla2",
+                "bla3"
+              ]
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "color": {
+            "$ref": "#/components/schemas/Color"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "colors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Color"
+            }
+          }
+        }
+      },
+      "Calc": {
+        "type": "object",
+        "properties": {
+          "Kind": {
+            "type": "string",
+            "enum": [
+              "bla1",
+              "bla2",
+              "bla3"
+            ]
+          },
+          "Kinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "bla1",
+                "bla2",
+                "bla3"
+              ]
+            }
+          },
+          "Note": {
+            "type": "string"
+          }
+        }
+      },
+      "CalcRequest": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "string",
+            "enum": [
+              "bla1",
+              "bla2",
+              "bla3"
+            ]
+          },
+          "b": {
+            "$ref": "#/components/schemas/Bean"
+          }
+        }
+      },
+      "Color": {
+        "type": "string",
+        "enum": [
+          "red",
+          "green"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "vocabulary",
+    "version": "1.0.0"
+  }
+}
