@@ -133,5 +133,11 @@ The full map of `studio-backend/src/org/openl/` is in
   `org.openl.studio.config`, `org.openl.studio.session` (client sessions).
 - **Security** — `org.openl.studio.security` (security chains, AD, OAuth2, SAML, PAT), `org.openl.rules.security`
   (users and groups; `standalone` for the users of the database), `org.openl.security.acl` (access control lists).
+- **Cross-site request protection** — `org.openl.rules.webstudio.web.servlet.CrossSiteRequestFilter` guards
+  `/rest/*`, the MCP server `/mcp/*` and the form sign-in `/login`, rejecting a state-changing request from another
+  origin unless it is listed
+  in `cors.allowed.origins` (CSRF protection via `Sec-Fetch-Site`, or `Origin` over plain HTTP). The SSO endpoints
+  (`/login/saml2/**`, `/login/oauth2/**`, `/saml2/**`, `/oauth2/**`, `/logout`) are not mapped, so a SAML or OAuth2
+  login redirected back from the identity provider is never mistaken for an attack.
 - **OpenAPI** — `org.openl.rules.spring.openapi` (the Spring OpenAPI integration), `org.openl.studio.openapi` (the
   projection in the documentation).

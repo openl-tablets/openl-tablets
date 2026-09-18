@@ -509,6 +509,20 @@ browser application on another origin therefore authenticates its calls with the
 Basic or a personal access token. Besides the response headers CORS always exposes, such as `Content-Type`, it reads
 only the ones `cors.exposed.headers` lists.
 
+This list also governs cross-site request protection. A state-changing request — any method other than GET, HEAD,
+OPTIONS or TRACE — that a browser page on another origin makes to the REST API or to the built-in MCP server is
+rejected with `403` unless that origin is listed here, so another site cannot act through a signed-in user's session
+(a cross-site request forgery). The sign-in form is covered as well, so another site cannot sign a browser into an
+account of its choosing; single sign-on callbacks from the identity provider are not affected. An asterisk trusts
+every origin and turns this protection off. The requests of OpenL Studio's own pages pass, and so does a request that
+carries neither an `Origin` nor a `Sec-Fetch-Site` header, as scripts and integrations usually send it; a client that
+sends either header itself is checked like a browser.
+
+A browser tells the protection where a request comes from only when OpenL Studio is opened over HTTPS or at
+`localhost`. Over plain HTTP, the protection compares the `Origin` of the request with the address the request was
+made to, so a reverse proxy in front of OpenL Studio must pass the public host on in the `Host` or the
+`X-Forwarded-Host` header. Otherwise the requests of OpenL Studio's own pages are rejected as cross-site.
+
 ### Password Hashing
 
 OpenL Studio keeps only hashes of two kinds of secrets: internal users' passwords in Multi-User mode, and personal
