@@ -61,8 +61,11 @@ vi.mock('react-i18next', () => {
         'browser.create.openapi_defaults.rules_module_name': 'LocalizedAlgorithms',
         'browser.create.openapi_defaults.rules_module_path': 'rules/LocalizedAlgorithms.xlsx',
         'browser.create.branch_invalid': 'Enter a valid Git branch name that matches the repository pattern',
+        'browser.create.success': 'Project "{{name}}" created',
+        'browser.copy_dialog.success': 'Project copied to "{{name}}"',
     }
-    const t = (key: string) => translations[key] ?? key
+    const t = (key: string, values: Record<string, unknown> = {}) => Object.entries(values)
+        .reduce((text, [name, value]) => text.replace(`{{${name}}}`, String(value)), translations[key] ?? key)
     return { useTranslation: () => ({ t }) }
 })
 
@@ -74,7 +77,9 @@ vi.mock('antd-style', () => ({
     useTheme: () => new Proxy({}, { get: () => '#000' }),
 }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    const notification = { success: vi.fn(), error: vi.fn() }
     const Modal = ({ open, children, footer }: Record<string, unknown>) =>
         open ? <div>{children as never}{footer as never}</div> : null
     const Button = ({ children, onClick, icon, ...rest }: Record<string, unknown>) => {
@@ -185,8 +190,13 @@ vi.mock('antd', () => {
             return <span {...rest}>{children as never}</span>
         },
     }
-    return { Modal, Button, Checkbox, Input, Upload, Alert, Segmented, Select, Space, Tooltip, TreeSelect, Typography }
+    return withStaticApp({
+        Modal, Button, Checkbox, Input, Upload, Alert, Segmented, Select, Space, Tooltip, TreeSelect, Typography, notification,
+    })
 })
+
+/** The pop-ups the component raises, as the mocked `antd` records them. */
+const popups = async () => (await import('antd')).notification as unknown as { success: ReturnType<typeof vi.fn> }
 
 const repositories = [{ id: 'design', name: 'Design', aclId: 'a', capabilities: { canCreateProject: true } }]
 const mappedRepositories = [
@@ -490,6 +500,8 @@ describe('NewProjectModal', () => {
         expect(options.files).toBeUndefined()
         expect(options.template).toEqual({ type: 'predefined', category: 'General', name: 'Example' })
         await waitFor(() => expect(onCreated).toHaveBeenCalled())
+        // The dialog closes onto the new project, so a pop-up is what confirms the creation.
+        expect((await popups()).success).toHaveBeenCalledWith({ title: 'Project "FromTpl" created' })
     })
 
     it('suggests existing branches, accepts a new name and creates the project there', async () => {
@@ -675,6 +687,8 @@ describe('NewProjectModal', () => {
             undefined
         )
         await waitFor(() => expect(onCreated).toHaveBeenCalled())
+        // A copy is confirmed the way the copy dialog confirms one.
+        expect((await popups()).success).toHaveBeenCalledWith({ title: 'Project copied to "Copied"' })
     })
 
     it('offers only projects with copy capability as copy sources', async () => {
