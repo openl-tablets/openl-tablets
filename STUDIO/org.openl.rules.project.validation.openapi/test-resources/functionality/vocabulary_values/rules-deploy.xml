@@ -1,0 +1,5 @@
+<rules-deploy>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+</rules-deploy>
