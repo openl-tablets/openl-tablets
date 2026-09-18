@@ -1,0 +1,4 @@
+ERROR: OpenAPI Reconciliation: Type of field 'other' in type 'Bean' must be compatible with OpenAPI type 'string' with the values [x, y, z] that incompatible with actual type 'string' with the values [x, y].
+ERROR: OpenAPI Reconciliation: Type of field 'plain' in type 'Bean' must be compatible with OpenAPI type 'string' with the values [p, q] that incompatible with actual type 'string'.
+ERROR: OpenAPI Reconciliation: Return type of method 'r4' must be compatible with OpenAPI type 'string' with the values [bla1, bla2].
+ERROR: OpenAPI Reconciliation: Type 'String' of parameter 's' in method 'r2' must be compatible with OpenAPI type 'string' with the values [p, q].
