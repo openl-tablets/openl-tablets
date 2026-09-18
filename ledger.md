@@ -32,8 +32,10 @@
 - #2135 on `dead-code/session-activation-callbacks`, head `49ad0b4388`, 1 commit, -34/+1, opened 2026-09-18.
 - Commit: remove the session activation callbacks the servlet container never invokes (SessionListener's
   HttpSessionActivationListener half plus the two RulesUserSession methods it alone called).
-- CodeRabbit reviewed head `49ad0b4388`: no actionable comments, merge risk minimal, title and description checks
-  passed. Its Docstring Coverage warning was declined by comment; do not re-litigate it.
+- Head `49ad0b4388` is fully green: 17 checks, 16 success and dependabot skipped, Sonar quality gate passed with
+  0 new issues. `mergeable_state` is `blocked`, i.e. waiting on a human approval; nothing is left for this routine.
+- CodeRabbit: no actionable comments, merge risk minimal. Its Docstring Coverage warning was declined by comment;
+  do not re-litigate it.
 
 ## Merged PRs
 
@@ -186,6 +188,7 @@
 
 ## CI flakes
 
+- Both flakes below passed first try on `49ad0b4388`; they are intermittent, not constant.
 - IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was N" with `ORA-12516` while
   the other vendors pass. Oracle Free container limit, not the diff; one rerun clears it.
 - IT (services-data): `RunTracingITest.setUp` / `RunStoreLogDataITest.setUp` fail on `apache/kafka-native:latest`
