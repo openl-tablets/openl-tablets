@@ -249,6 +249,11 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
 
     @Override
     public void reset(ResolvedDependency dependency) {
+        if (findDependencyLoader(dependency) == null) {
+            // Nothing of it was compiled here, so nothing is dropped - and no compilation in flight is made
+            // stale over it.
+            return;
+        }
         version.incrementAndGet();
         super.reset(dependency);
     }

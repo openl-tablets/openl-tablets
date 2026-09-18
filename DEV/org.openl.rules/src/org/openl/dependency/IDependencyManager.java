@@ -25,6 +25,8 @@ public interface IDependencyManager {
     /**
      * Remove given dependency from cache.
      *
+     * <p>A dependency this manager does not load has nothing cached and is left alone.
+     *
      * @param dependency to be cleaned from cache.
      */
     void reset(ResolvedDependency dependency);
