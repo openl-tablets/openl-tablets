@@ -22,8 +22,6 @@ public interface UserWorkspace extends ProjectsContainer {
 
     LocalWorkspace getLocalWorkspace();
 
-    void passivate();
-
     void refresh();
 
     void syncProjects();
