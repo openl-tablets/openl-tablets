@@ -51,12 +51,4 @@ public class RulesUserSession {
             userWorkspace.release();
         }
     }
-
-    public void sessionDidActivate() {
-        userWorkspace.activate();
-    }
-
-    public void sessionWillPassivate() {
-        userWorkspace.passivate();
-    }
 }

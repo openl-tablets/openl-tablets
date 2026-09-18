@@ -230,16 +230,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void passivate() {
-        synchronized (userRulesProjects) {
-            clearRulesProjectsCache();
-        }
-        scheduleProjectsRefresh();
-
-        cleanUpOnActivation = false;
-    }
-
-    @Override
     public void refresh() {
         localWorkspace.refresh();
         scheduleProjectsRefresh();

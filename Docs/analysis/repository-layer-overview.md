@@ -789,7 +789,6 @@ UserWorkspace
 ```java
 public interface UserWorkspace extends ProjectsContainer {
     void activate();
-    void passivate();
     void refresh();
     void syncProjects();
 
@@ -896,8 +895,6 @@ AProject projectByPath = workspace.getProjectByPath(
     "rules/insurance",
     null
 );
-
-workspace.passivate();
 ```
 
 ### Concurrency: Lock Engine

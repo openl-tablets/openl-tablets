@@ -90,11 +90,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void passivate() {
-        userWorkspace.passivate();
-    }
-
-    @Override
     public void refresh() {
         userWorkspace.refresh();
     }
