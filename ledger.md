@@ -30,14 +30,14 @@
 ## Open PR
 
 - #2135 on `dead-code/session-activation-callbacks`, head `a10bb50615` (rebased on main `916f5bacf8`), 1 commit,
-  -54/+1, 6 files.
-- Commit: remove the session passivation path the servlet container never invokes — SessionListener's
-  HttpSessionActivationListener half, the two RulesUserSession methods, UserWorkspace.passivate with both
-  implementations, and the two Docs mentions.
-- Maintainer accepted the bytecode evidence and asked to drop UserWorkspace.activate() and passivate(). passivate()
-  is done; activate() was kept and explained — RulesUserSession.getUserWorkspace() calls it. Awaiting his answer.
-- CodeRabbit on the previous head: no actionable comments. Its Docstring Coverage warning was declined by comment;
-  do not re-litigate it.
+  -54/+1 over 6 files. Removes the session passivation path: SessionListener's HttpSessionActivationListener half,
+  the two RulesUserSession methods, UserWorkspace.passivate with both impls, and the two Docs mentions.
+- GREEN as of 10:55: all 17 checks pass, Sonar quality gate 0 new issues. `mergeable_state` blocked = human approval
+  only. Nothing is this routine's until a review, CI, the base or the thread changes.
+- One open thread: maintainer asked to drop UserWorkspace.activate() too; KEPT and explained, because
+  RulesUserSession.getUserWorkspace() calls it. Awaiting his answer — if he insists, do it as a behaviour change
+  without re-arguing.
+- CodeRabbit: no actionable comments. Its Docstring Coverage warning was declined; do not re-litigate.
 
 ## Merged PRs
 
@@ -199,7 +199,9 @@
   segfault at `Pwd.getpwuid`; Testcontainers then times out on "RECOVERY to RUNNING". The job starts the container
   once per suite, so any of Kafka Smoke / WS Tracing / WS Store Log Data can be the victim, a different one each
   time. Observed 3 failures in 4 runs across two SHAs, i.e. roughly one container start in three dies. Budget two
-  reruns per SHA and expect to need them; repeated failures here are still the flake, not a regression.
+  reruns per SHA and expect to need them; repeated failures here are still the flake, not a regression. On #2135
+  it cost 4 failures and 3 reruns across two SHAs before going green. Already explained in that PR's comments —
+  re-run, never re-comment.
 - Before calling such a failure a tag regression, check whether ANOTHER PR ran the same job in the same window:
   #2132 passed it at 07:51 between this PR's 07:42 and 08:03 failures, which disproved exactly that theory.
   A repo-wide claim needs a repo-wide check; the base branch's own `Build` workflow is a multi-JDK matrix that
