@@ -9,7 +9,7 @@ import {
     DeleteColumnOutlined,
     DeleteRowOutlined,
     FontColorsOutlined,
-    InsertRowAboveOutlined,
+    InsertRowBelowOutlined,
     InsertRowLeftOutlined,
     ItalicOutlined,
     MenuFoldOutlined,
@@ -146,7 +146,7 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('undo', <UndoOutlined />, onUndo, { disabled: !canUndo })}
             {action('redo', <RedoOutlined />, onRedo, { disabled: !canRedo })}
             {rule}
-            {action('insert_row', <InsertRowAboveOutlined />, onInsertRow)}
+            {action('insert_row', <InsertRowBelowOutlined />, onInsertRow)}
             {action('remove_row', <DeleteRowOutlined />, onRemoveRow,
                 { disabled: picked === null || row < 1, why: off('browser.module.edit_header_row_kept') })}
             {rule}
