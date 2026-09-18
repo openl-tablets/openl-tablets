@@ -29,7 +29,8 @@
 
 ## Open PR
 
-- #2135 on `dead-code/session-activation-callbacks`, head `7f40512465`, 1 commit, -54/+1, 6 files.
+- #2135 on `dead-code/session-activation-callbacks`, head `a10bb50615` (rebased on main `916f5bacf8`), 1 commit,
+  -54/+1, 6 files.
 - Commit: remove the session passivation path the servlet container never invokes — SessionListener's
   HttpSessionActivationListener half, the two RulesUserSession methods, UserWorkspace.passivate with both
   implementations, and the two Docs mentions.
@@ -208,6 +209,9 @@
   `test-resources/... - FAIL` and the cause with `ORA-|SQLException|expected: <`.
 - The `Sonar analysis` job is skipped when any job of the run fails, so a red flake also hides Sonar's verdict on
   that head; `sonarcloud.io/api/project_pull_requests/list?project=org.openl.rules:openl-tablets` names the SHA.
+- `rerun_failed_jobs` reuses the workspace, so exec files left truncated by the crashed attempt make the later
+  `Sonar analysis` die in `report-aggregate` with "Unknown block type f9". That is corrupt jacoco data, not a
+  quality gate. Re-running Sonar alone re-reads the same files; rebase onto main for a fresh run instead.
 
 ## Container facts
 
