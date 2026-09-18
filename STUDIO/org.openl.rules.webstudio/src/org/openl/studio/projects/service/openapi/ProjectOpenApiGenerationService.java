@@ -181,7 +181,7 @@ public class ProjectOpenApiGenerationService {
         studio.freezeProject(project.getName());
         try {
             var generated = new OpenAPIJavaClassGenerator(specification).generate();
-            write(project, root, model, () -> openApiHelper.generateDataTypesFile(specification.getDatatypeModels()));
+            write(project, root, model, () -> openApiHelper.generateDataTypesFile(specification));
             write(project, root, algorithm, () -> openApiHelper.generateAlgorithmsModule(
                     specification.getSpreadsheetResultModels(), specification.getDataModels(),
                     dependingOn(request.modelModuleName())));

@@ -32,7 +32,7 @@ public class DefaultValueCellWriter {
             valueCell.setCellValue("");
         } else {
             try {
-                setDefaultValue(field, valueCell, dateStyle, dateTimeStyle);
+                setValue(field.getType(), field.getDefaultValue(), valueCell, dateStyle, dateTimeStyle);
             } catch (ParseException e) {
                 log
                         .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
@@ -40,13 +40,25 @@ public class DefaultValueCellWriter {
         }
     }
 
-    private static void setDefaultValue(FieldModel model,
-                                        Cell valueCell,
-                                        CellStyle dateStyle,
-                                        CellStyle dateTimeStyle) throws ParseException {
-        var defaultValue = model.getDefaultValue();
+    /**
+     * Writes a value of a simple type that is not a date: a number as a number, the rest as text. A value the type
+     * cannot read is logged and leaves the cell empty.
+     */
+    public static void writeValueToCell(String type, Object value, Cell valueCell) {
+        try {
+            setValue(type, value, valueCell, null, null);
+        } catch (ParseException e) {
+            log.error("Error is occurred on writing the value {} of type {}.", value, type, e);
+        }
+    }
+
+    private static void setValue(String type,
+                                 Object defaultValue,
+                                 Cell valueCell,
+                                 CellStyle dateStyle,
+                                 CellStyle dateTimeStyle) throws ParseException {
         var valueAsString = defaultValue.toString();
-        switch (model.getType()) {
+        switch (type) {
             case "Integer",
                  "BigInteger" -> {
                 var casted = NumberFormat.getInstance().parse(valueAsString);
@@ -78,7 +90,14 @@ public class DefaultValueCellWriter {
                     valueCell.setCellStyle(dateTimeStyle);
                 }
             }
-            default -> valueCell.setCellValue("");
+            // A vocabulary field: the table knows the type by name only, and its default is a word or a number.
+            default -> {
+                switch (defaultValue) {
+                    case Number number -> valueCell.setCellValue(number.doubleValue());
+                    case String text -> valueCell.setCellValue(text);
+                    default -> valueCell.setCellValue("");
+                }
+            }
         }
     }
 }

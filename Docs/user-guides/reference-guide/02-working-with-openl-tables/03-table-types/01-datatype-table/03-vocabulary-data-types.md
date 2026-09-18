@@ -51,4 +51,4 @@ OpenL Rule Services publishes the values of a vocabulary data type as the `enum`
 
 A client therefore sees which values a service accepts and returns. An array of arrays of a vocabulary is published without the values.
 
-OpenL Studio treats the `enum` of an OpenAPI file the same way: the reconciliation of a project against its OpenAPI file requires a vocabulary data type with the same values wherever the file lists them. For details, see [OpenL Studio Guide > Reconciling an OpenAPI Project](../../../../openl-studio/rules-editor.md#reconciling-an-openapi-project).
+OpenL Studio treats the `enum` of an OpenAPI file the same way: the reconciliation of a project against its OpenAPI file requires a vocabulary data type with the same values wherever the file lists them, and the generation of a project from an OpenAPI file creates a vocabulary data type for every `enum`. For details, see [OpenL Studio Guide > Reconciling an OpenAPI Project](../../../../openl-studio/rules-editor.md#reconciling-an-openapi-project) and [OpenL Studio Guide > Vocabulary Data Types](../../../../openl-studio/appendices/openapi-generation.md#vocabulary-data-types).
