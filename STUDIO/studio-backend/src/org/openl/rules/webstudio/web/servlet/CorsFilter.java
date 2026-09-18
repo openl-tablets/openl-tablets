@@ -10,7 +10,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.openl.util.StringUtils;
+import org.openl.web.AllowedOrigins;
 
 /**
  * Answers the cross-origin requests of the browser pages whose origins {@code cors.allowed.origins} lists.
@@ -20,8 +20,7 @@ import org.openl.util.StringUtils;
  */
 public class CorsFilter implements Filter {
 
-    private String[] allowedOrigins;
-    private boolean allowedAny;
+    private AllowedOrigins allowedOrigins;
     private String allowedMethods;
     private String allowedHeaders;
     private String exposedHeaders;
@@ -34,7 +33,7 @@ public class CorsFilter implements Filter {
         var httpResponse = (HttpServletResponse) response;
         var requestOrigin = httpRequest.getHeader("Origin");
 
-        if (isAllowedOrigin(requestOrigin)) {
+        if (allowedOrigins.contains(requestOrigin)) {
             httpResponse.addHeader("Access-Control-Allow-Origin", requestOrigin);
             httpResponse.addHeader("Access-Control-Max-Age", maxAge);
             httpResponse.addHeader("Access-Control-Allow-Methods", allowedMethods);
@@ -50,28 +49,11 @@ public class CorsFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    private boolean isAllowedOrigin(String requestOrigin) {
-        if (requestOrigin == null || allowedOrigins == null) {
-            return false;
-        }
-        if (allowedAny) {
-            return true;
-        }
-        for (String allowed : allowedOrigins) {
-            if (allowed.equalsIgnoreCase(requestOrigin)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public void init(FilterConfig config) {
         var env = SpringInitializer.getApplicationContext(config.getServletContext()).getEnvironment();
 
-        var allowed = env.getProperty("cors.allowed.origins");
-        allowedAny = "*".equals(allowed);
-        allowedOrigins = StringUtils.split(allowed, ',');
+        allowedOrigins = AllowedOrigins.parse(env.getProperty("cors.allowed.origins"));
         allowedMethods = env.getProperty("cors.allowed.methods");
         allowedHeaders = env.getProperty("cors.allowed.headers");
         exposedHeaders = env.getProperty("cors.exposed.headers");
