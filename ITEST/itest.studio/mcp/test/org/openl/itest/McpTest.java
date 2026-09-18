@@ -15,7 +15,8 @@ class McpTest {
 
     /**
      * In the single-user mode the server needs no credentials. A web page of an origin the CORS settings allow gets the
-     * CORS headers. A client of the 2025-11-25 protocol still works in a session of its own.
+     * CORS headers; a page of any other origin is refused before the server sees its call. A client of the 2025-11-25
+     * protocol still works in a session of its own.
      */
     @Test
     void servesTheMcpServerAtMcp() throws Exception {

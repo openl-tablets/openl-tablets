@@ -52,6 +52,21 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <!-- Rejects a state-changing request a cross-site page made with the signed-in user's session (CSRF), on the
+         REST API, the MCP server and the form sign-in. The single sign-on endpoints under /login/... and /logout
+         receive the identity provider's cross-site posts and are deliberately left unmapped. -->
+    <filter>
+        <filter-name>CrossSiteRequestFilter</filter-name>
+        <filter-class>org.openl.rules.webstudio.web.servlet.CrossSiteRequestFilter</filter-class>
+        <async-supported>true</async-supported>
+    </filter>
+    <filter-mapping>
+        <filter-name>CrossSiteRequestFilter</filter-name>
+        <url-pattern>/rest/*</url-pattern>
+        <url-pattern>/mcp/*</url-pattern>
+        <url-pattern>/login</url-pattern>
+    </filter-mapping>
+
     <filter>
         <filter-name>SecurityFilter</filter-name>
         <filter-class>org.openl.studio.security.SecurityFilter</filter-class>

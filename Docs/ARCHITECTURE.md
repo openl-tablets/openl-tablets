@@ -122,6 +122,8 @@ flowchart LR
 - **Clients of the REST API** — a request can carry a bearer token, a personal access token or Basic credentials
   ([Personal Access Tokens](api/personal-access-token-architecture.md)).
 - **Authorization** — access control lists give users and groups their permissions on projects and repositories.
+- **Cross-site requests** — OpenL Studio rejects a state-changing request from another origin unless
+  `cors.allowed.origins` lists that origin, so a page on another site cannot act with the session of a signed-in user.
 
 ## Deployment
 
