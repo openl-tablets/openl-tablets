@@ -1,6 +1,5 @@
 package org.openl.rules.excel.builder.export;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 
@@ -22,16 +21,6 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     public static final String SPREADSHEET_RESULT_SIGNATURE = "\\{spr.signature}";
     public static final String SPREADSHEET_RESULT_STEP_NAME = "\\{spr.field.name}";
     public static final String SPREADSHEET_RESULT_STEP_VALUE = "\\{spr.field.value}";
-
-    @Override
-    protected void exportTables(Collection<SpreadsheetModel> models, Sheet sheet) {
-        Cursor endPosition = null;
-        var style = getTableStyle();
-        for (SpreadsheetModel model : models) {
-            var startPosition = nextFreePosition(endPosition);
-            endPosition = exportTable(model, startPosition, style, sheet);
-        }
-    }
 
     @Override
     protected Cursor exportTable(SpreadsheetModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
@@ -104,8 +93,4 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 
-    @Override
-    protected String getExcelSheetName() {
-        return SPR_RESULT_SHEET;
-    }
 }

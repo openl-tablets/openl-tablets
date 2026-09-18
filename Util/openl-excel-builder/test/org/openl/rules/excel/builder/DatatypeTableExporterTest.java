@@ -260,8 +260,9 @@ class DatatypeTableExporterTest {
         var customTypeField = new FieldModel("driver", "Human");
         dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
 
+        var projectModel = new ProjectModel(TEST_PROJECT, false, asSet(dt), List.of(), List.of(), List.of());
         try (var bos = new ByteArrayOutputStream()) {
-            ExcelFileBuilder.generateDataTypes(asSet(dt), bos);
+            ExcelFileBuilder.generateDataTypes(projectModel, bos);
             try (var fos = new FileOutputStream(DATATYPE_TEST_PROJECT_NAME)) {
                 fos.write(bos.toByteArray());
             }

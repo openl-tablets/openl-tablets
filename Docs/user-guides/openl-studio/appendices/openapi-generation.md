@@ -110,6 +110,7 @@ The following topics are included in this section:
 -   [Data Table](#data-table)
 -   [Spreadsheet Results](#spreadsheet-results)
 -   [Spreadsheet Tables and Datatypes](#spreadsheet-tables-and-datatypes)
+-   [Vocabulary Data Types](#vocabulary-data-types)
 -   [Step Default Values](#step-default-values)
 
 #### Decision Making
@@ -171,6 +172,16 @@ The LostSpreadsheet is generated because it has a reference to the mySpr spreads
 
 If a path response returns a primitive schema type or a schema participating in data tables or requests, the corresponding path is marked and generated as a spreadsheet, and the returning schema is generated as an OpenL Tablets data type.
 
+#### Vocabulary Data Types
+
+A schema of a simple type with an `enum` becomes a vocabulary data type, and every field, parameter, step, or returned value that uses the schema is of that type. The vocabulary tables are written to the data types module above the datatype tables.
+
+-   A named schema keeps its name.
+-   An inline `enum` is named by its `title`, or otherwise by the property or parameter it belongs to. An inline `enum` with the same values as a vocabulary already generated uses that vocabulary.
+-   Date and date-time schemas are never vocabularies.
+-   A `null` or an empty value of an `enum` is left out: a vocabulary table cannot hold it.
+-   A file whose schemas are all vocabularies, with no path to generate a spreadsheet from, still creates the project.
+
 #### Step Default Values
 
 Spreadsheet tables and spreadsheet result table steps are presented by fields of the schema returned in the Response section of the OpenAPI path.
@@ -191,6 +202,7 @@ Spreadsheet tables and spreadsheet result table steps are presented by fields of
     | Object  | = new Object()          |
 
 -   If a step is an OpenL Tablets datatype, a new instance creation is called.
+-   If a step is a vocabulary data type, the value is a `null` of that type, for example, `= (Color) null`.
 -   If a step is an OpenL spreadsheet call, it is called with default input parameters.
 
 ### OpenAPI to OpenL Type Transformation

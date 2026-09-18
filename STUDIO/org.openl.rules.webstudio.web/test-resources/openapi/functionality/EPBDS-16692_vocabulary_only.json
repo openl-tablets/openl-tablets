@@ -1,0 +1,28 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "VocabularyOnly",
+    "version": "1.0.0"
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "Kind": {
+        "type": "string",
+        "enum": [
+          "bla1",
+          "bla2",
+          "bla3"
+        ]
+      },
+      "Level": {
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      }
+    }
+  }
+}

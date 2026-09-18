@@ -3,7 +3,6 @@ package org.openl.rules.excel.builder.export;
 import static org.openl.rules.excel.builder.export.DefaultValueCellWriter.writeDefaultValueToCell;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,18 +31,8 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
 
 
     @Override
-    protected void exportTables(Collection<DataModel> models, Sheet sheet) {
-        Cursor endPosition = null;
-        var style = getTableStyle();
-        for (DataModel model : models) {
-            log.debug("exporting data table with name {}", model.getName());
-            var startPosition = nextFreePosition(endPosition);
-            endPosition = exportTable(model, startPosition, style, sheet);
-        }
-    }
-
-    @Override
     protected Cursor exportTable(DataModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
+        log.debug("exporting data table with name {}", model.getName());
         var style = (DataTableStyle) defaultStyle;
 
         var dataTableHeaderTemplate = style.getHeaderTemplate();
@@ -123,8 +112,4 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
                 .collect(Collectors.toList()), ' ');
     }
 
-    @Override
-    protected String getExcelSheetName() {
-        return DATA_SHEET;
-    }
 }

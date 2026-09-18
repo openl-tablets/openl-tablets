@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.VocabularyModel;
 
 class ProjectModelTest {
 
@@ -133,6 +134,24 @@ class ProjectModelTest {
         assertNotEquals(bankRating.hashCode(), bankRatingWithOneDataType.hashCode());
         assertEquals(2, bankRating.getDatatypeModels().size());
         assertEquals(1, bankRatingWithOneDataType.getDatatypeModels().size());
+    }
+
+    @Test
+    void testProjectModelWithVocabularies() {
+        var color = new VocabularyModel("Color", "String", List.of("red", "green"));
+        var bankRating = new ProjectModel();
+        bankRating.setName(BANK_RATING);
+        bankRating.setVocabularyModels(List.of(color));
+        var bankRatingCopy = new ProjectModel();
+        bankRatingCopy.setName(BANK_RATING);
+        bankRatingCopy.setVocabularyModels(List.of(color));
+        var bankRatingWithoutVocabulary = new ProjectModel();
+        bankRatingWithoutVocabulary.setName(BANK_RATING);
+
+        assertEquals(bankRating, bankRatingCopy);
+        assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
+        assertNotEquals(bankRating, bankRatingWithoutVocabulary);
+        assertNotEquals(bankRating.hashCode(), bankRatingWithoutVocabulary.hashCode());
     }
 
     @SafeVarargs
