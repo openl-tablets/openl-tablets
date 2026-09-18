@@ -520,7 +520,8 @@
             "content" : {
               "text/plain;charset=UTF-8" : {
                 "schema" : {
-                  "type" : "string"
+                  "type" : "string",
+                  "enum" : [ "R5", "R4", "R3", "R2", "R1" ]
                 }
               }
             },
@@ -3935,7 +3936,8 @@
             "format" : "double"
           },
           "Value_BankRatingGroup" : {
-            "type" : "string"
+            "type" : "string",
+            "enum" : [ "R5", "R4", "R3", "R2", "R1" ]
           },
           "Value_IsAdequateNormativeIndexCalculation" : {
             "type" : "number",

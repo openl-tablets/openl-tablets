@@ -410,6 +410,12 @@ paths:
             text/plain;charset=UTF-8:
               schema:
                 type: string
+                enum:
+                  - R5
+                  - R4
+                  - R3
+                  - R2
+                  - R1
           description: Successful operation
         "204":
           description: Successful operation
@@ -2842,6 +2848,12 @@ components:
           format: double
         Value_BankRatingGroup:
           type: string
+          enum:
+            - R5
+            - R4
+            - R3
+            - R2
+            - R1
         Value_IsAdequateNormativeIndexCalculation:
           type: number
           format: double

@@ -349,16 +349,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     if (parameter.isAnnotationPresent(ExternalParam.class)) {
                         parameterTypes[i] = null;
                     } else if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
-                        Class<?> t = parameterTypes[i];
-                        var dim = 0;
-                        while (t.isArray()) {
-                            t = t.getComponentType();
-                            dim++;
-                        }
-                        if (t.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
-                            parameterTypes[i] = dim > 0 ? Array.newInstance(SpreadsheetResult.class, dim).getClass()
-                                    : SpreadsheetResult.class;
-                        }
+                        parameterTypes[i] = RuleServiceOpenLServiceInstantiationHelper.spreadsheetResultTypeOf(parameterTypes[i]);
                     } else if (parameter.isAnnotationPresent(RulesType.class)) {
                         parameterTypes[i] = findOrLoadType(openClass, serviceClassLoader, parameter.getAnnotation(RulesType.class), parameterTypes[i]);
                     }

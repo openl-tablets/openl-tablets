@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +68,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.gen.FieldDescription;
+import org.openl.gen.OpenApiSchemaAnnotations;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.openapi.OpenAPIRefResolver;
@@ -79,6 +79,8 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
+import org.openl.util.DomainUtils;
 import org.openl.util.JAXBUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -273,13 +275,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
 
                     // Generate enum description for vocabulary types in OpenAPI schema
-                    var allowableValues = new ArrayList<String>();
-                    if (parameterTypes[i] != null && parameterTypes[i].getDomain() != null) {
-                        Iterator<?> itr = parameterTypes[i].getDomain().iterator();
-                        while (itr.hasNext()) {
-                            allowableValues.add(itr.next().toString());
-                        }
-                    }
+                    var allowableValues = parameterTypes[i] != null && parameterTypes[i].getDomain() != null
+                            ? DomainUtils.values(parameterTypes[i].getDomain())
+                            : null;
 
                     var fieldDescription = new FieldDescription(parameter.getType().getName(),
                             null,
@@ -287,7 +285,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                             null,
                             null,
                             StringUtils.isNotBlank(description) ? description : null,
-                            allowableValues.isEmpty() ? null : allowableValues.toArray(new String[0]),
+                            allowableValues,
                             null,
                             false,
                             false,
@@ -400,7 +398,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 var sb = new StringBuilder();
                 mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                 var parameterNames = resolveParameterNames(openMember, originalMethod);
-                processAnnotationsOnMethodParameters(originalMethod, mv);
+                processAnnotationsOnMethodParameters(originalMethod, openMember, mv);
                 addGetAnnotation(mv, originalMethod);
 
                 if (!originalMethod.isAnnotationPresent(Path.class)) {
@@ -505,11 +503,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
                             processAnnotationsOnMethodExternalParameters(originalMethod, mv);
                         } else {
                             mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-                            processAnnotationsOnMethodParameters(originalMethod, mv);
+                            processAnnotationsOnMethodParameters(originalMethod, openMember, mv);
                         }
                     } else {
                         mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-                        processAnnotationsOnMethodParameters(originalMethod, mv);
+                        processAnnotationsOnMethodParameters(originalMethod, openMember, mv);
                     }
                     if (!hasResponse) {
                         annotateReturnElementClass(mv, returnType);
@@ -530,7 +528,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             nicknames.add(nickname);
             addSwaggerMethodAnnotation(mv, openMember, originalMethod, nickname, pathItem, operation, usedParamNames);
-            addOpenApiResponsesMethodAnnotation(mv, originalMethod);
+            addOpenApiResponsesMethodAnnotation(mv, openMember, originalMethod);
             addOpenApiAcceptLanguageHeader(mv, originalMethod);
             return mv;
         }
@@ -613,16 +611,31 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
-        private void processAnnotationsOnMethodParameters(Method originalMethod, MethodVisitor mv) {
-            var index = 0;
-            for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
-                for (Annotation annotation : annotations) {
-                    var av = mv
-                            .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
+        /**
+         * Copies the annotations of the parameters that stay on the method, and describes a parameter of a
+         * vocabulary type by the values it allows, unless the template class describes it with a schema already.
+         */
+        private void processAnnotationsOnMethodParameters(Method originalMethod, IOpenMember openMember, MethodVisitor mv) {
+            var parameters = originalMethod.getParameters();
+            var parameterTypes = resolveParameterTypes(openMember, originalMethod);
+            for (var i = 0; i < parameters.length; i++) {
+                var index = i;
+                for (Annotation annotation : parameters[i].getAnnotations()) {
+                    var av = mv.visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
                     InterfaceTransformer.processAnnotation(annotation, av);
                 }
-                index++;
+                if (isParameterInWrapperClass(parameters[i]) && !hasSchema(parameters[i])) {
+                    OpenApiSchemaAnnotations.visit((descriptor, visible) -> mv.visitParameterAnnotation(index, descriptor, visible),
+                            Type.getDescriptor(parameters[i].getType()),
+                            null,
+                            null,
+                            DomainOpenClass.vocabularyValues(parameterTypes[i]));
+                }
             }
+        }
+
+        private static boolean hasSchema(Parameter parameter) {
+            return parameter.isAnnotationPresent(Schema.class) || parameter.isAnnotationPresent(ArraySchema.class);
         }
 
         private void annotateReturnElementClass(MethodVisitor mv, Class<?> returnType) {
@@ -759,7 +772,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return new MethodDescription(description, parameterDescriptions);
         }
 
-        private void addOpenApiResponsesMethodAnnotation(MethodVisitor mv, Method originalMethod) {
+        private void addOpenApiResponsesMethodAnnotation(MethodVisitor mv, IOpenMember openMember, Method originalMethod) {
             if (!isApiResponsesSpecified(originalMethod)) {
                 var type = extractOriginalType(originalMethod.getReturnType());
                 final var isVoidType = void.class == type || Void.class == type;
@@ -787,9 +800,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     var av3 = av2.visitArray("content");
                     var av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
                     if (dim < 2) {
-                        addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
+                        addSchemaOpenApiAnnotation(av4,
+                                originalMethod.getReturnType(),
+                                openMember == null ? null : DomainOpenClass.vocabularyValues(openMember.getType()));
                     } else {
-                        addSchemaOpenApiAnnotation(av4, Object.class);
+                        addSchemaOpenApiAnnotation(av4, Object.class, null);
                     }
                     av4.visitEnd();
                     av3.visitEnd();
@@ -827,7 +842,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return false;
         }
 
-        private void addSchemaOpenApiAnnotation(AnnotationVisitor av, Class<?> type) {
+        private void addSchemaOpenApiAnnotation(AnnotationVisitor av, Class<?> type, String[] allowableValues) {
             var isArrayOrCollection = type.isArray() || Collection.class.isAssignableFrom(type);
             if (isArrayOrCollection) {
                 av = av.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
@@ -859,6 +874,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 // annotations.
             } else {
                 av1.visit("implementation", Type.getType(type));
+            }
+            if (allowableValues != null) {
+                OpenApiSchemaAnnotations.visitAllowableValues(av1, allowableValues);
             }
             av1.visitEnd();
             if (isArrayOrCollection) {
