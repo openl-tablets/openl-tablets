@@ -544,7 +544,7 @@ const ModuleRow = ({ declaration, module, modulesDefault, projectId }: { declara
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(true)
-    const compileOnly = declaration?.compileThisModuleOnly === true
+    const compileOnly = declaration?.webstudioConfiguration?.compileThisModuleOnly === true
     const filter = declaration?.methodFilter
     const matched = module.modules
     const testId = module.path ?? module.name
@@ -622,11 +622,14 @@ const ModuleFields = ({ module, onChange, testId }: {
                 value={module.path}
             />
             <Checkbox
-                checked={module.compileThisModuleOnly === true}
+                checked={module.webstudioConfiguration?.compileThisModuleOnly === true}
                 className={styles.moduleCompileOnly}
                 data-testid={`${testId}-compile-only`}
-                onChange={event => onChange({ ...module, compileThisModuleOnly: event.target.checked })}
                 title={t('browser.overview.module_compile_only_hint')}
+                onChange={event => onChange({
+                    ...module,
+                    webstudioConfiguration: { compileThisModuleOnly: event.target.checked },
+                })}
             >
                 {t('browser.overview.module_compile_only')}
             </Checkbox>
@@ -757,8 +760,6 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     const { t } = useTranslation('repository')
     const { notification } = App.useApp()
     const [rules, setRules] = useState<RulesDescriptor>(EMPTY_RULES_DESCRIPTOR)
-    // The raw file is kept so a save rewrites only the managed elements and preserves the rest.
-    const [originalXml, setOriginalXml] = useState('')
     const [fileExists, setFileExists] = useState(false)
     const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
     const [editing, setEditing] = useState(false)
@@ -811,7 +812,6 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
                 }
                 if (saves.current === savesAtRead) {
                     setFileExists(exists)
-                    setOriginalXml(xml)
                     setRules(parseRulesDescriptor(xml))
                 }
                 setState('ready')
@@ -863,7 +863,7 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
             if (!await writeStagedUpload()) {
                 return
             }
-            const xml = serializeRulesDescriptor(draft, originalXml)
+            const xml = serializeRulesDescriptor(draft)
             await writeRootFile(project.id, 'rules.xml', xml, fileExists ? 'overwrite' : 'create')
             // The file now says what this save wrote, so a read that started before it is answering a
             // question this save has answered better: its text is dropped rather than put back. A save
@@ -872,7 +872,6 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
             // Adopt the saved text at once, so the read view shows it without waiting for the reload and a
             // second save writes over the file that now exists rather than re-creating it from nothing.
             setRules(draft)
-            setOriginalXml(xml)
             setFileExists(true)
             endEditing()
             onSaved()

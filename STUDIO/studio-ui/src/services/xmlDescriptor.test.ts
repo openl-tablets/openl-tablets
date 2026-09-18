@@ -129,3 +129,140 @@ describe('writeXml', () => {
         expect(() => writeXml(MAPPING, model)).toThrow(MalformedXmlError)
     })
 })
+
+interface Item {
+    name: string
+    path: string
+    on?: { flag: boolean } | undefined
+    rest?: string[] | undefined
+}
+
+interface Nested {
+    kind?: 'ALPHA' | 'BETA' | undefined
+    entries: string[]
+    words: string[]
+    items: Item[]
+    inner?: { first: string; second: string } | undefined
+}
+
+const NESTED: XmlMapping<Nested> = {
+    root: 'nested',
+    fields: {
+        kind: { kind: 'choice', tag: 'kind', values: ['ALPHA', 'BETA']},
+        entries: { kind: 'list', wrapper: 'entries', item: 'entry', attribute: 'path' },
+        words: { kind: 'list', item: 'word' },
+        items: {
+            kind: 'objects',
+            wrapper: 'items',
+            item: 'item',
+            fields: {
+                name: { kind: 'text', tag: 'name' },
+                path: { kind: 'text', tag: 'root', attribute: 'path' },
+                on: { kind: 'object', tag: 'on', secondary: true, fields: { flag: { kind: 'flag', tag: 'flag' } } },
+                rest: { kind: 'rest' },
+            },
+        },
+        inner: {
+            kind: 'object',
+            tag: 'inner',
+            fields: { first: { kind: 'text', tag: 'first' }, second: { kind: 'text', tag: 'second', secondary: true } },
+        },
+    },
+}
+
+describe('readXml of nested fields', () => {
+    it('reads a choice as the engine spells it, an attribute list, bare repeated elements and nested models', () => {
+        const model = readXml(NESTED, rootOf(NESTED, `<nested>
+            <kind>beta</kind>
+            <entries><entry path="a/"/><entry path=" b/ "/><entry/></entries>
+            <word>x</word><word>y</word>
+            <items>
+                <item><name>One</name><root path="one/*.xlsx"/><on><flag>true</flag></on><extra a="1"/></item>
+                <item><root path="two/*.xlsx"/><on><flag>false</flag></on></item>
+            </items>
+            <inner><first>f</first><second>s</second></inner>
+        </nested>`))
+
+        expect(model).toEqual({
+            kind: 'BETA',
+            entries: ['a/', 'b/'],
+            words: ['x', 'y'],
+            items: [
+                { name: 'One', path: 'one/*.xlsx', on: { flag: true }, rest: ['<extra a="1"/>']},
+                { name: '', path: 'two/*.xlsx', on: undefined, rest: []},
+            ],
+            inner: { first: 'f', second: 's' },
+        })
+    })
+
+    it('reads nothing from a model whose primary fields are empty, whatever its secondary ones hold', () => {
+        const model = readXml(NESTED, rootOf(NESTED, `<nested>
+            <kind>gamma</kind>
+            <items><item><on><flag>true</flag></on></item></items>
+            <inner><second>s</second></inner>
+        </nested>`))
+
+        expect(model).toEqual({ kind: undefined, entries: [], words: [], items: [], inner: undefined })
+    })
+})
+
+describe('writeXml of nested fields', () => {
+    it('writes every kind under its element, in the order of the mapping', () => {
+        const xml = writeXml(NESTED, {
+            kind: 'ALPHA',
+            entries: ['a/', ' '],
+            words: ['x', 'y'],
+            items: [
+                { name: 'One', path: 'one/*.xlsx', on: { flag: true }, rest: ['<extra a="1"><deep/></extra>']},
+                { name: '', path: 'two/*.xlsx', on: { flag: false } },
+                // A row with nothing but a secondary value names no item, so it is not written.
+                { name: '', path: '', on: { flag: true } },
+            ],
+            inner: { first: 'f', second: '' },
+        })
+
+        expect(xml).toBe(`<nested>
+    <kind>ALPHA</kind>
+    <entries>
+        <entry path="a/"/>
+    </entries>
+    <word>x</word>
+    <word>y</word>
+    <items>
+        <item>
+            <name>One</name>
+            <root path="one/*.xlsx"/>
+            <on>
+                <flag>true</flag>
+            </on>
+            <extra a="1"><deep/></extra>
+        </item>
+        <item>
+            <root path="two/*.xlsx"/>
+        </item>
+    </items>
+    <inner>
+        <first>f</first>
+    </inner>
+</nested>
+`)
+    })
+
+    it('writes nothing for a nested model that says nothing, and for an unknown choice', () => {
+        const xml = writeXml(NESTED, {
+            kind: 'gamma' as 'ALPHA',
+            entries: [],
+            words: [],
+            items: [],
+            inner: { first: ' ', second: 's' },
+        })
+
+        expect(xml).toBe('<nested/>\n')
+    })
+
+    it('refuses a carried-over element that does not parse', () => {
+        expect(() => writeXml(NESTED, {
+            entries: [], words: [], items: [{ name: 'One', path: '', rest: ['<broken']}],
+        })).toThrow(MalformedXmlError)
+    })
+})
