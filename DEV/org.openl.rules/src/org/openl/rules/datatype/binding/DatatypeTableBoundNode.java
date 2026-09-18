@@ -13,10 +13,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,6 +66,7 @@ import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayUtils;
 import org.openl.util.ClassUtils;
+import org.openl.util.DomainUtils;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.ParserUtils;
 import org.openl.util.StringUtils;
@@ -709,12 +708,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         fieldDescriptionBuilder.setContextPropertyName(contextProperty);
 
         if (fieldType.getDomain() != null) {
-            Iterator<?> itr = fieldType.getDomain().iterator();
-            var allowableValues = new ArrayList<String>();
-            while (itr.hasNext()) {
-                allowableValues.add(itr.next().toString());
-            }
-            fieldDescriptionBuilder.setAllowableValues(allowableValues.toArray(new String[0]));
+            fieldDescriptionBuilder.setAllowableValues(DomainUtils.values(fieldType.getDomain()));
         }
 
         FieldDescription fieldDescription;
