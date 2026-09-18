@@ -39,7 +39,12 @@ describe('parseRulesDescriptor', () => {
         expect(descriptor.openapi).toEqual({ path: 'openapi.json', mode: 'GENERATION', modelModuleName: 'Model', algorithmModuleName: 'Algo' })
         // Each declared module carries its own method filter.
         expect(descriptor.moduleDeclarations).toEqual([
-            { name: '', path: 'rules/*.xlsx', methodFilter: { includes: ['calc*', 'rate*'], excludes: ['debug*']} },
+            {
+                name: '',
+                path: 'rules/*.xlsx',
+                methodFilter: { includes: ['calc*', 'rate*'], excludes: ['debug*']},
+                preserved: [],
+            },
         ])
     })
 
@@ -70,9 +75,19 @@ describe('parseRulesDescriptor', () => {
         // The flag is an XML boolean, written `true` or `1`; the module the file says nothing about is
         // compiled with the project, as the engine reads it.
         expect(descriptor.moduleDeclarations).toEqual([
-            { name: 'Tests', path: 'tests/*.xlsx', compileThisModuleOnly: true },
-            { name: 'Legacy', path: 'legacy/*.xlsx', compileThisModuleOnly: true },
-            { name: 'Main', path: 'rules/Main.xlsx' },
+            {
+                name: 'Tests',
+                path: 'tests/*.xlsx',
+                webstudioConfiguration: { compileThisModuleOnly: true },
+                preserved: [],
+            },
+            {
+                name: 'Legacy',
+                path: 'legacy/*.xlsx',
+                webstudioConfiguration: { compileThisModuleOnly: true },
+                preserved: [],
+            },
+            { name: 'Main', path: 'rules/Main.xlsx', preserved: []},
         ])
     })
 
@@ -87,7 +102,7 @@ describe('parseRulesDescriptor', () => {
 
         expect(descriptor.description).toBe('')
         expect(descriptor.versionPatterns).toEqual([])
-        expect(descriptor.propertiesFileNameProcessor).toBeUndefined()
+        expect(descriptor.propertiesFileNameProcessor).toBe('')
         expect(descriptor.exposedMethods).toBeUndefined()
         expect(descriptor.openapi).toBeUndefined()
         expect(descriptor.moduleDeclarations).toEqual([])
@@ -115,7 +130,7 @@ describe('serializeRulesDescriptor', () => {
             sources: ['groovy/', 'lib/*.jar'],
             dependencies: [{ name: 'Common', autoIncluded: true }],
             exposedMethods: { includes: ['calc*'], excludes: ['debug*']},
-        }, original)
+        })
 
         // Managed elements reflect the edit.
         expect(out).toContain('<comment>new &amp; shiny</comment>')
@@ -139,7 +154,7 @@ describe('serializeRulesDescriptor', () => {
         expect(reparsed.description).toBe('new & shiny')
         expect(reparsed.versionPatterns).toEqual(['%lob%-%state%', 'Tests-*'])
         expect(reparsed.sources).toEqual(['groovy/', 'lib/*.jar'])
-        expect(reparsed.dependencies).toEqual([{ name: 'Common', autoIncluded: true }])
+        expect(reparsed.dependencies).toEqual([{ name: 'Common', autoIncluded: true, mavenArtifact: '' }])
         expect(reparsed.exposedMethods).toEqual({ includes: ['calc*'], excludes: ['debug*']})
     })
 
@@ -150,9 +165,9 @@ describe('serializeRulesDescriptor', () => {
                 { name: 'Main', path: 'rules/Main.xlsx' },
                 { name: 'Rules', path: 'rules/**/*.xlsx', methodFilter: { includes: ['calc*'], excludes: []} },
                 // A row the user added, ticked and left empty names no module, so it is not written.
-                { name: '', path: '', compileThisModuleOnly: true },
+                { name: '', path: '', webstudioConfiguration: { compileThisModuleOnly: true } },
             ],
-        }, '<project><name>P</name></project>')
+        })
 
         expect(out).toContain('<rules-root path="rules/Main.xlsx"/>')
         expect(out).toContain('<rules-root path="rules/**/*.xlsx"/>')
@@ -162,8 +177,13 @@ describe('serializeRulesDescriptor', () => {
 
         const reparsed = parseRulesDescriptor(out)
         expect(reparsed.moduleDeclarations).toEqual([
-            { name: 'Main', path: 'rules/Main.xlsx' },
-            { name: 'Rules', path: 'rules/**/*.xlsx', methodFilter: { includes: ['calc*'], excludes: []} },
+            { name: 'Main', path: 'rules/Main.xlsx', preserved: []},
+            {
+                name: 'Rules',
+                path: 'rules/**/*.xlsx',
+                methodFilter: { includes: ['calc*'], excludes: []},
+                preserved: [],
+            },
         ])
     })
 
@@ -183,20 +203,24 @@ describe('serializeRulesDescriptor', () => {
         `
         const declared = parseRulesDescriptor(original)
 
-        const set = serializeRulesDescriptor(declared, original)
+        const set = serializeRulesDescriptor(declared)
         expect(set).toContain('<compileThisModuleOnly>true</compileThisModuleOnly>')
         // The block is written once: the reader owns it now, so it is not carried over a second time.
         expect(set.match(/<webstudioConfiguration>/g)).toHaveLength(1)
-        expect(parseRulesDescriptor(set).moduleDeclarations[0]!.compileThisModuleOnly).toBe(true)
+        expect(parseRulesDescriptor(set).moduleDeclarations[0]!.webstudioConfiguration)
+            .toEqual({ compileThisModuleOnly: true })
 
         const cleared = serializeRulesDescriptor({
             ...declared,
-            moduleDeclarations: [{ ...declared.moduleDeclarations[0]!, compileThisModuleOnly: false }],
-        }, original)
+            moduleDeclarations: [{
+                ...declared.moduleDeclarations[0]!,
+                webstudioConfiguration: { compileThisModuleOnly: false },
+            }],
+        })
 
         // Cleared, it leaves the file as it was before the flag was set — the way the engine writes it.
         expect(cleared).not.toContain('webstudioConfiguration')
-        expect(parseRulesDescriptor(cleared).moduleDeclarations[0]!.compileThisModuleOnly).toBeUndefined()
+        expect(parseRulesDescriptor(cleared).moduleDeclarations[0]!.webstudioConfiguration).toBeUndefined()
     })
 
     it('keeps a module child it does not manage, so an edit never drops it', () => {
@@ -213,7 +237,7 @@ describe('serializeRulesDescriptor', () => {
             </project>
         `
         // A blank field is edited; the module and its unmanaged webstudio-configuration are untouched.
-        const out = serializeRulesDescriptor({ ...parseRulesDescriptor(original), description: 'now set' }, original)
+        const out = serializeRulesDescriptor({ ...parseRulesDescriptor(original), description: 'now set' })
 
         expect(out).toContain('<comment>now set</comment>')
         expect(out).toContain('<rules-root path="rules/Main.xlsx"/>')
@@ -224,9 +248,11 @@ describe('serializeRulesDescriptor', () => {
     })
 
     it('drops a managed element that was cleared', () => {
-        const out = serializeRulesDescriptor(EMPTY_RULES_DESCRIPTOR, '<project><comment>gone</comment></project>')
+        const declared = parseRulesDescriptor('<project><comment>gone</comment></project>')
+
+        const out = serializeRulesDescriptor({ ...declared, description: '' })
 
         expect(out).not.toContain('comment')
-        expect(out.trim()).toBe('<project>\n</project>')
+        expect(out.trim()).toBe('<project/>')
     })
 })
