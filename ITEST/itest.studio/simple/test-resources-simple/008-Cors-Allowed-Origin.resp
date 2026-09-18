@@ -1,5 +1,6 @@
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: https://any.example
-Access-Control-Max-Age: 7200
+Access-Control-Expose-Headers: Mcp-Session-Id
+Vary: Origin
 
 ***

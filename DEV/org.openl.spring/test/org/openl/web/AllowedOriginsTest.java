@@ -23,6 +23,7 @@ class AllowedOriginsTest {
 
         assertFalse(origins.contains("https://app.example.com"));
         assertFalse(origins.any());
+        assertTrue(origins.isEmpty());
     }
 
     @Test
@@ -31,6 +32,7 @@ class AllowedOriginsTest {
 
         assertTrue(origins.contains("https://evil.example"));
         assertFalse(origins.contains(null));
+        assertFalse(origins.isEmpty());
     }
 
     @Test
@@ -39,6 +41,7 @@ class AllowedOriginsTest {
 
         assertTrue(origins.contains("HTTPS://APP.example.com"));
         assertTrue(origins.contains("https://other.example"));
+        assertFalse(origins.isEmpty());
     }
 
     @Test
