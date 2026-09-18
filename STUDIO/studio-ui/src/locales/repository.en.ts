@@ -788,6 +788,7 @@ i18next.addResourceBundle('en', 'repository', {
             path: 'Path',
             submit: 'Create',
             cancel: 'Cancel',
+            success: 'Project "{{name}}" created',
         },
     },
     tabs: {
