@@ -1,0 +1,37 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableName": "myRule2",
+  "tableId": "b3fd0f2fb189985fb59c36fbd06e00ee",
+  "executionTimeMs": "##.##",
+  "result": 1.0,
+  "resultSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "number"
+  },
+  "parameters": [
+    {
+      "name": "value",
+      "description": "value",
+      "value": "aaa",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "string"
+      }
+    },
+    {
+      "name": "my",
+      "description": "my",
+      "value": ["bla1", "bla2"],
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["bla1", "bla2", "bla3"]
+        }
+      }
+    }
+  ]
+}

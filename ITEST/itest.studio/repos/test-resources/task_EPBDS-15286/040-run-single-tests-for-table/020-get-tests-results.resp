@@ -46,7 +46,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "***",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             }
           ]
@@ -79,7 +99,27 @@ Content-Type: application/json
               "value": "IT",
               "schema": {
                 "$schema": "***",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             }
           ]
@@ -112,7 +152,27 @@ Content-Type: application/json
               "value": "DE",
               "schema": {
                 "$schema": "***",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             }
           ]
@@ -145,7 +205,27 @@ Content-Type: application/json
               "value": "FR",
               "schema": {
                 "$schema": "***",
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "DE",
+                  "BE",
+                  "NL",
+                  "AT",
+                  "CH",
+                  "DK",
+                  "US",
+                  "FR",
+                  "IT",
+                  "CZ",
+                  "SE",
+                  "FI",
+                  "UA",
+                  "KZ",
+                  "PL",
+                  "GB",
+                  "RU",
+                  "IE"
+                ]
               }
             }
           ]
