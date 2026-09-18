@@ -2,11 +2,10 @@
 
 ## Resume point
 
-- Main is still `1dc89c91e0`; the last delta sweep found nothing. Sweep the next delta from `1dc89c91e0`;
-  0 commits means ledger upkeep plus PR #2135 maintenance only.
-- The container-registration vein is worked out (see Exhausted veins); no vein is left open.
+- Main is `1c60f08da6` after PR #2135 merged. Sweep the next delta from `1c60f08da6`; 0 commits means ledger
+  upkeep only. No vein is open and no PR is open.
 - A full re-sweep is not worth a run until main moves substantially; every vein under Exhausted veins is
-  exhausted at `000e6d889f`.
+  exhausted at `000e6d889f`, plus container registrations at `1dc89c91e0`.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
@@ -29,23 +28,19 @@
 
 ## Open PR
 
-- #2135 on `dead-code/session-activation-callbacks`, head `a10bb50615` (rebased on main `916f5bacf8`), 1 commit,
-  -54/+1 over 6 files. Removes the session passivation path: SessionListener's HttpSessionActivationListener half,
-  the two RulesUserSession methods, UserWorkspace.passivate with both impls, and the two Docs mentions.
-- GREEN as of 10:55: all 17 checks pass, Sonar quality gate 0 new issues. `mergeable_state` blocked = human approval
-  only. Nothing is this routine's until a review, CI, the base or the thread changes.
-- One open thread: maintainer asked to drop UserWorkspace.activate() too; KEPT and explained, because
-  RulesUserSession.getUserWorkspace() calls it. Awaiting his answer — if he insists, do it as a behaviour change
-  without re-arguing.
-- CodeRabbit: no actionable comments. Its Docstring Coverage warning was declined; do not re-litigate.
+- none
 
 ## Merged PRs
 
 - #2120 merged 2026-09-17: 7 commits, -487/+2, across commented-out code, locale keys, a test workbook, dead
   `@SuppressWarnings`, spring-security-core in security.standalone, AspectJ managed versions and webstudio members.
 - #2129 merged 2026-09-17: 1 commit, -1 line, the dead `users:edit_modal.cancel` locale key.
-- #2134 merged 2026-09-18: 1 commit, -87 lines, SessionTimeoutFilter and its web.xml registration. A removal
-  proven by unreachable behaviour rather than by non-reference is accepted on that evidence alone.
+- #2134 merged 2026-09-18: 1 commit, -87 lines, SessionTimeoutFilter and its web.xml registration.
+- #2135 merged 2026-09-18 (main `1c60f08da6`): 1 commit, -54/+1, the whole session passivation path down to
+  `UserWorkspace.passivate` and both impls. A removal proven by unreachable behaviour rather than by non-reference
+  is accepted on that evidence alone — twice now. Public API deferred under rail 8.2 is worth naming in the PR
+  body: the maintainer released passivate straight off the "Deliberately kept" line. He also asked to drop
+  `activate()`; it was kept because `RulesUserSession.getUserWorkspace()` calls it, and he merged without pressing.
 - The maintainer merges a small, well-evidenced sweep PR within the hour, before CI finishes; do not wait on green.
 
 ## Module coverage
@@ -258,9 +253,10 @@
   proxy"), and both call sites set `xForwardedPrefixStrategy=PREPEND` while Spring's filter exposes only
   `setRemoveOnly`/`setRelativeRedirects` and always REPLACES the context path with `X-Forwarded-Prefix`. Swapping
   changes proxy behaviour. Needs a maintainer decision; also touches WSFrontend RuleServicesFilter, not just web.xml.
-- Workspace passivation never ran and is now removed. If it is wanted back, `RulesUserSession` must implement
-  `HttpSessionActivationListener` itself — it IS a session attribute (`WebStudioUtils.registerRulesUserSession`),
-  whereas `SessionListener`, which forwarded to it, was only registered. An addition, not this routine's work.
+- Workspace passivation never ran and is now removed from main. If it is ever wanted, `RulesUserSession` must
+  implement `HttpSessionActivationListener` itself — it IS a session attribute
+  (`WebStudioUtils.registerRulesUserSession`), whereas `SessionListener`, which forwarded to it, was only
+  registered. An addition, not this routine's work.
 - ORA-12516 in IT (studio-acl) deserves a real fix in the Oracle container setup (process/session limit), and the
   `ModuleWorkspace.test.tsx` timing failure a source-level fix; both bite green PRs.
 - Dependency hygiene (additions): ~293 used-undeclared findings, notably spring-security-core in org.openl.security
@@ -276,11 +272,7 @@
 
 ## Run log
 
-- 2026-09-17 b: full re-sweep from zero at main `000e6d889f` on user instruction. Two detector bugs found and fixed
-  (extension allowlist, constant inlining); one dead locale key removed in PR #2129; a broken webmanifest icon
-  raised for a maintainer.
 - 2026-09-18: delta sweep of 7 commits found nothing; on user instruction removed SessionTimeoutFilter in PR #2134,
-  merged the same hour. A second user request (swap the X-Forwarded filter for Spring's) was blocked on a
-  documented contrary decision and recorded under Human follow-ups.
 - 2026-09-18 b: main unmoved, so the run worked the container-registration vein: SessionListener's activation
-  callbacks removed in PR #2135, the CorsFilter double registration raised for a maintainer.
+- 2026-09-18 b: container-registration vein worked; PR #2135 removed the session passivation path and merged.
+  Cost 4 kafka flakes / 3 reruns / 1 rebase. One wrong escalation (claimed the kafka image regressed) self-corrected.
