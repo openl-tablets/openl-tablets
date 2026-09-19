@@ -16,6 +16,8 @@ public class LockManager {
 
     /**
      * Creates a lock object for the given ID.
+     *
+     * @throws IllegalArgumentException if the ID names a location outside of the locks folder
      */
     public Lock getLock(String lockId) {
         return new Lock(locksLocation, lockId);

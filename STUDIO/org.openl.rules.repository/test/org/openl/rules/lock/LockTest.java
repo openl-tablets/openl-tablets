@@ -2,6 +2,7 @@ package org.openl.rules.lock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -28,6 +29,22 @@ class LockTest {
     @BeforeEach
     void setUp() throws IOException {
         lock = new Lock(tempDirectoryPath, "my/lock/id");
+    }
+
+    @Test
+    void lockIdEscapingTheLocksFolderIsRejected() {
+        var error = assertThrows(IllegalArgumentException.class,
+                () -> new Lock(tempDirectoryPath, "../outside/id"));
+
+        assertEquals("Lock id '../outside/id' is outside of the locks folder.", error.getMessage());
+        assertFalse(tempDirectoryPath.getParent().resolve("outside").toFile().exists());
+    }
+
+    @Test
+    void lockIdPointingToTheLocksFolderItselfIsRejected() {
+        var error = assertThrows(IllegalArgumentException.class, () -> new Lock(tempDirectoryPath, "nested/.."));
+
+        assertEquals("Lock id 'nested/..' is outside of the locks folder.", error.getMessage());
     }
 
     @Test
