@@ -102,6 +102,6 @@ public final class Slope {
         }
         BigDecimal sampleCovariance = sampleCovariance(inputStats);
         BigDecimal sampleVariance = sampleCovariance == null ? null : varS(inputStats.x);
-        return sampleVariance == null || BigDecimal.ZERO.equals(sampleVariance) ? null : sampleCovariance.divide(sampleVariance, MathContext.DECIMAL128);
+        return sampleVariance == null || sampleVariance.signum() == 0 ? null : sampleCovariance.divide(sampleVariance, MathContext.DECIMAL128);
     }
 }
