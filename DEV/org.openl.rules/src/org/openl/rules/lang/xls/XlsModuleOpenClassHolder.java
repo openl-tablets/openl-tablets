@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 
 /*
@@ -20,11 +22,21 @@ public final class XlsModuleOpenClassHolder {
         return XlsModuleOpenClassHolderHolder.INSTANCE;
     }
 
-    public XlsModuleOpenClass getXlsModuleOpenClass() {
+    public @Nullable XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClassThreadLocal.get();
     }
 
-    public void setXlsModuleOpenClass(XlsModuleOpenClass xlsModuleOpenClass) {
-        xlsModuleOpenClassThreadLocal.set(xlsModuleOpenClass);
+    /**
+     * Binds the module to the current thread, or unbinds it when {@code null} is passed.
+     *
+     * <p>Unbinding drops the thread-local entry, so a pooled thread does not keep the module and its class
+     * loader alive after the binding is over.
+     */
+    public void setXlsModuleOpenClass(@Nullable XlsModuleOpenClass xlsModuleOpenClass) {
+        if (xlsModuleOpenClass == null) {
+            xlsModuleOpenClassThreadLocal.remove();
+        } else {
+            xlsModuleOpenClassThreadLocal.set(xlsModuleOpenClass);
+        }
     }
 }
