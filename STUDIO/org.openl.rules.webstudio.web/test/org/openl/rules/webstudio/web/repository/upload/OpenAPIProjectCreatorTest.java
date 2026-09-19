@@ -76,14 +76,6 @@ class OpenAPIProjectCreatorTest {
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
-    @BeforeEach
-    void setupLocale() {
-        defaultLocale = Locale.getDefault();
-        defaultTimeZone = TimeZone.getDefault();
-        Locale.setDefault(Locale.US);
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    }
-
     @AfterEach
     void restoreLocale() {
         Locale.setDefault(defaultLocale);
@@ -92,6 +84,11 @@ class OpenAPIProjectCreatorTest {
 
     @BeforeEach
     void setUp() {
+        defaultLocale = Locale.getDefault();
+        defaultTimeZone = TimeZone.getDefault();
+        Locale.setDefault(Locale.US);
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+
         tempRepo = new FileSystemRepository();
         tempRepo.setUri(OPENAPI_OUT);
         tempRepo.initialize();
