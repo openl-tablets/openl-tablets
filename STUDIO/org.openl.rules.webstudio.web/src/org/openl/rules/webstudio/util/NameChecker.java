@@ -15,9 +15,6 @@ public final class NameChecker {
     private static final char[] FORBIDDEN_CHARS = {'\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']', '|', '"'};
     public static final String FORBIDDEN_CHARS_STRING = "\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"";
     public static final String BAD_NAME_MSG = "Name cannot contain forbidden characters (" + FORBIDDEN_CHARS_STRING + "), start with space, end with space or dot.";
-    public static final String FOLDER_EXISTS = "Cannot create folder because folder with such name already exists.";
-    public static final String FOLDER_NAME_EMPTY = "Folder name must not be empty.";
-    public static final String BAD_PROJECT_NAME_MSG = "Project name cannot contain forbidden characters (" + FORBIDDEN_CHARS_STRING + "), special characters, start with space, end with space or dot.";
     private static final Set<String> RESERVED_WORDS = Stream
             .of("CON",
                     "PRN",

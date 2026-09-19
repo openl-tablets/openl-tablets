@@ -15,11 +15,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.openl.util.StringUtils;
 
 public final class Comments {
-    /**
-     * Repository id for default repository
-     */
-    public static final String DESIGN_CONFIG_REPO_ID = "design";
-
     private static final String PROJECT_NAME = "{project-name}";
     private static final String REVISION = "{revision}";
     private static final String AUTHOR = "{author}";

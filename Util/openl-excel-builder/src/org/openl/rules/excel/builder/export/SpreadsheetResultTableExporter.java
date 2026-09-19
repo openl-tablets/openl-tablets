@@ -20,8 +20,6 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
     public static final String SPREADSHEET_RESULT_NAME_TEMPLATE = "\\{spr.name}";
     public static final String SPREADSHEET_RESULT_RETURN_TYPE = "\\{spr.return.type}";
     public static final String SPREADSHEET_RESULT_SIGNATURE = "\\{spr.signature}";
-    public static final String SPREADSHEET_RESULT_STEP_NAME = "\\{spr.field.name}";
-    public static final String SPREADSHEET_RESULT_STEP_VALUE = "\\{spr.field.value}";
 
     @Override
     protected void exportTables(Collection<SpreadsheetModel> models, Sheet sheet) {
