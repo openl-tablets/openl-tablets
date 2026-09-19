@@ -41,7 +41,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
     private final Authentication relevantSystemWideGrantedAuthority;
 
-    private final static int PERIOD = 10;
+    private static final long PERIOD = 10;
 
     public ProjectVersionCacheMonitor(GrantedAuthority relevantSystemWideGrantedAuthority) {
         var group = new SimpleGroup();

@@ -6,7 +6,7 @@ package org.openl.rules.workspace.dtr.impl;
  * methods to check if the cache has expired.
  */
 record ProjectIndexCache(ProjectIndex index, long lastUpdateTime) {
-    private static final long INDEX_UPDATE_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+    private static final long INDEX_UPDATE_INTERVAL = 30L * 60 * 1000; // 30 minutes in milliseconds
 
     /**
      * Creates a new ProjectIndexCache with current timestamp.
