@@ -89,6 +89,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                             this.wait();
                         }
                     } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                         throw new OpenLCompilationException("Compilation is interrupted", e);
                     }
                 }
@@ -136,6 +137,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
             try {
                 this.wait(50);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new OpenLCompilationException("Compilation is interrupted", e);
             }
         }
@@ -277,6 +279,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 executorService.shutdownNow();
             }
         } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
             executorService.shutdownNow();
         }
         super.resetAll();

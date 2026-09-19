@@ -176,6 +176,9 @@ public class HttpClient implements AutoCloseable {
                     .GET()
                     .build();
             return sendRequest(url, req, cl, status);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -199,6 +202,9 @@ public class HttpClient implements AutoCloseable {
 
             var resp = client.send(req, HttpResponse.BodyHandlers.discarding());
             assertEquals(204, resp.statusCode(), "URL :" + url);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -212,6 +218,9 @@ public class HttpClient implements AutoCloseable {
                     .build();
 
             return sendRequest(url, req, cl, status);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -255,16 +264,12 @@ public class HttpClient implements AutoCloseable {
                 }
                 response = HttpData.send(baseURL, request, cookie.get(), effectiveEnv);
 
-                var c = response.getCookie();
-                if (c != null && !c.isBlank()) {
-                    cookie.set(c);
-                }
+                rememberCookie(response);
 
                 // Bulk update of OpenAPI files
 //                if (Files.readAllLines(Path.of(requestFile)).get(0).contains("/openapi.")) {
 //                    response.writeBodyTo(responseFile);
 //                }
-
 
                 try {
                     response.assertTo(assertResponse);
@@ -280,10 +285,21 @@ public class HttpClient implements AutoCloseable {
             }
             response.saveFieldsToEnvironment(requestFile.substring(0, requestFile.length() - 4) + ".env", responseEnv);
 
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /** Remembers the cookie the answer carries, when it carries one. */
+    private void rememberCookie(HttpData response) {
+        var c = response.getCookie();
+        if (c != null && !c.isBlank()) {
+            cookie.set(c);
         }
     }
 

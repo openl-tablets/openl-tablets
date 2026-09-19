@@ -72,7 +72,10 @@ final class SysInfoLogger extends OpenLLogger {
                     toMiB(runtime.totalMemory()),
                     toMiB(runtime.totalMemory() - runtime.freeMemory()));
 
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             log("##### Cannot access to the Runtime environment");
         }
 

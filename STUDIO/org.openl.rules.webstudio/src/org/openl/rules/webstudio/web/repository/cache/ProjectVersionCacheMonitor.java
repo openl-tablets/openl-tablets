@@ -65,6 +65,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                     recalculateDesignRepositoryCache();
                 }
             } catch (Exception e) {
+                if (e instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
                 log.error("Error during project caching", e);
             }
         } finally {
