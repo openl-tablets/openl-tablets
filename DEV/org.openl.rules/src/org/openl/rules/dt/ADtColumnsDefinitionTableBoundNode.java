@@ -123,7 +123,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             }
             final var signatureCode = signatureCode1;
             var finished = false;
-            var prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
+            var prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.secure().next(16, true, false) + "(";
             var headerCode = prefix + signatureCode + ")";
             IOpenMethodHeader header;
             var inputParametersCompilationFailed = false;
