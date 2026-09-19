@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Domain for range of dates.
@@ -26,6 +27,9 @@ public class DateRangeDomain implements IDomain<Date> {
 
         @Override
         public Date next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
             current.add(Calendar.DAY_OF_MONTH, 1);
             return current.getTime();
         }
