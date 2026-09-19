@@ -43,7 +43,7 @@ import org.openl.util.StringUtils;
 public class RuleServicesFilter implements Filter {
 
 
-    private static final Pattern ALLOWED_PATH = Pattern.compile("/[a-zA-Z0-9_-]+([./][a-zA-Z0-9_-]+)*");
+    private static final Pattern ALLOWED_PATH = Pattern.compile("/[a-zA-Z0-9_-]++([./][a-zA-Z0-9_-]++)*+");
 
     private Filter xForwardedFilter;
     // Mapping from the file extension to the MIME type.
