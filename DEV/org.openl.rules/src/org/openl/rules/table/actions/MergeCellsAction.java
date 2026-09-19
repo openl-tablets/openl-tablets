@@ -8,7 +8,7 @@ import org.openl.rules.table.IWritableGrid;
  * Merges a region of cells into a single merged region.
  * <p>
  * Existing merges whose origin falls inside the new region are dropped first (inherited from
- * {@link RemoveMergedRegionsAction}); then the region is added as a merge. Undo reverses both steps.
+ * {@link RemoveMergedRegionsAction}); then the region is added as a merge.
  *
  * @author PUdalau
  */
@@ -22,12 +22,6 @@ public class MergeCellsAction extends RemoveMergedRegionsAction {
     public void doAction(IGridTable table) {
         super.doAction(table);
         ((IWritableGrid) table.getGrid()).addMergedRegion(region);
-    }
-
-    @Override
-    public void undoAction(IGridTable table) {
-        ((IWritableGrid) table.getGrid()).removeMergedRegion(region);
-        super.undoAction(table);
     }
 
 }

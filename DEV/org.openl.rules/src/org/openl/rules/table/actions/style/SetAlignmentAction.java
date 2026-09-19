@@ -9,7 +9,6 @@ import org.openl.rules.table.actions.AUndoableCellAction;
 
 public class SetAlignmentAction extends AUndoableCellAction {
 
-    private HorizontalAlignment prevAlignment;
     private final HorizontalAlignment newAlignment;
 
     public SetAlignmentAction(int col, int row, HorizontalAlignment alignment, MetaInfoWriter metaInfoWriter) {
@@ -20,17 +19,7 @@ public class SetAlignmentAction extends AUndoableCellAction {
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-
-        var style = grid.getCell(getCol(), getRow()).getStyle();
-        prevAlignment = style != null ? style.getHorizontalAlignment() : HorizontalAlignment.GENERAL;
-
         grid.setCellAlignment(getCol(), getRow(), newAlignment);
-    }
-
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        grid.setCellAlignment(getCol(), getRow(), prevAlignment);
     }
 
 }

@@ -12,8 +12,6 @@ import org.openl.rules.table.IGridTable;
  */
 public abstract class UndoableRemoveAction extends UndoableEditTableAction {
 
-    private IUndoableGridTableAction action;
-
     @Override
     public void doAction(IGridTable table) {
         IGridRegion fullTableRegion = getOriginalRegion(table);
@@ -31,14 +29,7 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
             var displayTable = getGridRegionAction(table.getRegion(), numberToRemove);
             actions.add(displayTable);
         }
-        action = new UndoableCompositeAction(actions);
-        action.doAction(table);
-
-    }
-
-    @Override
-    public void undoAction(IGridTable table) {
-        action.undoAction(table);
+        new UndoableCompositeAction(actions).doAction(table);
     }
 
     /**

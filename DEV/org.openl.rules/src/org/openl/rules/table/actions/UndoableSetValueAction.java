@@ -14,7 +14,6 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
-import org.openl.util.StringUtils;
 
 /**
  * @author snshor
@@ -32,14 +31,11 @@ public class UndoableSetValueAction extends AUndoableCellAction {
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
 
-        var cell = grid.getCell(getCol(), getRow());
-        setPrevValue(cell.getObjectValue());
-        setPrevFormula(cell.getFormula());
-        setPrevMetaInfo(metaInfoWriter.getMetaInfo(getRow(), getCol()));
+        var prevMetaInfo = metaInfoWriter.getMetaInfo(getRow(), getCol());
 
         var convertedValue = convertToCellType(newValue);
         grid.setCellValue(getCol(), getRow(), convertedValue);
-        var newMetaInfo = getNewMetaInfo(convertedValue);
+        var newMetaInfo = getNewMetaInfo(convertedValue, prevMetaInfo);
         if (newMetaInfo != null) {
             metaInfoWriter.setMetaInfo(getRow(), getCol(), newMetaInfo);
         }
@@ -85,22 +81,10 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         }
     }
 
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        if (StringUtils.isNotBlank(getPrevFormula())) {
-            grid.setCellFormula(getCol(), getRow(), getPrevFormula());
-        } else {
-            grid.setCellValue(getCol(), getRow(), getPrevValue());
-        }
-        metaInfoWriter.setMetaInfo(getRow(), getCol(), getPrevMetaInfo());
-    }
-
-    private CellMetaInfo getNewMetaInfo(Object value) {
+    private CellMetaInfo getNewMetaInfo(Object value, CellMetaInfo prevMetaInfo) {
         if (value == null) {
             return null;
         }
-        var prevMetaInfo = getPrevMetaInfo();
         if (prevMetaInfo != null
                 && prevMetaInfo.isMultiValue()
                 && value instanceof Object[] values

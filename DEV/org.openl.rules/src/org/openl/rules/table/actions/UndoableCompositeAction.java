@@ -29,12 +29,4 @@ public class UndoableCompositeAction implements IUndoableGridTableAction {
         }
     }
 
-    @Override
-    public void undoAction(IGridTable table) {
-        for (var iter = actions.listIterator(actions.size()); iter.hasPrevious(); ) {
-            var action = iter.previous();
-            action.undoAction(table);
-        }
-    }
-
 }

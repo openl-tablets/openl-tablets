@@ -10,8 +10,6 @@ import org.openl.rules.table.IWritableGrid;
  */
 public class UndoableClearAction extends AUndoableCellAction {
 
-    private GridRegion toRestore;
-
     public UndoableClearAction(int col, int row, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);
     }
@@ -19,23 +17,9 @@ public class UndoableClearAction extends AUndoableCellAction {
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-
-        savePrevCell(grid);
-
         grid.clearCell(getCol(), getRow());
         metaInfoWriter.setMetaInfo(getRow(), getCol(), null);
         clearRegion(grid);
-    }
-
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-
-        if (toRestore != null) {
-            grid.addMergedRegion(toRestore);
-        }
-
-        restorePrevCell(grid);
     }
 
     private void clearRegion(IWritableGrid grid) {
@@ -45,8 +29,7 @@ public class UndoableClearAction extends AUndoableCellAction {
             return;
         }
 
-        toRestore = new GridRegion(rrTo);
-        grid.removeMergedRegion(toRestore);
+        grid.removeMergedRegion(new GridRegion(rrTo));
     }
 
 }

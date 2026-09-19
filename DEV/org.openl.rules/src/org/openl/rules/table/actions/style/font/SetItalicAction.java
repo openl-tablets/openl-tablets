@@ -21,10 +21,4 @@ public class SetItalicAction extends AUndoableCellAction {
         grid.setCellFontItalic(getCol(), getRow(), italic);
     }
 
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        grid.setCellFontItalic(getCol(), getRow(), !italic);
-    }
-
 }

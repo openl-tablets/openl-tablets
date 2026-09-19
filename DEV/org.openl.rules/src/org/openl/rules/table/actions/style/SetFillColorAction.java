@@ -7,7 +7,6 @@ import org.openl.rules.table.actions.AUndoableCellAction;
 
 public class SetFillColorAction extends AUndoableCellAction {
 
-    private short[] prevColor;
     private final short[] newColor;
 
     public SetFillColorAction(int col, int row, short[] color, MetaInfoWriter metaInfoWriter) {
@@ -18,17 +17,7 @@ public class SetFillColorAction extends AUndoableCellAction {
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-
-        var style = grid.getCell(getCol(), getRow()).getStyle();
-        prevColor = style != null ? style.getFillForegroundColor() : null;
-
         grid.setCellFillColor(getCol(), getRow(), newColor);
-    }
-
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        grid.setCellFillColor(getCol(), getRow(), prevColor);
     }
 
 }

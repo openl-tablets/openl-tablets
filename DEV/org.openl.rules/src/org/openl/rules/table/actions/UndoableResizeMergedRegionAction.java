@@ -51,13 +51,4 @@ public class UndoableResizeMergedRegionAction implements IUndoableGridTableActio
         }
     }
 
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        if (newRegion != null) {
-            grid.removeMergedRegion(newRegion);
-        }
-        grid.addMergedRegion(initialRegion);
-    }
-
 }

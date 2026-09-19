@@ -17,14 +17,12 @@ import org.openl.rules.table.IGridTable;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class UndoableInsertAction extends UndoableEditTableAction {
 
-    private IUndoableGridTableAction action;
     protected final MetaInfoWriter metaInfoWriter;
 
     @Override
     public void doAction(IGridTable table) {
-        IUndoableGridTableAction moveTableAction = null;
         if (!canPerformAction(table)) {
-            moveTableAction = moveTable(table, metaInfoWriter);
+            moveTable(table, metaInfoWriter);
         }
         var numberToInsert = getNumberToInsert(table);
         IGridRegion fullTableRegion = getOriginalRegion(table);
@@ -39,16 +37,7 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
             var displayTable = getGridRegionAction(table.getRegion(), numberToInsert);
             actions.add(displayTable);
         }
-        action = new UndoableCompositeAction(actions);
-        action.doAction(table);
-        if (moveTableAction != null) {
-            action = new UndoableCompositeAction(moveTableAction, action);
-        }
-    }
-
-    @Override
-    public void undoAction(IGridTable table) {
-        action.undoAction(table);
+        new UndoableCompositeAction(actions).doAction(table);
     }
 
     /**

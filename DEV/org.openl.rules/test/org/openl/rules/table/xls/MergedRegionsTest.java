@@ -50,8 +50,6 @@ class MergedRegionsTest {
         @Getter
         private IGridRegion expectedResultRegion;
         @Getter
-        private IGridRegion originalTableRegion;
-        @Getter
         private int from;
         @Getter
         private int count;
@@ -73,8 +71,6 @@ class MergedRegionsTest {
                     test.testRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
                 } else if ("result".equals(key)) {
                     test.expectedResultRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
-                } else if ("original".equals(key)) {
-                    test.originalTableRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
                 } else if ("from".equals(key)) {
                     test.from = Integer.parseInt(value);
                 } else if ("count".equals(key)) {
@@ -207,8 +203,6 @@ class MergedRegionsTest {
         try {
             removeRowsActions.doAction(table);
             compareTablesByCell(test.getTestRegion(), test.getExpectedResultRegion(), grid);
-            removeRowsActions.undoAction(table);
-            compareTablesByCell(test.getTestRegion(), test.getOriginalTableRegion(), grid);
         } catch (DifferentCellsException e) {
             fail("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri());
         }

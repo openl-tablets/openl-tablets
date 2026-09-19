@@ -1,7 +1,6 @@
 package org.openl.rules.table.actions;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -10,7 +9,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 
 /**
- * Removes every merged region whose origin (top-left cell) lies within the given region; undo restores them.
+ * Removes every merged region whose origin (top-left cell) lies within the given region.
  * <p>
  * Use it to drop all merges of an area before re-applying merges from a fresh source, so that merges removed from
  * the source no longer linger in the grid. {@link MergeCellsAction} extends this action: it clears the overlapping
@@ -22,12 +21,11 @@ import org.openl.rules.table.IWritableGrid;
 public class RemoveMergedRegionsAction implements IUndoableGridTableAction {
 
     protected final IGridRegion region;
-    private List<IGridRegion> removedRegions;
 
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-        removedRegions = new ArrayList<>();
+        var removedRegions = new ArrayList<IGridRegion>();
         var nregions = grid.getNumberOfMergedRegions();
         for (var i = 0; i < nregions; i++) {
             var reg = grid.getMergedRegion(i);
@@ -37,14 +35,6 @@ public class RemoveMergedRegionsAction implements IUndoableGridTableAction {
         }
         for (IGridRegion regionToRemove : removedRegions) {
             grid.removeMergedRegion(regionToRemove);
-        }
-    }
-
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        for (IGridRegion mergedRegion : removedRegions) {
-            grid.addMergedRegion(mergedRegion);
         }
     }
 

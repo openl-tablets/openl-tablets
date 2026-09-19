@@ -9,6 +9,4 @@ public interface IUndoableGridTableAction {
 
     void doAction(IGridTable grid);
 
-    void undoAction(IGridTable grid);
-
 }

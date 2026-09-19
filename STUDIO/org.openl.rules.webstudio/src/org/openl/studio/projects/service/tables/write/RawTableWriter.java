@@ -563,7 +563,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             throw new BadRequestException("table.action.unmerge.not-merged.message",
                     new Object[]{row, column});
         }
-        // Remove exactly the found merge through the undoable action (consistent with the rest of the writer).
+        // Remove exactly the found merge through a grid action (consistent with the rest of the writer).
         removeMergedRegionsIn(developerView, merged);
     }
 
@@ -651,7 +651,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     /**
-     * Runs an undoable removal of the merged regions intersecting {@code region} and queues it for save.
+     * Removes the merged regions intersecting {@code region}.
      */
     private void removeMergedRegionsIn(IGridTable developerView, IGridRegion region) {
         run(developerView, new RemoveMergedRegionsAction(region));
