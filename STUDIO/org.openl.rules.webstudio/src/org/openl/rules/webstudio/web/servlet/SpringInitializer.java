@@ -127,13 +127,13 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         applicationContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("props", new Props()));
 
         // Do migrate before Spring initialization
-        Migrator.migrate();
+        var fromVersion = Migrator.migrate();
 
         applicationContext.refresh();
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
 
         // Run migration which require context to be initialized
-        Migrator.migrateAfterContentInitialized(applicationContext);
+        Migrator.migrateAfterContentInitialized(applicationContext, fromVersion);
         startTimer();
         // Store the initializer only after OpenL Studio is ready to handle requests.
         servletContext.setAttribute(THIS, this);

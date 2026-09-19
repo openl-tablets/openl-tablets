@@ -15,32 +15,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.security.standalone.persistence.OpenLProject;
-import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.webstudio.migration.ProjectTagsMigrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.security.NOPUserSettings;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
 import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
@@ -56,8 +45,6 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class Migrator {
 
-    private static final String MIGRATION_USER_NAME_PROPERTY = "migration.user.name";
-    private static final String MIGRATION_USER_EMAIL_PROPERTY = "migration.user.email";
     private static final String REPOSITORY_PREFIX = "repository.";
     private static final String DEFAULT_COMMENT_ARCHIVE_SUFFIX = ".comment-template.user-message.default.archive";
     private static final String DEFAULT_COMMENT_DELETE_SUFFIX = ".comment-template.user-message.default.delete";
@@ -71,8 +58,12 @@ public class Migrator {
     private Migrator() {
     }
 
-
-    public static void migrate() {
+    /**
+     * Brings the settings of the previous installation to what the running version expects.
+     *
+     * @return the version the settings were written by, which the migrations that run later are guarded with
+     */
+    public static String migrate() {
         DynamicPropertySource settings = DynamicPropertySource.get();
         var props = new HashMap<String, String>();
 
@@ -127,6 +118,7 @@ public class Migrator {
         } catch (IOException e) {
             log.error("Migration of properties failed.", e);
         }
+        return stringFromVersion;
     }
 
     /**
@@ -639,73 +631,18 @@ public class Migrator {
         }
     }
 
-    private static <T> T runInSession(SessionFactory sessionFactory, Function<Session, T> consumer) {
-        try (var session = sessionFactory.openSession()) {
-            return consumer.apply(session);
+    /**
+     * Runs the migrations that need the content of the initialized application context.
+     *
+     * <p>Tags moved from the database into the file of each project in 6.0.0, so an installation upgraded from
+     * that version or newer never kept them in the database and is left untouched.
+     *
+     * @param applicationContext the initialized application context
+     * @param fromVersion        the version the settings were written by, as {@link #migrate()} returned it
+     */
+    public static void migrateAfterContentInitialized(ApplicationContext applicationContext, String fromVersion) {
+        if (fromVersion.compareTo("6.0.0") < 0) {
+            ProjectTagsMigrator.migrate(applicationContext);
         }
-    }
-
-    public static void migrateAfterContentInitialized(ApplicationContext applicationContext) {
-        if (!applicationContext.containsBean("openlSessionFactory")) {
-            //webstudio is not configured, skipping migration
-            return;
-        }
-        var sessionFactory = (SessionFactory) applicationContext.getBean("openlSessionFactory");
-        var allOpenLProjects = runInSession(sessionFactory, Migrator::readAllProjectsAndTags);
-        if (!allOpenLProjects.isEmpty()) {
-            var migrationUserInfo = createMigrationUserInfo(applicationContext.getEnvironment());
-            var designTimeRepository = applicationContext.getBean("designTimeRepository", DesignTimeRepository.class);
-            var migrator = new ProjectTagsMigrator(designTimeRepository);
-            allOpenLProjects.forEach(openLProject -> {
-                log.info("Starting migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
-                try {
-                    migrator.migrate(openLProject.repositoryId, openLProject.projectPath, openLProject.tags, migrationUserInfo);
-                    runInSession(sessionFactory, session -> deleteProjectTagsInDB(session, openLProject.id));
-                    log.info("Successfully ended migration tags for project {} in repository {}", openLProject.projectPath, openLProject.repositoryId);
-                } catch (IOException | ProjectException e) {
-                    log.error("Migration of project %s with repository id %s has failed".formatted(openLProject.projectPath, openLProject.repositoryId), e);
-                }
-            });
-        }
-    }
-
-    private static UserInfo createMigrationUserInfo(Environment environment) {
-        var migrationUsername = environment.getProperty(MIGRATION_USER_NAME_PROPERTY, "Studio Migration");
-        var migrationUserEmail = environment.getProperty(MIGRATION_USER_EMAIL_PROPERTY, "");
-        return new UserInfo(migrationUsername, migrationUserEmail, migrationUsername);
-    }
-
-    @SuppressWarnings("deprecation")
-    private static Void deleteProjectTagsInDB(Session session, Long id) {
-        var transaction = session.beginTransaction();
-        var openLProject = session.get(OpenLProject.class, id);
-        session.remove(openLProject);
-        transaction.commit();
-        return null;
-    }
-
-    @SuppressWarnings("deprecation")
-    private static List<OpenLProjectWithTags> readAllProjectsAndTags(Session session) {
-        var cb = session.getCriteriaBuilder();
-        var cq = cb.createQuery(OpenLProject.class);
-        cq.from(OpenLProject.class);
-        return session.createQuery(cq).getResultList()
-                .stream()
-                .map(openLProject ->
-                        new OpenLProjectWithTags(
-                                openLProject.getRepositoryId(),
-                                openLProject.getProjectPath(),
-                                openLProject.getId(),
-                                openLProject.getTags().stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName))))
-                .toList();
-
-    }
-
-    @RequiredArgsConstructor
-    private static class OpenLProjectWithTags {
-        private final String repositoryId;
-        private final String projectPath;
-        private final Long id;
-        private final Map<String, String> tags;
     }
 }
