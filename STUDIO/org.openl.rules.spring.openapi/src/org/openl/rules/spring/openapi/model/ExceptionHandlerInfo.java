@@ -33,8 +33,6 @@ public class ExceptionHandlerInfo {
     @Getter
     private final Type returnType;
     @Getter
-    private final Type wrapperReturnType;
-    @Getter
     private final Class<? extends Throwable>[] handledExceptions;
 
     private ExceptionHandlerInfo(Builder from) {
@@ -42,7 +40,6 @@ public class ExceptionHandlerInfo {
         this.method = from.method;
         this.produces = from.produces;
         this.returnType = from.returnType;
-        this.wrapperReturnType = from.wrapperReturnType;
         this.handledExceptions = from.handledExceptions;
         this.statusCode = from.statusCode;
     }
@@ -55,7 +52,6 @@ public class ExceptionHandlerInfo {
         private final Class<? extends Throwable>[] handledExceptions;
         @Getter
         private Type returnType;
-        private Type wrapperReturnType;
         private String[] produces;
 
         private Builder(Class<?> controllerAdviceBeanType, Method method) {
@@ -70,7 +66,6 @@ public class ExceptionHandlerInfo {
             if (returnType instanceof ParameterizedType type) {
                 var rawType = type.getRawType();
                 if (rawType == ResponseEntity.class || rawType == HttpEntity.class) {
-                    wrapperReturnType = returnType;
                     returnType = type.getActualTypeArguments()[0];
                 }
             }
