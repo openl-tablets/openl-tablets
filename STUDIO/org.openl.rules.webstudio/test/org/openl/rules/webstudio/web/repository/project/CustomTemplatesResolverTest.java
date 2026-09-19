@@ -90,6 +90,26 @@ class CustomTemplatesResolverTest extends TemplatesResolverTest {
         close(projectFiles);
     }
 
+    @Test
+    void rejectsACategoryReachingOutsideOfTheTemplatesFolder() throws IOException {
+        touch(new File(createFolder(tempFolder, "outside"), "Secret.xlsx"));
+        var templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
+
+        assertTrue(templatesResolver.getTemplates("../outside").isEmpty());
+        assertEquals(0, templatesResolver.getProjectFiles("../outside", "Secret.xlsx").length);
+    }
+
+    @Test
+    void rejectsATemplateNameThatIsNotAFolderOfTheCategory() {
+        var templatesResolver = new CustomTemplatesResolver(webStudioHomePath);
+
+        assertEquals(0, templatesResolver.getProjectFiles(CUSTOM_TEMPLATES_CATEGORY, "*").length);
+        assertEquals(0,
+                templatesResolver.getProjectFiles(CUSTOM_TEMPLATES_CATEGORY, "../Rating Templates/Auto rating").length);
+        assertEquals(0,
+                templatesResolver.getProjectFiles(CUSTOM_TEMPLATES_CATEGORY, "Sample1 project\r\nInjected").length);
+    }
+
     private File createFolder(File parentFolder, String subFolder) {
         var folder = new File(parentFolder, subFolder);
         if (!folder.mkdirs()) {
