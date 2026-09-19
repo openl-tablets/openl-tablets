@@ -101,10 +101,10 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         sseAlgorithmPath = configPrefix + SSE_ALGORITHM_PATH_SUFFIX;
         listenerTimerPeriodPath = configPrefix + LISTENER_TIMER_PERIOD_PATH_SUFFIX;
 
-        load(properties);
+        loadProperties(properties);
     }
 
-    private void load(PropertiesHolder properties) {
+    private void loadProperties(PropertiesHolder properties) {
         serviceEndpoint = properties.getProperty(serviceEndpointPath);
         bucketName = properties.getProperty(bucketNamePath);
         regionName = properties.getProperty(regionNamePath);
@@ -152,6 +152,6 @@ public class AWSS3RepositorySettings extends RepositorySettings {
                 sseAlgorithmPath,
                 listenerTimerPeriodPath
         );
-        load(properties);
+        loadProperties(properties);
     }
 }

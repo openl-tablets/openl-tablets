@@ -29,10 +29,10 @@ public class LocalRepositorySettings extends RepositorySettings {
         this.uriProperty = configPrefix + URI_SUFFIX;
         this.baseDeployPathProperty = configPrefix + BASE_DEPLOY_PATH_SUFFIX;
 
-        load(properties);
+        loadProperties(properties);
     }
 
-    private void load(PropertiesHolder properties) {
+    private void loadProperties(PropertiesHolder properties) {
         uri = properties.getProperty(uriProperty);
     }
 
@@ -48,7 +48,7 @@ public class LocalRepositorySettings extends RepositorySettings {
         super.revert(properties);
 
         properties.revertProperties(uriProperty, baseDeployPathProperty);
-        load(properties);
+        loadProperties(properties);
     }
 
     public String getUri() {

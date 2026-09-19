@@ -163,10 +163,10 @@ public class GitRepositorySettings extends RepositorySettings {
         maxAuthenticationAttemptsProperty = configPrefix + MAX_AUTHENTICATION_ATTEMPTS_SUFFIX;
         protectedBranchesProperty = configPrefix + PROTECTED_BRANCHES_SUFFIX;
 
-        load(properties);
+        loadProperties(properties);
     }
 
-    private void load(PropertiesHolder properties) {
+    private void loadProperties(PropertiesHolder properties) {
         uri = properties.getProperty(uriProperty);
         login = properties.getProperty(loginProperty);
         password = properties.getProperty(passwordProperty);
@@ -249,6 +249,6 @@ public class GitRepositorySettings extends RepositorySettings {
                 tagPrefixProperty,
                 listenerTimerPeriodProperty,
                 protectedBranchesProperty);
-        load(properties);
+        loadProperties(properties);
     }
 }

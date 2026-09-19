@@ -37,7 +37,8 @@ public class AclAuthorizationStrategyImpl extends org.springframework.security.a
         var sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
         for (Sid sid : sids) {
             if (sid instanceof GrantedAuthoritySid grantedAuthoritySid) {
-                if (getRequiredAuthority(changeType).getAuthority().equals(grantedAuthoritySid.getGrantedAuthority())) {
+                if (resolveRequiredAuthority(changeType).getAuthority()
+                        .equals(grantedAuthoritySid.getGrantedAuthority())) {
                     return;
                 }
             }
@@ -45,7 +46,7 @@ public class AclAuthorizationStrategyImpl extends org.springframework.security.a
         super.securityCheck(acl, changeType);
     }
 
-    private GrantedAuthority getRequiredAuthority(int changeType) {
+    private GrantedAuthority resolveRequiredAuthority(int changeType) {
         if (changeType == CHANGE_AUDITING) {
             return this.gaModifyAuditing;
         }
