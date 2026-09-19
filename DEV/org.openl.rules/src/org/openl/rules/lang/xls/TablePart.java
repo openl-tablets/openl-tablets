@@ -29,7 +29,7 @@ public class TablePart implements Comparable<TablePart> {
 
     @Override
     public int compareTo(TablePart o) {
-        return this.part - o.part;
+        return Integer.compare(this.part, o.part);
     }
 
 }

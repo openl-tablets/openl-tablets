@@ -79,7 +79,7 @@ public class NumericStringComparator implements Comparator<CharSequence> {
 
             if (exp1 != exp2) {
                 // the first number greater than the second by the exponent
-                return exp1 - exp2;
+                return Integer.compare(exp1, exp2);
             }
 
             for (; exp1 > 0; exp1--) {
@@ -87,7 +87,7 @@ public class NumericStringComparator implements Comparator<CharSequence> {
                 var dig1 = Character.digit(str1.charAt(i1 - exp1), 10);
                 var dig2 = Character.digit(str2.charAt(i2 - exp1), 10);
                 if (dig1 != dig2) {
-                    return dig1 - dig2;
+                    return Integer.compare(dig1, dig2);
                 }
             }
         }

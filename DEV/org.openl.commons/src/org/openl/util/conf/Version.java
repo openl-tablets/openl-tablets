@@ -177,7 +177,7 @@ public class Version implements Comparable<Version> {
 
         for (var i = 0; i < version.length; i++) {
             if (version[i] != v.version[i]) {
-                return version[i] - v.version[i];
+                return Integer.compare(version[i], v.version[i]);
             }
         }
         return 0;

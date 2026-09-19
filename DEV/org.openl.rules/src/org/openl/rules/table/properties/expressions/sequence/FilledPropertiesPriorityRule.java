@@ -16,7 +16,8 @@ public class FilledPropertiesPriorityRule implements IPriorityRule {
 
     @Override
     public int compare(ITableProperties properties1, ITableProperties properties2) {
-        return getNumberOfSpecifiedProperties(properties2) - getNumberOfSpecifiedProperties(properties1);
+        return Integer.compare(getNumberOfSpecifiedProperties(properties2),
+                getNumberOfSpecifiedProperties(properties1));
     }
 
     public static int getNumberOfSpecifiedProperties(ITableProperties properties) {
