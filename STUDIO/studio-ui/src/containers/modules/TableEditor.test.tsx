@@ -535,6 +535,19 @@ describe('TableEditor', () => {
         expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
     })
 
+    it('opens the panel of a range cell from the keyboard, since its field cannot be typed into', async () => {
+        rangeCell()
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.dblClick(screen.getByText('0'))
+        expect(screen.queryByTestId('range-editor')).toBeNull()
+
+        await userEvent.keyboard('{ArrowDown}')
+
+        expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
+    })
+
     it('offers a choice standing for none of them, which is how a cell is emptied', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
             editors: [{ editor: 'combo', choices: ['R1', 'R2'], displayValues: ['Rating 1', 'Rating 2']}],
