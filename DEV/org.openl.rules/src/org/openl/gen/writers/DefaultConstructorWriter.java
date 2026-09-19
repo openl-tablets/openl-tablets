@@ -42,7 +42,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     private static final Class<?>[] DEF_CONSTR_PARAMS = {};
 
     private static final Map<String, Class<?>> DEFAULT_COLLECTIONS_INTERFACES;
-    private static final Map<String, Class<?>> boxed = new HashMap<>(8);
+    private static final Map<String, Class<?>> boxed = HashMap.newHashMap(8);
     private static final Method ZONE_ID_OF = Method.getMethod("java.time.ZoneId of(java.lang.String)");
     private static final Method ZONED_DATETIME_OF = Method
             .getMethod("java.time.ZonedDateTime of(int, int, int, int, int, int, int, java.time.ZoneId)");
@@ -62,7 +62,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
         boxed.put(Float.class.getName(), float.class);
         boxed.put(Double.class.getName(), double.class);
 
-        Map<String, Class<?>> defaultInterfaceCollections = new HashMap<>(6);
+        Map<String, Class<?>> defaultInterfaceCollections = HashMap.newHashMap(6);
         defaultInterfaceCollections.put(Collection.class.getName(), ArrayList.class);
         defaultInterfaceCollections.put(List.class.getName(), ArrayList.class);
         defaultInterfaceCollections.put(Set.class.getName(), HashSet.class);

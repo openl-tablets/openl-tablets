@@ -277,7 +277,7 @@ public final class ConversionRulesController {
                                                        IBindingContext bindingContext) {
         assert !nodesToCompile.isEmpty();
 
-        var groupedOperationNames = new LinkedHashSet<String>(nodesToCompile.size());
+        var groupedOperationNames = LinkedHashSet.<String>newLinkedHashSet(nodesToCompile.size());
 
         for (AlgorithmTreeNode node : nodesToCompile) {
             groupedOperationNames.add(node.getSpecificationKeyword());

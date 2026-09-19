@@ -47,7 +47,7 @@ public final class OpenLVersion {
         buildDate = bd;
         buildNumber = props.getOrDefault("openl.commit.hash", "????");
 
-        var source = new HashMap<String, String>(6);
+        var source = HashMap.<String, String>newHashMap(6);
         source.put("openl.site", url);
         source.put("openl.version", version);
         source.put("openl.build.date", buildDate);

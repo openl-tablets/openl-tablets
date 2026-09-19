@@ -99,7 +99,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
         var len = condition.getNumberOfRules();
         var list = new ArrayList<Object>(len);
-        var set = new HashSet<Object>(len);
+        var set = HashSet.<Object>newHashSet(len);
 
         for (var ruleN = 0; ruleN < len; ruleN++) {
             if (condition.isEmpty(ruleN)) {

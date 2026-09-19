@@ -40,7 +40,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     public ComponentTypeArrayOpenClass(IOpenClass componentClass) {
         var lengthOpenField = new ComponentTypeArrayLengthOpenField();
         this.componentClass = componentClass;
-        this.fieldsByName = new HashMap<>(1);
+        this.fieldsByName = HashMap.newHashMap(1);
         this.fieldsByName.put(lengthOpenField.getName(), lengthOpenField);
         this.javaName = createJavaName(componentClass);
     }
