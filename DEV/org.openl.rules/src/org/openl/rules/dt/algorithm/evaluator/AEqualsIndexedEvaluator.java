@@ -15,7 +15,7 @@ import org.openl.vm.IRuntimeEnv;
 
 abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
-    public AEqualsIndexedEvaluator(ConditionCasts conditionCasts) {
+    protected AEqualsIndexedEvaluator(ConditionCasts conditionCasts) {
         super(conditionCasts);
     }
 
@@ -41,7 +41,7 @@ abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
     protected IDomain<Object> indexedDomain(IBaseCondition condition) {
         var len = condition.getNumberOfRules();
         var list = new ArrayList<Object>(len);
-        var set = new HashSet<Object>(len);
+        var set = HashSet.<Object>newHashSet(len);
 
         for (var ruleN = 0; ruleN < len; ruleN++) {
             if (condition.isEmpty(ruleN)) {

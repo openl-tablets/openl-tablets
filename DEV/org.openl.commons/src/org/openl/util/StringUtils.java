@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
  */
 public class StringUtils {
 
+    private StringUtils() {
+        // Utility class
+    }
+
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static final String EMPTY = "";
     public static final String SPACE = " ";
@@ -201,7 +205,7 @@ public class StringUtils {
      * @return {@code true} if the CharSequence is empty or null
      */
     public static boolean isEmpty(final CharSequence cs) {
-        return cs == null || cs.length() == 0;
+        return cs == null || cs.isEmpty();
     }
 
     /**

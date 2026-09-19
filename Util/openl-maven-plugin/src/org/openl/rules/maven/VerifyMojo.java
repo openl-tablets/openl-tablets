@@ -140,7 +140,7 @@ public class VerifyMojo extends BaseOpenLMojo {
         var dependencyRequest = new DependencyRequest(collectRequest, null);
         var openlDependencies = repositorySystem.resolveDependencies(session, dependencyRequest).getArtifactResults();
 
-        var result = new HashMap<String, File>(openlDependencies.size());
+        var result = HashMap.<String, File>newHashMap(openlDependencies.size());
         for (var x : openlDependencies) {
             var a = x.getArtifact();
             result.put(versionlessKey(a.getGroupId(), a.getArtifactId(), a.getClassifier()), a.getFile());

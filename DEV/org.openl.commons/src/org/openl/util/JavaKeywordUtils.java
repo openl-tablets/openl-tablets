@@ -5,6 +5,10 @@ import java.util.Set;
 
 public class JavaKeywordUtils {
 
+    private JavaKeywordUtils() {
+        // Utility class
+    }
+
     private static final Set<String> JAVA_KEYWORDS = new HashSet<>();
 
     static {

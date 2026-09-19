@@ -13,11 +13,11 @@ public abstract class ASpreadsheetField extends DynamicObjectField {
     @Getter
     private String rowName;
 
-    public ASpreadsheetField(IOpenClass declaringClass, String name, IOpenClass type) {
+    protected ASpreadsheetField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(declaringClass, name, type);
     }
 
-    public ASpreadsheetField(IOpenClass declaringClass, String columnName, String rowName, IOpenClass type) {
+    protected ASpreadsheetField(IOpenClass declaringClass, String columnName, String rowName, IOpenClass type) {
         super(declaringClass, createFieldName(columnName, rowName), type);
         this.columnName = columnName;
         this.rowName = rowName;

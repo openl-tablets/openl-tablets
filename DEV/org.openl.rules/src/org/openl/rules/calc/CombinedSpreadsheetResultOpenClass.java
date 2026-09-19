@@ -151,7 +151,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
                 .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
                 .collect(Collectors.toList());
         for (CustomSpreadsheetResultOpenClass c : types) {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append(" & ");
             }
             sb.append(Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX)

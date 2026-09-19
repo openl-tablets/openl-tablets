@@ -37,7 +37,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     @Getter
     private final ModuleOpenClass module;
 
-    public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
+    protected AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
         super(methodNode);
         this.header = header;
         this.openl = openl;

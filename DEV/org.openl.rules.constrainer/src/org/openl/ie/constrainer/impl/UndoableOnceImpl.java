@@ -28,14 +28,14 @@ public abstract class UndoableOnceImpl extends ConstrainerObjectImpl implements 
     /**
      * Constructor with a given constrainer.
      */
-    public UndoableOnceImpl(Constrainer c) {
+    protected UndoableOnceImpl(Constrainer c) {
         this(c, "");
     }
 
     /**
      * Constructor with a given constrainer and name.
      */
-    public UndoableOnceImpl(Constrainer c, String name) {
+    protected UndoableOnceImpl(Constrainer c, String name) {
         super(c, name);
         _undone = false;
     }

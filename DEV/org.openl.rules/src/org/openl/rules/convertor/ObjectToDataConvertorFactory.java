@@ -28,6 +28,11 @@ import org.openl.util.RuntimeExceptionWrapper;
  * @author PUdalau
  */
 public class ObjectToDataConvertorFactory {
+
+    private ObjectToDataConvertorFactory() {
+        // Utility class
+    }
+
     @RequiredArgsConstructor
     public static class ClassCastPair {
         @Getter

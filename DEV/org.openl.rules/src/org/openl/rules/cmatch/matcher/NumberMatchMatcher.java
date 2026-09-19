@@ -16,7 +16,7 @@ public class NumberMatchMatcher implements IMatcher {
 
     @Override
     public Object fromString(String checkValue) {
-        if (checkValue.length() == 0) {
+        if (checkValue.isEmpty()) {
             return null;
         }
 

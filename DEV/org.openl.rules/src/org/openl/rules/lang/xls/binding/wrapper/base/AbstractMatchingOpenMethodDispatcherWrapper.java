@@ -20,7 +20,7 @@ public abstract class AbstractMatchingOpenMethodDispatcherWrapper extends Matchi
 
     protected final MatchingOpenMethodDispatcher delegate;
 
-    public AbstractMatchingOpenMethodDispatcherWrapper(MatchingOpenMethodDispatcher delegate) {
+    protected AbstractMatchingOpenMethodDispatcherWrapper(MatchingOpenMethodDispatcher delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 

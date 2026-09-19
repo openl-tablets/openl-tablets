@@ -10,6 +10,10 @@ import org.openl.util.StringUtils;
  */
 public class ArraySplitter {
 
+    private ArraySplitter() {
+        // Utility class
+    }
+
     private static final char ARRAY_SEPARATOR = ',';
     private static final char ARRAY_ESCAPE = '\\';
 

@@ -25,7 +25,7 @@ public class UndoFastVectorAdd extends UndoImpl implements Serializable {
 
     private FastVector _v;
 
-    static public UndoFastVectorAdd getUndo(FastVector v) {
+    public static UndoFastVectorAdd getUndo(FastVector v) {
         var undo = (UndoFastVectorAdd) FACTORY.getElement();
         undo._v = v;
         return undo;

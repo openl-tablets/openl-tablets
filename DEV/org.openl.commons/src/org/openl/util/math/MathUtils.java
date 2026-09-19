@@ -11,6 +11,10 @@ import org.openl.util.ArrayTool;
  */
 public class MathUtils {
 
+    private MathUtils() {
+        // Utility class
+    }
+
     private static <T extends Number> double[] numberArrayToDoubleArray(T[] values) {
         if (values == null) {
             return null;

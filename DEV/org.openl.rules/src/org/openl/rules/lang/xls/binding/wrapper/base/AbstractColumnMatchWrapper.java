@@ -29,7 +29,7 @@ public abstract class AbstractColumnMatchWrapper extends ColumnMatch {
 
     protected final ColumnMatch delegate;
 
-    public AbstractColumnMatchWrapper(ColumnMatch delegate) {
+    protected AbstractColumnMatchWrapper(ColumnMatch delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 

@@ -205,7 +205,7 @@ class ServiceInterfaceMethodInterceptingTest {
         String convert(IRulesRuntimeContext runtimeContext, String text);
     }
 
-    public static abstract class AOverload {
+    public abstract static class AOverload {
         @ServiceCallAfterInterceptor(ResultConverter1.class)
         public abstract Double driverRiskScoreOverloadTest(String driverRisk);
 

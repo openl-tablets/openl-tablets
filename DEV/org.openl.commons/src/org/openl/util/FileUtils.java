@@ -28,6 +28,10 @@ import org.slf4j.LoggerFactory;
  */
 public class FileUtils {
 
+    private FileUtils() {
+        // Utility class
+    }
+
     private static final int DEFAULT_BUFFER_SIZE = 8 * 1024 * 1024;
 
     /**

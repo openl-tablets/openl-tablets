@@ -34,4 +34,14 @@ class SlopeTest {
         assertEquals(new BigDecimal("0.3076923076923076923076923076923077"), slope(new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)}, new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(10), BigInteger.valueOf(8)}));
         assertEquals(new BigDecimal("0.3076923076923076923076923076923077"), slope(new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4), BigDecimal.valueOf(8)}, new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(10), BigDecimal.valueOf(8)}));
     }
+
+    @Test
+    void slopeIsUndefinedWhenAllXValuesAreEqual() {
+        assertNull(slope(new Double[]{1.0, 2.0, 3.0}, new Double[]{2.0, 2.0, 2.0}));
+        assertNull(slope(new Float[]{1f, 2f, 3f}, new Float[]{2f, 2f, 2f}));
+        assertNull(slope(new BigInteger[]{BigInteger.ONE, BigInteger.TWO, BigInteger.TEN},
+                new BigInteger[]{BigInteger.TWO, BigInteger.TWO, BigInteger.TWO}));
+        assertNull(slope(new BigDecimal[]{BigDecimal.ONE, BigDecimal.TEN, BigDecimal.ONE},
+                new BigDecimal[]{new BigDecimal("2.00"), new BigDecimal("2.00"), new BigDecimal("2.00")}));
+    }
 }

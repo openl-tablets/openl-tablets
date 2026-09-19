@@ -70,7 +70,7 @@ public abstract class TableView {
     }
 
     private static Map<String, Object> immutableProperties(Map<String, Object> properties) {
-        var copy = new LinkedHashMap<String, Object>(properties.size());
+        var copy = LinkedHashMap.<String, Object>newLinkedHashMap(properties.size());
         properties.forEach((name, value) -> copy.put(Objects.requireNonNull(name), Objects.requireNonNull(value)));
         return Collections.unmodifiableMap(copy);
     }
@@ -91,7 +91,7 @@ public abstract class TableView {
 
     protected abstract int getBodyWidth();
 
-    public static abstract class Builder<T extends Builder<T>> {
+    public abstract static class Builder<T extends Builder<T>> {
         private String id;
         private String tableType;
         private TableKind kind;

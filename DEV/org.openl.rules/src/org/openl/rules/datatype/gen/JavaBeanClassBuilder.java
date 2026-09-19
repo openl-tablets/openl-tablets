@@ -15,8 +15,8 @@ public class JavaBeanClassBuilder {
 
     protected final String beanName;
     protected TypeDescription parentType = POJOByteCodeGenerator.OBJECT_TYPE_DESCRIPTION;
-    protected final LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>(0);
-    protected final LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<>(0);
+    protected final LinkedHashMap<String, FieldDescription> parentFields = LinkedHashMap.newLinkedHashMap(0);
+    protected final LinkedHashMap<String, FieldDescription> fields = LinkedHashMap.newLinkedHashMap(0);
 
     public JavaBeanClassBuilder(String beanName) {
         this.beanName = beanName.replace('.', '/');

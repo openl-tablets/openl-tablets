@@ -44,6 +44,12 @@ class ClassUtilsTest {
     }
 
     @Test
+    void capitalizePassesNullAndEmptyNamesThrough() {
+        assertNull(ClassUtils.capitalize(null));
+        assertEquals("", ClassUtils.capitalize(""));
+    }
+
+    @Test
     void testCapitalize() {
         assertEquals("A", ClassUtils.capitalize("a"));
         assertEquals("A", ClassUtils.capitalize("A"));

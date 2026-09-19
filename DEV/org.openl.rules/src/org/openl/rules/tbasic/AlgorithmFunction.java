@@ -9,7 +9,7 @@ import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.IOpenMethodHeader;
 
 public abstract class AlgorithmFunction extends ExecutableRulesMethod {
-    public AlgorithmFunction(IOpenMethodHeader header, AMethodBasedNode boundNode) {
+    protected AlgorithmFunction(IOpenMethodHeader header, AMethodBasedNode boundNode) {
         super(header, boundNode);
     }
 

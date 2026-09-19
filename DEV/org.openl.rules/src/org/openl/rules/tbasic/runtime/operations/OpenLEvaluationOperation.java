@@ -22,7 +22,7 @@ public abstract class OpenLEvaluationOperation extends RuntimeOperation {
      *
      * @param openLStatement Expression which result must be calculated.
      */
-    public OpenLEvaluationOperation(IMethodCaller openLStatement) {
+    protected OpenLEvaluationOperation(IMethodCaller openLStatement) {
         this.openLStatement = openLStatement;
     }
 

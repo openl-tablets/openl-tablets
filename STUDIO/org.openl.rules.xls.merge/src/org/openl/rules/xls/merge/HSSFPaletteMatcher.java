@@ -18,6 +18,10 @@ import org.openl.rules.xls.merge.diff.XlsMatch;
  */
 public class HSSFPaletteMatcher {
 
+    private HSSFPaletteMatcher() {
+        // Utility class
+    }
+
     public static final int FIRST_COLOR_INDEX = PaletteRecord.FIRST_COLOR_INDEX;
     public static final int LAST_COLOR_INDEX = PaletteRecord.STANDARD_PALETTE_SIZE + FIRST_COLOR_INDEX;
 

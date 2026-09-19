@@ -21,7 +21,11 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  * @author Aliaksandr Antonik
  */
 @Slf4j
-public abstract class WebStudioUtils {
+public final class WebStudioUtils {
+
+    private WebStudioUtils() {
+        // Utility class
+    }
 
     public static RulesUserSession getRulesUserSession() {
         return getRulesUserSession(getSession());

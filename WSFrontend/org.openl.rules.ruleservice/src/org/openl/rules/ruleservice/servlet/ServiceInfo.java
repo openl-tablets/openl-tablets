@@ -16,7 +16,7 @@ public class ServiceInfo {
     @Getter
     private final String servicePath;
     @Getter
-    private final Map<String, String> urls = new HashMap<>(1);
+    private final Map<String, String> urls = HashMap.newHashMap(1);
     private final boolean hasManifest;
     @Getter
     private final String deploymentName;

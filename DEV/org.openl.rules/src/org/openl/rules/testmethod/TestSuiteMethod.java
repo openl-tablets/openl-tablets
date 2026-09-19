@@ -41,7 +41,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TestSuiteMethod extends ExecutableRulesMethod {
 
-    private final static String PRECISION_PARAM = "precision";
+    private static final String PRECISION_PARAM = "precision";
     private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s[-]\\s");
     @Getter
     @Setter
@@ -82,7 +82,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private TestDescription[] initTestsAndIndexes() {
         var testObjects = getTestObjects();
         TestDescription[] tests = new TestDescription[testObjects.length];
-        indexes = new HashMap<>(tests.length);
+        indexes = HashMap.newHashMap(tests.length);
         Map<String, Object> properties = getProperties();
         Integer precision = null;
         if (properties != null && properties.containsKey(PRECISION_PARAM)) {

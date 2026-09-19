@@ -7,7 +7,7 @@ import org.openl.studio.projects.model.tables.TableView;
 
 public abstract class EditableTableReader<T extends TableView, R extends TableView.Builder<?>> extends TableReader<T, R> {
 
-    public EditableTableReader(Supplier<R> builderCreator) {
+    protected EditableTableReader(Supplier<R> builderCreator) {
         super(builderCreator);
     }
 

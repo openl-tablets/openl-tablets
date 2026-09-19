@@ -32,14 +32,14 @@ public abstract class ReusableFactory implements Serializable {
     /**
      * Default constructor initializes this factory.
      */
-    public ReusableFactory() {
+    protected ReusableFactory() {
         _reusables = new FastStack();
     }
 
     /**
      * Creates new uninitialized object for this factory.
      */
-    abstract protected Reusable createNewElement();
+    protected abstract Reusable createNewElement();
 
     /**
      * Returns the unused object to the factory.

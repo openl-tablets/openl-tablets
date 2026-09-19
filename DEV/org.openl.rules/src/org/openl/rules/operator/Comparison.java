@@ -33,6 +33,10 @@ import org.openl.rules.annotations.Operator;
 @Operator
 public class Comparison {
 
+    private Comparison() {
+        // Utility class
+    }
+
     private static final BigDecimal HALF = new BigDecimal("0.5");
     private static final BigDecimal MAX_ULP = new BigDecimal("0.000001");
 

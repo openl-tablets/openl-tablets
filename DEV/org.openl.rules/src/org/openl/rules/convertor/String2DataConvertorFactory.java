@@ -39,6 +39,10 @@ import org.openl.types.IOpenClass;
  */
 public class String2DataConvertorFactory {
 
+    private String2DataConvertorFactory() {
+        // Utility class
+    }
+
     /**
      * Strong reference to common converters
      */

@@ -5,7 +5,7 @@ import java.util.Locale;
 public class SnakeCaseStrategy extends SpreadsheetResultBeanPropertyNamingStrategyBase {
     @Override
     public String transform(String name) {
-        if (name == null || name.length() == 0) {
+        if (name == null || name.isEmpty()) {
             return name;
         }
         return name.toLowerCase(Locale.ENGLISH);

@@ -43,7 +43,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @see #isTrue()
      */
     @Override
-    final public IntBoolExp and(boolean value) {
+    public final IntBoolExp and(boolean value) {
         return isTrue() ? getIntBoolExpConst(constrainer(), value) : this;
     }
 
@@ -52,7 +52,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @see #isTrue()
      */
     @Override
-    final public IntBoolExp and(IntBoolExp exp) {
+    public final IntBoolExp and(IntBoolExp exp) {
         return isTrue() ? exp : this;
     }
 
@@ -60,7 +60,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @return (Constraint)(isTrue ())
      */
     @Override
-    final public Constraint asConstraint() {
+    public final Constraint asConstraint() {
         return new ConstraintConst(constrainer(), isTrue());
     }
 
@@ -68,7 +68,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @return (boolean_const = = 0)
      */
     @Override
-    final public boolean isFalse() {
+    public final boolean isFalse() {
         return _const == 0;
     }
 
@@ -76,7 +76,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @return (boolean_const = = 0)
      */
     @Override
-    final public boolean isTrue() {
+    public final boolean isTrue() {
         return _const == 1;
     }
 
@@ -86,7 +86,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @see #isTrue()
      */
     @Override
-    final public IntBoolExp or(boolean value) {
+    public final IntBoolExp or(boolean value) {
         return isTrue() ? this : getIntBoolExpConst(constrainer(), value);
     }
 
@@ -94,7 +94,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @return (IntBoolExp)(< code > isTrue () ? this : exp</code>)
      */
     @Override
-    final public IntBoolExp or(IntBoolExp exp) {
+    public final IntBoolExp or(IntBoolExp exp) {
         return isTrue() ? this : exp;
     }
 
@@ -102,7 +102,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @throws Failure if "boolean_const" is equal to <code>true</code>
      */
     @Override
-    final public void setFalse() throws Failure {
+    public final void setFalse() throws Failure {
         setMax(0);
     }
 
@@ -110,7 +110,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
      * @throws Failure if "boolean_const" is equal to <code>false</code>
      */
     @Override
-    final public void setTrue() throws Failure {
+    public final void setTrue() throws Failure {
         setMin(1);
     }
 

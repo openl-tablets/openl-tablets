@@ -23,7 +23,7 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
      * @param parentType          class descriptor for super class.
      * @param beanFields          fields of generating class.
      */
-    public DefaultBeanByteCodeWriter(String beanNameWithPackage,
+    protected DefaultBeanByteCodeWriter(String beanNameWithPackage,
                                      TypeDescription parentType,
                                      Map<String, FieldDescription> beanFields) {
         this.beanNameWithPackage = beanNameWithPackage;

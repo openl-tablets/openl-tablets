@@ -217,7 +217,7 @@ public class ZipCharsetDetector {
      * @return folder names as they must be located in the project from the root
      */
     private Collection<String> convertEntryNames(List<String> entryNames, Charset from, Charset to) {
-        var converted = new HashSet<String>(entryNames.size());
+        var converted = HashSet.<String>newHashSet(entryNames.size());
         for (String entryName : entryNames) {
             // Convert entry name to another charset
             converted.add(from == to ? entryName : new String(entryName.getBytes(from), to));

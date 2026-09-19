@@ -4,6 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LoggingHandler {
+
+    private LoggingHandler() {
+        // Utility class
+    }
+
     private static final ThreadLocal<LoggingCapability> INSTANCE = new ThreadLocal<>();
 
     public static void setup(LoggingCapability value) {

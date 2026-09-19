@@ -17,7 +17,7 @@ import org.openl.types.impl.AAggregateInfo;
  */
 public class JavaNoAggregateInfo extends AAggregateInfo {
 
-    static final public JavaNoAggregateInfo NO_AGGREGATE = new JavaNoAggregateInfo();
+    public static final JavaNoAggregateInfo NO_AGGREGATE = new JavaNoAggregateInfo();
 
     /*
      * (non-Javadoc)

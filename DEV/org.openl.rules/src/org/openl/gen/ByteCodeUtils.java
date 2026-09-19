@@ -7,6 +7,10 @@ package org.openl.gen;
  */
 public final class ByteCodeUtils {
 
+    private ByteCodeUtils() {
+        // Utility class
+    }
+
     /**
      * Creates a namespace string for the XML Bind annotations.
      */

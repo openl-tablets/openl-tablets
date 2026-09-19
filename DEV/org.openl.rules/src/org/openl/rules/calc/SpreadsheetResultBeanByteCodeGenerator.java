@@ -91,7 +91,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private static void fixDuplicates(List<FieldDescription> fields, BiConsumer<FieldDescription, String> set, Function<FieldDescription, String> get) {
-        var names = new HashSet<String>(fields.size());
+        var names = HashSet.<String>newHashSet(fields.size());
         var duplicates = new ArrayList<FieldDescription>();
         for (var field : fields) {
             if (!names.add(get.apply(field))) {

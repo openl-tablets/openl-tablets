@@ -11,6 +11,10 @@ import org.openl.rules.security.Group;
  */
 public class SecurityUtils {
 
+    private SecurityUtils() {
+        // Utility class
+    }
+
     /**
      * Checks if an authentification has defined authority. It checks authority hierarchically through Groups.
      */

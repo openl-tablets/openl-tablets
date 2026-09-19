@@ -5,6 +5,10 @@ import org.slf4j.LoggerFactory;
 
 public final class OpenLInfoLogger {
 
+    private OpenLInfoLogger() {
+        // Utility class
+    }
+
     /**
      * Logs information for investigation purposes.
      */

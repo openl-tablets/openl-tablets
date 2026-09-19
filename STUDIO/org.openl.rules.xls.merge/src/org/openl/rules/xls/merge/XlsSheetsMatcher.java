@@ -41,6 +41,9 @@ import org.openl.util.CollectionUtils;
 @Slf4j
 public class XlsSheetsMatcher {
 
+    private XlsSheetsMatcher() {
+        // Utility class
+    }
 
     private static final Pattern THREADED_COMMENT_MARKER = Pattern
             .compile("^tc=\\{[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}}$");

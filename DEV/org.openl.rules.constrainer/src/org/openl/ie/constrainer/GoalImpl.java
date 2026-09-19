@@ -29,11 +29,11 @@ package org.openl.ie.constrainer;
  * @see ConstraintImpl
  */
 public abstract class GoalImpl extends ConstrainerObjectImpl implements Goal {
-    public GoalImpl(Constrainer c) {
+    protected GoalImpl(Constrainer c) {
         this(c, "Goal");
     }
 
-    public GoalImpl(Constrainer c, String name) {
+    protected GoalImpl(Constrainer c, String name) {
         super(c, name);
     }
 

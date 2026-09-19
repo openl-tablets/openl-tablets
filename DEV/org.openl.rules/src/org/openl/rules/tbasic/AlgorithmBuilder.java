@@ -369,7 +369,7 @@ public class AlgorithmBuilder {
                     .getSource()
                     .getCell(0, 0)
                     .getStringValue());
-            if (id.length() == 0) {
+            if (id.isEmpty()) {
                 // ignore column with NO ID
                 continue;
             }

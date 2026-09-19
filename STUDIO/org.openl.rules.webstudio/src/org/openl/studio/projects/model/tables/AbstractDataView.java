@@ -48,7 +48,7 @@ public abstract class AbstractDataView extends TableView {
         return hasForeignKey ? DEFAULT_HEADER_HEIGHT + 1 : DEFAULT_HEADER_HEIGHT;
     }
 
-    public static abstract class Builder<T extends Builder<T>> extends TableView.Builder<T> {
+    public abstract static class Builder<T extends Builder<T>> extends TableView.Builder<T> {
         protected Collection<DataHeaderView> headers;
         protected Collection<DataRowView> rows;
 

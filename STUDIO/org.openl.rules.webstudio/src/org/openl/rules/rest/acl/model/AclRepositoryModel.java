@@ -76,7 +76,7 @@ public class AclRepositoryModel {
         return new SidRepositoryBuilder();
     }
 
-    private static abstract class ABuilder<T extends ABuilder<T>> {
+    private abstract static class ABuilder<T extends ABuilder<T>> {
 
         protected AclRole role;
 

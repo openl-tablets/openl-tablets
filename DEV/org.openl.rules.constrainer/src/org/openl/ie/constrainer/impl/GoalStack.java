@@ -13,7 +13,7 @@ public final class GoalStack implements Serializable {
     /**
      * A placeholder for the information about the choice point.
      */
-    static public class ChoicePoint implements Serializable {
+    public static class ChoicePoint implements Serializable {
         final Goal _goal;
         final ChoicePointLabel _label;
         final FastStack _exeStack;
@@ -26,19 +26,19 @@ public final class GoalStack implements Serializable {
             _undoStackSize = undoStackSize;
         }
 
-        final public FastStack exeStack() {
+        public final FastStack exeStack() {
             return _exeStack;
         }
 
-        final public Goal goal() {
+        public final Goal goal() {
             return _goal;
         }
 
-        final public ChoicePointLabel label() {
+        public final ChoicePointLabel label() {
             return _label;
         }
 
-        final public int undoStackSize() {
+        public final int undoStackSize() {
             return _undoStackSize;
         }
 

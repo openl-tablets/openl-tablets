@@ -107,7 +107,7 @@ public class Version implements Comparable<Version> {
         return nnum;
     }
 
-    static public Version extractVersion(String s, IVersionStartPatternFinder finder, String pattern) throws Exception {
+    public static Version extractVersion(String s, IVersionStartPatternFinder finder, String pattern) throws Exception {
         var idx = findVersionStart(s, finder, pattern);
         if (idx == -1) {
             throw new Exception("Could not find version pattern in " + s);
@@ -148,7 +148,7 @@ public class Version implements Comparable<Version> {
         return calcNumbersSeparatedByDots(s, from, pattern) == pattern.length() + 1;
     }
 
-    static public Version parseVersion(String s, int from, String pattern) {
+    public static Version parseVersion(String s, int from, String pattern) {
         if (!isVersion(s, from, pattern)) {
             throw new RuntimeException("This is not a valid version: " + s.substring(from) + " in " + s);
         }

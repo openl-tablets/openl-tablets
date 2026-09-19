@@ -9,6 +9,10 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 
 public final class ConversionRulesController {
 
+    private ConversionRulesController() {
+        // Utility class
+    }
+
     private static final ConversionRuleBean[] convertionRules = new ConversionRuleBean[]{
             ConversionRuleBean.builder()
                     .operation("SET")
@@ -277,7 +281,7 @@ public final class ConversionRulesController {
                                                        IBindingContext bindingContext) {
         assert !nodesToCompile.isEmpty();
 
-        var groupedOperationNames = new LinkedHashSet<String>(nodesToCompile.size());
+        var groupedOperationNames = LinkedHashSet.<String>newLinkedHashSet(nodesToCompile.size());
 
         for (AlgorithmTreeNode node : nodesToCompile) {
             groupedOperationNames.add(node.getSpecificationKeyword());

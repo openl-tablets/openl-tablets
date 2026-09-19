@@ -36,7 +36,7 @@ import org.openl.util.StringUtils;
  * @author Yury Molchan, Marat Kamalov
  */
 public class POJOByteCodeGenerator {
-    public final static TypeDescription OBJECT_TYPE_DESCRIPTION = new TypeDescription(Object.class.getName());
+    public static final TypeDescription OBJECT_TYPE_DESCRIPTION = new TypeDescription(Object.class.getName());
 
     private final String beanNameWithPackage;
     private final TypeDescription parentType;
