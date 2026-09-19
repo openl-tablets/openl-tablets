@@ -2,14 +2,9 @@ package org.openl.rules.webstudio.service;
 
 import static org.mockito.Mockito.mock;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.TreeMap;
 import javax.sql.DataSource;
 
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
-import org.flywaydb.core.Flyway;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
@@ -19,8 +14,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import org.openl.util.PropertiesUtils;
 
 @Configuration
 @ImportResource("classpath:META-INF/standalone/spring/security-hibernate-beans.xml")
@@ -69,36 +62,8 @@ public class DBTestConfiguration {
     }
 
     @Bean
-    public Flyway flywayDBReset(DataSource dataSource) throws SQLException, IOException {
-        String databaseCode;
-        try (var connection = dataSource.getConnection()) {
-            var metaData = connection.getMetaData();
-            databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
-        }
-
-        String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};
-
-        var placeholders = new TreeMap<String, String>();
-        for (String location : locations) {
-            fillQueries(placeholders, location + "/placeholders.properties");
-        }
-        var flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-        flyway.setBaselineVersionAsString("0");
-        flyway.setBaselineOnMigrate(true);
-        flyway.setTable("openl_security_flyway");
-        flyway.setPlaceholders(placeholders);
-        flyway.setLocations(locations);
-
-        return flyway;
-    }
-
-    private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
-        var resource = getClass().getResource(propertiesFileName);
-        if (resource == null) {
-            return;
-        }
-        PropertiesUtils.load(resource, queries::put);
+    public SecuritySchemaReset securitySchemaReset(DataSource dataSource) {
+        return new SecuritySchemaReset(dataSource);
     }
 
 }

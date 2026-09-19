@@ -1,61 +1,71 @@
 package org.openl.rules.security.standalone;
 
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 import javax.sql.DataSource;
 
+import liquibase.Contexts;
+import liquibase.LabelExpression;
+import liquibase.Liquibase;
+import liquibase.Scope;
+import liquibase.UpdateSummaryOutputEnum;
+import liquibase.analytics.configuration.AnalyticsArgs;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import liquibase.ui.LoggerUIService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.flywaydb.core.Flyway;
 
-import org.openl.util.PropertiesUtils;
-
+/**
+ * Brings the security database up to the schema this release expects.
+ *
+ * <p>The change log is baselined at the schema of OpenL Tablets 6.0.0: an empty database gets it created in one
+ * step, together with the default groups and the default permissions. A database handed over by 5.27.15 is
+ * converted to that schema, and one handed over by 6.0.0 or later is adopted as it is; either way only the
+ * changes it is missing are applied.
+ *
+ * <p>A database of a release older than 5.27.10 is refused: the migration stops, the database is left
+ * untouched, and the failure names the release to upgrade through.
+ *
+ * <p>Each change is described once and rendered for the database in use, so one change log serves H2, MySQL,
+ * MariaDB, SQL Server, Azure SQL Database, Oracle and PostgreSQL.
+ */
 @Slf4j
 public class DBMigrationBean {
+
+    /** Change log listing every schema version, applied in order. */
+    private static final String CHANGE_LOG = "db/changelog/db.changelog-master.xml";
 
     @Setter
     private DataSource dataSource;
 
-    public void init() throws SQLException, IOException {
-
-        String databaseCode;
+    public void init() throws SQLException, LiquibaseException {
         try (var connection = dataSource.getConnection()) {
-            var metaData = connection.getMetaData();
-            databaseCode = metaData.getDatabaseProductName().toLowerCase(Locale.ROOT).replace(" ", "_");
+            var database = DatabaseFactory.getInstance()
+                    .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+            log.info("Migrating the security schema of {}.", database.getDatabaseProductName());
+            migrate(database);
         }
-
-        String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};
-
-        var placeholders = new TreeMap<String, String>();
-        for (String location : locations) {
-            fillQueries(placeholders, location + "/placeholders.properties");
-        }
-        var flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-        flyway.setBaselineVersionAsString("0");
-        flyway.setBaselineOnMigrate(true);
-        // Tolerate cosmetic changes (for example, tabs reformatted to spaces) to already-applied
-        // migration scripts: such edits change the Flyway checksum but not the SQL. Strict
-        // validation would otherwise block the upgrade, and the bundled Flyway 4.2 repair() is
-        // incompatible with the embedded H2. New migrations are still applied by version.
-        flyway.setValidateOnMigrate(false);
-        flyway.setTable("openl_security_flyway");
-        flyway.setPlaceholders(placeholders);
-
-        flyway.setLocations(locations);
-        flyway.migrate();
     }
 
-    private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {
-        var resource = getClass().getResource(propertiesFileName);
-        if (resource == null) {
-            log.info("File '{}' is not found.", propertiesFileName);
-            return;
+    /**
+     * Applies the change log to the given database.
+     *
+     * <p>The migration reports its progress to the application log rather than to the console, and sends no
+     * usage statistics: an installation is not expected to reach the network of the migration tool.
+     */
+    private static void migrate(Database database) throws LiquibaseException {
+        var settings = Map.<String, Object>of(AnalyticsArgs.ENABLED.getKey(), Boolean.FALSE,
+                Scope.Attr.ui.name(), new LoggerUIService());
+        try (var liquibase = new Liquibase(CHANGE_LOG, new ClassLoaderResourceAccessor(), database)) {
+            liquibase.setShowSummaryOutput(UpdateSummaryOutputEnum.LOG);
+            // Scope.child() declares the broadest exception, because it runs arbitrary code.
+            Scope.child(settings, () -> liquibase.update(new Contexts(), new LabelExpression()));
+        } catch (Exception e) {
+            throw new LiquibaseException("Failed to migrate the security schema.", e);
         }
-        log.info("Load properties from '{}'.", resource);
-        PropertiesUtils.load(resource, queries::put);
     }
 }

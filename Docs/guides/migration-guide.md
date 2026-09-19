@@ -51,6 +51,9 @@ The migrator handles:
 | 5.26.0 | 5.26.1 | Direct | ✅ Yes |
 | 5.26.x | 6.0.0 | Direct | ✅ Yes |
 | 5.22.x | 6.0.0 | Via 5.24 → 5.26 | ⚠️ Multi-step |
+| 5.27.15 | 6.5.0 | Direct | ✅ Yes |
+| 6.0.x - 6.4.x | 6.5.0 | Direct | ✅ Yes |
+| 5.27.9 and older | 6.5.0 | Via 5.27.15 | ⚠️ Multi-step |
 
 ### Migration to 5.24.x
 
@@ -148,6 +151,23 @@ The migrator handles:
 3. Review Hibernate query compatibility
 4. Update Jetty configuration
 
+### Migration to 6.5.0
+
+**Key Changes**:
+
+1. **Database Migrations Moved to Liquibase**
+   - Old: Flyway, tracked in the `openl_security_flyway` table
+   - New: **Liquibase**, tracked in `DATABASECHANGELOG`
+   - The first startup adopts the existing schema, applies only the changes made after 6.0.0, and drops the
+     history table of the previous tool
+
+2. **Upgrades Start at 5.27.15**
+   - The change log is baselined at the schema of 6.0.0, and converts a database of 5.27.15 to it
+   - A database left behind by a release before 5.27.10, which still keeps its group hierarchy in
+     `OpenL_Group2Group`, is **refused**: the application stops instead of starting on a schema it would
+     misread, and the database is left untouched
+   - Action: Such an installation has to be upgraded to 5.27.15 or 6.0.0 first
+
 ### Pre-Migration Checklist
 
 Before upgrading:
@@ -211,101 +231,93 @@ tail -f /var/log/openl-tablets/application.log
 
 ## Database Migration
 
-### Flyway Migration System
+### Liquibase Change Logs
 
-OpenL Tablets uses **Flyway** for database version control:
+OpenL Tablets keeps the security schema under **Liquibase**, and applies the change logs on startup.
 
-**Migration Scripts Location**:
+**Change log location**:
 ```
-STUDIO/org.openl.security.standalone/resources/db/flyway/
-├── common/           # Database-agnostic migrations
-├── postgresql/       # PostgreSQL-specific migrations
-├── mysql/            # MySQL-specific migrations
-├── oracle/           # Oracle-specific migrations
-├── h2/               # H2-specific migrations
-└── mssql/            # MS SQL Server-specific migrations
+STUDIO/org.openl.security.standalone/resources/db/changelog/
+├── db.changelog-master.xml   # Types per database, and the list of releases below
+├── db.changelog-6.0.0.xml    # Baseline: the schema of 6.0.0, and the conversion of a 5.27.15 one
+├── db.changelog-6.4.0.xml    # Changes released in 6.4.0
+└── db.changelog-6.5.0.xml    # Changes released in 6.5.0
 ```
 
-### Migration Naming Convention
+One file per release holds the change sets that release introduced, and the master change log lists them in
+order. Each change is written once and rendered for the database in use, so the same change log serves H2,
+MySQL, MariaDB, SQL Server, Azure SQL Database, Oracle and PostgreSQL.
 
-```
-V{version}__{description}.sql
+Liquibase records what it has applied in its own `DATABASECHANGELOG` table and guards concurrent startups with
+`DATABASECHANGELOGLOCK`.
 
-Examples:
-V5.1__Create_identity.sql
-V8__Extend_Group_Name_Length.sql
-V9__ACL.sql
-V10.2__Replace_privileges_with_permissions.sql
-```
+The schema of **6.0.0** is the baseline: an empty database gets it created in one step, instead of replaying
+the release-by-release history that produced it. `db.changelog-6.0.0.xml` also converts a database of 5.27.15
+to that schema, so an upgrade can start from any of these:
 
-### Flyway Configuration
+| Database handed over by | What the first startup does |
+|-------------------------|-----------------------------|
+| nothing (empty) | Creates the schema, the default groups and the default permissions |
+| 5.27.15 | Adds the personal access tokens and the index over the external group names, and converts the permissions into the roles of the current model |
+| 6.0.0 - 6.3.x | Adds the moment of the last sign-in |
+| 6.4.x | Adopts the schema as it is |
 
-```properties
-# application.properties
+> [!Note]
+> A database of a release before **5.27.10** is refused on startup: it still keeps the group hierarchy in
+> `OpenL_Group2Group`, and the change set that flattens it is no longer part of the change log. Upgrade such an
+> installation to 5.27.15 or 6.0.0 first, and let it start once, before upgrading to this version. Releases
+> between 5.27.10 and 5.27.14 left the same schema as 5.27.15 and are converted the same way, though 5.27.15
+> is the oldest release the conversion is tested against.
 
-# Migration settings
-spring.flyway.enabled=true
-spring.flyway.baseline-version=0
-spring.flyway.table=openl_security_flyway
-spring.flyway.locations=classpath:db/flyway/common,classpath:db/flyway/{vendor}
+### Adopting a Database of an Earlier Release
 
-# Database settings
-spring.datasource.url=jdbc:postgresql://localhost:5432/openl
-spring.datasource.username=openl
-spring.datasource.password=secret
-```
+Releases up to 6.4.0 migrated the schema with Flyway and tracked it in the `openl_security_flyway` table. The
+first startup of 6.5.0 recognizes such a database, records as already applied every change set whose change is
+already there, applies the rest, and drops the history table of the previous tool. Nothing has to be prepared
+by hand, and the users, groups and projects of the installation are untouched.
 
-### Key Database Migrations
+### Key Database Changes
 
-| Version | Migration | Description |
-|---------|-----------|-------------|
-| V5.1 | Create_identity | Initial identity tables (Oracle) |
-| V8 | Extend_Group_Name_Length | Increase group name column size |
-| V9 | ACL | Access Control List tables |
-| V9.1-V9.4 | ACL | Oracle-specific ACL migrations |
-| V10.2 | Replace_privileges_with_permissions | Permission system refactoring |
-| V11.1 | Lock_Modify_Date | Add lock modification tracking |
-| V12.1 | Expand_nested_groups | Support nested group hierarchy |
-| V13.1 | Update_ACL_permissions | Update ACL permission structure |
+| Release | Change set | Description |
+|---------|------------|-------------|
+| 6.0.0 | `6.0.0-supported-source-schema` | Refuses a database left behind by a release older than 5.27.10 |
+| 6.0.0 | `6.0.0-users-and-groups` | Users, groups, group authorities and per-user settings |
+| 6.0.0 | `6.0.0-projects-and-tags` | Projects, their tags and the tag templates |
+| 6.0.0 | `6.0.0-lock` | Cluster-wide lock registry |
+| 6.0.0 | `6.0.0-pat-tokens` | Personal access tokens |
+| 6.0.0 | `6.0.0-acl-*` | Access control lists, and the seed data of an empty installation |
+| 6.0.0 | `6.0.0-external-groups-index` | Index over the external group names |
+| 6.0.0 | `6.0.0-drop-unlock-authorities` | Removal of the unlock authorities of the previous model |
+| 6.0.0 | `6.0.0-role-based-permissions` | Conversion of the permissions of 5.27.15 into the current roles |
+| 6.4.0 | `6.4.0-user-last-login` | Moment of the last successful sign-in |
+| 6.5.0 | `6.5.0-drop-flyway-history` | Removal of the history table of the previous migration tool |
 
 ### Running Migrations Manually
 
+The application migrates on startup, so this is only needed to inspect a database or to prepare a change for a
+review:
+
 ```bash
-# Using Maven
-mvn flyway:migrate -Dflyway.url=jdbc:postgresql://localhost/openl
+# Show which change sets are still missing
+liquibase --url=jdbc:postgresql://localhost/openl --username=openl --password=secret \
+          --changelog-file=db/changelog/db.changelog-master.xml status
 
-# Using Flyway CLI
-flyway -url=jdbc:postgresql://localhost/openl \
-       -user=openl \
-       -password=secret \
-       migrate
-
-# Check migration status
-flyway info
+# Write the SQL of the pending change sets instead of running it
+liquibase --url=jdbc:postgresql://localhost/openl --username=openl --password=secret \
+          --changelog-file=db/changelog/db.changelog-master.xml update-sql
 ```
 
 ### Rollback Strategy
 
-Flyway doesn't support automatic rollback. For rollback:
+A change set is written forward only, so a downgrade is a restore:
 
-1. **Create undo scripts manually**:
-   ```sql
-   -- U9__ACL.sql (undo for V9__ACL.sql)
-   DROP TABLE IF EXISTS acl_entry;
-   DROP TABLE IF EXISTS acl_object_identity;
-   DROP TABLE IF EXISTS acl_class;
-   ```
-
-2. **Use database backups**:
+1. **Restore the backup taken before the upgrade**:
    ```bash
-   # Restore from backup
    psql openl < openl_backup_20250101.sql
    ```
 
-3. **Use Flyway undo** (commercial version):
-   ```bash
-   flyway undo
-   ```
+2. **Or add a change set that reverses the change** and release it, which keeps the history of every
+   installation consistent.
 
 ### H2 Database Migration
 
@@ -348,38 +360,33 @@ pg_upgrade \
 
 #### Migration Failed Halfway
 
-```bash
-# 1. Check Flyway history
-SELECT * FROM openl_security_flyway ORDER BY installed_rank;
+```sql
+-- Which change sets have been applied, and in which order
+SELECT id, author, exectype, dateexecuted FROM databasechangelog ORDER BY orderexecuted;
+```
 
-# 2. Mark failed migration as repaired
-flyway repair
+Liquibase stops at the failed change set and applies nothing after it. Fix the cause and start the application
+again: the change sets already recorded are skipped, and the failed one is retried.
 
-# 3. Re-run migration
-flyway migrate
+#### Startup Blocked by the Change Log Lock
+
+A node that was killed during a migration leaves the lock behind, and every later startup waits for it:
+
+```sql
+-- Release the lock of a node that is no longer running
+UPDATE databasechangeloglock SET locked = FALSE, lockgranted = NULL, lockedby = NULL WHERE id = 1;
 ```
 
 #### Checksum Mismatch
 
-```bash
-# If migration script was modified after execution
-flyway repair
+An already applied change set was edited afterwards. Restore the change set to the form that was released, and
+ship the correction as a new change set instead.
 
-# Repair will update checksums in history table
-```
+#### Database Older Than the Oldest Supported Release
 
-#### Migration Validation Error
-
-```bash
-# Validate migrations
-flyway validate
-
-# Clean database (⚠️ DANGEROUS - deletes all data)
-flyway clean
-
-# Baseline existing database
-flyway baseline -baselineVersion=5.0
-```
+The startup stops with a message naming 5.27.10, and the database is left as it was. The installation is on a
+release before 5.27.10, which still keeps its group hierarchy in `OpenL_Group2Group`. Upgrade it to 5.27.15 or
+6.0.0 first, let it start once so that it flattens the hierarchy, and then upgrade to this version.
 
 ---
 
@@ -586,14 +593,14 @@ public class ProjectsController {
 **Symptom**: Application won't start after upgrade
 
 **Solution**:
+```sql
+-- Find the change set the migration stopped at
+SELECT id, author, exectype, dateexecuted FROM databasechangelog ORDER BY orderexecuted;
+```
+
+Fix the cause the log names and start the application again, or restore the backup taken before the upgrade:
+
 ```bash
-# Check Flyway history
-SELECT * FROM openl_security_flyway;
-
-# Repair if needed
-flyway repair
-
-# Or restore from backup
 psql openl < backup.sql
 ```
 

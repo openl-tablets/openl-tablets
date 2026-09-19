@@ -155,6 +155,9 @@
         <!-- DB -->
         <h2.version>2.5.250</h2.version>
         <hikaricp.version>7.1.0</hikaricp.version>
+        <!-- Version is frozen: Liquibase 5.0.1 moved from the Apache License to the Functional Source License. -->
+        <liquibase.version>4.33.0</liquibase.version>
+        <liquibase-slf4j.version>5.1.0</liquibase-slf4j.version>
         <hibernate.orm.version>6.6.57.Final</hibernate.orm.version>
         <hibernate.validator.version>8.0.5.Final</hibernate.validator.version>
 
@@ -793,12 +796,24 @@
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
             </dependency>
-            <!-- Flyway: The agile database migration framework for Java. -->
+            <!-- Liquibase: the database migration framework that keeps the security schema up to date. -->
             <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>flyway-core</artifactId>
-                <!-- Version is frozen due license was changed -->
-                <version>4.2.0.3</version>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>${liquibase.version}</version>
+                <exclusions>
+                    <!-- The command line of Liquibase, which an embedded migration never reaches. -->
+                    <exclusion>
+                        <groupId>info.picocli</groupId>
+                        <artifactId>picocli</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- Reports the progress of a migration through slf4j, into the log of the application. -->
+            <dependency>
+                <groupId>com.mattbertolini</groupId>
+                <artifactId>liquibase-slf4j</artifactId>
+                <version>${liquibase-slf4j.version}</version>
             </dependency>
             <!-- Hibernate -->
             <dependency>
@@ -1611,9 +1626,9 @@
                                 <exclude>.*/**</exclude>
                                 <exclude>**/.*/**</exclude>
                                 <exclude>**/pom.xml</exclude>
-                                <!-- Flyway migration scripts are immutable: reformatting them
-                                     changes Flyway's content checksum and breaks upgrades. -->
-                                <exclude>**/db/flyway/**</exclude>
+                                <!-- Liquibase change logs are immutable: reformatting them changes the
+                                     checksum Liquibase stores per change set and breaks upgrades. -->
+                                <exclude>**/db/changelog/**</exclude>
                                 <!-- Runtime unpacked by the DEMO assembly: JRE files are read-only
                                      and the Jetty distribution must stay intact. -->
                                 <exclude>DEMO/jre/**</exclude>

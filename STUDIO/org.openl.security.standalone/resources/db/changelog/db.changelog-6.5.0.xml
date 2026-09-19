@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <!--
+     Flyway tracked the migrations until 6.4.0 and recorded them in a history table of its own. Liquibase keeps
+     its own history, so the table left over from the previous tool is dropped. Flyway created it as a quoted,
+     lower-case identifier, hence the quoting strategy.
+    -->
+    <changeSet id="6.5.0-drop-flyway-history" author="ymolchan" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="openl_security_flyway"/>
+        </preConditions>
+        <comment>History table of the migration tool used before Liquibase</comment>
+
+        <dropTable tableName="openl_security_flyway"/>
+    </changeSet>
+
+</databaseChangeLog>

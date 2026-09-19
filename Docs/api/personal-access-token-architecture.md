@@ -929,7 +929,7 @@ CREATE INDEX ix_OpenL_PAT_Tokens_loginName
 
 ### Migration Strategy
 
-**Flyway Migration**: `V15__Create_PAT_Tokens.sql`
+**Liquibase change set**: `6.0.0-pat-tokens` in `db/changelog/db.changelog-6.0.0.xml`
 
 **Backward Compatibility**:
 - New table, no schema changes to existing tables
@@ -1636,7 +1636,7 @@ void parse_sqlInjectionAttempt_throwsException() {
 - Optional expiration support
 - OAuth2/SAML authentication requirement
 - Comprehensive test suite
-- Database migration with Flyway
+- Database migration with Liquibase
 
 **Components Added**:
 - `PatAuthenticationFilter`

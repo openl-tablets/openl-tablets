@@ -26,7 +26,7 @@ description: Supported platforms, application servers, databases, browsers, Java
 * Safari 26
 
 #### Database
-* PostgreSQL 16.1
+* PostgreSQL 17
 * MariaDB 10.6
 * SQL Server 2019
 * Azure SQL Database

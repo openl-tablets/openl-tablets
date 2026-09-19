@@ -669,7 +669,7 @@ The PAT validation process includes multiple security measures:
 - **Framework**: Spring Boot 3.x
 - **Security**: Spring Security 6.x
 - **Validation**: Jakarta Validation (Hibernate Validator)
-- **Database**: JPA/Hibernate with Flyway migrations
+- **Database**: JPA/Hibernate with Liquibase migrations
 - **API Documentation**: OpenAPI 3.0 (Swagger)
 
 ### Database Schema

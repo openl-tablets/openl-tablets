@@ -21,11 +21,9 @@ import java.util.stream.Stream;
 
 import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.TestPropertySource;
@@ -57,16 +55,14 @@ class GroupManagementTest {
     private UserDao userDao;
 
     @Autowired
-    @Qualifier("flywayDBReset")
-    private Flyway flywayDBReset;
+    private SecuritySchemaReset securitySchemaReset;
     @Autowired
     private UserManagementService userManagementService;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         // Reset all changes where done while testing
-        flywayDBReset.clean();
-        flywayDBReset.migrate();
+        securitySchemaReset.reset();
         QueryCountHolder.clear();
     }
 

@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Security schema of OpenL Tablets 6.0.0. It is the baseline of the change log: the schema 6.0.0 left behind is
+ the starting point, instead of the release-by-release history that produced it.
+
+ The change log brings every supported database to that schema:
+
+ - an empty database gets the whole schema, the default groups and the default permissions created;
+ - a database of 5.27.15 already carries most of it, so only what 6.0.0 added is applied to it: the personal
+   access tokens, the index over the external group names, and the conversion of the permissions into the
+   roles of the current model;
+ - a database of 6.0.0 or later is adopted as it is, and nothing here touches its data.
+
+ Each change set decides for itself which of the three it is looking at, through a precondition that marks it
+ as run when its change is already there. A database of a release before 5.27.10 is none of the three, and the
+ guard below stops the migration instead of leaving such a database half converted.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <!--
+     Releases before 5.27.10 kept the group hierarchy in OpenL_Group2Group; 5.27.10 flattened it into the group
+     memberships and the access control entries, and then dropped the table. The change set that flattens it is
+     no longer here, so a database that still carries the table cannot be converted, and the migration stops on
+     it instead of leaving it half converted. 5.27.15 is the oldest release the conversion is tested against.
+    -->
+    <changeSet id="6.0.0-supported-source-schema" author="ymolchan">
+        <preConditions onFail="HALT"
+                       onFailMessage="The security database comes from a release older than OpenL Tablets 5.27.10 and cannot be converted. Upgrade the installation to 5.27.15 or 6.0.0 first and start it once, so that it converts the database, and then upgrade to this version.">
+            <not>
+                <tableExists tableName="OpenL_Group2Group"/>
+            </not>
+        </preConditions>
+        <comment>Refuses a database left behind by a release older than the oldest supported one</comment>
+
+        <empty/>
+    </changeSet>
+
+    <changeSet id="6.0.0-users-and-groups" author="ymolchan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="OpenL_Users"/>
+            </not>
+        </preConditions>
+        <comment>Users, groups, group authorities and per-user settings</comment>
+
+        <createTable tableName="OpenL_Users">
+            <column name="loginName" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="firstName" type="${varchar}(50)"/>
+            <column name="surname" type="${varchar}(50)"/>
+            <column name="email" type="${varchar}(254)"/>
+            <column name="displayName" type="${varchar}(64)"/>
+            <column name="flags" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!--
+         Liquibase counts "password" among the reserved words of Oracle and quotes it, which would create a
+         column of that exact spelling while the application asks for the one Oracle folds to upper case.
+         Plain SQL leaves the name to the database, as the migrations before Liquibase did.
+        -->
+        <sql>ALTER TABLE OpenL_Users ADD password ${varchar}(128)</sql>
+
+        <createTable tableName="OpenL_Groups">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="groupName" type="${varchar}(65)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="description" type="${varchar}(200)"/>
+        </createTable>
+
+        <createTable tableName="OpenL_Group_Authorities">
+            <column name="groupID" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="authority" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_Group_Authorities1"
+                                 baseTableName="OpenL_Group_Authorities" baseColumnNames="groupID"
+                                 referencedTableName="OpenL_Groups" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="OpenL_User2Group">
+            <column name="loginName" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="groupID" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_User2Group1"
+                                 baseTableName="OpenL_User2Group" baseColumnNames="loginName"
+                                 referencedTableName="OpenL_Users" referencedColumnNames="loginName"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint constraintName="fk_OpenL_User2Group2"
+                                 baseTableName="OpenL_User2Group" baseColumnNames="groupID"
+                                 referencedTableName="OpenL_Groups" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="OpenL_UserSettings">
+            <column name="loginName" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="settingKey" type="${varchar}(64)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="settingValue" type="${varchar}(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_UserSettings1"
+                                 baseTableName="OpenL_UserSettings" baseColumnNames="loginName"
+                                 referencedTableName="OpenL_Users" referencedColumnNames="loginName"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="OpenL_External_Groups">
+            <column name="loginName" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="groupName" type="${varchar}(65)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_External_Groups1"
+                                 baseTableName="OpenL_External_Groups" baseColumnNames="loginName"
+                                 referencedTableName="OpenL_Users" referencedColumnNames="loginName"
+                                 onDelete="CASCADE"/>
+
+        <!--
+         Groups an empty installation starts with, and the only authority left after 6.0.0: ADMIN. They are
+         seeded here rather than by a change set of their own, so that the precondition above is what decides:
+         a schema handed over by an earlier release carries its own groups, possibly edited by an
+         administrator, and must never be seeded again.
+        -->
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Administrators"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Viewers"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Developers"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Testers"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Deployers"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Analysts"/>
+        </insert>
+        <sql>
+            INSERT INTO OpenL_Group_Authorities (groupID, authority)
+            SELECT id, 'ADMIN' FROM OpenL_Groups WHERE groupName = 'Administrators'
+        </sql>
+    </changeSet>
+
+    <changeSet id="6.0.0-external-groups-index" author="ymolchan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="idx_OpenL_External_Groups_groupName" tableName="OpenL_External_Groups"/>
+            </not>
+        </preConditions>
+        <comment>Index that answers "who belongs to this external group" without a scan</comment>
+
+        <createIndex indexName="idx_OpenL_External_Groups_groupName" tableName="OpenL_External_Groups">
+            <column name="groupName"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="6.0.0-projects-and-tags" author="ymolchan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="OpenL_Tag_Types"/>
+            </not>
+        </preConditions>
+        <comment>Projects, the tags attached to them and the templates that derive tags from a project name</comment>
+
+        <createTable tableName="OpenL_Tag_Types">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="${varchar}(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="extensible" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nullable" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint constraintName="uni_OpenL_Tag_Types1" tableName="OpenL_Tag_Types" columnNames="name"/>
+
+        <createTable tableName="OpenL_Tags">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tag_type_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="${varchar}(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint constraintName="uni_OpenL_Tags1" tableName="OpenL_Tags" columnNames="tag_type_id, name"/>
+        <addForeignKeyConstraint constraintName="fk_OpenL_Tags1"
+                                 baseTableName="OpenL_Tags" baseColumnNames="tag_type_id"
+                                 referencedTableName="OpenL_Tag_Types" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="OpenL_Projects">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="repository_id" type="${varchar}(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="project_path" type="${varchar}(1000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="OpenL_Project_Tags">
+            <column name="project_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tag_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_Project_Tags1"
+                                 baseTableName="OpenL_Project_Tags" baseColumnNames="project_id"
+                                 referencedTableName="OpenL_Projects" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint constraintName="fk_OpenL_Project_Tags2"
+                                 baseTableName="OpenL_Project_Tags" baseColumnNames="tag_id"
+                                 referencedTableName="OpenL_Tags" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="OpenL_Tag_Templates">
+            <column name="template" type="${varchar}(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="priority" type="INT"/>
+        </createTable>
+        <addUniqueConstraint constraintName="uni_OpenL_Tag_Templates1" tableName="OpenL_Tag_Templates"
+                             columnNames="priority"/>
+    </changeSet>
+
+    <changeSet id="6.0.0-lock" author="ymolchan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="OPENL_LOCK"/>
+            </not>
+        </preConditions>
+        <comment>Cluster-wide lock registry of Spring Integration, which guards the shared project state</comment>
+
+        <createTable tableName="OPENL_LOCK">
+            <column name="LOCK_KEY" type="${varchar}(36)">
+                <constraints primaryKey="true" primaryKeyName="OPENL_LOCK_PK" nullable="false"/>
+            </column>
+            <column name="REGION" type="${varchar}(100)">
+                <constraints primaryKey="true" primaryKeyName="OPENL_LOCK_PK" nullable="false"/>
+            </column>
+            <column name="CLIENT_ID" type="${varchar}(36)"/>
+            <column name="CREATED_DATE" type="${timestamp}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="6.0.0-pat-tokens" author="ymolchan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="OpenL_PAT_Tokens"/>
+            </not>
+        </preConditions>
+        <comment>Personal access tokens, which authenticate API calls on behalf of a user</comment>
+
+        <createTable tableName="OpenL_PAT_Tokens">
+            <column name="publicId" type="${varchar}(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="secretHash" type="${varchar}(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="${timestamp}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiresAt" type="${timestamp}"/>
+            <column name="loginName" type="${varchar}(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="${varchar}(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_PAT_Tokens_user"
+                                 baseTableName="OpenL_PAT_Tokens" baseColumnNames="loginName"
+                                 referencedTableName="OpenL_Users" referencedColumnNames="loginName"
+                                 onDelete="CASCADE"/>
+        <addUniqueConstraint constraintName="uq_OpenL_PAT_Tokens_user_name" tableName="OpenL_PAT_Tokens"
+                             columnNames="loginName, name"/>
+        <createIndex indexName="ix_OpenL_PAT_Tokens_loginName" tableName="OpenL_PAT_Tokens">
+            <column name="loginName"/>
+        </createIndex>
+        <!-- A check constraint has no change of its own in Liquibase Open Source. -->
+        <sql>
+            ALTER TABLE OpenL_PAT_Tokens
+                ADD CONSTRAINT ck_OpenL_PAT_Tokens_expires CHECK (expiresAt IS NULL OR expiresAt > createdAt)
+        </sql>
+    </changeSet>
+
+    <!--
+     Spring Security keeps the access control lists in four tables of its own. It reads a surrogate key back right
+     after the insert that generated it, through a query that differs per database. H2 and Oracle are served by a
+     named sequence, because neither reports the value an identity column has just generated; the other databases
+     are served by an identity column. The two flavours differ in the key column alone, yet each carries its own
+     keys and indexes: a precondition is answered before its change set runs, so a change set shared by both
+     flavours could no longer tell a schema it has just created from one it must leave alone.
+    -->
+    <changeSet id="6.0.0-acl-sequence-flavour" author="ymolchan" dbms="h2,oracle">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="acl_sid"/>
+            </not>
+        </preConditions>
+        <comment>Access control lists keyed from a named sequence</comment>
+
+        <createSequence sequenceName="acl_sid_sequence" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="acl_class_sequence" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="acl_object_identity_sequence" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="acl_entry_sequence" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="acl_sid">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="acl_sid_sequence">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="principal" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="${varchar}(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="acl_class">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="acl_class_sequence">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="class" type="${varchar}(${aclClassLength})">
+                <constraints nullable="false"/>
+            </column>
+            <column name="class_id_type" type="${varchar}(${aclClassLength})"/>
+        </createTable>
+
+        <createTable tableName="acl_object_identity">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="acl_object_identity_sequence">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="object_id_class" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_id_identity" type="${varchar}(${aclIdentityLength})">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_object" type="BIGINT"/>
+            <column name="owner_sid" type="BIGINT"/>
+            <column name="entries_inheriting" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="acl_entry">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="acl_entry_sequence">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="acl_object_identity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ace_order" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mask" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="granting" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="audit_success" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="audit_failure" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint constraintName="uk_acl_sid" tableName="acl_sid" columnNames="sid, principal"/>
+        <addUniqueConstraint constraintName="uk_acl_class" tableName="acl_class" columnNames="class"/>
+        <addUniqueConstraint constraintName="uk_acl_object_identity" tableName="acl_object_identity"
+                             columnNames="object_id_class, object_id_identity"/>
+        <addUniqueConstraint constraintName="uk_acl_entry" tableName="acl_entry"
+                             columnNames="acl_object_identity, ace_order"/>
+
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_parent"
+                                 baseTableName="acl_object_identity" baseColumnNames="parent_object"
+                                 referencedTableName="acl_object_identity" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_class"
+                                 baseTableName="acl_object_identity" baseColumnNames="object_id_class"
+                                 referencedTableName="acl_class" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_owner"
+                                 baseTableName="acl_object_identity" baseColumnNames="owner_sid"
+                                 referencedTableName="acl_sid" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_entry_object"
+                                 baseTableName="acl_entry" baseColumnNames="acl_object_identity"
+                                 referencedTableName="acl_object_identity" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_entry_acl"
+                                 baseTableName="acl_entry" baseColumnNames="sid"
+                                 referencedTableName="acl_sid" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="6.0.0-acl-identity-flavour" author="ymolchan" dbms="postgresql,mysql,mariadb,mssql">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="acl_sid"/>
+            </not>
+        </preConditions>
+        <comment>Access control lists keyed from an identity column</comment>
+
+        <createTable tableName="acl_sid">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="principal" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="${varchar}(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="acl_class">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="class" type="${varchar}(${aclClassLength})">
+                <constraints nullable="false"/>
+            </column>
+            <column name="class_id_type" type="${varchar}(${aclClassLength})"/>
+        </createTable>
+
+        <createTable tableName="acl_object_identity">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="object_id_class" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_id_identity" type="${varchar}(${aclIdentityLength})">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_object" type="BIGINT"/>
+            <column name="owner_sid" type="BIGINT"/>
+            <column name="entries_inheriting" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="acl_entry">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="acl_object_identity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ace_order" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mask" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="granting" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="audit_success" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="audit_failure" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint constraintName="uk_acl_sid" tableName="acl_sid" columnNames="sid, principal"/>
+        <addUniqueConstraint constraintName="uk_acl_class" tableName="acl_class" columnNames="class"/>
+        <addUniqueConstraint constraintName="uk_acl_object_identity" tableName="acl_object_identity"
+                             columnNames="object_id_class, object_id_identity"/>
+        <addUniqueConstraint constraintName="uk_acl_entry" tableName="acl_entry"
+                             columnNames="acl_object_identity, ace_order"/>
+
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_parent"
+                                 baseTableName="acl_object_identity" baseColumnNames="parent_object"
+                                 referencedTableName="acl_object_identity" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_class"
+                                 baseTableName="acl_object_identity" baseColumnNames="object_id_class"
+                                 referencedTableName="acl_class" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_owner"
+                                 baseTableName="acl_object_identity" baseColumnNames="owner_sid"
+                                 referencedTableName="acl_sid" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_entry_object"
+                                 baseTableName="acl_entry" baseColumnNames="acl_object_identity"
+                                 referencedTableName="acl_object_identity" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_entry_acl"
+                                 baseTableName="acl_entry" baseColumnNames="sid"
+                                 referencedTableName="acl_sid" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="6.0.0-default-acl" author="ymolchan">
+        <!--
+         Only an access control list that is empty through and through is seeded. Emptying all three tables is
+         beyond what the application does, so this recognizes a schema this change log has just created, and
+         it never partially seeds one that already holds classes or object identities.
+        -->
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM acl_sid</sqlCheck>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM acl_class</sqlCheck>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM acl_object_identity</sqlCheck>
+            </and>
+        </preConditions>
+        <comment>Permissions an empty installation grants on the repository roots</comment>
+
+        <!-- Every default group is an authority, not a single user, hence a non-principal security identity. -->
+        <insert tableName="acl_sid">
+            <column name="principal" valueComputed="${booleanFalse}"/>
+            <column name="sid" value="ADMIN"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueComputed="${booleanFalse}"/>
+            <column name="sid" value="Viewers"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueComputed="${booleanFalse}"/>
+            <column name="sid" value="Developers"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueComputed="${booleanFalse}"/>
+            <column name="sid" value="Testers"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueComputed="${booleanFalse}"/>
+            <column name="sid" value="Deployers"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueComputed="${booleanFalse}"/>
+            <column name="sid" value="Analysts"/>
+        </insert>
+
+        <insert tableName="acl_class">
+            <column name="class" value="org.openl.security.acl.repository.Root"/>
+            <column name="class_id_type" value="java.lang.String"/>
+        </insert>
+        <insert tableName="acl_class">
+            <column name="class" value="org.openl.security.acl.repository.ProjectArtifact"/>
+            <column name="class_id_type" value="java.lang.String"/>
+        </insert>
+        <insert tableName="acl_class">
+            <column name="class" value="org.openl.security.acl.repository.DeploymentProjectArtifact"/>
+            <column name="class_id_type" value="java.lang.String"/>
+        </insert>
+        <insert tableName="acl_class">
+            <column name="class" value="org.openl.security.acl.repository.RepositoryObjectIdentity"/>
+            <column name="class_id_type" value="java.lang.String"/>
+        </insert>
+
+        <!--
+         Root of the design repositories ("1"), of the deploy configurations ("2") and of the production
+         repositories ("3"). Every artefact below a root inherits the permissions of that root, and the
+         administrators own all three.
+        -->
+        <sql>
+            INSERT INTO acl_object_identity (object_id_class, object_id_identity, parent_object, owner_sid, entries_inheriting)
+            SELECT c.id, '1', NULL, s.id, ${booleanTrue}
+            FROM acl_class c, acl_sid s
+            WHERE c.class = 'org.openl.security.acl.repository.Root'
+              AND s.sid = 'ADMIN' AND s.principal = ${booleanFalse}
+        </sql>
+        <sql>
+            INSERT INTO acl_object_identity (object_id_class, object_id_identity, parent_object, owner_sid, entries_inheriting)
+            SELECT c.id, '2', NULL, s.id, ${booleanTrue}
+            FROM acl_class c, acl_sid s
+            WHERE c.class = 'org.openl.security.acl.repository.Root'
+              AND s.sid = 'ADMIN' AND s.principal = ${booleanFalse}
+        </sql>
+        <sql>
+            INSERT INTO acl_object_identity (object_id_class, object_id_identity, parent_object, owner_sid, entries_inheriting)
+            SELECT c.id, '3', NULL, s.id, ${booleanTrue}
+            FROM acl_class c, acl_sid s
+            WHERE c.class = 'org.openl.security.acl.repository.Root'
+              AND s.sid = 'ADMIN' AND s.principal = ${booleanFalse}
+        </sql>
+
+        <!--
+         Permission masks: 1 is VIEW, 2 is EDIT, 4 is CREATE, 8 is DELETE, and 15 is all four of them. Every
+         default group sees every repository root; developers and analysts also edit the design repositories,
+         and deployers also edit the deploy configurations and the production repositories. The administrators
+         own the roots and need no entry of their own.
+        -->
+        <sql>
+            INSERT INTO acl_entry (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)
+            SELECT o.id,
+                   ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY s.id),
+                   s.id,
+                   CASE WHEN s.sid IN ('Developers', 'Analysts') THEN 15 ELSE 1 END,
+                   ${booleanTrue}, ${booleanFalse}, ${booleanFalse}
+            FROM acl_object_identity o, acl_sid s
+            WHERE o.object_id_identity = '1'
+              AND s.principal = ${booleanFalse}
+              AND s.sid &lt;&gt; 'ADMIN'
+        </sql>
+        <sql>
+            INSERT INTO acl_entry (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)
+            SELECT o.id,
+                   ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY s.id),
+                   s.id,
+                   CASE WHEN s.sid = 'Deployers' THEN 15 ELSE 1 END,
+                   ${booleanTrue}, ${booleanFalse}, ${booleanFalse}
+            FROM acl_object_identity o, acl_sid s
+            WHERE o.object_id_identity IN ('2', '3')
+              AND s.principal = ${booleanFalse}
+              AND s.sid &lt;&gt; 'ADMIN'
+        </sql>
+    </changeSet>
+
+    <!--
+     Permissions of the releases before 6.0.0. They were a mask of their own per privilege, one privilege per
+     access control entry; 6.0.0 replaced them with the four permissions of Spring Security and merged the
+     entries of a security identity into a single role. The two change sets below convert a database that still
+     carries the previous model, and are marked as run on every database that does not.
+    -->
+    <changeSet id="6.0.0-drop-unlock-authorities" author="ymolchan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*) FROM OpenL_Group_Authorities
+                    WHERE authority IN ('UNLOCK_PROJECTS', 'UNLOCK_DEPLOYMENT')
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <comment>Unlocking is no longer an authority of its own: a manager of a project may unlock it</comment>
+
+        <delete tableName="OpenL_Group_Authorities">
+            <where>authority IN ('UNLOCK_PROJECTS', 'UNLOCK_DEPLOYMENT')</where>
+        </delete>
+    </changeSet>
+
+    <changeSet id="6.0.0-role-based-permissions" author="ymolchan">
+        <!--
+         Every mask of the previous model sets a bit above the twenty-fourth, and its smallest value is
+         therefore 16777217, while the current model counts in the five lowest bits and never exceeds 31. A
+         mask above 65535 is an entry that has not been converted yet.
+        -->
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM acl_entry WHERE mask &gt; 65535</sqlCheck>
+            </not>
+        </preConditions>
+        <comment>Converts the permissions of the releases before 6.0.0 into the roles of the current model</comment>
+
+        <!-- Deploying, running and benchmarking are no longer permissions on a repository. -->
+        <sql>DELETE FROM acl_entry WHERE mask IN (184549376, 201326592, 218103808)</sql>
+
+        <!--
+         What the previous masks become: view stays view, edit stays edit, adding is creating, and erasing is
+         deleting. A mask this list does not name was defined outside the product and is carried over as it is.
+        -->
+        <sql>
+            UPDATE acl_entry
+            SET mask = CASE
+                WHEN mask = 16777217 THEN 1
+                WHEN mask = 67108884 THEN 2
+                WHEN mask IN (33554448, 50331664) THEN 4
+                WHEN mask IN (83886088, 100663328) THEN 8
+                ELSE mask
+            END
+            WHERE mask IN (16777217, 33554448, 50331664, 67108884, 83886088, 100663328)
+        </sql>
+
+        <!--
+         One entry per security identity, carrying every permission that identity held. A role is a closed set
+         of permissions, so a partial one is widened to the next role: anything above view becomes view, edit,
+         create and delete, and anything above that becomes the role that also administers.
+        -->
+        <createTable tableName="OpenL_Merged_Ace">
+            <column name="acl_object_identity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cumulative_mask" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="granting" type="${boolean}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>
+            INSERT INTO OpenL_Merged_Ace (acl_object_identity, sid, cumulative_mask, granting)
+            SELECT acl_object_identity, sid, SUM(DISTINCT mask), granting
+            FROM acl_entry
+            GROUP BY acl_object_identity, sid, granting
+        </sql>
+        <sql>DELETE FROM acl_entry</sql>
+        <sql>
+            INSERT INTO acl_entry (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)
+            SELECT acl_object_identity,
+                   ROW_NUMBER() OVER (PARTITION BY acl_object_identity ORDER BY sid),
+                   sid,
+                   CASE
+                       WHEN cumulative_mask &gt; 1 AND cumulative_mask &lt; 15 THEN 15
+                       WHEN cumulative_mask &gt; 15 AND cumulative_mask &lt; 31 THEN 31
+                       ELSE cumulative_mask
+                   END,
+                   granting, ${booleanFalse}, ${booleanFalse}
+            FROM OpenL_Merged_Ace
+        </sql>
+        <dropTable tableName="OpenL_Merged_Ace"/>
+    </changeSet>
+
+</databaseChangeLog>
