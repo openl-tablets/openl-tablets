@@ -67,10 +67,6 @@ public class IntExpConst extends IntExpImpl {
         return new ConstraintConst(constrainer(), value == _const);
     }
 
-    public boolean isInteger() {
-        return true;
-    }
-
     @Override
     public boolean isLinear() {
         return true;
