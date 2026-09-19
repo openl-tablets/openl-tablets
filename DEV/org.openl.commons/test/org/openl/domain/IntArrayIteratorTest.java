@@ -2,7 +2,10 @@ package org.openl.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,4 +32,13 @@ class IntArrayIteratorTest {
         assertFalse(it.hasNext());
     }
 
+    @Test
+    void anExhaustedIteratorHasNothingToAnswerWith() {
+        var it = new IntArrayIterator(new int[]{1});
+
+        assertEquals(1, it.nextInt());
+        assertFalse(it.hasNext());
+        assertThrows(NoSuchElementException.class, it::nextInt);
+        assertThrows(NoSuchElementException.class, it::next);
+    }
 }

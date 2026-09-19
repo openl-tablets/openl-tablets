@@ -3,6 +3,7 @@ package org.openl.domain;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZoneId;
@@ -11,6 +12,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.TimeZone;
 
 import org.junit.jupiter.api.AfterAll;
@@ -76,4 +78,13 @@ class DateRangeDomainTest {
         return cal.getTime();
     }
 
+    @Test
+    void anExhaustedIteratorHasNothingToAnswerWith() {
+        var day = new GregorianCalendar(2020, Calendar.MARCH, 1).getTime();
+        var it = new DateRangeDomain(day, day).iterator();
+
+        assertEquals(day, it.next());
+        assertFalse(it.hasNext());
+        assertThrows(NoSuchElementException.class, it::next);
+    }
 }

@@ -1,5 +1,7 @@
 package org.openl.domain;
 
+import java.util.NoSuchElementException;
+
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -18,11 +20,14 @@ public class IntArrayIterator extends AIntIterator {
 
     @Override
     public Integer next() {
-        return ary[current++];
+        return nextInt();
     }
 
     @Override
     public int nextInt() {
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
         return ary[current++];
     }
 
