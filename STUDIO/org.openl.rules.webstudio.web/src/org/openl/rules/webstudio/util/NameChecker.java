@@ -6,10 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectFolder;
-
 /**
  * Checks whether specified string can be used to name project artefact.
  *
@@ -145,24 +141,4 @@ public final class NameChecker {
         return FORBIDDEN_CHARS_STRING;
     }
 
-    public static boolean checkIsFolderPresent(AProjectFolder folder, String folderName) {
-        try {
-            var artefact = folder.getArtefact(folderName);
-
-            return artefact instanceof AProjectFolder;
-
-        } catch (ProjectException e1) {
-            var parentPath = folder.getInternalPath();
-            String prefix = parentPath.isEmpty() ? "" : parentPath + "/";
-            prefix += folderName + "/";
-
-            for (AProjectArtefact artefact : folder.getArtefacts()) {
-                if (artefact.getInternalPath().startsWith(prefix)) {
-                    return true;
-                }
-            }
-            // Such folder is not present
-            return false;
-        }
-    }
 }

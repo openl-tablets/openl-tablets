@@ -271,11 +271,6 @@ public class RulesProject extends UserWorkspaceProject {
         return lockEngine.tryLock(getDesignRepository().getId(), getBranch(), getRealPath(), getUser().getUserName());
     }
 
-    public String getLockedUserName() {
-        var lockInfo = getLockInfo();
-        return lockInfo.isLocked() ? lockInfo.getLockedBy() : "";
-    }
-
     @Override
     public ProjectVersion getVersion() {
         var historyVersion = getHistoryVersion();
@@ -309,23 +304,6 @@ public class RulesProject extends UserWorkspaceProject {
             }
         }
         return historyFileDatas;
-    }
-
-    public boolean hasArtefactVersions(ArtefactPath artefactPath) {
-        var subPath = artefactPath.getStringValue();
-        if (subPath.isEmpty() || subPath.equals("/")) {
-            return getLastHistoryVersion() != null;
-        }
-        if (!subPath.startsWith("/")) {
-            subPath = "/" + subPath;
-        }
-        var fullPath = getFolderPath() + subPath;
-        try {
-            return getRepository().check(fullPath) != null;
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            return false;
-        }
     }
 
     @Override

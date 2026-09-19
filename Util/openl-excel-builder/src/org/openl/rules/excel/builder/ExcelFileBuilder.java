@@ -83,16 +83,6 @@ public class ExcelFileBuilder {
     }
 
     /**
-     * Generate spreadsheets to the output stream.
-     *
-     * @param spreadsheetModels - spreadsheet models.
-     * @param outputStream      - output stream with models.
-     */
-    public static void generateSpreadsheets(List<SpreadsheetModel> spreadsheetModels, OutputStream outputStream) {
-        writeSpreadsheets(spreadsheetModels, outputStream);
-    }
-
-    /**
      * Generate spreadsheets with environment.
      *
      * @param spreadsheetModels - spreadsheet models.
@@ -140,24 +130,6 @@ public class ExcelFileBuilder {
             workbook.write(outputStream);
         } catch (IOException e) {
             log.error("Error on generating Data tables workbook occurred.", e);
-        }
-    }
-
-    /**
-     * Writing spreadsheets to Excel file with styles from template.
-     *
-     * @param spreadsheetModels
-     * @param outputStream
-     */
-    private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels, OutputStream outputStream) {
-        try (SXSSFWorkbook workbook = ExcelTemplateUtils.getTemplate()) {
-            Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
-            var sprStyles = stylesMap.get(SPR_RESULT_SHEET);
-            writeSpreadsheets(spreadsheetModels, workbook, sprStyles);
-            autoSizeSheets(workbook);
-            workbook.write(outputStream);
-        } catch (IOException e) {
-            log.error("Error on generating Spreadsheet workbook occurred.", e);
         }
     }
 

@@ -17,7 +17,6 @@ import java.util.zip.ZipOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -293,19 +292,6 @@ public class AProject extends AProjectFolder implements IProject {
             log.error(e.getMessage(), e);
             return false;
         }
-    }
-
-    public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        var path = artefactPath.getStringValue();
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        var artefact = getArtefactsInternal().get(path);
-        if (artefact == null) {
-            // For backward compatibility throw exception if artefact is not found
-            throw new ProjectException("Cannot find project artefact ''{0}''", null, path);
-        }
-        return artefact;
     }
 
     @Override

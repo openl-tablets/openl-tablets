@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.core;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -290,14 +289,6 @@ public final class ServiceDescription {
 
         public ServiceDescriptionBuilder setDeployment(DeploymentDescription deployment) {
             this.deployment = deployment;
-            return this;
-        }
-
-        public ServiceDescriptionBuilder addConfigurationProperty(String key, Object value) {
-            if (this.configuration == null) {
-                this.configuration = new HashMap<>();
-            }
-            this.configuration.put(key, value);
             return this;
         }
 
