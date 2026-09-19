@@ -2448,7 +2448,9 @@ public final class DecisionTableHelper {
                         last = false;
                         usedIndexes.add(index);
                         used.add(dtHeaders.get(index));
-                        lastColumnReached = lastColumnReached | bruteForceHeaders(originalTable,
+                        // The recursion walks the remaining columns whatever the flag already says, so it
+                        // runs before the flag is updated rather than behind a short-circuit.
+                        var reachedByHeader = bruteForceHeaders(originalTable,
                                 column + dtHeader.getWidth(),
                                 lastColumn,
                                 firstColumnHeight,
@@ -2466,6 +2468,7 @@ public final class DecisionTableHelper {
                                 numberOfReturns1,
                                 fuzzyReturnsFlag1,
                                 counter + 1);
+                        lastColumnReached = lastColumnReached || reachedByHeader;
                         usedIndexes.removeLast();
                         used.removeLast();
                     }
