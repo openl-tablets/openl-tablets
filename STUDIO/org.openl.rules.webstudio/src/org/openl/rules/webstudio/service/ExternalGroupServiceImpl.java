@@ -70,7 +70,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findAllForUser(String loginName) {
         return externalGroupDao.findAllForUser(loginName)
                 .stream()
-                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Set.of()))
+                .map(ext -> new SimpleGroup(ext.getGroupName(), Set.of()))
                 .collect(Collectors.toList());
     }
 
@@ -100,7 +100,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findNotMatchedForUser(String loginName) {
         return externalGroupDao.findNotMatchedForUser(loginName)
                 .stream()
-                .map(ext -> new SimpleGroup(ext.getGroupName(), ext.getGroupName(), Set.of()))
+                .map(ext -> new SimpleGroup(ext.getGroupName(), Set.of()))
                 .collect(Collectors.toList());
     }
 
@@ -115,7 +115,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     public List<Group> findAllByName(String groupName, int limit) {
         return externalGroupDao.findAllByName(groupName, limit)
                 .stream()
-                .map(ext -> new SimpleGroup(ext, ext, Set.of()))
+                .map(ext -> new SimpleGroup(ext, Set.of()))
                 .collect(Collectors.toList());
     }
 

@@ -22,14 +22,14 @@ public final class PrivilegesEvaluator {
         var grantedList = new ArrayList<GrantedAuthority>();
         for (Group group : groups) {
             var privileges = createPrivileges(group);
-            grantedList.add(new SimpleGroup(group.getName(), group.getDescription(), privileges));
+            grantedList.add(new SimpleGroup(group.getName(), privileges));
         }
         return grantedList;
     }
 
     public static SimpleGroup wrap(Group group) {
         var privileges = PrivilegesEvaluator.createPrivileges(group);
-        return new SimpleGroup(group.getName(), group.getDescription(), privileges);
+        return new SimpleGroup(group.getName(), privileges);
     }
 
     private static Collection<GrantedAuthority> createPrivileges(Group group) {
