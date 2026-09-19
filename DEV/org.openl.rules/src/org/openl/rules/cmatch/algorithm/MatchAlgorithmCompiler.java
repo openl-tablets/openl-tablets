@@ -331,7 +331,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             var nameSV = row.get(NAMES)[0];
             var varName = nameSV.getString();
 
-            if (varName.length() == 0) {
+            if (varName.isEmpty()) {
                 var msg = "Name cannot be empty.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             }

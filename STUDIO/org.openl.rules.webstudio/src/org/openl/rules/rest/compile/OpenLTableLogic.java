@@ -71,14 +71,14 @@ public final class OpenLTableLogic {
                 var propValue = tableProps.getPropertyValueAsString(dimensionProp);
 
                 if (propValue != null && !propValue.isEmpty()) {
-                    dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
+                    dimensionBuilder.append(dimensionBuilder.isEmpty() ? "" : ", ")
                             .append(dimensionProp)
                             .append(" = ")
                             .append(propValue);
                 }
             }
         }
-        if (dimensionBuilder.length() > 0) {
+        if (!dimensionBuilder.isEmpty()) {
             return tableName + " [" + dimensionBuilder + "]";
         } else {
             return tableName;

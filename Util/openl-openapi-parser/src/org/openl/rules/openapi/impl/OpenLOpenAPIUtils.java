@@ -616,7 +616,7 @@ public class OpenLOpenAPIUtils {
         var resultName = new StringBuilder();
         for (var i = 0; i < originalName.length(); i++) {
             var curChar = originalName.charAt(i);
-            if (resultName.length() == 0) {
+            if (resultName.isEmpty()) {
                 if (Character.isJavaIdentifierStart(curChar)) {
                     resultName.append(curChar);
                 }
