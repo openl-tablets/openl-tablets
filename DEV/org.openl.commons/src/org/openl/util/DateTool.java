@@ -9,6 +9,10 @@ import org.openl.rules.util.dates.DateInterval;
 
 public class DateTool {
 
+    private DateTool() {
+        // Utility class
+    }
+
     public static final int MONTHS_IN_YEAR = 12;
     public static final int QUARTERS_IN_YEAR = 4;
     public static final int MONTHS_IN_QUARTER = 3;

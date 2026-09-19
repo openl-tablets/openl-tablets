@@ -11,6 +11,10 @@ package org.openl.util;
  */
 public class RuntimeExceptionWrapper {
 
+    private RuntimeExceptionWrapper() {
+        // Utility class
+    }
+
     public static RuntimeException wrap(String msg, Throwable cause) {
         return new RuntimeException(msg, cause);
     }

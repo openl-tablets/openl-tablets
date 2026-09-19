@@ -77,6 +77,11 @@ import org.openl.types.IOpenMember;
  * @author Yury Molchan
  */
 public class Cloner {
+
+    private Cloner() {
+        // Utility class
+    }
+
     private static final Set<Object> constants = Collections.newSetFromMap(new IdentityHashMap<>());
     private static final Set<Class<?>> immutable = new HashSet<>();
     private static final Set<Class<?>> doNotClone = new HashSet<>();

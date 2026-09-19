@@ -13,6 +13,10 @@ import org.openl.types.IOpenClass;
 
 public class ValidationManager {
 
+    private ValidationManager() {
+        // Utility class
+    }
+
     private static final ThreadLocal<Boolean> validationEnabled = new ThreadLocal<>(); // Workaround
 
     public static boolean isValidationEnabled() {

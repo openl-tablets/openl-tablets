@@ -17,6 +17,11 @@ import org.openl.types.NullOpenClass;
 import org.openl.util.StringUtils;
 
 public class DatatypeHelper {
+
+    private DatatypeHelper() {
+        // Utility class
+    }
+
     public static final String TYPE_COLUMN_TITLE = "Type";
     public static final String NAME_COLUMN_TITLE = "Name";
     public static final String DEFAULT_COLUMN_TITLE = "Default";

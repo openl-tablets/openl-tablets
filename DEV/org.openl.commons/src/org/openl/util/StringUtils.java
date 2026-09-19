@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
  */
 public class StringUtils {
 
+    private StringUtils() {
+        // Utility class
+    }
+
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static final String EMPTY = "";
     public static final String SPACE = " ";

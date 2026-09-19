@@ -22,6 +22,10 @@ import org.openl.util.PropertiesUtils;
  */
 public final class OpenLVersion {
 
+    private OpenLVersion() {
+        // Utility class
+    }
+
     private static final String url;
     private static final String version;
     private static final String buildDate;

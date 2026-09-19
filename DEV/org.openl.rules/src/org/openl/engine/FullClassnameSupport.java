@@ -19,6 +19,10 @@ import org.openl.types.IOpenField;
 
 class FullClassnameSupport {
 
+    private FullClassnameSupport() {
+        // Utility class
+    }
+
     private static List<ISyntaxNode> getIdentifierChain(ISyntaxNode syntaxNode) throws IdentifierChainException {
         if (syntaxNode instanceof IdentifierNode) {
             var ret = new ArrayList<ISyntaxNode>();

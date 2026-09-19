@@ -5,6 +5,11 @@ import java.util.Date;
 import java.util.Locale;
 
 public class ISO8601DateFormater {
+
+    private ISO8601DateFormater() {
+        // Utility class
+    }
+
     private static final String ISO8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     public static String format(Date date) {

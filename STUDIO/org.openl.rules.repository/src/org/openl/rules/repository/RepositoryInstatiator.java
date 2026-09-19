@@ -30,6 +30,10 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class RepositoryInstatiator {
 
+    private RepositoryInstatiator() {
+        // Utility class
+    }
+
     /**
      * The repository factories declared on the class path, looked up once.
      *

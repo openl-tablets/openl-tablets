@@ -11,6 +11,10 @@ import java.nio.file.Path;
  */
 public class ObjectUtils {
 
+    private ObjectUtils() {
+        // Utility class
+    }
+
     /**
      * Converts a string to the value of the given type.
      *

@@ -4,6 +4,10 @@ import java.util.Locale;
 
 public class RulesRuntimeContextFactory {
 
+    private RulesRuntimeContextFactory() {
+        // Utility class
+    }
+
     private static final ThreadLocal<Locale> LOCALE_HOLDER = new ThreadLocal<>();
 
     public static void setLocale(Locale locale) {

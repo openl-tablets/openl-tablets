@@ -7,6 +7,10 @@ package org.openl.util;
  */
 public class ParserUtils {
 
+    private ParserUtils() {
+        // Utility class
+    }
+
     /**
      * Checks if the input string is commented
      *

@@ -85,6 +85,10 @@ import org.openl.util.generation.InterfaceTransformer;
 
 public class JAXRSOpenLServiceEnhancerHelper {
 
+    private JAXRSOpenLServiceEnhancerHelper() {
+        // Utility class
+    }
+
     public static final int MAX_PARAMETERS_COUNT_FOR_GET = 3;
     public static final int UNPROCESSABLE_ENTITY = 422;
     private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";

@@ -1,6 +1,11 @@
 package org.openl.rules.testmethod;
 
 public class TestMethodHelper {
+
+    private TestMethodHelper() {
+        // Utility class
+    }
+
     /**
      * Field name for the expected result in test
      */
