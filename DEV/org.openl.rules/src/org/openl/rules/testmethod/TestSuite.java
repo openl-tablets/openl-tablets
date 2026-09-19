@@ -138,14 +138,6 @@ public class TestSuite implements INamedThing {
         }
     }
 
-    /**
-     * @return <code>true</code> in case this test suite is virtual, and <code>false</code> if this test suite
-     * corresponds to particular test table.
-     */
-    public boolean isVirtualTestSuite() {
-        return testSuiteMethod == null;
-    }
-
     public IOpenMethod getTestedMethod() {
         if (testSuiteMethod != null) {
             return testSuiteMethod.getTestedMethod();

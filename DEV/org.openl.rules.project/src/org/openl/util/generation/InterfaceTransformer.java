@@ -269,13 +269,6 @@ public class InterfaceTransformer {
     }
 
     /**
-     * @return Base class for generations.
-     */
-    public Class<?> getClassToTransform() {
-        return classToTransform;
-    }
-
-    /**
      * @return The name for new generated class.
      */
     public String getClassName() {

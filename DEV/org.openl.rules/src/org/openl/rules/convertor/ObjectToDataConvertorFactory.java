@@ -184,11 +184,4 @@ public class ObjectToDataConvertorFactory {
         return method == null ? MethodUtils.getAccessibleMethod(toClass, "valueOf", Object.class) : method;
     }
 
-    public static IObjectToDataConvertor registerConvertor(Class<?> toClass,
-                                                           Class<?> fromClass,
-                                                           IObjectToDataConvertor convertor) {
-        var pair = new ClassCastPair(fromClass, toClass);
-        return converters.put(pair, convertor);
-    }
-
 }

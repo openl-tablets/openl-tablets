@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -248,16 +247,6 @@ public final class TablePropertyDefinitionUtils {
         return result;
     }
 
-    public static TablePropertyDefinition[] getDefaultDefinitionsByInheritanceLevel(InheritanceLevel inheritanceLevel) {
-        var resultDefinitions = new ArrayList<TablePropertyDefinition>();
-        for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
-            if (ArrayUtils.contains(propertyDefinition.getInheritanceLevel(), inheritanceLevel)) {
-                resultDefinitions.add(propertyDefinition);
-            }
-        }
-        return resultDefinitions.toArray(NO_PROPERTIES);
-    }
-
     public static TablePropertyDefinition[] getDefaultDefinitionsForTable(String tableType) {
         return getDefaultDefinitionsForTable(tableType, null, false);
     }
@@ -280,18 +269,6 @@ public final class TablePropertyDefinitionUtils {
         return resultDefinitions.toArray(NO_PROPERTIES);
     }
 
-    public static Map<String, List<TablePropertyDefinition>> groupProperties(TablePropertyDefinition[] properties) {
-        var groups = new LinkedHashMap<String, List<TablePropertyDefinition>>();
-
-        for (TablePropertyDefinition property : properties) {
-            var groupName = property.getGroup();
-            var group = groups.computeIfAbsent(groupName, e -> new ArrayList<>());
-            group.add(property);
-        }
-
-        return groups;
-    }
-
     /**
      * Gets the table types in which this property can be defined.
      *
@@ -303,14 +280,6 @@ public final class TablePropertyDefinitionUtils {
         TablePropertyDefinition propDefinition = getPropertyByName(propertyName);
         if (propDefinition != null) {
             return propDefinition.getTableType();
-        }
-        return null;
-    }
-
-    public static Class<?> getPropertyTypeByPropertyName(String name) {
-        TablePropertyDefinition propDefinition = getPropertyByName(name);
-        if (propDefinition != null) {
-            return propDefinition.getType().getInstanceClass();
         }
         return null;
     }

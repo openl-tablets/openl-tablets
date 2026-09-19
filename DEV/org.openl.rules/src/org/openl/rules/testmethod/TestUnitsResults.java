@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.util.ClassUtils;
 
 /**
  * Test units results for the test table. Consist of the test suit method itself. And a number of test units that were
@@ -131,11 +129,6 @@ public class TestUnitsResults implements INamedThing {
             }
         }
         return false;
-    }
-
-    public boolean isSpreadsheetResultTester() {
-        return ClassUtils.isAssignable(testSuite.getTestedMethod().getType().getInstanceClass(),
-                SpreadsheetResult.class);
     }
 
     public boolean isRunmethod() {

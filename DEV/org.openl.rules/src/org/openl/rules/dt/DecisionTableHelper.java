@@ -4183,12 +4183,6 @@ public final class DecisionTableHelper {
         return IXlsTableNames.DECISION_TABLE.equals(dtType) || IXlsTableNames.DECISION_TABLE2.equals(dtType);
     }
 
-    public static boolean isDecisionTable(TableSyntaxNode tableSyntaxNode) {
-        return isRulesTable(tableSyntaxNode) || isSmartDecisionTable(tableSyntaxNode) || isSimpleDecisionTable(
-                tableSyntaxNode) || isLookup(
-                tableSyntaxNode) || isSmartLookupTable(tableSyntaxNode) || isSimpleLookupTable(tableSyntaxNode);
-    }
-
     static int countHConditionsByHeaders(ILogicalTable table) {
         var width = table.getWidth();
         var cnt = 0;

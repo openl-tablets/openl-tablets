@@ -47,28 +47,12 @@ public class ProcessedCode {
     }
 
     /**
-     * Sets parsed code.
-     *
-     * @param parsedCode {@link IParsedCode} instance
-     */
-    public void setParsedCode(IParsedCode parsedCode) {
-        this.parsedCode = parsedCode;
-    }
-
-    /**
      * Gets bound code.
      *
      * @return {@link IBoundCode} instance
      */
     public IBoundCode getBoundCode() {
         return boundCode;
-    }
-
-    /**
-     * Sets bound code.
-     */
-    public void setBoundCode(IBoundCode boundCode) {
-        this.boundCode = boundCode;
     }
 
     public Collection<OpenLMessage> getAllMessages() {
