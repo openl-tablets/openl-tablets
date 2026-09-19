@@ -1,0 +1,187 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "vocabulary-references",
+    "version": "1"
+  },
+  "paths": {
+    "/q": {
+      "get": {
+        "operationId": "q",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/KindParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/KindResponse"
+          }
+        }
+      }
+    },
+    "/b": {
+      "post": {
+        "operationId": "b",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/KindBody"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dangling": {
+      "get": {
+        "operationId": "dangling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Missing"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/Missing"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "KindParam": {
+        "name": "kind",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "k1",
+            "k2"
+          ]
+        }
+      }
+    },
+    "requestBodies": {
+      "KindBody": {
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "b1",
+                "b2"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "KindResponse": {
+        "description": "ok",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "r1",
+                "r2"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Currency": {
+        "type": "string",
+        "enum": [
+          "USD",
+          "EUR"
+        ]
+      },
+      "BaseCurrency": {
+        "type": "string",
+        "enum": [
+          "USD",
+          "EUR"
+        ]
+      },
+      "Nullable": {
+        "type": "string",
+        "nullable": true,
+        "enum": [
+          "A",
+          "B",
+          null
+        ]
+      },
+      "Bean": {
+        "type": "object",
+        "properties": {
+          "c": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "b": {
+            "$ref": "#/components/schemas/BaseCurrency"
+          },
+          "n": {
+            "$ref": "#/components/schemas/Nullable"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ],
+            "default": "ACTIVE"
+          },
+          "level": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "default": 2
+          },
+          "blank": {
+            "$ref": "#/components/schemas/Blanks"
+          },
+          "grade": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      },
+      "Blanks": {
+        "type": "string",
+        "enum": [
+          "",
+          " ",
+          "X"
+        ]
+      }
+    }
+  }
+}

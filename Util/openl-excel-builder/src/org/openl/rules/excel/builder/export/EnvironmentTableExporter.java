@@ -1,6 +1,5 @@
 package org.openl.rules.excel.builder.export;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -16,16 +15,6 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
     public static final String ENV_SHEET = "Environment";
     public static final String IMPORT = "import";
     public static final String DEPENDENCY = "dependency";
-
-    @Override
-    protected void exportTables(Collection<EnvironmentModel> models, Sheet sheet) {
-        Cursor endPosition = null;
-        var style = getTableStyle();
-        for (EnvironmentModel model : models) {
-            var startPosition = nextFreePosition(endPosition);
-            endPosition = exportTable(model, startPosition, style, sheet);
-        }
-    }
 
     @Override
     protected Cursor exportTable(EnvironmentModel model, Cursor startPosition, TableStyle tableStyle, Sheet sheet) {
@@ -74,8 +63,4 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
         return endPosition.moveLeft(1);
     }
 
-    @Override
-    protected String getExcelSheetName() {
-        return ENV_SHEET;
-    }
 }

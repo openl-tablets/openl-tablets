@@ -73,6 +73,8 @@ public class TypeInfo {
         SPREADSHEET,
         SPREADSHEET_ARRAY,
         DATATYPE,
+        /** A vocabulary datatype, or an array of one: the rules see its name, the Java side its base type. */
+        VOCABULARY,
         OBJECT,
         PRIMITIVE
     }

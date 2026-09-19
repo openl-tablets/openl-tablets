@@ -24,6 +24,10 @@ public class ProjectModel {
     private boolean isRuntimeContextProvided;
     @Getter
     private Set<DatatypeModel> datatypeModels = new HashSet<>();
+    /** The vocabulary datatypes the OpenAPI enums declare, in the order they were met. */
+    @Getter
+    @Setter
+    private List<VocabularyModel> vocabularyModels = new ArrayList<>();
     private List<SpreadsheetModel> spreadsheetModels;
     @Getter
     private List<DataModel> dataModels = new ArrayList<>();

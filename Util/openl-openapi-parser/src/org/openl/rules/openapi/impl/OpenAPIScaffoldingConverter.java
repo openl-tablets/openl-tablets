@@ -74,6 +74,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             throw new IllegalStateException("Error creating the project, uploaded file has invalid structure.");
         }
         var openAPIRefResolver = new OpenAPIRefResolver(openAPI);
+        // Before any type is read: an inline enum is named here, and read by that name from then on.
+        var vocabularies = OpenAPIVocabularies.collect(openAPI, openAPIRefResolver);
 
         var projectName = openAPI.getInfo().getTitle();
 
@@ -194,9 +196,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         spreadsheetParserModels.stream().filter(x -> dtToAdd.contains(x.getReturnRef())).forEach(x -> {
             var model = x.getModel();
             String type = OpenAPITypeUtils.getSimpleName(x.getReturnRef());
+            var returnType = new TypeInfo(type, type, TypeInfo.Type.DATATYPE);
             model.setType(type);
-            model.getPathInfo().setReturnType(new TypeInfo(type, type, TypeInfo.Type.DATATYPE));
-            model.setSteps(makeSingleStep(type));
+            model.getPathInfo().setReturnType(returnType);
+            model.setSteps(makeSingleStep(returnType));
         });
 
         fillCallsInSteps(spreadsheetParserModels, datatypeRefs, dataModelRefs, dtToAdd);
@@ -264,12 +267,14 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         dts.removeIf(dt -> dt.getName().equals(OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT));
 
         removeContextFromParams(sprModelsWithRC);
-        return new ProjectModel(projectName,
+        var projectModel = new ProjectModel(projectName,
                 isRuntimeContextProvided,
                 dts,
                 dataModels,
                 isRuntimeContextProvided ? sprModelsWithRC : spreadsheetModels,
                 isRuntimeContextProvided ? sprModelsDivided.get(false) : List.of());
+        projectModel.setVocabularyModels(vocabularies);
+        return projectModel;
     }
 
     private Set<String> retrieveAllFieldsRefs(Set<String> datatypeRefs, Map<String, Set<String>> refsWithFields) {
@@ -469,7 +474,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 var dataTableName = formatTableName(potentialDataModel.getModel().getName());
                 potentialDataTablePathInfo.setFormattedPath(GET_PREFIX + dataTableName);
 
-                var isSimpleType = OpenAPITypeUtils.isSimpleType(type);
+                var isSimpleType = OpenAPITypeUtils.isSimpleType(type)
+                        || returnType.getType() == TypeInfo.Type.VOCABULARY;
                 var dataModel = new DataModel(dataTableName,
                         type,
                         potentialDataTablePathInfo,
@@ -836,7 +842,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             spr.setType(isArrayOrChild ? simpleName : SPREADSHEET_RESULT);
             if (schema != null) {
                 if (isArrayOrChild) {
-                    stepModels = makeSingleStep(simpleName);
+                    stepModels = makeSingleStep(typeInfo);
                 } else {
                     Map<String, Schema> properties = schema.getProperties();
                     if (CollectionUtils.isNotEmpty(properties)) {
@@ -854,14 +860,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             spreadsheetParserModel.setReturnRef(SCHEMAS_LINK + nameOfSchema);
         } else {
             spr.setType(simpleName);
-            stepModels = makeSingleStep(simpleName);
+            stepModels = makeSingleStep(typeInfo);
         }
         return stepModels;
     }
 
-    private List<StepModel> makeSingleStep(String stepType) {
-        return List
-                .of(new StepModel(OpenAPIScaffoldingConverter.RESULT, stepType, makeValue(stepType)));
+    private List<StepModel> makeSingleStep(TypeInfo stepType) {
+        return List.of(new StepModel(OpenAPIScaffoldingConverter.RESULT, stepType.getSimpleName(), makeValue(stepType)));
     }
 
     private OperationInfo getOperationInfo(Operation operation, PathItem.HttpMethod method) {
@@ -994,18 +999,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
         TypeInfo typeInfo = OpenAPITypeUtils.extractType(openAPIRefResolver, valueSchema, false);
         var typeModel = typeInfo.getSimpleName();
-        Object defaultValue;
-        if ((valueSchema instanceof IntegerSchema) && valueSchema.getFormat() == null) {
-            if (valueSchema.getDefault() == null) {
-                defaultValue = 0;
-            } else {
-                defaultValue = valueSchema.getDefault();
-            }
-        } else if (valueSchema instanceof NumberSchema && valueSchema.getFormat() == null && valueSchema
-                .getDefault() != null) {
-            defaultValue = valueSchema.getDefault().toString();
-        } else {
-            defaultValue = valueSchema.getDefault();
+        Object defaultValue = valueSchema.getDefault();
+        if (defaultValue == null && valueSchema instanceof IntegerSchema && valueSchema.getFormat() == null
+                && typeInfo.getType() != TypeInfo.Type.VOCABULARY) {
+            // A plain integer field starts at zero; a vocabulary allows its values only.
+            defaultValue = 0;
+        } else if (defaultValue != null && valueSchema instanceof NumberSchema && valueSchema.getFormat() == null) {
+            defaultValue = defaultValue.toString();
         }
 
         return new FieldModel(propertyName, typeModel, defaultValue);
@@ -1015,14 +1015,19 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         var propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
         TypeInfo typeInfo = OpenAPITypeUtils.extractType(openAPIRefResolver, valueSchema, false);
-        var typeModel = typeInfo.getSimpleName();
-        var value = makeValue(typeModel);
-        return new StepModel(normalizeName(propertyName), typeModel, value);
+        return new StepModel(normalizeName(propertyName), typeInfo.getSimpleName(), makeValue(typeInfo));
     }
 
-    private String makeValue(String type) {
+    /**
+     * The value a generated step starts with: the empty value of a simple type, a new instance of a datatype,
+     * and a typed {@code null} for a vocabulary, whose only values are the words it allows.
+     */
+    private String makeValue(TypeInfo typeInfo) {
+        var type = typeInfo.getSimpleName();
         var result = "";
-        if (StringUtils.isNotBlank(type)) {
+        if (typeInfo.getType() == TypeInfo.Type.VOCABULARY) {
+            result = "= (" + type + ") null";
+        } else if (StringUtils.isNotBlank(type)) {
             if (OpenAPITypeUtils.isSimpleType(type)) {
                 result = OpenAPITypeUtils.getSimpleValue(type);
             } else {

@@ -2,7 +2,6 @@ package org.openl.rules.excel.builder.export;
 
 import static org.openl.rules.excel.builder.export.DefaultValueCellWriter.writeDefaultValueToCell;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +25,8 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
     public static final String DATATYPE_NAME = "\\{datatype.name}";
 
     @Override
-    protected void exportTables(Collection<DatatypeModel> models, Sheet sheet) {
-        Cursor endPosition = null;
-        var style = getTableStyle();
-        for (DatatypeModel model : models) {
-            log.debug("Writing data type with name {}", model.getName());
-            var startPosition = nextFreePosition(endPosition);
-            endPosition = exportTable(model, startPosition, style, sheet);
-        }
-    }
-
-    @Override
     protected Cursor exportTable(DatatypeModel model, Cursor startPosition, TableStyle defaultStyle, Sheet sheet) {
+        log.debug("Writing data type with name {}", model.getName());
         var style = (DataTypeTableStyle) defaultStyle;
         var headerTemplate = style.getHeaderTemplate();
         var headerSettings = style.getHeaderSizeSettings();
@@ -96,9 +85,5 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 
-    @Override
-    protected String getExcelSheetName() {
-        return DATATYPES_SHEET;
-    }
 
 }

@@ -5,10 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Set;
 
 import org.openl.rules.excel.builder.ExcelFileBuilder;
-import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
@@ -32,9 +30,10 @@ public class OpenAPIHelper {
         }
     }
 
-    public InputStream generateDataTypesFile(final Set<DatatypeModel> datatypeModels) throws IOException {
+    /** The model module: the vocabularies and the data types of the project. */
+    public InputStream generateDataTypesFile(final ProjectModel projectModel) throws IOException {
         try (var bos = new ByteArrayOutputStream()) {
-            ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
+            ExcelFileBuilder.generateDataTypes(projectModel, bos);
             var dtBytes = bos.toByteArray();
             return new ByteArrayInputStream(dtBytes);
         }

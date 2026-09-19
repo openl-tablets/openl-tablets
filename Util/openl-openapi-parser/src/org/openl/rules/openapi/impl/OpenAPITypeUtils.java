@@ -118,6 +118,12 @@ public class OpenAPITypeUtils {
         if (foundSchema != null) {
             schema = foundSchema;
         }
+        if (OpenAPIVocabularies.isVocabulary(schema) && StringUtils.isNotBlank(schema.getTitle())) {
+            // A vocabulary datatype: the rules see it by its name, the Java side by its base type.
+            return new TypeInfo(OpenAPIVocabularies.baseClass(schema).getName(),
+                    schema.getTitle(),
+                    TypeInfo.Type.VOCABULARY);
+        }
         var schemaType = schema.getType();
         var format = schema.getFormat();
         TypeInfo result = null;
@@ -146,27 +152,22 @@ public class OpenAPITypeUtils {
             TypeInfo type = extractType(openAPIRefResolver, arraySchema.getItems(), false);
             var name = type.getSimpleName() + "[]";
             var dim = type.getDimension() + 1;
-            if (type.isReference()) {
-                result = new TypeInfo(name,
-                        name,
-                        type.getType() == TypeInfo.Type.SPREADSHEET || type
-                                .getType() == TypeInfo.Type.SPREADSHEET_ARRAY ? TypeInfo.Type.SPREADSHEET_ARRAY : null,
-                        dim,
-                        true);
-            } else {
-                String className = getArrayClassName(type.getJavaName(), dim);
-                result = new TypeInfo(className,
-                        name,
-                        type.getType() == TypeInfo.Type.SPREADSHEET || type
-                                .getType() == TypeInfo.Type.SPREADSHEET_ARRAY ? TypeInfo.Type.SPREADSHEET_ARRAY : null,
-                        dim,
-                        false);
-            }
+            var className = type.isReference() ? name : getArrayClassName(type.getJavaName(), dim);
+            result = new TypeInfo(className, name, arrayTypeOf(type), dim, type.isReference());
         }
         if (result == null) {
             result = WRAPPER_CLASSES.get(OBJECT);
         }
         return result;
+    }
+
+    /** What an array is by its elements: an array of spreadsheet results, of a vocabulary, or nothing special. */
+    private static TypeInfo.Type arrayTypeOf(TypeInfo elementType) {
+        return switch (elementType.getType()) {
+            case SPREADSHEET, SPREADSHEET_ARRAY -> TypeInfo.Type.SPREADSHEET_ARRAY;
+            case VOCABULARY -> TypeInfo.Type.VOCABULARY;
+            case null, default -> null;
+        };
     }
 
     public static boolean isComplexSchema(OpenAPIRefResolver openAPIRefResolver, Schema<?> foundSchema) {

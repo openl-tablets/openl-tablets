@@ -1,0 +1,7 @@
+POST /rest/projects/{PROJECT_ID}/run?tableId=b3fd0f2fb189985fb59c36fbd06e00ee HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "params": ["aaa", ["bla1", "bla2"]]
+}

@@ -39,3 +39,16 @@ In the example described in [Introducing Datatype Tables](01-introducing-datatyp
 Thus, data of Gender data type can only be **Male** or **Female**.
 
 OpenL Tablets checks all data of the vocabulary data type on whether its value is in the defined list of possible values. If the value is outside of the valid domain, or defined vocabulary, OpenL Tablets displays an appropriate error. Usage of vocabulary data types provides data integrity and allows users to avoid accidental mistakes in rules.
+
+###### Vocabulary Values in OpenAPI
+
+OpenL Rule Services publishes the values of a vocabulary data type as the `enum` of the OpenAPI schema wherever the type is used:
+
+- a field of a datatype, and the elements of an array field
+- a parameter of a rule, alone or among others, and the elements of an array parameter
+- a cell of a spreadsheet result
+- the returned value of a rule
+
+A client therefore sees which values a service accepts and returns. An array of arrays of a vocabulary is published without the values.
+
+OpenL Studio treats the `enum` of an OpenAPI file the same way: the reconciliation of a project against its OpenAPI file requires a vocabulary data type with the same values wherever the file lists them, and the generation of a project from an OpenAPI file creates a vocabulary data type for every `enum`. For details, see [OpenL Studio Guide > Reconciling an OpenAPI Project](../../../../openl-studio/rules-editor.md#reconciling-an-openapi-project) and [OpenL Studio Guide > Vocabulary Data Types](../../../../openl-studio/appendices/openapi-generation.md#vocabulary-data-types).

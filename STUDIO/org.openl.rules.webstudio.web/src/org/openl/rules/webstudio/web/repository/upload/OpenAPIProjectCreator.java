@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
@@ -169,11 +168,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         var converter = new OpenAPIScaffoldingConverter();
         try {
             var projectModel = getProjectModel(projectBuilder, converter);
-            Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
             List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
             List<DataModel> dataModels = projectModel.getDataModels();
             EnvironmentModel environmentModel;
-            var dataTypesArePresented = CollectionUtils.isNotEmpty(datatypeModels);
+            var dataTypesArePresented = CollectionUtils.isNotEmpty(projectModel.getDatatypeModels());
             var spreadsheetsArePresented = CollectionUtils.isNotEmpty(spreadsheetModels);
 
             if (!dataTypesArePresented && !spreadsheetsArePresented) {
@@ -184,7 +182,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             environmentModel.setDependencies(List.of(modelsModuleName));
 
             addFile(projectBuilder,
-                    openAPIHelper.generateDataTypesFile(datatypeModels),
+                    openAPIHelper.generateDataTypesFile(projectModel),
                     modelsPath,
                     "Error uploading dataTypes file.");
 
