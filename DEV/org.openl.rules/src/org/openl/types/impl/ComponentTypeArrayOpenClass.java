@@ -153,7 +153,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     @Override
     public int hashCode() {
-        return Objects.hash(javaName);
+        return Objects.hash(componentClass);
     }
 
     @Override
