@@ -5,6 +5,14 @@ export const useStyles = createStyles(({ css, token }) => ({
         tbody .editable-cell-wrap {
             padding: 5px 12px;
             cursor: pointer;
+            /* The cell opens its field from the keyboard, so it is a real button; these undo what that brings with it. */
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            font: inherit;
+            color: inherit;
+            text-align: left;
         }
 
         tbody tr:hover td .editable-cell-wrap {

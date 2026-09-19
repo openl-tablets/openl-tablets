@@ -49,20 +49,8 @@ export const TagTableNameCell: FC<TagTableNameCellProps> = ({ name, onChange }) 
             />
         </div>
     ) : (
-        <div
-            className="editable-cell-wrap"
-            onClick={toggleEdit}
-            role="button"
-            style={{ paddingRight: 24 }}
-            tabIndex={0}
-            onKeyDown={event => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    toggleEdit()
-                }
-            }}
-        >
+        <button className="editable-cell-wrap" onClick={toggleEdit} style={{ paddingRight: 24 }} type="button">
             {value}
-        </div>
+        </button>
     )
 }
