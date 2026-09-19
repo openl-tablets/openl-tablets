@@ -30,11 +30,11 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
         return min == max ? "[" + min + "]" : "[" + min + ".." + max + "]";
     }
 
-    public IntExpImpl(Constrainer constrainer) {
+    protected IntExpImpl(Constrainer constrainer) {
         this(constrainer, "");
     }
 
-    public IntExpImpl(Constrainer constrainer, String name) {
+    protected IntExpImpl(Constrainer constrainer, String name) {
         super(constrainer, name);
     }
 

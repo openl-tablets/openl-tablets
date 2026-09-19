@@ -13,7 +13,7 @@ import org.openl.util.text.ILocation;
  */
 public abstract class TerminalNode extends ASyntaxNode {
 
-    public TerminalNode(String type, ILocation location, IOpenSourceCodeModule module) {
+    protected TerminalNode(String type, ILocation location, IOpenSourceCodeModule module) {
         super(type, location, module);
     }
 

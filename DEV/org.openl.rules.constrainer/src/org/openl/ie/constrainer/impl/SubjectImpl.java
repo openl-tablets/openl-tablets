@@ -152,11 +152,11 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     protected int _publisher_mask;
 
-    public SubjectImpl(Constrainer constrainer) {
+    protected SubjectImpl(Constrainer constrainer) {
         this(constrainer, "");
     }
 
-    public SubjectImpl(Constrainer constrainer, String name) {
+    protected SubjectImpl(Constrainer constrainer, String name) {
         super(constrainer, name);
         if (constrainer.showVariableNames()) {
             _name = name;

@@ -43,7 +43,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         this.moduleName = moduleName;
     }
 
-    public ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
+    protected ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
         super(header);
         this.boundNode = boundNode;
         hasAliasTypeParams = false;

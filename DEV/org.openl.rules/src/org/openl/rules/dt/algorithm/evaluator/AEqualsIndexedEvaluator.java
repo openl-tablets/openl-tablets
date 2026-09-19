@@ -15,7 +15,7 @@ import org.openl.vm.IRuntimeEnv;
 
 abstract class AEqualsIndexedEvaluator extends AConditionEvaluator {
 
-    public AEqualsIndexedEvaluator(ConditionCasts conditionCasts) {
+    protected AEqualsIndexedEvaluator(ConditionCasts conditionCasts) {
         super(conditionCasts);
     }
 

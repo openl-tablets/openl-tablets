@@ -20,7 +20,7 @@ import org.openl.util.StringUtils;
 public abstract class AbstractDataTableReader<T extends AbstractDataView, R extends AbstractDataView.Builder<R>>
         extends EditableTableReader<T, R> {
 
-    public AbstractDataTableReader(java.util.function.Supplier<R> builderCreator) {
+    protected AbstractDataTableReader(java.util.function.Supplier<R> builderCreator) {
         super(builderCreator);
     }
 

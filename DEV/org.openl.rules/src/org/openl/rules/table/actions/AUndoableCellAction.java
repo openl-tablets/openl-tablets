@@ -15,7 +15,7 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     private final int row;
     protected final MetaInfoWriter metaInfoWriter;
 
-    public AUndoableCellAction(int col, int row, MetaInfoWriter metaInfoWriter) {
+    protected AUndoableCellAction(int col, int row, MetaInfoWriter metaInfoWriter) {
         this.col = col;
         this.row = row;
         this.metaInfoWriter = metaInfoWriter;

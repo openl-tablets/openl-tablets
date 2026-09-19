@@ -17,7 +17,7 @@ import org.openl.studio.projects.model.tables.ExecutableView;
  */
 public abstract class ExecutableTableReader<T extends ExecutableView, R extends ExecutableView.Builder<?>> extends EditableTableReader<T, R> {
 
-    public ExecutableTableReader(Supplier<R> builderCreator) {
+    protected ExecutableTableReader(Supplier<R> builderCreator) {
         super(builderCreator);
     }
 

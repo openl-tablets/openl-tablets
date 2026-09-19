@@ -19,7 +19,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
 
     final String tableNamePrefix;
 
-    public ADtColumnsDefinitionTableBinder(String tableNamePrefix) {
+    protected ADtColumnsDefinitionTableBinder(String tableNamePrefix) {
         if (tableNamePrefix == null) {
             throw new NullPointerException();
         }

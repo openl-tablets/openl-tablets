@@ -18,7 +18,7 @@ import org.openl.util.text.TextInfo;
 
 public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends BaseMetaInfoReader<T> {
 
-    public AMethodMetaInfoReader(T boundNode) {
+    protected AMethodMetaInfoReader(T boundNode) {
         super(boundNode);
     }
 
