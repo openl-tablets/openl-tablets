@@ -19,7 +19,7 @@ class ModulePathSourceCodeModule extends PathSourceCodeModule implements IModule
     }
 
     @Override
-    public String getUri() {
+    public synchronized String getUri() {
         return relativeUri;
     }
 

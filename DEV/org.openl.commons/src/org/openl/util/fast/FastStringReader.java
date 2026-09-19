@@ -35,7 +35,7 @@ public class FastStringReader extends Reader {
         private static final long serialVersionUID = 4942784446367469908L;
 
         @Override
-        public Throwable fillInStackTrace() {
+        public synchronized Throwable fillInStackTrace() {
             return this;
         }
     }

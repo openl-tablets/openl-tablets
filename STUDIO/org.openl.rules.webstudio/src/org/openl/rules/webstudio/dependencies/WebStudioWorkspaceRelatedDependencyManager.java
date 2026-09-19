@@ -244,13 +244,13 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     @Override
-    public void resetOthers(ResolvedDependency... dependencies) {
+    public synchronized void resetOthers(ResolvedDependency... dependencies) {
         version.incrementAndGet();
         super.resetOthers(dependencies);
     }
 
     @Override
-    public void reset(ResolvedDependency dependency) {
+    public synchronized void reset(ResolvedDependency dependency) {
         if (findDependencyLoader(dependency) == null) {
             // Nothing of it was compiled here, so nothing is dropped - and no compilation in flight is made
             // stale over it.
@@ -261,7 +261,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     @Override
-    public void resetAll() {
+    public synchronized void resetAll() {
         throw new UnsupportedOperationException("Unsupported operation");
     }
 
