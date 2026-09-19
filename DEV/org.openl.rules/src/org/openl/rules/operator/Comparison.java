@@ -218,20 +218,24 @@ public class Comparison {
 
     public static Boolean gt(Float x, Float y) {
         Boolean res = null;
-        if (x == y) {
-            return false;
+        if (x == null && y == null) {
+            // Two absent values are equal to each other, so neither of them is the greater one.
+            res = false;
         } else if (x != null && y != null) {
-            res = gt(x.floatValue(), y.floatValue());
+            // NaN is equal to itself the way eq() reads it, so it is not greater than itself either.
+            res = Float.isNaN(x) && Float.isNaN(y) ? Boolean.FALSE : gt(x.floatValue(), y.floatValue());
         }
         return res;
     }
 
     public static Boolean gt(Double x, Double y) {
         Boolean res = null;
-        if (x == y) {
-            return false;
+        if (x == null && y == null) {
+            // Two absent values are equal to each other, so neither of them is the greater one.
+            res = false;
         } else if (x != null && y != null) {
-            res = gt(x.doubleValue(), y.doubleValue());
+            // NaN is equal to itself the way eq() reads it, so it is not greater than itself either.
+            res = Double.isNaN(x) && Double.isNaN(y) ? Boolean.FALSE : gt(x.doubleValue(), y.doubleValue());
         }
         return res;
     }

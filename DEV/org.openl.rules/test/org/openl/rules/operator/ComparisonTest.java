@@ -223,6 +223,9 @@ class ComparisonTest {
         assertFalse(Comparison.gt(nil, nil));
         assertNull(Comparison.gt(pos, nil));
         assertNull(Comparison.gt(nil, pos));
+        // The answer is read from the values, not from the objects holding them.
+        assertFalse(Comparison.gt(Float.valueOf(Float.NaN), Float.valueOf(Float.NaN)));
+        assertFalse(Comparison.gt(Float.valueOf(1.1f), Float.valueOf(1.1f)));
     }
 
     @Test
@@ -256,6 +259,9 @@ class ComparisonTest {
         assertFalse(Comparison.gt(nil, nil));
         assertNull(Comparison.gt(pos, nil));
         assertNull(Comparison.gt(nil, pos));
+        // The answer is read from the values, not from the objects holding them.
+        assertFalse(Comparison.gt(Double.valueOf(Double.NaN), Double.valueOf(Double.NaN)));
+        assertFalse(Comparison.gt(Double.valueOf(1.1), Double.valueOf(1.1)));
     }
 
     @Test
