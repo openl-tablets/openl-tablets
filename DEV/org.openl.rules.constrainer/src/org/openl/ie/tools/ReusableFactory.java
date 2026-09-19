@@ -39,7 +39,7 @@ public abstract class ReusableFactory implements Serializable {
     /**
      * Creates new uninitialized object for this factory.
      */
-    abstract protected Reusable createNewElement();
+    protected abstract Reusable createNewElement();
 
     /**
      * Returns the unused object to the factory.

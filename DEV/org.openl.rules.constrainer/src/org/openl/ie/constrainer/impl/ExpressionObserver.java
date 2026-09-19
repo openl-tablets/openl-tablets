@@ -69,7 +69,7 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * Trivial event map.
      */
-    static final private int[] trival_event_map = {MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE};
+    private static final int[] trival_event_map = {MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE};
 
     private final EventMap _event_map;
 

@@ -42,12 +42,12 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
     /**
      * Returns true if the expression's is subject false. Note: this is not equals to <code>!isSubjectTrue()</code>.
      */
-    abstract protected boolean isSubjectFalse();
+    protected abstract boolean isSubjectFalse();
 
     /**
      * Returns true if the expression's subject is true. Note: this is not equals to <code>!isSubjectFalse()</code>.
      */
-    abstract protected boolean isSubjectTrue();
+    protected abstract boolean isSubjectTrue();
 
     protected final void setDomainMax(int max) throws Failure {
         super.setMax(max);
@@ -133,11 +133,11 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
     /**
      * Sets the value for the subject to false.
      */
-    abstract protected void setSubjectFalse() throws Failure;
+    protected abstract void setSubjectFalse() throws Failure;
 
     /**
      * Sets the value for the subject to true.
      */
-    abstract protected void setSubjectTrue() throws Failure;
+    protected abstract void setSubjectTrue() throws Failure;
 
 } // ~IntBoolExpForSubject

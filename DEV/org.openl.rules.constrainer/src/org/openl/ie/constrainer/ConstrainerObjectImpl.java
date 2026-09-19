@@ -49,12 +49,12 @@ public class ConstrainerObjectImpl implements ConstrainerObject {
     }
 
     @Override
-    final public Constrainer constrainer() {
+    public final Constrainer constrainer() {
         return _constrainer;
     }
 
     @Override
-    final public String name() {
+    public final String name() {
         return _name;
     }
 

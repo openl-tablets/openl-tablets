@@ -28,7 +28,7 @@ public abstract class Observer implements EventOfInterest.Constants, Serializabl
      * @param event EventOfInterest.
      * @return true if the "event" is the one this observer is interested in.
      */
-    final public boolean interestedIn(EventOfInterest event) {
+    public final boolean interestedIn(EventOfInterest event) {
         return (subscriberMask() & event.type()) != 0;
     }
 

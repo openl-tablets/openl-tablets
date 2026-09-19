@@ -47,7 +47,7 @@ public abstract class AProjectViewModel {
         this.repository = from.repository;
     }
 
-    public static abstract class ABuilder<T extends ABuilder<T>> {
+    public abstract static class ABuilder<T extends ABuilder<T>> {
         private String name;
         private String branch;
         private ProjectIdModel id;

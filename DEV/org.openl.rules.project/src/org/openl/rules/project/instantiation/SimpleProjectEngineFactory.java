@@ -244,7 +244,7 @@ public class SimpleProjectEngineFactory<T> {
 
     private IDependencyManager dependencyManager;
 
-    public synchronized final IDependencyManager getDependencyManager() throws ProjectResolvingException {
+    public final synchronized IDependencyManager getDependencyManager() throws ProjectResolvingException {
         if (dependencyManager == null) {
             dependencyManager = buildDependencyManager();
         }

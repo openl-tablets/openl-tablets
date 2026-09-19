@@ -13,8 +13,8 @@ import org.openl.util.StringUtils;
 @Schema(allOf = RepositorySettings.class)
 public class LocalRepositorySettings extends RepositorySettings {
 
-    private final static String URI_SUFFIX = ".uri";
-    private final static String BASE_DEPLOY_PATH_SUFFIX = ".base.path";
+    private static final String URI_SUFFIX = ".uri";
+    private static final String BASE_DEPLOY_PATH_SUFFIX = ".base.path";
 
     @Parameter(description = "Local path")
     @SettingPropertyName(URI_SUFFIX)

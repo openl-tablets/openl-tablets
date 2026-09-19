@@ -28,7 +28,7 @@ public abstract class ExecutableView extends TableView implements EditableTableV
         return tableType;
     }
 
-    public static abstract class Builder<T extends ExecutableView.Builder<T>> extends TableView.Builder<T> {
+    public abstract static class Builder<T extends ExecutableView.Builder<T>> extends TableView.Builder<T> {
         private String returnType;
         private Collection<ArgumentView> args;
 

@@ -218,7 +218,7 @@ class JavaOpenClassTest {
         int getGg();
     }
 
-    public static abstract class BeanA implements IBeanA {
+    public abstract static class BeanA implements IBeanA {
         private int B;
         private int Ba;
         private int BB;

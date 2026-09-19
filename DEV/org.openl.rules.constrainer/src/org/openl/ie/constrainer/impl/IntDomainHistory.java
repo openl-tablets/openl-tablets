@@ -122,7 +122,7 @@ public final class IntDomainHistory implements Serializable {
 
     } // ~IntEventDomain
 
-    final static int MIN_IDX = 0, MAX_IDX = 1, SIZE_IDX = 2, REMOVE_IDX = 3, LAST_IDX = 4;
+    static final int MIN_IDX = 0, MAX_IDX = 1, SIZE_IDX = 2, REMOVE_IDX = 3, LAST_IDX = 4;
     final IntVar _var;
     final FastVectorInt _history;
 

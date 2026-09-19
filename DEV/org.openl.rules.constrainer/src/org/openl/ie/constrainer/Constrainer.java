@@ -115,7 +115,7 @@ public final class Constrainer implements Serializable {
 
     private final FastStack _active_undoable_once;
 
-    final transient private PrintStream _out = System.out;
+    private final transient PrintStream _out = System.out;
 
     /*
      * ============================================================================== Misc: toString(), helpers, ...
@@ -128,7 +128,7 @@ public final class Constrainer implements Serializable {
      *
      * @param msg Diagnostic message to print.
      */
-    static public void abort(String msg) {
+    public static void abort(String msg) {
         throw new RuntimeException(msg);
     }
 
@@ -142,7 +142,7 @@ public final class Constrainer implements Serializable {
      *
      * @return the precision of the constrained floating-point variable calculations.
      */
-    static public double precision() {
+    public static double precision() {
         return FLOAT_PRECISION;
     }
 
@@ -151,7 +151,7 @@ public final class Constrainer implements Serializable {
      *
      * @param prc The new precision to be set.
      */
-    static public void precision(double prc) {
+    public static void precision(double prc) {
         FLOAT_PRECISION = prc;
     }
 
@@ -455,7 +455,7 @@ public final class Constrainer implements Serializable {
      * @param restore_flag boolean
      * @return true if success
      */
-    synchronized public boolean execute(Goal main_goal, boolean restore_flag) {
+    public synchronized boolean execute(Goal main_goal, boolean restore_flag) {
         var execution_start = System.currentTimeMillis();
 
         var success = true;
