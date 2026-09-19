@@ -3,11 +3,11 @@ package org.openl.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.function.Predicate;
@@ -34,19 +34,25 @@ public final class ZipUtils {
      * @param outputFolder the output folder for extracted files
      */
     public static void extractAll(File zipFile, File outputFolder) throws IOException {
-        final var zippedStream = new FileInputStream(zipFile);
-        extractAll(zippedStream, outputFolder);
+        try (var zippedStream = new FileInputStream(zipFile)) {
+            extractAll(zippedStream, outputFolder);
+        }
     }
 
     /**
      * Extract all files from a zipped stream into a directory.
      *
+     * <p>Every entry is extracted inside the output folder. An entry naming a location outside of it aborts the
+     * extraction.
+     *
      * @param zippedStream the zipped input stream
      * @param outputFolder the output folder for extracted files
+     * @throws IOException if an entry points outside of the output folder
      */
     public static void extractAll(InputStream zippedStream, File outputFolder) throws IOException {
 
         byte[] buffer = new byte[BUFFER_SIZE];
+        var target = outputFolder.toPath().toAbsolutePath().normalize();
 
         try (var zis = new ZipInputStream(zippedStream)) {
             // get the zipped file list entry
@@ -54,19 +60,40 @@ public final class ZipUtils {
             while (ze != null) {
 
                 if (!ze.isDirectory()) {
-                    var fileName = ze.getName();
-                    var unzipped = new File(outputFolder, fileName);
-                    extractOneFile(zis, unzipped, buffer);
+                    var unzipped = resolveEntry(target, ze.getName());
+                    extractOneFile(zis, unzipped, target, buffer);
                 }
                 ze = zis.getNextEntry();
             }
         }
     }
 
-    private static void extractOneFile(ZipInputStream zis, File targetFile, byte[] buffer) throws IOException {
+    /**
+     * Resolves the name of a zip entry against the output folder.
+     *
+     * @throws IOException if the entry names a location outside of the output folder
+     */
+    private static Path resolveEntry(Path outputFolder, String entryName) throws IOException {
+        var resolved = outputFolder.resolve(entryName).normalize();
+        if (!resolved.startsWith(outputFolder)) {
+            throw new IOException("Zip entry '%s' is outside of the target folder.".formatted(entryName));
+        }
+        return resolved;
+    }
+
+    private static void extractOneFile(ZipInputStream zis,
+                                       Path targetFile,
+                                       Path outputFolder,
+                                       byte[] buffer) throws IOException {
         // create all non exists folders
-        new File(targetFile.getParent()).mkdirs();
-        try (var fos = new FileOutputStream(targetFile)) {
+        var folder = Files.createDirectories(targetFile.getParent());
+        // A name that stays inside the output folder can still be led out of it by a link on the way, which
+        // the name alone does not show. The real path does.
+        if (!folder.toRealPath().startsWith(outputFolder.toRealPath()) || Files.isSymbolicLink(targetFile)) {
+            throw new IOException("Zip entry '%s' is led outside of the target folder by a link."
+                    .formatted(outputFolder.relativize(targetFile)));
+        }
+        try (var fos = Files.newOutputStream(targetFile)) {
             IOUtils.copy(zis, fos, buffer);
         }
     }
