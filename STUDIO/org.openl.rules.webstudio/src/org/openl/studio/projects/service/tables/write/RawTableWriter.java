@@ -613,10 +613,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
     }
 
-    /** Applies an action and keeps it, the way every other edit of this writer is applied. */
+    /** Applies an action, the way every other edit of this writer is applied. */
     private void run(IGridTable developerView, IUndoableGridTableAction action) {
         action.doAction(developerView);
-        actionsQueue.addNewAction(action);
     }
 
     /** The colour as the workbook takes it: one component per entry. The request shape is already validated. */

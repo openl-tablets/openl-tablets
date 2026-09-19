@@ -1,7 +1,6 @@
 package org.openl.studio.projects.service.tables.write;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,7 +29,6 @@ import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.MergeCellsAction;
 import org.openl.rules.table.actions.RemoveMergedRegionsAction;
-import org.openl.rules.table.actions.UndoableActions;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableEditTableAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
@@ -55,7 +53,6 @@ public abstract class TableWriter<T extends TableView> {
 
     protected static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
-    protected final UndoableActions actionsQueue;
     protected final IOpenLTable table;
     protected final IGridTable originalTable;
     private MetaInfoWriter metaInfoWriter;
@@ -64,7 +61,6 @@ public abstract class TableWriter<T extends TableView> {
 
     public TableWriter(IOpenLTable table) {
         this.table = table;
-        this.actionsQueue = new UndoableActions();
         this.originalTable = GridTableUtils.getOriginalTable(table.getGridTable());
     }
 
@@ -72,7 +68,6 @@ public abstract class TableWriter<T extends TableView> {
         this.originalTable = gridTable;
         this.metaInfoWriter = metaInfoWriter;
         this.table = null;
-        this.actionsQueue = new UndoableActions();
     }
 
     public void write(T tableView) {
@@ -183,7 +178,6 @@ public abstract class TableWriter<T extends TableView> {
         var originalRegion = originalTable.getRegion();
         var originalGrid = originalTable.getGrid();
         for (var entry : properties.entrySet().stream().toList().reversed()) {
-            List<IUndoableGridTableAction> actions = new ArrayList<>();
             var propName = entry.getKey();
             boolean newProperty = GridTool.getPropertyRowIndex(originalRegion, originalGrid, propName) == -1;
             if (newProperty) {
@@ -194,7 +188,7 @@ public abstract class TableWriter<T extends TableView> {
                 }
                 if (!UndoableInsertRowsAction.canInsertRows(originalTable, 1) || !UndoableInsertColumnsAction
                         .canInsertColumns(originalTable, nColsToInsert)) {
-                    actions.add(UndoableEditTableAction.moveTable(originalTable, getMetaInfoWriter()));
+                    UndoableEditTableAction.moveTable(originalTable, getMetaInfoWriter());
                 }
                 GridRegionAction allTable = new GridRegionAction(originalRegion,
                         UndoableEditTableAction.ROWS,
@@ -202,16 +196,11 @@ public abstract class TableWriter<T extends TableView> {
                         GridRegionAction.ActionType.EXPAND,
                         1);
                 allTable.doAction(originalTable);
-                actions.add(allTable);
             }
             var propValue = entry.getValue();
             var action = GridTool.insertProp(originalRegion, originalGrid, propName, propValue, getMetaInfoWriter());
             if (action != null) {
                 action.doAction(originalTable);
-                actions.add(action);
-            }
-            if (!actions.isEmpty()) {
-                actionsQueue.addNewAction(new UndoableCompositeAction(actions));
             }
         }
     }
@@ -224,7 +213,6 @@ public abstract class TableWriter<T extends TableView> {
      * @param value     new cell value
      */
     protected void createOrUpdateCell(IGridTable gridTable, CellKey cellKey, Object value) {
-        List<IUndoableGridTableAction> actions = new ArrayList<>();
         var region = gridTable.getRegion();
         // calculate absolute coordinates
         int grow = cellKey.getRow() + region.getTop();
@@ -233,14 +221,14 @@ public abstract class TableWriter<T extends TableView> {
         if (region.getBottom() <= grow) {
             int nRows = grow - region.getBottom();
             int beforeRow = region.getTop() - originalTable.getRegion().getTop() + Tool.height(region);
-            actions.add(insertRows(gridTable, nRows, beforeRow));
+            insertRows(gridTable, nRows, beforeRow);
             inserted = true;
         }
         int gcol = cellKey.getColumn() + region.getLeft();
         if (region.getRight() <= gcol) {
             int nCols = gcol - region.getRight();
             int beforeCol = region.getLeft() - originalTable.getRegion().getLeft() + Tool.width(region);
-            actions.add(insertColumns(gridTable, nCols, beforeCol));
+            insertColumns(gridTable, nCols, beforeCol);
             inserted = true;
         }
         if (inserted) {
@@ -249,45 +237,34 @@ public abstract class TableWriter<T extends TableView> {
             gcol = cellKey.getColumn() + region.getLeft();
         }
 
-        actions.add(updateCellValue(gridTable, gcol, grow, value));
-        actionsQueue.addNewAction(new UndoableCompositeAction(actions));
+        updateCellValue(gridTable, gcol, grow, value);
     }
 
-    private IUndoableGridTableAction insertColumns(IGridTable gridTable, int nCols, int beforeCol) {
-        var action = new UndoableInsertColumnsAction(nCols, beforeCol, 0, getMetaInfoWriter());
-        action.doAction(gridTable);
-        return action;
+    private void insertColumns(IGridTable gridTable, int nCols, int beforeCol) {
+        new UndoableInsertColumnsAction(nCols, beforeCol, 0, getMetaInfoWriter()).doAction(gridTable);
     }
 
-    private IUndoableGridTableAction insertRows(IGridTable gridTable, int nRows, int beforeRow) {
-        var action = new UndoableInsertRowsAction(nRows, beforeRow, 0, getMetaInfoWriter());
-        action.doAction(gridTable);
-        return action;
+    private void insertRows(IGridTable gridTable, int nRows, int beforeRow) {
+        new UndoableInsertRowsAction(nRows, beforeRow, 0, getMetaInfoWriter()).doAction(gridTable);
     }
 
     @SuppressWarnings("rawtypes")
-    private IUndoableGridTableAction updateCellValue(IGridTable gridTable, int gcol, int grow, Object value) {
+    private void updateCellValue(IGridTable gridTable, int gcol, int grow, Object value) {
         if (value instanceof Collection collection) {
             // OpenL table cell can store only array, not collection
             value = collection.toArray();
         }
-        var action = new UndoableSetValueAction(gcol, grow, value, getMetaInfoWriter());
-        action.doAction(gridTable);
-        return action;
+        new UndoableSetValueAction(gcol, grow, value, getMetaInfoWriter()).doAction(gridTable);
     }
 
     protected void removeRows(IGridTable gridTable, int nRows, int startRow) {
         int startRow0 = gridTable.getRegion().getTop() - originalTable.getRegion().getTop() + startRow;
-        var action = new UndoableRemoveRowsAction(nRows, startRow0, getMetaInfoWriter());
-        action.doAction(gridTable);
-        actionsQueue.addNewAction(action);
+        new UndoableRemoveRowsAction(nRows, startRow0, getMetaInfoWriter()).doAction(gridTable);
     }
 
     protected void removeColumns(IGridTable gridTable, int nCols, int startCol) {
         int startCol0 = gridTable.getRegion().getLeft() - originalTable.getRegion().getLeft() + startCol;
-        var action = new UndoableRemoveColumnsAction(nCols, startCol0, getMetaInfoWriter());
-        action.doAction(gridTable);
-        actionsQueue.addNewAction(action);
+        new UndoableRemoveColumnsAction(nCols, startCol0, getMetaInfoWriter()).doAction(gridTable);
     }
 
     /**
@@ -409,9 +386,7 @@ public abstract class TableWriter<T extends TableView> {
      * @param gridTable The grid table whose merged regions are cleared
      */
     protected void clearMergedRegions(IGridTable gridTable) {
-        var action = new RemoveMergedRegionsAction(gridTable.getRegion());
-        action.doAction(gridTable);
-        actionsQueue.addNewAction(action);
+        new RemoveMergedRegionsAction(gridTable.getRegion()).doAction(gridTable);
     }
 
     /**
@@ -432,9 +407,7 @@ public abstract class TableWriter<T extends TableView> {
                 .collect(Collectors.toList());
 
         if (!mergeActions.isEmpty()) {
-            var compositeAction = new UndoableCompositeAction(mergeActions);
-            compositeAction.doAction(gridTable);
-            actionsQueue.addNewAction(compositeAction);
+            new UndoableCompositeAction(mergeActions).doAction(gridTable);
         }
     }
 

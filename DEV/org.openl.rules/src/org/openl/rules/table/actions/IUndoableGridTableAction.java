@@ -5,7 +5,7 @@ import org.openl.rules.table.IGridTable;
 /**
  * @author Andrei Astrouski
  */
-public interface IUndoableGridTableAction extends IUndoableAction {
+public interface IUndoableGridTableAction {
 
     void doAction(IGridTable grid);
 
