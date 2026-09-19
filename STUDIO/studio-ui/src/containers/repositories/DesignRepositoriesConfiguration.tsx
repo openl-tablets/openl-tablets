@@ -156,19 +156,11 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                         form.setFieldsValue(selectedRepository)
                         // Wait a bit more and verify again
                         const rafId3 = requestAnimationFrame(() => {
-                            const retryValues = form.getFieldsValue(true) as Record<string, unknown>
-                            const retrySynced = isFormValuesEqual(retryValues, selectedRepository as unknown as Record<string, unknown>)
-                            if (retrySynced) {
-                                // Form is synced after retry, update last synced repository ref
-                                lastSyncedRepositoryRef.current = selectedRepository
-                                setIsFormInitialized(true)
-                            } else {
-                                // If still not synced after retry, mark as initialized anyway
-                                // The form should be synced by now, and this prevents infinite waiting
-                                // The checkHasUnsavedChanges will verify actual sync before reporting changes
-                                lastSyncedRepositoryRef.current = selectedRepository
-                                setIsFormInitialized(true)
-                            }
+                            // Mark as initialized whether or not the retry synced the form: it should be
+                            // synced by now, and waiting any longer would never end. checkHasUnsavedChanges
+                            // verifies the actual sync before it reports changes.
+                            lastSyncedRepositoryRef.current = selectedRepository
+                            setIsFormInitialized(true)
                         })
                         rafIdsRef.current.push(rafId3)
                     }
