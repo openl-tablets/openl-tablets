@@ -26,7 +26,9 @@ public class OAuth2OpaqueAccessTokenConfiguration {
                                                            UserInfoClaimsConverter userInfoClaimsConverter,
                                                            CacheManager cacheManager) {
         var clientRegistration = clientRegistrationRepository.findByRegistrationId("webstudio");
-        return new UserInfoOpaqueTokenIntrospector(oAuth2Configuration.getIntrospectionEndpoint().get(),
+        var introspectionEndpoint = oAuth2Configuration.getIntrospectionEndpoint()
+                .orElseThrow(() -> new IllegalStateException("OAuth2 introspection endpoint is not configured."));
+        return new UserInfoOpaqueTokenIntrospector(introspectionEndpoint,
                 clientRegistration,
                 userInfoClaimsConverter,
                 propertyResolver,
