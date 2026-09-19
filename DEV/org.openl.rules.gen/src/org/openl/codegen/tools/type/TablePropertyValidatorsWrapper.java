@@ -3,8 +3,6 @@ package org.openl.codegen.tools.type;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Getter;
-
 import org.openl.rules.table.constraints.Constraint;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.constraints.RegexpValueConstraint;
@@ -18,7 +16,6 @@ import org.openl.validation.IOpenLValidator;
 
 public class TablePropertyValidatorsWrapper {
 
-    @Getter
     private final List<Class<? extends IOpenLValidator>> validatorClasses = new ArrayList<>();
     private final String name;
     private final Constraints constraints;

@@ -15,7 +15,6 @@ import org.openl.util.ArrayOfNamedValues;
 @RequiredArgsConstructor
 public class DecisionTableOverlapping {
 
-    @Getter
     private final int[] rulesIndexes;
     private final ArrayOfNamedValues value;
     @Getter

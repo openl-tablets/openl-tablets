@@ -10,8 +10,6 @@ public class TablePropertyDefinitionWrapper {
     private String operationName;
     @Getter
     private String contextVar;
-    @Getter
-    private String propertyVar;
 
     public TablePropertyDefinitionWrapper(TablePropertyDefinition tablePropertyDefinition) {
         this.tablePropertyDefinition = tablePropertyDefinition;
@@ -25,7 +23,6 @@ public class TablePropertyDefinitionWrapper {
 
         if (expression != null) {
             operationName = expression.getMatchExpression().getOperationName();
-            propertyVar = tablePropertyDefinition.getName();
             contextVar = expression.getMatchExpression().getContextAttribute();
         }
     }
