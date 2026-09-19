@@ -17,7 +17,6 @@ class ParameterModelTest {
         var surnameParam = new ParameterModel(new TypeInfo(String.class), "surname");
 
 
-        assertEquals(nameParam, nameParam);
         assertEquals(nameParam, oneMoreNameParam);
         assertEquals(nameParam.hashCode(), oneMoreNameParam.hashCode());
 
