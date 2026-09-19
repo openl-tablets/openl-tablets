@@ -172,17 +172,20 @@ public class RulesEngineFactory<T> {
     }
 
     private OpenL getOpenL() {
-        if (openl == null) {
+        var instance = openl;
+        if (instance == null) {
             synchronized (this) {
-                if (openl == null) {
-                    openl = new OpenL();
-                    openl.setParser(new Parser());
-                    openl.setBinder(new XlsBinder(new RulesCompileContext()));
-                    openl.setVm(new SimpleRulesVM());
+                instance = openl;
+                if (instance == null) {
+                    instance = new OpenL();
+                    instance.setParser(new Parser());
+                    instance.setBinder(new XlsBinder(new RulesCompileContext()));
+                    instance.setVm(new SimpleRulesVM());
+                    openl = instance;
                 }
             }
         }
-        return openl;
+        return instance;
     }
 
     public T newEngineInstance() {
