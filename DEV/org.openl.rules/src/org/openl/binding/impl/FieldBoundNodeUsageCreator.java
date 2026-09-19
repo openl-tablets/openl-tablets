@@ -174,13 +174,13 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             var sb1 = new StringBuilder();
             if (c instanceof CombinedSpreadsheetResultOpenClass class1) {
                 for (CustomSpreadsheetResultOpenClass t : class1.getCombinedTypes()) {
-                    if (!sb1.isEmpty()) {
+                    if (sb1.length() > 0) {
                         sb1.append(", ");
                     }
                     sb1.append(t.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
                 }
             } else if (c != null) {
-                if (!sb1.isEmpty()) {
+                if (sb1.length() > 0) {
                     sb1.append(", ");
                 }
                 sb1.append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
@@ -191,7 +191,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                 stringLengthExceeded = true;
                 break;
             }
-            if (!sb.isEmpty()) {
+            if (sb.length() > 0) {
                 sb.append(", ");
             }
             sb.append(sb1);
