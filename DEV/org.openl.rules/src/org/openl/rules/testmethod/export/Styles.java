@@ -23,7 +23,7 @@ import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.formatters.FormatConstants;
 
 final class Styles {
-    static final int HEADER = 0xBFBFBF;
+    static final int HEADER_COLOR = 0xBFBFBF;
     static final int GREEN_MAIN = 0xC4D79B;
     static final int RED_MAIN = 0xDA9694;
     static final int GREEN_FIELDS = 0xD8E4BC;
@@ -55,7 +55,7 @@ final class Styles {
         testNameFailure = textStyle(wb, createFont(wb, RED.getIndex()));
         testInfo = textStyle(wb, createFont(wb, GREY_50_PERCENT.getIndex()));
 
-        header = backgroundStyle(wb, HEADER);
+        header = backgroundStyle(wb, HEADER_COLOR);
         resultSuccessId = backgroundStyle(wb, GREEN_MAIN);
         resultFailureId = backgroundStyle(wb, RED_MAIN);
         resultSuccessStatus = backgroundStyle(wb, GREEN_MAIN, createFont(wb, GREEN.getIndex()));

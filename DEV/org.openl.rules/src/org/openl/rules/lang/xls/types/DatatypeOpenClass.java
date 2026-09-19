@@ -127,10 +127,10 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
      */
     @Override
     protected LinkedHashMap<String, IOpenField> fieldMap() {
-        if (fieldMap == null) {
-            fieldMap = new LinkedHashMap<>();
+        if (fieldsByName == null) {
+            fieldsByName = new LinkedHashMap<>();
         }
-        return (LinkedHashMap<String, IOpenField>) fieldMap;
+        return (LinkedHashMap<String, IOpenField>) fieldsByName;
     }
 
     private volatile Map<String, IOpenField> fields;

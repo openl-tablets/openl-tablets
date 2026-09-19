@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.testmethod.export.Styles.GREEN_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.GREEN_MAIN;
-import static org.openl.rules.testmethod.export.Styles.HEADER;
+import static org.openl.rules.testmethod.export.Styles.HEADER_COLOR;
 import static org.openl.rules.testmethod.export.Styles.RED_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.RED_MAIN;
 import static org.openl.rules.testmethod.export.Styles.convertRGB;
@@ -235,7 +235,7 @@ class TestResultExportTest {
                 rowNum += 2;
                 var row = sheet.getRow(rowNum);
                 assertRowText(row, "ID", "Status", "Hour", "Result");
-                assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
+                assertRowColors(row, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
                 assertComments(row, 3, (String) null);
 
                 row = sheet.getRow(++rowNum);
@@ -327,7 +327,8 @@ class TestResultExportTest {
                         "Expected Age Type",
                         "Expected Eligibility",
                         "Expected Risk");
-                assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+                assertRowColors(row,
+                        HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Passed", "a1", "Standard Driver", "Eligible", "Standard Risk Driver");
@@ -360,7 +361,8 @@ class TestResultExportTest {
                         "Expected Age Type",
                         "Expected Eligibility",
                         "Expected Risk");
-                assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+                assertRowColors(row,
+                        HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
@@ -449,7 +451,7 @@ class TestResultExportTest {
                 rowNum += 2;
                 var row = sheet.getRow(rowNum);
                 assertRowText(row, "ID", "Status", "obj", "Result field 2");
-                assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
+                assertRowColors(row, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Passed", "MyObjectD{ field1=2.0 field2=null }", "2");
@@ -480,7 +482,8 @@ class TestResultExportTest {
         rowNum += 2;
         var row = sheet.getRow(rowNum);
         assertRowText(row, "ID", "Status", "Driver", "Expected Age Type", "Expected Eligibility", "Expected Risk");
-        assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+        assertRowColors(row,
+                HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
@@ -516,7 +519,8 @@ class TestResultExportTest {
                 "Expected Score",
                 "Expected Eligibility",
                 "Expected Premium");
-        assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+        assertRowColors(row,
+                HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
         assertComments(row, 4, null, null, null);
 
         row = sheet.getRow(++rowNum);
@@ -548,7 +552,8 @@ class TestResultExportTest {
                 "Expected Injury Rating",
                 "Expected Eligibility",
                 "Created date");
-        assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+        assertRowColors(row,
+                HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
         assertComments(row, 3, null, null, null, null);
 
         row = sheet.getRow(++rowNum);
