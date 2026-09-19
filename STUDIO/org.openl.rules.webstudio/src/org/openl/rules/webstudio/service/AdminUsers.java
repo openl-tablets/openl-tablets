@@ -40,8 +40,8 @@ public class AdminUsers {
     private static final String ADMIN_GROUP = "Administrators";
 
     public void init() {
-        String[] administrators = StringUtils.split(environment.getProperty(InheritedAuthenticationSettings.ADMINISTRATORS), ',');
-        this.administrators = new HashSet<>(Arrays.asList(administrators));
+        var configured = environment.getProperty(InheritedAuthenticationSettings.ADMINISTRATORS_PROPERTY);
+        administrators = new HashSet<>(Arrays.asList(StringUtils.split(configured, ',')));
     }
 
     public boolean isSuperuser(String username) {

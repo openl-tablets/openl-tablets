@@ -19,7 +19,7 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
     private static final String CLIENT_ID = "security.oauth2.client-id";
     private static final String CLIENT_SECRET = "security.oauth2.client-secret";
     private static final String ISSUER_URI = "security.oauth2.issuer-uri";
-    private static final String SCOPE = "security.oauth2.scope";
+    private static final String SCOPE_PROPERTY = "security.oauth2.scope";
     private static final String GRANT_TYPE = "security.oauth2.grant-type";
 
     @Getter
@@ -46,7 +46,7 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
     @Getter
     @Parameter(description = "Requested scopes for authorization (e.g., openid, profile, email).")
     @Setter
-    @SettingPropertyName(SCOPE)
+    @SettingPropertyName(SCOPE_PROPERTY)
     @NotBlank
     private String scope;
 
@@ -74,7 +74,7 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
         clientId = properties.getProperty(CLIENT_ID);
         clientSecret = properties.getProperty(CLIENT_SECRET);
         issuerUri = properties.getProperty(ISSUER_URI);
-        scope = properties.getProperty(SCOPE);
+        scope = properties.getProperty(SCOPE_PROPERTY);
         grantType = properties.getProperty(GRANT_TYPE);
         attributes.load(properties);
     }
@@ -85,7 +85,7 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
         properties.setProperty(CLIENT_ID, clientId);
         properties.setProperty(CLIENT_SECRET, clientSecret);
         properties.setProperty(ISSUER_URI, issuerUri);
-        properties.setProperty(SCOPE, scope);
+        properties.setProperty(SCOPE_PROPERTY, scope);
         properties.setProperty(GRANT_TYPE, grantType);
         attributes.store(properties);
     }
@@ -96,7 +96,7 @@ public class OAuth2AuthenticationSettings extends InheritedAuthenticationSetting
                 CLIENT_ID,
                 CLIENT_SECRET,
                 ISSUER_URI,
-                SCOPE,
+                SCOPE_PROPERTY,
                 GRANT_TYPE
         );
         attributes.revert(properties);

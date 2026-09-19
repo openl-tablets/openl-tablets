@@ -16,7 +16,7 @@ import org.openl.studio.settings.model.constraint.ADConnectionConstraint;
 @Schema(allOf = AuthenticationSettings.class)
 public class ADAuthenticationSettings extends InheritedAuthenticationSettings {
 
-    private static final String DOMAIN = "security.ad.domain";
+    private static final String DOMAIN_PROPERTY = "security.ad.domain";
     private static final String SERVER_URL = "security.ad.server-url";
     private static final String SEARCH_FILTER = "security.ad.search-filter";
     private static final String GROUP_FILTER = "security.ad.group-filter";
@@ -24,7 +24,7 @@ public class ADAuthenticationSettings extends InheritedAuthenticationSettings {
     @Getter
     @Parameter(description = "Default domain against which a user is logged in.", example = "example.com")
     @Setter
-    @SettingPropertyName(DOMAIN)
+    @SettingPropertyName(DOMAIN_PROPERTY)
     @NotBlank
     private String domain;
 
@@ -57,7 +57,7 @@ public class ADAuthenticationSettings extends InheritedAuthenticationSettings {
     @Override
     public void load(PropertiesHolder properties) {
         super.load(properties);
-        domain = properties.getProperty(DOMAIN);
+        domain = properties.getProperty(DOMAIN_PROPERTY);
         serverUrl = properties.getProperty(SERVER_URL);
         searchFilter = properties.getProperty(SEARCH_FILTER);
         groupFilter = properties.getProperty(GROUP_FILTER);
@@ -66,7 +66,7 @@ public class ADAuthenticationSettings extends InheritedAuthenticationSettings {
     @Override
     public void store(PropertiesHolder properties) {
         super.store(properties);
-        properties.setProperty(DOMAIN, domain);
+        properties.setProperty(DOMAIN_PROPERTY, domain);
         properties.setProperty(SERVER_URL, serverUrl);
         properties.setProperty(SEARCH_FILTER, searchFilter);
         properties.setProperty(GROUP_FILTER, groupFilter);
@@ -74,7 +74,7 @@ public class ADAuthenticationSettings extends InheritedAuthenticationSettings {
 
     @Override
     public void revert(PropertiesHolder properties) {
-        properties.revertProperties(DOMAIN,
+        properties.revertProperties(DOMAIN_PROPERTY,
                 SERVER_URL,
                 SEARCH_FILTER,
                 GROUP_FILTER);

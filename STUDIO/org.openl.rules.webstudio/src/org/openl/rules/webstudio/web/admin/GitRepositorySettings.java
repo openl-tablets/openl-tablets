@@ -133,60 +133,62 @@ public class GitRepositorySettings extends RepositorySettings {
     @JsonView(Views.Base.class)
     private String protectedBranches;
 
-    private final String URI;
-    private final String LOGIN;
-    private final String PASSWORD;
-    private final String BRANCH;
-    private final String NEW_BRANCH_TEMPLATE;
-    private final String NEW_BRANCH_REGEX;
-    private final String NEW_BRANCH_REGEX_ERROR;
-    private final String TAG_PREFIX;
-    private final String LISTENER_TIMER_PERIOD;
-    private final String CONNECTION_TIMEOUT;
-    private final String FAILED_AUTHENTICATION_SECONDS;
-    private final String MAX_AUTHENTICATION_ATTEMPTS;
-    private final String PROTECTED_BRANCHES;
+    private final String uriProperty;
+    private final String loginProperty;
+    private final String passwordProperty;
+    private final String branchProperty;
+    private final String newBranchTemplateProperty;
+    private final String newBranchRegexProperty;
+    private final String newBranchRegexErrorProperty;
+    private final String tagPrefixProperty;
+    private final String listenerTimerPeriodProperty;
+    private final String connectionTimeoutProperty;
+    private final String failedAuthenticationSecondsProperty;
+    private final String maxAuthenticationAttemptsProperty;
+    private final String protectedBranchesProperty;
 
     GitRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryMode repositoryMode) {
         super(properties, configPrefix, repositoryMode);
-        URI = configPrefix + URI_SUFFIX;
-        LOGIN = configPrefix + LOGIN_SUFFIX;
-        PASSWORD = configPrefix + PASSWORD_SUFFIX;
-        BRANCH = configPrefix + BRANCH_SUFFIX;
-        NEW_BRANCH_TEMPLATE = configPrefix + NEW_BRANCH_TEMPLATE_SUFFIX;
-        NEW_BRANCH_REGEX = configPrefix + NEW_BRANCH_REGEX_SUFFIX;
-        NEW_BRANCH_REGEX_ERROR = configPrefix + NEW_BRANCH_REGEX_ERROR_SUFFIX;
-        TAG_PREFIX = configPrefix + TAG_PREFIX_SUFFIX;
-        LISTENER_TIMER_PERIOD = configPrefix + LISTENER_TIMER_PERIOD_SUFFIX;
-        CONNECTION_TIMEOUT = configPrefix + CONNECTION_TIMEOUT_SUFFIX;
-        FAILED_AUTHENTICATION_SECONDS = configPrefix + FAILED_AUTHENTICATION_SECONDS_SUFFIX;
-        MAX_AUTHENTICATION_ATTEMPTS = configPrefix + MAX_AUTHENTICATION_ATTEMPTS_SUFFIX;
-        PROTECTED_BRANCHES = configPrefix + PROTECTED_BRANCHES_SUFFIX;
+        uriProperty = configPrefix + URI_SUFFIX;
+        loginProperty = configPrefix + LOGIN_SUFFIX;
+        passwordProperty = configPrefix + PASSWORD_SUFFIX;
+        branchProperty = configPrefix + BRANCH_SUFFIX;
+        newBranchTemplateProperty = configPrefix + NEW_BRANCH_TEMPLATE_SUFFIX;
+        newBranchRegexProperty = configPrefix + NEW_BRANCH_REGEX_SUFFIX;
+        newBranchRegexErrorProperty = configPrefix + NEW_BRANCH_REGEX_ERROR_SUFFIX;
+        tagPrefixProperty = configPrefix + TAG_PREFIX_SUFFIX;
+        listenerTimerPeriodProperty = configPrefix + LISTENER_TIMER_PERIOD_SUFFIX;
+        connectionTimeoutProperty = configPrefix + CONNECTION_TIMEOUT_SUFFIX;
+        failedAuthenticationSecondsProperty = configPrefix + FAILED_AUTHENTICATION_SECONDS_SUFFIX;
+        maxAuthenticationAttemptsProperty = configPrefix + MAX_AUTHENTICATION_ATTEMPTS_SUFFIX;
+        protectedBranchesProperty = configPrefix + PROTECTED_BRANCHES_SUFFIX;
 
         load(properties);
     }
 
     private void load(PropertiesHolder properties) {
-        uri = properties.getProperty(URI);
-        login = properties.getProperty(LOGIN);
-        password = properties.getProperty(PASSWORD);
-        branch = properties.getProperty(BRANCH);
-        tagPrefix = properties.getProperty(TAG_PREFIX);
-        listenerTimerPeriod = Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).map(Integer::parseInt)
-                .orElse(null);
-        connectionTimeout = Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).map(Integer::parseInt)
-                .orElse(null);
-        failedAuthenticationSeconds = Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS))
+        uri = properties.getProperty(uriProperty);
+        login = properties.getProperty(loginProperty);
+        password = properties.getProperty(passwordProperty);
+        branch = properties.getProperty(branchProperty);
+        tagPrefix = properties.getProperty(tagPrefixProperty);
+        listenerTimerPeriod = Optional.ofNullable(properties.getProperty(listenerTimerPeriodProperty))
                 .map(Integer::parseInt)
                 .orElse(null);
-        maxAuthenticationAttempts = Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS))
+        connectionTimeout = Optional.ofNullable(properties.getProperty(connectionTimeoutProperty))
+                .map(Integer::parseInt)
+                .orElse(null);
+        failedAuthenticationSeconds = Optional.ofNullable(properties.getProperty(failedAuthenticationSecondsProperty))
+                .map(Integer::parseInt)
+                .orElse(null);
+        maxAuthenticationAttempts = Optional.ofNullable(properties.getProperty(maxAuthenticationAttemptsProperty))
                 .filter(StringUtils::isNotBlank)
                 .map(Integer::parseInt)
                 .orElse(null);
-        newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
-        newBranchRegex = properties.getProperty(NEW_BRANCH_REGEX);
-        newBranchRegexError = properties.getProperty(NEW_BRANCH_REGEX_ERROR);
-        protectedBranches = properties.getProperty(PROTECTED_BRANCHES);
+        newBranchTemplate = properties.getProperty(newBranchTemplateProperty);
+        newBranchRegex = properties.getProperty(newBranchRegexProperty);
+        newBranchRegexError = properties.getProperty(newBranchRegexErrorProperty);
+        protectedBranches = properties.getProperty(protectedBranchesProperty);
     }
 
     public int getConnectionTimeout() {
@@ -211,42 +213,42 @@ public class GitRepositorySettings extends RepositorySettings {
 
         var clearLogin = StringUtils.isEmpty(login);
 
-        propertiesHolder.setProperty(URI, uri);
+        propertiesHolder.setProperty(uriProperty, uri);
 
         if (clearLogin) {
-            propertiesHolder.setProperty(LOGIN, "");
-            propertiesHolder.setProperty(PASSWORD, "");
+            propertiesHolder.setProperty(loginProperty, "");
+            propertiesHolder.setProperty(passwordProperty, "");
         } else {
-            propertiesHolder.setProperty(LOGIN, getLogin());
-            propertiesHolder.setProperty(PASSWORD, getPassword());
+            propertiesHolder.setProperty(loginProperty, getLogin());
+            propertiesHolder.setProperty(passwordProperty, getPassword());
         }
 
-        propertiesHolder.setProperty(BRANCH, branch);
-        propertiesHolder.setProperty(NEW_BRANCH_TEMPLATE, newBranchTemplate);
-        propertiesHolder.setProperty(NEW_BRANCH_REGEX, newBranchRegex);
-        propertiesHolder.setProperty(NEW_BRANCH_REGEX_ERROR, newBranchRegexError);
-        propertiesHolder.setProperty(TAG_PREFIX, tagPrefix);
-        propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
-        propertiesHolder.setProperty(CONNECTION_TIMEOUT, connectionTimeout);
-        propertiesHolder.setProperty(FAILED_AUTHENTICATION_SECONDS, failedAuthenticationSeconds);
-        propertiesHolder.setProperty(MAX_AUTHENTICATION_ATTEMPTS, maxAuthenticationAttempts);
-        propertiesHolder.setProperty(PROTECTED_BRANCHES, protectedBranches);
+        propertiesHolder.setProperty(branchProperty, branch);
+        propertiesHolder.setProperty(newBranchTemplateProperty, newBranchTemplate);
+        propertiesHolder.setProperty(newBranchRegexProperty, newBranchRegex);
+        propertiesHolder.setProperty(newBranchRegexErrorProperty, newBranchRegexError);
+        propertiesHolder.setProperty(tagPrefixProperty, tagPrefix);
+        propertiesHolder.setProperty(listenerTimerPeriodProperty, listenerTimerPeriod);
+        propertiesHolder.setProperty(connectionTimeoutProperty, connectionTimeout);
+        propertiesHolder.setProperty(failedAuthenticationSecondsProperty, failedAuthenticationSeconds);
+        propertiesHolder.setProperty(maxAuthenticationAttemptsProperty, maxAuthenticationAttempts);
+        propertiesHolder.setProperty(protectedBranchesProperty, protectedBranches);
     }
 
     @Override
     protected void revert(PropertiesHolder properties) {
         super.revert(properties);
 
-        properties.revertProperties(URI,
-                LOGIN,
-                PASSWORD,
-                BRANCH,
-                NEW_BRANCH_TEMPLATE,
-                NEW_BRANCH_REGEX,
-                NEW_BRANCH_REGEX_ERROR,
-                TAG_PREFIX,
-                LISTENER_TIMER_PERIOD,
-                PROTECTED_BRANCHES);
+        properties.revertProperties(uriProperty,
+                loginProperty,
+                passwordProperty,
+                branchProperty,
+                newBranchTemplateProperty,
+                newBranchRegexProperty,
+                newBranchRegexErrorProperty,
+                tagPrefixProperty,
+                listenerTimerPeriodProperty,
+                protectedBranchesProperty);
         load(properties);
     }
 }
