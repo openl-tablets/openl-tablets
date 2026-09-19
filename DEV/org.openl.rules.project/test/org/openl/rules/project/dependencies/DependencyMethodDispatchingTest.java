@@ -1,8 +1,10 @@
 package org.openl.rules.project.dependencies;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+
+import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,19 +27,16 @@ class DependencyMethodDispatchingTest {
         // AmbiguousMethodException can be retrieved in only the dispatching
         // mode based on methods selecting in java code
 
-         var factory = new SimpleProjectEngineFactoryBuilder()
+        var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/testMethodDispatching")
                 .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
         var method = interfaceClass.getMethod("hello1", int.class);
 
-        try {
-            method.invoke(factory.newInstance(), 10);
-            fail("Expected OpenlRuntimeException");
-        } catch (Exception e) {
-            assertTrue(e.getCause().getMessage().contains(AMBIGUOUS_METHOD_MESSAGE));
-        }
+        var instance = factory.newInstance();
+        var exception = assertThrows(InvocationTargetException.class, () -> method.invoke(instance, 10));
+        assertTrue(exception.getCause().getMessage().contains(AMBIGUOUS_METHOD_MESSAGE));
     }
 
     /**
