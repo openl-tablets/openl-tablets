@@ -130,7 +130,7 @@ public class ColumnMatchBuilder {
         // parse ids, row=0
         for (var c = 0; c < ids.getWidth(); c++) {
             String id = safeId(ids.getColumn(c).getSource().getCell(0, 0).getStringValue());
-            if (id.length() == 0) {
+            if (id.isEmpty()) {
                 // ignore column with NO ID
                 continue;
             }

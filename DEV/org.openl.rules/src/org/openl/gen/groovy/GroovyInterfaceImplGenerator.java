@@ -37,12 +37,12 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
         // If type has generic parameters we have to generate them as Object
         StringBuilder genericsPart = new StringBuilder();
         for (int i = 0; i < clazzInterface.getTypeParameters().length; i++) {
-            if (genericsPart.length() > 0) {
+            if (!genericsPart.isEmpty()) {
                 genericsPart.append(", ");
             }
             genericsPart.append(Object.class.getSimpleName());
         }
-        if (genericsPart.length() > 0) {
+        if (!genericsPart.isEmpty()) {
             fullRes[0] = fullRes[0] + "<" + genericsPart + ">";
         }
         System.arraycopy(defaultInterfaces, 0, fullRes, 1, fullRes.length - 1);

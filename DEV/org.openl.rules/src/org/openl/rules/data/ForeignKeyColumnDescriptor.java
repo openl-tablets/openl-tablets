@@ -135,7 +135,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 var valueTable = valuesTable.getRow(i);
                 var value = getCellStringValue(valueTable);
 
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     values.add(null);
                     continue;
                 }
@@ -272,7 +272,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 var valueTable = valuesTable.getRow(i);
                 var value = getCellStringValue(valueTable);
 
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     break;
                 }
 

@@ -232,7 +232,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         var root = new StringBuilder();
 
         for (String token : tokens) {
-            if (root.length() > 0) {
+            if (!root.isEmpty()) {
                 root.append(',');
             }
             root.append("dc=").append(token);

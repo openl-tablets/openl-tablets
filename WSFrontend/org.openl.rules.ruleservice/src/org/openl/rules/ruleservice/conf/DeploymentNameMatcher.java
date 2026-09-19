@@ -70,7 +70,7 @@ final class DeploymentNameMatcher {
             }
         }
 
-        return regex.length() > 0 ? Pattern.compile(regex.toString().replace("*", "\\E.*\\Q")) : null;
+        return !regex.isEmpty() ? Pattern.compile(regex.toString().replace("*", "\\E.*\\Q")) : null;
     }
 
     private boolean isBlankPattern(String pattern) {

@@ -81,7 +81,7 @@ class FullClassnameSupport {
                 String[] fullClassNames = new String[identifierChain.size()];
                 for (var j = 0; j < identifierChain.size(); j++) {
                     var syntaxNode1 = identifierChain.get(j);
-                    if (fullClassName.length() > 0) {
+                    if (!fullClassName.isEmpty()) {
                         fullClassName.append(".");
                     }
                     fullClassName.append(syntaxNode1.getText());
@@ -94,7 +94,7 @@ class FullClassnameSupport {
                         var originalFullClassName = new StringBuilder();
                         for (var k = 0; k < j + 1; k++) {
                             var syntaxNode1 = identifierChain.get(k);
-                            if (originalFullClassName.length() > 0) {
+                            if (!originalFullClassName.isEmpty()) {
                                 originalFullClassName.append(".");
                             }
                             originalFullClassName.append(

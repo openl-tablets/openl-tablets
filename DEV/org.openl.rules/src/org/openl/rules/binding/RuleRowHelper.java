@@ -64,7 +64,7 @@ public final class RuleRowHelper {
         var last = -1;
         for (var i = 0; i < height; i++) {
             var source = table.getRow(i).getSource().getCell(0, 0).getStringValue();
-            if (source != null && source.trim().length() != 0) {
+            if (source != null && !source.trim().isEmpty()) {
                 last = i;
             }
         }
@@ -174,7 +174,7 @@ public final class RuleRowHelper {
     }
 
     public static boolean isNumeric(final CharSequence cs) {
-        if (cs == null || cs.length() == 0) {
+        if (cs == null || cs.isEmpty()) {
             return false;
         }
         final var sz = cs.length();
@@ -352,7 +352,7 @@ public final class RuleRowHelper {
         // class does not know anything about Excel. Keep it storage format
         // agnostic (don't introduce excel dependencies). Also consider adding
         // meta info.
-        if (source != null && (source = source.trim()).length() != 0) {
+        if (source != null && !(source = source.trim()).isEmpty()) {
             var bindingContext = openlAdaptor.getBindingContext();
             if (openlAdaptor.getHeader() != null) {
                 var oldHeader = openlAdaptor.getHeader();

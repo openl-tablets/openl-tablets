@@ -286,7 +286,7 @@ public final class ClassUtils {
     }
 
     public static String capitalize(String name) {
-        if (name == null || name.length() == 0) {
+        if (name == null || name.isEmpty()) {
             return name;
         }
         if (name.length() > 1 && Character.isUpperCase(name.charAt(1))) {
