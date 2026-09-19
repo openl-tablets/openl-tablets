@@ -42,7 +42,7 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
 
     @Override
     public Constraint asConstraint() {
-        return this.equals(1);
+        return this.equalTo(1);
     }
 
     @Override

@@ -62,7 +62,7 @@ public class IntExpConst extends IntExpImpl {
      * @return <code> ConstraintConst(value == const)</code>
      */
     @Override
-    final public Constraint equals(int value) // this = value
+    final public Constraint equalTo(int value) // this = value
     {
         return new ConstraintConst(constrainer(), value == _const);
     }
