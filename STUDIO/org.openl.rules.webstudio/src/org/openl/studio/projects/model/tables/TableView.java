@@ -70,7 +70,7 @@ public abstract class TableView {
     }
 
     private static Map<String, Object> immutableProperties(Map<String, Object> properties) {
-        var copy = new LinkedHashMap<String, Object>(properties.size());
+        var copy = LinkedHashMap.<String, Object>newLinkedHashMap(properties.size());
         properties.forEach((name, value) -> copy.put(Objects.requireNonNull(name), Objects.requireNonNull(value)));
         return Collections.unmodifiableMap(copy);
     }

@@ -55,7 +55,7 @@ public enum XlsNodeTypes {
 
     static {
         XlsNodeTypes[] tmp = XlsNodeTypes.values();
-        var cache = new HashMap<String, XlsNodeTypes>(tmp.length);
+        var cache = HashMap.<String, XlsNodeTypes>newHashMap(tmp.length);
         for (XlsNodeTypes xlsNodeType : tmp) {
             cache.put(xlsNodeType.value, xlsNodeType);
         }

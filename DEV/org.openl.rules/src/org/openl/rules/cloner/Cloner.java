@@ -160,11 +160,11 @@ public class Cloner {
 
         var listCloner = CollectionCloner.<Collection<Object>>create(x -> new ArrayList<>(x.size()));
         var linkedListCloner = CollectionCloner.<Deque<Object>>create(x -> new LinkedList<>());
-        var setCloner = CollectionCloner.<Set<Object>>create(x -> new HashSet<>(x.size()));
-        var linkedHashSetCloner = CollectionCloner.<Set<Object>>create(x -> new LinkedHashSet<>(x.size()));
+        var setCloner = CollectionCloner.<Set<Object>>create(x -> HashSet.newHashSet(x.size()));
+        var linkedHashSetCloner = CollectionCloner.<Set<Object>>create(x -> LinkedHashSet.newLinkedHashSet(x.size()));
         var treeSetCloner = CollectionCloner.<SortedSet<Object>>create(x -> new TreeSet<>(x.comparator()));
-        var mapCloner = MapCloner.<Map<Object, Object>, HashMap<Object, Object>>create(x -> new HashMap<>(x.size()));
-        var linkedMapCloner = MapCloner.<Map<Object, Object>, LinkedHashMap<Object, Object>>create(x -> new LinkedHashMap<>(x.size()));
+        var mapCloner = MapCloner.<Map<Object, Object>, HashMap<Object, Object>>create(x -> HashMap.newHashMap(x.size()));
+        var linkedMapCloner = MapCloner.<Map<Object, Object>, LinkedHashMap<Object, Object>>create(x -> LinkedHashMap.newLinkedHashMap(x.size()));
         var treeMapCloner = MapCloner.<SortedMap<Object, Object>, TreeMap<Object, Object>>create(x -> new TreeMap<>(x.comparator()));
 
         cloners.put(ArrayList.class, listCloner);

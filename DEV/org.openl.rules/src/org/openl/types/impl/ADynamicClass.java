@@ -58,7 +58,7 @@ public abstract class ADynamicClass extends AOpenClass {
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
         Map<MethodKey, IOpenMethod> methodMap = super.initMethodMap();
         if (methodMap == STUB) {
-            methodMap = new HashMap<>(4);
+            methodMap = HashMap.newHashMap(4);
         }
 
         if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass) && isPublic(instanceClass)) {
@@ -109,7 +109,7 @@ public abstract class ADynamicClass extends AOpenClass {
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
         Map<MethodKey, IOpenMethod> constructorMap = super.initConstructorMap();
         if (constructorMap == STUB) {
-            constructorMap = new HashMap<>(1);
+            constructorMap = HashMap.newHashMap(1);
         }
         var cc = getInstanceClass().getDeclaredConstructors();
         for (Constructor<?> constructor : cc) {

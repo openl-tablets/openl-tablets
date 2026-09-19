@@ -312,7 +312,7 @@ public abstract class AOpenClass implements IOpenClass {
                     methodMap = initMethodMap();
                 }
                 if (methodMap == STUB) {
-                    methodMap = new HashMap<>(4);
+                    methodMap = HashMap.newHashMap(4);
                 }
             }
         }

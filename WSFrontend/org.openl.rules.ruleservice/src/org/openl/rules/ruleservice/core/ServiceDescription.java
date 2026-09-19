@@ -227,7 +227,7 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder setModules(Collection<Module> modules) {
             if (modules == null) {
-                this.modules = new HashSet<>(0);
+                this.modules = HashSet.newHashSet(0);
             } else {
                 this.modules = new HashSet<>(modules);
             }
@@ -257,7 +257,7 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder addModule(Module module) {
             if (this.modules == null) {
-                this.modules = new HashSet<>(0);
+                this.modules = HashSet.newHashSet(0);
             }
             if (module != null) {
                 this.modules.add(module);

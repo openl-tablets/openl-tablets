@@ -241,7 +241,7 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     @Override
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
         Map<MethodKey, IOpenMethod> constructors = super.initConstructorMap();
-        var constructorMap = new HashMap<MethodKey, IOpenMethod>(1);
+        var constructorMap = HashMap.<MethodKey, IOpenMethod>newHashMap(1);
         for (Entry<MethodKey, IOpenMethod> constructor : constructors.entrySet()) {
             var wrapped = wrapDatatypeOpenConstructor(constructor.getKey(), constructor.getValue());
             if (wrapped == constructor.getValue()) {

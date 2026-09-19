@@ -12,7 +12,7 @@ import java.util.WeakHashMap;
  * @author Yury Mmolchan
  */
 public final class StringPool {
-    static final WeakHashMap<String, WeakReference<String>> STRING_POOL = new WeakHashMap<>(5000);
+    static final WeakHashMap<String, WeakReference<String>> STRING_POOL = WeakHashMap.newWeakHashMap(5000);
 
     /**
      * No instantiation.
