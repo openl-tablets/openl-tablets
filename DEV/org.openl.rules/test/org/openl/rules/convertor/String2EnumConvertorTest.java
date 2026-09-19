@@ -1,7 +1,6 @@
 package org.openl.rules.convertor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -27,7 +26,7 @@ class String2EnumConvertorTest {
     void testParseOtherEnum() {
         var converter = new String2EnumConvertor<EnumRes>(EnumRes.class);
         var result = converter.parse("Val3", null);
-        assertNotEquals(EnumVal.Val3, result);
+        assertEquals(EnumRes.Val3, result);
     }
 
     @Test
