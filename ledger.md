@@ -2,29 +2,29 @@
 
 ## Resume point
 
-- Main is `1c60f08da6` after PR #2135 merged. Sweep the next delta from `1c60f08da6`; 0 commits means ledger
-  upkeep only. No vein is open and no PR is open.
-- A full re-sweep is not worth a run until main moves substantially; every vein under Exhausted veins is
-  exhausted at `000e6d889f`, plus container registrations at `1dc89c91e0`.
+- Main is `abb3d5ae81`. On user instruction a FULL repo-wide re-sweep of all 13 change types ran at this SHA over
+  every module; it found ZERO deletable items, so there is no commit, no branch and no open PR.
+- Default back to a delta sweep from `abb3d5ae81`; 0 new commits on main means ledger upkeep only. A second full
+  re-sweep costs ~95 min (25 min build + 30 min PMD + detectors) and earns nothing until main moves substantially.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
 
 | # | Change type | Status |
 |---|-------------|--------|
-| 1 | Commented-out code (Java, CSS, JS, TS) | done; remaining hits are prose or parked calls with a rationale |
+| 1 | Commented-out code (Java, CSS, JS, TS) | done; 7 blocks, all prose or parked calls with a rationale |
 | 2 | Never-read assignments, dead stores | done; 14 PMD hits, all documented FPs |
 | 3 | Unused locals, private fields/methods/params | done; 14 PMD hits, all documented FPs |
-| 4 | Unused Maven dependency declarations | done; 530 analyze hits, all FPs |
-| 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | done |
-| 7 | Unreferenced resources (descriptors, config files, images) | done; 634 candidates, 0 unreferenced |
-| 8 | CSS rules and inline styles | done |
-| 9 | Legacy JS functions and pages | done; no legacy JS or pages exist |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done (PR #2129 merged); 1 key of 1,590 |
-| 11 | TypeScript exports, types, components, imports | done; 1,094 exports, all referenced |
+| 4 | Unused Maven dependency declarations | done; 569 analyze hits, all FPs |
+| 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done; 6 hits, all plugin-read flags |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; constant guards are named arguments |
+| 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
+| 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
+| 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 1,583 keys, 113 flagged, all template-resolved |
+| 11 | TypeScript exports, types, components, imports | done; 1,151 exports, 0 dead |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
-| 13 | Package-private/protected members and unreferenced internal classes | done; 0 non-public dead types |
+| 13 | Package-private/protected members and unreferenced internal classes | done; 0 non-public dead members |
 
 ## Open PR
 
@@ -32,20 +32,18 @@
 
 ## Merged PRs
 
-- #2120 merged 2026-09-17: 7 commits, -487/+2, across commented-out code, locale keys, a test workbook, dead
-  `@SuppressWarnings`, spring-security-core in security.standalone, AspectJ managed versions and webstudio members.
-- #2129 merged 2026-09-17: 1 commit, -1 line, the dead `users:edit_modal.cancel` locale key.
-- #2134 merged 2026-09-18: 1 commit, -87 lines, SessionTimeoutFilter and its web.xml registration.
-- #2135 merged 2026-09-18 (main `1c60f08da6`): 1 commit, -54/+1, the whole session passivation path down to
-  `UserWorkspace.passivate` and both impls. A removal proven by unreachable behaviour rather than by non-reference
-  is accepted on that evidence alone — twice now. Public API deferred under rail 8.2 is worth naming in the PR
-  body: the maintainer released passivate straight off the "Deliberately kept" line. He also asked to drop
-  `activate()`; it was kept because `RulesUserSession.getUserWorkspace()` calls it, and he merged without pressing.
+- #2120: 7 commits, -487/+2, across commented-out code, locale keys, a test workbook, dead `@SuppressWarnings`,
+  spring-security-core in security.standalone, AspectJ managed versions and webstudio members.
+- #2129: 1 commit, -1 line, the dead `users:edit_modal.cancel` locale key.
+- #2134: 1 commit, -87 lines, SessionTimeoutFilter and its web.xml registration.
+- #2135: 1 commit, -54/+1, the whole session passivation path down to `UserWorkspace.passivate` and both impls.
+  A removal proven by unreachable behaviour rather than by non-reference is accepted on that evidence alone.
+  `activate()` stays: `RulesUserSession.getUserWorkspace()` calls it, and the maintainer merged without pressing.
 - The maintainer merges a small, well-evidenced sweep PR within the hour, before CI finishes; do not wait on green.
 
 ## Module coverage
 
-- All 86 reactor modules, studio-ui, Docs and DEMO scanned for every change type at `000e6d889f`; nothing left open.
+- All 86 reactor modules, studio-ui, Docs and DEMO scanned for every change type at `abb3d5ae81`; nothing open.
 
 ## Deferred findings
 
@@ -58,7 +56,8 @@
   ZonedDateTimeToDateConvertor, RuleServicePublisherMapper, AppPropertiesServlet, CXFServlet;
   ProjectVersion.getVersionComment and VersionInfo.getEmailCreatedBy with their fields; SimpleGroup.description.
 - 564 further public members are unreferenced in bytecode; all are published API and stay.
-- ExpressionFactoryImpl.findExpression is compiled out by the constant `_getFromCache = false`: a cache toggle.
+- ExpressionFactoryImpl `_getFromCache` and `_putInCache` are both `= false`, compiling out findExpression and the
+  cache writes: a cache toggle pair, not dead code.
 - MergeResult record: `status` component ignored by the compact constructor; removal changes a public record signature.
 - `STUDIO/org.openl.rules.diff/doc/Diff Algorithm.xlsx`: unreferenced design material, not code.
 - `org.eclipse.jetty:jetty-home` managed entry: in no dependency tree and declared by no pom; the DEMO scripts fetch
@@ -71,25 +70,34 @@
 
 - A detector that picks text files by an extension allowlist silently drops whole formats: `.webmanifest` was
   missing and reported 18 live resources dead. Select text by "no NUL byte in the first 8 KB" instead — that took
-  the corpus from 7,089 to 13,790 files and the 18 findings to zero.
+  the corpus from 7,089 to 13,856 files and the 18 findings to zero.
 - javac inlines `static final` primitive and String constants, so a bytecode scan never sees a read and reports
-  every such field dead. Judge constants by source text, never by bytecode.
+  every such field dead: 1,097 of 1,515 raw hits. Judge constants by source text, never by bytecode.
 - Lombok-generated accessors exist in bytecode but not in source: require the member name to appear in its own
   `.java` file before treating a bytecode hit as deletable.
 - i18next resolves `t(key, {count})` to `key_one`/`key_other`, which no literal names: treat a plural suffix pair
-  whose base is used as alive. Template keys likewise — `status_${s}`, `browser.access.role_${r}`,
+  whose base is used as alive. Template keys likewise — `status_${s}`, `browser.access.role_${r}`, `role.${r}`,
   `browser.module.edit_${key}`, `editor_kind_${x}`, `range_${p}`, `view_${n}`, `browser.compile.${state}`,
-  `browser.${id}_confirm`, `browser.files.change.${t}`, `tests.${kind}`, `notifications.${kind}_deleted`,
-  `debug.status.*`, `fill_preview.state.*`, `create_table_modal.types.*`, `update_project_modal.*_hint`,
-  `details_inherited_${level}`. Check the union type feeding the template: it names exactly the live keys.
+  `browser.${id}_confirm`, `browser.files.change.${t}`, `tests.${kind}`, `tests.no_${kind}`,
+  `notifications.${kind}_deleted` with `_deleted_description`/`_delete_failed` siblings, `debug.status.*`,
+  `fill_preview.state.*`, `create_table_modal.types.*`, `create_table_modal.blocked.*`,
+  `update_project_modal.*_hint`, `details_inherited_${level}`. Check the union type feeding the template: it names
+  exactly the live keys. Search for the `no_`/prefix form too — a bare tail search misses `tests.no_${kind}`.
 - An exported TS type used only inside its own file looks unimported; that makes the `export` redundant, not the
-  type dead. Count occurrences including the defining file.
+  type dead. Same for a `const`/function used only in its own file. Removing `export` is a rename, not a deletion.
+- A leading positional callback parameter reported by `tsc --noUnusedParameters` or PMD `UnusedFormalParameter` is
+  never removable: dropping it shifts the parameter that IS used (`Array.from(…, (unused, column) => …)`,
+  a mock's `(url, options)`).
+- A pom `<properties>` entry with no `${...}` dereference may still be read by a plugin by name:
+  `lombok.delombok.skip`, `archetype.test.skip`, `invoker.skip`. Check the plugin before calling it dead.
 - A private or package member whose name appears in any string literal is reflective (`@MethodSource`, JAXB, OpenL
   datatype binding): filter bytecode hits on Java string literals, non-Java text and workbook strings.
 - Getter/setter hits must also be checked by property name: Jackson DTOs (RepositorySettings, `*Append.setTableType`,
   SupportedFeaturesModel) and OpenL datatype beans are bound by `basePath`, not `setBasePath`.
 - JAXB private `beforeMarshal`/`afterUnmarshal` run reflectively; Spring MVC handlers have no Java caller; record
   component accessors and generic bridge overrides (`InputStats.getAvgX` erasing to Number) are alive.
+- A top-level type whose simple name occurs only in its own file is still alive when a framework names it: JUnit by
+  file pattern, Spring by classpath scan, and `@Mojo` by the plugin descriptor (the 4 openl-maven-plugin mojos).
 - PMD UnusedAssignment blind spots: constructor early return (CellStyle), a value read back through a callback
   (DynamicPropertySource.settings), a field read by a getter (AProjectCreator), `key = null` before `System.gc()`,
   publish-before-block stores (DebugChannel, DebugHookImpl), a re-entrancy store (ServiceManagerImpl.deploy),
@@ -102,41 +110,46 @@
   `instanceof` or a raw type argument. Keys javac does not know (`unused`, `resource`, `squid:*`,
   `NullableProblems`, Error Prone names) are IDE or Sonar keys, judged by that tool.
 - Reflection fixtures asserted by name: epbds6830 BeanA.getAB, AOpenClassTest.getC, JavaOpenClassTest.gg, MyProp
-  fields named in a binary .xls, YamlMapperFactoryTest transient fields, InterfaceTransformerTest.TestInterface.
+  fields named in a binary .xls, YamlMapperFactoryTest transient fields, InterfaceTransformerTest.TestInterface,
+  JsonUtilsTest key/value/field.
 - Bundle conventions: ValidationMessages `openl.error.<status>.<code>.message` (code composed in Java), sql-errors
   keyed by vendor error code, `openl-default.properties` keys composed as `repo-<id>.` and `$ref` indirection.
 - Resource stems alive by convention: Flyway `db/flyway/**`, `META-INF/openl/extension-*.xml`,
-  `openl-db-repository-<code>.properties`, `rapi-doc/rapidoc-min.js`, `site.webmanifest` icons.
-- dependency:analyze FPs, all confirmed again at `000e6d889f`: a module that declares no `<dependencies>` of its own
-  still gets findings from its parent (storelogdata.db.annotation and kafka-clients); inherited test harness;
-  provided/CLASS-retention annotations and processors; runtime providers named from configuration (all five in
-  security.standalone are instantiated by name in `security-hibernate-beans.xml`); aggregators (swagger-parser);
-  wars and jdbc drivers an ITEST needs only to boot a server; transitive providers of undeclared uses.
+  `openl-db-repository-<code>.properties`, `rapi-doc/rapidoc-min.js`, `site.webmanifest` icons,
+  `META-INF/maven/archetype-metadata.xml`, `compose.override.example.yaml`.
+- dependency:analyze FPs, confirmed a third time at `abb3d5ae81`: a module declaring no `<dependencies>` still
+  gets findings from its parent; inherited test harness (junit-jupiter, junit-pioneer, mockito-junit-jupiter,
+  log4j-to-slf4j are 296 of the 569); provided annotations and processors (jspecify, lombok); runtime providers
+  named from configuration (the five in security.standalone via `security-hibernate-beans.xml`; maven-scm;
+  cxf-rt-features-logging; the Azure SDK's jackson dataformats and reactor-core); aggregators (swagger-parser,
+  Web Services (all), the Maven Plugin); wars and jdbc drivers an ITEST needs only to boot a server.
 - A managed entry no pom declares is a transitive version pin: judge it by `dependency:tree -Dverbose -Pitest` over
   all modules, not by declaration. An `exclusion` is judged by resolving its parent alone in a scratch pom.
 
 ## Method rules
 
 - Build the whole repo once per run: `LANG=C.UTF-8 mvn clean install -Dquick -DnoPerf -T2
-  -Daether.syncContext.named.time=600` online, 23 min from a cold `~/.m2`. Unset `gpg.format` and `commit.gpgsign`
-  globally first or JGit tests die.
+  -Daether.syncContext.named.time=600`. 25 min with a warm `~/.m2`, 23 min cold. Unset `gpg.format` and
+  `commit.gpgsign` globally first or JGit tests die.
 - Build one identifier-frequency index over the whole tree once (regex `[A-Za-z_$][\w$]*` per file, into a
   Counter) and answer every "is this name used" question from it: 2 seconds, versus hours of per-name scanning.
   A name whose total count equals its declaration count is unreferenced.
+- Never name a scratch script after a stdlib module — `.toDelete/types.py` breaks every `import` in the run.
 - Never edit the working tree while any Maven run is active, including `test-compile`-bound detector runs; never
   rebase during a build either, because a rebase checks out intermediate trees.
 - PMD needs reactor artifacts and the plugin is not in a cold `~/.m2`, so run it online with the fully qualified
   goal: `mvn test-compile org.apache.maven.plugins:maven-pmd-plugin:3.28.0:pmd dependency:analyze-only -Pitest
-  -fae -T2 -Dquick -DnoPerf -pl '!STUDIO/studio-ui'`. A `pmd:` prefix fails to resolve offline.
+  -fae -T2 -Dquick -DnoPerf -pl '!STUDIO/studio-ui'`. A `pmd:` prefix fails to resolve offline. 30 min, 75 reports.
 - Add maven-pmd-plugin 3.28.0 under root `<build><plugins>` with `includeTests` and the ruleset at
   `${maven.multiModuleProjectDirectory}/.toDelete/pmd-dead-code.xml`; parse every `target/pmd.xml`; ignore
   `target/generated-sources`; restore the pom with `git checkout -- pom.xml`.
-- Bytecode scan: ~180-line ASM program (asm 9.10.1 from `~/.m2`) over every `target/classes` and
+- Bytecode scan: ~120-line ASM program (asm 9.10.1 from `~/.m2`) over every `target/classes` and
   `target/test-classes`; record invocations, field access, method handles, invokedynamic args and `ldc` strings;
   drop annotated members, overrides (unknown third-party supertype counts as override), names in literals. Then
-  apply the constant-inlining and Lombok filters above — without them it reports 1,568 members, with them 0.
-- `pkill -f <script>.py` from a Bash tool call kills the calling shell too, because the pattern matches the shell's
-  own command line. Anchor it (`pkill -f 'name[.]py'`).
+  apply the constant-inlining and Lombok filters above — 5,162 classes, 53,375 members, 1,515 raw hits, 0 survivors.
+- Chain the install and the PMD run in one detached `setsid nohup` script that touches a DONE file; poll that file,
+  never the log's last line. `pkill -f <script>.py` from a Bash tool call kills the calling shell too, because the
+  pattern matches the shell's own command line. Anchor it (`pkill -f 'name[.]py'`).
 - A class named only by a container registration (`web.xml` filter/servlet/listener, `@WebFilter`) is NOT proven
   alive by that reference: judge it by whether its behaviour is still reachable. SessionTimeoutFilter was mapped to
   `/*` yet could never act. Ask what removed the consumers (here: zero `.xhtml` left after the React migration).
@@ -147,6 +160,8 @@
   listener never fires. Prove such claims by unzipping the container jar and reading `javap -c`, not from the spec.
 - A servlet guard pairing `isRequestedSessionIdValid()` with `getSession(false) == null` is unsatisfiable by the
   servlet contract: a valid requested id always yields that session. Read filter guards for contradictions.
+- A `private static final boolean` is only a dead-branch lead when it gates an `if`; the ones here are named
+  arguments passed to a setter (EnabledAclConfiguration.ALC_CLASS_ID_SUPPORTED) or public API constants.
 - CodeRabbit's `Docstring Coverage` pre-merge check fails every deletion-only PR: it scores the functions inside
   the touched hunks, which on a sweep PR are the removed ones, so the metric is unreachable without adding JavaDoc
   to untouched methods. Decline it by comment citing `git diff -U0`; never widen a sweep PR to satisfy it.
@@ -159,14 +174,16 @@
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p`
   for workbooks; a `.xls` is searched as latin-1 and UTF-16 bytes. Use `git ls-files`, never a raw `grep -r`:
   untracked build output (`STUDIO/studio-ui/dist/`) otherwise answers every query.
+- A docs tree reached only through a directory link (`README.MD` → `examples/` → its `index.md` → the subfolder) is
+  alive: count a link to the PARENT directory, not just to the file, before calling a Docs page unreferenced.
 - Removing members is a fixpoint: re-check fields, private helpers, constructor parameters and imports the removal
   orphaned. SonarCloud's "new issues" on the PR (`sonarcloud.io/api/issues/search?componentKeys=
   org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`, no auth) list exactly those: read it after
   every push.
 - Stage every commit by explicit path (`git add -- <files>`); a `git rm` staged earlier rides into the next commit
   otherwise. Never `git diff --cached --stat A B` (invalid); use `git show --stat`.
-- Frontend gate: `npx tsc --noEmit --noUnusedLocals`, `npx vitest run <area>`. Both need `node_modules`, which the
-  reactor build populates; run them after it, never beside it.
+- Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters`, `npx vitest run <area>`. Both need
+  `node_modules`, which the reactor build populates; run them after it, never beside it.
 
 ## Keep-list
 
@@ -175,7 +192,8 @@
 - Jackson-bound webstudio models keep every accessor: RepositorySettings, AWSS3RepositorySettings,
   GitRepositorySettings, `*Append`, SettingValueWrapper, SupportedFeaturesModel.
 - Convention files: Flyway migrations, `META-INF/openl/extension-*.xml`, `openl-db-repository-*.properties`, static
-  rapi-doc, site.webmanifest icons, `META-INF/services/**`, ITEST `application-*.properties` (Spring profiles).
+  rapi-doc, site.webmanifest icons, `META-INF/services/**`, ITEST `application-*.properties` (Spring profiles),
+  archetype `archetype-metadata.xml`, `compose.override.example.yaml`.
 - Config defaults in `openl-default.properties` are documented in Docs guides and composed at runtime; all alive.
 - Demo project workbooks under `STUDIO/org.openl.rules.demo/src/**` and
   `webstudio/test/rules/decisionTableIndexes/` are folder-loaded.
@@ -185,6 +203,7 @@
 - A parked call that carries its own rationale comment is a documented decision, not dead code:
   `ResultExport.validateMergedRegions` (EPBDS-7848), `trackAllColumnsForAutoSizing`, the `intern()` TODO in
   RuleRowHelper, the bulk OpenAPI rewrite block in ITEST `HttpClient`.
+- `Docs/examples/**` (index.md, k8s, production) is linked from `Docs/README.MD` as a directory.
 
 ## CI flakes
 
@@ -193,24 +212,20 @@
 - IT (services-data) flake, HIGH RATE: `apache/kafka-native:latest` exits code 1 in its own `setup`, GraalVM
   segfault at `Pwd.getpwuid`; Testcontainers then times out on "RECOVERY to RUNNING". The job starts the container
   once per suite, so any of Kafka Smoke / WS Tracing / WS Store Log Data can be the victim, a different one each
-  time. Observed 3 failures in 4 runs across two SHAs, i.e. roughly one container start in three dies. Budget two
-  reruns per SHA and expect to need them; repeated failures here are still the flake, not a regression. On #2135
-  it cost 4 failures and 3 reruns across two SHAs before going green. Already explained in that PR's comments —
-  re-run, never re-comment.
-- Before calling such a failure a tag regression, check whether ANOTHER PR ran the same job in the same window:
-  #2132 passed it at 07:51 between this PR's 07:42 and 08:03 failures, which disproved exactly that theory.
-  A repo-wide claim needs a repo-wide check; the base branch's own `Build` workflow is a multi-JDK matrix that
-  has been red since August for unrelated reasons, so it proves nothing either way.
+  time. Roughly one container start in three dies. Budget two reruns per SHA and expect to need them; repeated
+  failures here are still the flake, not a regression. On #2135 it cost 4 failures and 3 reruns across two SHAs.
+- Before calling such a failure a tag regression, check whether ANOTHER PR ran the same job in the same window;
+  that disproved exactly that theory on #2135. The base `Build` workflow is a multi-JDK matrix red since August.
 - Tests (without ITEST): `ModuleWorkspace.test.tsx` two cases on `module-workspace-error` fail on the CI runner
   while the same tree passes all studio-ui tests locally.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
   `test-resources/... - FAIL` and the cause with `ORA-|SQLException|expected: <`.
 - The `Sonar analysis` job is skipped when any job of the run fails, so a red flake also hides Sonar's verdict on
   that head; `sonarcloud.io/api/project_pull_requests/list?project=org.openl.rules:openl-tablets` names the SHA.
-- `rerun_failed_jobs` returns 403 "This workflow is already running" while ANY job of the run is still in flight;
-  wait for the run to finish, then retry. It also reuses the workspace, so exec files left truncated by the crashed attempt make the later
-  `Sonar analysis` die in `report-aggregate` with "Unknown block type f9". That is corrupt jacoco data, not a
-  quality gate. Re-running Sonar alone re-reads the same files; rebase onto main for a fresh run instead.
+- `rerun_failed_jobs` returns 403 "This workflow is already running" while ANY job of the run is in flight; wait
+  for the run to finish. It reuses the workspace, so exec files truncated by the crashed attempt make the later
+  `Sonar analysis` die in `report-aggregate` with "Unknown block type f9" — corrupt jacoco data, not a quality
+  gate. Re-running Sonar alone re-reads the same files; rebase onto main instead.
 
 ## Container facts
 
@@ -221,32 +236,37 @@
 - Error Prone's Unused checks are not enabled in the build, so PMD and the bytecode scan are the Java detectors;
   javac options go into the root pom's compilerArgs, never on the `mvn` command line.
 - 4 cores, 15 GB RAM: `-T2` for the reactor. `npx tsc` runs fine beside Maven, vitest does not.
-- `.toDelete/` is gitignored: keep the PMD ruleset and scratch poms there. `~/.m2` starts empty in every container.
+- `.toDelete/` is gitignored: keep the PMD ruleset, scratch poms and detector scripts there. `~/.m2` and
+  `STUDIO/studio-ui/node_modules` may already be warm — check before budgeting a cold build.
 - A detached `setsid nohup script.sh` survives the tool timeout; wait on the process, not on the log's last line.
 - Edit the ledger through `git worktree add` on `origin/dead-code/ledger`, never by switching the sweep branch.
 
 ## Exhausted veins
 
+- ALL 13 change types re-swept repo-wide at `abb3d5ae81` over 86 reactor modules, studio-ui, Docs and DEMO, with
+  zero findings: commented-out code, PMD 5 rules (28 hits), ASM member scan (5,162 classes / 53,375 members),
+  whole-type scan (4,148 types), identifier index (13,856 text files), resources and images by name and stem,
+  message bundles and locales, config defaults, TS exports plus `tsc --noUnusedLocals --noUnusedParameters`,
+  dependency:analyze-only (569 hits), pom properties, managed entries, exclusions, managed plugins,
+  `@SuppressWarnings`, constant boolean guards, `.editorconfig`, `.gitignore`, Docs page graph and DEMO css.
+  Three consecutive exhaustive runs found nothing; sweep only the delta from here.
 - Container registrations audited for behavioural deadness at `1dc89c91e0`: webstudio web.xml (4 filters,
   3 listeners) and all 8 `@WebFilter`/`@WebServlet` classes in webstudio and ruleservice.ws. One finding
   (PR #2135); everything else is reachable. Re-run only when a registration is added or a consumer removed.
-- At `000e6d889f`: commented-out code (all sources), PMD 5 rules over 86 modules and ITEST, ASM member scan over
-  5,150 classes in 106 output dirs, whole-type scan over 4,021 Java files, identifier count-1 scan, resources and
-  images by name and stem over text and binaries, all message bundles and locales (1,590 studio-ui keys plus the
-  Java bundles), config defaults, TS export scan (1,094 names), dependency:analyze-only over the whole reactor,
-  managed entries and exclusions by tree, managed plugins, `@SuppressWarnings` by `-Xlint`, `.editorconfig`,
-  `.gitignore`, Docs page graph, DEMO css, and every studio-ui `package.json` dependency.
 
 ## Human follow-ups
 
 - `site.webmanifest` in `WSFrontend/org.openl.rules.ruleservice.ws/resources/static/` and
   `STUDIO/studio-ui/public/icons/` names the 512x512 icon `android-chrome-512x512.pngs` (trailing `s`), so that
   icon resolves in neither module. The DEMO copy is correct. A typo to fix, not dead code — raised on PR #2129,
-  still unfixed on main; re-raise it if a maintainer has not acted.
+  still unfixed on main at `abb3d5ae81`.
 - `CorsFilter` is registered twice: `@WebFilter("/*")` (default name = the FQCN) and web.xml's `CorsFilter`. The
   names differ, so both registrations apply and the filter runs twice per request, adding each `Access-Control-*`
   header twice; browsers reject a duplicated `Access-Control-Allow-Origin`. Latent while `cors.allowed.origins` is
-  unset. De-duplicating changes behaviour, so it is a fix, not a deletion. Raised on PR #2135.
+  unset. De-duplicating changes behaviour, so it is a fix, not a deletion. Raised on PR #2135, still unfixed.
+- `Docs/examples/production/` and `Docs/production-deployment/` are two 320K near-identical copies of the same
+  example tree, differing only in a README. Both are reachable from the docs index, so neither is dead; merging
+  them is an editorial decision for a maintainer.
 - Request to swap `de.qaware.xff.filter.ForwardedHeaderFilter` (artifact `org.openl:x-forwarded-filter:2.0`) for
   Spring's `org.springframework.web.filter.ForwardedHeaderFilter` is BLOCKED and was not done: the root pom
   documents the opposite decision ("Neither Spring filter, nor CXF filter works correctly within the same reverse
@@ -272,7 +292,9 @@
 
 ## Run log
 
-- 2026-09-18: delta sweep of 7 commits found nothing; on user instruction removed SessionTimeoutFilter in PR #2134,
-- 2026-09-18 b: main unmoved, so the run worked the container-registration vein: SessionListener's activation
 - 2026-09-18 b: container-registration vein worked; PR #2135 removed the session passivation path and merged.
   Cost 4 kafka flakes / 3 reruns / 1 rebase. One wrong escalation (claimed the kafka image regressed) self-corrected.
+- 2026-09-19: user asked for a full repo-wide sweep instead of the delta. All 13 change types re-run over every
+  module at `abb3d5ae81`; whole-repo build green; zero deletable findings, so no commit and no PR. Added 4 FP
+  shapes (positional callback params, plugin-read pom properties, `tests.no_${kind}`, docs directory links) and
+  one human follow-up (duplicated Docs production example tree).
