@@ -226,24 +226,8 @@ public class Version implements Comparable<Version> {
         new Parser(s, from).parseVersion();
     }
 
-    public void setBuild(int i) {
-        version[BUILD] = i;
-    }
-
-    public void setMajor(int i) {
-        version[MAJOR] = i;
-    }
-
-    public void setMinor(int i) {
-        version[MINOR] = i;
-    }
-
     public void setPattern(String string) {
         pattern = string;
-    }
-
-    public void setVariant(int i) {
-        version[VARIANT] = i;
     }
 
     @Override
