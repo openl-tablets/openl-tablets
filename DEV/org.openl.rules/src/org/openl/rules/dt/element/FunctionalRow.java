@@ -41,7 +41,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullOpenClass;
-import org.openl.types.NullParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -288,16 +287,12 @@ public abstract class FunctionalRow implements IDecisionRow {
                         openl,
                         bindingContext);
 
-                if (parameterDeclaration == null) {
-                    params[i] = NullParameterDeclaration.the;
-                } else {
-                    var paramName = parameterDeclaration.getName();
-                    if (!paramsUniqueNames.add(paramName)) {
-                        BindHelper.processError("Duplicated parameter name: " + paramName, source, bindingContext);
-                    }
-                    params[i] = parameterDeclaration;
-                    paramInitialized.set(i);
+                var paramName = parameterDeclaration.getName();
+                if (!paramsUniqueNames.add(paramName)) {
+                    BindHelper.processError("Duplicated parameter name: " + paramName, source, bindingContext);
                 }
+                params[i] = parameterDeclaration;
+                paramInitialized.set(i);
             }
         }
     }
