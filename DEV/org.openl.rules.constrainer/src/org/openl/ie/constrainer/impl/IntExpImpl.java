@@ -70,7 +70,7 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     }
 
     @Override
-    public Constraint equals(int value) // this == value
+    public Constraint equalTo(int value) // this == value
     {
         return new ConstraintExpEqualsValue(this, value);
     }

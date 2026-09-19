@@ -94,7 +94,7 @@ public interface IntExp extends Expression {
     /**
      * Returns the constraint: <code>(this == value)</code>.
      */
-    Constraint equals(int value);
+    Constraint equalTo(int value);
 
     /**
      * Returns the boolean expression: <code>(this >= value)</code>.

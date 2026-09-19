@@ -98,7 +98,7 @@ public class DTCheckerImpl implements DTChecker {
             for (var i = 0; i < rules.length; i++) {
                 ruleArray.set(rules[i], i);
             }
-            var incompleteness = ruleArray.sum().equals(0);
+            var incompleteness = ruleArray.sum().equalTo(0);
             var save = new GoalSaveSolutions(c);
             var generate = new GoalGenerate(_dt.getVars());
             var target = new GoalAnd(new GoalAnd(incompleteness, generate), save);

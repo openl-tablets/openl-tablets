@@ -29,8 +29,9 @@ public class ChoicePointLabel implements Serializable {
         _label = label;
     }
 
-    public boolean equals(ChoicePointLabel cpl) {
-        return _label == cpl._label && _c == cpl._c;
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ChoicePointLabel cpl && _label == cpl._label && _c == cpl._c;
     }
 
     @Override
