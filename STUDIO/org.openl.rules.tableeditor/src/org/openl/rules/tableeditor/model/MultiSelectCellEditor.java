@@ -1,5 +1,8 @@
 package org.openl.rules.tableeditor.model;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -30,6 +33,29 @@ public class MultiSelectCellEditor implements ICellEditor {
      */
     public record MultiChoiceParam(String[] choices, String[] displayValues, String separator,
                                    String separatorEscaper) {
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof MultiChoiceParam(
+                    var otherChoices, var otherDisplayValues, var otherSeparator, var otherSeparatorEscaper
+            ) && Arrays.equals(choices, otherChoices)
+                    && Arrays.equals(displayValues, otherDisplayValues)
+                    && Objects.equals(separator, otherSeparator)
+                    && Objects.equals(separatorEscaper, otherSeparatorEscaper);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(Arrays.hashCode(choices), Arrays.hashCode(displayValues), separator,
+                    separatorEscaper);
+        }
+
+        @Override
+        public String toString() {
+            return "MultiChoiceParam[choices=%s, displayValues=%s, separator=%s, separatorEscaper=%s]"
+                    .formatted(Arrays.toString(choices), Arrays.toString(displayValues), separator,
+                            separatorEscaper);
+        }
     }
 
 }

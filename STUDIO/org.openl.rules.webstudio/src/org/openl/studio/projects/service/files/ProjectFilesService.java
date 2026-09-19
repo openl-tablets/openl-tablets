@@ -3,7 +3,9 @@ package org.openl.studio.projects.service.files;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -171,6 +173,23 @@ public interface ProjectFilesService {
      * A file to upload: its folder-relative name and content bytes.
      */
     record UploadedFile(String name, byte[] content) {
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof UploadedFile(var otherName, var otherContent)
+                    && Objects.equals(name, otherName)
+                    && Arrays.equals(content, otherContent);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * Objects.hashCode(name) + Arrays.hashCode(content);
+        }
+
+        @Override
+        public String toString() {
+            return "UploadedFile[name=%s, content=%d bytes]".formatted(name, content == null ? 0 : content.length);
+        }
     }
 
     /**
