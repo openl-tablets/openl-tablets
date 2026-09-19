@@ -91,7 +91,7 @@ public abstract class TableView {
 
     protected abstract int getBodyWidth();
 
-    public static abstract class Builder<T extends Builder<T>> {
+    public abstract static class Builder<T extends Builder<T>> {
         private String id;
         private String tableType;
         private TableKind kind;

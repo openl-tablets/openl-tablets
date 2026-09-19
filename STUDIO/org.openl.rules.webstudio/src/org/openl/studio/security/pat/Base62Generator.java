@@ -19,7 +19,7 @@ public final class Base62Generator {
     private static final char[] ALPHABET =
             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
 
-    private final static SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private Base62Generator() {
     }

@@ -10,7 +10,7 @@ import java.util.function.Function;
  */
 class ArrayCloner implements ICloner<Object> {
 
-    final static ICloner<Object> theInstance = new ArrayCloner();
+    static final ICloner<Object> theInstance = new ArrayCloner();
 
     @Override
     public Object getInstance(Object source) {

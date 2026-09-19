@@ -27,7 +27,7 @@ import org.openl.util.IOUtils;
  */
 public class DefaultRepositoryFactoryProxy implements RepositoryFactoryProxy {
 
-    private final static String REPOSITORY_DEFAULT_BASE_PATH_TEMPLATE = RepositoryConfiguration.REPOSITORY_DEFAULT_PREFIX + "%s" + RepositorySettings.BASE_PATH_SUFFIX;
+    private static final String REPOSITORY_DEFAULT_BASE_PATH_TEMPLATE = RepositoryConfiguration.REPOSITORY_DEFAULT_PREFIX + "%s" + RepositorySettings.BASE_PATH_SUFFIX;
 
     /**
      * How long a repository that could not be created is left alone before it is tried again.

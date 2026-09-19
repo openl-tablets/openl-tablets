@@ -26,7 +26,7 @@ import org.openl.ie.constrainer.IntExpConst;
  * A generic implementation of the IntExp interface.
  */
 public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
-    static public String domainToString(int min, int max) {
+    public static String domainToString(int min, int max) {
         return min == max ? "[" + min + "]" : "[" + min + ".." + max + "]";
     }
 

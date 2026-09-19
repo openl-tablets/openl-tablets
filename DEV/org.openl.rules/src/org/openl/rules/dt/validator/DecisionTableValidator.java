@@ -51,7 +51,7 @@ public final class DecisionTableValidator implements IValidator {
      * @return
      */
 
-    static public String getUniqueConditionParamName(IBaseCondition condition, String pname) {
+    public static String getUniqueConditionParamName(IBaseCondition condition, String pname) {
         return condition.getName() + "_" + pname;
     }
 }

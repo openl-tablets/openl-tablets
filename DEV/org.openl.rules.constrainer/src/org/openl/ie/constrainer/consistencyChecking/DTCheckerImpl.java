@@ -27,7 +27,7 @@ import org.openl.ie.constrainer.IntVar;
  * @version 1.0
  */
 public class DTCheckerImpl implements DTChecker {
-    static public class CDecisionTableImpl implements CDecisionTable {
+    public static class CDecisionTableImpl implements CDecisionTable {
         private final IntBoolExp[] _rules;
         private final IntExpArray _vars;
         @Getter

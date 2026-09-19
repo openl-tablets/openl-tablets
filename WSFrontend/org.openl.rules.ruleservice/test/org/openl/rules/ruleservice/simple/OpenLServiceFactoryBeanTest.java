@@ -102,7 +102,7 @@ class OpenLServiceFactoryBeanTest {
         String baseHello(int arg);
     }
 
-    public static abstract class FrontendImpl implements RulesFrontend {
+    public abstract static class FrontendImpl implements RulesFrontend {
 
         @Override
         public Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object... params) throws MethodInvocationException {

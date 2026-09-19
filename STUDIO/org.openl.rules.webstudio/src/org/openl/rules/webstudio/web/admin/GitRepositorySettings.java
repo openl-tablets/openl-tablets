@@ -22,19 +22,19 @@ import org.openl.util.StringUtils;
 @Schema(allOf = RepositorySettings.class)
 public class GitRepositorySettings extends RepositorySettings {
 
-    public final static String URI_SUFFIX = ".uri";
-    private final static String LOGIN_SUFFIX = ".login";
-    private final static String PASSWORD_SUFFIX = ".password";
-    private final static String BRANCH_SUFFIX = ".branch";
-    private final static String NEW_BRANCH_TEMPLATE_SUFFIX = ".new-branch.pattern";
-    private final static String NEW_BRANCH_REGEX_SUFFIX = ".new-branch.regex";
-    private final static String NEW_BRANCH_REGEX_ERROR_SUFFIX = ".new-branch.regex-error";
-    private final static String TAG_PREFIX_SUFFIX = ".tag-prefix";
-    private final static String LISTENER_TIMER_PERIOD_SUFFIX = ".listener-timer-period";
-    private final static String CONNECTION_TIMEOUT_SUFFIX = ".connection-timeout";
-    private final static String FAILED_AUTHENTICATION_SECONDS_SUFFIX = ".failed-authentication-seconds";
-    private final static String MAX_AUTHENTICATION_ATTEMPTS_SUFFIX = ".max-authentication-attempts";
-    private final static String PROTECTED_BRANCHES_SUFFIX = ".protected-branches";
+    public static final String URI_SUFFIX = ".uri";
+    private static final String LOGIN_SUFFIX = ".login";
+    private static final String PASSWORD_SUFFIX = ".password";
+    private static final String BRANCH_SUFFIX = ".branch";
+    private static final String NEW_BRANCH_TEMPLATE_SUFFIX = ".new-branch.pattern";
+    private static final String NEW_BRANCH_REGEX_SUFFIX = ".new-branch.regex";
+    private static final String NEW_BRANCH_REGEX_ERROR_SUFFIX = ".new-branch.regex-error";
+    private static final String TAG_PREFIX_SUFFIX = ".tag-prefix";
+    private static final String LISTENER_TIMER_PERIOD_SUFFIX = ".listener-timer-period";
+    private static final String CONNECTION_TIMEOUT_SUFFIX = ".connection-timeout";
+    private static final String FAILED_AUTHENTICATION_SECONDS_SUFFIX = ".failed-authentication-seconds";
+    private static final String MAX_AUTHENTICATION_ATTEMPTS_SUFFIX = ".max-authentication-attempts";
+    private static final String PROTECTED_BRANCHES_SUFFIX = ".protected-branches";
 
     @Getter
     @Parameter(description = "URL")

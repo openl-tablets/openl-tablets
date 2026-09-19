@@ -241,7 +241,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     }
 
     @Override
-    final public void notifyObservers(EventOfInterest interest) throws Failure {
+    public final void notifyObservers(EventOfInterest interest) throws Failure {
         var observers = _observers;
         _constrainer.incrementNumberOfNotifications();
         var size = observers.size();

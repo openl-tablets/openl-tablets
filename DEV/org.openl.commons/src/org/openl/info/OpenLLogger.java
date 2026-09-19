@@ -60,7 +60,7 @@ abstract class OpenLLogger {
         logComplexObject(arg2);
     }
 
-    abstract protected void discover() throws Exception;
+    protected abstract void discover() throws Exception;
 
     private String toString(Object o) {
         if (o == null) {
