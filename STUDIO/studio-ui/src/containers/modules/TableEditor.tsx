@@ -530,6 +530,16 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         data-testid="table-cell-switch"
                         // The bounds are entered in the panel, which the field the reader goes to drops.
                         onClick={kind === 'range' ? () => setRangeOpen(true) : undefined}
+                        // The field of a range is read-only, so the panel also opens from the keyboard, with
+                        // the arrow that opens a list of choices everywhere else.
+                        onKeyDown={kind === 'range'
+                            ? event => {
+                                if (event.key === 'ArrowDown') {
+                                    event.preventDefault()
+                                    setRangeOpen(true)
+                                }
+                            }
+                            : undefined}
                     >
                         <CellValueEditor
                             asked={askedAt(at.row, at.column)}
