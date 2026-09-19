@@ -20,7 +20,7 @@ public class CtrIntRange extends IntRange {
         var max = super.getMax();
 
         if (max >= Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE - 1;
+            return Integer.MAX_VALUE - 1L;
         }
 
         return max;
@@ -32,7 +32,7 @@ public class CtrIntRange extends IntRange {
         var min = super.getMin();
 
         if (min <= Integer.MIN_VALUE) {
-            return Integer.MIN_VALUE + 1;
+            return Integer.MIN_VALUE + 1L;
         }
 
         return min;
