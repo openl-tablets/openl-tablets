@@ -139,7 +139,7 @@ public class RecentlyVisitedTables {
                     var propValue = tableProps.getPropertyValueAsString(dimensionProp);
 
                     if (propValue != null && !propValue.isEmpty()) {
-                        dimensionBuilder.append(dimensionBuilder.isEmpty() ? "" : ", ")
+                        dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
                                 .append(dimensionProp)
                                 .append(" = ")
                                 .append(propValue);
@@ -147,7 +147,7 @@ public class RecentlyVisitedTables {
                 }
             }
 
-            if (!dimensionBuilder.isEmpty()) {
+            if (dimensionBuilder.length() > 0) {
                 return tableName + "[" + dimensionBuilder.toString() + "]";
             } else {
                 return tableName;
