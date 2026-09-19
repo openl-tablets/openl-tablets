@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.openl.rules.webstudio.web.Props;
 import org.openl.util.StringUtils;
 
@@ -31,6 +33,7 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Mmolchan
  */
+@Slf4j
 @WebServlet("/*")
 public class StaticResourcesServlet extends HttpServlet {
 
@@ -76,23 +79,35 @@ public class StaticResourcesServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
 
         // The context root requested without the trailing slash carries no path, and names the same page as "/".
         var path = requireNonNullElse(req.getPathInfo(), "/");
-        // Check if the request is for a static resource
-        if (path.startsWith("/assets/")
-                || path.startsWith("/icons/")
-                || path.equals("/favicon.svg")
-                || path.equals("/favicon.ico")) {
+        try {
+            // Check if the request is for a static resource
+            if (path.startsWith("/assets/")
+                    || path.startsWith("/icons/")
+                    || path.equals("/favicon.svg")
+                    || path.equals("/favicon.ico")) {
 
-            // Forward the request to the container's "default" servlet.
-            // This is the standard, portable way to handle static resources
-            // This servlet correctly handles content types, caching headers (ETag, Last-Modified)
-            getServletContext().getNamedDispatcher("default").forward(req, resp);
-            return;
+                // Forward the request to the container's "default" servlet.
+                // This is the standard, portable way to handle static resources
+                // This servlet correctly handles content types, caching headers (ETag, Last-Modified)
+                getServletContext().getNamedDispatcher("default").forward(req, resp);
+            } else {
+                writePage(req, resp, path);
+            }
+        } catch (ServletException | IOException e) {
+            log.error("Failed to answer the request.", e);
+            if (!resp.isCommitted()) {
+                resp.reset();
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
+    }
 
+    /** Answers with the page the application is drawn on, made to fit where the application is running. */
+    private void writePage(HttpServletRequest req, HttpServletResponse resp, String path) throws IOException {
         // Handling index.html for the React application
         var contextPath = req.getContextPath();
         var page = API_DOCS.equals(path) ? apiDocsTemplate : htmlTemplate;
