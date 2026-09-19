@@ -154,7 +154,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
      */
     static class UndoExpressionFactory extends UndoImpl {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoExpressionFactory();
@@ -165,7 +165,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
         private HashMap _expressions;
 
         static UndoExpressionFactory getUndo() {
-            return (UndoExpressionFactory) _factory.getElement();
+            return (UndoExpressionFactory) FACTORY.getElement();
         }
 
         /**

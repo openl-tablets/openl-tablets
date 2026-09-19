@@ -88,8 +88,8 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     private final String appName;
     private final String[] profiles;
     private final PropertyResolver resolver;
-    private final Map<String, String> source = new HashMap<>();
-    private final Map<String, String> profiledSource = new HashMap<>();
+    private final Map<String, String> plainProperties = new HashMap<>();
+    private final Map<String, String> profiledProperties = new HashMap<>();
 
     ApplicationPropertySource(PropertyResolver resolver, String appName, String... profiles) {
         super(PROPS_NAME, new ArrayDeque<>());
@@ -181,9 +181,9 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
                         PropertiesUtils.load(in, props::put);
                     }
                     if (isProfiled) {
-                        profiledSource.putAll(props);
+                        profiledProperties.putAll(props);
                     } else {
-                        source.putAll(props);
+                        plainProperties.putAll(props);
                     }
                     ConfigLog.LOG.info("+       Load: [{}] '{}' ({} properties)", location, getInfo(resource), props.size());
 
@@ -209,23 +209,23 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     }
 
     private Object getPropertyInternal(String name) {
-        var candidate = profiledSource.get(name);
+        var candidate = profiledProperties.get(name);
         if (candidate != null) {
             return candidate;
         }
-        return source.get(name);
+        return plainProperties.get(name);
     }
 
     @Override
     public boolean containsProperty(String name) {
-        return profiledSource.containsKey(name) || source.containsKey(name);
+        return profiledProperties.containsKey(name) || plainProperties.containsKey(name);
     }
 
     @Override
     public String[] getPropertyNames() {
         var names = new TreeSet<String>();
-        names.addAll(profiledSource.keySet());
-        names.addAll(source.keySet());
+        names.addAll(profiledProperties.keySet());
+        names.addAll(plainProperties.keySet());
         return names.toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 }

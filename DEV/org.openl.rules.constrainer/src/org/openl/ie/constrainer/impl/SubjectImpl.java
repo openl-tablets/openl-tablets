@@ -26,7 +26,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
      * Undo Class for attached Observers.
      */
     static final class UndoAttachObserver extends UndoImpl {
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoAttachObserver();
@@ -37,7 +37,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         Observer _observer;
 
         static UndoAttachObserver getUndo(Subject subject, Observer observer) {
-            var undo = (UndoAttachObserver) _factory.getElement();
+            var undo = (UndoAttachObserver) FACTORY.getElement();
             undo.undoable(subject);
             undo._observer = observer;
             return undo;
@@ -66,7 +66,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
      */
     static final class UndoDetachObserver extends UndoImpl {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoDetachObserver();
@@ -77,7 +77,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         private Observer _observer;
 
         static UndoDetachObserver getUndo(Subject subject, Observer observer) {
-            var undo = (UndoDetachObserver) _factory.getElement();
+            var undo = (UndoDetachObserver) FACTORY.getElement();
             undo.undoable(subject);
             undo._observer = observer;
             return undo;
@@ -106,7 +106,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
      */
     public static class UndoSubject extends UndoImpl {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoSubject();
@@ -117,7 +117,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
         private int _event_mask;
 
         static UndoSubject getUndo() {
-            return (UndoSubject) _factory.getElement();
+            return (UndoSubject) FACTORY.getElement();
         }
 
         /**

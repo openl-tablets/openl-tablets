@@ -15,7 +15,7 @@ import org.openl.ie.tools.ReusableFactory;
  */
 public class UndoFastVectorAdd extends UndoImpl implements Serializable {
 
-    static final ReusableFactory _factory = new ReusableFactory() {
+    static final ReusableFactory FACTORY = new ReusableFactory() {
         @Override
         protected Reusable createNewElement() {
             return new UndoFastVectorAdd();
@@ -26,7 +26,7 @@ public class UndoFastVectorAdd extends UndoImpl implements Serializable {
     private FastVector _v;
 
     static public UndoFastVectorAdd getUndo(FastVector v) {
-        var undo = (UndoFastVectorAdd) _factory.getElement();
+        var undo = (UndoFastVectorAdd) FACTORY.getElement();
         undo._v = v;
         return undo;
     }
