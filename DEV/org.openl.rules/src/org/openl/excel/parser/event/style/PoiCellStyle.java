@@ -44,13 +44,14 @@ class PoiCellStyle implements CellStyle {
             return null;
         }
 
-        String format;
-        if (formatIndex >= HSSFDataFormat.getNumberOfBuiltinBuiltinFormats() || formats.get(formatIndex) != null) {
-            format = formats.get(formatIndex).getFormatString();
-        } else {
-            format = HSSFDataFormat.getBuiltinFormat(formatIndex);
+        // The formats are keyed by an Integer, so the index is widened before the lookup.
+        var formatRecord = formats.get((int) formatIndex);
+        if (formatRecord != null) {
+            return formatRecord.getFormatString();
         }
-        return format;
+        return formatIndex < HSSFDataFormat.getNumberOfBuiltinBuiltinFormats()
+                ? HSSFDataFormat.getBuiltinFormat(formatIndex)
+                : null;
     }
 
     @Override
