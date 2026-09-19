@@ -71,7 +71,7 @@ public class DatatypeOpenConstructor extends JavaOpenConstructor {
     }
 
     @Override
-    public IOpenClass[] getParameterTypes() {
+    public synchronized IOpenClass[] getParameterTypes() {
         if (parameters.length == 0) {
             return IOpenClass.EMPTY;
         }
