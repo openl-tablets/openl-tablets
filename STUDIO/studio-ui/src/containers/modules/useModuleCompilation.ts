@@ -5,7 +5,7 @@ import type { ProjectCompileState, ProjectStatusUpdate } from '../../services/pr
 import { errorHandler } from '../../utils/errorHandling'
 
 /** How far the project has come, and whether the module the editor is opening is among what is done. */
-export interface ModuleCompilation {
+interface ModuleCompilation {
     /** True once this module is compiled, whatever the modules after it are still doing. */
     ready: boolean
     /** Modules compiled so far, and how many there are in all — what the progress reads from. */

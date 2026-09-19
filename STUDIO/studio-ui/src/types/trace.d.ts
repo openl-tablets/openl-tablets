@@ -20,7 +20,7 @@ export type StepType = 'into' | 'over' | 'out'
 export type FrameKind = 'decisionTable' | 'spreadsheet' | 'method' | 'cmatch' | 'tbasic' | 'tbasicMethod' | 'stepRef'
 
 /** Location type of the current line inside a frame. */
-export type LocationKind = 'cell' | 'dtrule' | 'operation'
+type LocationKind = 'cell' | 'dtrule' | 'operation'
 
 /** A rule table that can be a breakpoint target (set a breakpoint by name before it runs). */
 export interface BreakpointTableView {
@@ -31,7 +31,7 @@ export interface BreakpointTableView {
 /**
  * The current line being evaluated inside a stack frame.
  */
-export interface DebugLocationView {
+interface DebugLocationView {
     /** Location type of the current line */
     kind: LocationKind
     /** Cell row index, when applicable */
@@ -54,7 +54,7 @@ export interface DispatchInfo {
 }
 
 /** One overloaded version of a dispatched table. */
-export interface DispatchCandidate {
+interface DispatchCandidate {
     /** The version's dimension properties (e.g. `effectiveDate: 01/01/2020`), or its name. */
     label: string
     /** Whether the dispatcher selected this version for the current runtime context. */
@@ -161,7 +161,7 @@ export interface ProfileSummaryView {
 }
 
 /** One table in the profiling hotspots, with its execution time aggregated across the whole run. */
-export interface ProfileHotspotView {
+interface ProfileHotspotView {
     uri: string
     name: string
     kind: FrameKind
@@ -233,7 +233,7 @@ export interface TreeChildrenView {
 }
 
 /** One evaluated decision-table condition, for one rule. */
-export interface DecisionConditionView {
+interface DecisionConditionView {
     condition: string
     rule: string
     matched: boolean
@@ -340,7 +340,7 @@ export interface WatchView {
 }
 
 /** The values of one watched cell across the run, one point per execution of its table. */
-export interface WatchSeriesView {
+interface WatchSeriesView {
     /** The watched cell name (its `$...` step label). */
     name: string
     /** Display name of the table the cell belongs to. */
@@ -354,7 +354,7 @@ export interface WatchSeriesView {
 }
 
 /** One value of a watched cell, from one execution of its table. */
-export interface WatchPointView {
+interface WatchPointView {
     /** Zero-based execution number of the owning table (its 1st, 2nd, … invocation). */
     instance: number
     /** Human-readable axis label for the execution, e.g. `CoveragePremium #3`. */

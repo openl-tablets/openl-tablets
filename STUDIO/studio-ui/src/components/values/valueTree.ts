@@ -4,7 +4,7 @@ import type { TreeDataNode } from 'antd'
 export type SimpleValueKind = 'null' | 'string' | 'number' | 'boolean' | 'other'
 
 /** A value without inner structure. The text a viewer shows and the kind it colours it by. */
-export interface SimpleValueText {
+interface SimpleValueText {
     display: string
     kind: SimpleValueKind
 }

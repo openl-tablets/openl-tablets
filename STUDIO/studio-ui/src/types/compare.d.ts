@@ -1,10 +1,10 @@
 import type { RawTableCell } from './tables'
 
 /** How an element of the second file relates to the same element of the first one. */
-export type ComparisonNodeStatus = 'equal' | 'changed' | 'added' | 'removed'
+type ComparisonNodeStatus = 'equal' | 'changed' | 'added' | 'removed'
 
 /** Kind of element in a comparison tree. */
-export type ComparisonNodeType = 'sheet' | 'table'
+type ComparisonNodeType = 'sheet' | 'table'
 
 /** A property of a table that reads differently in the two files, such as its name or its size. */
 export interface ComparisonPropertyChange {

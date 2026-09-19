@@ -16,7 +16,7 @@ const stripPrefix = (path: string, prefix?: string | null): string => {
     return path.startsWith(`${normalizedPrefix}/`) ? path.slice(normalizedPrefix.length + 1) : path
 }
 
-export const toProjectRelativePath = (
+const toProjectRelativePath = (
     path: string,
     projectPath?: string | null,
     projectName?: string | null

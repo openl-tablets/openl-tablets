@@ -38,7 +38,7 @@ const launchOptions = (
 })
 
 /** Execution-order range of a call or step in the simple-mode tree: where it starts and where its subtree ends. */
-export interface SimpleOrderRange {
+interface SimpleOrderRange {
     pre: number
     end: number
 }

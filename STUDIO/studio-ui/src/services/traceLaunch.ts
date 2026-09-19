@@ -5,7 +5,7 @@ import { retireTraceLaunch, stampTraceLaunch } from './traceLaunchToken'
 import { traceService } from './traceService'
 
 /** What a trace is started with, as the launcher collects it from the table page. */
-export interface TraceLaunchRequest {
+interface TraceLaunchRequest {
     projectId: string
     tableId: string
     /** Ids or ranges of the test cases to trace. Only for a test table. */

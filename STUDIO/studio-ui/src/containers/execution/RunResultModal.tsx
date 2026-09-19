@@ -53,7 +53,7 @@ const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
     )
 }
 
-export interface RunResultModalProps {
+interface RunResultModalProps {
     projectId: string
     tableId: string
     /** How the workbook of this run is written, as the launch panel asked for it. */

@@ -3,7 +3,7 @@ import { useEventProject, type EventProjectDetail } from 'hooks'
 import { ExportProjectModal } from 'containers/projects/ExportProjectModal'
 
 /** Detail passed from the legacy JSF editor shell via the {@code openExportProjectModal} event. */
-export interface ExportProjectModalDetail extends EventProjectDetail {
+interface ExportProjectModalDetail extends EventProjectDetail {
     /**
      * Project-relative path of a single file to export, e.g. the rules file of the open module. Omit it
      * to export the whole project.

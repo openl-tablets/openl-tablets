@@ -227,7 +227,7 @@ const savedQuery = (profile: UserProfile | null): Required<TestsQuery> => ({
     size: profile?.testsPerPage || TESTS_PAGE_SIZE,
 })
 
-export interface TestsResultModalProps {
+interface TestsResultModalProps {
     projectId: string
     /** The table whose tests ran, when a single table was asked for. */
     tableId?: string | undefined

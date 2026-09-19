@@ -1,7 +1,7 @@
 import apiCall, { asArray } from './apiCall'
 import { Role } from '../constants'
 
-export interface AclSubject {
+interface AclSubject {
     sid: string
     principal?: boolean
 }

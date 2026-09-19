@@ -11,7 +11,7 @@ export interface EventProjectDetail {
     projectId: string
 }
 
-export interface EventProject<D> {
+interface EventProject<D> {
     /** The event payload, or undefined while no dialog was asked for. */
     detail: D | undefined
     /** The project the dialog works on; null until it is read, and again once the dialog is closed. */

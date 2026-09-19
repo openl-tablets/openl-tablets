@@ -4,7 +4,7 @@
 import { FileExcelOutlined, FileOutlined, FileTextOutlined, FolderOpenOutlined, FolderOutlined } from '@ant-design/icons'
 
 /** The colours the icons are drawn in, taken from the theme by the screen that draws them. */
-export interface FileIconColors {
+interface FileIconColors {
     success: string
     info: string
     warning: string

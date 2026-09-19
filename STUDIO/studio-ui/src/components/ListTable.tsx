@@ -14,7 +14,7 @@ export interface ListTableColumn<T> {
     align?: 'center' | 'right'
 }
 
-export interface ListTableProps<T> {
+interface ListTableProps<T> {
     columns: ListTableColumn<T>[]
     rows: T[]
     rowKey: (row: T) => string

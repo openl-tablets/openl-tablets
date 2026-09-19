@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /** The value tracked by {@link useGuardedReload}: `null` while loading, `'error'` on failure, or the loaded data. */
-export type GuardedState<T> = T | 'error' | null
+type GuardedState<T> = T | 'error' | null
 
 /**
  * Loads project-scoped data and keeps it in sync with the current project, guarding against races.

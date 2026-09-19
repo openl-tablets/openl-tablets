@@ -46,7 +46,7 @@ export interface TableLaunchValue {
     fromModule?: string | undefined
 }
 
-export interface TableInputLauncherProps {
+interface TableInputLauncherProps {
     detail: TableLaunchDetail
     project: Project
     /** Whether the action takes one case of a test table, several of them, or none at all. */

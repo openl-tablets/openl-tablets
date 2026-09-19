@@ -39,7 +39,7 @@ const metricColumn = (
     render,
 })
 
-export interface BenchmarkResultModalProps {
+interface BenchmarkResultModalProps {
     projectId: string
     /** The table the benchmark that is still running was started on. */
     tableId: string

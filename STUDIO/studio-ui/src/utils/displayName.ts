@@ -1,7 +1,7 @@
 import { DisplayUserName } from '../constants'
 
 /** The parts of a user identity that determine how its display name is built. */
-export interface DisplayNameParts {
+interface DisplayNameParts {
     firstName?: string | null
     lastName?: string | null
     displayName?: string | null

@@ -41,7 +41,7 @@ export interface RawTableCell {
 }
 
 /** What a piece of a cell's text refers to, as the compiler read it. */
-export type RawTableUsageKind = 'rule' | 'datatype' | 'data' | 'field' | 'underlined' | 'other'
+type RawTableUsageKind = 'rule' | 'datatype' | 'data' | 'field' | 'underlined' | 'other'
 
 /** One piece of a cell's text the compiler resolved to something. */
 export interface RawTableCellUsage {
@@ -61,7 +61,7 @@ export interface RawTableCellUsage {
 }
 
 /** What the compiler knows about one cell, beside what the cell says. */
-export interface RawTableCellMetaInfo {
+interface RawTableCellMetaInfo {
     /** The pieces of the cell's text that refer to something, in the order they appear */
     usages?: RawTableCellUsage[]
     /** The type the cell holds, as the compiler names it */
@@ -118,7 +118,7 @@ export interface RawTableCellInput {
     covered?: boolean
 }
 
-export interface RawTable {
+interface RawTable {
     tableType: 'RawSource'
     kind: string
     name: string
@@ -282,7 +282,7 @@ export interface ProjectDatatype {
 }
 
 /** A property a table may declare, and what a value for it looks like. */
-export interface ProjectPropertyValue {
+interface ProjectPropertyValue {
     /** Value written to the table. */
     code: string
     /** Value shown to the author. */

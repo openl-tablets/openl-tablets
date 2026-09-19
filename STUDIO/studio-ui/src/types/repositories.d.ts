@@ -5,7 +5,7 @@ import { RepositoryType, Role } from '../constants'
  * repository configuration). Each flag is present only when granted. No raw role or permission set is
  * exposed, because repository configuration can take precedence over the ACL.
  */
-export interface RepositoryCapabilities {
+interface RepositoryCapabilities {
     canCreateProject?: boolean
     canManage?: boolean
 }

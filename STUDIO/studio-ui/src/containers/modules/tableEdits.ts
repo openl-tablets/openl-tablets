@@ -22,7 +22,7 @@ export type EditStep =
     | { kind: 'removeColumn', at: number, lines: number }
 
 /** What the reader has done, and what they took back and may put again. */
-export interface EditBuffer {
+interface EditBuffer {
     steps: EditStep[]
     undone: EditStep[]
 }
@@ -37,7 +37,7 @@ export const sameCell = (one: CellAt | null, other: CellAt | null): boolean =>
 const cellKey = (rowId: string, columnId: string): string => `${rowId}|${columnId}`
 
 /** The table as the steps leave it, with what each row and column is, and what the reader did to its cells. */
-export interface EditedTable {
+interface EditedTable {
     rows: RawTableCell[][]
     /** What each row is: `o<index>` for one the table was read with, `n<number>` for one the reader added. */
     rowIds: string[]

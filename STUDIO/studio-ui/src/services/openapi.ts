@@ -2,7 +2,7 @@ import apiCall from './apiCall'
 import { toUrlSafeId } from './projectId'
 
 /** Where a project's specification was written, and whether the file was added or written over. */
-export interface OpenApiSchema {
+interface OpenApiSchema {
     path: string
     created: boolean
 }
@@ -23,7 +23,7 @@ export interface OpenApiGenerationPlan {
 }
 
 /** What to generate the tables from, and where to put them. */
-export interface OpenApiGeneration {
+interface OpenApiGeneration {
     path: string
     algorithmModuleName: string
     algorithmModulePath: string

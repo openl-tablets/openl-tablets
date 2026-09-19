@@ -11,7 +11,7 @@ import { useSharedStyles } from './sharedStyles'
 import { ProjectsTree, type ProjectsSource } from './ProjectsTree'
 
 /** What the rail shows: the facet filters, or the grouped project tree. */
-export type RailMode = 'filters' | 'tree'
+type RailMode = 'filters' | 'tree'
 
 const STORAGE_KEY = 'openl.projects.rail'
 const WIDTH_STORAGE_KEY = 'openl.projects.rail.width'
@@ -29,7 +29,7 @@ const loadRailWidth = (): number => {
 
 const saveRailWidth = (width: number) => writeStored(WIDTH_STORAGE_KEY, String(width))
 
-export const loadRailMode = (): RailMode => readStored(STORAGE_KEY) === 'tree' ? 'tree' : 'filters'
+const loadRailMode = (): RailMode => readStored(STORAGE_KEY) === 'tree' ? 'tree' : 'filters'
 
 const saveRailMode = (mode: RailMode) => writeStored(STORAGE_KEY, mode)
 

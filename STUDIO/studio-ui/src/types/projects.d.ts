@@ -4,7 +4,7 @@ import type { ProjectStatusUpdate } from '../services/projectStatus'
 import type { RepositoryInfo } from './repositories'
 
 /** The repository a project reports about itself. */
-export interface ProjectRepository extends RepositoryInfo {
+interface ProjectRepository extends RepositoryInfo {
     id: string
 }
 
@@ -58,7 +58,7 @@ export interface Project {
  * and the source path entries. Each carries whether it is the engine's default because the file declares
  * none — a default is shown as such and is never written back into rules.xml.
  */
-export interface ProjectDescriptorInfo {
+interface ProjectDescriptorInfo {
     modules?: ProjectModule[]
     modulesDefault?: boolean
     sources?: string[]
@@ -99,7 +99,7 @@ export interface ProjectModule {
  * granted (a denied capability is omitted). Base project capabilities (canWrite/canDelete) are
  * flattened into the project response.
  */
-export interface ProjectCapabilities {
+interface ProjectCapabilities {
     canWrite?: boolean
     canDelete?: boolean
     canOpen?: boolean

@@ -4,7 +4,7 @@ import { getModuleSheets } from 'services/projects'
 import { errorMessage } from 'utils/errorMessage'
 import type { ModuleOption } from './shared'
 
-export interface SheetLoader {
+interface SheetLoader {
     /** Worksheets of the module currently chosen; empty for a module the project does not declare yet. */
     sheets: string[]
     sheetName: string

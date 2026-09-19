@@ -16,13 +16,13 @@ export const GRAPH_LAYOUT: DagreLayoutOptions = {
  * A field a datatype declares, as the graph reports it. A field whose type is another datatype of the graph names
  * that datatype's node in {@code ref}; a field of a simple type carries its type only.
  */
-export interface GraphField extends DatatypeField {
+interface GraphField extends DatatypeField {
     ref?: string
     collection?: boolean
 }
 
 /** One value of a vocabulary. A vocabulary narrows a simple type, so a value is always a JSON scalar. */
-export type VocabularyValue = string | number | boolean | null
+type VocabularyValue = string | number | boolean | null
 
 /**
  * The values a vocabulary declares, as the graph reports them. Only a few of them are previewed: a longer vocabulary
@@ -170,7 +170,7 @@ const areaBands = (entities: NodeCollection): NodeCollection[] =>
 // the band layout must not fit the viewport to itself: the bands are placed by hand once they are all laid out
 const bandLayout = { ...GRAPH_LAYOUT, fit: false } as unknown as LayoutOptions
 
-export interface GraphModel {
+interface GraphModel {
     elements: ElementDefinition[]
     byId: Map<string, GraphNode>
     /** id -> ids of tables it depends on (forward edges, filtered to the node set) */

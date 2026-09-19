@@ -13,7 +13,7 @@ export interface DesignRevision {
     modifiedAt?: string
 }
 
-export interface DeploymentItem {
+interface DeploymentItem {
     name: string
     modifiedBy?: string
     modifiedAt?: string

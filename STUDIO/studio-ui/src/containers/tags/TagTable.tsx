@@ -28,7 +28,7 @@ export interface TagType {
     tags: Tag[];
 }
 
-export interface TagTypeActions {
+interface TagTypeActions {
     updateTagType: (tagType: TagType) => boolean | Promise<boolean>;
     deleteTagType: (tagType: TagType) => void;
 }

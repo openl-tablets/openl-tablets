@@ -9,7 +9,7 @@ export interface PopoverAnchor {
     height: number
 }
 
-export interface TableInputPopoverProps {
+interface TableInputPopoverProps {
     open: boolean
     anchor: PopoverAnchor
     /** Width of the popover content in pixels. */

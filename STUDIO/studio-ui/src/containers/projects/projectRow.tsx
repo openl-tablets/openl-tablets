@@ -16,7 +16,7 @@ import { BranchSwitcher } from './BranchSwitcher'
 /** Tags shown inline on a project row before the rest collapse into a "+N" chip. */
 const MAX_TAGS = 4
 
-export interface ProjectRowData {
+interface ProjectRowData {
     muted: boolean
     repoLabel: string
     repoType: string | undefined
@@ -86,7 +86,7 @@ export const ProjectTags = ({ tags }: { tags: string[] }) => {
 }
 
 /** Whether the project is shown on a branch: a local copy and a repository without branches have none. */
-export const showsBranch = (project: Project, repositorySupportsBranches: boolean): boolean =>
+const showsBranch = (project: Project, repositorySupportsBranches: boolean): boolean =>
     repositorySupportsBranches && !!project.branch && project.status !== ProjectStatus.Local
 
 /** {@link showsBranch}, resolving the repository's support from the repository itself. */

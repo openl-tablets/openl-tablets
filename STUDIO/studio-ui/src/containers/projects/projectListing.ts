@@ -9,7 +9,7 @@ export type ProjectSort = 'name' | 'branch' | 'updated'
 
 export type SortDirection = 'asc' | 'desc'
 
-export interface ListingQuery {
+interface ListingQuery {
     statuses: Set<string>
     repositories: Set<string>
     /** Tag filters written as `Type:Value`. */

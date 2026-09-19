@@ -3,7 +3,7 @@ import { useEventProject, type EventProjectDetail } from 'hooks'
 import { SaveProjectModal } from 'containers/projects/SaveProjectModal'
 
 /** Detail passed from the legacy JSF editor shell via the {@code openSaveProjectModal} event. */
-export interface SaveProjectModalDetail extends EventProjectDetail {
+interface SaveProjectModalDetail extends EventProjectDetail {
     /** Runs after a successful save, e.g. to move the editor page to the saved project. */
     onSuccess?: () => void
 }

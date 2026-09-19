@@ -108,7 +108,7 @@ export interface ProjectFileChange {
     type: ProjectFileChangeType
 }
 
-export interface ProjectPendingChanges {
+interface ProjectPendingChanges {
     total: number
     files: ProjectFileChange[]
 }

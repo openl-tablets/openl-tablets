@@ -21,7 +21,7 @@ export interface ParametersInputValue {
     error?: string | undefined
 }
 
-export interface ParametersInputProps {
+interface ParametersInputProps {
     /** Declared parameters of the table, each with the schema of its values. */
     parameters: TraceParameterValue[]
     /** Schema of the runtime context, when the project provides one. */

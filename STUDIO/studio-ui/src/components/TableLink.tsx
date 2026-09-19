@@ -5,7 +5,7 @@ import { moduleRoute } from 'services/projectId'
 
 const { Link, Text } = Typography
 
-export interface TableLinkProps {
+interface TableLinkProps {
     /** The project the table belongs to, as the server issued its id. */
     projectId: string
     /** The table the link leads to, as the APIs of the project report it. */

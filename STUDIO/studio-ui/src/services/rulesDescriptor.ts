@@ -22,7 +22,7 @@ export interface MethodFilter {
 }
 
 /** What OpenL Studio is told about a module, in the module's `<webstudioConfiguration>`. */
-export interface WebStudioConfiguration {
+interface WebStudioConfiguration {
     /**
      * Whether opening this module compiles it alone, leaving the modules it does not depend on out. It is
      * meant for a project too large to compile through — a project with heavy tests, above all.

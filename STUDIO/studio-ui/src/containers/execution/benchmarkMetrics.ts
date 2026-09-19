@@ -3,7 +3,7 @@ import type { BenchmarkResult } from 'types/execution'
 const MS_IN_SECOND = 1000
 
 /** What one measurement says about the speed of a table. */
-export interface BenchmarkMetrics {
+interface BenchmarkMetrics {
     /** How long one test case took. */
     testCaseMs: number
     /** How many test cases ran in a second. */

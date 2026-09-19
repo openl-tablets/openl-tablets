@@ -321,7 +321,7 @@ export const searchTables = async (projectId: string, criteria: TableSearchCrite
 export type PropertyInheritance = 'category' | 'module' | 'external'
 
 /** One property that applies to a table, as the details panel lists it. */
-export interface TablePropertyDetail {
+interface TablePropertyDetail {
     name: string
     displayName: string
     value: string
@@ -332,7 +332,7 @@ export interface TablePropertyDetail {
 }
 
 /** One group of table properties, named as the property dictionary names it. */
-export interface TablePropertyGroup {
+interface TablePropertyGroup {
     name: string
     properties: TablePropertyDetail[]
 }

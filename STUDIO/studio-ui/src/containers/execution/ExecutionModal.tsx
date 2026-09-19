@@ -23,7 +23,7 @@ export const ExecutionErrors: React.FC<{ errors?: MessageDescription[] | undefin
     </>
 )
 
-export interface ExecutionModalProps {
+interface ExecutionModalProps {
     title: string
     /** What the window has to say about the whole of what it shows, under the title. */
     subtitle?: React.ReactNode

@@ -260,7 +260,7 @@ const buildStyle = (maxWeight: number, token: GlobalToken) => {
 /**
  * Detail passed from the legacy JSF page via the {@code openTableGraphModal} event.
  */
-export interface TableGraphModalDetail {
+interface TableGraphModalDetail {
     projectId: string
     /** Name of the opened project. Tables from other (dependency) projects in the graph cannot be opened in the editor. */
     projectName?: string

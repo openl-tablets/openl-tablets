@@ -4,7 +4,7 @@ import { createStyles } from 'antd-style'
 import { readStored, writeStored } from '../utils/localStore'
 
 /** The edge of a panel the reader drags. The opposite edge stands still, and the panel grows towards this one. */
-export type ResizeEdge = 'top' | 'bottom' | 'left' | 'right'
+type ResizeEdge = 'top' | 'bottom' | 'left' | 'right'
 
 /** How far a panel may be dragged, and the size it takes when it has not been dragged yet. */
 interface DragBounds {

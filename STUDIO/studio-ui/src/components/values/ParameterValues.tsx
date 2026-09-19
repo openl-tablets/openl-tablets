@@ -186,7 +186,7 @@ const placeholderOf = (
     return null
 }
 
-export interface ValueCellProps {
+interface ValueCellProps {
     value: unknown
     /** Prefix of the tree node keys, unique on the screen. */
     path: string
@@ -235,7 +235,7 @@ export const ValueCell: React.FC<ValueCellProps> = ({ value, path, lazy, onLoad,
     )
 }
 
-export interface ParameterValueTreeProps {
+interface ParameterValueTreeProps {
     param: TraceParameterValue
     /** Prefix of the tree node keys, unique on the screen. */
     paramKey: string
@@ -292,7 +292,7 @@ export const ParameterValueTree: React.FC<ParameterValueTreeProps> = ({ param, p
     )
 }
 
-export interface ParameterValueListProps {
+interface ParameterValueListProps {
     parameters: TraceParameterValue[]
     /** Prefix of the tree node keys, unique on the screen. */
     keyPrefix: string

@@ -14,7 +14,7 @@ interface SpreadsheetRow {
     cells: unknown[]
 }
 
-export interface SpreadsheetValueProps {
+interface SpreadsheetValueProps {
     spreadsheet: SpreadsheetResultView
     /** Prefix of the value keys, unique on the screen. */
     keyPrefix: string

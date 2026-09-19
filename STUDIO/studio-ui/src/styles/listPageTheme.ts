@@ -174,7 +174,7 @@ export const EVERGREEN_LIGHT_PALETTE: Palette = {
 }
 
 /** Colours of the Evergreen theme in the dark appearance, lifted until they read on its darker surfaces. */
-export const EVERGREEN_DARK_PALETTE: Palette = {
+const EVERGREEN_DARK_PALETTE: Palette = {
     primary: '#4fd1c5',
     brand: '#7fe3d6',
     primaryFg: '#07201d',

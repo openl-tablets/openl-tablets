@@ -18,7 +18,7 @@ const asText = (value: unknown): string => {
 const DATE_FORMAT = 'YYYY-MM-DD'
 const DATE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm:ss'
 
-export interface ScalarEditorProps {
+interface ScalarEditorProps {
     kind: FieldKind
     schema: JsonSchema
     value: unknown

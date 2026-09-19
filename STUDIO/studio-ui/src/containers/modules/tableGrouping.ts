@@ -27,7 +27,7 @@ export const loadView = (preferred?: string): TableView =>
 export const saveView = (view: TableView): void => writeJson(STORAGE_KEY, view)
 
 /** Reads a label of the tree in the user's language. */
-export type Translate = (key: string) => string
+type Translate = (key: string) => string
 
 /**
  * The groups of the Type view, in the order the Editor's tree listed them.
@@ -121,7 +121,7 @@ const propertiesScopeOf = (table: ModuleTable): string | null => {
     return typeof scope === 'string' ? scope : null
 }
 
-export const levelsOf = (view: TableView): Level[] => LEVELS[view]
+const levelsOf = (view: TableView): Level[] => LEVELS[view]
 
 /** One node of the tree: a group of tables, or a table itself. */
 export interface TableNode {
@@ -267,7 +267,7 @@ const tableNodes = (tables: ModuleTable[], keyPrefix: string): TableNode[] => {
  *
  * The tree is built from the tables already in the browser, so changing the view costs no request.
  */
-export const buildTableTree = (
+const buildTableTree = (
     tables: ModuleTable[],
     levels: Level[],
     t: Translate,

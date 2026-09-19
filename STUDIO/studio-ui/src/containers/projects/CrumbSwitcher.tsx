@@ -6,7 +6,7 @@ import { ListLoading } from './ListLoading'
 import { useStyles } from './CrumbSwitcher.styles'
 
 /** One thing the reader can switch to. */
-export interface CrumbSwitcherItem {
+interface CrumbSwitcherItem {
     key: string
     label: ReactNode
     /** The text the search reads, which is not always what the item shows. */

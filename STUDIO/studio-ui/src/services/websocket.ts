@@ -7,7 +7,7 @@ export interface WebSocketMessage {
     destination: string
 }
 
-export interface WebSocketSubscription {
+interface WebSocketSubscription {
     id: string
     destination: string
     callback: (message: WebSocketMessage) => void

@@ -2,7 +2,7 @@ import { AWS_SSE_ALGORITHM, RepositoryType } from './constants'
 import { FormInstance } from 'antd'
 import { InputTextField } from '../../global'
 
-export interface DefaultSettings {
+interface DefaultSettings {
     basePath?: string
     commentValidationPattern?: string
     defaultCommentCopiedFrom?: string
@@ -31,21 +31,21 @@ export interface AWSS3RepositorySettings extends DefaultSettings {
     sseAlgorithm?: AWS_SSE_ALGORITHM
 }
 
-export interface AzureBlobRepositorySettings extends DefaultSettings {
+interface AzureBlobRepositorySettings extends DefaultSettings {
     accountKey?: string
     accountName?: string
     listenerTimerPeriod: number // "format" : "int32", "minimum" : 1
     uri: string
 }
 
-export interface CommonRepositorySettings extends DefaultSettings {
+interface CommonRepositorySettings extends DefaultSettings {
     login?: string
     password?: string
     secure?: boolean
     uri: string
 }
 
-export interface GitRepositorySettings extends DefaultSettings {
+interface GitRepositorySettings extends DefaultSettings {
     branch?: string
     connectionTimeout: number // "format" : "int32", "minimum" : 1
     failedAuthenticationSeconds: number // "format" : "int32", "minimum" : 1
@@ -61,7 +61,7 @@ export interface GitRepositorySettings extends DefaultSettings {
     uri: string
 }
 
-export interface LocalRepositorySettings extends DefaultSettings {
+interface LocalRepositorySettings extends DefaultSettings {
     uri: string
 }
 
