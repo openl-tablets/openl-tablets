@@ -195,7 +195,6 @@ public class IntRange extends Range<Long> implements INumberRange {
     }
 
     private static long convertToLong(String text) {
-        var multiplier = 1L;
         var start = 0;
         if (text.startsWith("$")) {
             start++;
@@ -205,15 +204,15 @@ public class IntRange extends Range<Long> implements INumberRange {
             throw new NumberFormatException("For input string: \"" + text + "\"");
         }
         var end = text.length();
-        switch (text.charAt(end - 1)) {
-            case 'B':
-                multiplier *= 1000;
-            case 'M':
-                multiplier *= 1000;
-            case 'K':
-                multiplier *= 1000;
-                end--;
-                break;
+        var multiplier = switch (text.charAt(end - 1)) {
+            case 'B' -> 1_000_000_000L;
+            case 'M' -> 1_000_000L;
+            case 'K' -> 1_000L;
+            default -> 1L;
+        };
+        if (multiplier > 1L) {
+            // the multiplier suffix is not a part of the number
+            end--;
         }
         if (!Character.isDigit(text.charAt(end - 1))) {
             // special case, when comma as a group separator is in the ending.

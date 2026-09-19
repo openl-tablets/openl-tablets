@@ -211,7 +211,6 @@ public class DoubleRange extends Range<Double> implements INumberRange {
     }
 
     private static double convertToDouble(String text) {
-        var multiplier = 1.0;
         var start = 0;
         if (text.startsWith("$")) {
             start++;
@@ -221,15 +220,15 @@ public class DoubleRange extends Range<Double> implements INumberRange {
             throw new NumberFormatException("For input string: \"" + text + "\"");
         }
         var end = text.length();
-        switch (text.charAt(end - 1)) {
-            case 'B':
-                multiplier *= 1000;
-            case 'M':
-                multiplier *= 1000;
-            case 'K':
-                multiplier *= 1000;
-                end--;
-                break;
+        var multiplier = switch (text.charAt(end - 1)) {
+            case 'B' -> 1_000_000_000.0;
+            case 'M' -> 1_000_000.0;
+            case 'K' -> 1_000.0;
+            default -> 1.0;
+        };
+        if (multiplier > 1.0) {
+            // the multiplier suffix is not a part of the number
+            end--;
         }
         if (!Character.isDigit(text.charAt(end - 1)) || text.indexOf('e') >= 0 || text.indexOf('E') >= 0) {
             // special case, when comma or decimal separator, or letter is in the ending.
