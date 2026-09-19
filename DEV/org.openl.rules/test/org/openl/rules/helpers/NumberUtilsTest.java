@@ -49,7 +49,7 @@ class NumberUtilsTest {
     void testFloat() {
         assertEquals(5, NumberUtils.getScale(12.45678f));
         assertEquals(5, NumberUtils.getScale(Float.valueOf(12.45678f)));
-        assertEquals(15, NumberUtils.getScale(Float.valueOf(12.45678f).doubleValue()));
+        assertEquals(15, NumberUtils.getScale((double) 12.45678f));
         assertEquals(0, NumberUtils.getScale(Float.NaN));
         assertEquals(0, NumberUtils.getScale(Float.NEGATIVE_INFINITY));
         assertEquals(0, NumberUtils.getScale(Float.POSITIVE_INFINITY));
