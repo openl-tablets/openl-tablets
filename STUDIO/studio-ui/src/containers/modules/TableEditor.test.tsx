@@ -543,6 +543,10 @@ describe('TableEditor', () => {
         await userEvent.dblClick(screen.getByText('0'))
         expect(screen.queryByTestId('range-editor')).toBeNull()
 
+        // Another key leaves the panel where it was; only the arrow opens it.
+        await userEvent.keyboard('{ArrowUp}')
+        expect(screen.queryByTestId('range-editor')).toBeNull()
+
         await userEvent.keyboard('{ArrowDown}')
 
         expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
