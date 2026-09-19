@@ -332,6 +332,13 @@ public final class KafkaService implements Runnable {
                 }
             } catch (Exception e) {
                 log.error("Something wrong.", e);
+                if (e instanceof InterruptedException) {
+                    // The batch was cut short, so the loop ends here rather than polling for the next one
+                    // with the interrupt set, which the consumer would refuse anyway.
+                    flag = false;
+                    Thread.currentThread().interrupt();
+                    return;
+                }
             }
         }
     }
