@@ -580,7 +580,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         module.setRulesRootPath(relativePath);
         module.setName(FileUtils.getBaseName(relativePath));
         module.setMethodFilter(source.getMethodFilter());
-        module.setWildcardName(source.getName());
         module.setWildcardRulesRootPath(source.getRulesRootPath());
         if (source.getWebstudioConfiguration() != null) {
             var webstudioConfiguration = new WebstudioConfiguration();
