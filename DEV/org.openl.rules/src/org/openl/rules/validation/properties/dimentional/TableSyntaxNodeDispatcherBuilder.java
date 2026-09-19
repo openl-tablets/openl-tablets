@@ -133,7 +133,6 @@ public class TableSyntaxNodeDispatcherBuilder {
             decisionTableBuilder.setConditions(conditions);
             decisionTableBuilder.setReturnColumn(returnColumn);
             decisionTableBuilder.setTableName(getDispatcherTableName());
-            decisionTableBuilder.setMethodName(getMethodName());
             decisionTableBuilder.setRulesNumber(rules.getRulesNumber());
 
             var sheetWithTable = decisionTableBuilder.build();
