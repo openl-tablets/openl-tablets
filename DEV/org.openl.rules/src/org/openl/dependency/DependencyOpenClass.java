@@ -41,16 +41,6 @@ public class DependencyOpenClass extends OpenClassDelegator {
     }
 
     @Override
-    public Collection<IOpenClass> getTypes() {
-        return super.getTypes();
-    }
-
-    @Override
-    public IOpenClass findType(String name) {
-        return super.findType(name);
-    }
-
-    @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
         var method = super.getMethod(name, classes);
         if (method == null) {
