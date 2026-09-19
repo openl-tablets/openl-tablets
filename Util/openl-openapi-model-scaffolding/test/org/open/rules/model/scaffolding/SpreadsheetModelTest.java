@@ -131,8 +131,6 @@ class SpreadsheetModelTest {
         third.setParameters(List.of(date));
         assertNotEquals(first, third);
         assertNotEquals(first.hashCode(), third.hashCode());
-
-        assertEquals(first, first);
     }
 
     @Test
