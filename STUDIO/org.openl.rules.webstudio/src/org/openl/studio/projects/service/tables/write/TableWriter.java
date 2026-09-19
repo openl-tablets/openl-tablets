@@ -59,7 +59,7 @@ public abstract class TableWriter<T extends TableView> {
     private Map<String, Object> stamped = Map.of();
     private Map<String, Object> stampedOnEdit = Map.of();
 
-    public TableWriter(IOpenLTable table) {
+    protected TableWriter(IOpenLTable table) {
         this.table = table;
         this.originalTable = GridTableUtils.getOriginalTable(table.getGridTable());
     }

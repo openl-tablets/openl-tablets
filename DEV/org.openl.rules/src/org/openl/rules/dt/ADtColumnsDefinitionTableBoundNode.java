@@ -63,7 +63,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private final Map<DTColumnsDefinition, PreBindDetails> definitions = new HashMap<>();
     private boolean initialized;
 
-    public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
+    protected ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode);
         this.openl = Objects.requireNonNull(openl, "openl cannot be null");
     }

@@ -31,7 +31,7 @@ public abstract class AProjectCreator {
     private String createdProjectName;
     private Map<String, String> tags;
 
-    public AProjectCreator(String projectName, String projectFolder, UserWorkspace userWorkspace, Map<String, String> tags) {
+    protected AProjectCreator(String projectName, String projectFolder, UserWorkspace userWorkspace, Map<String, String> tags) {
         this.projectName = projectName;
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;

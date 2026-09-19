@@ -32,7 +32,7 @@ public abstract class ReusableFactory implements Serializable {
     /**
      * Default constructor initializes this factory.
      */
-    public ReusableFactory() {
+    protected ReusableFactory() {
         _reusables = new FastStack();
     }
 

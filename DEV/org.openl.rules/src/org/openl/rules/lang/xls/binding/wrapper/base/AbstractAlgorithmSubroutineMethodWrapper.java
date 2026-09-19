@@ -26,7 +26,7 @@ public abstract class AbstractAlgorithmSubroutineMethodWrapper extends Algorithm
 
     protected final AlgorithmSubroutineMethod delegate;
 
-    public AbstractAlgorithmSubroutineMethodWrapper(AlgorithmSubroutineMethod delegate) {
+    protected AbstractAlgorithmSubroutineMethodWrapper(AlgorithmSubroutineMethod delegate) {
         super(null);
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }

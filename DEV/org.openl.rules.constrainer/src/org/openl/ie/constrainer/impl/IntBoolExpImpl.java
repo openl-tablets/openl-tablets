@@ -26,7 +26,7 @@ import org.openl.ie.constrainer.IntBoolExpConst;
  */
 public abstract class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
 
-    public IntBoolExpImpl(Constrainer c, String name) {
+    protected IntBoolExpImpl(Constrainer c, String name) {
         super(c, name);
     }
 

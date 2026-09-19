@@ -11,7 +11,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  */
 public abstract class ATableBoundNode extends ABoundNode {
 
-    public ATableBoundNode(TableSyntaxNode syntaxNode) {
+    protected ATableBoundNode(TableSyntaxNode syntaxNode) {
         super(syntaxNode);
     }
 

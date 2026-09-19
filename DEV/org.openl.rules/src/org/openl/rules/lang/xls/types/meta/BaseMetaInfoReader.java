@@ -38,7 +38,7 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     @Setter
     private T boundNode;
 
-    public BaseMetaInfoReader(T boundNode) {
+    protected BaseMetaInfoReader(T boundNode) {
         this.boundNode = boundNode;
     }
 

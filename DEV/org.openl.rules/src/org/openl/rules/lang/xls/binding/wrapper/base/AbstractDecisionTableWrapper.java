@@ -36,7 +36,7 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
 
     protected final DecisionTable delegate;
 
-    public AbstractDecisionTableWrapper(DecisionTable delegate) {
+    protected AbstractDecisionTableWrapper(DecisionTable delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 

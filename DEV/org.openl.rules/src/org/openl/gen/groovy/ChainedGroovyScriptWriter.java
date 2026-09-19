@@ -6,7 +6,7 @@ public abstract class ChainedGroovyScriptWriter implements GroovyWriter {
 
     private final GroovyWriter next;
 
-    public ChainedGroovyScriptWriter(GroovyWriter next) {
+    protected ChainedGroovyScriptWriter(GroovyWriter next) {
         this.next = next == null ? EmptyWriter.getInstance() : next;
     }
 

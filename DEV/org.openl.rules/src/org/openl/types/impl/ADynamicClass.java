@@ -33,7 +33,7 @@ public abstract class ADynamicClass extends AOpenClass {
     @Getter
     protected Class<?> instanceClass;
 
-    public ADynamicClass(String name, Class<?> instanceClass) {
+    protected ADynamicClass(String name, Class<?> instanceClass) {
         this.name = name;
         this.instanceClass = instanceClass;
         this.fieldsByName = fieldMap();

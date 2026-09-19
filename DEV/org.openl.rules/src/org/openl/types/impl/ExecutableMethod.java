@@ -10,7 +10,7 @@ import org.openl.types.IOpenMethodHeader;
  */
 public abstract class ExecutableMethod extends AMethod implements IMemberMetaInfo {
 
-    public ExecutableMethod(IOpenMethodHeader header) {
+    protected ExecutableMethod(IOpenMethodHeader header) {
         super(header);
     }
 

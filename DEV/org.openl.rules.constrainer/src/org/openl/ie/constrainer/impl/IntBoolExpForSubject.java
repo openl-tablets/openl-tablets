@@ -28,14 +28,14 @@ public abstract class IntBoolExpForSubject extends IntBoolVarImpl {
     /**
      * Constructor with a given constrainer.
      */
-    public IntBoolExpForSubject(Constrainer c) {
+    protected IntBoolExpForSubject(Constrainer c) {
         this(c, "");
     }
 
     /**
      * Constructor with a given constrainer and name.
      */
-    public IntBoolExpForSubject(Constrainer c, String name) {
+    protected IntBoolExpForSubject(Constrainer c, String name) {
         super(c, name);
     }
 

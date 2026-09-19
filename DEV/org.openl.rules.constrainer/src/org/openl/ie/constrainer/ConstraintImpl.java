@@ -31,14 +31,14 @@ public abstract class ConstraintImpl extends GoalImpl implements Constraint {
     /**
      * Constructor with a given constrainer.
      */
-    public ConstraintImpl(Constrainer c) {
+    protected ConstraintImpl(Constrainer c) {
         this(c, "Constraint");
     }
 
     /**
      * Constructor with a given constrainer and name.
      */
-    public ConstraintImpl(Constrainer c, String name) {
+    protected ConstraintImpl(Constrainer c, String name) {
         super(c, name);
     }
 } // ~ConstraintImpl

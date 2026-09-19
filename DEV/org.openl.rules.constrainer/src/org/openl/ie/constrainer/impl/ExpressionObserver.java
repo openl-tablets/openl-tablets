@@ -82,14 +82,14 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * Constructor for the ExpressionObserver with a trivial event mask.
      */
-    public ExpressionObserver() {
+    protected ExpressionObserver() {
         this(trival_event_map);
     }
 
     /**
      * Constructor for the ExpressionObserver with a given event map.
      */
-    public ExpressionObserver(int[] masks) {
+    protected ExpressionObserver(int[] masks) {
         _event_map = new EventMapImpl(masks);
     }
 

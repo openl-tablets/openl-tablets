@@ -18,7 +18,7 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
 
     protected final ConditionCasts conditionCasts;
 
-    public AConditionEvaluator(ConditionCasts conditionCasts) {
+    protected AConditionEvaluator(ConditionCasts conditionCasts) {
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
     }
 

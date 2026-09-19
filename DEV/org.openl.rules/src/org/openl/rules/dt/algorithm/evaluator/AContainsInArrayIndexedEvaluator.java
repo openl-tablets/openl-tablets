@@ -24,7 +24,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
     private int uniqueKeysSize = -1;
     private int maxArrayLength = -1;
 
-    public AContainsInArrayIndexedEvaluator(ConditionCasts conditionCasts) {
+    protected AContainsInArrayIndexedEvaluator(ConditionCasts conditionCasts) {
         super(conditionCasts);
     }
 

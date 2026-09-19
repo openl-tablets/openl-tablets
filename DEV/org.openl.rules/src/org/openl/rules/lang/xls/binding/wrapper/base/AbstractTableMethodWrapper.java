@@ -25,7 +25,7 @@ public abstract class AbstractTableMethodWrapper extends TableMethod {
 
     protected final TableMethod delegate;
 
-    public AbstractTableMethodWrapper(TableMethod delegate) {
+    protected AbstractTableMethodWrapper(TableMethod delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 

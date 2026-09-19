@@ -27,7 +27,7 @@ public abstract class AbstractAlgorithmWrapper extends Algorithm {
 
     protected final Algorithm delegate;
 
-    public AbstractAlgorithmWrapper(Algorithm delegate) {
+    protected AbstractAlgorithmWrapper(Algorithm delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 
