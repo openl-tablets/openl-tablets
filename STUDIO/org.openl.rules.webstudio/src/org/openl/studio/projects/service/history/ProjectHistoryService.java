@@ -9,6 +9,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -119,10 +120,8 @@ public class ProjectHistoryService {
                     e.getMessage().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
         }
         reloadOpenedModule(webStudio, currentSourceFile);
-        fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
-        if (currentVersion != null) {
-            currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));
-        }
+        markAsCurrent(fileToRestore);
+        removeCurrentVersion(currentVersion);
     }
 
     private static void reloadOpenedModule(@Nullable WebStudio webStudio, File restoredSource) throws Exception {
@@ -334,7 +333,7 @@ public class ProjectHistoryService {
             if (count == 0) {
                 var revisionVersion = new File(storagePath, REVISION_VERSION);
                 if (revisionVersion.exists()) {
-                    revisionVersion.renameTo(new File(revisionVersion.getPath() + CURRENT_VERSION));
+                    markAsCurrent(revisionVersion);
                 }
             }
         } catch (Exception e) {
@@ -357,9 +356,19 @@ public class ProjectHistoryService {
         return null;
     }
 
-    private static void removeCurrentVersion(File currentVersion) {
+    /** Marks the file as the version the module is currently at. */
+    private static void markAsCurrent(File version) throws IOException {
+        Files.move(version.toPath(),
+                Path.of(version.getPath() + CURRENT_VERSION),
+                StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /** Takes the current version mark off the file, leaving it an ordinary history entry. */
+    private static void removeCurrentVersion(@Nullable File currentVersion) throws IOException {
         if (currentVersion != null) {
-            currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));
+            Files.move(currentVersion.toPath(),
+                    Path.of(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")),
+                    StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
