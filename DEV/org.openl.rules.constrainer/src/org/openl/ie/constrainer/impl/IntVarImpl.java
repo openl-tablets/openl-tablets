@@ -23,7 +23,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
      */
     static final class UndoIntVarImpl extends UndoSubject {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoIntVarImpl();
@@ -34,7 +34,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
         int _history_index;
 
         static UndoIntVarImpl getIntVarUndo() {
-            return (UndoIntVarImpl) _factory.getElement();
+            return (UndoIntVarImpl) FACTORY.getElement();
         }
 
         /**

@@ -47,7 +47,7 @@ public final class IntExpAddValue extends IntExpImpl {
 
     static final class IntEventAddValue extends IntEvent {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new IntEventAddValue();
@@ -60,7 +60,7 @@ public final class IntExpAddValue extends IntExpImpl {
         IntEvent _event;
 
         static IntEventAddValue getEvent(IntEvent event, int value) {
-            var ev = (IntEventAddValue) _factory.getElement();
+            var ev = (IntEventAddValue) FACTORY.getElement();
             ev.init(event, value);
             return ev;
         }

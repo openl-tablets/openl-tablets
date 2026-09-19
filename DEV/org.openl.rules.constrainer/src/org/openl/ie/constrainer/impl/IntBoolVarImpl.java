@@ -16,7 +16,7 @@ import org.openl.ie.tools.ReusableFactory;
 public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
     static final class IntEventBool extends IntEvent {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new IntEventBool();
@@ -27,7 +27,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         int _int_value, _type;
 
         static IntEventBool getEvent(IntExp exp, boolean val) {
-            var ev = (IntEventBool) _factory.getElement();
+            var ev = (IntEventBool) FACTORY.getElement();
             ev.init(exp, val);
             return ev;
         }
@@ -196,7 +196,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
      */
     static final class UndoIntBoolVar extends UndoSubject {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoIntBoolVar();
@@ -207,7 +207,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         int _min, _max;
 
         static UndoIntBoolVar getBoolVarUndo() {
-            return (UndoIntBoolVar) _factory.getElement();
+            return (UndoIntBoolVar) FACTORY.getElement();
         }
 
         /**
@@ -245,7 +245,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
      */
     static final class UndoIntBoolVarValue extends UndoImpl {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoIntBoolVarValue();
@@ -254,7 +254,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
         };
 
         static UndoIntBoolVarValue getUndo(IntBoolVarImpl v) {
-            var undo = (UndoIntBoolVarValue) _factory.getElement();
+            var undo = (UndoIntBoolVarValue) FACTORY.getElement();
             undo.undoable(v);
             return undo;
         }
