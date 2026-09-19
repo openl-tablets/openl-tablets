@@ -12,9 +12,6 @@ public class DateTool {
     public static final int MONTHS_IN_YEAR = 12;
     public static final int QUARTERS_IN_YEAR = 4;
     public static final int MONTHS_IN_QUARTER = 3;
-    public static final int SECONDS_IN_DAY = 60 * 60 * 24;
-
-    public static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
 
     public static Integer absMonth(Date d) {
         if (d == null) {

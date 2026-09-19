@@ -40,8 +40,6 @@ import org.openl.types.java.JavaOpenClass;
 @Slf4j
 public class InterfaceTransformer {
     public static final Function<Integer, Integer> IGNORE_PARAMETER_ANNOTATIONS = index -> -1;
-    public static final Function<Integer, Integer> ADD_FIRST_PARAMETER = index -> index + 1;
-    public static final Function<Integer, Integer> REMOVE_FIRST_PARAMETER = index -> index - 1;
     private final Class<?> classToTransform;
     private final String className;
     private final Function<Integer, Integer> methodParameterAdaptor;

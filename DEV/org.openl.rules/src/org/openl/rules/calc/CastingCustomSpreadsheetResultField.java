@@ -56,11 +56,6 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         return ret;
     }
 
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return super.getDeclaringClass();
-    }
-
     private XlsModuleOpenClass getModule() {
         if (getDeclaringClass() instanceof CustomSpreadsheetResultOpenClass) {
             return ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule();
