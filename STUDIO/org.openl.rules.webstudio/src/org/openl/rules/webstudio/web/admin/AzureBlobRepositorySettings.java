@@ -66,10 +66,10 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
         accountKeyProperty = configPrefix + ACCOUNT_KEY_PROPERTY_SUFFIX;
         listenerTimerPeriodProperty = configPrefix + LISTENER_TIMER_PERIOD_PROPERTY_SUFFIX;
 
-        load(properties);
+        loadProperties(properties);
     }
 
-    private void load(PropertiesHolder properties) {
+    private void loadProperties(PropertiesHolder properties) {
         uri = properties.getProperty(uriProperty);
         accountName = properties.getProperty(accountNameProperty);
         accountKey = properties.getProperty(accountKeyProperty);
@@ -93,6 +93,6 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
         super.revert(properties);
 
         properties.revertProperties(uriProperty, accountNameProperty, accountKeyProperty, listenerTimerPeriodProperty);
-        load(properties);
+        loadProperties(properties);
     }
 }
