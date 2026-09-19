@@ -4,7 +4,7 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MySQLContainer;
 
 /**
- * Verifies the database upgrade against MySQL.
+ * Verifies the database migration against MySQL.
  *
  * @author Yury Molchan
  */

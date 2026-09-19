@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Cluster-wide lock registry of Spring Integration, which guards the shared project state. The registry names
+ the table from the OPENL_ prefix of the lockRepository bean rather than spelling it out, so a search for
+ OPENL_LOCK in the sources finds nothing.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="lock" author="ymolchan">
+        <!-- Edited when a release changes this table; see the note in db.changelog-users.xml. -->
+        <validCheckSum>1:any</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="OPENL_LOCK"/>
+            </not>
+        </preConditions>
+        <comment>Cluster-wide lock registry of Spring Integration, which guards the shared project state</comment>
+
+        <!--
+         Columns of the table Spring Integration expects, with the types of its own reference schema. The lock
+         key and the client identifier are UUIDs, and the region is named by the application, so none of the
+         three carries national characters. The moment of the lock is a LocalDateTime, and the fraction of a
+         second is part of it: the registry compares it against the expiry, and a type that keeps whole
+         seconds alone would let a lock outlive its lease.
+        -->
+        <createTable tableName="OPENL_LOCK">
+            <column name="LOCK_KEY" type="CHAR(36)">
+                <constraints primaryKey="true" primaryKeyName="OPENL_LOCK_PK" nullable="false"/>
+            </column>
+            <column name="REGION" type="VARCHAR(100)">
+                <constraints primaryKey="true" primaryKeyName="OPENL_LOCK_PK" nullable="false"/>
+            </column>
+            <column name="CLIENT_ID" type="CHAR(36)"/>
+            <column name="CREATED_DATE" type="DATETIME(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

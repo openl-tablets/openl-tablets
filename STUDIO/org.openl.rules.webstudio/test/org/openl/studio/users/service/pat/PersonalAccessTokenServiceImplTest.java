@@ -11,11 +11,9 @@ import java.time.temporal.ChronoUnit;
 
 import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -23,6 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
 import org.openl.rules.webstudio.service.AclServiceTestConfiguration;
 import org.openl.rules.webstudio.service.DBTestConfiguration;
+import org.openl.rules.webstudio.service.SecuritySchemaReset;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
 
@@ -56,14 +55,12 @@ class PersonalAccessTokenServiceImplTest {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    @Qualifier("flywayDBReset")
-    private Flyway flywayDBReset;
+    private SecuritySchemaReset securitySchemaReset;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         // Reset all changes done while testing
-        flywayDBReset.clean();
-        flywayDBReset.migrate();
+        securitySchemaReset.reset();
         QueryCountHolder.clear();
     }
 

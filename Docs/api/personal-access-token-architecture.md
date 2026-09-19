@@ -893,7 +893,7 @@ sequenceDiagram
 
 ```sql
 CREATE TABLE OpenL_PAT_Tokens (
-    publicId   VARCHAR(16) NOT NULL PRIMARY KEY,
+    publicId   CHAR(16) NOT NULL PRIMARY KEY,
     secretHash VARCHAR(255) NOT NULL,
     createdAt  TIMESTAMP NOT NULL,
     expiresAt  TIMESTAMP,
@@ -920,7 +920,7 @@ CREATE INDEX ix_OpenL_PAT_Tokens_loginName
 
 | Feature | Rationale |
 |---------|-----------|
-| **publicId as PK** | Natural primary key, globally unique, fixed length |
+| **publicId as PK** | Natural primary key, globally unique, fixed length, hence `CHAR` |
 | **secretHash VARCHAR(255)** | BCrypt hashes are ~60 chars, allows for future hash algorithms |
 | **Foreign Key with CASCADE** | Deleting user automatically revokes all tokens |
 | **Unique (loginName, name)** | Prevents duplicate token names per user |
@@ -929,11 +929,12 @@ CREATE INDEX ix_OpenL_PAT_Tokens_loginName
 
 ### Migration Strategy
 
-**Flyway Migration**: `V15__Create_PAT_Tokens.sql`
+**Liquibase change set**: `pat-tokens` in `db/changelog/install/db.changelog-pat-tokens.xml`
 
 **Backward Compatibility**:
 - New table, no schema changes to existing tables
-- Uses database-agnostic syntax with placeholders: `${varchar}`, `${timestamp}`
+- Uses database-agnostic types Liquibase translates, and the `${varchar}` placeholder for the two columns
+  that hold a name
 - Supports all databases: PostgreSQL, MySQL, Oracle, SQL Server, H2
 
 **Rollback Considerations**:
@@ -1636,7 +1637,7 @@ void parse_sqlInjectionAttempt_throwsException() {
 - Optional expiration support
 - OAuth2/SAML authentication requirement
 - Comprehensive test suite
-- Database migration with Flyway
+- Database migration with Liquibase
 
 **Components Added**:
 - `PatAuthenticationFilter`

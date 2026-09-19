@@ -4,7 +4,7 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.oracle.OracleContainer;
 
 /**
- * Verifies the database upgrade against Oracle.
+ * Verifies the database migration against Oracle.
  *
  * @author Yury Molchan
  */

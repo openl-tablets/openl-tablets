@@ -5,7 +5,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 
 /**
- * Verifies the database upgrade against PostgreSQL.
+ * Verifies the database migration against PostgreSQL.
  *
  * @author Yury Molchan
  */

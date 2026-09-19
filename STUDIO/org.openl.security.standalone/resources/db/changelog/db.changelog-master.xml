@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Change log of the security schema, in two halves.
+
+ `install/` holds the tables as the current release has them, one file per area, each created in one step on a
+ database that has none of them. `upgrade/` holds what a database of an earlier release still needs, one file
+ per release that changed a table the release before it had already created.
+
+ An install change set is marked as run wherever its tables are already there, so the same file serves an
+ empty database and one handed over by an earlier release: a table that release never had is created, and one
+ it did have is left alone. That is why a table 6.0.0 introduced, such as the personal access tokens, has
+ nothing in `upgrade/` - the install file creates it on a database of 5.27.15 as readily as on an empty one.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <!--
+     Identifiers are written the way the migration tool before Liquibase wrote them: unquoted, so that every
+     database folds them by its own rules. Quoting them would create objects an upgraded database does not have
+     and the application cannot address - on PostgreSQL every mixed-case name, and on Oracle every name
+     Liquibase counts as reserved. Each change log names the strategy for itself, because an included file does
+     not inherit it.
+    -->
+
+    <!--
+     Character type of a column that can hold text a person typed or an identity provider supplied: a name, a
+     description, a mail address. Liquibase translates its own NVARCHAR into the national type of each
+     database - NVARCHAR on SQL Server, NVARCHAR2 on Oracle - and into the plain VARCHAR that already stores
+     Unicode on PostgreSQL and H2.
+
+     MySQL and MariaDB are named apart, first, because there NVARCHAR is shorthand for NATIONAL VARCHAR, which
+     pins the column to the three-byte utf8mb3 instead of the character set of the database: no character
+     outside the basic plane, no emoji, and deprecated since MySQL 8.0. A plain VARCHAR takes the character
+     set the database was created with, which is utf8mb4 by default and holds every character. A dbms of its
+     own is answered before the one without, so this pair is the exception and the line below is the rule.
+
+     A column whose content the product itself decides - a hash, a UUID, a Java class name, a setting key and
+     its value - holds ASCII alone and is declared VARCHAR or CHAR, which costs SQL Server and Oracle half the
+     storage of the national type. A column that a foreign key covers keeps the type of the column it
+     references: Oracle refuses a foreign key between a national and a non-national column.
+    -->
+    <property name="varchar" value="VARCHAR" dbms="mysql,mariadb"/>
+    <property name="varchar" value="NVARCHAR"/>
+
+    <!--
+     False, for the two audit flags of the statement that stages the access control entries of an earlier
+     release back. Every other flag is written through a change of its own and spelled out by Liquibase; that
+     one statement inserts the rows a query returns, which no change does, so the literal is named per
+     database here.
+    -->
+    <property name="booleanFalse" value="FALSE" dbms="h2,postgresql,mysql,mariadb"/>
+    <property name="booleanFalse" value="0" dbms="mssql,oracle"/>
+
+    <!--
+     Length of the Spring Security ACL identifier columns, as each database was given it by earlier releases.
+     A unique index covers the columns, and MySQL and MariaDB are the tightest: an InnoDB index key holds
+     3072 bytes, which is 766 characters of four bytes each.
+    -->
+    <property name="aclClassLength" value="65535" dbms="postgresql"/>
+    <property name="aclClassLength" value="2000" dbms="h2,mssql,oracle"/>
+    <property name="aclClassLength" value="765" dbms="mysql,mariadb"/>
+    <property name="aclIdentityLength" value="65535" dbms="h2,postgresql"/>
+    <property name="aclIdentityLength" value="4000" dbms="mssql"/>
+    <property name="aclIdentityLength" value="2000" dbms="oracle"/>
+    <property name="aclIdentityLength" value="766" dbms="mysql,mariadb"/>
+
+    <!--
+     Releases before 5.27.10 kept the group hierarchy in OpenL_Group2Group; 5.27.10 flattened it into the group
+     memberships and the access control entries, and then dropped the table. The change set that flattens it is
+     no longer here, so a database that still carries the table cannot be converted, and the migration stops on
+     it instead of leaving it half converted. 5.27.15 is the oldest release the conversion is tested against.
+    -->
+    <preConditions onFail="HALT"
+                   onFailMessage="The security database comes from a release older than OpenL Tablets 5.27.10 and cannot be converted. Upgrade the installation to 5.27.15 or 6.0.0 first and start it once, so that it converts the database, and then upgrade to this version.">
+        <not>
+            <tableExists tableName="OpenL_Group2Group"/>
+        </not>
+    </preConditions>
+
+    <!-- The tables, by area. Users come first: the other areas reference them. -->
+    <include file="install/db.changelog-users.xml" relativeToChangelogFile="true"/>
+    <include file="install/db.changelog-tags.xml" relativeToChangelogFile="true"/>
+    <include file="install/db.changelog-lock.xml" relativeToChangelogFile="true"/>
+    <include file="install/db.changelog-pat-tokens.xml" relativeToChangelogFile="true"/>
+    <include file="install/db.changelog-acl.xml" relativeToChangelogFile="true"/>
+
+    <!-- What a database of an earlier release still needs, in the order the releases shipped it. -->
+    <include file="upgrade/db.changelog-6.0.0.xml" relativeToChangelogFile="true"/>
+    <include file="upgrade/db.changelog-6.4.0.xml" relativeToChangelogFile="true"/>
+    <include file="upgrade/db.changelog-6.5.0.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

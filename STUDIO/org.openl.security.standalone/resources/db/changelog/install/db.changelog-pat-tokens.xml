@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Personal access tokens, which authenticate API calls on behalf of a user. 6.0.0 introduced them, so this file
+ also creates the table on a database handed over by 5.27.15.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="pat-tokens" author="ymolchan">
+        <!-- Edited when a release changes this table; see the note in db.changelog-users.xml. -->
+        <validCheckSum>1:any</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="OpenL_PAT_Tokens"/>
+            </not>
+        </preConditions>
+        <comment>Personal access tokens, which authenticate API calls on behalf of a user</comment>
+
+        <createTable tableName="OpenL_PAT_Tokens">
+            <column name="publicId" type="CHAR(16)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="secretHash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="DATETIME(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expiresAt" type="DATETIME(6)"/>
+            <column name="loginName" type="${varchar}(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="${varchar}(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_PAT_Tokens_user"
+                                 baseTableName="OpenL_PAT_Tokens" baseColumnNames="loginName"
+                                 referencedTableName="OpenL_Users" referencedColumnNames="loginName"
+                                 onDelete="CASCADE"/>
+        <addUniqueConstraint constraintName="uq_OpenL_PAT_Tokens_user_name" tableName="OpenL_PAT_Tokens"
+                             columnNames="loginName, name"/>
+        <createIndex indexName="ix_OpenL_PAT_Tokens_loginName" tableName="OpenL_PAT_Tokens">
+            <column name="loginName"/>
+        </createIndex>
+        <!-- A check constraint has no change of its own in Liquibase Open Source. -->
+        <sql>
+            ALTER TABLE OpenL_PAT_Tokens
+                ADD CONSTRAINT ck_OpenL_PAT_Tokens_expires CHECK (expiresAt IS NULL OR expiresAt > createdAt)
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

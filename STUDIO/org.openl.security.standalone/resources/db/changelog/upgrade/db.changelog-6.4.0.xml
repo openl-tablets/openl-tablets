@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ The column 6.4.0 added to a table the releases before it had already created. A database of 6.4.0 or later
+ carries it, and so does one this change log has just created, so the change set is marked as run there.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="6.4.0-user-last-login" author="ymolchan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="OpenL_Users" columnName="lastLogin"/>
+            </not>
+        </preConditions>
+        <comment>Moment of the last successful sign-in, shown on the Users screen</comment>
+
+        <addColumn tableName="OpenL_Users">
+            <column name="lastLogin" type="DATETIME(6)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

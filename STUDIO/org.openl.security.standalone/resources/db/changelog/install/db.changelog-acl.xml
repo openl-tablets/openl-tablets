@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Access control lists of Spring Security, and the permissions an empty installation grants on the repository
+ roots.
+
+ Spring Security reads a surrogate key back right after the insert that generated it, through a query that
+ differs per database. H2 and Oracle are served by a named sequence, because neither reports the value an
+ identity column has just generated; the other databases are served by an identity column. The two flavours
+ differ in the key column alone, yet each carries its own keys and indexes: a precondition is answered before
+ its change set runs, so a change set shared by both flavours could no longer tell a schema it has just
+ created from one it must leave alone.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="acl-sequence-flavour" author="ymolchan" dbms="h2,oracle">
+        <!-- Edited when a release changes these tables; see the note in db.changelog-users.xml. -->
+        <validCheckSum>1:any</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="acl_sid"/>
+            </not>
+        </preConditions>
+        <comment>Access control lists keyed from a named sequence</comment>
+
+        <createSequence sequenceName="acl_sid_sequence" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="acl_class_sequence" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="acl_object_identity_sequence" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="acl_entry_sequence" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="acl_sid">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="acl_sid_sequence">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="principal" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="${varchar}(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="acl_class">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="acl_class_sequence">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="class" type="VARCHAR(${aclClassLength})">
+                <constraints nullable="false"/>
+            </column>
+            <column name="class_id_type" type="VARCHAR(${aclClassLength})"/>
+        </createTable>
+
+        <createTable tableName="acl_object_identity">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="acl_object_identity_sequence">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="object_id_class" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_id_identity" type="${varchar}(${aclIdentityLength})">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_object" type="BIGINT"/>
+            <column name="owner_sid" type="BIGINT"/>
+            <column name="entries_inheriting" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="acl_entry">
+            <column name="id" type="BIGINT" defaultValueSequenceNext="acl_entry_sequence">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="acl_object_identity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ace_order" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mask" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="granting" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="audit_success" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="audit_failure" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint constraintName="uk_acl_sid" tableName="acl_sid" columnNames="sid, principal"/>
+        <addUniqueConstraint constraintName="uk_acl_class" tableName="acl_class" columnNames="class"/>
+        <addUniqueConstraint constraintName="uk_acl_object_identity" tableName="acl_object_identity"
+                             columnNames="object_id_class, object_id_identity"/>
+        <addUniqueConstraint constraintName="uk_acl_entry" tableName="acl_entry"
+                             columnNames="acl_object_identity, ace_order"/>
+
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_parent"
+                                 baseTableName="acl_object_identity" baseColumnNames="parent_object"
+                                 referencedTableName="acl_object_identity" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_class"
+                                 baseTableName="acl_object_identity" baseColumnNames="object_id_class"
+                                 referencedTableName="acl_class" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_owner"
+                                 baseTableName="acl_object_identity" baseColumnNames="owner_sid"
+                                 referencedTableName="acl_sid" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_entry_object"
+                                 baseTableName="acl_entry" baseColumnNames="acl_object_identity"
+                                 referencedTableName="acl_object_identity" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_entry_acl"
+                                 baseTableName="acl_entry" baseColumnNames="sid"
+                                 referencedTableName="acl_sid" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="acl-identity-flavour" author="ymolchan" dbms="postgresql,mysql,mariadb,mssql">
+        <!-- Edited when a release changes these tables; see the note in db.changelog-users.xml. -->
+        <validCheckSum>1:any</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="acl_sid"/>
+            </not>
+        </preConditions>
+        <comment>Access control lists keyed from an identity column</comment>
+
+        <createTable tableName="acl_sid">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="principal" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="${varchar}(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="acl_class">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="class" type="VARCHAR(${aclClassLength})">
+                <constraints nullable="false"/>
+            </column>
+            <column name="class_id_type" type="VARCHAR(${aclClassLength})"/>
+        </createTable>
+
+        <createTable tableName="acl_object_identity">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="object_id_class" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_id_identity" type="${varchar}(${aclIdentityLength})">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parent_object" type="BIGINT"/>
+            <column name="owner_sid" type="BIGINT"/>
+            <column name="entries_inheriting" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="acl_entry">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="acl_object_identity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ace_order" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sid" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mask" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="granting" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="audit_success" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="audit_failure" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint constraintName="uk_acl_sid" tableName="acl_sid" columnNames="sid, principal"/>
+        <addUniqueConstraint constraintName="uk_acl_class" tableName="acl_class" columnNames="class"/>
+        <addUniqueConstraint constraintName="uk_acl_object_identity" tableName="acl_object_identity"
+                             columnNames="object_id_class, object_id_identity"/>
+        <addUniqueConstraint constraintName="uk_acl_entry" tableName="acl_entry"
+                             columnNames="acl_object_identity, ace_order"/>
+
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_parent"
+                                 baseTableName="acl_object_identity" baseColumnNames="parent_object"
+                                 referencedTableName="acl_object_identity" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_class"
+                                 baseTableName="acl_object_identity" baseColumnNames="object_id_class"
+                                 referencedTableName="acl_class" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_object_identity_owner"
+                                 baseTableName="acl_object_identity" baseColumnNames="owner_sid"
+                                 referencedTableName="acl_sid" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_entry_object"
+                                 baseTableName="acl_entry" baseColumnNames="acl_object_identity"
+                                 referencedTableName="acl_object_identity" referencedColumnNames="id"/>
+        <addForeignKeyConstraint constraintName="fk_acl_entry_acl"
+                                 baseTableName="acl_entry" baseColumnNames="sid"
+                                 referencedTableName="acl_sid" referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="acl-default-permissions" author="ymolchan">
+        <!-- Edited when a release changes the default permissions; see the note in db.changelog-users.xml. -->
+        <validCheckSum>1:any</validCheckSum>
+        <!--
+         Only an access control list that is empty through and through is seeded. Emptying all three tables is
+         beyond what the application does, so this recognizes a schema this change log has just created, and
+         it never partially seeds one that already holds classes or object identities.
+        -->
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM acl_sid</sqlCheck>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM acl_class</sqlCheck>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM acl_object_identity</sqlCheck>
+            </and>
+        </preConditions>
+        <comment>Permissions an empty installation grants on the repository roots</comment>
+
+        <!-- Every default group is an authority, not a single user, hence a non-principal security identity. -->
+        <insert tableName="acl_sid">
+            <column name="principal" valueBoolean="false"/>
+            <column name="sid" value="ADMIN"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueBoolean="false"/>
+            <column name="sid" value="Viewers"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueBoolean="false"/>
+            <column name="sid" value="Developers"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueBoolean="false"/>
+            <column name="sid" value="Testers"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueBoolean="false"/>
+            <column name="sid" value="Deployers"/>
+        </insert>
+        <insert tableName="acl_sid">
+            <column name="principal" valueBoolean="false"/>
+            <column name="sid" value="Analysts"/>
+        </insert>
+
+        <insert tableName="acl_class">
+            <column name="class" value="org.openl.security.acl.repository.Root"/>
+            <column name="class_id_type" value="java.lang.String"/>
+        </insert>
+        <insert tableName="acl_class">
+            <column name="class" value="org.openl.security.acl.repository.ProjectArtifact"/>
+            <column name="class_id_type" value="java.lang.String"/>
+        </insert>
+        <insert tableName="acl_class">
+            <column name="class" value="org.openl.security.acl.repository.DeploymentProjectArtifact"/>
+            <column name="class_id_type" value="java.lang.String"/>
+        </insert>
+        <insert tableName="acl_class">
+            <column name="class" value="org.openl.security.acl.repository.RepositoryObjectIdentity"/>
+            <column name="class_id_type" value="java.lang.String"/>
+        </insert>
+
+        <!--
+         Root of the design repositories ("1"), of the deploy configurations ("2") and of the production
+         repositories ("3"). Every artefact below a root inherits the permissions of that root, and the
+         administrators own all three.
+        -->
+        <insert tableName="acl_object_identity">
+            <column name="object_id_class" valueComputed="(SELECT id FROM acl_class WHERE class = 'org.openl.security.acl.repository.Root')"/>
+            <column name="object_id_identity" value="1"/>
+            <column name="owner_sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'ADMIN')"/>
+            <column name="entries_inheriting" valueBoolean="true"/>
+        </insert>
+        <insert tableName="acl_object_identity">
+            <column name="object_id_class" valueComputed="(SELECT id FROM acl_class WHERE class = 'org.openl.security.acl.repository.Root')"/>
+            <column name="object_id_identity" value="2"/>
+            <column name="owner_sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'ADMIN')"/>
+            <column name="entries_inheriting" valueBoolean="true"/>
+        </insert>
+        <insert tableName="acl_object_identity">
+            <column name="object_id_class" valueComputed="(SELECT id FROM acl_class WHERE class = 'org.openl.security.acl.repository.Root')"/>
+            <column name="object_id_identity" value="3"/>
+            <column name="owner_sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'ADMIN')"/>
+            <column name="entries_inheriting" valueBoolean="true"/>
+        </insert>
+
+        <!--
+         Permission masks: 1 is VIEW, 2 is EDIT, 4 is CREATE, 8 is DELETE, and 15 is all four of them. Every
+         default group sees every repository root; developers and analysts also edit the design repositories,
+         and deployers also edit the deploy configurations and the production repositories. The administrators
+         own the roots and need no entry of their own.
+        -->
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '1')"/>
+            <column name="ace_order" valueNumeric="1"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Deployers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '1')"/>
+            <column name="ace_order" valueNumeric="2"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Developers')"/>
+            <column name="mask" valueNumeric="15"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '1')"/>
+            <column name="ace_order" valueNumeric="3"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Testers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '1')"/>
+            <column name="ace_order" valueNumeric="4"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Viewers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '1')"/>
+            <column name="ace_order" valueNumeric="5"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Analysts')"/>
+            <column name="mask" valueNumeric="15"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '2')"/>
+            <column name="ace_order" valueNumeric="1"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Deployers')"/>
+            <column name="mask" valueNumeric="15"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '2')"/>
+            <column name="ace_order" valueNumeric="2"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Developers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '2')"/>
+            <column name="ace_order" valueNumeric="3"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Testers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '2')"/>
+            <column name="ace_order" valueNumeric="4"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Viewers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '2')"/>
+            <column name="ace_order" valueNumeric="5"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Analysts')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '3')"/>
+            <column name="ace_order" valueNumeric="1"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Deployers')"/>
+            <column name="mask" valueNumeric="15"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '3')"/>
+            <column name="ace_order" valueNumeric="2"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Developers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '3')"/>
+            <column name="ace_order" valueNumeric="3"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Testers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '3')"/>
+            <column name="ace_order" valueNumeric="4"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Viewers')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+        <insert tableName="acl_entry">
+            <column name="acl_object_identity" valueComputed="(SELECT id FROM acl_object_identity WHERE object_id_identity = '3')"/>
+            <column name="ace_order" valueNumeric="5"/>
+            <column name="sid" valueComputed="(SELECT id FROM acl_sid WHERE sid = 'Analysts')"/>
+            <column name="mask" valueNumeric="1"/>
+            <column name="granting" valueBoolean="true"/>
+            <column name="audit_success" valueBoolean="false"/>
+            <column name="audit_failure" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

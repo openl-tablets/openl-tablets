@@ -669,14 +669,14 @@ The PAT validation process includes multiple security measures:
 - **Framework**: Spring Boot 3.x
 - **Security**: Spring Security 6.x
 - **Validation**: Jakarta Validation (Hibernate Validator)
-- **Database**: JPA/Hibernate with Flyway migrations
+- **Database**: JPA/Hibernate with Liquibase migrations
 - **API Documentation**: OpenAPI 3.0 (Swagger)
 
 ### Database Schema
 
 ```sql
 CREATE TABLE OpenL_PAT_Tokens (
-    publicId   VARCHAR(16) NOT NULL PRIMARY KEY,
+    publicId   CHAR(16) NOT NULL PRIMARY KEY,
     secretHash VARCHAR(255) NOT NULL,
     createdAt  TIMESTAMP NOT NULL,
     expiresAt  TIMESTAMP,

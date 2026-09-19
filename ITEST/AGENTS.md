@@ -60,8 +60,10 @@ OpenL should surface in CI as early as possible, not months later at a manual ve
 > [!Note]
 > A suite that starts failing right after an upstream image release is a real incompatibility signal, not flake. Investigate and adapt OpenL (or report upstream) — do not silence it by pinning the tag.
 
-The one **deliberately pinned** image is `openltablets/webstudio:6.0.0` in `AbstractRdbmsTest`: it is the
-fixed previous-release baseline the database-migration tests upgrade *from*, so it must not move.
+The **deliberately pinned** images are `openltablets/webstudio:5.27.15` and `openltablets/webstudio:6.0.0`
+in `AbstractRdbmsTest`: they are the fixed previous releases the database-migration tests upgrade *from*, so
+they must not move. The same tests also run against an empty database, where the current version creates the
+schema itself.
 
 The `*RdbmsTest` classes run **only on CI** — they are gated on the `CI` environment variable (set by
 GitHub Actions, GitLab CI, and others) and therefore skip on a local build. To run one locally, set

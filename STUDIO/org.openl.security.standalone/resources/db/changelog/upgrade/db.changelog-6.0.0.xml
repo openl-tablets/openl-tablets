@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Conversion of a database of 5.27.15 into the permission model of 6.0.0.
+
+ Until 6.0.0 a permission was a mask of its own per privilege, one privilege per access control entry, and
+ unlocking was an authority of a group. 6.0.0 replaced the masks with the four permissions of Spring Security,
+ merged the entries of a security identity into a single role, and made unlocking a matter of managing the
+ project. Everything 6.0.0 only added - the personal access tokens, the index over the external group names -
+ is created by the install change logs instead, which a database missing it passes through.
+
+ Both change sets are marked as run on a database that no longer carries the previous model, which is every
+ database of 6.0.0 or later and every one this change log has just created.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="6.0.0-drop-unlock-authorities" author="ymolchan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(*) FROM OpenL_Group_Authorities
+                    WHERE authority IN ('UNLOCK_PROJECTS', 'UNLOCK_DEPLOYMENT')
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <comment>Unlocking is no longer an authority of its own: a manager of a project may unlock it</comment>
+
+        <delete tableName="OpenL_Group_Authorities">
+            <where>authority IN ('UNLOCK_PROJECTS', 'UNLOCK_DEPLOYMENT')</where>
+        </delete>
+    </changeSet>
+
+    <changeSet id="6.0.0-role-based-permissions" author="ymolchan">
+        <!--
+         Every mask of the previous model sets a bit above the twenty-fourth, and its smallest value is
+         therefore 16777217, while the current model counts in the five lowest bits and never exceeds 31. A
+         mask above 65535 is an entry that has not been converted yet.
+        -->
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM acl_entry WHERE mask &gt; 65535</sqlCheck>
+            </not>
+        </preConditions>
+        <comment>Converts the permissions of the releases before 6.0.0 into the roles of the current model</comment>
+
+        <!-- Deploying, running and benchmarking are no longer permissions on a repository. -->
+        <delete tableName="acl_entry">
+            <where>mask IN (184549376, 201326592, 218103808)</where>
+        </delete>
+
+        <!--
+         What the previous masks become: view stays view, edit stays edit, adding is creating, and erasing is
+         deleting. A mask no statement below names was defined outside the product and is carried over as it
+         is. No new value is a mask any later statement looks for, so the order they run in does not matter.
+        -->
+        <update tableName="acl_entry">
+            <column name="mask" valueNumeric="1"/>
+            <where>mask = 16777217</where>
+        </update>
+        <update tableName="acl_entry">
+            <column name="mask" valueNumeric="2"/>
+            <where>mask = 67108884</where>
+        </update>
+        <update tableName="acl_entry">
+            <column name="mask" valueNumeric="4"/>
+            <where>mask IN (33554448, 50331664)</where>
+        </update>
+        <update tableName="acl_entry">
+            <column name="mask" valueNumeric="8"/>
+            <where>mask IN (83886088, 100663328)</where>
+        </update>
+
+        <!--
+         One entry per security identity, staged aside while the entries it replaces are deleted.
+
+         Staging the rows is the one step with no change of its own: Liquibase inserts the rows it is given,
+         not the rows a query returns. The table is created from the query as well, rather than through
+         <createTable>, so that each column keeps the type the release that created acl_entry gave it. That
+         matters for the flag: on Oracle 23ai <createTable> would make it the native BOOLEAN, while a database
+         of 5.27.15 carries NUMBER(1,0), and the rows would have to convert on the way through.
+        -->
+        <sql dbms="h2,postgresql,mysql,mariadb,oracle">
+            CREATE TABLE OpenL_Merged_Ace AS
+            SELECT acl_object_identity, sid, granting, SUM(DISTINCT mask) AS cumulative_mask
+            FROM acl_entry
+            GROUP BY acl_object_identity, sid, granting
+        </sql>
+        <sql dbms="mssql">
+            SELECT acl_object_identity, sid, granting, SUM(DISTINCT mask) AS cumulative_mask
+            INTO OpenL_Merged_Ace
+            FROM acl_entry
+            GROUP BY acl_object_identity, sid, granting
+        </sql>
+
+        <!--
+         A role is a closed set of permissions, so an identity that held part of one is widened to the whole
+         of it: anything above view becomes view, edit, create and delete, and anything above that becomes the
+         role that also administers. The first statement leaves 15 alone, so the second never sees what it has
+         just widened.
+        -->
+        <update tableName="OpenL_Merged_Ace">
+            <column name="cumulative_mask" valueNumeric="15"/>
+            <where>cumulative_mask &gt; 1 AND cumulative_mask &lt; 15</where>
+        </update>
+        <update tableName="OpenL_Merged_Ace">
+            <column name="cumulative_mask" valueNumeric="31"/>
+            <where>cumulative_mask &gt; 15 AND cumulative_mask &lt; 31</where>
+        </update>
+
+        <!-- The staged rows replace every entry, so the entries they were merged from all go. -->
+        <delete tableName="acl_entry"/>
+        <sql>
+            INSERT INTO acl_entry (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)
+            SELECT acl_object_identity,
+                   ROW_NUMBER() OVER (PARTITION BY acl_object_identity ORDER BY sid),
+                   sid,
+                   cumulative_mask,
+                   granting, ${booleanFalse}, ${booleanFalse}
+            FROM OpenL_Merged_Ace
+        </sql>
+
+        <dropTable tableName="OpenL_Merged_Ace"/>
+    </changeSet>
+
+</databaseChangeLog>

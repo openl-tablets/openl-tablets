@@ -245,7 +245,7 @@ management and the repository configuration all live there.
 
 ## Custom Forks Maintained by OpenL
 
-### 1. JGit
+### JGit
 
 **Upstream**: Eclipse JGit
 **Fork**: Custom enhancements by OpenL
@@ -260,20 +260,6 @@ management and the repository configuration all live there.
 - Periodic upstream merges
 - OpenL-specific features
 - Long-term maintenance
-
-### 2. Flyway
-
-**Upstream**: Redgate Flyway
-**Fork**: Custom version
-**Version**: 4.2.0.3 (OpenL custom)
-
-**Modifications**:
-- Database schema customizations
-- Migration script enhancements
-
-**Maintenance**:
-- Minimal changes
-- Consider upstream upgrade
 
 ---
 

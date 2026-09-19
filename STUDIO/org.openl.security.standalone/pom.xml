@@ -43,8 +43,13 @@
             <artifactId>HikariCP</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mattbertolini</groupId>
+            <artifactId>liquibase-slf4j</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- OpenL dependencies -->
@@ -59,6 +64,12 @@
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

@@ -14,11 +14,9 @@ import jakarta.validation.ConstraintViolationException;
 
 import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -40,17 +38,15 @@ class UserManagementTest {
     private UserManagementService userService;
 
     @Autowired
-    @Qualifier("flywayDBReset")
-    private Flyway flywayDBReset;
+    private SecuritySchemaReset securitySchemaReset;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         // Reset all changes where done while testing
-        flywayDBReset.clean();
-        flywayDBReset.migrate();
+        securitySchemaReset.reset();
         QueryCountHolder.clear();
     }
 

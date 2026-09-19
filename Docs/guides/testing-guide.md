@@ -63,7 +63,7 @@ OpenL Tablets uses **non-standard** test directories:
 ```
 test/                    # Unit tests (instead of src/test/java)
 test-resources/          # Test resources (instead of src/test/resources)
-resources/db/flyway/     # Database migration test fixtures
+resources/db/changelog/  # Database migration change logs
 ```
 
 ### Memory Settings
@@ -332,12 +332,12 @@ class UserServiceIntegrationTest {
 }
 ```
 
-### Database Testing with Flyway
+### Database Testing with Liquibase
 
-OpenL Tablets uses Flyway for database migrations in tests:
+OpenL Tablets applies its Liquibase change logs to the test database. `SecuritySchemaReset` drops the schema and
+builds it again, so every test starts from the schema and the seed data an empty installation gets:
 
 ```java
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -345,13 +345,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 class DatabaseIntegrationTest {
 
     @Autowired
-    private Flyway flyway;
+    private SecuritySchemaReset securitySchemaReset;
 
     @BeforeEach
-    void resetDatabase() {
-        // Clean and migrate database before each test
-        flyway.clean();
-        flyway.migrate();
+    void resetDatabase() throws Exception {
+        securitySchemaReset.reset();
     }
 
     @Test
@@ -960,9 +958,8 @@ Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 **Solution**:
 ```java
 @BeforeEach
-void resetDatabase() {
-    flyway.clean();
-    flyway.migrate();
+void resetDatabase() throws Exception {
+    securitySchemaReset.reset();
 }
 ```
 

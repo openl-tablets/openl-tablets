@@ -119,10 +119,10 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 | Hibernate ORM | 6.6.42 | Object-relational mapping |
 | Hibernate Validator | 8.0.3 | Bean validation |
 | HikariCP | 7.0.2 | Connection pooling |
-| Flyway | 4.2.0.3 | Database migrations (forked by OpenL) |
+| Liquibase | 4.33.0 | Database migrations |
 | H2 Database | 2.4.240 | Embedded database (development/testing) |
 
-**Supported Databases**: PostgreSQL, MySQL, Oracle, SQL Server, H2
+**Supported Databases**: PostgreSQL, MySQL, MariaDB, Oracle, SQL Server, Azure SQL Database, H2
 
 ### Serialization
 | Library | Version | Purpose |
@@ -146,7 +146,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 |-----------|---------|---------|
 | JGit | 7.3.0 | Git repository support (forked by OpenL) |
 
-**Note**: OpenL maintains custom forks of JGit and Flyway for specific needs.
+**Note**: OpenL maintains a custom fork of JGit for specific needs.
 
 ### Messaging
 | Component | Version | Purpose |
@@ -374,7 +374,6 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 ### Maintained Forks
 OpenL maintains custom forks of:
 - **JGit**: Custom enhancements for OpenL needs
-- **Flyway**: Custom version for database migrations
 
 **Rationale**: Upstream projects abandoned or lack required features.
 

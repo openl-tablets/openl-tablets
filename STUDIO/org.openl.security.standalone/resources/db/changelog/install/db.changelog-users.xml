@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Users, the groups they belong to, the authorities of a group, the settings each user keeps, and the groups an
+ external identity provider reports for them. The tables are as the current release has them, created in one
+ step on a database that has none of them.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="users" author="ymolchan">
+        <!--
+         This change set describes the tables of the current release, so a later release that changes one of
+         them edits it here. It can only ever run on a database that has no OpenL_Users at all, which is why
+         the checksum of an edit is accepted instead of failing every installation that already carries the
+         tables.
+        -->
+        <validCheckSum>1:any</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="OpenL_Users"/>
+            </not>
+        </preConditions>
+        <comment>Users, groups, group authorities and per-user settings</comment>
+
+        <createTable tableName="OpenL_Users">
+            <column name="loginName" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="firstName" type="${varchar}(50)"/>
+            <column name="surname" type="${varchar}(50)"/>
+            <column name="email" type="${varchar}(254)"/>
+            <column name="displayName" type="${varchar}(64)"/>
+            <column name="flags" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastLogin" type="DATETIME(6)"/>
+        </createTable>
+        <!--
+         The password is a bcrypt hash, which is ASCII. Liquibase counts "password" among the reserved words of
+         Oracle and quotes it, which would create a column of that exact spelling while the application asks
+         for the one Oracle folds to upper case. Plain SQL leaves the name to the database, as the migrations
+         before Liquibase did, and names the type per database because nothing translates it.
+        -->
+        <sql dbms="h2,postgresql,mysql,mariadb,mssql">ALTER TABLE OpenL_Users ADD password VARCHAR(128)</sql>
+        <sql dbms="oracle">ALTER TABLE OpenL_Users ADD password VARCHAR2(128)</sql>
+
+        <createTable tableName="OpenL_Groups">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="groupName" type="${varchar}(65)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="description" type="${varchar}(200)"/>
+        </createTable>
+
+        <createTable tableName="OpenL_Group_Authorities">
+            <column name="groupID" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="authority" type="VARCHAR(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_Group_Authorities1"
+                                 baseTableName="OpenL_Group_Authorities" baseColumnNames="groupID"
+                                 referencedTableName="OpenL_Groups" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="OpenL_User2Group">
+            <column name="loginName" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="groupID" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_User2Group1"
+                                 baseTableName="OpenL_User2Group" baseColumnNames="loginName"
+                                 referencedTableName="OpenL_Users" referencedColumnNames="loginName"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint constraintName="fk_OpenL_User2Group2"
+                                 baseTableName="OpenL_User2Group" baseColumnNames="groupID"
+                                 referencedTableName="OpenL_Groups" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="OpenL_UserSettings">
+            <column name="loginName" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="settingKey" type="VARCHAR(64)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="settingValue" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_UserSettings1"
+                                 baseTableName="OpenL_UserSettings" baseColumnNames="loginName"
+                                 referencedTableName="OpenL_Users" referencedColumnNames="loginName"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="OpenL_External_Groups">
+            <column name="loginName" type="${varchar}(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="groupName" type="${varchar}(65)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="fk_OpenL_External_Groups1"
+                                 baseTableName="OpenL_External_Groups" baseColumnNames="loginName"
+                                 referencedTableName="OpenL_Users" referencedColumnNames="loginName"
+                                 onDelete="CASCADE"/>
+
+        <!--
+         Groups an empty installation starts with, and the only authority left after 6.0.0: ADMIN. They are
+         seeded here rather than by a change set of their own, so that the precondition above is what decides:
+         a schema handed over by an earlier release carries its own groups, possibly edited by an
+         administrator, and must never be seeded again.
+        -->
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Administrators"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Viewers"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Developers"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Testers"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Deployers"/>
+        </insert>
+        <insert tableName="OpenL_Groups">
+            <column name="groupName" value="Analysts"/>
+        </insert>
+        <sql>
+            INSERT INTO OpenL_Group_Authorities (groupID, authority)
+            SELECT id, 'ADMIN' FROM OpenL_Groups WHERE groupName = 'Administrators'
+        </sql>
+    </changeSet>
+
+    <!--
+     The index is its own change set because a database of 5.27.15 carries the table without it: 6.0.0 added
+     the index to a table that release had already created.
+    -->
+    <changeSet id="users-external-groups-index" author="ymolchan">
+        <validCheckSum>1:any</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="idx_OpenL_External_Groups_groupName" tableName="OpenL_External_Groups"/>
+            </not>
+        </preConditions>
+        <comment>Index that answers "who belongs to this external group" without a scan</comment>
+
+        <createIndex indexName="idx_OpenL_External_Groups_groupName" tableName="OpenL_External_Groups">
+            <column name="groupName"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

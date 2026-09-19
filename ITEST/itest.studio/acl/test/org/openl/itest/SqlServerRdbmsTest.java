@@ -5,7 +5,7 @@ import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * Verifies the database upgrade against SQL Server.
+ * Verifies the database migration against SQL Server.
  *
  * <p>Note: <a href="https://learn.microsoft.com/en-us/azure/azure-sql-edge/features">Supported features of Azure SQL Edge</a>
  * 1. Azure SQL Edge will be retired on September 30, 2025.
