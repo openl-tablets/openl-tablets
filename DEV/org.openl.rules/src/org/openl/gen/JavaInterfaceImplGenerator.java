@@ -28,7 +28,6 @@ class JavaInterfaceImplGenerator extends POJOByteCodeGenerator {
                 beanFields,
                 POJOByteCodeGenerator.OBJECT_TYPE_DESCRIPTION,
                 Collections.emptyMap(),
-                Collections.emptySet(),
                 false,
                 true,
                 false);

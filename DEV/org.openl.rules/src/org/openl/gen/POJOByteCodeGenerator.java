@@ -6,11 +6,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -46,7 +44,6 @@ public class POJOByteCodeGenerator {
     private final Map<String, FieldDescription> parentFields;
     private final List<BeanByteCodeWriter> writers;
     private final boolean publicFields;
-    private final Set<Consumer<ClassWriter>> typeWriters;
 
     /**
      * @param beanName              name of the generated class, with namespace (e.g. <code>my.test.TestClass</code>)
@@ -58,7 +55,6 @@ public class POJOByteCodeGenerator {
                                  Map<String, FieldDescription> beanFields,
                                  TypeDescription parentType,
                                  Map<String, FieldDescription> parentFields,
-                                 Set<Consumer<ClassWriter>> typeWriters,
                                  boolean additionalConstructor,
                                  boolean equalsHashCodeToStringMethods,
                                  boolean publicFields) {
@@ -68,7 +64,6 @@ public class POJOByteCodeGenerator {
         this.parentFields = parentFields != null ? parentFields : Collections.emptyMap();
         this.beanNameWithPackage = beanName.replace('.', '/');
         this.publicFields = publicFields;
-        this.typeWriters = typeWriters != null ? new LinkedHashSet<>(typeWriters) : Collections.emptySet();
 
         Map<String, FieldDescription> allFields = new LinkedHashMap<>();
         allFields.putAll(this.parentFields);
@@ -120,12 +115,6 @@ public class POJOByteCodeGenerator {
 
     protected String[] getDefaultInterfaces() {
         return new String[]{"java/io/Serializable"};
-    }
-
-    private void visitTypeWriters(ClassWriter classWriter) {
-        for (Consumer<ClassWriter> writer : typeWriters) {
-            writer.accept(classWriter);
-        }
     }
 
     private void visitJAXBAnnotations(ClassWriter classWriter) {
@@ -292,8 +281,6 @@ public class POJOByteCodeGenerator {
         visitClassDescription(classWriter);
 
         visitJAXBAnnotations(classWriter);
-
-        visitTypeWriters(classWriter);
 
         visitFields(classWriter);
 

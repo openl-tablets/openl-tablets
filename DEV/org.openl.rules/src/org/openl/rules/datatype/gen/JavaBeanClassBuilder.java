@@ -1,12 +1,8 @@
 package org.openl.rules.datatype.gen;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
-
-import org.objectweb.asm.ClassWriter;
 
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
@@ -21,10 +17,6 @@ public class JavaBeanClassBuilder {
     protected TypeDescription parentType = POJOByteCodeGenerator.OBJECT_TYPE_DESCRIPTION;
     protected final LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>(0);
     protected final LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<>(0);
-
-    protected boolean additionalConstructor = true;
-    protected boolean equalsHashCodeToStringMethods = true;
-    protected final LinkedHashSet<Consumer<ClassWriter>> typeWriters = new LinkedHashSet<>();
 
     public JavaBeanClassBuilder(String beanName) {
         this.beanName = beanName.replace('.', '/');
@@ -41,13 +33,6 @@ public class JavaBeanClassBuilder {
         Object put = parentFields.put(name, type);
         if (put != null) {
             throw new IllegalArgumentException("The same parent field '%s has been added.".formatted(name));
-        }
-        return this;
-    }
-
-    public JavaBeanClassBuilder writeToType(Consumer<ClassWriter> writer) {
-        if (writer != null) {
-            typeWriters.add(writer);
         }
         return this;
     }
@@ -74,16 +59,6 @@ public class JavaBeanClassBuilder {
         return this;
     }
 
-    public JavaBeanClassBuilder withAdditionalConstructor(boolean additionalConstructor) {
-        this.additionalConstructor = additionalConstructor;
-        return this;
-    }
-
-    public JavaBeanClassBuilder withEqualsHashCodeToStringMethods(boolean equalsHashCodeToStringMethods) {
-        this.equalsHashCodeToStringMethods = equalsHashCodeToStringMethods;
-        return this;
-    }
-
     /**
      * Creates JavaBean byte code for given fields.
      */
@@ -92,9 +67,8 @@ public class JavaBeanClassBuilder {
                 fields,
                 parentType,
                 parentFields,
-                typeWriters,
-                additionalConstructor,
-                equalsHashCodeToStringMethods,
+                true,
+                true,
                 false).byteCode();
     }
 
