@@ -11,6 +11,10 @@ import org.openl.types.IOpenMethod;
  */
 public class DispatcherTablesBuilder {
 
+    private DispatcherTablesBuilder() {
+        // Utility class
+    }
+
     public static final String DEFAULT_DISPATCHER_TABLE_NAME = "validateGapOverlap";
 
     /**

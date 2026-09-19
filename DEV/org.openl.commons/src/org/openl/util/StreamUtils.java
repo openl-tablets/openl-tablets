@@ -17,6 +17,10 @@ import java.util.stream.Stream;
  */
 public class StreamUtils {
 
+    private StreamUtils() {
+        // Utility class
+    }
+
     /**
      * To use with Java Streams to collect in in a map preserving the order of elements.
      */

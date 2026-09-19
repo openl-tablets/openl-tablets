@@ -7,6 +7,10 @@ import java.util.regex.Pattern;
 
 public class StringTool {
 
+    private StringTool() {
+        // Utility class
+    }
+
     public static final String NEW_LINE = "\n";
     private static final Pattern PLUS = Pattern.compile("\\+");
 

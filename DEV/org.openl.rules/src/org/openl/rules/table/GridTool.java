@@ -25,6 +25,10 @@ import org.openl.rules.table.ui.CellStyle;
  */
 public class GridTool {
 
+    private GridTool() {
+        // Utility class
+    }
+
     private static final String PROPERTIES_SECTION_NAME = "properties";
     private static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 

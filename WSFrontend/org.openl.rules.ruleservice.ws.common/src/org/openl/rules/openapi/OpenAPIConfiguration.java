@@ -31,6 +31,10 @@ import io.swagger.v3.oas.models.media.XML;
  */
 public class OpenAPIConfiguration {
 
+    private OpenAPIConfiguration() {
+        // Utility class
+    }
+
     public static void configure() {
         // Stub method to trigger static initialization
     }

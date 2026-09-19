@@ -28,6 +28,10 @@ import org.openl.spring.env.PropertySourcesLoader;
  */
 public class OpenLService {
 
+    private OpenLService() {
+        // Utility class
+    }
+
     static volatile RulesFrontend rulesFrontend; // non-private opened for testing purposes
     private static ClassPathXmlApplicationContext context;
 

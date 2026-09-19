@@ -23,6 +23,10 @@ import org.openl.util.CollectionUtils;
  */
 public class MetaInfoReaderUtils {
 
+    private MetaInfoReaderUtils() {
+        // Utility class
+    }
+
     public static List<CellMetaInfo> getMetaInfo(IOpenSourceCodeModule source, CompositeMethod method) {
         var startIndex = 0;
         if (source instanceof CompositeSourceCodeModule module) {

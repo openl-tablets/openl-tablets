@@ -9,6 +9,10 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 
 public final class ConversionRulesController {
 
+    private ConversionRulesController() {
+        // Utility class
+    }
+
     private static final ConversionRuleBean[] convertionRules = new ConversionRuleBean[]{
             ConversionRuleBean.builder()
                     .operation("SET")
