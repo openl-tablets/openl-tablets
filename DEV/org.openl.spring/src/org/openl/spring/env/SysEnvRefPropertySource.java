@@ -22,7 +22,7 @@ public class SysEnvRefPropertySource extends SystemEnvironmentPropertySource {
     // Lookup property tokens started with $ sign in the keys like:
     // foo.$bar
     // foo.$bar.bar
-    private static final Pattern DOLLAR_LITERAL = Pattern.compile("(?<=[._])\\$([^._]*)(?=[._])?");
+    private static final Pattern DOLLAR_LITERAL = Pattern.compile("(?<=[._])\\$([^._]*)");
 
     public SysEnvRefPropertySource(Map<String, Object> source) {
         super(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, source);
