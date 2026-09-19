@@ -449,20 +449,25 @@ repository.uri=file:///path/to/repository
 
 **Issue**: EPBDS-15267 - Migrate project tags from database to repository files
 
-OpenL Tablets 5.26+ automatically migrates project tags:
+Project tags moved from the OpenL Studio database into a `tags.properties` file of each project in 6.0.0. An
+upgrade from an earlier version moves them automatically:
 
-```java
-// ProjectTagsMigrator
-// Migrates tags from database to tags.properties file
-// Supports both folder-based and archive-based repositories
+- The tags of every project are written into its `tags.properties` file, both in a folder-based and in an
+  archive-based repository. A project whose file is already there is left untouched.
+- The legacy `OpenL_Projects` and `OpenL_Project_Tags` tables are dropped once every project has its tags in its
+  own file. A project the repository does not hold — its repository is no longer configured, or the project is
+  gone from it — keeps the tables, and with them its tags, instead of losing them.
 
-// tags.properties format:
-project.tag.environment=production
-project.tag.version=2.1.0
-project.tag.owner=team-a
+The file holds one line per tag type:
+
+```properties
+Environment=production
+Owner=team-a
 ```
 
-**Migration Trigger**: Runs automatically on first startup after upgrade
+**Migration Trigger**: The first startup after an upgrade from a version below 6.0.0. An installation upgraded
+from 6.0.0 or newer, an installation without a database, and one whose legacy tables are already dropped are left
+untouched.
 
 **Location**: Tags stored in `tags.properties` within each project
 
