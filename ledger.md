@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- Main is `abb3d5ae81`. On user instruction a FULL repo-wide re-sweep of all 13 change types ran at this SHA over
-  every module; it found ZERO deletable items, so there is no commit, no branch and no open PR.
-- Default back to a delta sweep from `abb3d5ae81`; 0 new commits on main means ledger upkeep only. A second full
-  re-sweep costs ~95 min (25 min build + 30 min PMD + detectors) and earns nothing until main moves substantially.
+- Main is `abb3d5ae81`, unmoved since the last full sweep. Four consecutive exhaustive runs found zero deletable
+  items, so there is no commit, no branch and no open PR.
+- Sweep only the delta from `abb3d5ae81`. Zero new commits on main means ledger upkeep only; a full re-sweep costs
+  ~95 min (25 min build + 30 min PMD + detectors) and earns nothing until main moves substantially.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
@@ -32,13 +32,9 @@
 
 ## Merged PRs
 
-- #2120: 7 commits, -487/+2, across commented-out code, locale keys, a test workbook, dead `@SuppressWarnings`,
-  spring-security-core in security.standalone, AspectJ managed versions and webstudio members.
-- #2129: 1 commit, -1 line, the dead `users:edit_modal.cancel` locale key.
-- #2134: 1 commit, -87 lines, SessionTimeoutFilter and its web.xml registration.
-- #2135: 1 commit, -54/+1, the whole session passivation path down to `UserWorkspace.passivate` and both impls.
-  A removal proven by unreachable behaviour rather than by non-reference is accepted on that evidence alone.
-  `activate()` stays: `RulesUserSession.getUserWorkspace()` calls it, and the maintainer merged without pressing.
+- #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, the session passivation path).
+- A removal proven by unreachable behaviour rather than by non-reference is accepted on that evidence alone.
+  `activate()` stays — `RulesUserSession.getUserWorkspace()` calls it.
 - The maintainer merges a small, well-evidenced sweep PR within the hour, before CI finishes; do not wait on green.
 
 ## Module coverage
@@ -47,21 +43,15 @@
 
 ## Deferred findings
 
-- Public in published DEV jars, a human decides: types IBoundModuleNode, DependencyWrapperLogicToType, RuleInfo,
-  RowParserElement, TableObjectDelegator, TableParser, EmptyCell, UndoableRemoveMergedColumnsAction, CellFont,
-  RegionGridSelector, the 8 tbasic.runtime.operations classes, ResultNotFoundException, DefaultRuntimeContext,
-  ValidationServiceClassException; members IConditionEvaluator.DECORATOR_CONDITION_PRIORITY, write-only
-  Module.wildcardName and TablePropertyDefinition.securityFilter (Lombok setters), DecisionTableBuilder.methodName.
-- Public in STUDIO/WSFrontend jars: HistoryLog, RepositoryException, ProjectGrouping, RandomUUID,
-  ZonedDateTimeToDateConvertor, RuleServicePublisherMapper, AppPropertiesServlet, CXFServlet;
-  ProjectVersion.getVersionComment and VersionInfo.getEmailCreatedBy with their fields; SimpleGroup.description.
-- 564 further public members are unreferenced in bytecode; all are published API and stay.
+- ~599 public members and ~35 public types across the DEV, STUDIO and WSFrontend jars are unreferenced in
+  bytecode. All are published API and stay under rail 8.2, so no run acts on them; the ASM scan below re-derives
+  the names in one pass whenever a maintainer wants the list. Write-only Lombok setters are part of this class.
 - ExpressionFactoryImpl `_getFromCache` and `_putInCache` are both `= false`, compiling out findExpression and the
   cache writes: a cache toggle pair, not dead code.
 - MergeResult record: `status` component ignored by the compact constructor; removal changes a public record signature.
 - `STUDIO/org.openl.rules.diff/doc/Diff Algorithm.xlsx`: unreferenced design material, not code.
-- `org.eclipse.jetty:jetty-home` managed entry: in no dependency tree and declared by no pom; the DEMO scripts fetch
-  Jetty by `jetty.version` themselves. Confirm nothing resolves it before dropping it.
+- `org.eclipse.jetty:jetty-home` managed entry: in no dependency tree and declared by no pom; the DEMO scripts
+  fetch Jetty by `jetty.version` themselves. Confirm nothing resolves it before dropping it.
 - `org.openl.rules.jackson` in ruleservice.ws.common and `spring-security-config` in org.openl.security are unused
   where declared but are the transitive providers their consumers compile against undeclared; fixing that is an
   addition (hygiene PR), never a deletion here.
@@ -76,13 +66,10 @@
 - Lombok-generated accessors exist in bytecode but not in source: require the member name to appear in its own
   `.java` file before treating a bytecode hit as deletable.
 - i18next resolves `t(key, {count})` to `key_one`/`key_other`, which no literal names: treat a plural suffix pair
-  whose base is used as alive. Template keys likewise — `status_${s}`, `browser.access.role_${r}`, `role.${r}`,
-  `browser.module.edit_${key}`, `editor_kind_${x}`, `range_${p}`, `view_${n}`, `browser.compile.${state}`,
-  `browser.${id}_confirm`, `browser.files.change.${t}`, `tests.${kind}`, `tests.no_${kind}`,
-  `notifications.${kind}_deleted` with `_deleted_description`/`_delete_failed` siblings, `debug.status.*`,
-  `fill_preview.state.*`, `create_table_modal.types.*`, `create_table_modal.blocked.*`,
-  `update_project_modal.*_hint`, `details_inherited_${level}`. Check the union type feeding the template: it names
-  exactly the live keys. Search for the `no_`/prefix form too — a bare tail search misses `tests.no_${kind}`.
+  whose base is used as alive. Keys built by interpolation are likewise alive — `status_${s}`, `role.${r}`,
+  `tests.${kind}`, `debug.status.*` and some 20 more of that shape. Do not enumerate them by hand: read the union
+  type feeding the template, which names exactly the live keys. Search the `no_`/prefix form too, or a bare tail
+  search misses `tests.no_${kind}`.
 - An exported TS type used only inside its own file looks unimported; that makes the `export` redundant, not the
   type dead. Same for a `const`/function used only in its own file. Removing `export` is a rename, not a deletion.
 - A leading positional callback parameter reported by `tsc --noUnusedParameters` or PMD `UnusedFormalParameter` is
@@ -96,16 +83,15 @@
   SupportedFeaturesModel) and OpenL datatype beans are bound by `basePath`, not `setBasePath`.
 - JAXB private `beforeMarshal`/`afterUnmarshal` run reflectively; Spring MVC handlers have no Java caller; record
   component accessors and generic bridge overrides (`InputStats.getAvgX` erasing to Number) are alive.
-- A top-level type whose simple name occurs only in its own file is still alive when a framework names it: JUnit by
-  file pattern, Spring by classpath scan, and `@Mojo` by the plugin descriptor (the 4 openl-maven-plugin mojos).
+- A top-level type whose simple name occurs only in its own file is still alive when a framework names it: JUnit
+  by file pattern, Spring by classpath scan, `@Mojo` by the plugin descriptor (the 4 openl-maven-plugin mojos).
 - PMD UnusedAssignment blind spots: constructor early return (CellStyle), a value read back through a callback
   (DynamicPropertySource.settings), a field read by a getter (AProjectCreator), `key = null` before `System.gc()`,
-  publish-before-block stores (DebugChannel, DebugHookImpl), a re-entrancy store (ServiceManagerImpl.deploy),
-  `result = null` in an otherwise empty catch (GitRepository).
+  publish-before-block stores (DebugChannel, DebugHookImpl), a re-entrancy store (ServiceManagerImpl.deploy) and
+  `result = null` in an empty catch (GitRepository).
 - PMD UnusedLocalVariable: try-with-resources locals held only for their lifecycle — Mockito `mockConstruction`
-  scopes (ExcelFilesProjectCreatorTest), a Spring `AnnotationConfigApplicationContext`
-  (ExtensionsConfigurationTest), `WebSocketAuthTest.stomp` — plus a counting for-each (`RulesUtils.getValues`) and
-  a cast hosted by an assignment before `fail()`.
+  scopes (ExcelFilesProjectCreatorTest), a Spring context (ExtensionsConfigurationTest), `WebSocketAuthTest.stomp`
+  — plus a counting for-each (`RulesUtils.getValues`) and a cast hosted by an assignment before `fail()`.
 - A `@SuppressWarnings` javac stays silent about is still alive when the element holds a raw cast, a raw
   `instanceof` or a raw type argument. Keys javac does not know (`unused`, `resource`, `squid:*`,
   `NullableProblems`, Error Prone names) are IDE or Sonar keys, judged by that tool.
@@ -121,10 +107,12 @@
   gets findings from its parent; inherited test harness (junit-jupiter, junit-pioneer, mockito-junit-jupiter,
   log4j-to-slf4j are 296 of the 569); provided annotations and processors (jspecify, lombok); runtime providers
   named from configuration (the five in security.standalone via `security-hibernate-beans.xml`; maven-scm;
-  cxf-rt-features-logging; the Azure SDK's jackson dataformats and reactor-core); aggregators (swagger-parser,
-  Web Services (all), the Maven Plugin); wars and jdbc drivers an ITEST needs only to boot a server.
+  cxf-rt-features-logging; the Azure SDK's jackson dataformats and reactor-core); aggregators (swagger-parser, Web
+  Services, the Maven Plugin); wars and jdbc drivers an ITEST needs only to boot a server.
 - A managed entry no pom declares is a transitive version pin: judge it by `dependency:tree -Dverbose -Pitest` over
   all modules, not by declaration. An `exclusion` is judged by resolving its parent alone in a scratch pom.
+- A `#{...}` occurrence is not JSF EL: in this repo every one is a Spring property placeholder, SpEL, or a
+  TypeScript template literal. Do not read it as a surviving page binding.
 
 ## Method rules
 
@@ -147,17 +135,15 @@
   `target/test-classes`; record invocations, field access, method handles, invokedynamic args and `ldc` strings;
   drop annotated members, overrides (unknown third-party supertype counts as override), names in literals. Then
   apply the constant-inlining and Lombok filters above — 5,162 classes, 53,375 members, 1,515 raw hits, 0 survivors.
-- Chain the install and the PMD run in one detached `setsid nohup` script that touches a DONE file; poll that file,
-  never the log's last line. `pkill -f <script>.py` from a Bash tool call kills the calling shell too, because the
-  pattern matches the shell's own command line. Anchor it (`pkill -f 'name[.]py'`).
+- Chain the install and the PMD run in one detached `setsid nohup` script that touches a DONE file; poll that
+  file, never the log's last line. `pkill -f <script>.py` kills the calling shell too, since the pattern matches
+  the shell's own command line — anchor it (`pkill -f 'name[.]py'`).
 - A class named only by a container registration (`web.xml` filter/servlet/listener, `@WebFilter`) is NOT proven
   alive by that reference: judge it by whether its behaviour is still reachable. SessionTimeoutFilter was mapped to
   `/*` yet could never act. Ask what removed the consumers (here: zero `.xhtml` left after the React migration).
-- A `<listener>` registration serves only the interfaces the container sorts it into. Verified in bytecode on
-  Jetty 12.1.13 and Tomcat 10.1.55: `SessionHandler.addEventListener` keeps only attribute, session and id
-  listener lists (no activation list), while `onSessionPassivation`/`StandardSession.passivate` iterate session
-  ATTRIBUTES and call `HttpSessionActivationListener` only on those. So a registered-but-unbound activation
-  listener never fires. Prove such claims by unzipping the container jar and reading `javap -c`, not from the spec.
+- A `<listener>` registration serves only the interfaces the container sorts it into, so a registered-but-unbound
+  listener never fires. Verified by `javap -c` on Jetty 12.1.13 and Tomcat 10.1.55: neither keeps an activation
+  list, and passivation iterates session ATTRIBUTES. Prove such claims from the container jar, never the spec.
 - A servlet guard pairing `isRequestedSessionIdValid()` with `getSession(false) == null` is unsatisfiable by the
   servlet contract: a valid requested id always yields that session. Read filter guards for contradictions.
 - A `private static final boolean` is only a dead-branch lead when it gates an `if`; the ones here are named
@@ -174,12 +160,11 @@
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p`
   for workbooks; a `.xls` is searched as latin-1 and UTF-16 bytes. Use `git ls-files`, never a raw `grep -r`:
   untracked build output (`STUDIO/studio-ui/dist/`) otherwise answers every query.
-- A docs tree reached only through a directory link (`README.MD` → `examples/` → its `index.md` → the subfolder) is
+- A docs tree reached only through a directory link (`README.MD` → `examples/` → `index.md` → subfolder) is
   alive: count a link to the PARENT directory, not just to the file, before calling a Docs page unreferenced.
 - Removing members is a fixpoint: re-check fields, private helpers, constructor parameters and imports the removal
-  orphaned. SonarCloud's "new issues" on the PR (`sonarcloud.io/api/issues/search?componentKeys=
-  org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`, no auth) list exactly those: read it after
-  every push.
+  orphaned. SonarCloud's "new issues" list exactly those, so read it after every push (no auth):
+  `sonarcloud.io/api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`.
 - Stage every commit by explicit path (`git add -- <files>`); a `git rm` staged earlier rides into the next commit
   otherwise. Never `git diff --cached --stat A B` (invalid); use `git show --stat`.
 - Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters`, `npx vitest run <area>`. Both need
@@ -204,6 +189,8 @@
   `ResultExport.validateMergedRegions` (EPBDS-7848), `trackAllColumnsForAutoSizing`, the `intern()` TODO in
   RuleRowHelper, the bulk OpenAPI rewrite block in ITEST `HttpClient`.
 - `Docs/examples/**` (index.md, k8s, production) is linked from `Docs/README.MD` as a directory.
+- webstudio `SessionListener` is alive: it implements HttpSessionListener and HttpSessionIdListener, both of which
+  the container dispatches, and drives the session cache, Spring security session events and `WebStudio.destroy()`.
 
 ## CI flakes
 
@@ -212,10 +199,9 @@
 - IT (services-data) flake, HIGH RATE: `apache/kafka-native:latest` exits code 1 in its own `setup`, GraalVM
   segfault at `Pwd.getpwuid`; Testcontainers then times out on "RECOVERY to RUNNING". The job starts the container
   once per suite, so any of Kafka Smoke / WS Tracing / WS Store Log Data can be the victim, a different one each
-  time. Roughly one container start in three dies. Budget two reruns per SHA and expect to need them; repeated
-  failures here are still the flake, not a regression. On #2135 it cost 4 failures and 3 reruns across two SHAs.
+  time. One start in three dies. Budget two reruns per SHA; repeated failures here are the flake, not a regression.
 - Before calling such a failure a tag regression, check whether ANOTHER PR ran the same job in the same window;
-  that disproved exactly that theory on #2135. The base `Build` workflow is a multi-JDK matrix red since August.
+  that disproved exactly that theory once. The base `Build` workflow is a multi-JDK matrix red since August.
 - Tests (without ITEST): `ModuleWorkspace.test.tsx` two cases on `module-workspace-error` fail on the CI runner
   while the same tree passes all studio-ui tests locally.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
@@ -249,33 +235,29 @@
   message bundles and locales, config defaults, TS exports plus `tsc --noUnusedLocals --noUnusedParameters`,
   dependency:analyze-only (569 hits), pom properties, managed entries, exclusions, managed plugins,
   `@SuppressWarnings`, constant boolean guards, `.editorconfig`, `.gitignore`, Docs page graph and DEMO css.
-  Three consecutive exhaustive runs found nothing; sweep only the delta from here.
+  Four consecutive exhaustive runs found nothing; sweep only the delta from here.
 - Container registrations audited for behavioural deadness at `1dc89c91e0`: webstudio web.xml (4 filters,
   3 listeners) and all 8 `@WebFilter`/`@WebServlet` classes in webstudio and ruleservice.ws. One finding
   (PR #2135); everything else is reachable. Re-run only when a registration is added or a consumer removed.
+- JSF-era orphans left by the React migration: none exist. Zero `.xhtml`/`.jsp`, no `faces-config.xml`, no
+  `@ManagedBean`/`@ViewScoped`/`@FacesConverter` and friends, and no faces/richfaces/jstl/primefaces dependency in
+  any pom. The post-#2135 web.xml carries only reachable registrations. Do not re-probe this vein.
 
 ## Human follow-ups
 
 - `site.webmanifest` in `WSFrontend/org.openl.rules.ruleservice.ws/resources/static/` and
-  `STUDIO/studio-ui/public/icons/` names the 512x512 icon `android-chrome-512x512.pngs` (trailing `s`), so that
-  icon resolves in neither module. The DEMO copy is correct. A typo to fix, not dead code — raised on PR #2129,
-  still unfixed on main at `abb3d5ae81`.
-- `CorsFilter` is registered twice: `@WebFilter("/*")` (default name = the FQCN) and web.xml's `CorsFilter`. The
-  names differ, so both registrations apply and the filter runs twice per request, adding each `Access-Control-*`
-  header twice; browsers reject a duplicated `Access-Control-Allow-Origin`. Latent while `cors.allowed.origins` is
-  unset. De-duplicating changes behaviour, so it is a fix, not a deletion. Raised on PR #2135, still unfixed.
+  `STUDIO/studio-ui/public/icons/` names the 512x512 icon `android-chrome-512x512.pngs` (trailing `s`), so it
+  resolves in neither module; the DEMO copy is correct. A typo to fix, not dead code — raised on PR #2129.
+- `CorsFilter` is registered twice under different names — `@WebFilter("/*")` (name = the FQCN) and web.xml's
+  `CorsFilter` — so it runs twice per request, doubling each `Access-Control-*` header; browsers reject a
+  duplicated `Access-Control-Allow-Origin`. Latent while `cors.allowed.origins` is unset. A fix, not a deletion.
 - `Docs/examples/production/` and `Docs/production-deployment/` are two 320K near-identical copies of the same
-  example tree, differing only in a README. Both are reachable from the docs index, so neither is dead; merging
-  them is an editorial decision for a maintainer.
-- Request to swap `de.qaware.xff.filter.ForwardedHeaderFilter` (artifact `org.openl:x-forwarded-filter:2.0`) for
-  Spring's `org.springframework.web.filter.ForwardedHeaderFilter` is BLOCKED and was not done: the root pom
-  documents the opposite decision ("Neither Spring filter, nor CXF filter works correctly within the same reverse
-  proxy"), and both call sites set `xForwardedPrefixStrategy=PREPEND` while Spring's filter exposes only
-  `setRemoveOnly`/`setRelativeRedirects` and always REPLACES the context path with `X-Forwarded-Prefix`. Swapping
-  changes proxy behaviour. Needs a maintainer decision; also touches WSFrontend RuleServicesFilter, not just web.xml.
-- Workspace passivation never ran and is now removed from main. If it is ever wanted, `RulesUserSession` must
-  implement `HttpSessionActivationListener` itself — it IS a session attribute
-  (`WebStudioUtils.registerRulesUserSession`), whereas `SessionListener`, which forwarded to it, was only
+  example tree, differing only in a README. Both are reachable, so neither is dead; merging them is editorial.
+- Swapping `de.qaware.xff.filter.ForwardedHeaderFilter` (`org.openl:x-forwarded-filter:2.0`) for Spring's
+  `ForwardedHeaderFilter` is BLOCKED: the root pom documents the opposite decision, and both call sites set
+  `xForwardedPrefixStrategy=PREPEND`, which Spring's filter cannot express — it always REPLACES the context path.
+- Workspace passivation never ran and is now removed from main. To revive it, `RulesUserSession` must implement
+  `HttpSessionActivationListener` itself — it IS a session attribute, whereas `SessionListener` was only
   registered. An addition, not this routine's work.
 - ORA-12516 in IT (studio-acl) deserves a real fix in the Oracle container setup (process/session limit), and the
   `ModuleWorkspace.test.tsx` timing failure a source-level fix; both bite green PRs.
@@ -293,8 +275,8 @@
 ## Run log
 
 - 2026-09-18 b: container-registration vein worked; PR #2135 removed the session passivation path and merged.
-  Cost 4 kafka flakes / 3 reruns / 1 rebase. One wrong escalation (claimed the kafka image regressed) self-corrected.
-- 2026-09-19: user asked for a full repo-wide sweep instead of the delta. All 13 change types re-run over every
-  module at `abb3d5ae81`; whole-repo build green; zero deletable findings, so no commit and no PR. Added 4 FP
-  shapes (positional callback params, plugin-read pom properties, `tests.no_${kind}`, docs directory links) and
-  one human follow-up (duplicated Docs production example tree).
+  Cost 4 kafka flakes / 3 reruns / 1 rebase.
+- 2026-09-19 a: user-requested full repo-wide re-sweep of all 13 change types at `abb3d5ae81`; whole-repo build
+  green, zero deletable findings, no commit and no PR. Added 4 FP shapes and 1 human follow-up.
+- 2026-09-19 b: main unmoved, no open sweep PR, so no delta to sweep. Probed one new vein (JSF-era orphans from the
+  React migration) to zero findings and closed it; compacted the ledger off its 300-line ceiling.
