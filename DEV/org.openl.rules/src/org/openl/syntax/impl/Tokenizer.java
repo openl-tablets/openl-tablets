@@ -133,7 +133,9 @@ public final class Tokenizer {
                 position = textLocation.getStart().getAbsolutePosition(null) - 1;
 
                 for (var i = 0; i < startToken; i++) {
-                    reader.read();
+                    if (reader.read() < 0) {
+                        break;
+                    }
                 }
             }
 
