@@ -33,11 +33,6 @@ public class ExecutableRulesMethodSpanGenerator implements TypeInstrumentation {
 
     @SuppressWarnings("unused")
     public static class MethodAdvice {
-
-        private MethodAdvice() {
-            // Utility class
-        }
-
         @Advice.OnMethodEnter(suppress = Throwable.class)
         public static void onEnter(
                 @Advice.This ExecutableRulesMethod openLTable,
