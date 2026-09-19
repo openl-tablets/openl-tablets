@@ -16,7 +16,7 @@ import org.springframework.validation.Validator;
 import org.openl.studio.common.exception.RestRuntimeException;
 import org.openl.studio.common.exception.ValidationException;
 
-public class AbstractConstraintValidatorTest {
+public abstract class AbstractConstraintValidatorTest {
 
     @Autowired
     private BeanValidationProvider validationProvider;
