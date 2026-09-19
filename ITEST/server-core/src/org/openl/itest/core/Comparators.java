@@ -2,6 +2,7 @@ package org.openl.itest.core;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
@@ -300,9 +301,7 @@ final class Comparators {
     }
 
     private static void validateZipFileSign(byte[] src) {
-        if (src.length < 4) {
-            fail("Incorrect zip archive");
-        }
+        assertTrue(src.length >= 4, "Incorrect zip archive");
         int sign = ((src[0] << 24) + (src[1] << 16) + (src[2] << 8) + src[3]);
         if (sign != REGULAR_ARCHIVE_FILE_SIGN && sign != EMPTY_ARCHIVE_FILE_SIGN) {
             fail("Provided stream is not matched zip structure");

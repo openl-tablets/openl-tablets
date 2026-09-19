@@ -39,14 +39,16 @@ public class AclRepositoryId {
     @JsonCreator
     public static AclRepositoryId decode(String encoded) {
         var decoded = new String(Base64.getDecoder().decode(encoded));
-        var parts = decoded.split(":");
-        if (parts.length > 2) {
+        var separator = decoded.indexOf(ID_SEPARATOR);
+        var type = separator < 0 ? decoded : decoded.substring(0, separator);
+        var id = separator < 0 ? null : decoded.substring(separator + ID_SEPARATOR.length());
+        if (type.isEmpty() || (id != null && (id.isEmpty() || id.contains(ID_SEPARATOR)))) {
             throw new IllegalArgumentException("Invalid id value: " + encoded);
         }
         var builder = builder()
-            .type(AclRepositoryType.valueOf(parts[0]));
-        if (parts.length > 1) {
-            builder.id(parts[1]);
+            .type(AclRepositoryType.valueOf(type));
+        if (id != null) {
+            builder.id(id);
         }
         return builder.build();
     }
