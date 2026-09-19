@@ -37,7 +37,6 @@ class LookupTest {
         }
     }
 
-    @Test
     private void testSheet1(IGridTable[] tables) {
         assertEquals(2, tables.length);
 
