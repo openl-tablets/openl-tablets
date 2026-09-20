@@ -30,12 +30,11 @@
 
 ## Open PR
 
-- #2145 `dead-code/delta-sweep`, head `b4086b31fc`, rebased by its owner onto `2b6429ad4b`; reset the local
-  branch to the remote, never force-push it.
-- `b4086b31fc` Drop the decision-table match type no matched definition can carry — removes
-  `MatchType.PARAMS_RENAMED_CASTED`, change type 6.
-- Two comments posted on the studio-ui flake (diagnosis, then the proposed patch); do not post a third. The
-  rebase reset the per-SHA rerun budget and started a fresh run on `b4086b31fc`.
+- #2145 `dead-code/delta-sweep`, head `b4086b31fc` — its owner rebased it onto `2b6429ad4b`, so reset the local
+  branch to the remote and never force-push it. One commit, change type 6: "Drop the decision-table match type
+  no matched definition can carry", removing `MatchType.PARAMS_RENAMED_CASTED`.
+- GREEN on `b4086b31fc`: all 21 checks pass and SonarCloud analysed that exact SHA — gate OK, 0 new issues.
+  Waiting on reviewers only; nothing is owed until CI, the base or a review changes.
 
 ## Merged PRs
 
@@ -212,17 +211,17 @@
 - IT (studio-acl): `OracleRdbmsTest.upgrade` fails "Failed requests: expected 0 but was N" with `ORA-12516` while
   the other vendors pass. Oracle Free container limit, not the diff; one rerun clears it.
 - IT (services-data) flake, HIGH RATE: `apache/kafka-native:latest` exits code 1 in its own `setup`, GraalVM
-  segfault at `Pwd.getpwuid`; Testcontainers then times out on "RECOVERY to RUNNING". The job starts the container
-  once per suite, so any of Kafka Smoke / WS Tracing / WS Store Log Data can be the victim, a different one each
-  time. One start in three dies. Budget two reruns per SHA; repeated failures here are the flake, not a regression.
+  segfault at `Pwd.getpwuid` via `PosixSystemPropertiesSupport.userNameValue`; Testcontainers then times out on
+  "RECOVERY to RUNNING". The container starts once per suite, so the victim ROTATES — seen directly on
+  `b4086b31fc`: WS Tracing died, Kafka Smoke on the re-run, then the third start passed. A rotating victim
+  proves the flake; a regression kills the same suite every time. Budget two reruns per SHA.
 - Before calling such a failure a tag regression, check whether ANOTHER PR ran the same job in the same window.
   The base `Build` workflow is a multi-JDK matrix red since August.
-- Tests (without ITEST), studio-ui: `ModuleWorkspace.test.tsx` times out in `waitFor` on the CI runner while the
-  file passes locally in 13 s. The tell is a failing set that SHRINKS between attempts (2 cases, then only
-  `:260`), a DOM dump still showing `browser.compile.compiling` and an `ant-skeleton`, and a vitest wall time
-  near 860 s with ~613 s of it in imports. `vite.config.ts` allows 20 s per test under CI and calls that "the
-  margin for the machine being busy"; on a loaded runner it is not enough. Re-running does NOT clear it — two
-  attempts on PR #2145 both failed. Do not spend a rerun budget here; comment with the patch below and move on.
+- Tests (without ITEST), studio-ui: `ModuleWorkspace.test.tsx` times out in `waitFor` only on a loaded runner —
+  it failed twice on one SHA (a set that SHRANK, 2 cases then only `:260`) and passed untouched on the next.
+  The tell is a DOM dump still showing `browser.compile.compiling` and an `ant-skeleton`, plus a vitest wall
+  time near 860 s with ~613 s in imports against the 20 s per-test CI ceiling. Intermittent, never a regression:
+  a new SHA is the cheapest cure, so never push a vitest change to chase it.
 - A job log is fetched with `get_job_logs` (tail 8000 lines lands in a file); find the failing requests with
   `test-resources/... - FAIL` and the cause with `ORA-|SQLException|expected: <`.
 - `Sonar analysis` is skipped when any job of the run fails, so a red flake hides Sonar's verdict on that head
@@ -282,8 +281,9 @@
   `DBMigrationBean` nor `DBTestConfiguration` sets `sqlMigrationPrefix`, so Flyway's case-sensitive default `V`
   skips it: version 14 is absent from every deployed schema (V13.4 jumps to V15) and the ExternalGroups index
   is never created. A rename, so not this routine's deletion work.
-- `ModuleWorkspace.test.tsx` needs the CI `testTimeout` in `STUDIO/studio-ui/vite.config.ts` raised from 20_000
-  (40_000 keeps the local 5 s fast-fail), or `isolate: false`. Proposed on PR #2145; a sweep PR may not carry it.
+- `ModuleWorkspace.test.tsx` would be steadier with the CI `testTimeout` in `STUDIO/studio-ui/vite.config.ts`
+  raised from 20_000 (40_000 keeps the local 5 s fast-fail), or `isolate: false`. Proposed on PR #2145. Low
+  priority: it passed untouched on the next SHA, so it costs a re-run, not a green PR.
 - `KafkaMessageHeader.Type.PRODUCER_RECORD` is documented as usable in the rule-services advanced-configuration
   guide, but `StoreLogDataMapper` acts only on CONSUMER_RECORD. Mapper or guide is wrong; the constant is
   user-written public API and stays either way.
