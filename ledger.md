@@ -167,9 +167,9 @@
 - CodeRabbit's `Docstring Coverage` pre-merge check fails every deletion-only PR: it scores the functions inside
   the touched hunks, which on a sweep PR are the removed ones, so the metric is unreachable without adding JavaDoc
   to untouched methods. Decline it by comment citing `git diff -U0`; never widen a sweep PR to satisfy it.
-- The container resets `git config --global user.*` to Claude mid-session, so an amend or a later commit silently
-  gets the wrong committer even though the first commit was right. Re-assert the identity and re-check
-  `git log -1 --pretty='%an <%ae> | %cn <%ce>'` after EVERY commit, not just the first.
+- The container resets `git config --global user.*` to Claude mid-session — it did so again between this run's
+  code commit and its ledger commit, which went out mis-credited. Pass `GIT_AUTHOR_*`/`GIT_COMMITTER_*` INLINE on
+  every commit and verify BEFORE pushing: rail 8.4 bars force-pushing `dead-code/ledger`, so it cannot be fixed.
 - Public API deferred under rail 8.2 is worth naming explicitly in the PR body: the maintainer approved removing
   UserWorkspace.passivate() straight off that 'Deliberately kept' line. Deferring is not dropping.
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p`
