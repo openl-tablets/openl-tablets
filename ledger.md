@@ -2,10 +2,11 @@
 
 ## Resume point
 
-- Main is `915e0047d2`, fully swept. PR #2145 (`dead-code/delta-sweep`) is open with one commit; maintain it first.
-- Main moving is no longer a reason to expect findings: its last 50 commits were themselves a removal wave
-  (-3013 lines) by another agent, and re-running all 13 change types over them yielded one item. Sweep the
-  delta, expect zero, spend the run on new veins.
+- Main is `2b6429ad4b`; `915e0047d2` and everything before it is swept, so only `2b6429ad4b` (PR #2144, tags
+  to plain JDBC) is new. PR #2145 (`dead-code/delta-sweep`) is open with one commit; maintain it first.
+- Main moving is no longer a reason to expect findings: its last 50 commits were a removal wave (-3013 lines) by
+  another agent and all 13 change types over them yielded one item. Sweep the delta, expect zero, spend the run
+  on new veins.
 - A cold `~/.m2` costs 42 min for the reactor build; PMD then takes 6 min on the warm tree, not 30.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
@@ -29,18 +30,19 @@
 
 ## Open PR
 
-- #2145 `dead-code/delta-sweep`, head `bc20730841`, cut from `915e0047d2`.
-- `bc20730841` Drop the decision-table match type no matched definition can carry — removes
+- #2145 `dead-code/delta-sweep`, head `b4086b31fc`, rebased by its owner onto `2b6429ad4b`; reset the local
+  branch to the remote, never force-push it.
+- `b4086b31fc` Drop the decision-table match type no matched definition can carry — removes
   `MatchType.PARAMS_RENAMED_CASTED`, change type 6.
-- All checks green except Tests (without ITEST), red twice on the studio-ui flake above; rerun budget spent and
-  two comments posted (diagnosis, then the proposed patch). Nothing else is owed until CI or a review changes.
+- Two comments posted on the studio-ui flake (diagnosis, then the proposed patch); do not post a third. The
+  rebase reset the per-SHA rerun budget and started a fresh run on `b4086b31fc`.
 
 ## Merged PRs
 
 - #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, the session passivation path).
 - A removal proven by unreachable behaviour rather than by non-reference is accepted on that evidence alone.
   `activate()` stays — `RulesUserSession.getUserWorkspace()` calls it.
-- The maintainer merges a small, well-evidenced sweep PR within the hour, before CI finishes; do not wait on green.
+- The maintainer does not merge a sweep PR red: on #2145 they rebased it onto new main and left it for CI.
 
 ## Module coverage
 
@@ -129,8 +131,6 @@
   lockfile from the search, never package.json itself.
 - An identifier index keyed on `[A-Za-z_$][\w$]*` cannot see a file stem starting with a digit (the hex-named
   `Docs/assets/images/**`). Confirm every resource finding with a plain `git grep -lF`.
-- A `#{...}` occurrence is not JSF EL: in this repo every one is a Spring property placeholder, SpEL, or a
-  TypeScript template literal. Do not read it as a surviving page binding.
 
 ## Method rules
 
@@ -256,7 +256,7 @@
   `@SuppressWarnings`, constant boolean guards, `.editorconfig`, `.gitignore`, Docs page graph and DEMO css.
   Five consecutive exhaustive runs found one item; sweep only the delta from here.
 - New veins probed and closed: Maven profiles (11), npm dependencies (45), orphaned `package-info.java`, empty
-  tracked files, production types referenced only from tests (62), and enum constants named only at their
+  tracked files, production types referenced only from tests (62), enum constants named only at their
   declaration (18). Only the enum vein paid.
 - Container registrations audited for behavioural deadness at `1dc89c91e0`: webstudio web.xml (4 filters,
   3 listeners) and all 8 `@WebFilter`/`@WebServlet` classes in webstudio and ruleservice.ws. One finding
@@ -296,5 +296,5 @@
 
 - 2026-09-19 a: full re-sweep of all 13 change types at `abb3d5ae81`; zero findings, no PR. Added 4 FP shapes.
 - 2026-09-19 b: no delta to sweep; closed the JSF-orphan vein at zero and compacted the ledger to its ceiling.
-- 2026-09-20: swept the `abb3d5ae81..915e0047d2` delta, 13 change types plus 6 new veins. One finding, PR #2145,
-  left red on the studio-ui flake. Added 5 FP shapes, 2 deferred public-API items, 2 human follow-ups.
+- 2026-09-20: swept `abb3d5ae81..915e0047d2`, 13 change types plus 6 new veins. One finding, PR #2145; its owner
+  rebased it onto `2b6429ad4b`. Added 5 FP shapes, 2 deferred public-API items, 2 human follow-ups.
