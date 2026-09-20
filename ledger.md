@@ -2,10 +2,11 @@
 
 ## Resume point
 
-- Main is `abb3d5ae81`, unmoved since the last full sweep. Four consecutive exhaustive runs found zero deletable
-  items, so there is no commit, no branch and no open PR.
-- Sweep only the delta from `abb3d5ae81`. Zero new commits on main means ledger upkeep only; a full re-sweep costs
-  ~95 min (25 min build + 30 min PMD + detectors) and earns nothing until main moves substantially.
+- Main is `915e0047d2`, fully swept. PR #2145 (`dead-code/delta-sweep`) is open with one commit; maintain it first.
+- The 50 commits main gained over `abb3d5ae81` were themselves a removal wave (-3013 lines) by another agent. All
+  13 change types were re-run repo-wide against them and yielded exactly one deletable item, so main moving is no
+  longer a reason to expect findings: sweep the delta, expect zero, and spend the run on new veins instead.
+- A cold `~/.m2` costs 42 min for the reactor build; PMD then takes 6 min on the warm tree, not 30.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
@@ -15,20 +16,22 @@
 | 1 | Commented-out code (Java, CSS, JS, TS) | done; 7 blocks, all prose or parked calls with a rationale |
 | 2 | Never-read assignments, dead stores | done; 14 PMD hits, all documented FPs |
 | 3 | Unused locals, private fields/methods/params | done; 14 PMD hits, all documented FPs |
-| 4 | Unused Maven dependency declarations | done; 569 analyze hits, all FPs |
+| 4 | Unused Maven dependency declarations | done; 537 analyze hits + npm deps, all FPs |
 | 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done; 6 hits, all plugin-read flags |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; constant guards are named arguments |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; 1 removal, PR #2145 |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 1,583 keys, 113 flagged, all template-resolved |
 | 11 | TypeScript exports, types, components, imports | done; 1,151 exports, 0 dead |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
-| 13 | Package-private/protected members and unreferenced internal classes | done; 0 non-public dead members |
+| 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
 
 ## Open PR
 
-- none
+- #2145 `dead-code/delta-sweep`, head `bc20730841`, cut from `915e0047d2`.
+- `bc20730841` Drop the decision-table match type no matched definition can carry — removes
+  `MatchType.PARAMS_RENAMED_CASTED`, change type 6.
 
 ## Merged PRs
 
@@ -39,7 +42,7 @@
 
 ## Module coverage
 
-- All 86 reactor modules, studio-ui, Docs and DEMO scanned for every change type at `abb3d5ae81`; nothing open.
+- All 86 reactor modules, studio-ui, Docs and DEMO scanned for every change type at `915e0047d2`; nothing open.
 
 ## Deferred findings
 
@@ -49,7 +52,9 @@
 - ExpressionFactoryImpl `_getFromCache` and `_putInCache` are both `= false`, compiling out findExpression and the
   cache writes: a cache toggle pair, not dead code.
 - MergeResult record: `status` component ignored by the compact constructor; removal changes a public record signature.
-- `STUDIO/org.openl.rules.diff/doc/Diff Algorithm.xlsx`: unreferenced design material, not code.
+- `XlsProjectionType` (STUDIO/org.openl.rules.diff) constructs only BOOK, SHEET, TABLE and CELL of its 12 constants
+  and carries its own `// TODO do we need the rest?`; the enum and its constants are public.
+- `EventOfInterestConstants.MINMAX` is referenced nowhere but is a public interface constant in a DEV artifact.
 - `org.eclipse.jetty:jetty-home` managed entry: in no dependency tree and declared by no pom; the DEMO scripts
   fetch Jetty by `jetty.version` themselves. Confirm nothing resolves it before dropping it.
 - `org.openl.rules.jackson` in ruleservice.ws.common and `spring-security-config` in org.openl.security are unused
@@ -111,6 +116,18 @@
   Services, the Maven Plugin); wars and jdbc drivers an ITEST needs only to boot a server.
 - A managed entry no pom declares is a transitive version pin: judge it by `dependency:tree -Dverbose -Pitest` over
   all modules, not by declaration. An `exclusion` is judged by resolving its parent alone in a scratch pom.
+- A class named by string composition has no textual reference at all: `OperationFactory` builds the 13 TBasic
+  runtime operations as package + `conversionStep.getOperationType()` + `Operation`. Before calling a type dead,
+  search the name MINUS a common suffix, not only the whole name.
+- An enum whose `values()` is iterated keeps every constant alive, however unreferenced the constant looks
+  (Separator.recognize, Brackets.isBracket). To prove an enum constant dead, show it is never stored and never
+  returned, then show the `values()` loop is a no-op for it — non-reference alone never settles an enum.
+- In a Spring application, a production type referenced only from test sources is the norm, not a finding: 62 such
+  types, all `@Component`/`@Configuration`/`@RestController` found by classpath scan. This vein yields nothing.
+- An npm dependency is invoked from `package.json` `scripts` (license-checker-rseidelsohn, @vitest/coverage-v8) or
+  read implicitly by tsc (`@types/*`); exclude only the lockfile from the search, never package.json itself.
+- An identifier index keyed on `[A-Za-z_$][\w$]*` cannot see a file stem that starts with a digit — the hex-named
+  `Docs/assets/images/**` all looked unreferenced. Confirm any resource finding with a plain `git grep -lF`.
 - A `#{...}` occurrence is not JSF EL: in this repo every one is a Spring property placeholder, SpEL, or a
   TypeScript template literal. Do not read it as a surviving page binding.
 
@@ -229,13 +246,16 @@
 
 ## Exhausted veins
 
-- ALL 13 change types re-swept repo-wide at `abb3d5ae81` over 86 reactor modules, studio-ui, Docs and DEMO, with
+- ALL 13 change types re-swept repo-wide at `915e0047d2` over 86 reactor modules, studio-ui, Docs and DEMO, with
   zero findings: commented-out code, PMD 5 rules (28 hits), ASM member scan (5,162 classes / 53,375 members),
   whole-type scan (4,148 types), identifier index (13,856 text files), resources and images by name and stem,
   message bundles and locales, config defaults, TS exports plus `tsc --noUnusedLocals --noUnusedParameters`,
   dependency:analyze-only (569 hits), pom properties, managed entries, exclusions, managed plugins,
   `@SuppressWarnings`, constant boolean guards, `.editorconfig`, `.gitignore`, Docs page graph and DEMO css.
-  Four consecutive exhaustive runs found nothing; sweep only the delta from here.
+  Five consecutive exhaustive runs found one item; sweep only the delta from here.
+- New veins probed and closed: Maven profiles (11), npm dependencies (45), orphaned `package-info.java`, empty
+  tracked files, production types referenced only from tests (62), enum constants named only at their declaration
+  (18, one deletable), and Docs references to every class the delta deleted. Only the enum vein paid.
 - Container registrations audited for behavioural deadness at `1dc89c91e0`: webstudio web.xml (4 filters,
   3 listeners) and all 8 `@WebFilter`/`@WebServlet` classes in webstudio and ruleservice.ws. One finding
   (PR #2135); everything else is reachable. Re-run only when a registration is added or a consumer removed.
@@ -245,9 +265,6 @@
 
 ## Human follow-ups
 
-- `site.webmanifest` in `WSFrontend/org.openl.rules.ruleservice.ws/resources/static/` and
-  `STUDIO/studio-ui/public/icons/` names the 512x512 icon `android-chrome-512x512.pngs` (trailing `s`), so it
-  resolves in neither module; the DEMO copy is correct. A typo to fix, not dead code — raised on PR #2129.
 - `CorsFilter` is registered twice under different names — `@WebFilter("/*")` (name = the FQCN) and web.xml's
   `CorsFilter` — so it runs twice per request, doubling each `Access-Control-*` header; browsers reject a
   duplicated `Access-Control-Allow-Origin`. Latent while `cors.allowed.origins` is unset. A fix, not a deletion.
@@ -263,8 +280,9 @@
   `ModuleWorkspace.test.tsx` timing failure a source-level fix; both bite green PRs.
 - Dependency hygiene (additions): ~293 used-undeclared findings, notably spring-security-core in org.openl.security
   and org.openl.rules.jackson in ruleservice.ws.
-- PMD `Parsing failed in ParseLock#doParse()` on `BranchedProjectIndexService$IndexState`: a PMD 7 type resolution
-  bug, harmless to the report.
+- `KafkaMessageHeader.Type.PRODUCER_RECORD` is documented in `Docs/user-guides/rule-services/advanced-configuration.md`
+  as a usable attribute value, but `StoreLogDataMapper` acts only on CONSUMER_RECORD. Either the mapper or the
+  guide is wrong; the constant is user-written public API and stays either way.
 - Flyway migration `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` script; confirm Flyway applies it.
 - ITEST pulls `apache/kafka-native:latest` in three suites (RunKafkaSmokeITest:43, RunStoreLogDataITest:68,
   RunTracingITest:51, documented at `ITEST/AGENTS.md:54`); its startup flake is frequent enough to cost reruns.
@@ -274,9 +292,9 @@
 
 ## Run log
 
-- 2026-09-18 b: container-registration vein worked; PR #2135 removed the session passivation path and merged.
-  Cost 4 kafka flakes / 3 reruns / 1 rebase.
 - 2026-09-19 a: user-requested full repo-wide re-sweep of all 13 change types at `abb3d5ae81`; whole-repo build
   green, zero deletable findings, no commit and no PR. Added 4 FP shapes and 1 human follow-up.
 - 2026-09-19 b: main unmoved, no open sweep PR, so no delta to sweep. Probed one new vein (JSF-era orphans from the
   React migration) to zero findings and closed it; compacted the ledger off its 300-line ceiling.
+- 2026-09-20: swept the 50-commit delta `abb3d5ae81..915e0047d2`; all 13 change types plus 6 new veins. One
+  finding, PR #2145. Added 5 FP shapes, 2 deferred public-API items and 1 human follow-up.
