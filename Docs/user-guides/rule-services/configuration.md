@@ -93,7 +93,6 @@ To configure a local file system as a data source, proceed as follows:
 
 1.  In `application.properties`, set `production-repository.factory = repo-file`.
     <br/>By default, the `${user.home}/.openl/openl-ruleservice/datasource` folder is used as a local folder for projects.
-2.  To enable versioning support for deployment, set the `ruleservice.datasource.filesystem.supportVersion` setting to `true`.
 
     **Note:** For proper parsing of Java properties file, the path to the folder must be defined with a slash (‘/’) as the folders delimiter. Back slash “\\” is not allowed.
 
