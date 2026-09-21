@@ -31,18 +31,17 @@
 
 ## Open PR
 
-- #2145 `dead-code/delta-sweep`. Its owner rebased it once onto new main, so reset the local branch to the remote
-  before adding to it and never force-push what you did not write.
-- Two commits: "Drop the decision-table match type no matched definition can carry" (type 6,
-  `MatchType.PARAMS_RENAMED_CASTED`) and "Stop documenting the data source setting removed in 5.23.8" (type 14,
-  `ruleservice.datasource.filesystem.supportVersion`), head `9d76bf21c7`.
-- It was GREEN on the one-commit head with all 21 checks and a clean Sonar gate; reviewers are all it waits on.
+- #2145 `dead-code/delta-sweep`, head `9d76bf21c7`. Others rebase and push to it, so re-fetch and reset the local
+  branch before adding, and never force-push what you did not write. Two commits: "Drop the decision-table match
+  type no matched definition can carry" (type 6, `MatchType.PARAMS_RENAMED_CASTED`) and "Stop documenting the
+  data source setting removed in 5.23.8" (type 14, `ruleservice.datasource.filesystem.supportVersion`).
+- On `9d76bf21c7` every check is green except `Sonar analysis`, which hit the jacoco corruption below; one full
+  `rerun_workflow_run` was spent on it. The one-commit head was fully green with a clean Sonar gate.
 
 ## Merged PRs
 
 - #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, the session passivation path).
-- A removal proven by unreachable behaviour rather than by non-reference is accepted on that evidence alone.
-  `activate()` stays — `RulesUserSession.getUserWorkspace()` calls it.
+- A removal proven by unreachable behaviour, not by non-reference, is accepted on that evidence alone.
 - The maintainer does not merge a sweep PR red: on #2145 they rebased it onto new main and left it to CI.
 
 ## Module coverage
@@ -218,10 +217,12 @@
   a new SHA is the cheapest cure.
 - Fetch a job log with `get_job_logs` (tail 8000); find failures with `... - FAIL`, the cause with `ORA-|expected: <`.
 - `Sonar analysis` is skipped when any job of the run fails, so a red flake hides its verdict and the issues API
-  answers 0 because the head was never analysed. Confirm the SHA at
+  answers 0 for "never analysed". Confirm the SHA at
   `sonarcloud.io/api/project_pull_requests/list?project=org.openl.rules:openl-tablets`.
-- `rerun_failed_jobs` returns 403 while ANY job is in flight, and it reuses the workspace, so exec files truncated
-  by a crashed attempt make `Sonar analysis` die with "Unknown block type f9". Rebase onto main instead.
+- `rerun_failed_jobs` returns 403 while ANY job is in flight, and it re-reads the same jacoco artifacts, so it
+  cannot cure `Sonar analysis` dying in `report-aggregate` with "Unknown block type N" (f9 and 3 both seen).
+  That corruption needs NO crashed attempt — it hit a first run whose every other job was green. Cure it with
+  `rerun_workflow_run`, which regenerates the exec artifacts without touching a branch others also push to.
 
 ## Container facts
 
@@ -251,8 +252,7 @@
   every bean type-injected or component-scanned), duplicate dependency/plugin/module/property declarations across
   209 poms, dependencies a parent already declares, and servlet init-params. Only the enum-constant vein and the
   documentation veins have ever paid.
-- The EPBDS-14123 JDBC tag migration left no orphan: `OpenLProject` has zero references anywhere and its Tag
-  entities are all still read. A migration commit is worth checking for orphans, but this one was clean.
+- A migration commit is worth checking for orphans; the EPBDS-14123 JDBC tag migration was clean.
 
 ## Human follow-ups
 
@@ -296,5 +296,5 @@
 
 - 2026-09-19 b: no delta to sweep; closed the JSF-orphan vein at zero and compacted the ledger to its ceiling.
 - 2026-09-20: swept the delta over 13 change types plus 6 new veins. One finding, PR #2145.
-- 2026-09-21: delta was 2 dependabot bumps and the EPBDS-14123 tag migration, which left no orphan. Six new code
-  veins closed at zero; the documentation veins paid one removal and seven follow-ups.
+- 2026-09-21: delta was 2 dependabot bumps and a clean tag migration; 6 new code veins closed at zero, the
+  documentation veins paid 1 removal and 7 follow-ups. Sonar hit the jacoco corruption on the 2-commit head.
