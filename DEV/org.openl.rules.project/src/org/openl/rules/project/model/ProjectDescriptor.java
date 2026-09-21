@@ -53,6 +53,7 @@ import org.openl.util.IOUtils;
 import org.openl.util.OS;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
+import org.openl.util.formatters.FileNameFormatter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "project")
@@ -392,8 +393,7 @@ public class ProjectDescriptor {
             module.setName(module.getResolvedName());
             Path modulePath = Path.of(path);
             if (modulePath.isAbsolute()) {
-                modulePath = projectFolder.relativize(modulePath);
-                module.setRulesRootPath(modulePath.toString());
+                module.setRulesRootPath(FileNameFormatter.normalizePath(projectFolder.relativize(modulePath)));
             }
         }
         return this;

@@ -8,8 +8,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * What to generate a project's tables from, and where to put them.
  *
  * <p>The two modules are asked for by name and by workbook, so that a generation run again writes over the
- * same two rather than leaving a second pair beside them. A name the project already declares names the
- * module whose workbook is written over; a name it does not is a module the generation declares.
+ * same two rather than leaving a second pair beside them. A name the project already reads a module by names
+ * the module whose workbook is written over, wherever the project keeps it; a name it does not is a module the
+ * generation declares.
  *
  * @param path                the specification to read, relative to the project
  * @param algorithmModuleName what to call the module the rules are written into

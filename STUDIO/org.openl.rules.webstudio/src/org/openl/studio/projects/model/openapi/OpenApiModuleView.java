@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *
  * @param name     what the module is called
  * @param path     the workbook the module reads, relative to the project
- * @param declared whether the project already declares a module under this name, whose workbook the
- *                 generation writes over
+ * @param declared whether the project already reads a module under this name — declared in {@code rules.xml}
+ *                 or matched by one of its patterns — whose workbook the generation writes over
  * @author Vladyslav Pikus
  */
 public record OpenApiModuleView(

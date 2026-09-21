@@ -43,8 +43,8 @@ export const useOpenApiActions = (projectId: string, onWritten: () => void) => {
     }
 
     /**
-     * Asks what the generation would write before it writes it: a module the project already declares has
-     * its workbook replaced, and a reader is owed that in words before they say yes.
+     * Asks what the generation would write before it writes it: a module the project already reads has its
+     * workbook replaced, and a reader is owed that in words before they say yes.
      */
     const generateTables = async (openapi: DescriptorOpenApi) => {
         setRunning(true)

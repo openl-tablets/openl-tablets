@@ -26,7 +26,8 @@
                 <compileThisModuleOnly>false</compileThisModuleOnly>
             </webstudioConfiguration>
         </module>
-        <!-- Explicit module with a single file -->
+        <!-- Explicit module with a single file. Paths are relative to the project root and use '/';
+             a backslash is read as '/' -->
         <module>
             <name>Main Algorithm</name>
             <rules-root path="rules/SharedRules.xlsx"/>

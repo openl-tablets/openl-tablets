@@ -47,6 +47,24 @@ class ProjectDescriptorTest {
     }
 
     @Test
+    void readsAPathDeclaredWithBackslashesAsSlashes() {
+        var declared = """
+                <project>
+                    <modules>
+                        <module>
+                            <rules-root path="rules\\Algorithms.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """;
+
+        var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(declared.getBytes(StandardCharsets.UTF_8)));
+
+        // Spelled the way Windows does: read as the one path every consumer compares and resolves.
+        assertEquals("rules/Algorithms.xlsx", descriptor.getModules().getFirst().getRulesRootPath());
+    }
+
+    @Test
     void testRelativeUri() {
         var pd = new ProjectDescriptor();
         pd.setProjectFolder(Path.of("test/rules/test xls"));
