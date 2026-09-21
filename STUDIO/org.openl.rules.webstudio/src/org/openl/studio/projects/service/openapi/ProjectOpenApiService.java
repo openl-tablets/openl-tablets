@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -78,7 +77,7 @@ public class ProjectOpenApiService {
         requireCompiled(model.getCompiledOpenClass());
 
         var root = fileRootFactory.of(project);
-        var descriptor = descriptorToWrite(project, root, filesService, () -> resolved);
+        var descriptor = descriptorToWrite(project, root, filesService, resolved);
         var kept = writtenSchemaPath(project, descriptor);
         var path = kept == null ? OpenAPI.Type.JSON.getDefaultFileName() : kept;
         try (var document = generate(model, resolved, typeOf(path))) {
@@ -187,11 +186,11 @@ public class ProjectOpenApiService {
     static ProjectDescriptor descriptorToWrite(RulesProject project,
                                                FileRoot root,
                                                ProjectFilesService files,
-                                               Supplier<ProjectDescriptor> resolved) {
+                                               ProjectDescriptor resolved) {
         if (!project.hasArtefact(ProjectDescriptor.FILE_NAME)) {
             var fresh = new ProjectDescriptor();
             fresh.setName(project.getBusinessName());
-            fresh.setModules(resolved.get().getModules()
+            fresh.setModules(resolved.getModules()
                     .stream()
                     .map(ProjectOpenApiService::declarationOf)
                     .collect(Collectors.toCollection(ArrayList::new)));

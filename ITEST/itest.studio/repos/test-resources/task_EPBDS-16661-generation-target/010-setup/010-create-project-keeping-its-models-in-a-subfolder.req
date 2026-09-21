@@ -1,0 +1,16 @@
+PUT /rest/repos/design-flat/projects/EPBDS-16661?comment=EPBDS-16661%20Create%20a%20project%20keeping%20its%20data%20types%20under%20rules/models/ HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="EPBDS-16661.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&EPBDS-16661.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+OPENED
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

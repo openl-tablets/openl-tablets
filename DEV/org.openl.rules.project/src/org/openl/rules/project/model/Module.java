@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.formatters.FileNameFormatter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "module")
@@ -104,10 +105,12 @@ public class Module {
         String path;
     }
 
+    /** Reads the path as written, with a backslash read as {@code /}: one spelling for every consumer. */
     static class RulesRootPathAdapter extends XmlAdapter<RulesRootPathXml, String> {
         @Override
         public String unmarshal(RulesRootPathXml v) {
-            return v == null ? null : StringUtils.trimToNull(v.path);
+            var path = v == null ? null : StringUtils.trimToNull(v.path);
+            return path == null ? null : FileNameFormatter.normalizePath(path);
         }
 
         @Override

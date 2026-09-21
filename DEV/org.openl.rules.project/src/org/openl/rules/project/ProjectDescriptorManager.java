@@ -20,11 +20,9 @@ public class ProjectDescriptorManager {
     public boolean isCoveredByWildcardModule(ProjectDescriptor descriptor, Module otherModule) {
         final var otherModuleRootPath = otherModule.getRulesRootPath();
         for (Module module : effectiveModules(descriptor)) {
-            if (module.isModuleWithWildcard() && otherModuleRootPath != null) {
-                var relativePath = otherModuleRootPath.replace("\\", "/");
-                if (FileUtils.pathMatches(module.getRulesRootPath(), relativePath)) {
-                    return true;
-                }
+            if (module.isModuleWithWildcard() && otherModuleRootPath != null
+                    && FileUtils.pathMatches(module.getRulesRootPath(), otherModuleRootPath)) {
+                return true;
             }
         }
         return false;

@@ -42,8 +42,6 @@ import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.util.CollectionUtils;
-import org.openl.util.FileUtils;
-import org.openl.util.StringUtils;
 
 /**
  * The tables of a project, generated from an OpenAPI specification somebody wrote first.
@@ -53,8 +51,9 @@ import org.openl.util.StringUtils;
  * the annotation classes, the deployment descriptor, the classpath — is written beside them.
  *
  * <p>Two modules are written, named by the caller, so that generating again writes over the same two rather
- * than leaving a second pair beside them. A module the project already declares keeps its place in
- * {@code rules.xml} and has its workbook replaced; one it does not declare is added to the descriptor.
+ * than leaving a second pair beside them. A module the project already reads — declared in {@code rules.xml}
+ * or matched by one of its patterns — keeps its place and has its workbook replaced; one the project does not
+ * read yet is added to the descriptor.
  *
  * @author Vladyslav Pikus
  */
@@ -76,9 +75,9 @@ public class ProjectOpenApiGenerationService {
     /**
      * What a generation would write, so the reader can see which workbooks it replaces before it runs.
      *
-     * <p>A name the project already declares is answered with the workbook that module reads — that is the
-     * file the generation writes over. A name it does not declare is answered with the workbook the
-     * generation would add, named after the module.
+     * <p>A name the project already reads a module by is answered with the workbook that module reads — that
+     * is the file the generation writes over. A name it does not is answered with the workbook the generation
+     * would add, named after the module.
      *
      * @param project             project the tables would be written into
      * @param algorithmModuleName what the module of rules is to be called, or blank for the default name
@@ -88,62 +87,40 @@ public class ProjectOpenApiGenerationService {
     public OpenApiGenerationPlanView plan(RulesProject project,
                                           @Nullable String algorithmModuleName,
                                           @Nullable String modelModuleName) {
-        var descriptor = descriptorOf(project);
+        var resolved = projectService.getProjectDescriptor(project);
         return new OpenApiGenerationPlanView(
-                planned(descriptor, algorithmModuleName, "openapi.default.algorithm.module.name",
+                planned(resolved, algorithmModuleName, "openapi.default.algorithm.module.name",
                         "openapi.default.algorithm.module.path"),
-                planned(descriptor, modelModuleName, "openapi.default.data.module.name",
+                planned(resolved, modelModuleName, "openapi.default.data.module.name",
                         "openapi.default.data.module.path"));
     }
 
-    private OpenApiModuleView planned(ProjectDescriptor descriptor,
-                                      @Nullable String asked,
-                                      String defaultNameKey,
-                                      String defaultPathKey) {
+    private static OpenApiModuleView planned(ProjectDescriptor resolved,
+                                             @Nullable String asked,
+                                             String defaultNameKey,
+                                             String defaultPathKey) {
         var name = asked == null || asked.isBlank() ? Props.text(defaultNameKey) : asked;
         var wanted = asked == null || asked.isBlank()
                 ? Props.text(defaultPathKey)
                 : DEFAULT_FOLDER + name + DEFAULT_EXTENSION;
-        var target = targetOf(descriptor, name, wanted);
+        var target = targetOf(resolved, name, wanted);
         return new OpenApiModuleView(name, target.path(), target.replaces());
     }
 
     /**
-     * Where a module of that name reads its rules today, and whether the project already leads to it.
+     * Where a module of that name reads its rules today, and whether the project already reads one.
      *
-     * <p>A module is the project's own where the descriptor declares it — under a name of its own, or under
-     * the name of the workbook it reads, which is how the engine names a declaration that carries none — and
-     * where a wildcard already matches the workbook and names the module after it. The generation writes over
-     * the workbook such a module reads rather than laying a second one beside it.
+     * <p>Asked of the descriptor the engine resolved, so a module a pattern matched is the project's own as much
+     * as a declared one. A name no module answers to is given the workbook asked for, and nothing is replaced.
      */
-    private Target targetOf(ProjectDescriptor descriptor, String name, String wanted) {
-        var declared = modulesOf(descriptor).stream()
-                .filter(module -> !module.isModuleWithWildcard())
-                .filter(module -> name.equals(resolvedName(module)))
+    private static Target targetOf(ProjectDescriptor resolved, String name, String wanted) {
+        return modulesOf(resolved).stream()
+                .filter(module -> name.equals(module.getResolvedName()))
                 .map(Module::getRulesRootPath)
                 .filter(Objects::nonNull)
-                .findFirst();
-        if (declared.isPresent()) {
-            return new Target(declared.get(), true);
-        }
-        return new Target(wanted, descriptors.isAlreadyRegistered(descriptor, moduleOf(name, wanted)));
-    }
-
-    /** What the engine calls a declared module: its own name, or the name of the workbook it reads. */
-    private static @Nullable String resolvedName(Module module) {
-        var name = module.getName();
-        if (StringUtils.isNotBlank(name)) {
-            return name;
-        }
-        var path = module.getRulesRootPath();
-        return path == null ? null : FileUtils.getBaseName(path);
-    }
-
-    private static Module moduleOf(String name, String path) {
-        var module = new Module();
-        module.setName(name);
-        module.setRulesRootPath(path);
-        return module;
+                .findFirst()
+                .map(path -> new Target(path, true))
+                .orElseGet(() -> new Target(wanted, false));
     }
 
     /** The workbook a generated module is written to, and whether the project already reads one there. */
@@ -162,14 +139,16 @@ public class ProjectOpenApiGenerationService {
     public void generateTables(RulesProject project, OpenApiGenerationRequest request) {
         requireWritableNames(request);
         var root = fileRootFactory.of(project);
-        var descriptor = descriptorOf(project);
-        var specification = readSpecification(project, request.path());
-        var algorithm = targetOf(descriptor, request.algorithmModuleName(), request.algorithmModulePath());
-        var model = targetOf(descriptor, request.modelModuleName(), request.modelModulePath());
+        var resolved = projectService.getProjectDescriptor(project);
+        var algorithm = targetOf(resolved, request.algorithmModuleName(), request.algorithmModulePath());
+        var model = targetOf(resolved, request.modelModuleName(), request.modelModulePath());
         // Asked before anything is written: a workbook standing where a new module would go is the author's,
         // and a refusal halfway through would leave one module generated and the other not.
+        requireTwoWorkbooks(algorithm, model);
         requireFree(project, algorithm);
         requireFree(project, model);
+        var descriptor = ProjectOpenApiService.descriptorToWrite(project, root, filesService, resolved);
+        var specification = readSpecification(project, request.path());
 
         var studio = projectService.getWebStudio();
         // What the two modules read before the write is kept, so a generation over an existing module can be
@@ -199,20 +178,32 @@ public class ProjectOpenApiGenerationService {
         studio.reset();
     }
 
-    /** A module the project does not lead to yet cannot be written where a file already stands. */
+    /** A module the project does not read yet cannot be written where a file already stands. */
     private static void requireFree(RulesProject project, Target target) {
         if (!target.replaces() && project.hasArtefact(target.path())) {
             throw new ConflictException("projects.openapi.path-taken.message", target.path());
         }
     }
 
-    /** The names have to be ones a repository can hold, and the two workbooks have to be two. */
+    /** The names have to be ones a repository can hold, and the two modules have to be two. */
     private static void requireWritableNames(OpenApiGenerationRequest request) {
         if (!NameChecker.checkName(request.algorithmModuleName()) || !NameChecker.checkName(request.modelModuleName())) {
             throw new ConflictException("projects.openapi.module-name.invalid.message",
                     NameChecker.getForbiddenCharacters());
         }
-        if (request.algorithmModulePath().equalsIgnoreCase(request.modelModulePath())) {
+        if (request.algorithmModuleName().equals(request.modelModuleName())) {
+            throw new ConflictException("projects.openapi.module-name.same.message");
+        }
+    }
+
+    /**
+     * The two workbooks have to be two.
+     *
+     * <p>Asked of the workbooks the generation will write rather than of the ones the request names: a module
+     * the project already reads is written where it reads, whatever workbook was asked for it.
+     */
+    private static void requireTwoWorkbooks(Target algorithm, Target model) {
+        if (algorithm.path().equalsIgnoreCase(model.path())) {
             throw new ConflictException("projects.openapi.module-path.same.message");
         }
     }
@@ -252,8 +243,8 @@ public class ProjectOpenApiGenerationService {
     /**
      * Writes one generated workbook, over the one standing there or beside nothing at all.
      *
-     * <p>A module the project already leads to has its workbook replaced where it reads it, so a generation
-     * run again leaves one workbook rather than two.
+     * <p>A module the project already reads has its workbook replaced where it reads it, so a generation run
+     * again leaves one workbook rather than two.
      */
     private void write(RulesProject project, FileRoot root, Target target, Generator content) {
         try (var workbook = content.open()) {
@@ -360,15 +351,14 @@ public class ProjectOpenApiGenerationService {
     }
 
     /**
-     * Declares a generated module, unless the descriptor already leads to it.
-     *
-     * <p>Left to the engine's own rule: a module the descriptor declares under that path stays as it was
-     * written, a module a wildcard already names is left auto-discovered, and a descriptor that declares
-     * nothing has its default patterns written out before the module is appended — otherwise declaring one
-     * module would stop every other workbook of the project from being one.
+     * Declares a generated module, unless the descriptor already leads to it — by the rule the rest of Studio
+     * registers a module with, which leaves a pattern-matched one auto-discovered.
      */
     private void declare(ProjectDescriptor descriptor, String name, String path) {
-        descriptors.registerModule(descriptor, moduleOf(name, path));
+        var module = new Module();
+        module.setName(name);
+        module.setRulesRootPath(path);
+        descriptors.registerModule(descriptor, module);
     }
 
     /** The generated classes are read from the classpath, and are on it exactly while there are some. */
@@ -389,15 +379,6 @@ public class ProjectOpenApiGenerationService {
     private static List<Module> modulesOf(ProjectDescriptor descriptor) {
         var modules = descriptor.getModules();
         return CollectionUtils.isEmpty(modules) ? List.of() : modules;
-    }
-
-    /**
-     * The descriptor the generation reads and writes back: what {@code rules.xml} declares, or one naming
-     * the modules the project resolves to today where it has no {@code rules.xml} at all.
-     */
-    private ProjectDescriptor descriptorOf(RulesProject project) {
-        return ProjectOpenApiService.descriptorToWrite(project, fileRootFactory.of(project), filesService,
-                () -> projectService.getProjectDescriptor(project));
     }
 
     /** Opens a generated workbook, which is written as it is read. */

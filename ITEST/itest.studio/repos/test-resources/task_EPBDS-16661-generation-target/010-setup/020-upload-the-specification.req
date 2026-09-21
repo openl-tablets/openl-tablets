@@ -1,0 +1,11 @@
+POST /rest/projects/EPBDS-16661/files/ HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="openapi.json"
+Content-Type: application/json
+
+&openapi.json
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+
