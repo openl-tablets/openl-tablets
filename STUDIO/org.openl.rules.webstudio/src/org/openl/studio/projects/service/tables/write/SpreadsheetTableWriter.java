@@ -109,7 +109,7 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
         validateAppend(rows, cells);
         try {
             table.getGridTable().edit();
-            var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+            var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var rowId = IGridRegion.Tool.height(tableBody.getRegion());
             for (var i = 0; i < rows.size(); i++) {
                 appendRow(tableBody, rowId + i, rows.get(i), cells[i]);
@@ -129,7 +129,7 @@ public class SpreadsheetTableWriter extends ExecutableTableWriter<SpreadsheetVie
             throw new BadRequestException("spreadsheet.append.rows.cells.mismatch.message");
         }
         // The first column holds the row headers; the remaining columns hold the cell values.
-        var dataColumns = table.getGridTable(IXlsTableNames.VIEW_BUSINESS).getWidth() - FIRST_DATA_COL_IDX;
+        var dataColumns = getGridTable(IXlsTableNames.VIEW_BUSINESS).getWidth() - FIRST_DATA_COL_IDX;
         for (var i = 0; i < rows.size(); i++) {
             var cellRow = cells[i];
             // A cell value may be null (an empty cell), but a missing row or cell object cannot be written.

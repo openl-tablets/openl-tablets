@@ -25,6 +25,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.SubGridTable;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.MergeCellsAction;
@@ -433,7 +434,7 @@ public abstract class TableWriter<T extends TableView> {
 
     protected IGridTable getGridTable(String view) {
         if (isUpdateMode()) {
-            return table.getGridTable(view);
+            return IXlsTableNames.VIEW_BUSINESS.equals(view) ? businessBody() : table.getGridTable(view);
         } else {
             if (IXlsTableNames.VIEW_BUSINESS.equals(view)) {
                 return originalTable.getSubtable(0,
@@ -444,6 +445,38 @@ public abstract class TableWriter<T extends TableView> {
                 return originalTable;
             }
         }
+    }
+
+    /**
+     * The body of the table being updated: its rows under the header and the properties.
+     *
+     * <p>Taken as the engine bound it. A table the engine could not bind has no body view of its own, and the whole
+     * grid would stand in for it, header included, to be written over as if it were the body. Such a table is given
+     * the rows under its header instead — an empty body under the last row of a table written as a header alone,
+     * the way an author leaves it while writing.
+     */
+    private IGridTable businessBody() {
+        var tsn = table.getSyntaxNode();
+        var bound = tsn.getTable(IXlsTableNames.VIEW_BUSINESS);
+        if (bound != null) {
+            return bound.getSource();
+        }
+        var body = tsn.getTableBody();
+        var fromRow = body == null
+                ? originalTable.getHeight()
+                : body.getSource().getRegion().getTop() - originalTable.getRegion().getTop();
+        return bodyBelow(fromRow);
+    }
+
+    /**
+     * The rows of the table from the given one down, as a sub-table whatever their number.
+     *
+     * <p>A table that ends above that row has no body yet, and is answered an empty sub-table there: the rows are
+     * inserted as cells are written into it, the way a body grows. Answered as a sub-table even for one cell, which
+     * would otherwise be a cell of its own with no region to grow.
+     */
+    protected IGridTable bodyBelow(int fromRow) {
+        return new SubGridTable(originalTable, 0, fromRow, originalTable.getWidth(), originalTable.getHeight() - fromRow);
     }
 
 }

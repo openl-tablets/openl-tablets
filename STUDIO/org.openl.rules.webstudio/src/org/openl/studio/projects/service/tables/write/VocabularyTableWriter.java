@@ -66,7 +66,7 @@ public class VocabularyTableWriter extends TableWriter<VocabularyView> {
         }
         try {
             table.getGridTable().edit();
-            var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+            var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var value : tableAppend.getValues()) {
                 createOrUpdateCell(tableBody, buildCellKey(0, row), value.value);

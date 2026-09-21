@@ -129,7 +129,7 @@ public class DatatypeTableWriter extends TableWriter<DatatypeView> {
         if (!isUpdateMode()) {
             throw new IllegalStateException("Append operation is only allowed in update mode.");
         }
-        var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+        var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
         var columns = columnsOf(tableBody);
         requireColumnsFor(tableAppend.getFields(), columns);
         try {

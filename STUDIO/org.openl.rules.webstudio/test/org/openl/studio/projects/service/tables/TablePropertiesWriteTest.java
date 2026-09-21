@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableProperty;
 
@@ -39,7 +37,7 @@ class TablePropertiesWriteTest {
     void writesAPropertyOntoATableThatDeclaresNone() throws IOException {
         var project = rules("plain");
 
-        service.write(table(project), List.of(new TableProperty("description", "Greets by the hour")));
+        service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("description", "Greets by the hour")));
 
         // The properties section is written above the body, which stays where it was.
         assertEquals(List.of(
@@ -53,7 +51,7 @@ class TablePropertiesWriteTest {
     void changesAPropertyTheTableAlreadyCarries() throws IOException {
         var project = withProperties("changed");
 
-        service.write(table(project), List.of(new TableProperty("description", "Says hello")));
+        service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("description", "Says hello")));
 
         assertEquals(List.of("properties", "description", "Says hello"), source(project).get(1));
     }
@@ -62,7 +60,7 @@ class TablePropertiesWriteTest {
     void takesAwayAPropertyGivenNoValue() throws IOException {
         var project = withProperties("removed");
 
-        service.write(table(project), List.of(new TableProperty("description", null)));
+        service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("description", null)));
 
         // The row the value sat on is gone; the table starts at its body again.
         assertEquals(List.of(
@@ -75,11 +73,11 @@ class TablePropertiesWriteTest {
     void leavesAlonePropertiesItIsNotToldAbout() throws IOException {
         var project = withProperties("kept");
 
-        service.write(table(project), List.of(new TableProperty("tags", "greeting")));
+        service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("tags", "greeting")));
 
         // The one it was told about is written; the one it was not still stands.
         assertEquals(Map.of("description", "Greets by the hour", "tags", "greeting"),
-                service.read(table(project)).stream()
+                service.read(TableTestProjects.onlyTable(project)).stream()
                         .collect(Collectors.toMap(TableProperty::name, TableProperty::value)));
     }
 
@@ -87,10 +85,10 @@ class TablePropertiesWriteTest {
     void readsADateFromTheTextItCrossesIn() throws IOException {
         var project = rules("dated");
 
-        service.write(table(project), List.of(new TableProperty("effectiveDate", "2009-01-01")));
+        service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("effectiveDate", "2009-01-01")));
 
         // Written as a date rather than as the text it arrived as, so the engine reads it as one.
-        assertEquals("2009-01-01", service.read(table(project)).getFirst().value());
+        assertEquals("2009-01-01", service.read(TableTestProjects.onlyTable(project)).getFirst().value());
     }
 
     @Test
@@ -98,7 +96,7 @@ class TablePropertiesWriteTest {
         var project = rules("stamped");
         when(systemProperties.onEdit()).thenReturn(Map.of("modifiedBy", "jane"));
 
-        service.write(table(project), List.of(new TableProperty("description", "Greets by the hour")));
+        service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("description", "Greets by the hour")));
 
         assertTrue(source(project).contains(List.of("properties", "modifiedBy", "jane")),
                 "the edit should be recorded: " + source(project));
@@ -107,7 +105,7 @@ class TablePropertiesWriteTest {
     @Test
     void refusesAPropertyThisKindOfTableDoesNotAccept() throws IOException {
         var project = rules("unsuitable");
-        var table = table(project);
+        var table = TableTestProjects.onlyTable(project);
         // A datatype's package is not something a rules table can be given.
         var unsuitable = List.of(new TableProperty("datatypePackage", "org.openl"));
 
@@ -118,7 +116,7 @@ class TablePropertiesWriteTest {
     void refusesATableThatCarriesNoPropertiesAtAll() throws IOException {
         var project = TableTestProjects.writeProject(tempDir.resolve("environment"), "environment", "Env",
                 new String[][]{{"Environment", null}, {"include", "Rules.xlsx"}});
-        var table = table(project);
+        var table = TableTestProjects.onlyTable(project);
         var properties = List.of(new TableProperty("description", "Anything"));
 
         assertThrows(BadRequestException.class, () -> service.write(table, properties));
@@ -143,15 +141,9 @@ class TablePropertiesWriteTest {
         });
     }
 
-    /** The one table of the project, read afresh from the workbook. */
-    private static IOpenLTable table(Path project) {
-        return new TableSyntaxNodeAdapter(TableTestProjects.projectModel(project).getAllTableSyntaxNodes().iterator()
-                .next());
-    }
-
     /** The table's cells, row by row, with the blank tail of each row left out. */
     private static List<List<String>> source(Path project) {
-        return TableTestProjects.rawSource(table(project)).stream().map(TablePropertiesWriteTest::trimmed).toList();
+        return TableTestProjects.rawSource(TableTestProjects.onlyTable(project)).stream().map(TablePropertiesWriteTest::trimmed).toList();
     }
 
     /** One row without the blank cells a wider row leaves at its end. */

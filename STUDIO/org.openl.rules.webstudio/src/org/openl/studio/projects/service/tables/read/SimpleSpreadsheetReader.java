@@ -22,7 +22,7 @@ public class SimpleSpreadsheetReader extends ExecutableTableReader<SimpleSpreads
     }
 
     @Override
-    public boolean supports(IOpenLTable table) {
+    protected boolean supportsShape(IOpenLTable table) {
         return OpenLTableUtils.isSimpleSpreadsheet(table);
     }
 

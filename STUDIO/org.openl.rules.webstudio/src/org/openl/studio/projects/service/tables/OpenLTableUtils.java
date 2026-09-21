@@ -153,12 +153,26 @@ public abstract class OpenLTableUtils {
      */
     public static boolean isSimpleSpreadsheet(IOpenLTable table) {
         if (isSpreadsheetTable(table)) {
+            // The shape is told by the body, which a table written as a header alone does not have.
             var tableBody = table.getSyntaxNode().getTableBody();
-            var height = getHeightWithoutEmptyRows(tableBody);
-            var width = getWidthWithoutEmptyColumns(tableBody);
-            return width == 2 || height == 2;
+            if (tableBody != null) {
+                var height = getHeightWithoutEmptyRows(tableBody);
+                var width = getWidthWithoutEmptyColumns(tableBody);
+                return width == 2 || height == 2;
+            }
         }
         return false;
+    }
+
+    /**
+     * Whether the table has rows under its header. A table written as a header alone, the way an author leaves
+     * it while writing one, has none.
+     *
+     * @param table table to check
+     * @return {@code true} if the table carries a body, {@code false} if it is a header alone
+     */
+    public static boolean hasBody(IOpenLTable table) {
+        return table.getSyntaxNode().getTableBody() != null;
     }
 
     /**

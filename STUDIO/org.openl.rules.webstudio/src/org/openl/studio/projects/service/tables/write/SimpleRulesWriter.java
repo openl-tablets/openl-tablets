@@ -86,7 +86,7 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
         }
         try {
             table.getGridTable().edit();
-            var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+            var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var headers = SimpleRulesTableReader
                     .getConditionHeaders(LogicalTableHelper.logicalTable(tableBody.getRow(0)));
             var row = IGridRegion.Tool.height(tableBody.getRegion());

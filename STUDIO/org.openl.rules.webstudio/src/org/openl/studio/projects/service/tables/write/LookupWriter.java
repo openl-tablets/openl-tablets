@@ -146,7 +146,7 @@ public class LookupWriter extends ExecutableTableWriter<LookupView> {
         }
         try {
             table.getGridTable().edit();
-            var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+            var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var headerTable = LogicalTableHelper.logicalTable(tableBody.getRow(0));
             var headers = LookupTableReader.buildHeaders(headerTable);
 

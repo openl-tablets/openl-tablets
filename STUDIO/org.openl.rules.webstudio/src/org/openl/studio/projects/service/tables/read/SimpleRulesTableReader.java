@@ -25,7 +25,7 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
     }
 
     @Override
-    public boolean supports(IOpenLTable table) {
+    protected boolean supportsShape(IOpenLTable table) {
         return OpenLTableUtils.isSimpleRules(table);
     }
 

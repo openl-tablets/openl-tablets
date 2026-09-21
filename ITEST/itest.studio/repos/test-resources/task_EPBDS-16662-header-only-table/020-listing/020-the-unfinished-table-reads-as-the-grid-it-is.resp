@@ -1,0 +1,36 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "9de22055ffd68cd36c9b26f6c343378b",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Spreadsheet",
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Encountered \"<EOF>\" at line 0, column 0.\nWas expecting one of:\n    \"void\" ...\n    <IDENTIFIER> ...\n    ",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "9de22055ffd68cd36c9b26f6c343378b",
+        "module": "Rates",
+        "projectId": "*",
+        "project": "EPBDS-16662",
+        "cell": "B7"
+      },
+      "stacktrace": true
+    }
+  ],
+  "pos": "B7",
+  "source": [
+    [
+      {
+        "cell": "B7",
+        "value": "Spreadsheet"
+      }
+    ]
+  ],
+  "headerHeight": 0
+}
+

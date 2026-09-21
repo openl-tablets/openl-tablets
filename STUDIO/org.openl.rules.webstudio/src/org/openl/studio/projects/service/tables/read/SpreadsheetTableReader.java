@@ -26,7 +26,7 @@ public class SpreadsheetTableReader extends ExecutableTableReader<SpreadsheetVie
     }
 
     @Override
-    public boolean supports(IOpenLTable table) {
+    protected boolean supportsShape(IOpenLTable table) {
         return OpenLTableUtils.isSpreadsheetTable(table) && !OpenLTableUtils.isSimpleSpreadsheet(table);
     }
 

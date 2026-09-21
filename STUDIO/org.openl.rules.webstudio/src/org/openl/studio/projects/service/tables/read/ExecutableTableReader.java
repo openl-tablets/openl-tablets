@@ -9,6 +9,7 @@ import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.ArgumentView;
 import org.openl.studio.projects.model.tables.ExecutableView;
+import org.openl.studio.projects.service.tables.OpenLTableUtils;
 
 /**
  * Abstract class for reading executable tables.
@@ -20,6 +21,18 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
     protected ExecutableTableReader(Supplier<R> builderCreator) {
         super(builderCreator);
     }
+
+    /**
+     * An executable table is read by the shape its body gives it, so one written as a header alone — the way an
+     * author leaves it while writing — is left to be read as the grid it is.
+     */
+    @Override
+    public final boolean supports(IOpenLTable table) {
+        return OpenLTableUtils.hasBody(table) && supportsShape(table);
+    }
+
+    /** Whether the table, which has a body, is of the shape this reader reads. */
+    protected abstract boolean supportsShape(IOpenLTable table);
 
     @Override
     protected void initialize(R builder, IOpenLTable openLTable) {

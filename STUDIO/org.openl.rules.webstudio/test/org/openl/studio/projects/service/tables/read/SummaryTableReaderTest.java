@@ -51,6 +51,9 @@ class SummaryTableReaderTest {
             row(sheet, 21, "Datatype Bank");
             row(sheet, 22, "String", "name");
 
+            // A table an author has only begun: a header with nothing under it.
+            row(sheet, 24, "Spreadsheet ");
+
             try (OutputStream out = Files.newOutputStream(projectDir.resolve("Rules.xlsx"))) {
                 workbook.write(out);
             }
@@ -99,6 +102,13 @@ class SummaryTableReaderTest {
                 .toList();
 
         assertEquals(List.of(), read.stream().map(table -> table.displayName).filter(Objects::nonNull).toList());
+    }
+
+    @Test
+    void readsATableWrittenAsAHeaderAlone() {
+        // Every table of the module is read on the way to this one: the unfinished table is listed by its kind
+        // with the others, rather than failing the module's listing.
+        assertEquals("Spreadsheet", tables("Spreadsheet").getFirst().tableType);
     }
 
     @Test

@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -88,6 +89,11 @@ public final class TableTestProjects {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to resolve project at " + dir, e);
         }
+    }
+
+    /** The one table of a single-table project, read afresh from the workbook. */
+    public static IOpenLTable onlyTable(Path project) {
+        return new TableSyntaxNodeAdapter(projectModel(project).getAllTableSyntaxNodes().iterator().next());
     }
 
     /**

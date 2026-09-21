@@ -161,7 +161,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
         }
         try {
             table.getGridTable().edit();
-            var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+            var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
 
             // Calculate next row after existing data
             // The height already points to the next empty row after all existing data
@@ -195,10 +195,7 @@ public abstract class AbstractDataTableWriter<T extends AbstractDataView> extend
                 var propsCount = originalGrid.getCell(leftCell, topCell + 1).getHeight();
                 fromRow += propsCount;
             }
-            return originalTable.getSubtable(0,
-                    fromRow,
-                    originalTable.getWidth(),
-                    originalTable.getHeight() - fromRow);
+            return bodyBelow(fromRow);
         } else {
             return originalTable;
         }
