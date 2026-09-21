@@ -35,8 +35,8 @@
   branch before adding, and never force-push what you did not write. Two commits: "Drop the decision-table match
   type no matched definition can carry" (type 6, `MatchType.PARAMS_RENAMED_CASTED`) and "Stop documenting the
   data source setting removed in 5.23.8" (type 14, `ruleservice.datasource.filesystem.supportVersion`).
-- On `9d76bf21c7` every check is green except `Sonar analysis`, which hit the jacoco corruption below; one full
-  `rerun_workflow_run` was spent on it. The one-commit head was fully green with a clean Sonar gate.
+- GREEN on `9d76bf21c7`: all 21 checks pass and SonarCloud analysed that exact SHA, gate OK, 0 new issues.
+  Waiting on reviewers only; a close-out comment already says so, so do not post another.
 
 ## Merged PRs
 
@@ -217,12 +217,12 @@
   a new SHA is the cheapest cure.
 - Fetch a job log with `get_job_logs` (tail 8000); find failures with `... - FAIL`, the cause with `ORA-|expected: <`.
 - `Sonar analysis` is skipped when any job of the run fails, so a red flake hides its verdict and the issues API
-  answers 0 for "never analysed". Confirm the SHA at
-  `sonarcloud.io/api/project_pull_requests/list?project=org.openl.rules:openl-tablets`.
+  answers 0 for "never analysed". Confirm the SHA at `project_pull_requests/list` on sonarcloud.io.
 - `rerun_failed_jobs` returns 403 while ANY job is in flight, and it re-reads the same jacoco artifacts, so it
   cannot cure `Sonar analysis` dying in `report-aggregate` with "Unknown block type N" (f9 and 3 both seen).
   That corruption needs NO crashed attempt — it hit a first run whose every other job was green. Cure it with
-  `rerun_workflow_run`, which regenerates the exec artifacts without touching a branch others also push to.
+  `rerun_workflow_run`, which regenerates the exec artifacts without touching a branch others also push to —
+  confirmed: one such re-run turned `9d76bf21c7` from red to a clean Sonar gate.
 
 ## Container facts
 
@@ -297,4 +297,4 @@
 - 2026-09-19 b: no delta to sweep; closed the JSF-orphan vein at zero and compacted the ledger to its ceiling.
 - 2026-09-20: swept the delta over 13 change types plus 6 new veins. One finding, PR #2145.
 - 2026-09-21: delta was 2 dependabot bumps and a clean tag migration; 6 new code veins closed at zero, the
-  documentation veins paid 1 removal and 7 follow-ups. Sonar hit the jacoco corruption on the 2-commit head.
+  documentation veins paid 1 removal and 7 follow-ups. PR #2145 is green on its 2-commit head.
