@@ -2,6 +2,7 @@ package org.openl.studio.projects.service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.constraints.RegexpValueConstraint;
+import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -42,50 +44,66 @@ import org.openl.util.StringUtils;
 @RequiredArgsConstructor
 public class ProjectMetadataService {
 
-    /**
-     * Properties a Properties table may declare, resolved once because the set never changes.
-     *
-     * <p>A Properties table applies at Global, Module or Category scope, so a property restricted to the Table level
-     * is left out, and so is a system property, which OpenL Studio stamps rather than the author typing it.
-     */
-    private static final List<PropertyDefinitionView> PROPERTIES = Stream
-            .of(InheritanceLevel.GLOBAL, InheritanceLevel.MODULE, InheritanceLevel.CATEGORY)
-            .flatMap(level -> Arrays.stream(TablePropertyDefinitionUtils.getDefaultDefinitionsForTable(
-                    XlsNodeTypes.XLS_PROPERTIES.toString(), level, true)))
-            .filter(definition -> definition.getDeprecation() == null)
-            .map(ProjectMetadataService::describe)
-            .distinct()
-            .sorted((left, right) -> String.CASE_INSENSITIVE_ORDER.compare(left.name(), right.name()))
-            .toList();
+    private static final Comparator<PropertyDefinitionView> BY_NAME = Comparator
+            .comparing(PropertyDefinitionView::name, String.CASE_INSENSITIVE_ORDER);
 
-    /** The properties of each table type, resolved once per type: the definitions never change at runtime. */
+    /**
+     * Every property of the dictionary.
+     *
+     * <p>What a table may carry however it comes by it — written on the table, inherited from a Properties table or
+     * stamped by OpenL Studio — so a search across tables of every kind may narrow by any of them.
+     */
+    private static final List<PropertyDefinitionView> ALL = dictionary(
+            Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions()));
+
+    /** The properties each kind of table may declare, resolved once per kind: the definitions never change. */
     private static final Map<String, List<PropertyDefinitionView>> BY_TABLE_TYPE = new ConcurrentHashMap<>();
 
     private final ProjectFilesService projectFilesService;
     private final ProjectFileRootFactory projectFileRootFactory;
 
     /**
-     * Properties applicable to one place in a workbook.
+     * Properties a kind of table may declare, or every property there is.
      *
-     * <p>Without a table type, these are the properties a Properties table may declare at Global, Module or Category
-     * scope. With a table type, these are the properties the table itself may declare at Table scope.
+     * <p>With a table type, these are the properties a table of that kind may declare — a Properties table for the
+     * tables of its scope, every other kind on itself. Without one, these are every property a table may carry,
+     * however it comes by it.
      *
-     * @param tableType public table kind, or {@code null} for the contents of a Properties table
+     * @param tableType public table kind, or {@code null} for every property of the dictionary
      */
     public List<PropertyDefinitionView> getProperties(@Nullable String tableType) {
         if (StringUtils.isBlank(tableType)) {
-            return PROPERTIES;
+            return ALL;
         }
         var internalType = OpenLTableUtils.getTableTypeItems().inverse().get(tableType);
         if (internalType == null) {
             throw new BadRequestException("project.properties.table-type.message", new Object[]{tableType});
         }
-        return BY_TABLE_TYPE.computeIfAbsent(internalType, type -> Arrays
-                .stream(TablePropertyDefinitionUtils.getDefaultDefinitionsForTable(type, InheritanceLevel.TABLE, true))
-                .filter(definition -> definition.getDeprecation() == null)
+        return BY_TABLE_TYPE.computeIfAbsent(internalType, type -> dictionary(declaredAt(type).stream()
+                .flatMap(level -> Arrays.stream(
+                        TablePropertyDefinitionUtils.getDefaultDefinitionsForTable(type, level, true)))));
+    }
+
+    /**
+     * The levels a kind of table declares its properties at.
+     *
+     * <p>A Properties table carries no properties of its own: what it declares applies to the tables of its Global,
+     * Module or Category scope. Every other kind declares its properties on itself. A system property, which
+     * OpenL Studio stamps rather than the author typing it, is not among what a kind may declare.
+     */
+    private static List<InheritanceLevel> declaredAt(String internalType) {
+        return XlsNodeTypes.XLS_PROPERTIES.toString().equals(internalType)
+                ? List.of(InheritanceLevel.GLOBAL, InheritanceLevel.MODULE, InheritanceLevel.CATEGORY)
+                : List.of(InheritanceLevel.TABLE);
+    }
+
+    /** The definitions as a dialog offers them: each once, by name, the deprecated ones left out. */
+    private static List<PropertyDefinitionView> dictionary(Stream<TablePropertyDefinition> definitions) {
+        return definitions.filter(definition -> definition.getDeprecation() == null)
                 .map(ProjectMetadataService::describe)
-                .sorted((left, right) -> String.CASE_INSENSITIVE_ORDER.compare(left.name(), right.name()))
-                .toList());
+                .distinct()
+                .sorted(BY_NAME)
+                .toList();
     }
 
     /**

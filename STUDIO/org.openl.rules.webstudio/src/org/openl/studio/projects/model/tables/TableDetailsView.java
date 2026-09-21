@@ -16,6 +16,7 @@ import lombok.Builder;
  * the panel offers exactly what this kind of table accepts.
  *
  * @param name               name of the table, as its header spells it
+ * @param kind               the family the table belongs to, which decides the properties it may declare
  * @param groups             properties that apply to the table, by the group they belong to
  * @param canEditProperties  whether properties may be written on this table
  * @param available          names of the properties that may still be written on it
@@ -25,6 +26,9 @@ import lombok.Builder;
 public record TableDetailsView(
         @Parameter(description = "Name of the table")
         String name,
+
+        @Parameter(description = "Kind of the table object, which decides the properties it may be given")
+        TableKind kind,
 
         @Parameter(description = """
                 Properties that apply to the table, grouped as the property dictionary groups them. \

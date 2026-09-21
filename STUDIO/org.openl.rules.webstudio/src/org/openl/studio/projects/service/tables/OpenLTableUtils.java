@@ -12,6 +12,7 @@ import org.openl.rules.table.ITable;
 import org.openl.studio.projects.model.tables.LookupView;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
 import org.openl.studio.projects.model.tables.SmartRulesView;
+import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.service.tables.write.VocabularyTableWriter;
 import org.openl.util.StringUtils;
 
@@ -45,6 +46,17 @@ public abstract class OpenLTableUtils {
         tableTypeItems.put(XlsNodeTypes.XLS_OTHER.toString(), "Other");
 
         TABLE_TYPE_ITEMS = Maps.unmodifiableBiMap(tableTypeItems);
+    }
+
+    /**
+     * The family the table belongs to, by the public name of its type.
+     *
+     * <p>A type the public names leave out — a part of a table split across sheets — belongs to no family of its
+     * own and is answered as {@link TableKind#OTHER}.
+     */
+    public static TableKind kindOf(IOpenLTable table) {
+        var name = TABLE_TYPE_ITEMS.get(XlsNodeTypes.getEnumByValue(table.getType()).toString());
+        return name == null ? TableKind.OTHER : TableKind.fromValue(name);
     }
 
     public static BiMap<String, String> getTableTypeItems() {

@@ -158,8 +158,15 @@ export const TableDetailsPanel = ({
     // Only what the reader touched: a value they wrote, or nothing at all for a property they took away.
     const [draft, setDraft] = useState<PropertyDraft>({})
     // The dictionary says how each property is written — a date, a flag, one or several values of an
-    // enumeration — so it is read the first time a reader writes anything.
-    const [dictionary, setDictionary] = useState<ProjectProperty[]>([])
+    // enumeration — so it is read the first time a reader writes anything. It is the dictionary of the table's own
+    // kind, which the details name: a Rules table and a Spreadsheet may be given different properties. Held by
+    // kind, since the definitions never change: a kind once read costs nothing again, and an answer that arrives
+    // late fills its own kind's slot rather than standing in for another's.
+    const [dictionaries, setDictionaries] = useState<Record<string, ProjectProperty[]>>({})
+    // The kinds whose dictionary is on its way, so that a second look before it answers does not ask again.
+    const reading = useRef(new Set<string>())
+    const kind = details?.kind
+    const dictionary = useMemo(() => (kind && dictionaries[kind]) || [], [dictionaries, kind])
 
     // The whole panel reads at the size of the table beside it — the group headings included, which stand out
     // by their weight rather than by being larger than the name of the table they describe.
@@ -208,11 +215,16 @@ export const TableDetailsPanel = ({
     }, [tableId])
 
     useEffect(() => {
-        if (!editing || dictionary.length > 0) {
+        if (!editing || !kind || kind in dictionaries || reading.current.has(kind)) {
             return
         }
-        getProjectProperties(projectId).then(setDictionary).catch(() => setDictionary([]))
-    }, [editing, projectId, dictionary.length])
+        reading.current.add(kind)
+        // A read that failed is not held: it is asked for again the next time the reader writes.
+        getProjectProperties(projectId, kind)
+            .then(read => setDictionaries(held => ({ ...held, [kind]: read })))
+            .catch(() => undefined)
+            .finally(() => reading.current.delete(kind))
+    }, [editing, projectId, kind, dictionaries])
 
     const definitionOf = useCallback(
         (name: string) => dictionary.find(property => property.name === name),

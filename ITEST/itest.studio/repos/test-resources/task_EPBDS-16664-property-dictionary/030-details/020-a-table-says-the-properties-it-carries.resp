@@ -1,0 +1,165 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "MyRules1",
+  "kind": "Rules",
+  "groups": [
+    {
+      "name": "Info",
+      "properties": [
+        {
+          "name": "category",
+          "displayName": "Category",
+          "value": "cat1"
+        },
+        {
+          "name": "description",
+          "displayName": "Description",
+          "value": "Hello Kitty"
+        },
+        {
+          "name": "tags",
+          "displayName": "Tags",
+          "value": "Tag1,Tag2"
+        }
+      ]
+    },
+    {
+      "name": "Business Dimension",
+      "properties": [
+        {
+          "name": "effectiveDate",
+          "displayName": "Effective Date",
+          "value": "2018-05-15"
+        },
+        {
+          "name": "expirationDate",
+          "displayName": "Expiration Date",
+          "value": "2018-05-16"
+        },
+        {
+          "name": "startRequestDate",
+          "displayName": "Start Request Date",
+          "value": "2018-05-03"
+        },
+        {
+          "name": "endRequestDate",
+          "displayName": "End Request Date",
+          "value": "2018-05-01"
+        },
+        {
+          "name": "caRegions",
+          "displayName": "Canada Region",
+          "value": "QC,HQ"
+        },
+        {
+          "name": "caProvinces",
+          "displayName": "Canada Province",
+          "value": "BC,PE"
+        },
+        {
+          "name": "country",
+          "displayName": "Countries",
+          "value": "AL,DZ"
+        },
+        {
+          "name": "region",
+          "displayName": "Region",
+          "value": "NCSA,EMEA"
+        },
+        {
+          "name": "currency",
+          "displayName": "Currency",
+          "value": "ALL,DZD"
+        },
+        {
+          "name": "lang",
+          "displayName": "Language",
+          "value": "ALB,ARA"
+        },
+        {
+          "name": "lob",
+          "displayName": "LOB",
+          "value": "001"
+        },
+        {
+          "name": "origin",
+          "displayName": "Origin",
+          "value": "Base"
+        },
+        {
+          "name": "usregion",
+          "displayName": "US Region",
+          "value": "MW,SE"
+        },
+        {
+          "name": "state",
+          "displayName": "US States",
+          "value": "AL,AK"
+        },
+        {
+          "name": "nature",
+          "displayName": "Nature",
+          "value": "TestNature"
+        }
+      ]
+    },
+    {
+      "name": "Version",
+      "properties": [
+        {
+          "name": "active",
+          "displayName": "Active",
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "name": "Dev",
+      "properties": [
+        {
+          "name": "id",
+          "displayName": "ID",
+          "value": "test1"
+        },
+        {
+          "name": "buildPhase",
+          "displayName": "Build Phase",
+          "value": "Property1"
+        },
+        {
+          "name": "validateDT",
+          "displayName": "Validate DT",
+          "value": "ON"
+        },
+        {
+          "name": "failOnMiss",
+          "displayName": "Fail On Miss",
+          "value": "true"
+        },
+        {
+          "name": "cacheable",
+          "displayName": "Cacheable",
+          "value": "false"
+        },
+        {
+          "name": "recalculate",
+          "displayName": "Recalculate",
+          "value": "NEVER"
+        },
+        {
+          "name": "emptyResultProcessing",
+          "displayName": "Empty Result Processing",
+          "value": "RETURN"
+        },
+        {
+          "name": "parallel",
+          "displayName": "Concurrent Execution",
+          "value": "false"
+        }
+      ]
+    }
+  ],
+  "canEditProperties": true
+}

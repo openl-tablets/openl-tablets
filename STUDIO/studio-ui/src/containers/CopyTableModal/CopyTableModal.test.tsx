@@ -416,12 +416,13 @@ describe('CopyTableModal', () => {
         await openModal()
         await screen.findByTestId('copy-table-property-row-2')
 
-        const names = screen.getByTestId('copy-table-property-name-2')
+        // The row holding the source's version: it keeps offering its own property, beside the ones no row took.
+        const names = screen.getByTestId('copy-table-property-name-0')
         // Grouped the way Table Details groups them, so the dimensional properties are presented, not guessed.
         expect([...names.querySelectorAll('optgroup')].map(group => group.label))
             .toEqual(['Business Dimension', 'Version'])
         expect(within(names).getByRole('option', { name: 'US States' })).toHaveValue('state')
-        expect(within(names).getByRole('option', { name: 'LOB' })).toHaveValue('lob')
+        expect(within(names).getByRole('option', { name: 'Region' })).toHaveValue('region')
     })
 
     it('adds properties with the same trailing-row behavior as Spreadsheet arguments', async () => {
@@ -484,12 +485,27 @@ describe('CopyTableModal', () => {
         expect(copyButton).toBeDisabled()
         await user.type(screen.getByTestId('copy-table-property-value-2'), 'EU')
         expect(copyButton).toBeEnabled()
+    })
 
-        // The same property twice says two things about one property.
-        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'lob')
-        await user.clear(screen.getByTestId('copy-table-property-value-2'))
-        await user.type(screen.getByTestId('copy-table-property-value-2'), 'Auto')
-        expect(copyButton).toBeDisabled()
+    it('does not offer a property the copy already carries', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+        await screen.findByTestId('copy-table-property-row-2')
+
+        // The same property twice would say two things about one property: the source's `version` and `lob`
+        // stand in the rows above, so a new row picks from the rest.
+        const names = screen.getByTestId('copy-table-property-name-2')
+        expect(within(names).queryByRole('option', { name: 'LOB' })).not.toBeInTheDocument()
+        expect(within(names).getByRole('option', { name: 'Region' })).toHaveValue('region')
+
+        // A row keeps offering what it holds itself; the row that follows does not.
+        await user.selectOptions(names, 'region')
+        await user.type(screen.getByTestId('copy-table-property-value-2'), 'EU')
+        expect(within(screen.getByTestId('copy-table-property-name-2')).getByRole('option', { name: 'Region' }))
+            .toBeInTheDocument()
+        expect(within(screen.getByTestId('copy-table-property-name-3')).queryByRole('option', { name: 'Region' }))
+            .not.toBeInTheDocument()
     })
 
     it('offers the next free version and shows the one the table stands for', async () => {
@@ -506,10 +522,12 @@ describe('CopyTableModal', () => {
         expect(screen.getByTestId('copy-table-property-value-0-1')).toHaveValue(2)
         expect(screen.getByTestId('copy-table-property-value-0-2')).toHaveValue(4)
 
-        // A property chosen anew opens on that same free version.
-        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'region')
-        await user.selectOptions(screen.getByTestId('copy-table-property-name-2'), 'version')
-        expect(screen.getByTestId('copy-table-property-value-2-2')).toHaveValue(4)
+        // A property chosen anew opens on that same free version — once the row carrying it is given up, since
+        // a row does not offer what another row holds.
+        await user.click(within(screen.getByTestId('copy-table-property-row-0'))
+            .getByRole('button', { name: 'project:copy_table_modal.delete_property' }))
+        await user.selectOptions(screen.getByTestId('copy-table-property-name-1'), 'version')
+        expect(screen.getByTestId('copy-table-property-value-1-2')).toHaveValue(4)
     })
 
     it('does not submit a version another version of the table already carries', async () => {

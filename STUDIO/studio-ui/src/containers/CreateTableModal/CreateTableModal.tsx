@@ -511,7 +511,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         Promise.all([
             getProjectModules(detail.projectId),
             getProjectTables(detail.projectId, ['Datatype']),
-            getProjectProperties(detail.projectId),
+            // The ones a Properties table's contents may name: the only table written here that carries any.
+            getProjectProperties(detail.projectId, 'Properties'),
             // Opening on Create Test opens on a Test table, so the tables one can call are read here after all:
             // the tested table's signature is what the skeleton is built from, and the list is where it is named.
             detail.sourceTableId ? loadExecutables(detail.projectId) : Promise.resolve([]),

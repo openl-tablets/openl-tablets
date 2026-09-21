@@ -40,7 +40,7 @@ public class TableDetailsServiceImpl implements TableDetailsService {
 
     @Override
     public TableDetailsView read(IOpenLTable table) {
-        var details = TableDetailsView.builder().name(table.getDisplayName());
+        var details = TableDetailsView.builder().name(table.getDisplayName()).kind(OpenLTableUtils.kindOf(table));
         var properties = table.getProperties();
         if (!table.isCanContainProperties() || properties == null) {
             return details.groups(List.of()).available(List.of()).build();

@@ -66,6 +66,18 @@ describe('TableSearchModal', () => {
                 pattern: null,
                 values: [{ code: 'AL', value: 'Alabama' }, { code: 'AZ', value: 'Arizona' }],
             },
+            // Written on a table alone, never in a Properties table: only the whole dictionary knows it.
+            {
+                name: 'tags',
+                displayName: 'Tags',
+                group: 'Info',
+                type: 'text',
+                multiple: true,
+                dimensional: false,
+                defaultValue: null,
+                pattern: null,
+                values: [],
+            },
         ])
     })
 
@@ -78,6 +90,22 @@ describe('TableSearchModal', () => {
             module: 'Claims',
             scope: 'module',
             name: 'Greet',
+        }))
+    })
+
+    it('narrows by any property a table may carry, the ones a Properties table never declares included', async () => {
+        open()
+
+        await userEvent.click(screen.getByTestId('table-search-property-add'))
+        await userEvent.click(await screen.findByTestId('table-search-property-0'))
+        await userEvent.click(await screen.findByTitle('Tags'))
+        await userEvent.type(screen.getByTestId('table-search-property-value-0'), 'pricing')
+        await userEvent.click(screen.getByTestId('table-search-run'))
+
+        // The whole dictionary is read, no kind named: a table is found by what it carries however it comes by it.
+        expect(getProjectProperties).toHaveBeenCalledWith('p1')
+        expect(searchTables).toHaveBeenCalledWith('p1', expect.objectContaining({
+            properties: { tags: 'pricing' },
         }))
     })
 

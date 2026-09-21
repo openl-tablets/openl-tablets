@@ -192,7 +192,8 @@ const TableSearchForm = ({
     const [bodies, setBodies] = useState<Record<string, ResultBody>>({})
 
     // The names a property can be narrowed by are the ones the engine knows, so the list is read rather than
-    // written here: a property added to the dictionary appears without a change to this screen.
+    // written here: a property added to the dictionary appears without a change to this screen. No kind is named —
+    // a table is found by what it carries, written on it, inherited or stamped alike, whatever kind it is.
     useEffect(() => {
         getProjectProperties(projectId).then(setProperties).catch(() => setProperties([]))
     }, [projectId])
