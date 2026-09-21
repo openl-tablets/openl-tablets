@@ -27,7 +27,7 @@
 | 11 | TypeScript exports, types, components, imports | done; 1,151 exports, 0 dead |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
-| 14 | Documentation of settings and classes the code no longer has | in-progress; 1 removal, PR #2145 |
+| 14 | Documentation of settings and classes the code no longer has | done for deletions; 1 removal, PR #2145 |
 
 ## Open PR
 
@@ -155,10 +155,10 @@
 - A class named only by a container registration (`web.xml`, `@WebFilter`) is NOT proven alive by it: judge it by
   whether its behaviour is reachable. A `<listener>` serves only the interfaces the container sorts it into, so a
   registered-but-unbound one never fires — verify from the container jar with `javap -c`, never from the spec.
-- Documentation is the one vein still paying, and it has two decisive cross-checks. For a class: every
-  `org.openl.*` token in a guide must resolve to a type that exists at HEAD. For a setting: every property a
-  release-note migration table marks **Removed** must appear in no current guide. Both are mechanical and both
-  found real defects; a doc that merely names the WRONG name needs a rename and is not this routine's work.
+- Documentation is the one vein still paying, and both of its cross-checks are now SPENT for deletions: every
+  `org.openl.*` token in a guide resolves to a type at HEAD or sits in Human follow-ups, and no guide still names
+  a property a release-note table marks **Removed**. Re-run either only over new Docs commits; what is left needs
+  a rename, which this routine may not make.
 - Public API deferred under rail 8.2 is worth naming explicitly in the PR body: the maintainer approved removing
   UserWorkspace.passivate() straight off that 'Deliberately kept' line. Deferring is not dropping.
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p`
