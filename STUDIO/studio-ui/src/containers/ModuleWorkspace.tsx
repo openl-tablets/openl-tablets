@@ -863,6 +863,7 @@ export const ModuleWorkspace = () => {
                             <TableDetailsPanel
                                 canWrite={!!project.capabilities?.canWrite}
                                 confirmWrite={confirmWrite}
+                                listed={listed}
                                 moduleName={moduleName}
                                 onOpenTable={openTableById}
                                 onSaved={tableRewritten}

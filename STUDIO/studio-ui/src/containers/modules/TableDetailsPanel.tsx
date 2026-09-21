@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Descriptions, Empty, Select, Skeleton, Space, Tooltip } from 'antd'
 import {
@@ -117,6 +117,14 @@ interface TableDetailsPanelProps {
     moduleName: string
     /** The table on screen; nothing is read while none is picked. */
     tableId: string | null
+    /**
+     * Whether the module's own list names the table on screen — false while the module is being read again.
+     *
+     * <p>Writing the properties rewrites the table, and the module is compiled again before what it now says can
+     * be read: the properties are read again once the list names the table again, and what is shown stays until
+     * then.
+     */
+    listed?: boolean
     /** Opens the properties table an inherited value comes from. */
     onOpenTable: (tableId: string) => void
     /** Whether the reader may edit the project; the properties are written only then. */
@@ -140,6 +148,7 @@ export const TableDetailsPanel = ({
     projectId,
     moduleName,
     tableId,
+    listed = true,
     onOpenTable,
     canWrite = false,
     confirmWrite,
@@ -152,6 +161,8 @@ export const TableDetailsPanel = ({
         typeof value === 'boolean'))
     const { size: width, startResize } = useDragSize(WIDTH_STORAGE_KEY, 'left', WIDTH)
     const [details, setDetails] = useState<TableDetails | null>(null)
+    // Which table the details on screen were read for: another table shows nothing until its own are read.
+    const detailsOf = useRef<string | null>(null)
     const [loading, setLoading] = useState(false)
     const [editing, setEditing] = useState(false)
     const [saving, setSaving] = useState(false)
@@ -185,11 +196,19 @@ export const TableDetailsPanel = ({
             setDetails(null)
             return
         }
+        if (!listed) {
+            if (detailsOf.current !== tableId) {
+                setDetails(null)
+            }
+            setLoading(false)
+            return
+        }
         let dropped = false
         setLoading(true)
         getTableDetails(projectId, tableId, moduleName)
             .then(read => {
                 if (!dropped) {
+                    detailsOf.current = tableId
                     setDetails(read)
                 }
             })
@@ -206,7 +225,7 @@ export const TableDetailsPanel = ({
         return () => {
             dropped = true
         }
-    }, [projectId, tableId, moduleName, open])
+    }, [projectId, tableId, moduleName, open, listed])
 
     // What is being written belongs to the table it was written on: another table is read afresh.
     useEffect(() => {

@@ -67,11 +67,13 @@ interface DrawProps {
     onOpenTable?: (id: string) => void
     canWrite?: boolean
     onSaved?: (tableId: string) => void
+    listed?: boolean
 }
 
 const panel = (props: DrawProps) => (
     <TableDetailsPanel
         canWrite={props.canWrite ?? false}
+        listed={props.listed ?? true}
         moduleName="Claims"
         onOpenTable={props.onOpenTable ?? vi.fn()}
         onSaved={props.onSaved}
@@ -326,6 +328,38 @@ describe('TableDetailsPanel', () => {
         expect(getProjectProperties).toHaveBeenCalledTimes(2)
         await userEvent.click(screen.getByTestId('table-details-add'))
         expect(await screen.findByTitle('Category')).toBeInTheDocument()
+    })
+
+    it('shows nothing of another table while the module is being read again', async () => {
+        const view = await draw()
+        expect(screen.getByText('Says hello')).toBeInTheDocument()
+
+        // The reader moved to another table before the module was read again: what was read for the first one
+        // is not shown under the second one's name.
+        view.rerender(panel({ tableId: 'table-2', listed: false }))
+        await settle()
+        expect(screen.queryByText('Says hello')).not.toBeInTheDocument()
+        expect(getTableDetails).toHaveBeenCalledTimes(1)
+    })
+
+    it('reads the properties again once the module was read again after a write', async () => {
+        const view = await draw()
+        expect(getTableDetails).toHaveBeenCalledTimes(1)
+
+        // The module is being compiled again: what is shown stays, and nothing is asked for yet.
+        view.rerender(panel({ listed: false }))
+        await settle()
+        expect(getTableDetails).toHaveBeenCalledTimes(1)
+        expect(screen.getByText('Says hello')).toBeInTheDocument()
+
+        // Read again: the table now says what was written on it.
+        vi.mocked(getTableDetails).mockResolvedValue({
+            ...DETAILS,
+            groups: [{ name: 'Info', properties: [{ name: 'description', displayName: 'Description', value: 'Waves' }]}],
+        })
+        view.rerender(panel({ listed: true }))
+        expect(await screen.findByText('Waves')).toBeInTheDocument()
+        expect(getTableDetails).toHaveBeenCalledTimes(2)
     })
 
     it('asks for nothing while it stands folded away', async () => {
