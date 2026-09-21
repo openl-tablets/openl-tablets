@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- Main is `2b6429ad4b`; `915e0047d2` and everything before it is swept, so only `2b6429ad4b` (PR #2144, tags
-  to plain JDBC) is new. PR #2145 (`dead-code/delta-sweep`) is open with one commit; maintain it first.
+- Everything up to and including `915e0047d2` is swept; sweep only what main gained after it. Do not pin main's
+  SHA here — dependabot bumps move it constantly and are never a dead-code delta.
 - Main moving is no longer a reason to expect findings: its last 50 commits were a removal wave (-3013 lines) by
   another agent and all 13 change types over them yielded one item. Sweep the delta, expect zero, spend the run
   on new veins.
