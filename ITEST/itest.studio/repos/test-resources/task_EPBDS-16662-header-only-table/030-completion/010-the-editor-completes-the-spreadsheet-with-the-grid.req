@@ -1,0 +1,42 @@
+PUT /rest/projects/EPBDS-16662/tables/9de22055ffd68cd36c9b26f6c343378b?module=Rates HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "RawSource",
+  "source": [
+    [
+      {
+        "value": "Spreadsheet Double Total(Double a, Double b)"
+      },
+      {
+        "value": null
+      }
+    ],
+    [
+      {
+        "value": "Steps"
+      },
+      {
+        "value": "Values"
+      }
+    ],
+    [
+      {
+        "value": "Sum"
+      },
+      {
+        "value": "= a + b"
+      }
+    ],
+    [
+      {
+        "value": "RETURN"
+      },
+      {
+        "value": "= $Sum"
+      }
+    ]
+  ]
+}
+

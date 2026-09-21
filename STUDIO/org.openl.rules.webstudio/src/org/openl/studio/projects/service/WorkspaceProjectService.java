@@ -1971,10 +1971,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Get table data
+     * Reads a table in the shape its kind gives it.
      *
-     * @param project project
-     * @param tableId table id
+     * <p>A table no reader takes — a kind without a shape of its own, or a table written as a header alone, which
+     * has no body to shape it by — is read as the grid it is.
+     *
+     * @param project    project owning the table
+     * @param tableId    table id
+     * @param moduleName module to read the table in, or null for the project's own
      * @return table data
      */
     public TableView getTable(RulesProject project, String tableId, @Nullable String moduleName) {

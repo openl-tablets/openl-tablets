@@ -1,0 +1,43 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "c88df8c6ce367c4a26a5469bf28860fd",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Coverage",
+      "signature": "Coverage",
+      "file": "EPBDS-16662/rules/Rates.xlsx",
+      "sheet": "Rules",
+      "pos": "B14"
+    },
+    {
+      "id": "11139078f49d4f0600b738e386722060",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Plan",
+      "signature": "Plan",
+      "file": "EPBDS-16662/rules/Rates.xlsx",
+      "sheet": "Rules",
+      "pos": "B2:C4"
+    },
+    {
+      "id": "9de22055ffd68cd36c9b26f6c343378b",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "Total",
+      "returnType": "Double",
+      "signature": "Total(Double a, Double b)",
+      "file": "EPBDS-16662/rules/Rates.xlsx",
+      "sheet": "Rules",
+      "pos": "B7:C10"
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 3,
+  "numberOfElements": 3,
+  "total": 3
+}
+

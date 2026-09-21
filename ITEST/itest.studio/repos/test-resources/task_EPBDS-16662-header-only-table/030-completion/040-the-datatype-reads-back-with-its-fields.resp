@@ -1,0 +1,42 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "c88df8c6ce367c4a26a5469bf28860fd",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Coverage",
+  "pos": "B14:C16",
+  "source": [
+    [
+      {
+        "cell": "B14",
+        "value": "Datatype Coverage"
+      },
+      {
+        "cell": "C14"
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "String"
+      },
+      {
+        "cell": "C15",
+        "value": "code"
+      }
+    ],
+    [
+      {
+        "cell": "B16",
+        "value": "Double"
+      },
+      {
+        "cell": "C16",
+        "value": "limit"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

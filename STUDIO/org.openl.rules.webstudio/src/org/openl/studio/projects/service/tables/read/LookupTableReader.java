@@ -26,7 +26,7 @@ public class LookupTableReader extends ExecutableTableReader<LookupView, LookupV
     }
 
     @Override
-    public boolean supports(IOpenLTable table) {
+    protected boolean supportsShape(IOpenLTable table) {
         return OpenLTableUtils.isSmartLookup(table) || OpenLTableUtils.isSimpleLookup(table);
     }
 
@@ -45,10 +45,10 @@ public class LookupTableReader extends ExecutableTableReader<LookupView, LookupV
         var headers = buildHeaders(headerTable);
         builder.headers(headers);
 
-        processRows(builder,
-                headers,
-                tableBody.getSubtable(0, 1, tableBody.getWidth(), tableBody.getHeight() - 1),
-                cellValueReader);
+        // A body that is its header rows alone holds no rows to look up by yet.
+        if (tableBody.getHeight() > 1) {
+            processRows(builder, headers, tableBody.getRows(1), cellValueReader);
+        }
     }
 
     /**

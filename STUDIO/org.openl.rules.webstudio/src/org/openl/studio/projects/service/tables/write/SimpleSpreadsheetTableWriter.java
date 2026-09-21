@@ -96,7 +96,7 @@ public class SimpleSpreadsheetTableWriter extends ExecutableTableWriter<SimpleSp
         }
         try {
             table.getGridTable().edit();
-            var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+            var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var step : appendTable.getSteps()) {
                 write(tableBody, row, step);

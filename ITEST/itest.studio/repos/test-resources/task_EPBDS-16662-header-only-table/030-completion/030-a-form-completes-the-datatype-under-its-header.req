@@ -1,0 +1,19 @@
+PUT /rest/projects/EPBDS-16662/tables/c88df8c6ce367c4a26a5469bf28860fd?module=Rates HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "name": "Coverage",
+  "fields": [
+    {
+      "type": "String",
+      "name": "code"
+    },
+    {
+      "type": "Double",
+      "name": "limit"
+    }
+  ]
+}
+

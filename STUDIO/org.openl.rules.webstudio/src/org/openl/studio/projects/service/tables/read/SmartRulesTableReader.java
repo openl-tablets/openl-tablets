@@ -29,7 +29,7 @@ public class SmartRulesTableReader extends ExecutableTableReader<SmartRulesView,
     }
 
     @Override
-    public boolean supports(IOpenLTable table) {
+    protected boolean supportsShape(IOpenLTable table) {
         return OpenLTableUtils.isSmartRules(table);
     }
 
@@ -46,10 +46,10 @@ public class SmartRulesTableReader extends ExecutableTableReader<SmartRulesView,
         var headers = getConditionHeaders(tableBody.getRow(0));
         builder.headers(headers);
         var cellValueReader = new CellValueReader(tsn.getMetaInfoReader());
-        processRules(builder,
-                headers,
-                tableBody.getSubtable(0, 1, tableBody.getWidth(), tableBody.getHeight() - 1),
-                cellValueReader);
+        // A body that is its title row alone holds no rules yet.
+        if (tableBody.getHeight() > 1) {
+            processRules(builder, headers, tableBody.getRows(1), cellValueReader);
+        }
     }
 
     private void processRules(SmartRulesView.Builder builder,

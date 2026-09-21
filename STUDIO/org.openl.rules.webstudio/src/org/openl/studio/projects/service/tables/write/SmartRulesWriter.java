@@ -126,7 +126,7 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
         }
         try {
             table.getGridTable().edit();
-            var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+            var tableBody = getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var headers = SmartRulesTableReader
                     .getConditionHeaders(LogicalTableHelper.logicalTable(tableBody.getRow(0)));
             var row = IGridRegion.Tool.height(tableBody.getRegion());
