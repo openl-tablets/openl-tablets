@@ -11,7 +11,11 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "doSomething_SimpleSpr(Integer aaa, Pet a)",
       "file": "EPBDS-13931/Main.xlsx",
-      "pos": "B4:C8"
+      "sheet": "Sheet1",
+      "pos": "B4:C8",
+      "module": "Main",
+      "project": "EPBDS-13931",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA=="
     },
     {
       "id": "ef262571777142b68c588757728ae75d",
@@ -24,7 +28,11 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "doSomething_SimpleSpr_HO()",
       "file": "EPBDS-13931/Main.xlsx",
-      "pos": "B17:E20"
+      "sheet": "Sheet1",
+      "pos": "B17:E20",
+      "module": "Main",
+      "project": "EPBDS-13931",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA=="
     }
   ],
   "pageNumber": 0,

@@ -1,0 +1,98 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "6474cc2ca3e9d23fed19e2c1a6bb686b",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Region",
+  "pos": "C22:E77",
+  "source": [
+    [
+      {
+        "cell": "C22",
+        "value": "Rules String Region (String state)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "C23",
+        "value": "Rule"
+      },
+      {
+        "cell": "D23",
+        "value": "C1"
+      },
+      {
+        "cell": "E23",
+        "value": "RET1",
+        "comment": "Simplified parameter and return statement declaration"
+      }
+    ],
+    [
+      {
+        "cell": "C24"
+      },
+      {
+        "cell": "D24",
+        "value": "state"
+      },
+      {
+        "cell": "E24"
+      }
+    ],
+    [
+      {
+        "cell": "C25"
+      },
+      {
+        "cell": "D25",
+        "value": "String[]",
+        "comment": "This is how we define parameter that is array."
+      },
+      {
+        "cell": "E25"
+      }
+    ],
+    [
+      {
+        "cell": "C26",
+        "value": "Rule"
+      },
+      {
+        "cell": "D26",
+        "value": "States"
+      },
+      {
+        "cell": "E26",
+        "value": "Region"
+      }
+    ],
+    [
+      {
+        "cell": "C27",
+        "value": "R1"
+      },
+      {
+        "cell": "D27",
+        "value": [
+          "CT"
+        ],
+        "comment": "Notice using of combobox to select state abbrevs. Use Data|Validation|List Excel menu for this purpose. \nThis is yet another example in favor of using Excel as IDE"
+      },
+      {
+        "cell": "E27",
+        "value": "NORTHEAST"
+      }
+    ]
+  ],
+  "totalRows": 56,
+  "headerHeight": 4
+}

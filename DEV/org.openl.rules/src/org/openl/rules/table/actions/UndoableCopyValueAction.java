@@ -14,9 +14,6 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
     private final int colFrom;
     private final int rowFrom;
 
-    private GridRegion toRestore;
-    private GridRegion toRemove;
-
     public UndoableCopyValueAction(int colFrom, int rowFrom, int colTo, int rowTo, MetaInfoWriter metaInfoWriter) {
         super(colTo, rowTo, metaInfoWriter);
         this.colFrom = colFrom;
@@ -26,9 +23,6 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-
-        savePrevCell(grid);
-
         grid.copyCell(colFrom, rowFrom, getCol(), getRow());
         var metaInfo = metaInfoWriter.getMetaInfo(rowFrom, colFrom);
         if (metaInfo != null && metaInfo.getUsedNodes() != null) {
@@ -39,38 +33,20 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
         moveRegion(grid);
     }
 
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-
-        if (toRemove != null) {
-            grid.removeMergedRegion(toRemove);
-        }
-        if (toRestore != null) {
-            grid.addMergedRegion(toRestore);
-        }
-
-        restorePrevCell(grid);
-    }
-
     private void moveRegion(IWritableGrid wgrid) {
         var rrFrom = wgrid.getRegionStartingAt(colFrom, rowFrom);
         var rrTo = wgrid.getRegionStartingAt(getCol(), getRow());
 
         if (rrTo != null) {
-            toRestore = new GridRegion(rrTo);
-            wgrid.removeMergedRegion(toRestore);
+            wgrid.removeMergedRegion(new GridRegion(rrTo));
         }
 
         if (rrFrom != null) {
-            var copyFrom = new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
+            wgrid.addMergedRegion(new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
                     rrFrom.getLeft() + getCol() - colFrom,
                     rrFrom.getBottom() + getRow() - rowFrom,
-                    rrFrom.getRight() + getCol() - colFrom);
-            wgrid.addMergedRegion(copyFrom);
-            toRemove = copyFrom;
+                    rrFrom.getRight() + getCol() - colFrom));
         }
-
     }
 
 }

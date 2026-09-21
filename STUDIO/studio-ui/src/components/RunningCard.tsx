@@ -2,7 +2,7 @@ import React from 'react'
 import { Spin } from 'antd'
 import { useStyles } from './RunningCard.styles'
 
-export interface RunningCardProps {
+interface RunningCardProps {
     /** What the screen is waiting for, in the words of the screen. */
     description: React.ReactNode
     /** Lies over the screen the work belongs to, instead of standing in the middle of an empty one. */

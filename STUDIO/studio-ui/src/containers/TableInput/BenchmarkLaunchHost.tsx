@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { Button, notification } from 'antd'
+import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { BenchmarkResultModal } from 'containers/execution/BenchmarkResultModal'
 import { useEventProject } from 'hooks'
@@ -15,6 +15,7 @@ interface BenchmarkLaunchProps {
 }
 
 const BenchmarkLaunch: React.FC<BenchmarkLaunchProps> = ({ detail, project, onClose }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('execution')
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
@@ -51,21 +52,13 @@ const BenchmarkLaunch: React.FC<BenchmarkLaunchProps> = ({ detail, project, onCl
             onClose={onClose}
             onError={setError}
             project={project}
-            actions={collect => (
-                <Button
-                    data-testid="benchmark-start"
-                    loading={starting}
-                    type="primary"
-                    onClick={() => {
-                        const value = collect()
-                        if (value) {
-                            start(value).catch(startError => setError(errorMessage(startError)))
-                        }
-                    }}
-                >
-                    {t('benchmark.start')}
-                </Button>
-            )}
+            actions={[{
+                key: 'benchmark-start',
+                label: t('benchmark.start'),
+                primary: true,
+                loading: starting,
+                run: value => start(value).catch(startError => setError(errorMessage(startError))),
+            }]}
             onNothingToAsk={value => {
                 start(value).catch(startError => {
                     notification.error({ title: t('benchmark.startFailed'), description: errorMessage(startError) })

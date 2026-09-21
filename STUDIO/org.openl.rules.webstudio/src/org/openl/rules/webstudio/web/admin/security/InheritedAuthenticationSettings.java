@@ -24,13 +24,13 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
 
     private static final String SEP = ",";
 
-    public static final String ADMINISTRATORS = "security.administrators";
+    public static final String ADMINISTRATORS_PROPERTY = "security.administrators";
     public static final String DEFAULT_GROUP = "security.default-group";
 
     @Getter
     @Parameter(description = "List of users with administrator privileges")
     @Setter
-    @SettingPropertyName(ADMINISTRATORS)
+    @SettingPropertyName(ADMINISTRATORS_PROPERTY)
     @Valid
     @NotEmpty
     private Set<@NotBlank @Size(max = 50) String> administrators;
@@ -45,7 +45,7 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
     @Override
     public void load(PropertiesHolder properties) {
         super.load(properties);
-        administrators = Optional.ofNullable(properties.getProperty(ADMINISTRATORS))
+        administrators = Optional.ofNullable(properties.getProperty(ADMINISTRATORS_PROPERTY))
                 .map(s -> Stream.of(s.split(SEP))
                         .map(String::trim)
                         .filter(StringUtils::isNotBlank)
@@ -58,13 +58,13 @@ public class InheritedAuthenticationSettings extends AuthenticationSettings {
     @Override
     public void store(PropertiesHolder properties) {
         super.store(properties);
-        properties.setProperty(ADMINISTRATORS, String.join(SEP, administrators));
+        properties.setProperty(ADMINISTRATORS_PROPERTY, String.join(SEP, administrators));
         properties.setProperty(DEFAULT_GROUP, defaultGroup);
     }
 
     @Override
     public void revert(PropertiesHolder properties) {
-        properties.revertProperties(ADMINISTRATORS, DEFAULT_GROUP);
+        properties.revertProperties(ADMINISTRATORS_PROPERTY, DEFAULT_GROUP);
         super.revert(properties);
     }
 }

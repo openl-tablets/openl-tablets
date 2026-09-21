@@ -19,7 +19,7 @@ public final class IntDomainHistory implements Serializable {
      */
     static final class IntEventDomain extends IntEvent {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new IntEventDomain();
@@ -34,7 +34,7 @@ public final class IntDomainHistory implements Serializable {
         int _removeIndex, _numberOfRemoves;
 
         static IntEventDomain getEvent(IntDomainHistory history) {
-            var ev = (IntEventDomain) _factory.getElement();
+            var ev = (IntEventDomain) FACTORY.getElement();
             ev.init(history);
             return ev;
         }
@@ -122,7 +122,7 @@ public final class IntDomainHistory implements Serializable {
 
     } // ~IntEventDomain
 
-    final static int MIN_IDX = 0, MAX_IDX = 1, SIZE_IDX = 2, REMOVE_IDX = 3, LAST_IDX = 4;
+    static final int MIN_IDX = 0, MAX_IDX = 1, SIZE_IDX = 2, REMOVE_IDX = 3, LAST_IDX = 4;
     final IntVar _var;
     final FastVectorInt _history;
 

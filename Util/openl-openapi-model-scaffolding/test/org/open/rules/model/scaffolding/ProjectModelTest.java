@@ -30,7 +30,6 @@ class ProjectModelTest {
         var insurancePolicy = new ProjectModel();
         insurancePolicy.setName(INSURANCE_POLICY);
 
-        assertEquals(bankRating, bankRating);
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
         assertNotEquals(bankRating, null);
@@ -96,7 +95,6 @@ class ProjectModelTest {
 
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
-        assertEquals(bankRating, bankRating);
         assertNotEquals(bankRating, bankRatingWithOneSpr);
         assertNotEquals(bankRating.hashCode(), bankRatingWithOneSpr.hashCode());
         assertEquals(2, bankRating.getSpreadsheetResultModels().size());
@@ -128,7 +126,6 @@ class ProjectModelTest {
 
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
-        assertEquals(bankRating, bankRating);
         assertNotEquals(bankRating, bankRatingWithOneDataType);
         assertNotEquals(bankRating.hashCode(), bankRatingWithOneDataType.hashCode());
         assertEquals(2, bankRating.getDatatypeModels().size());

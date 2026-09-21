@@ -230,9 +230,15 @@ included in this section:
     table. Closing the window returns to the table, so a rule can be corrected and the tests run again.
     **Test into File** runs them and saves the results as a workbook without showing them.
 
-To run a test table itself, open it and click **Run**: the panel lists its cases, every one of them runs unless
-some are ticked, and the results open in the same window. Selecting the cases is described in
-[Starting a Trace](#starting-a-trace), which lists them the same way.
+To run a test table itself, open it and click **Run**: the panel lists its cases, every one of them ticked, and
+the results open in the same window. Untick the cases to leave out, or clear the box in the header of the list and
+tick the cases to run; the box in the header stands for every case of the table, on every page of the list, and a
+case unticked stays out while the cases of the other pages stay in.
+Selecting the cases is described in [Starting a Trace](#starting-a-trace), which lists them the same way. To name
+the cases by their IDs instead of ticking them, select **Use the Range** and enter the IDs in **Range of IDs**:
+single IDs and ranges separated by commas, such as `2-4,7,10-12` or `id3-id7`. The list steps aside while the
+range is in use, and the total under the field says how many cases the table holds. A range that names a case
+the table does not have starts nothing: the panel says which case it is.
 
 ##### Running All Tests of a Module
 
@@ -254,7 +260,7 @@ value that was compared, and a case that failed says how many of its comparisons
 value that was expected under the value that came out.
 
 A Run table states no expected values, so its results carry no ticks and no crosses: they only show what every
-run returned.
+run returned, in a **Result** column of their own — in the window and in the workbook it is saved to alike.
 
 ![Test results with the options above them](images/test-results.png "Reading test results")
 
@@ -301,7 +307,9 @@ A rule table can be run on its own, without a test table for it.
 
 To save the result without reading it first, click **Run into File** instead of **Run**. The table runs and the
 result is written straight to a file, which is what a result too large to read on screen is taken with. A test
-table offers **Test into File** in the same place, and saves the results of its cases as a workbook.
+table offers **Test into File** in the same place, and saves the results of its cases as a workbook. A Run table
+keeps **Run into File**, and none of the test options: its cases are run, not tested, and the workbook holds what
+every run returned.
 
 Three options above the input decide what the file of a rule table holds:
 
@@ -360,7 +368,7 @@ Tracing is available for everything that can be run:
 
     *Starting a trace from the table toolbar*
 
-1.  For a test table, select the test case to trace. Every case is listed by ID with the values of its columns, shown the way the trace window shows them, and the first case is selected at first. A trace runs one case, so click the case to trace. A value with inner structure, such as a whole datatype, is not read until you ask for it. Click **Load value** next to it to see it.
+1.  For a test table, select the test case to trace. Every case is listed by ID with the values of its columns, shown the way the trace window shows them, and the first case is selected at first. A trace runs one case, so click the case to trace. A value with inner structure, such as a whole datatype, is not read until you ask for it: until then it reads as its type and, in parentheses, the key it is referred to by in the data table, such as `Driver (Sara)`, so the cases are told apart at a glance. Click **Load value** next to it to see it; the value keeps that name as its title once it is read, and a value without such a key is titled by the number of its fields instead.
 
     ![Test case selection for tracing a test table](images/trace-test-table-popup.png "Tracing a test table")
 
@@ -370,13 +378,13 @@ Tracing is available for everything that can be run:
 
 1.  For a rule or method table, provide the input parameters instead:
 
-    -   **Form** — the parameters are shown as a tree, one folded line each, and clicking the arrow next to a parameter shows its fields with the value of every field next to its name; a field with a default value in its datatype starts with that value, the others start as `null`. Click the pencil next to a field to enter or change its value: a number field takes only a number, a date opens a calendar, and a value with a fixed set of options offers them in a list; the cross clears the value back to `null`. A nested object starts as `null`: **+** creates it with its fields empty, **×** makes it `null` again. A list starts as `null` too: **+** creates it, **+** on the list adds a `null` element that another **+** turns into an object, and **−** next to an element removes it. When the project provides a runtime context to its rules, **Runtime Context** is the last line of the form, under the parameters, and opens the same way.
+    -   **Form** — the parameters are shown as a tree, one folded line each, and clicking the arrow next to a parameter shows its fields with the value of every field next to its name; a field with a default value in its datatype starts with that value, the others start as `null`. Click the pencil next to a field to enter or change its value: a number field takes only a number, a date opens a calendar, and a value with a fixed set of options offers them in a list; the cross clears the value back to `null`. A nested object starts as `null`: **+** creates it with its fields empty, **×** makes it `null` again. A list starts as `null` too: **+** creates it, **+** on the list adds a `null` element that another **+** turns into an object, and **−** next to an element removes it. When the project provides a runtime context to its rules — **Provide runtime context** is on in its `rules-deploy.xml` — **Runtime Context** is the last line of the form, under the parameters, and opens the same way.
 
         ![Parameter entry form for a rule table](images/trace-rule-table-form.png "Entering trace parameters")
 
         *Entering parameters for a rule table*
 
-    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. Switching to **JSON** shows what the form holds, so the form can be filled in first and adjusted as text; switching back reads the text into the form. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON can carry it in the `runtimeContext` object. If the option is off or `isProvideRuntimeContext` is absent from `rules-deploy.xml`, OpenL Studio treats runtime context as disabled. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. Most users can ignore this option and stay on **Form**.
+    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. Switching to **JSON** shows what the form holds, so the form can be filled in first and adjusted as text; switching back reads the text into the form. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON can carry it in the `runtimeContext` object. If the option is off, `isProvideRuntimeContext` is absent from `rules-deploy.xml`, or the project has no `rules-deploy.xml` at all, OpenL Studio treats runtime context as disabled, as OpenL Rule Services does by default, and the form has no such line. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. Most users can ignore this option and stay on **Form**.
 
         ![JSON input option for tracing](images/trace-json-option.png "Tracing with JSON input")
 
@@ -413,7 +421,7 @@ The business view runs once, on open. To trace the table again — for example a
 
 #### Reading a Step
 
-Click a rule in the tree to inspect it in the **Details** panel. (In the advanced mode, select a step while the calculation is **paused**; the same panel opens.) It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them.
+Click a rule in the tree to inspect it in the **Details** panel. (In the advanced mode, select a step while the calculation is **paused**; the same panel opens.) It shows the step name, the inputs it received (**Parameters**), the value it produced (**Result**), and any **Errors**. Next to the parameters and the result is a copy icon that copies them as JSON — handy for reusing them as a new test case. Large values are not loaded until you ask — click **Load value** to expand them; a value the traced case took from a data table is named by its type and key, such as `Driver (Sara)`, before and after it is loaded.
 
 The selected step's table is shown below, with the calculation highlighted.
 
@@ -542,9 +550,10 @@ section:
 
     *Measuring a test table over its cases*
 
-1.  The panel lists the cases of the table. Leave **All cases** selected to measure the table the way it runs,
-    over every case at once, or tick the cases to measure each of them on its own. Selecting the cases is
-    described in [Starting a Trace](#starting-a-trace), which lists them the same way.
+1.  The panel lists the cases of the table, every one of them ticked. Leave them so to measure the table the way
+    it runs, over every case at once, or untick the cases to leave out. Selecting the cases is described in
+    [Starting a Trace](#starting-a-trace), which lists them the same way, and **Use the Range** names them by
+    their IDs instead, as described in [Running the Tests of a Table](#running-the-tests-of-a-table).
 1.  To measure only the rules of the current module and skip the modules it depends on, select **Within Current
     Module Only**.
 1.  Click **Benchmark**. The table runs over and over until the measurement lasts long enough to be meaningful,

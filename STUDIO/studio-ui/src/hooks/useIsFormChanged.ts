@@ -19,7 +19,7 @@ const hasValue = (value: any): boolean => {
  * Deep comparison function that handles arrays, objects, and primitives recursively.
  * Exported for use in form comparison logic.
  */
-export const isEqual = (value1: any, value2: any): boolean => {
+const isEqual = (value1: any, value2: any): boolean => {
     // Handle null/undefined cases
     if (value1 === value2) return true
     if (value1 == null && value2 == null) return true

@@ -10,6 +10,10 @@ import org.slf4j.LoggerFactory;
 
 public final class FileTool {
 
+    private FileTool() {
+        // Utility class
+    }
+
     public static File toTempFile(InputStream source, String fileName) {
         File file = null;
         try {

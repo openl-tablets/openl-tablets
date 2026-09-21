@@ -10,7 +10,7 @@ import {
 import { ProjectStatus } from './project'
 
 /** Ant Design theme token keys used as status colours (resolved at render time). */
-export type StatusColorToken =
+type StatusColorToken =
     | 'colorPrimary'
     | 'colorSuccess'
     | 'colorWarning'
@@ -18,7 +18,7 @@ export type StatusColorToken =
     | 'colorTextSecondary'
     | 'colorTextTertiary'
 
-export interface StatusMeta {
+interface StatusMeta {
     tokenColor: StatusColorToken
     icon: React.ComponentType<{ className?: string; style?: React.CSSProperties; 'aria-hidden'?: boolean }>
     labelKey: string

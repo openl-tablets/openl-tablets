@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Array;
@@ -122,15 +123,11 @@ abstract class AbstractMethodSearchTest {
         } else if (AMB.equals(expected)) {
             assertAmbiguous(target, methodName, classes);
         } else if (expected instanceof Not not) {
-            try {
-                var notExpected = not.notExpected;
-                assertInvoke(notExpected, target, methodName, classes);
-                var openClasses = toOpenClasses(classes);
-                fail("Not expected '" + notExpected + "' result for method " + methodDescriptor(methodName,
-                        openClasses) + ".");
-            } catch (AssertionError ex) {
-                // It is expected an assertion error
-            }
+            var notExpected = not.notExpected;
+            assertThrows(AssertionError.class,
+                    () -> assertInvoke(notExpected, target, methodName, classes),
+                    () -> "Not expected '" + notExpected + "' result for method " + methodDescriptor(methodName,
+                            toOpenClasses(classes)) + ".");
         } else {
             assertInvoke(expected, target, methodName, classes);
         }

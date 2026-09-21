@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,8 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.projects.messaging.SocketBenchmarkExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.benchmark.BenchmarkResult;
 import org.openl.studio.projects.model.benchmark.BenchmarkResultMapper;
@@ -110,6 +112,9 @@ public class ProjectsBenchmarkController {
         // measured over the input the caller gives it, the way the Run API runs it.
         Object[] params = null;
         IRulesRuntimeContext runtimeContext = null;
+        if (method instanceof TestSuiteMethod testSuiteMethod && StringUtils.isNotBlank(testRanges)) {
+            TestCaseRanges.requireKnownCases(testSuiteMethod, testRanges);
+        }
         if (!(method instanceof TestSuiteMethod)) {
             var parseResult = inputParserService.parseInput(inputJson, method,
                     objectMapperService.createObjectMapper());
@@ -129,24 +134,28 @@ public class ProjectsBenchmarkController {
     }
 
     @Operation(summary = "benchmark.list.summary", description = "benchmark.list.desc")
-    @ApiResponse(responseCode = "200", description = "benchmark.list.200.desc")
-    @ApiResponse(responseCode = "409", description = "benchmark.execution.not.completed.message")
+    @ApiResponse(responseCode = "200", description = "benchmark.list.200.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    array = @ArraySchema(schema = @Schema(implementation = BenchmarkResult.class))))
+    @ApiResponse(responseCode = "202", description = "benchmark.list.202.desc",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResultNotReadyView.class)))
     @GetMapping
-    public List<BenchmarkResult> getBenchmarks(@ProjectId @PathVariable("projectId") RulesProject project) {
+    public ResponseEntity<?> getBenchmarks(@ProjectId @PathVariable("projectId") RulesProject project) {
         var projectId = projectIdentifierMapper.map(project);
         if (benchmarkResultRegistry.hasTask(projectId) && !benchmarkResultRegistry.isDone(projectId)) {
-            throw new ConflictException("benchmark.execution.not.completed.message");
+            // The measurement goes on: the request is accepted, and there is nothing to report until it has ended.
+            return ResultNotReadyView.accepted();
         }
         var measurements = benchmarkResultRegistry.collect(projectId);
         if (measurements.isEmpty()) {
-            return List.of();
+            return ResponseEntity.ok(List.of());
         }
         var objectMapper = objectMapperService.createObjectMapper();
         var mapper = new BenchmarkResultMapper(objectMapper, getSchemaGenerator(objectMapper),
                 projectService.getSpreadsheetResultNamingStrategy());
-        return measurements.stream()
+        return ResponseEntity.ok(measurements.stream()
                 .map(mapper::mapResult)
-                .toList();
+                .toList());
     }
 
     @Operation(summary = "benchmark.delete.summary", description = "benchmark.delete.desc")

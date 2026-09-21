@@ -40,8 +40,6 @@ public class Module {
     @XmlJavaTypeAdapter(WebstudioConfiguration.Adapter.class)
     private WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
     @XmlTransient
-    private String wildcardName;
-    @XmlTransient
     private String wildcardRulesRootPath;
     @XmlElement(name = "method-filter")
     private MethodFilter methodFilter;

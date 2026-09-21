@@ -1,3 +1,5 @@
+import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
+
 import type { TraceParameterValue } from './trace'
 
 /** Excel cell style read from the workbook; every field is optional and absent when it is the default. */
@@ -22,6 +24,10 @@ export interface RawTableCell {
     cell?: string
     /** Typed cell value (number, string, boolean), or absent when empty */
     value?: string | number | boolean | null
+    /** The formula the cell was written with, as Excel writes it (`=B2*C2`); absent for a plain value */
+    formula?: string
+    /** The note a reader left on the cell in Excel; absent when the cell carries none */
+    comment?: string
     /** Number of columns this cell spans (>= 2), when merged */
     colspan?: number
     /** Number of rows this cell spans (>= 2), when merged */
@@ -30,7 +36,80 @@ export interface RawTableCell {
     covered?: boolean
     /** Excel cell style, present only when the raw table was requested with `styles=true` */
     style?: RawTableCellStyle
+    /** What the compiler knows about the cell, present only when the read asked with `metaInfo=true` */
+    metaInfo?: RawTableCellMetaInfo
 }
+
+/** What a piece of a cell's text refers to, as the compiler read it. */
+type RawTableUsageKind = 'rule' | 'datatype' | 'data' | 'field' | 'underlined' | 'other'
+
+/** One piece of a cell's text the compiler resolved to something. */
+export interface RawTableCellUsage {
+    /** Index of the first character of the cell's text the usage covers */
+    start: number
+    /** Index after the last character it covers */
+    end: number
+    /** What the compiler says about it, shown as a tooltip */
+    description: string
+    /** The table it refers to, as the Tables API addresses it; absent when it refers to no table */
+    tableId?: string
+    /** The module that table is read through; absent when no module of the workspace holds it */
+    module?: string
+    /** The project that module belongs to, which for a table of a dependency is not the one being read */
+    projectId?: string
+    kind: RawTableUsageKind
+}
+
+/** What the compiler knows about one cell, beside what the cell says. */
+interface RawTableCellMetaInfo {
+    /** The pieces of the cell's text that refer to something, in the order they appear */
+    usages?: RawTableCellUsage[]
+    /** The type the cell holds, as the compiler names it */
+    type?: string
+    /** True when this is the cell a decision table returns */
+    returnCell?: boolean
+    /** The editor the cell asks for */
+    editor?: string
+}
+
+/** The styling to set on cells; an attribute left out is not touched. */
+export interface RawCellStyleInput {
+    /** Background colour as #rrggbb */
+    background?: string
+    /** Font colour as #rrggbb */
+    color?: string
+    /** Horizontal alignment; `left` puts the cells back to the default */
+    align?: 'left' | 'center' | 'right' | 'justify'
+    bold?: boolean
+    italic?: boolean
+    underline?: boolean
+    /** Left indent in Excel indent units; 0 takes the indent away */
+    indent?: number
+}
+
+/**
+ * One edit of a table's raw source, as the Tables API takes it.
+ *
+ * <p>`operation` selects the edit and the target's `type` the resource it acts on. A sequence of these is sent
+ * together, each addressing the table as the previous one left it, and the table is written once.
+ */
+export type TableEdit =
+    | { operation: 'update', target: { type: 'cell', row: number, column: number, value: string | number | boolean | null } }
+    | { operation: 'insert', target: { type: 'rows', position: number, cells: RawTableCellInput[][] } }
+    | { operation: 'insert', target: { type: 'columns', position: number, cells: RawTableCellInput[][] } }
+    | { operation: 'delete', target: { type: 'rows', position: number, count: number } }
+    | { operation: 'delete', target: { type: 'columns', position: number, count: number } }
+    | {
+        operation: 'style'
+        target: {
+            type: 'cells'
+            row: number
+            column: number
+            rowspan: number
+            colspan: number
+            style: RawCellStyleInput
+        }
+    }
 
 export interface RawTableCellInput {
     value: string | number | boolean | null
@@ -39,7 +118,7 @@ export interface RawTableCellInput {
     covered?: boolean
 }
 
-export interface RawTable {
+interface RawTable {
     tableType: 'RawSource'
     kind: string
     name: string
@@ -107,6 +186,86 @@ export interface ProjectTable {
     signature?: string
 }
 
+/**
+ * A table of one module, as the editor's tree reads it.
+ *
+ * The tree is grouped in the browser, so the list carries everything a grouping can be built from rather than a
+ * shape the server chose.
+ */
+export interface ModuleTable extends ProjectTable {
+    /** The family the table belongs to: `Rules`, `Spreadsheet`, `Datatype`, `Test`, ... */
+    kind: string
+    /** Workbook the table is written in, relative to the workspace. */
+    file?: string
+    /** Excel sheet the table is written on — what the tree groups by when it opens. */
+    sheet?: string
+    /** Where the table sits in the workbook, in A1 notation: `B3:D8`. */
+    pos?: string
+    /** The properties the table declares, `category` among them. */
+    properties?: Record<string, unknown>
+    /**
+     * The name that tells this version of the table from the others, carrying what they are told apart by:
+     * `CarPrice [effectiveDate=01/01/2020]`. Absent unless the table is written in more than one version.
+     */
+    displayName?: string
+    /** What the versions of one table share, and no other table carries. Absent unless there is more than one. */
+    overloadGroup?: string
+    /** `false` on a table switched off by the `active` property, which takes no part in the rules. */
+    active?: boolean
+    /** How many errors the compilation raised about this table; absent when it raised none. */
+    errors?: number
+    /** `true` when a test table exercises this one; absent when nothing tests it. */
+    hasTests?: boolean
+    /** Module the table is written in; answered by a search that spans more than the module it was asked through. */
+    module?: string
+    /** Name of the project that module belongs to, answered with the module. */
+    project?: string
+    /** Identifier of that project, as the Projects API addresses it. */
+    projectId?: string
+}
+
+/**
+ * Whether the table can be run as it stands, and how far a run of it may reach.
+ *
+ * A table the compiler could not build runs nothing, and neither does a test whose rules failed; where only
+ * the open module is built, or what is built beyond it has errors, a run stays inside that module.
+ */
+export type TableRunState = 'can-run' | 'can-run-module' | 'cannot-run'
+
+/** A table in raw tabular form: a 2D matrix of cells with merge geometry. */
+export interface RawTableView {
+    id: string
+    name: string
+    /** The table body as a 2D matrix indexed source[row][col] */
+    source: RawTableCell[][]
+    /** Full row count when the response was truncated by maxRows; absent when the whole table is returned */
+    totalRows?: number
+    /** How many rows at the top of the table its header takes, which a screen hiding the header leaves out */
+    headerHeight?: number
+    /** What the compiler said about this table — the errors and warnings it raised, if any */
+    messages?: ProjectStatusDetailedMessage[]
+    /** Whether the table can be run, and how far; absent while the read that carries it is on its way. */
+    runState?: TableRunState
+    /**
+     * `true` when the table is written as several partial tables gathered from more than one place in the
+     * workbook. Such a table is read here but not written — only Excel can edit the cells it is drawn from.
+     */
+    partial?: boolean
+    /** How the table is laid out on its sheet; absent on a table nothing asks this about. */
+    layout?: TableLayout
+}
+
+/** Which way round a table is written, and where its data begins. */
+export interface TableLayout {
+    /** `true` when a line of the table's data is a column rather than a row. */
+    transposed?: boolean
+    /**
+     * The line the data begins on, counted from the table's own first row — or first column, where the table
+     * is transposed. Everything before it is the table's headings.
+     */
+    firstDataLine: number
+}
+
 /** One field a Datatype table declares. */
 export interface DatatypeField {
     name: string
@@ -123,7 +282,7 @@ export interface ProjectDatatype {
 }
 
 /** A property a table may declare, and what a value for it looks like. */
-export interface ProjectPropertyValue {
+interface ProjectPropertyValue {
     /** Value written to the table. */
     code: string
     /** Value shown to the author. */
@@ -171,8 +330,6 @@ export interface TableInputTestCase {
 export interface TableInput {
     tableId: string
     name: string
-    /** Whether the table is a test table. A test table carries cases, a rule table declares parameters. */
-    testTable: boolean
     /** Declared parameters of a rule table. Absent when there are none, as every empty list of the API is. */
     parameters?: TraceParameterValue[]
     /** Schema of the runtime context, present when the project provides one to its rules. */

@@ -30,10 +30,8 @@
             <groupId>org.eclipse.jetty.ee10</groupId>
             <artifactId>jetty-ee10-webapp</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.ee10.websocket</groupId>
-            <artifactId>jetty-ee10-websocket-jakarta-server</artifactId>
-        </dependency>
+        <!-- Rule Services ships no web.xml: its servlet, filter and listener are found by annotation,
+             which only happens when Jetty's AnnotationConfiguration is on the classpath. -->
         <dependency>
             <groupId>org.eclipse.jetty.ee10</groupId>
             <artifactId>jetty-ee10-annotations</artifactId>

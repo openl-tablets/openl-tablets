@@ -395,10 +395,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private boolean stopAndClose(
             Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>> t) {
         var ret = true;
+        var interrupted = false;
         for (KafkaService kafkaService : t.getLeft()) {
             try {
                 kafkaService.stop();
             } catch (Exception e1) {
+                interrupted |= e1 instanceof InterruptedException;
                 ret = false;
                 log.error("Failed to stop kafka service.", e1);
             }
@@ -418,6 +420,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                 ret = false;
                 log.error("Failed to close kafka consumer.", e1);
             }
+        }
+        if (interrupted) {
+            // Restored only now: a Kafka client gives up on closing as soon as its thread is interrupted,
+            // so the producers and the consumers above would have been left open.
+            Thread.currentThread().interrupt();
         }
         return ret;
     }

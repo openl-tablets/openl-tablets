@@ -17,4 +17,4 @@ to answer with it.
 > These endpoints already answered `Main` before [EPBDS-16430](https://jira.eisgroup.com/browse/EPBDS-16430), so
 > this suite pins a contract rather than guarding that fix. The fix itself is in the editor, which reads the
 > descriptor as rules.xml writes it; it is covered by `WebStudioGetModuleTest`, and the rename it belongs to is
-> submitted by a JSF form that this framework cannot drive.
+> submitted as a multipart form that this framework cannot drive.

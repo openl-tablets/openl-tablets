@@ -25,7 +25,8 @@ vi.mock('containers/execution/BenchmarkResultModal', () => ({
 // The static notification renders outside the tree and schedules a timer; the tests assert on the measurement.
 vi.mock('antd', async importOriginal => {
     const actual = await importOriginal<typeof import('antd')>()
-    return { ...actual, notification: { ...actual.notification, error: vi.fn() } }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...actual, notification: { ...actual.notification, error: vi.fn() } })
 })
 
 vi.mock('react-i18next', () => {
@@ -43,15 +44,14 @@ const anchor = { left: 10, top: 20, width: 40, height: 30 }
 const ruleTable: TableInput = {
     tableId: 't1',
     name: 'Premium',
-    testTable: false,
     parameters: [{ name: 'age', description: 'int', lazy: false, schema: { type: 'integer' } }],
 }
 
-const testTable: TableInput = { tableId: 't1', name: 'PremiumTest', testTable: true }
+const testTable: TableInput = { tableId: 't1', name: 'PremiumTest' }
 
 const open = (detail: Record<string, unknown> = {}) => act(async () => {
     window.dispatchEvent(new CustomEvent('openBenchmarkLaunch', {
-        detail: { projectId: 'p1', tableId: 't1', moduleName: 'Main', anchor, ...detail },
+        detail: { projectId: 'p1', tableId: 't1', kind: 'Rules', moduleName: 'Main', anchor, ...detail },
     }))
     await new Promise(resolve => setTimeout(resolve, 20))
 })
@@ -91,7 +91,7 @@ describe('BenchmarkLaunchHost', () => {
         inputRead.mockResolvedValue(testTable)
         render(<BenchmarkLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await screen.findByTestId('test-cases')
         await userEvent.click(screen.getByTestId('benchmark-start'))
 
@@ -103,8 +103,10 @@ describe('BenchmarkLaunchHost', () => {
         inputRead.mockResolvedValue(testTable)
         render(<BenchmarkLaunchHost />)
 
-        await open()
-        await userEvent.click(await screen.findByTestId('pick-case-2'))
+        await open({ kind: 'Test' })
+        // Every case starts ticked; the box in the header clears them, then one is ticked back.
+        await userEvent.click(await screen.findByTestId('pick-all-cases'))
+        await userEvent.click(screen.getByTestId('pick-case-2'))
         await userEvent.click(screen.getByTestId('launch-module-only'))
         await userEvent.click(screen.getByTestId('benchmark-start'))
 
@@ -115,7 +117,7 @@ describe('BenchmarkLaunchHost', () => {
     })
 
     it('measures a table that asks for nothing without a panel', async () => {
-        inputRead.mockResolvedValue({ tableId: 't1', name: 'Premium', testTable: false })
+        inputRead.mockResolvedValue({ tableId: 't1', name: 'Premium' })
         render(<BenchmarkLaunchHost />)
 
         await open()
@@ -129,7 +131,7 @@ describe('BenchmarkLaunchHost', () => {
         benchmark.mockRejectedValue(new Error('The project is not compiled'))
         render(<BenchmarkLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await screen.findByTestId('test-cases')
         await userEvent.click(screen.getByTestId('benchmark-start'))
 

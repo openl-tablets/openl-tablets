@@ -16,8 +16,6 @@ package org.openl.ie.tools;
 ///////////////////////////////////////////////////////////////////////////////
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An abstract implementation of the factory for reusable objects.
@@ -29,44 +27,19 @@ import java.util.List;
  */
 // "implements serializable" was added by Eugeny Tseitlin 18.06.2003
 public abstract class ReusableFactory implements Serializable {
-    /**
-     * All created factories.
-     */
-    protected static final List _allFactories = new ArrayList();
     protected FastStack _reusables;
 
-    protected int _element_counter;
-
     /**
-     * Performs cleanup for all factories.
+     * Default constructor initializes this factory.
      */
-    public static void cleanAll() {
-        for (Object factory : _allFactories) {
-            ((ReusableFactory) factory).cleanUp();
-        }
-    }
-
-    /**
-     * Default constructor initializes this factory and registeres this factory in all factories.
-     */
-    public ReusableFactory() {
+    protected ReusableFactory() {
         _reusables = new FastStack();
-        _element_counter = 0;
-        register();
-    }
-
-    /**
-     * Performs cleanup for this factory.
-     */
-    public void cleanUp() {
-        _reusables = new FastStack();
-        _element_counter = 0;
     }
 
     /**
      * Creates new uninitialized object for this factory.
      */
-    abstract protected Reusable createNewElement();
+    protected abstract Reusable createNewElement();
 
     /**
      * Returns the unused object to the factory.
@@ -81,7 +54,6 @@ public abstract class ReusableFactory implements Serializable {
      */
     public final synchronized Object getElement() {
         Reusable result;
-        _element_counter++;
         if (_reusables.empty()) {
             result = createNewElement();
             result.setFactory(this);
@@ -89,13 +61,6 @@ public abstract class ReusableFactory implements Serializable {
             result = (Reusable) _reusables.pop();
         }
         return result;
-    }
-
-    /**
-     * Registers this factory in all factories.
-     */
-    void register() {
-        _allFactories.add(this);
     }
 
 } // ~ReusableFactory

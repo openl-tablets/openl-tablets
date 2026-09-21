@@ -4,6 +4,10 @@ import org.openl.rules.dt.DTScale;
 
 public class StorageFactory {
 
+    private StorageFactory() {
+        // Utility class
+    }
+
     public static IStorageBuilder makeStorageBuilder(int size, DTScale.RowScale scale) {
 
         var newSize = scale.getActualSize(size);

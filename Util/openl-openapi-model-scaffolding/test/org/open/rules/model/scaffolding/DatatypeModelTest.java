@@ -22,8 +22,6 @@ class DatatypeModelTest {
         driver.setParent(HUMAN);
         assertEquals(DRIVER, driver.getName());
         assertEquals(HUMAN, driver.getParent());
-        assertEquals(driver, driver);
-        assertEquals(driver.hashCode(), driver.hashCode());
         assertNotEquals(driver, null);
 
         var truckDriver = new DatatypeModel(DRIVER);

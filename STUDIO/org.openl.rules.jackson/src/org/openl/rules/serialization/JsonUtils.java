@@ -16,8 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Deprecated(forRemoval = true, since = "6.1.0")
 public final class JsonUtils {
     private static final WeakHashMap<Object, ObjectMapper> cache = new WeakHashMap<>();
-    private final static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    private static volatile ObjectMapper defaultObjectMapper;
+    private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     private JsonUtils() {
     }
@@ -79,22 +78,6 @@ public final class JsonUtils {
         } finally {
             writeLock.unlock();
         }
-    }
-
-    /**
-     * Singleton object mapper
-     *
-     * @return objectMapper
-     */
-    public static ObjectMapper getDefaultObjectMapper() {
-        if (defaultObjectMapper == null) {
-            synchronized (JsonUtils.class) {
-                if (defaultObjectMapper == null) {
-                    defaultObjectMapper = getDefaultJacksonObjectMapper();
-                }
-            }
-        }
-        return defaultObjectMapper;
     }
 
     public static String toJSON(Object value) throws JsonProcessingException {

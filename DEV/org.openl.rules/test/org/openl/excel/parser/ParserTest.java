@@ -9,6 +9,7 @@ package org.openl.excel.parser;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -98,17 +99,11 @@ class ParserTest {
         var pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         var errors = pc.getErrors();
-
-        if (errors.length == 0) {
-            throw new RuntimeException("This expression must produce an error.");
-        }
+        assertTrue(errors.length > 0, "This expression must produce an error.");
 
         var message = errors[0].getMessage();
-
-        if (!message.startsWith(messageStart)) {
-            throw new RuntimeException("'%s' should start with '%s'".formatted(message, messageStart));
-        }
-
+        assertTrue(message.startsWith(messageStart),
+                "'%s' should start with '%s'".formatted(message, messageStart));
     }
 
     private void _testType(String src, final String type) throws OpenLConfigurationException {

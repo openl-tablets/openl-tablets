@@ -84,7 +84,7 @@ export const DesignRepositoriesTab: React.FC<DesignRepositoriesTabProps> = ({ de
                                     />
                                 </Form.Item>
                                 <Button
-                                    aria-label={t('common:delete')}
+                                    aria-label={t('common:btn.delete')}
                                     icon={<DeleteOutlined />}
                                     onClick={() => remove(name)}
                                     style={{ flexShrink: 0, alignSelf: 'flex-start' }}

@@ -22,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.openl.base.INamedThing;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.repository.api.Page;
@@ -75,7 +76,6 @@ class TableInputServiceImplTest {
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
-        assertFalse(view.testTable());
         assertEquals("Premium", view.name());
         assertNotNull(view.tableId());
         assertEquals(List.of("age", "since"), view.parameters().stream().map(ParameterValue::name).toList());
@@ -95,21 +95,18 @@ class TableInputServiceImplTest {
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
-        assertTrue(view.testTable());
         assertEquals("PremiumTest", view.name());
         assertTrue(view.parameters().isEmpty());
         assertNull(view.runtimeContext());
     }
 
-    /**
-     * A project without a deployment configuration provides the runtime context, so its schema is described.
-     */
+    /** A project whose deployment configuration provides the runtime context has its schema described. */
     @Test
     void describesRuntimeContextWhenTheProjectProvidesIt() {
         var method = ruleMethod();
         when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
         when(projectService.getWebStudio()).thenReturn(webStudio);
-        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(null);
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(providingRuntimeContext(true));
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
@@ -122,16 +119,36 @@ class TableInputServiceImplTest {
 
     @Test
     void omitsRuntimeContextWhenTheDeploymentConfigurationDisablesIt() {
-        var rulesDeploy = new RulesDeploy();
-        rulesDeploy.setProvideRuntimeContext(false);
         var method = ruleMethod();
         when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
         when(projectService.getWebStudio()).thenReturn(webStudio);
-        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(rulesDeploy);
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(providingRuntimeContext(false));
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
         assertNull(view.runtimeContext());
+    }
+
+    /**
+     * A project without a deployment configuration, or with one that leaves the option out, provides no runtime
+     * context - as OpenL Rule Services does not by default - so the form offers none.
+     */
+    @Test
+    void omitsRuntimeContextWhenTheProjectDoesNotSayItProvidesOne() {
+        var method = ruleMethod();
+        when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
+        when(projectService.getWebStudio()).thenReturn(webStudio);
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(null);
+        assertNull(service.describe(projectModel, table, false, objectMapper, schemaGenerator).runtimeContext());
+
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(providingRuntimeContext(null));
+        assertNull(service.describe(projectModel, table, false, objectMapper, schemaGenerator).runtimeContext());
+    }
+
+    private static RulesDeploy providingRuntimeContext(Boolean provided) {
+        var rulesDeploy = new RulesDeploy();
+        rulesDeploy.setProvideRuntimeContext(provided);
+        return rulesDeploy;
     }
 
     @Test
@@ -181,6 +198,30 @@ class TableInputServiceImplTest {
         assertEquals("Bank", bank.description());
         assertTrue(bank.lazy());
         assertNull(bank.value());
+        // The case is told apart by its type and the key its data table row is referred to by, before the value
+        // is read.
+        assertEquals(BANK_TYPE, bank.type());
+        assertEquals("B1", bank.key());
+        assertNull(lob.type());
+        assertNull(lob.key());
+    }
+
+    /** A value that no data table row stands behind names its type alone. */
+    @Test
+    void namesALazyValueWithoutAKeyByItsTypeAlone() {
+        var suite = testSuite();
+        var bankClass = JavaOpenClass.getOpenClass(Bank.class);
+        when(suite.getTests()[0].getExecutionParams()).thenReturn(new ParameterWithValueDeclaration[]{
+                new ParameterWithValueDeclaration("bank", new Bank(), bankClass),
+                new ParameterWithValueDeclaration("banks", new Bank[]{new Bank()}, JavaOpenClass.getOpenClass(Bank[].class))});
+        when(projectModel.getMethod(TABLE_URI)).thenReturn(suite);
+
+        var testCase = service.listTestCases(projectModel, table, false, Page.of(0, 1), objectMapper, schemaGenerator)
+                .getContent().iterator().next();
+
+        assertEquals(BANK_TYPE, testCase.parameters().get(1).type());
+        assertNull(testCase.parameters().get(1).key());
+        assertEquals(BANK_TYPE + "[]", testCase.parameters().get(2).type());
     }
 
     /** A later page carries the cases that follow, so a long table is read page by page. */
@@ -218,6 +259,8 @@ class TableInputServiceImplTest {
         assertEquals("Young driver", testCase.description());
         var bank = testCase.parameters().get(2);
         assertFalse(bank.lazy());
+        assertNull(bank.type());
+        assertNull(bank.key());
         assertEquals("DE", bank.value().get("countryCode").asText());
         assertEquals(25, testCase.parameters().get(1).value().asInt());
     }
@@ -272,6 +315,7 @@ class TableInputServiceImplTest {
         when(signature.getParameterType(0)).thenReturn(JavaOpenClass.getOpenClass(Bank.class));
         when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
         when(projectService.getWebStudio()).thenReturn(webStudio);
+        when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(providingRuntimeContext(true));
 
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
@@ -289,6 +333,9 @@ class TableInputServiceImplTest {
         assertThrows(NotFoundException.class,
                 () -> service.describe(projectModel, table, false, objectMapper, schemaGenerator));
     }
+
+    /** How the bean type is named: the short display name of a nested class keeps its outer class. */
+    private static final String BANK_TYPE = JavaOpenClass.getOpenClass(Bank.class).getDisplayName(INamedThing.SHORT);
 
     /** Stands in for a generated datatype bean. One field declares a default, the other does not. */
     public static class Bank {
@@ -335,10 +382,14 @@ class TableInputServiceImplTest {
         lenient().when(first.hasDescription()).thenReturn(true);
         lenient().when(first.getDescription()).thenReturn("Young driver");
         lenient().when(first.getRuntimeContext()).thenReturn(context);
+        var bank = new Bank();
+        bank.setBankId("B1");
+        var bankClass = JavaOpenClass.getOpenClass(Bank.class);
         lenient().when(first.getExecutionParams())
                 .thenReturn(new ParameterWithValueDeclaration[]{
                         new ParameterWithValueDeclaration("age", 25, JavaOpenClass.INT),
-                        new ParameterWithValueDeclaration("bank", new Bank(), JavaOpenClass.getOpenClass(Bank.class))});
+                        // The bank column refers to a data table row by the bank id.
+                        new ParameterWithValueDeclaration("bank", bank, bankClass, bankClass.getField("bankId"))});
         return suite;
     }
 

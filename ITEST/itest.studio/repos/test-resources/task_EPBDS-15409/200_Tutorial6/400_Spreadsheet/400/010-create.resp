@@ -9,5 +9,6 @@ Content-Type: application/json
   "returnType": "Double",
   "signature": "LossFreeDiscountCalc(Loss[] losses, Date currentDate)",
   "file": "EPBDS-15409/Main.xlsx",
+  "sheet": "Tutorial6",
   "pos": "B50:C55"
 }

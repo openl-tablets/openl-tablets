@@ -35,7 +35,7 @@ vi.mock('store', () => ({
     useAppStore: { getState: () => new Proxy({}, { get: () => vi.fn() }) },
 }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Button = ({ children, onClick, ...rest }: Record<string, unknown>) => {
         const { danger, disabled, icon, size, type, ...dom } = rest
         void danger; void disabled; void icon; void size; void type
@@ -68,7 +68,8 @@ vi.mock('antd', () => {
         </div>
     )
     const notification = { error: vi.fn() }
-    return { Alert, Button, Empty, Popconfirm, Select, Skeleton, Tag, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Alert, Button, Empty, Popconfirm, Select, Skeleton, Tag, notification })
 })
 
 function entry(sid: string, source?: AccessControlEntry['source']): AccessControlEntry {

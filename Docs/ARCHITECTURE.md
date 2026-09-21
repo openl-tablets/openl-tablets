@@ -46,7 +46,7 @@ OpenL Tablets is an enterprise-grade Business Rules Management System (BRMS) tha
 │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
 │  │  OpenL Studio    │  │  Rule Services   │  │  MCP Server      │         │
 │  │  (Web IDE)       │  │  (REST)          │  │  (AI Tools)      │         │
-│  │  React + JSF     │  │  Spring Boot     │  │  TypeScript      │         │
+│  │  React           │  │  Spring Boot     │  │  TypeScript      │         │
 │  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘         │
 └───────────┼─────────────────────┼─────────────────────┼───────────────────┘
             │                     │                     │
@@ -163,20 +163,12 @@ Source Layer (Excel, Files)
 │  - Git integration                                           │
 │  - Rule compilation                                          │
 │  Location: /STUDIO/org.openl.rules.webstudio/               │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────┴──────────────────────────────────────┐
-│                 Legacy JSF UI                                │
-│  - RichFaces components (forked)                             │
-│  - Being migrated to React                                   │
-│  Status: Maintenance mode only                               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 **Technology Stack:**
 - **Frontend**: React 19.2.x, TypeScript 5.9.x, Zustand, fetch
 - **Backend**: Spring Boot 3.5.6, Spring Security, Spring Data JPA
-- **Legacy**: JSF 2.3, RichFaces (forked), Facelets
 
 ### WSFrontend Module Group (Rule Services)
 
@@ -259,7 +251,6 @@ Source Layer (Excel, Files)
 | **Zustand** | 5.0.2 | State management |
 | **Axios** | 1.7.9 | HTTP client |
 | **Vite** | 6.0.7 | Build tool |
-| **JSF** | 2.3 | Legacy UI (maintenance mode) |
 
 ### Build and DevOps
 

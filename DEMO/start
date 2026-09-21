@@ -362,4 +362,4 @@ exec "$JAVA_CMD" \
     -Djetty.deploy.webappsDir="$WEBAPPS_DIR" \
     -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
     -jar "$JETTY_HOME/start.jar" \
-    --module=http,ee10-jsp,ext,ee10-deploy,ee10-websocket-jakarta,ee10-cdi
+    --module=http,ext,ee10-deploy,ee10-websocket-jakarta

@@ -114,6 +114,19 @@ i18next.addResourceBundle('en', 'project', {
         copied_table_not_found: 'The table was copied, but OpenL Studio could not open it after compilation.',
         options_load_failed: 'Failed to load the table copy form',
     },
+    table_properties: {
+        saved: 'Table properties saved',
+        save_failed: 'Failed to save the table properties',
+    },
+    table_edit: {
+        saved: 'Table saved',
+        save_failed: 'Failed to save the table',
+    },
+    delete_table: {
+        deleted: 'Table removed',
+        deleted_description: 'The "{{table}}" table was removed from the module.',
+        delete_failed: 'Failed to remove the table',
+    },
     notifications: {
         project_updated: 'Project updated',
         project_updated_description: 'The "{{project}}" project was updated successfully.',

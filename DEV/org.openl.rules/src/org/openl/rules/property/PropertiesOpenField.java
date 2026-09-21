@@ -41,10 +41,6 @@ public class PropertiesOpenField extends AOpenField {
         return true;
     }
 
-    public TableProperties getPropertiesInstance() {
-        return propertiesInstance;
-    }
-
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         ((IDynamicObject) target).setFieldValue(getName(), value);

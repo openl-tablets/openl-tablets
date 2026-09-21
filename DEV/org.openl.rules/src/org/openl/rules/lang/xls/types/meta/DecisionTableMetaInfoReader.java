@@ -122,7 +122,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             var sb = new StringBuilder();
             inputParametersToReturn.sort(Map.Entry.comparingByKey());
             for (Pair<String, String> p : inputParametersToReturn) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append("\n");
                 }
                 sb.append("Input ");
@@ -242,13 +242,13 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         var sb = new StringBuilder();
         sb.append("Condition: ").append(header);
         if (!StringUtils.isEmpty(statement)) {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append("\n");
             }
             sb.append("Expression: ").append(statement.replaceAll("\n", StringUtils.SPACE));
         }
         if (!StringUtils.isEmpty(headerMetaInfo.getAdditionalDetails())) {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append("\n");
             }
             sb.append(headerMetaInfo.getAdditionalDetails());
@@ -262,7 +262,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             return;
         }
         var i = 0;
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             sb.append("\n");
         }
         if (columnTypes.length > 1) {

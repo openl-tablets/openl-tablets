@@ -11,7 +11,6 @@ public class SimpleGroup implements Group {
     private static final long serialVersionUID = 1L;
 
     private String name;
-    private String description;
     private Collection<GrantedAuthority> privileges;
 
     public SimpleGroup() {
@@ -22,18 +21,13 @@ public class SimpleGroup implements Group {
      *
      * @param privileges nested authorities (privileges and groups)
      */
-    public SimpleGroup(String name, String description, Collection<GrantedAuthority> privileges) {
+    public SimpleGroup(String name, Collection<GrantedAuthority> privileges) {
         this.name = name;
-        this.description = description;
         this.privileges = privileges;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     @Override

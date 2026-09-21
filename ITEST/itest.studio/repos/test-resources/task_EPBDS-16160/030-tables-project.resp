@@ -11,7 +11,11 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "MyRule ()",
       "file": "EPBDS-16160/generalProject.xlsx",
-      "pos": "C19:D21"
+      "sheet": "Sheet1",
+      "pos": "C19:D21",
+      "module": "generalProject",
+      "project": "EPBDS-16160",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYxNjA6YzNmNDY4M2RlMWRiMGI3OGZlYzg5NDYwOGM0Y2VhYzZjMjA2NzU3ZjE1YjQwMGM4M2UyMzcwODMzYzc5ZWQ2Yw=="
     }
   ],
   "pageNumber": 0,

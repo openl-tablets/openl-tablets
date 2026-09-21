@@ -3,6 +3,7 @@ package org.openl.util;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public final class ArrayTool {
@@ -27,6 +28,9 @@ public final class ArrayTool {
 
         @Override
         public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
             return _array[_index++];
         }
 

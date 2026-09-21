@@ -64,7 +64,7 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
                 .tableId(TableUtils.makeTableId(table.getUri()))
                 .name(method.getName());
         if (method instanceof TestSuiteMethod) {
-            return builder.testTable(true).parameters(List.of()).build();
+            return builder.parameters(List.of()).build();
         }
         return describeRuleTable(builder, method, valueMapper(objectMapper, schemaGenerator));
     }
@@ -127,7 +127,6 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
                 })
                 .toList();
         return builder
-                .testTable(false)
                 .parameters(parameters)
                 .runtimeContext(providesRuntimeContext()
                         ? valueMapper.describeParameter(RUNTIME_CONTEXT,
@@ -195,11 +194,12 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
     /**
      * Whether the project provides the runtime context to its rules.
      *
-     * <p>A project without a deployment configuration provides it, as OpenL Rule Services does by default. A
-     * project with a configuration provides it only when the configuration says so.
+     * <p>A project provides it only when its deployment configuration says so. A project without a configuration,
+     * or with one that leaves the option out, does not - as OpenL Rule Services does not by default - so its rules
+     * are asked for no context.
      */
     private boolean providesRuntimeContext() {
         var rulesDeploy = projectService.getWebStudio().getCurrentProjectRulesDeploy();
-        return rulesDeploy == null || Boolean.TRUE.equals(rulesDeploy.isProvideRuntimeContext());
+        return rulesDeploy != null && Boolean.TRUE.equals(rulesDeploy.isProvideRuntimeContext());
     }
 }

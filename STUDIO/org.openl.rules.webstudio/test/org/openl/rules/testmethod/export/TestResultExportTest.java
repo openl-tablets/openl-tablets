@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.testmethod.export.Styles.GREEN_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.GREEN_MAIN;
-import static org.openl.rules.testmethod.export.Styles.HEADER;
+import static org.openl.rules.testmethod.export.Styles.HEADER_COLOR;
 import static org.openl.rules.testmethod.export.Styles.RED_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.RED_MAIN;
 import static org.openl.rules.testmethod.export.Styles.convertRGB;
@@ -99,6 +99,21 @@ class TestResultExportTest {
         throw new IllegalArgumentException("Test '%s' is not found.".formatted(testName));
     }
 
+    /** Runs a run table, which lists no expected values and so is not among the testers of the project. */
+    private static TestUnitsResults runRunTable(String path, String tableName) throws Exception {
+        SimpleProjectEngineFactory<?> factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
+                .setProject(path)
+                .setExecutionMode(false)
+                .build();
+        var openClass = factory.getCompiledOpenClass().getOpenClassWithErrors();
+        for (var method : openClass.getMethods()) {
+            if (method instanceof TestSuiteMethod runTable && runTable.isRunMethod() && tableName.equals(runTable.getName())) {
+                return new TestSuite(runTable).invokeSequentially(openClass, 1);
+            }
+        }
+        throw new IllegalArgumentException("Run table '%s' is not found.".formatted(tableName));
+    }
+
     @Test
     void allResultsInFirstPage() throws Exception {
         File xlsx;
@@ -124,6 +139,45 @@ class TestResultExportTest {
         }
 
         assertFalse(xlsx.exists());
+    }
+
+    /**
+     * A run that found no test to run - the tests of the table live in another module than the one it was kept
+     * to - is saved as an empty workbook rather than refused.
+     */
+    @Test
+    void savesAnEmptyWorkbookWhenNoTestRan() throws Exception {
+        try (var export = new TempFileExporter()) {
+            var xlsx = export.createExcelFile(new TestUnitsResults[0], -1);
+
+            try (var workbook = new XSSFWorkbook(xlsx)) {
+                assertEquals(2, workbook.getNumberOfSheets());
+                assertEquals(0, workbook.getSheet("Result 1").getPhysicalNumberOfRows());
+                assertEquals(0, workbook.getSheet("Parameters 1").getPhysicalNumberOfRows());
+            }
+        }
+    }
+
+    /**
+     * A run table states nothing to compare against, so what every run returned is written as its result, the
+     * way the run export writes it; the project is the one attached to EPBDS-16635.
+     */
+    @Test
+    void writesWhatARunTableReturnedAsItsResult() throws Exception {
+        var results = runRunTable("test-resources/test/export/run-table", "HelloRun");
+        try (var export = new TempFileExporter()) {
+            var xlsx = export.createExcelFile(new TestUnitsResults[]{ results }, -1);
+
+            try (var workbook = new XSSFWorkbook(xlsx)) {
+                var sheet = workbook.getSheetAt(0);
+                var rowNum = BaseExport.FIRST_ROW;
+                assertRowText(sheet.getRow(rowNum), "HelloRun");
+                assertRowText(sheet.getRow(++rowNum), "1 run");
+                rowNum++;
+                assertRowText(sheet.getRow(++rowNum), "ID", "Status", "Hour", "Result");
+                assertRowText(sheet.getRow(++rowNum), "1", "Passed", "1", "Good Morning");
+            }
+        }
     }
 
     @Test
@@ -181,7 +235,7 @@ class TestResultExportTest {
                 rowNum += 2;
                 var row = sheet.getRow(rowNum);
                 assertRowText(row, "ID", "Status", "Hour", "Result");
-                assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
+                assertRowColors(row, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
                 assertComments(row, 3, (String) null);
 
                 row = sheet.getRow(++rowNum);
@@ -273,7 +327,8 @@ class TestResultExportTest {
                         "Expected Age Type",
                         "Expected Eligibility",
                         "Expected Risk");
-                assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+                assertRowColors(row,
+                        HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Passed", "a1", "Standard Driver", "Eligible", "Standard Risk Driver");
@@ -306,7 +361,8 @@ class TestResultExportTest {
                         "Expected Age Type",
                         "Expected Eligibility",
                         "Expected Risk");
-                assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+                assertRowColors(row,
+                        HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
@@ -395,7 +451,7 @@ class TestResultExportTest {
                 rowNum += 2;
                 var row = sheet.getRow(rowNum);
                 assertRowText(row, "ID", "Status", "obj", "Result field 2");
-                assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
+                assertRowColors(row, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
                 row = sheet.getRow(++rowNum);
                 assertRowText(row, "1", "Passed", "MyObjectD{ field1=2.0 field2=null }", "2");
@@ -426,7 +482,8 @@ class TestResultExportTest {
         rowNum += 2;
         var row = sheet.getRow(rowNum);
         assertRowText(row, "ID", "Status", "Driver", "Expected Age Type", "Expected Eligibility", "Expected Risk");
-        assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+        assertRowColors(row,
+                HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
 
         row = sheet.getRow(++rowNum);
         assertRowText(row, "1", "Passed", "Sara", "Standard Driver", "Eligible", "Standard Risk Driver");
@@ -462,7 +519,8 @@ class TestResultExportTest {
                 "Expected Score",
                 "Expected Eligibility",
                 "Expected Premium");
-        assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+        assertRowColors(row,
+                HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
         assertComments(row, 4, null, null, null);
 
         row = sheet.getRow(++rowNum);
@@ -494,7 +552,8 @@ class TestResultExportTest {
                 "Expected Injury Rating",
                 "Expected Eligibility",
                 "Created date");
-        assertRowColors(row, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER, HEADER);
+        assertRowColors(row,
+                HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR, HEADER_COLOR);
         assertComments(row, 3, null, null, null, null);
 
         row = sheet.getRow(++rowNum);
@@ -560,7 +619,6 @@ class TestResultExportTest {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private String asString(Cell cell) {
         switch (cell.getCellType()) {
             case BLANK:

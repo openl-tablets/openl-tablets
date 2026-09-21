@@ -29,7 +29,6 @@ public class DecisionTableBuilder {
      * condition name always is the next row after header row.
      */
     static final int COLUMN_TYPE_ROW_INDEX = 1;
-    private String methodName;
     private List<IDecisionTableColumn> conditions;
     private DispatcherTableReturnColumn returnColumn;
 
@@ -81,10 +80,6 @@ public class DecisionTableBuilder {
 
         builder.append(')');
         return builder.toString();
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
     }
 
     void setConditions(List<IDecisionTableColumn> conditions) {

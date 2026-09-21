@@ -1,49 +1,44 @@
 package org.openl.rules.tableeditor.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Arrays;
 
-import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ComboBoxCellEditor implements ICellEditor {
 
-    @Getter
-    @Setter(AccessLevel.PROTECTED)
-    private String[] choices;
-
-    @Getter
-    @Setter(AccessLevel.PROTECTED)
-    private String[] displayValues;
-
-    protected ComboBoxCellEditor(String[] displayValues) {
-        this.displayValues = displayValues;
-    }
-
-    public ComboBoxCellEditor(String[] choices, String[] displayValues) {
-        this.choices = choices;
-        this.displayValues = displayValues;
-    }
+    private final String[] choices;
+    private final String[] displayValues;
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        var typeResponse = new EditorTypeResponse(CE_COMBO);
-        typeResponse.setParams(new ComboBoxParam(choices, displayValues));
-        return typeResponse;
+        return new EditorTypeResponse(CE_COMBO, new ComboBoxParam(choices, displayValues));
     }
 
-    public static class ComboBoxParam {
+    /**
+     * The values one of which is chosen.
+     *
+     * @param choices       the values to choose from
+     * @param displayValues what to show for each choice, in the same order
+     */
+    public record ComboBoxParam(String[] choices, String[] displayValues) {
 
-        @Getter
-        @Setter
-        private String[] choices;
-        @Getter
-        @Setter
-        private String[] displayValues;
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof ComboBoxParam(var otherChoices, var otherDisplayValues)
+                    && Arrays.equals(choices, otherChoices)
+                    && Arrays.equals(displayValues, otherDisplayValues);
+        }
 
-        public ComboBoxParam(String[] choices, String[] displayValues) {
-            this.choices = choices;
-            this.displayValues = displayValues;
+        @Override
+        public int hashCode() {
+            return 31 * Arrays.hashCode(choices) + Arrays.hashCode(displayValues);
+        }
+
+        @Override
+        public String toString() {
+            return "ComboBoxParam[choices=%s, displayValues=%s]".formatted(Arrays.toString(choices),
+                    Arrays.toString(displayValues));
         }
     }
 

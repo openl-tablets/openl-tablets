@@ -63,11 +63,28 @@ public class RawTableView extends TableView implements EditableTableView {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public final Integer totalRows;
 
+    @Schema(description = """
+            Number of rows at the top of the table that its header takes — the header line and, where the \
+            table has one, its properties section and the service rows of a decision table. A screen hiding \
+            the header leaves out that many rows; 0 when the table has no header to hide.""")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public final Integer headerHeight;
+
+    @Schema(description = """
+            How the table is laid out on its sheet — which way round it is written, and where its data \
+            begins. Answered for a test table, whose cases a screen numbers from it; absent on a table \
+            nothing asks this about, and on a test table whose cases carry identifiers of their own.""")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public TableLayout layout;
+
     private RawTableView(Builder builder) {
         super(builder);
         this.pos = builder.pos;
         this.source = builder.source;
         this.totalRows = builder.totalRows;
+        this.headerHeight = builder.headerHeight;
     }
 
     @Override
@@ -107,6 +124,7 @@ public class RawTableView extends TableView implements EditableTableView {
         private String pos;
         private List<List<RawTableCell>> source;
         private Integer totalRows;
+        private Integer headerHeight;
 
         private Builder() {
             tableType(TABLE_TYPE);
@@ -124,6 +142,11 @@ public class RawTableView extends TableView implements EditableTableView {
 
         public Builder totalRows(Integer totalRows) {
             this.totalRows = totalRows;
+            return this;
+        }
+
+        public Builder headerHeight(Integer headerHeight) {
+            this.headerHeight = headerHeight;
             return this;
         }
 

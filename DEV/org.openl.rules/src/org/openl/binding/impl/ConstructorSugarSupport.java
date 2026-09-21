@@ -16,6 +16,10 @@ import org.openl.util.MessageUtils;
 
 public class ConstructorSugarSupport {
 
+    private ConstructorSugarSupport() {
+        // Utility class
+    }
+
     public static IBoundNode makeSugarConstructor(ISyntaxNode node,
                                                   ISyntaxNode[] childNodes,
                                                   IBindingContext bindingContext,

@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.servlet;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpSessionActivationListener;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionIdListener;
 import jakarta.servlet.http.HttpSessionListener;
@@ -20,7 +19,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 @Slf4j
-public class SessionListener implements HttpSessionActivationListener, HttpSessionListener, HttpSessionIdListener {
+public class SessionListener implements HttpSessionListener, HttpSessionIdListener {
 
 
     private static ApplicationContext getContext(ServletContext servletContext) {
@@ -94,30 +93,6 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
         if (webStudio != null) {
             webStudio.destroy();
-        }
-    }
-
-    @Override
-    public void sessionDidActivate(HttpSessionEvent event) {
-        var session = event.getSession();
-        log.debug("sessionDidActivate: {}", session);
-        printSession(session);
-
-        var rulesUserSession = getUserRules(session);
-        if (rulesUserSession != null) {
-            rulesUserSession.sessionDidActivate();
-        }
-    }
-
-    @Override
-    public void sessionWillPassivate(HttpSessionEvent event) {
-        var session = event.getSession();
-        log.debug("sessionWillPassivate: {}", session);
-        printSession(session);
-
-        var rulesUserSession = getUserRules(session);
-        if (rulesUserSession != null) {
-            rulesUserSession.sessionWillPassivate();
         }
     }
 

@@ -23,6 +23,7 @@ vi.mock('./Header.styles', () => ({
 }))
 
 vi.mock('./header/UserMenu', () => ({ UserMenu: () => null }))
+vi.mock('./header/ThemeSwitch', () => ({ ThemeSwitch: () => <div data-testid="theme-switch" /> }))
 vi.mock('../components/Logo', () => ({ default: () => null }))
 vi.mock('../hooks', () => ({ useAppNavigate: () => appNavigateMock, useScript: () => {} }))
 vi.mock('store', () => ({ useNotificationStore: () => ({ notification: '' }) }))
@@ -49,7 +50,10 @@ vi.mock('antd', () => {
     )
     const Layout = { Header: ({ children }: { children?: unknown }) => <header>{children as never}</header> }
     const passthrough = ({ children }: { children?: unknown }) => <div>{children as never}</div>
-    return { Alert: passthrough, Avatar: passthrough, Col: passthrough, Layout, Menu, Row: passthrough }
+    return {
+        Alert: passthrough, Avatar: passthrough, Col: passthrough, Layout, Menu,
+        Row: passthrough, Space: passthrough,
+    }
 })
 
 vi.mock('@ant-design/icons', () => ({ UserOutlined: () => null }))
@@ -76,8 +80,7 @@ describe('Header', () => {
 
         await waitFor(() => expect(hasDeploymentRepositories).toHaveBeenCalled())
         expect(screen.queryByTestId('menu-/deployments')).toBeNull()
-        // The tab it cannot offer never costs the user the other two.
-        expect(screen.getByTestId('menu-/')).toBeTruthy()
+        // The tab it cannot offer never costs the user the one beside it.
         expect(screen.getByTestId('menu-/projects')).toBeTruthy()
     })
 
@@ -95,12 +98,14 @@ describe('Header', () => {
         pathnameRef.current = '/administration/system'
         rerender(<Header />)
         expect(screen.getByTestId('menu-/projects').getAttribute('data-selected')).toBeNull()
-        expect(screen.getByTestId('menu-/').getAttribute('data-selected')).toBeNull()
+    })
 
-        // The legacy pages under faces/ are the Editor's own screens.
-        pathnameRef.current = '/faces/main.xhtml'
-        rerender(<Header />)
-        expect(screen.getByTestId('menu-/').getAttribute('data-selected')).toBe('true')
+    it('offers the theme switcher beside the avatar', async () => {
+        vi.mocked(hasDeploymentRepositories).mockResolvedValue(true)
+
+        render(<Header />)
+
+        expect(await screen.findByTestId('theme-switch')).toBeTruthy()
     })
 
     it('switches tabs through the app instead of loading the page anew', async () => {

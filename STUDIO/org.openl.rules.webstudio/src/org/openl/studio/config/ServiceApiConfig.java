@@ -18,7 +18,6 @@ import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -27,9 +26,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.projects.service.ProjectAccessService;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
-import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.repositories.service.HistoryRepositoryMapper;
 import org.openl.studio.security.CurrentUserInfo;
 
@@ -65,11 +62,8 @@ public class ServiceApiConfig {
                                              @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
                                              ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
                                              PropertyResolver propertyResolver,
-                                             DeploymentManager deploymentManager,
                                              ApplicationEventPublisher eventPublisher,
                                              ProtectedBranchBypassService bypassService,
-                                             ProjectIdentifierMapper projectIdentifierMapper,
-                                             ProjectStateValidator projectStateValidator,
                                              ProjectAccessService projectAccessService,
                                              HttpSession httpSession) {
         var rulesUserSession = new RulesUserSession();
@@ -84,11 +78,8 @@ public class ServiceApiConfig {
                 productionRepositoryAclService,
                 projectDescriptorArtefactResolver,
                 propertyResolver,
-                deploymentManager,
                 eventPublisher,
                 bypassService,
-                projectIdentifierMapper,
-                projectStateValidator,
                 projectAccessService);
         rulesUserSession.setWebStudio(webStudio);
         WebStudioUtils.registerRulesUserSession(httpSession, rulesUserSession);

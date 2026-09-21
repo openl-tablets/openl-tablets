@@ -21,7 +21,7 @@ export interface ParametersInputValue {
     error?: string | undefined
 }
 
-export interface ParametersInputProps {
+interface ParametersInputProps {
     /** Declared parameters of the table, each with the schema of its values. */
     parameters: TraceParameterValue[]
     /** Schema of the runtime context, when the project provides one. */
@@ -135,6 +135,12 @@ export const ParametersInput: React.FC<ParametersInputProps> = ({ parameters, ru
     const updateText = (json: string) => {
         setText(json)
         setError(parseText(json).error)
+    }
+
+    // A table that declares nothing has nothing to fill in, in either form: the choice between them would be a
+    // choice of which emptiness to look at.
+    if (formParameters.length === 0) {
+        return null
     }
 
     return (

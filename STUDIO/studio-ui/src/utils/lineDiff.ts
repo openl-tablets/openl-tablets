@@ -1,4 +1,4 @@
-export type DiffKind = 'context' | 'add' | 'remove'
+type DiffKind = 'context' | 'add' | 'remove'
 
 export interface DiffLine {
     kind: DiffKind

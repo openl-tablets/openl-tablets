@@ -31,6 +31,10 @@ import io.swagger.v3.oas.models.media.XML;
  */
 public class OpenAPIConfiguration {
 
+    private OpenAPIConfiguration() {
+        // Utility class
+    }
+
     public static void configure() {
         // Stub method to trigger static initialization
     }
@@ -58,7 +62,7 @@ public class OpenAPIConfiguration {
     }
 
     @JsonPropertyOrder(value = {"openapi", "info", "externalDocs", "servers", "security", "tags", "paths", "components"}, alphabetic = true)
-    static abstract class SortedOpenAPIMixin extends OpenAPIMixin {
+    abstract static class SortedOpenAPIMixin extends OpenAPIMixin {
 
         @JsonPropertyOrder(alphabetic = true)
         @Override
@@ -67,7 +71,7 @@ public class OpenAPIConfiguration {
     }
 
     @JsonPropertyOrder(value = {"type", "format"}, alphabetic = true)
-    static abstract class OpenApiXmlIgnoreMixIn extends SchemaMixin {
+    abstract static class OpenApiXmlIgnoreMixIn extends SchemaMixin {
 
         @JsonPropertyOrder(alphabetic = true)
         @Override

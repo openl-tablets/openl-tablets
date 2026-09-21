@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Checkbox, notification, Space } from 'antd'
+import { Checkbox, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { RunResultModal } from 'containers/execution/RunResultModal'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
 import { runStatusTopic, testsTopics } from 'containers/execution/topics'
+import { carriesCases, isRunTable } from 'constants/tableKinds'
 import { useEventProject } from 'hooks'
 import {
-    isStillRunning,
     readRunResult,
     readRunResultWorkbook,
     readTestsSummaryWorkbook,
@@ -16,6 +16,7 @@ import {
     XLSX_MEDIA_TYPE,
     type TestsQuery,
 } from 'services/execution'
+import { isStillRunning } from 'services/taskResult'
 import { useUserStore } from 'store'
 import type { Project } from 'types/projects'
 import { saveFile } from 'utils/download'
@@ -44,6 +45,10 @@ interface RunLaunchProps {
 const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
     const { t } = useTranslation('execution')
     const profile = useUserStore(state => state.userProfile)
+    // A test table runs the cases it carries; a Run table among them states no expected values, so its cases
+    // are run rather than tested.
+    const testTable = carriesCases(detail.kind)
+    const runTable = isRunTable(detail.kind)
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
     const [results, setResults] = useState<RunResults | null>(null)
@@ -214,43 +219,25 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
             onClose={onClose}
             onError={setError}
             project={project}
-            actions={(collect, state) => (
-                <>
-                    <Button
-                        data-testid="run-start"
-                        loading={starting && savingFile === null}
-                        type="primary"
-                        onClick={() => {
-                            const value = collect()
-                            if (value) {
-                                start(value).catch(startError => setError(errorMessage(startError)))
-                            }
-                        }}
-                    >
-                        {t('run.start')}
-                    </Button>
-                    <Button
-                        data-testid="run-into-file"
-                        loading={savingFile !== null}
-                        onClick={() => {
-                            const value = collect()
-                            if (value) {
-                                startIntoFile(value)
-                            }
-                        }}
-                    >
-                        {state.testTable ? t('tests.intoFile') : t('run.intoFile')}
-                    </Button>
-                </>
-            )}
-            onNothingToAsk={value => {
-                start(value).catch(startError => {
-                    notification.error({ title: t('run.startFailed'), description: errorMessage(startError) })
-                    onClose()
-                })
-            }}
-            options={state => (state.testTable
-                ? (
+            actions={[
+                {
+                    key: 'run-start',
+                    label: t('run.start'),
+                    primary: true,
+                    loading: starting && savingFile === null,
+                    run: value => start(value).catch(startError => setError(errorMessage(startError))),
+                },
+                {
+                    key: 'run-into-file',
+                    label: testTable && !runTable ? t('tests.intoFile') : t('run.intoFile'),
+                    loading: savingFile !== null,
+                    run: startIntoFile,
+                },
+            ]}
+            // A Run table states no expected values: none of its cases can fail, and what each returned is its
+            // result, so the options of a test run do not apply to it.
+            options={testTable
+                ? !runTable && (
                     <Space wrap size="middle">
                         {testsOption('failuresOnly', 'tests-failures-only', t('tests.failuresOnly'))}
                         {testsOption('compoundResult', 'tests-compound-result', t('tests.compoundResult'))}
@@ -262,7 +249,7 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
                         {fileOption('flattenParameters', t('run.flattenParameters'))}
                         {fileOption('resultInJson', t('run.resultInJson'))}
                     </Space>
-                ))}
+                )}
         />
     )
 }
@@ -271,7 +258,8 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
  * Opens the run launcher under the Run button of the table page.
  *
  * A rule table is run with the input the panel collects and reports one result. A test table runs the cases
- * that are picked, and reports them as a test run. A table that takes nothing runs at once.
+ * that are picked, and reports them as a test run. A table that takes no parameters is asked all the same: the
+ * panel carries the settings of the run and the run into a file, which the Editor offered for every table.
  *
  * The second button saves what came out without showing it: the workbook of the run or the returned value in
  * JSON for a rule table, the workbook of the results for a test table.

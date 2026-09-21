@@ -200,5 +200,6 @@ Content-Type: application/json
         "value": "= $Year1 + $Year2 + $Year3"
       }
     ]
-  ]
+  ],
+  "headerHeight": 1
 }

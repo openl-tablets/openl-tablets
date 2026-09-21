@@ -5,13 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
 import org.openl.rules.table.properties.ITableProperties;
@@ -26,6 +29,161 @@ class ProjectDescriptorValidatorTest {
 
     @TempDir
     private Path projectFolder;
+
+    @Test
+    void projectNameWithForbiddenCharactersIsRejected() {
+        var descriptor = named();
+        descriptor.setName("Rates/2026");
+
+        var error = validate(descriptor).getFieldError("name");
+        assertNotNull(error);
+        assertEquals("file.descriptor.name.invalid.message", error.getCode());
+    }
+
+    @Test
+    void reservedProjectNameIsRejected() {
+        var descriptor = named();
+        descriptor.setName("CON");
+
+        assertTrue(validate(descriptor).hasFieldErrors("name"));
+    }
+
+    @Test
+    void projectNameTheProjectAlreadyStoresIsLeftAlone() {
+        var descriptor = named();
+        descriptor.setName("Rates/2026");
+        var stored = named();
+        stored.setName("Rates/2026");
+
+        // What the project was stored under is not the write's doing, and rejecting it would leave it unwritable.
+        assertFalse(validate(descriptor, projectFolder, stored).hasFieldErrors("name"));
+    }
+
+    @Test
+    void moduleNameWithForbiddenCharactersIsRejected() {
+        var errors = validate(withModules(module("Rates/2026", "*.xlsx")));
+
+        var error = errors.getFieldError("modules[0].name");
+        assertNotNull(error);
+        assertEquals("file.descriptor.module.name.invalid.message", error.getCode());
+    }
+
+    @Test
+    void twoModulesOfOneNameAreRejectedOnTheSecond() {
+        var errors = validate(withModules(module("Rates", "*.xlsx"), module("Rates", "rules/*.xlsx")));
+
+        assertFalse(errors.hasFieldErrors("modules[0].name"));
+        assertTrue(errors.hasFieldErrors("modules[1].name"));
+    }
+
+    @Test
+    void moduleRepeatingTheNameOfOneTheProjectStoresIsRejected() {
+        var stored = withModules(module("Rates", "*.xlsx"));
+
+        // The stored module is left alone, so the repeat is reported on the module the write declares —
+        // wherever in the list it was written.
+        var errors = validate(withModules(module("Rates", "rules/*.xlsx"), module("Rates", "*.xlsx")),
+                projectFolder, stored);
+
+        assertTrue(errors.hasFieldErrors("modules[0].name"));
+        assertFalse(errors.hasFieldErrors("modules[1].name"));
+    }
+
+    @Test
+    void moduleWithoutAPathIsRejected() {
+        var errors = validate(withModules(module("Rates", null)));
+
+        var error = errors.getFieldError("modules[0].rulesRootPath");
+        assertNotNull(error);
+        assertEquals("file.descriptor.module.path.required.message", error.getCode());
+    }
+
+    @Test
+    void moduleWithNeitherNameNorPathIsRejectedWithoutNamingIt() {
+        var error = validate(withModules(module(null, null))).getFieldError("modules[0].rulesRootPath");
+
+        // A module with no name of its own is not called 'null' in the message the author is given.
+        assertNotNull(error);
+        assertEquals("file.descriptor.module.path.required.unnamed.message", error.getCode());
+    }
+
+    @Test
+    void modulePointingAtAMissingFileIsRejected() {
+        var errors = validate(withModules(module("Rates", "rules/Rates.xlsx")));
+
+        var error = errors.getFieldError("modules[0].rulesRootPath");
+        assertNotNull(error);
+        assertEquals("file.descriptor.module.path.not-found.message", error.getCode());
+    }
+
+    @Test
+    void modulePointingAtAFileTheProjectHoldsIsAccepted() throws Exception {
+        Files.createDirectories(projectFolder.resolve("rules"));
+        Files.createFile(projectFolder.resolve("rules/Rates.xlsx"));
+
+        assertFalse(validate(withModules(module("Rates", "rules/Rates.xlsx"))).hasErrors());
+    }
+
+    @Test
+    void modulePathIsNotLookedForWhereThereIsNoWorkingCopy() {
+        // A project that is not checked out has no files to look in, and a path is not wrong for that.
+        assertFalse(validate(withModules(module("Rates", "rules/Rates.xlsx")), null, null).hasErrors());
+    }
+
+    @Test
+    void pathAlreadyReadByAnotherModuleIsRejected() {
+        var errors = validate(withModules(module("Everything", "*.xlsx"), module("Again", "*.xlsx")));
+
+        assertTrue(errors.hasFieldErrors("modules[1].rulesRootPath"));
+    }
+
+    @Test
+    void pathAPatternOfAnotherModuleAlreadyMatchesIsRejected() throws Exception {
+        Files.createFile(projectFolder.resolve("Rates.xlsx"));
+
+        var errors = validate(withModules(module("Everything", "*.xlsx"), module("Rates", "Rates.xlsx")));
+
+        assertTrue(errors.hasFieldErrors("modules[1].rulesRootPath"));
+    }
+
+    @Test
+    void patternOverAPathAnotherModuleAlreadyReadsIsRejected() throws Exception {
+        Files.createFile(projectFolder.resolve("Rates.xlsx"));
+
+        // The same two modules the other way round: the rules are read twice whichever of them is written first.
+        var errors = validate(withModules(module("Rates", "Rates.xlsx"), module("Everything", "*.xlsx")));
+
+        assertTrue(errors.hasFieldErrors("modules[1].rulesRootPath"));
+    }
+
+    @Test
+    void pathLeadingOutOfTheProjectIsRejected() throws Exception {
+        var project = Files.createDirectory(projectFolder.resolve("project"));
+        Files.createFile(projectFolder.resolve("Rates.xlsx"));
+
+        // The file is there, beside the project rather than in it: a module reads what the project holds.
+        var errors = validate(withModules(module("Rates", "../Rates.xlsx")), project, null);
+
+        var error = errors.getFieldError("modules[0].rulesRootPath");
+        assertNotNull(error);
+        assertEquals("file.descriptor.module.path.not-found.message", error.getCode());
+    }
+
+    @Test
+    void moduleTheProjectAlreadyStoresIsLeftAlone() {
+        var stored = withModules(module("Rates/2026", "rules/Rates.xlsx"));
+
+        // The module is stored as it is written, so the write did not introduce what is wrong with it.
+        assertFalse(validate(withModules(module("Rates/2026", "rules/Rates.xlsx")), projectFolder, stored).hasErrors());
+    }
+
+    @Test
+    void moduleWithoutANameIsAccepted() throws Exception {
+        Files.createFile(projectFolder.resolve("Rates.xlsx"));
+
+        // The engine names such a module after the file its path points at, and a pattern after what it matched.
+        assertFalse(validate(withModules(module(null, "Rates.xlsx"), module(null, "rules/*.xlsx"))).hasErrors());
+    }
 
     @Test
     void supportsProjectDescriptor() {
@@ -86,7 +244,14 @@ class ProjectDescriptorValidatorTest {
 
     @Test
     void descriptorWithoutFileNameSettingsIsAccepted() {
-        assertFalse(validate(new ProjectDescriptor()).hasErrors());
+        assertFalse(validate(named()).hasErrors());
+    }
+
+    @Test
+    void descriptorWithoutANameIsRejected() {
+        var error = validate(new ProjectDescriptor()).getFieldError("name");
+        assertNotNull(error);
+        assertEquals("file.descriptor.name.required.message", error.getCode());
     }
 
     /**
@@ -161,15 +326,35 @@ class ProjectDescriptorValidatorTest {
     }
 
     private static ProjectDescriptor descriptorWithProcessor(String processor) {
-        var descriptor = new ProjectDescriptor();
+        var descriptor = named();
         descriptor.setPropertiesFileNameProcessor(processor);
         return descriptor;
     }
 
     private static ProjectDescriptor descriptorWithPatterns(String... patterns) {
-        var descriptor = new ProjectDescriptor();
+        var descriptor = named();
         descriptor.setPropertiesFileNamePatterns(patterns);
         return descriptor;
+    }
+
+    /** A descriptor carrying what every descriptor carries, so a test says only what it is about. */
+    private static ProjectDescriptor named() {
+        var descriptor = new ProjectDescriptor();
+        descriptor.setName("Rating");
+        return descriptor;
+    }
+
+    private static ProjectDescriptor withModules(Module... modules) {
+        var descriptor = named();
+        descriptor.setModules(List.of(modules));
+        return descriptor;
+    }
+
+    private static Module module(String name, String path) {
+        var module = new Module();
+        module.setName(name);
+        module.setRulesRootPath(path);
+        return module;
     }
 
     /**

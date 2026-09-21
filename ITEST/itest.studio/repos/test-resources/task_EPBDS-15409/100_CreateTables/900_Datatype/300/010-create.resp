@@ -7,5 +7,7 @@ Content-Type: application/json
   "kind": "Datatype",
   "name": "ZipCode",
   "file": "EPBDS-15409/Main.xlsx",
-  "pos": "B107:D109"
+  "sheet": "Tutorial3",
+  "pos": "B107:D109",
+  "signature": "ZipCode"
 }

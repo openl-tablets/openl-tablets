@@ -27,11 +27,11 @@ import org.openl.util.StringUtils;
  */
 public abstract class AbstractDataTableWriter<T extends AbstractDataView> extends TableWriter<T> {
 
-    public AbstractDataTableWriter(IOpenLTable table) {
+    protected AbstractDataTableWriter(IOpenLTable table) {
         super(table);
     }
 
-    public AbstractDataTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+    protected AbstractDataTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
         super(gridTable, metaInfoWriter);
     }
 

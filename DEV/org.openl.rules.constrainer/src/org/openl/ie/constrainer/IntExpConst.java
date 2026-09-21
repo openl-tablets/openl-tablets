@@ -26,7 +26,7 @@ public class IntExpConst extends IntExpImpl {
      * @return <code>(IntExp)(value+const)</code>
      */
     @Override
-    final public IntExp add(int value) {
+    public final IntExp add(int value) {
         return getIntExp(IntExpConst.class, _const + value);
     }
 
@@ -36,7 +36,7 @@ public class IntExpConst extends IntExpImpl {
      * @return <code>(IntExp)(exp + const)</code>
      */
     @Override
-    final public IntExp add(IntExp exp) {
+    public final IntExp add(IntExp exp) {
         return exp.add(_const);
     }
 
@@ -44,7 +44,7 @@ public class IntExpConst extends IntExpImpl {
      * @return true
      */
     @Override
-    final public boolean bound() {
+    public final boolean bound() {
         return true;
     }
 
@@ -53,7 +53,7 @@ public class IntExpConst extends IntExpImpl {
      * @return (value = = const)
      */
     @Override
-    final public boolean contains(int value) {
+    public final boolean contains(int value) {
         return value == _const;
     }
 
@@ -62,13 +62,9 @@ public class IntExpConst extends IntExpImpl {
      * @return <code> ConstraintConst(value == const)</code>
      */
     @Override
-    final public Constraint equals(int value) // this = value
+    public final Constraint equalTo(int value) // this = value
     {
         return new ConstraintConst(constrainer(), value == _const);
-    }
-
-    public boolean isInteger() {
-        return true;
     }
 
     @Override
@@ -82,7 +78,7 @@ public class IntExpConst extends IntExpImpl {
      * @return The value of expression e.g. const
      */
     @Override
-    final public int max() {
+    public final int max() {
         return _const;
     }
 
@@ -92,7 +88,7 @@ public class IntExpConst extends IntExpImpl {
      * @return The value of expression
      */
     @Override
-    final public int min() {
+    public final int min() {
         return _const;
     }
 
@@ -101,7 +97,7 @@ public class IntExpConst extends IntExpImpl {
      */
 
     @Override
-    final public void propagate() throws Failure {
+    public final void propagate() throws Failure {
     }
 
     /**
@@ -109,7 +105,7 @@ public class IntExpConst extends IntExpImpl {
      * @throws Failure if value is equal to "const". Do nothing otherwise
      */
     @Override
-    final public void removeValue(int value) throws Failure {
+    public final void removeValue(int value) throws Failure {
         if (value == _const) {
             constrainer().fail("remove const");
         }
@@ -121,7 +117,7 @@ public class IntExpConst extends IntExpImpl {
      * @param max the value to be checked
      */
     @Override
-    final public void setMax(int max) throws Failure {
+    public final void setMax(int max) throws Failure {
         if (max < _const) {
             constrainer().fail("max<const");
         }
@@ -133,7 +129,7 @@ public class IntExpConst extends IntExpImpl {
      * @param min the value to be checked
      */
     @Override
-    final public void setMin(int min) throws Failure {
+    public final void setMin(int min) throws Failure {
         if (min > _const) {
             constrainer().fail("min>const");
         }
@@ -145,7 +141,7 @@ public class IntExpConst extends IntExpImpl {
      * @param value The value to be checked
      */
     @Override
-    final public void setValue(int value) throws Failure {
+    public final void setValue(int value) throws Failure {
         if (value != _const) {
             constrainer().fail("value!=const");
         }
@@ -155,7 +151,7 @@ public class IntExpConst extends IntExpImpl {
      * @return 1
      */
     @Override
-    final public int size() {
+    public final int size() {
         return 1;
     }
 
@@ -163,7 +159,7 @@ public class IntExpConst extends IntExpImpl {
      * @return "const"
      */
     @Override
-    final public int value() {
+    public final int value() {
         return _const;
     }
 

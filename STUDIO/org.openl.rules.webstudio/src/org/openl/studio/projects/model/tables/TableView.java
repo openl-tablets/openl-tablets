@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,6 +47,20 @@ public abstract class TableView {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public List<DetailedMessageDescription> messages;
 
+    @Parameter(description = "Whether the table can be run as it stands, and how far a run of it may reach. "
+            + "A table that failed to compile, and a test whose rules failed, runs nothing")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public TableRunState runState;
+
+    @Parameter(description = """
+            Set when the table is written as several partial tables, gathered from more than one place in the \
+            workbook. Such a table is read here but not written: the cells it is drawn from do not sit \
+            together, and only Excel can edit them. Absent on an ordinary table""")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public Boolean partial;
+
     protected TableView(Builder<?> builder) {
         this.id = builder.id;
         this.tableType = builder.tableType;
@@ -55,7 +70,7 @@ public abstract class TableView {
     }
 
     private static Map<String, Object> immutableProperties(Map<String, Object> properties) {
-        var copy = new LinkedHashMap<String, Object>(properties.size());
+        var copy = LinkedHashMap.<String, Object>newLinkedHashMap(properties.size());
         properties.forEach((name, value) -> copy.put(Objects.requireNonNull(name), Objects.requireNonNull(value)));
         return Collections.unmodifiableMap(copy);
     }
@@ -76,7 +91,7 @@ public abstract class TableView {
 
     protected abstract int getBodyWidth();
 
-    public static abstract class Builder<T extends Builder<T>> {
+    public abstract static class Builder<T extends Builder<T>> {
         private String id;
         private String tableType;
         private TableKind kind;

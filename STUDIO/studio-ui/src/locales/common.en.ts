@@ -2,7 +2,6 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'common', {
     openl_studio: 'OpenL Studio',
-    users: 'Users',
     groups: 'Groups',
     loading: 'Loading...',
     select_repository: 'Select Repository',
@@ -35,7 +34,6 @@ i18next.addResourceBundle('en', 'common', {
         support: 'Support',
     },
     menu: {
-        editor: 'Editor',
         projects: 'Projects',
         deployments: 'Deployments',
         my_profile: 'My Profile',
@@ -49,6 +47,17 @@ i18next.addResourceBundle('en', 'common', {
         notification: 'Notification',
         tags: 'Tags',
         mail: 'Mail',
+    },
+    theme: {
+        title: 'Theme',
+        light: 'Light',
+        dark: 'Dark',
+        system: 'Follow System',
+        compact: 'Compact',
+        names: {
+            standard: 'Standard',
+            evergreen: 'Evergreen',
+        },
     },
     user_menu: {
         my_profile: 'My Profile',
@@ -65,6 +74,7 @@ i18next.addResourceBundle('en', 'common', {
         apply: 'Apply',
         create: 'Create',
         invite: 'Invite',
+        delete: 'Delete',
     },
     confirm: {
         title: 'Confirm',

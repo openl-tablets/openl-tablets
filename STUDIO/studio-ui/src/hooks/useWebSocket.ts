@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { webSocketService, WebSocketMessage } from '../services/websocket'
 
-export interface UseWebSocketOptions {
+interface UseWebSocketOptions {
     autoConnect?: boolean
     onConnect?: () => void
     onDisconnect?: () => void
     onError?: (error: any) => void
 }
 
-export interface UseWebSocketReturn {
+interface UseWebSocketReturn {
     isConnected: boolean
     connect: (timeoutMs?: number) => Promise<void>
     disconnect: () => void

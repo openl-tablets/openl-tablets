@@ -195,6 +195,12 @@ Response content encoding is decoded before evaluating JSONPath, including layer
 
 Cookies persist **within each subdirectory** and reset when entering a new subdirectory.
 
+Requests authenticate themselves: every request that needs a user carries `Authorization: Basic <base64(user:pass)>`,
+and a WebSocket handshake connects to `/rest/ws` with the same header. The login form (`POST /login` followed by
+requests riding on the session cookie) is exercised in exactly one place — the `003`–`008` sequence at the root of
+`itest.studio/multi/test-resources`, which proves the form works — and is not a way to sign a scenario in. Nor is a
+`GET /` before a scenario: the root serves a static page and prepares nothing.
+
 ### Response Comparison
 
 - **Status code**: exact match
@@ -312,13 +318,19 @@ Starting the embedded Jetty + Spring context costs several seconds. Start it **o
 private static final HttpClient client = JettyServer.get().withProfile("multi").start();
 ```
 
-Share one server and isolate state instead of restarting — e.g. give each parameterized case its own project via a `{PROJECT}` URL placeholder set through `client.localEnv`. Keep no-session handshake-auth negative tests in a **separate class** from login tests, because the `HttpClient` session cookie persists across calls within a class.
+Share one server and isolate state instead of restarting — e.g. give each parameterized case its own project via a `{PROJECT}` URL placeholder set through `client.localEnv`.
 
 ### WebSocket / STOMP
 
 `StompTester` (in `server-core`) wraps a STOMP-over-WebSocket client:
 
-- `new StompTester(client)` — connects to `/web/ws` with the session cookie.
-- `new StompTester(client, client.getWebSocketURL("/rest/ws"), Map.of("Authorization", basic))` — targets a specific endpoint with extra handshake headers (e.g. Basic auth for the `/rest/**` chain); the session cookie is still sent when present.
+- `new StompTester(client, client.getWebSocketURL("/rest/ws"), Map.of("Authorization", basic))` — the way a multi-user suite connects: the handshake is authenticated by the `/rest/**` chain from its own header.
+- `new StompTester(client)` — connects to `/web/ws`; enough in single-user mode, where every request is the one user, but in multi-user mode the handshake is anonymous and the per-user topics stay silent.
 - `awaitMatching(topic, Type.class, predicate)` returns a future completing on the first matching frame (`awaitFirst` takes any frame). Subscribe **before** triggering the action that publishes, so the terminal frame isn't missed.
 - A rejected handshake (e.g. `401` on `/rest/ws` without credentials) makes the constructor throw — assert it with `assertThrows(AssertionError.class, ...)`.
+
+Only OpenL Studio opens a WebSocket, so the Jetty container that serves the handshake is declared once in
+`ITEST/itest.studio/pom.xml` rather than in `server-core` — every Rule Services suite would otherwise carry it for
+nothing. A new suite that needs a WebSocket and does not sit under `itest.studio/` declares
+`org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server` itself; without it the handshake never
+upgrades and the server answers the plain page with `200 OK`.

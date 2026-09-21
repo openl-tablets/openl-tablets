@@ -1,6 +1,5 @@
 package org.openl.rules.tableeditor.model;
 
-import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 
 public class NumericCellEditor implements ICellEditor {
 
@@ -12,9 +11,7 @@ public class NumericCellEditor implements ICellEditor {
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        var typeResponse = new EditorTypeResponse(CE_NUMERIC);
-        typeResponse.setParams(params);
-        return typeResponse;
+        return new EditorTypeResponse(CE_NUMERIC, params);
     }
 
 }

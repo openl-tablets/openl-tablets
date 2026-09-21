@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,8 @@ class DebugSessionRegistryTest {
     }
 
     private static DebugSession session(ProjectIdModel projectId) {
-        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, "session-1");
+        return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, Map.of(),
+                "session-1");
     }
 
     private static DebugSessionRegistry registry() {

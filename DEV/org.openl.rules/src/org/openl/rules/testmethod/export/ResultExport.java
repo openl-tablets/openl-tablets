@@ -173,11 +173,11 @@ public abstract class ResultExport extends BaseExport {
             }
 
             // Result
-            writeResult(row, colNum, testUnit);
+            writeResult(row, colNum, result, testUnit);
         }
         return rowNum;
     }
 
-    protected abstract void writeResult(Row row, int colNum, ITestUnit testUnit);
+    protected abstract void writeResult(Row row, int colNum, TestUnitsResults result, ITestUnit testUnit);
 
 }

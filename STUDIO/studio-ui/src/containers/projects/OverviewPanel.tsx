@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tooltip, Typography, Upload } from 'antd'
+import { Link } from 'react-router-dom'
+import { moduleRoute } from '../../services/projectId'
+import { Alert, App, Button, Checkbox, Input, Segmented, Select, Tag, Tooltip, Typography, Upload } from 'antd'
 import {
     ApartmentOutlined,
     ApiOutlined,
@@ -30,6 +32,7 @@ import {
     parseRulesDescriptor,
     serializeRulesDescriptor,
     type DeclaredDependency,
+    type DescriptorOpenApi,
     type MethodFilter,
     type ModuleDeclaration,
     type OpenApiMode,
@@ -37,6 +40,7 @@ import {
 } from '../../services/rulesDescriptor'
 import { getProjectIndex } from '../../services/projectIndex'
 import { MigrateButton, useDescriptorMigration } from './projectMigration'
+import { OpenApiActions, useOpenApiActions } from './openApiActions'
 import { getProjectFiles } from '../../services/repositories'
 import { errorMessage } from '../../utils/errorMessage'
 import { EditableList, EditableStringList } from './EditableList'
@@ -320,6 +324,11 @@ const useStyles = createStyles(({ css, token }) => ({
         flex: none;
         width: 40%;
     `,
+    /** The flag ends the row and keeps its label on one line, whatever the fields before it take. */
+    moduleCompileOnly: css`
+        flex: none;
+        white-space: nowrap;
+    `,
     dependencyFields: css`
         display: flex;
         align-items: center;
@@ -476,21 +485,48 @@ const Section = ({ icon, title, action, hint, hintTestId, onHelp, helpLabel, hel
  * A pattern that names no module of its own is read by what it does — it stands for the modules it
  * matched.
  */
-const ModuleCells = ({ module, modulesDefault }: { module: ProjectModule, modulesDefault?: boolean | undefined }) => {
+const ModuleCells = ({ compileOnly, module, modulesDefault, projectId }: { compileOnly?: boolean | undefined, module: ProjectModule, modulesDefault?: boolean | undefined, projectId?: string | undefined }) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     // A project that declares no modules of its own takes the engine's defaults: those read as the rules
     // and the tests found automatically, not as a "pattern". A pattern the file does declare keeps its own
     // name, or, unnamed, reads by what it matched.
-    const autoDiscoveredHeading = module.path?.startsWith('tests/')
-        ? t('browser.overview.modules_auto_tests')
-        : t('browser.overview.modules_auto')
-    const patternHeading = modulesDefault ? autoDiscoveredHeading : t('browser.overview.modules_pattern')
-    const name = module.name || (module.modules ? patternHeading : '')
+    const patternHeading = () => {
+        if (!modulesDefault) {
+            return t('browser.overview.modules_pattern')
+        }
+        return module.path?.startsWith('tests/')
+            ? t('browser.overview.modules_auto_tests')
+            : t('browser.overview.modules_auto')
+    }
+    const name = module.name || (module.modules ? patternHeading() : '')
+    // Only a module of its own opens in the editor. A pattern stands for the modules it matched, and those are
+    // the rows that link.
+    const opens = projectId !== undefined && module.name !== undefined && module.name !== '' && !module.modules
     return (
         <>
-            <span className={cx(shared.valueText, shared.ellipsis, styles.moduleName)} title={name}>{name}</span>
+            {opens ? (
+                <Link
+                    className={cx(shared.valueText, shared.ellipsis, styles.moduleName)}
+                    data-testid={`module-open-${name}`}
+                    title={t('browser.overview.module_open')}
+                    to={moduleRoute(projectId, module.name ?? '')}
+                >
+                    {name}
+                </Link>
+            ) : (
+                <span className={cx(shared.valueText, shared.ellipsis, styles.moduleName)} title={name}>{name}</span>
+            )}
+            {compileOnly && (
+                <Tag
+                    className={shared.chipTag}
+                    data-testid={`module-compile-only-${name}`}
+                    title={t('browser.overview.module_compile_only_hint')}
+                >
+                    {t('browser.overview.module_compile_only_tag')}
+                </Tag>
+            )}
             <span className={cx(shared.ellipsis, shared.valueText, styles.modulePath)} title={module.path}>
                 {module.path}
             </span>
@@ -501,13 +537,15 @@ const ModuleCells = ({ module, modulesDefault }: { module: ProjectModule, module
 /**
  * One module of the project, as its {@code rules.xml} declares it.
  *
- * A declaration whose path is a pattern stands for the files it matched: they are folded away under it
- * and opened on demand, so the list stays as long as the file is.
+ * A declaration whose path is a pattern stands for the files it matched. Those are the modules a reader
+ * opens, so they are shown from the start; the switcher folds them away when the list is in the way.
  */
-const ModuleRow = ({ module, filter, modulesDefault }: { module: ProjectModule, filter?: MethodFilter | undefined, modulesDefault?: boolean | undefined }) => {
+const ModuleRow = ({ declaration, module, modulesDefault, projectId }: { declaration?: ModuleDeclaration | undefined, module: ProjectModule, modulesDefault?: boolean | undefined, projectId?: string | undefined }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = useState(true)
+    const compileOnly = declaration?.webstudioConfiguration?.compileThisModuleOnly === true
+    const filter = declaration?.methodFilter
     const matched = module.modules
     const testId = module.path ?? module.name
     const toggleTitle = t(open ? 'browser.overview.modules_matched_hide' : 'browser.overview.modules_matched_show')
@@ -531,7 +569,7 @@ const ModuleRow = ({ module, filter, modulesDefault }: { module: ProjectModule, 
                     // The place of the switcher is kept, so every row starts where the others do.
                     <span className={styles.moduleSwitcherSpace} data-testid={matched ? `module-unmatched-${testId}` : undefined} />
                 )}
-                <ModuleCells module={module} modulesDefault={modulesDefault} />
+                <ModuleCells compileOnly={compileOnly} module={module} modulesDefault={modulesDefault} projectId={projectId} />
             </li>
             {/* The module's own method filter, declared in rules.xml alongside it. */}
             {filter && (
@@ -547,14 +585,18 @@ const ModuleRow = ({ module, filter, modulesDefault }: { module: ProjectModule, 
                     data-testid={`module-matched-item-${matchedModule.path ?? matchedModule.name}`}
                 >
                     <span className={styles.moduleSwitcherSpace} />
-                    <ModuleCells module={matchedModule} />
+                    {/* The engine gives every module a pattern matched the flag the pattern declares. */}
+                    <ModuleCells compileOnly={compileOnly} module={matchedModule} projectId={projectId} />
                 </li>
             ))}
         </>
     )
 }
 
-/** The editable fields of one declared module: its name and its rules-root path (which may be a pattern). */
+/**
+ * The editable fields of one declared module: its name, its rules-root path (which may be a pattern) and
+ * whether opening it compiles it alone.
+ */
 const ModuleFields = ({ module, onChange, testId }: {
     module: ModuleDeclaration
     onChange: (module: ModuleDeclaration) => void
@@ -579,6 +621,18 @@ const ModuleFields = ({ module, onChange, testId }: {
                 size="small"
                 value={module.path}
             />
+            <Checkbox
+                checked={module.webstudioConfiguration?.compileThisModuleOnly === true}
+                className={styles.moduleCompileOnly}
+                data-testid={`${testId}-compile-only`}
+                title={t('browser.overview.module_compile_only_hint')}
+                onChange={event => onChange({
+                    ...module,
+                    webstudioConfiguration: { compileThisModuleOnly: event.target.checked },
+                })}
+            >
+                {t('browser.overview.module_compile_only')}
+            </Checkbox>
         </div>
     )
 }
@@ -681,16 +735,9 @@ const FilterPanel = ({ filter, compact }: { filter: MethodFilter, compact?: bool
     )
 }
 
-/** The method-filter each declared module carries, indexed by its rules-root path. */
-const moduleFiltersOf = (declarations: ModuleDeclaration[]): Record<string, MethodFilter> => {
-    const filters: Record<string, MethodFilter> = {}
-    for (const module of declarations) {
-        if (module.methodFilter) {
-            filters[module.path] = module.methodFilter
-        }
-    }
-    return filters
-}
+/** What rules.xml declares for each module, indexed by its rules-root path. */
+const declarationsByPath = (declarations: ModuleDeclaration[]): Record<string, ModuleDeclaration> =>
+    Object.fromEntries(declarations.filter(module => module.path).map(module => [module.path, module]))
 
 /** What a descriptor section reads and edits: the working copy shown, and how a change lands in the draft. */
 interface DescriptorEditor {
@@ -713,8 +760,6 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
     const { t } = useTranslation('repository')
     const { notification } = App.useApp()
     const [rules, setRules] = useState<RulesDescriptor>(EMPTY_RULES_DESCRIPTOR)
-    // The raw file is kept so a save rewrites only the managed elements and preserves the rest.
-    const [originalXml, setOriginalXml] = useState('')
     const [fileExists, setFileExists] = useState(false)
     const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
     const [editing, setEditing] = useState(false)
@@ -767,7 +812,6 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
                 }
                 if (saves.current === savesAtRead) {
                     setFileExists(exists)
-                    setOriginalXml(xml)
                     setRules(parseRulesDescriptor(xml))
                 }
                 setState('ready')
@@ -819,7 +863,7 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
             if (!await writeStagedUpload()) {
                 return
             }
-            const xml = serializeRulesDescriptor(draft, originalXml)
+            const xml = serializeRulesDescriptor(draft)
             await writeRootFile(project.id, 'rules.xml', xml, fileExists ? 'overwrite' : 'create')
             // The file now says what this save wrote, so a read that started before it is answering a
             // question this save has answered better: its text is dropped rather than put back. A save
@@ -828,7 +872,6 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
             // Adopt the saved text at once, so the read view shows it without waiting for the reload and a
             // second save writes over the file that now exists rather than re-creating it from nothing.
             setRules(draft)
-            setOriginalXml(xml)
             setFileExists(true)
             endEditing()
             onSaved()
@@ -839,12 +882,13 @@ const useRulesDescriptor = (project: Project, reloadToken: number | undefined, o
         }
     }
 
-    // Each declared module carries its own method filter; index them by path to show on the resolved module.
-    const moduleFilters = useMemo(() => moduleFiltersOf(rules.moduleDeclarations), [rules.moduleDeclarations])
+    // What a module declares — its method filter, whether it compiles on its own — is in the file rather
+    // than in the resolved module, so it is indexed by path and shown on the row it belongs to.
+    const declaredModules = useMemo(() => declarationsByPath(rules.moduleDeclarations), [rules.moduleDeclarations])
 
     const editor: DescriptorEditor = { editing, shown: editing ? draft : rules, editDraft }
     return {
-        state, refreshing, editing, saving, fileExists, projectNames, moduleFilters, editor,
+        state, refreshing, editing, saving, fileExists, projectNames, declaredModules, editor,
         startEditing, cancelEditing: endEditing, saveEditing,
         staged: stagedUpload, stageUpload: (file: File) => setStagedUpload(file),
     }
@@ -954,12 +998,13 @@ const DescriptionSection = ({ editor }: { editor: DescriptorEditor }) => {
  * The modules: the declared ones are edited only when rules.xml declares them; when they are auto-discovered
  * (empty rules.xml) they are shown read-only, since editing entries the engine derives makes no sense.
  */
-const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRulesXml }: {
+const ModulesSection = ({ declaredModules, editor, modules, modulesDefault, hasRulesXml, projectId }: {
+    declaredModules: Record<string, ModuleDeclaration>
     editor: DescriptorEditor
     modules: ProjectModule[]
     modulesDefault: boolean
-    moduleFilters: Record<string, MethodFilter>
     hasRulesXml: boolean
+    projectId: string
 }) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles()
@@ -1004,9 +1049,10 @@ const ModulesSection = ({ editor, modules, modulesDefault, moduleFilters, hasRul
                             {modules.map(module => (
                                 <ModuleRow
                                     key={module.path ?? module.name}
-                                    filter={module.path ? moduleFilters[module.path] : undefined}
+                                    declaration={module.path ? declaredModules[module.path] : undefined}
                                     module={module}
                                     modulesDefault={modulesDefault}
+                                    projectId={projectId}
                                 />
                             ))}
                         </ul>
@@ -1210,6 +1256,15 @@ const SourcesSection = ({ editor, sources, sourcesDefault, hasRulesXml }: {
 const isOpenApiFile = (path: string): boolean => /\.(json|yaml|yml)$/i.test(path)
 
 /**
+ * The names the engine reads a specification from without being told to, in the order it looks for them.
+ *
+ * <p>A descriptor naming one of these for reconciliation says no more than the engine does by itself, so the
+ * model drops the block when it is written — and a project whose specification is one of these declares
+ * nothing, while reading it all the same.
+ */
+const DEFAULT_OPENAPI_FILES = ['openapi.yaml', 'openapi.yml', 'openapi.json']
+
+/**
  * The OpenAPI settings, edited in place the way the legacy editor configured them: the specification is
  * picked from the project files or from the file system, and the mode says whether the project is
  * validated against it or its tables are generated from it. The module names only matter for generation,
@@ -1218,19 +1273,28 @@ const isOpenApiFile = (path: string): boolean => /\.(json|yaml|yml)$/i.test(path
  * A specification picked from the file system reaches the project with the save that keeps it, not with
  * the picking.
  */
-const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: DescriptorEditor, projectId: string, staged: File | null, onPicked: (file: File) => void }) => {
+const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritten, reloadToken }: {
+    editor: DescriptorEditor
+    projectId: string
+    staged: File | null
+    onPicked: (file: File) => void
+    canWrite: boolean
+    onWritten: () => void
+    /** Bumped when the project reloads, so the files a specification is looked for among are read again. */
+    reloadToken: number | undefined
+}) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     const { editing, shown, editDraft } = editor
     const [files, setFiles] = useState<string[]>([])
+    const openApi = useOpenApiActions(projectId, onWritten)
 
-    // The pickable files are read when the editing starts; without them a file can still be picked from
-    // the file system.
+    // Read whether or not the reader is editing: they are what a file can be picked from, and they are also
+    // what says whether a project declaring nothing still has a specification the engine reads. Read again
+    // whenever the project reloads: writing the specification adds the very file the section looks for,
+    // and rules.xml, read again by then, need not name it.
     useEffect(() => {
-        if (!editing) {
-            return
-        }
         let cancelled = false
         getProjectFiles(projectId)
             .then(nodes => {
@@ -1238,11 +1302,24 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: Descr
                     setFiles(nodes.filter(node => node.type === 'file' && isOpenApiFile(node.path)).map(node => node.path))
                 }
             })
-            .catch(() => setFiles([]))
+            .catch(() => {
+                // A read a later one has overtaken says nothing about the files any more, failed or not.
+                if (!cancelled) {
+                    setFiles([])
+                }
+            })
         return () => { cancelled = true }
-    }, [editing, projectId])
+    }, [editing, projectId, reloadToken])
 
-    if (!editing && !shown.openapi) {
+    // What the engine reads: the block the descriptor declares, or the file it falls back to without one.
+    const byDefault = shown.openapi ? undefined : DEFAULT_OPENAPI_FILES.find(name => files.includes(name))
+    const effective: DescriptorOpenApi | undefined = shown.openapi
+        ?? (byDefault === undefined ? undefined : { path: byDefault, mode: 'RECONCILIATION' })
+
+    // A project that declares no specification still has the section, so long as the reader may write one:
+    // writing the specification the rules answer to is how a project comes to have one at all, and it was
+    // the first thing the old dialog offered. A reader who cannot write is shown nothing to act on.
+    if (!editing && !effective && !canWrite) {
         return null
     }
 
@@ -1281,8 +1358,25 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: Descr
     const moduleRow = (testId: string, label: string, value: string, onChange: (value: string) => void) =>
         editRow(label, <Input data-testid={testId} onChange={event => onChange(event.target.value)} size="small" value={value} />)
 
+    const actions = canWrite && !editing
+        ? (
+            <OpenApiActions
+                onGenerate={() => void openApi.generateTables(effective ?? {})}
+                onWrite={() => void openApi.writeSchema()}
+                openapi={effective}
+                running={openApi.running}
+            />
+        )
+        : undefined
+
     return (
-        <Section icon={<ApiOutlined />} title={t('browser.overview.openapi')}>
+        <Section
+            action={actions}
+            hint={!editing && byDefault !== undefined ? t('browser.overview.openapi_by_default') : undefined}
+            hintTestId="openapi-by-default"
+            icon={<ApiOutlined />}
+            title={t('browser.overview.openapi')}
+        >
             {editing
                 ? (
                     <dl className={styles.openapi}>
@@ -1339,15 +1433,17 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked }: { editor: Descr
                         )}
                     </dl>
                 )
-                : shown.openapi && (
-                    <dl className={styles.openapi}>
-                        {shown.openapi.path && row(t('browser.overview.openapi_path'), shown.openapi.path)}
-                        {shown.openapi.mode && row(t('browser.overview.openapi_mode'),
-                            t(shown.openapi.mode === 'GENERATION' ? 'browser.overview.openapi_generation' : 'browser.overview.openapi_reconciliation'))}
-                        {shown.openapi.algorithmModuleName && row(t('browser.overview.openapi_algorithm'), shown.openapi.algorithmModuleName)}
-                        {shown.openapi.modelModuleName && row(t('browser.overview.openapi_model'), shown.openapi.modelModuleName)}
-                    </dl>
-                )}
+                : !effective
+                    ? <span className={shared.microLabel} data-testid="openapi-none">{t('browser.overview.openapi_none')}</span>
+                    : (
+                        <dl className={styles.openapi}>
+                            {effective.path && row(t('browser.overview.openapi_path'), effective.path)}
+                            {effective.mode && row(t('browser.overview.openapi_mode'),
+                                t(effective.mode === 'GENERATION' ? 'browser.overview.openapi_generation' : 'browser.overview.openapi_reconciliation'))}
+                            {effective.algorithmModuleName && row(t('browser.overview.openapi_algorithm'), effective.algorithmModuleName)}
+                            {effective.modelModuleName && row(t('browser.overview.openapi_model'), effective.modelModuleName)}
+                        </dl>
+                    )}
         </Section>
     )
 }
@@ -1535,11 +1631,12 @@ export const OverviewPanel = ({
                 <LockBanner onUnlock={onUnlock} project={project} />
                 <DescriptionSection editor={descriptor.editor} />
                 <ModulesSection
+                    declaredModules={descriptor.declaredModules}
                     editor={descriptor.editor}
                     hasRulesXml={descriptor.fileExists}
-                    moduleFilters={descriptor.moduleFilters}
                     modules={project.descriptor?.modules ?? []}
                     modulesDefault={project.descriptor?.modulesDefault ?? false}
+                    projectId={project.id}
                 />
                 <VersionPatternsSection editor={descriptor.editor} onHelp={() => setPatternHelpOpen(true)} />
                 <ProcessorSection editor={descriptor.editor} />
@@ -1557,7 +1654,15 @@ export const OverviewPanel = ({
                     sources={project.descriptor?.sources ?? []}
                     sourcesDefault={project.descriptor?.sourcesDefault ?? false}
                 />
-                <OpenApiSection editor={descriptor.editor} onPicked={descriptor.stageUpload} projectId={project.id} staged={descriptor.staged} />
+                <OpenApiSection
+                    canWrite={canWrite}
+                    editor={descriptor.editor}
+                    onPicked={descriptor.stageUpload}
+                    onWritten={() => onChanged?.()}
+                    projectId={project.id}
+                    reloadToken={reloadToken}
+                    staged={descriptor.staged}
+                />
             </div>
             <MetaColumn
                 busy={busy}

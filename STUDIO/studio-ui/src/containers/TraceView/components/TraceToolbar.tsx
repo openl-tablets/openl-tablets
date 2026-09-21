@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, notification, Space, Switch, Tag, Tooltip } from 'antd'
+import { App, Button, Space, Switch, Tag, Tooltip } from 'antd'
 import { SettingOutlined, SyncOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
@@ -24,6 +24,7 @@ const STATUS_STYLE = {
  * **Profiling** and **Show detailed view**.
  */
 const TraceToolbar: React.FC = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('trace')
     const { styles, cx } = useStyles()
     const advanced = useTraceStore(s => s.advanced)

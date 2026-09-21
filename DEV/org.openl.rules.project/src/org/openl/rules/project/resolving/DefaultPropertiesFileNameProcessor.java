@@ -24,12 +24,12 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
 
     private static final String ARRAY_SEPARATOR = ",";
     private static final String DEFAULT_PATTERN = "[^/]+?";
-    private static final Pattern PATTERN = Pattern.compile("(%[^%]+%)");
+    private static final Pattern PROPERTY_REFERENCE = Pattern.compile("(%[^%]+%)");
     private static final String STATE_PROPERTY_NAME = "state";
     private static final String CW_STATE_VALUE = "CW";
     private static final String ALL_KEYWORD = "Any";
 
-    private final Set<String> propertyNames = new LinkedHashSet<>(0);
+    private final Set<String> propertyNames = LinkedHashSet.newLinkedHashSet(0);
     private final Map<String, SimpleDateFormat> dateFormats;
     private final Pattern fileNameRegexpPattern;
     private final String pattern;
@@ -94,7 +94,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     private String buildRegexpPattern(String fileNamePattern) throws InvalidFileNamePatternException {
-        var matcher = PATTERN.matcher(fileNamePattern);
+        var matcher = PROPERTY_REFERENCE.matcher(fileNamePattern);
         var start = 0;
         var fileNameRegexpPattern = fileNamePattern.replace('*', '\uffff')
                 .replace('.', '\ufffe')

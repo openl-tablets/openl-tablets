@@ -15,7 +15,11 @@ Content-Type: application/json
         "type": "table",
         "id": "cb1d8299356a8beb83335365afc54211",
         "module": "Main",
-        "cell": "B88"
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+        "project": "EPBDS-15409",
+        "cell": "B88",
+        "start": 5,
+        "end": 12
       },
       "stacktrace": true
     },
@@ -27,7 +31,11 @@ Content-Type: application/json
         "type": "table",
         "id": "cb1d8299356a8beb83335365afc54211",
         "module": "Main",
-        "cell": "B88"
+        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+        "project": "EPBDS-15409",
+        "cell": "B88",
+        "start": 5,
+        "end": 13
       },
       "stacktrace": true
     }

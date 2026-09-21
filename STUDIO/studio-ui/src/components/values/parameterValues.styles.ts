@@ -1,4 +1,5 @@
 import { createStyles } from 'antd-style'
+import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 
 /**
  * The look of a parameter value: a `name (type) = value` line, coloured the way a debugger colours it.
@@ -87,10 +88,11 @@ export const useStyles = createStyles(({ css, token }) => ({
         align-items: center;
         gap: 4px;
     `,
-    /* Syntax palette below mirrors a code editor (name / string / number / boolean); these hues have no
-       design-token equivalent and intentionally stay fixed. Neutral chrome uses tokens. */
+    /* Syntax palette below mirrors a code editor (name / string / number / boolean). These hues have no
+       design-token equivalent, so they come from the OpenL palette and follow the appearance. Neutral
+       chrome uses tokens. */
     valueName: css`
-        color: #871094;
+        color: ${LIST_PAGE_COLORS.syntaxName};
         font-weight: 500;
     `,
     valueType: css`
@@ -111,13 +113,13 @@ export const useStyles = createStyles(({ css, token }) => ({
         margin: 0 4px;
     `,
     valueString: css`
-        color: #067d17;
+        color: ${LIST_PAGE_COLORS.syntaxString};
     `,
     valueNumber: css`
-        color: #1750eb;
+        color: ${LIST_PAGE_COLORS.syntaxNumber};
     `,
     valueBoolean: css`
-        color: #0033b3;
+        color: ${LIST_PAGE_COLORS.syntaxBoolean};
         font-weight: 600;
     `,
     valueNull: css`

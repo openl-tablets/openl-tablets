@@ -39,12 +39,6 @@ public class CorsFilter implements Filter {
                 return;
             }
         }
-
-        if (request.getCharacterEncoding() == null) {
-            // In case if charset was not set in the request.
-            // UTF-8 is used as default instead of ISO-8859-1
-            request.setCharacterEncoding("UTF-8");
-        }
         chain.doFilter(request, response);
     }
 
@@ -73,9 +67,5 @@ public class CorsFilter implements Filter {
         allowedMethods = env.getProperty("cors.allowed.methods");
         allowedHeaders = env.getProperty("cors.allowed.headers");
         maxAge = env.getProperty("cors.preflight.maxage");
-    }
-
-    @Override
-    public void destroy() {
     }
 }

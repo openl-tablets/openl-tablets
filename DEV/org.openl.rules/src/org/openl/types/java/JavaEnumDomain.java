@@ -45,7 +45,6 @@ public class JavaEnumDomain implements IDomain<Object> {
     @Override
     public String toString() {
         var sb = new StringBuilder();
-        @SuppressWarnings("rawtypes")
         var itr = iterator();
         var f = false;
         while (itr.hasNext()) {

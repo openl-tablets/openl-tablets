@@ -57,5 +57,17 @@ public interface WorkbookLoader {
      */
     void setCanUnload(boolean canUnload);
 
+    /**
+     * Tell whether the workbook in memory holds changes the file it was read from does not have yet.
+     *
+     * <p>A modified workbook is never unloaded. Dropping it would throw the changes away and read the file back in
+     * their place, and the save that follows would write that file over itself.
+     *
+     * <p>Set by a write that changes the workbook, and cleared once the workbook is saved.
+     *
+     * @param modified whether the workbook differs from the file it was read from
+     */
+    void setModified(boolean modified);
+
     SpreadsheetConstants getSpreadsheetConstants();
 }

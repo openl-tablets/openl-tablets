@@ -1,15 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import {
-    Alert,
-    Checkbox,
-    Input,
-    Modal,
-    notification,
-    Select,
-    Space,
-    Spin,
-    Tooltip,
-} from 'antd'
+import { App, Alert, Checkbox, Input, Modal, Select, Space, Spin, Tooltip } from 'antd'
 import {
     DeleteColumnOutlined,
     DeleteRowOutlined,
@@ -75,6 +65,7 @@ import {
 import {
     buildTargetStructure,
     canTargetTable,
+    EXECUTABLE_KINDS,
     type FieldsOfType,
     targetTableName,
     type TargetStructure,
@@ -117,14 +108,6 @@ export interface CreateTableModalDetail {
     sourceTableId?: string
     onSuccess?: (table: SummaryTable, moduleName: string) => void
 }
-
-/**
- * Kinds of table a Test or a Run table can call.
- *
- * <p>The kind is what the tables list filters on: `Rules` covers the decision tables and both lookups, and the
- * rest are the other table types OpenL compiles into a callable method.
- */
-const EXECUTABLE_KINDS = ['Rules', 'Spreadsheet', 'Method', 'TBasic', 'Column Match']
 
 /** Both are written with the `Datatype` keyword; the table type is what tells a vocabulary from a datatype. */
 const namesOf = (types: ProjectTable[], tableType: string): string[] =>
@@ -171,6 +154,7 @@ const normalizeArguments = (argumentsValue: TableArgument[]): TableArgument[] =>
     withTrailingBlank(argumentsValue, isCompleteArgument, blankArgument)
 
 const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()

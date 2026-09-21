@@ -35,7 +35,7 @@ public class FastStringReader extends Reader {
         private static final long serialVersionUID = 4942784446367469908L;
 
         @Override
-        public Throwable fillInStackTrace() {
+        public synchronized Throwable fillInStackTrace() {
             return this;
         }
     }
@@ -102,7 +102,7 @@ public class FastStringReader extends Reader {
             return 0;
         }
         // Bound skip by beginning and end of the source
-        var n = Math.min(length - next, ns);
+        var n = Math.min((long) length - next, ns);
         n = Math.max(-next, n);
         next += n;
         return n;

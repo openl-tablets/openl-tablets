@@ -11,7 +11,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.util.CollectionUtils;
 
 public class OpenLMessagesUtils {
 
@@ -40,19 +39,6 @@ public class OpenLMessagesUtils {
 
     public static OpenLMessage newWarnMessage(String message, ISyntaxNode source) {
         return new OpenLWarnMessage(message, source);
-    }
-
-    public static Collection<OpenLMessage> newMessages(OpenLException[] exceptions) {
-        var messages = new ArrayList<OpenLMessage>();
-
-        if (CollectionUtils.isNotEmpty(exceptions)) {
-            for (OpenLException error : exceptions) {
-                var errorMessage = new OpenLErrorMessage(error);
-                messages.add(errorMessage);
-            }
-        }
-
-        return messages;
     }
 
     public static OpenLMessage newErrorMessage(OpenLCompilationException error) {

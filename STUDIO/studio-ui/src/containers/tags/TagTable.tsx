@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Popconfirm, Table } from 'antd'
+import { Popconfirm, Table, theme } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { TagTableCheckboxCell } from './TagTableCheckboxCell'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
@@ -28,7 +28,7 @@ export interface TagType {
     tags: Tag[];
 }
 
-export interface TagTypeActions {
+interface TagTypeActions {
     updateTagType: (tagType: TagType) => boolean | Promise<boolean>;
     deleteTagType: (tagType: TagType) => void;
 }
@@ -41,6 +41,7 @@ interface TagTableProps extends TagActions, TagTypeActions {
 export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, deleteTag, deleteTagType, updateTagType, isLoading }) => {
     const { t } = useTranslation()
     const { styles } = useStyles()
+    const { token } = theme.useToken()
 
     const onUpdateTagType = (tagType: TagType, name: string | null = null, extensible: boolean | null = null, nullable: boolean | null = null) => {
         if (tagType) {
@@ -113,7 +114,7 @@ export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, de
             width: '100px',
             render: (tagType: TagType) => (
                 <Popconfirm onConfirm={() => handleDelete(tagType)} title="Sure to delete?">
-                    <DeleteOutlined style={{ cursor: 'pointer', color: 'red' }} />
+                    <DeleteOutlined style={{ cursor: 'pointer', color: token.colorError }} />
                 </Popconfirm>
             ),
         },

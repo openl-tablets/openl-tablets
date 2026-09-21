@@ -34,6 +34,7 @@ vi.mock('store', () => ({
 
 vi.mock('antd', () => ({
     App: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    Skeleton: () => null,
 }))
 
 vi.mock('react-router-dom', () => ({
@@ -44,6 +45,7 @@ vi.mock('./routes', () => ({ router: {} }))
 vi.mock('./services', () => ({ CONFIG: { CONTEXT: '/webstudio' } }))
 vi.mock('./legacy', () => ({}))
 vi.mock('./App.styles.ts', () => ({ AppStyles: () => null }))
+vi.mock('./services/popups', () => ({ PopupsBridge: () => null }))
 vi.mock('./providers/SecurityProvider', () => ({
     SecurityProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))

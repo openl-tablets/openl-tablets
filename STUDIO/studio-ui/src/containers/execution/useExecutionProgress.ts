@@ -7,7 +7,7 @@ import type { ExecutionStatus } from 'types/execution'
 export { isFinished } from 'services/executionStatus'
 
 /** What the server reports while a run or a test run goes on: a status, and why it failed when it did. */
-export interface ExecutionProgress {
+interface ExecutionProgress {
     status: ExecutionStatus | null
     error: string | null
     /** How many results have arrived so far, for a run that reports them one by one. */

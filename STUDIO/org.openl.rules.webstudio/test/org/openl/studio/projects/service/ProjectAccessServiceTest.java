@@ -236,6 +236,24 @@ class ProjectAccessServiceTest {
         assertNull(service.computeCapabilities(rulesProject).canDeleteBranch());
     }
 
+    @Test
+    void merging_takes_write_access_and_a_project_that_can_take_one() {
+        var rulesProject = mock(RulesProject.class);
+        when(aclProjectsHelper.hasPermission(rulesProject, BasePermission.WRITE)).thenReturn(true);
+        when(stateValidator.canTakeMerge(rulesProject)).thenReturn(true);
+
+        assertEquals(Boolean.TRUE, service.computeCapabilities(rulesProject).canMerge());
+
+        // A project carrying changes that are not saved yet cannot take a merge; the state answers that.
+        when(stateValidator.canTakeMerge(rulesProject)).thenReturn(false);
+        assertNull(service.computeCapabilities(rulesProject).canMerge());
+
+        // And a reader who may not write to it is not offered one either.
+        when(stateValidator.canTakeMerge(rulesProject)).thenReturn(true);
+        when(aclProjectsHelper.hasPermission(rulesProject, BasePermission.WRITE)).thenReturn(false);
+        assertNull(service.computeCapabilities(rulesProject).canMerge());
+    }
+
     // The Copy dialog offers a new project, a new branch, or both, so either right opens it — and it answers
     // the same as the capabilities it is derived from.
     @Test
@@ -252,6 +270,20 @@ class ProjectAccessServiceTest {
         grant(BasePermission.WRITE);
         assertTrue(service.canCopyOrBranch(project));
         assertEquals(Boolean.TRUE, service.computeCapabilities(project).canManageBranches());
+    }
+
+    @Test
+    void a_local_only_project_is_exported_without_asking_for_a_permission() {
+        when(project.isLocalOnly()).thenReturn(true);
+
+        var caps = service.computeCapabilities(project);
+
+        // The archive is the only way a local project reaches a Design repository, and nobody but its
+        // owner can read the workspace copy anyway.
+        assertEquals(Boolean.TRUE, caps.canExport());
+        assertNull(caps.canCompare());
+        assertNull(caps.canViewHistory());
+        verify(aclProjectsHelper, never()).hasPermission(project, BasePermission.READ);
     }
 
     @Test

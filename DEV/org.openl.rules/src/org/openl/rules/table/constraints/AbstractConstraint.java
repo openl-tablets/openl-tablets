@@ -12,7 +12,7 @@ public abstract class AbstractConstraint implements Constraint {
     @Getter
     private final String value;
 
-    public AbstractConstraint(String value) {
+    protected AbstractConstraint(String value) {
         this.value = Objects.requireNonNull(value, "value cannot be null");
     }
 

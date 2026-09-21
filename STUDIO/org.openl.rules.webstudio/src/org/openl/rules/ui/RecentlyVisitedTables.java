@@ -13,7 +13,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class RecentlyVisitedTables {
-    private VisitedTableWrapper lastVisitedTable;
     public static final int DEFAULT_SIZE = 10;
 
     public int size;
@@ -95,18 +94,6 @@ public class RecentlyVisitedTables {
             checkTableAvailability();
             tables.remove(new VisitedTableWrapper(table));
         }
-    }
-
-    public VisitedTableWrapper getLastVisitedTable() {
-        return lastVisitedTable;
-    }
-
-    public void setLastVisitedTable(VisitedTableWrapper lastVisitedTable) {
-        this.lastVisitedTable = lastVisitedTable;
-    }
-
-    public void setLastVisitedTable(IOpenLTable lastVisitedTable) {
-        setLastVisitedTable(new VisitedTableWrapper(lastVisitedTable));
     }
 
     /*

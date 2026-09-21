@@ -30,8 +30,9 @@ public record TestUnitExecutionResult(
         List<TestAssertionExecutionResult> testAssertions,
 
         @Parameter(description = """
-                The whole value the tested rule returned, asked for by `compoundResult`; a spreadsheet comes \
-                as the bean OpenL Rule Services publishes for it""")
+                The whole value the tested rule returned, asked for by `compoundResult` and always present for a \
+                case of a run table, which states nothing to compare it against; a spreadsheet comes as the bean \
+                OpenL Rule Services publishes for it""")
         @Nullable ParameterValue result,
 
         @Parameter(description = "List of test parameter values")

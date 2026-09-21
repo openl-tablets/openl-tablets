@@ -13,7 +13,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -27,7 +26,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     private final UserWorkspace userWorkspace;
     private final RepositoryAclService designRepositoryAclService;
-    private final boolean allowProjectCreateDelete;
 
     @Override
     public boolean hasProject(String repositoryId, String name) {
@@ -92,11 +90,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void passivate() {
-        userWorkspace.passivate();
-    }
-
-    @Override
     public void refresh() {
         userWorkspace.refresh();
     }
@@ -123,39 +116,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public void removeWorkspaceListener(UserWorkspaceListener listener) {
         userWorkspace.removeWorkspaceListener(listener);
-    }
-
-    @Override
-    public RulesProject uploadLocalProject(String repositoryId,
-                                           String name,
-                                           String projectFolder,
-                                           String comment) throws ProjectException {
-        return uploadLocalProject(userWorkspace.getDesignTimeRepository().getRepository(repositoryId),
-                name,
-                projectFolder,
-                comment);
-    }
-
-    @Override
-    public RulesProject uploadLocalProject(Repository repository,
-                                           String name,
-                                           String projectFolder,
-                                           String comment) throws ProjectException {
-        var repositoryId = repository.getId();
-        if (userWorkspace.hasProject(repositoryId, name)) {
-            var path = userWorkspace.getDesignTimeRepository().getRulesLocation() + name;
-            if (designRepositoryAclService.isGranted(repositoryId, path, List.of(BasePermission.WRITE))) {
-                return userWorkspace.uploadLocalProject(repository, name, projectFolder, comment);
-            } else {
-                throw new ProjectException("There is no permission for modifying '%s'.".formatted(path));
-            }
-        } else {
-            if (allowProjectCreateDelete && designRepositoryAclService.isGranted(repositoryId, null, List.of(BasePermission.CREATE))) {
-                return userWorkspace.uploadLocalProject(repository, name, projectFolder, comment);
-            } else {
-                throw new ProjectException("There is no permission for creating a new project.");
-            }
-        }
     }
 
     @Override

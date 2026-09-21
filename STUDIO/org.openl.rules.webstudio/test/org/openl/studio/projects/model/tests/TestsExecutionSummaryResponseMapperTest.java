@@ -28,6 +28,7 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 
@@ -52,7 +53,8 @@ class TestsExecutionSummaryResponseMapperTest {
         when(testUnit.getErrors()).thenReturn(List.of(new OpenLMessage("Compilation failed", Severity.ERROR)));
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
 
-        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
         var result = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(true, 5, false, false));
 
         assertEquals(1, result.numberOfTests());
@@ -76,7 +78,8 @@ class TestsExecutionSummaryResponseMapperTest {
         when(first.getName()).thenReturn("AlphaTest");
         when(second.getName()).thenReturn("BetaTest");
         when(first.getFilteredTestUnits(false, 5)).thenReturn(List.of());
-        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
 
         var summary = mapper.mapExecutionSummary(List.of(first, second), TestExecutionSummaryQuery.noFilter(), Page.of(0, 1));
 
@@ -104,13 +107,19 @@ class TestsExecutionSummaryResponseMapperTest {
         when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
         when(testUnit.getErrors()).thenReturn(List.of());
         when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
-        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
 
         var asked = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, false));
         var plain = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, false, false));
 
         assertEquals(42, asked.testUnits().getFirst().result().value().asInt());
         assertNull(plain.testUnits().getFirst().result());
+
+        // A run table states no expectation: what its case returned is the result of the case, asked for or not.
+        when(results.getTestSuite().getTestSuiteMethod().isRunMethod()).thenReturn(true);
+        var run = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, false, false));
+        assertEquals(42, run.testUnits().getFirst().result().value().asInt());
     }
 
     @Test
@@ -131,7 +140,8 @@ class TestsExecutionSummaryResponseMapperTest {
         when(testUnit.getErrors()).thenReturn(List.of());
         when(test.getExecutionParams()).thenReturn(new ParameterWithValueDeclaration[]{
                 new ParameterWithValueDeclaration("driver", Map.of("name", "Sara"), type)});
-        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
 
         var lazy = firstParameter(mapper, results, true);
         var full = firstParameter(mapper, results, false);

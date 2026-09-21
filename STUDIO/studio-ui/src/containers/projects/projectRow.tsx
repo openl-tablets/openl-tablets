@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next'
 import { Tag } from 'antd'
 import { createStyles } from 'antd-style'
 import { useSharedStyles } from './sharedStyles'
+import { captionSize } from '../../styles/listPageStyles'
 import { ProjectStatus } from '../../constants/project'
 import { STATUS_META } from '../../constants/projectStatusMeta'
 import { formatDateTime } from '../../utils/dateFormat'
@@ -15,7 +16,7 @@ import { BranchSwitcher } from './BranchSwitcher'
 /** Tags shown inline on a project row before the rest collapse into a "+N" chip. */
 const MAX_TAGS = 4
 
-export interface ProjectRowData {
+interface ProjectRowData {
     muted: boolean
     repoLabel: string
     repoType: string | undefined
@@ -58,11 +59,11 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
     tagMore: css`
         color: ${token.colorTextTertiary};
-        font-size: 11px;
+        font-size: ${captionSize(token.fontSizeSM)}px;
     `,
     branch: css`
         max-width: 200px;
-        font-size: 12px;
+        font-size: ${token.fontSizeSM}px;
     `,
 }))
 
@@ -85,7 +86,7 @@ export const ProjectTags = ({ tags }: { tags: string[] }) => {
 }
 
 /** Whether the project is shown on a branch: a local copy and a repository without branches have none. */
-export const showsBranch = (project: Project, repositorySupportsBranches: boolean): boolean =>
+const showsBranch = (project: Project, repositorySupportsBranches: boolean): boolean =>
     repositorySupportsBranches && !!project.branch && project.status !== ProjectStatus.Local
 
 /** {@link showsBranch}, resolving the repository's support from the repository itself. */

@@ -789,7 +789,6 @@ UserWorkspace
 ```java
 public interface UserWorkspace extends ProjectsContainer {
     void activate();
-    void passivate();
     void refresh();
     void syncProjects();
 
@@ -800,7 +799,6 @@ public interface UserWorkspace extends ProjectsContainer {
     Collection<? extends AProject> getProjects();
     Collection<? extends AProject> getProjects(String repositoryId);
 
-    void uploadLocalProject(String repositoryId, String name);
     AProject getProjectByPath(String repositoryId, String branch, String path);
 
     WorkspaceUser getUser();
@@ -897,11 +895,6 @@ AProject projectByPath = workspace.getProjectByPath(
     "rules/insurance",
     null
 );
-
-// Upload local project to DTR
-workspace.uploadLocalProject("production", "LocalProject");
-
-workspace.passivate();
 ```
 
 ### Concurrency: Lock Engine

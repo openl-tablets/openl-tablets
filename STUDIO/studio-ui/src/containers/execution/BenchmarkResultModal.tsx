@@ -5,7 +5,8 @@ import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
 import { ParameterValueList } from 'components/values/ParameterValues'
-import { deleteBenchmarks, getBenchmarks, isStillRunning, readBenchmarks } from 'services/execution'
+import { deleteBenchmarks, getBenchmarks, readBenchmarks } from 'services/execution'
+import { isStillRunning } from 'services/taskResult'
 import type { BenchmarkResult } from 'types/execution'
 import { errorMessage } from 'utils/errorMessage'
 import { formatRate, formatRatio, formatTime, metricsOf } from './benchmarkMetrics'
@@ -38,7 +39,7 @@ const metricColumn = (
     render,
 })
 
-export interface BenchmarkResultModalProps {
+interface BenchmarkResultModalProps {
     projectId: string
     /** The table the benchmark that is still running was started on. */
     tableId: string
@@ -139,7 +140,13 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
         const kind = row.runTable ? 'runs' : 'cases'
         return (
             <Space size={4}>
-                <TableLink data-testid={`benchmark-table-${row.id}`} onOpen={onClose} tableId={row.tableId}>
+                <TableLink
+                    data-testid={`benchmark-table-${row.id}`}
+                    module={row.module}
+                    onOpen={onClose}
+                    projectId={projectId}
+                    tableId={row.tableId}
+                >
                     {row.name}
                 </TableLink>
                 {row.testTable && <Tag>{t(`tests.${kind}`, { count: row.testCases })}</Tag>}

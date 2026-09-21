@@ -1,0 +1,53 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "greeting",
+  "pos": "B2:C5",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "SimpleRules String greeting(String name)"
+      },
+      {
+        "cell": "C2"
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "name"
+      },
+      {
+        "cell": "C3",
+        "value": "greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "John"
+      },
+      {
+        "cell": "C4",
+        "value": "Hi, John"
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Mary"
+      },
+      {
+        "cell": "C5",
+        "value": "Hello, Mary"
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

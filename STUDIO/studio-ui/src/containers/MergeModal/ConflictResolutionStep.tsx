@@ -1,18 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-    Alert,
-    Button,
-    Descriptions,
-    Input,
-    notification,
-    Radio,
-    Space,
-    Spin,
-    Table,
-    Tooltip,
-    Typography,
-    Upload,
-} from 'antd'
+import { App, Alert, Button, Descriptions, Input, Radio, Space, Spin, Table, Tooltip, Typography, Upload } from 'antd'
 import {
     CheckCircleOutlined,
     DeleteOutlined,
@@ -57,6 +44,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     onCancel,
     onCompare,
 }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()
 
@@ -453,7 +441,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             </div>
             {/* Conflict Files grouped by Project - Scrollable */}
             <div style={{ flex: 1, overflow: 'auto', marginBottom: 16, minHeight: 200 }}>
-                <Typography.Text strong style={{ display: 'block', marginBottom: 8, position: 'sticky', top: 0, background: '#fff', zIndex: 1, paddingBottom: 8 }}>
+                <Typography.Text strong className={styles.conflictsHeading}>
                     {t('merge:conflicts.description')}
                 </Typography.Text>
                 {(conflictDetails?.conflictGroups || initialConflictGroups).map(group => {
@@ -475,7 +463,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 })}
             </div>
             {/* Actions - Fixed at bottom */}
-            <Space style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 8, borderTop: '1px solid #f0f0f0' }}>
+            <Space className={styles.actions}>
                 <Button
                     disabled={isSaving}
                     onClick={handleCancel}

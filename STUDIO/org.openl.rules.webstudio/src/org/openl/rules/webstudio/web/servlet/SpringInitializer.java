@@ -30,7 +30,6 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import org.openl.info.OpenLInfoLogger;
 import org.openl.rules.openapi.OpenAPIConfiguration;
-import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.webstudio.Migrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
@@ -128,16 +127,13 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         applicationContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("props", new Props()));
 
         // Do migrate before Spring initialization
-        Migrator.migrate();
+        var fromVersion = Migrator.migrate();
 
         applicationContext.refresh();
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
 
         // Run migration which require context to be initialized
-        Migrator.migrateAfterContentInitialized(applicationContext);
-        // Experimental settings
-        HTMLRenderer.MAX_NUM_CELLS = Props.integer("experimental.MAX_NUM_CELLS");
-
+        Migrator.migrateAfterContentInitialized(applicationContext, fromVersion);
         startTimer();
         // Store the initializer only after OpenL Studio is ready to handle requests.
         servletContext.setAttribute(THIS, this);

@@ -49,7 +49,7 @@ public class UserErrorOpenClass extends ADynamicClass {
         final Object value;
 
         private Entry() {
-            this.value = new HashMap<>(4);
+            this.value = HashMap.newHashMap(4);
         }
 
         public Entry(String value) {

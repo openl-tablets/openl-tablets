@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Alert, Button, Col, Input, Table, Modal, Row } from 'antd'
+import { App, Alert, Button, Col, Input, Table, Row } from 'antd'
 import { DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +11,7 @@ import { EditUserGroupDetailsWithAccessRights } from './EditUserGroupDetailsWith
 import { DefaultGroupInfo } from '../components/DefaultGroupInfo'
 
 export const Groups: React.FC = () => {
+    const { modal } = App.useApp()
     const { t } = useTranslation()
     const [selectedGroup, setSelectedGroup] = useState<GroupItem | undefined>()
     const { groups, loading, error, reloadGroups } = useGroups()
@@ -32,7 +33,7 @@ export const Groups: React.FC = () => {
     }
 
     const removeGroup = (id: number) => {
-        Modal.confirm({
+        modal.confirm({
             className: 'confirm-group-modal',
             title: t('groups:confirm_deletion_title'),
             content: t('groups:confirm_deletion'),

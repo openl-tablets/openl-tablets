@@ -1,7 +1,6 @@
 package org.openl.studio.repositories.rest.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,7 +18,6 @@ import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
 import java.util.List;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +41,6 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
-import org.openl.studio.repositories.model.CreateFromWorkspaceModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.studio.repositories.model.RepositoryConfigModel;
 import org.openl.studio.repositories.service.DesignTimeRepositoryService;
@@ -135,13 +132,6 @@ class DesignTimeRepositoryControllerTest {
     }
 
     @Test
-    void createProjectsFromWorkspaceRequiresBranchProtectionBypass() {
-        controller.createProjectsFromWorkspace(repository, new CreateFromWorkspaceModel(List.of("Project"), null, "comment"));
-
-        verify(bypassService).requireBypassOrThrow(repository, BRANCH, REPOSITORY_ID, false);
-    }
-
-    @Test
     void createProjectFromProjectRequiresBranchProtectionBypass() {
         var source = sourceProject("Source");
         when(projectCreationService.copyProject(repository, "Copy", null, source, "comment", "rev-1"))
@@ -169,21 +159,6 @@ class DesignTimeRepositoryControllerTest {
     }
 
     @Test
-    void publishFromWorkspaceUsesTheResolvedTargetBranch() {
-        var target = mock(BranchRepository.class);
-        when(target.getId()).thenReturn(REPOSITORY_ID);
-        when(target.supports()).thenReturn(new FeaturesBuilder(target).setBranches(true).build());
-        when(target.getBranch()).thenReturn("feature/rates");
-        when(projectCreationTargetResolver.resolve(repository, "feature/rates")).thenReturn(target);
-
-        controller.createProjectsFromWorkspace(repository,
-                new CreateFromWorkspaceModel(List.of("Project"), null, "comment", "feature/rates"));
-
-        verify(projectCreationTargetResolver).resolve(repository, "feature/rates");
-        verify(projectCreationService).uploadLocalProjects(target, List.of("Project"), null, "comment");
-    }
-
-    @Test
     void projectCopyUsesTheResolvedTargetBranch() {
         var target = mock(BranchRepository.class);
         var data = new FileData();
@@ -198,17 +173,6 @@ class DesignTimeRepositoryControllerTest {
 
         verify(projectCreationTargetResolver).resolve(repository, "feature/rates");
         verify(projectCreationService).copyProject(target, "Copy", null, source, "comment", null);
-    }
-
-    @Test
-    void publishChecksBranchProtectionBeforeResolvingTheTarget() {
-        rejectRequestedBranch("protected/new");
-        var request = new CreateFromWorkspaceModel(List.of("Project"), null, "comment", "protected/new");
-
-        assertThrows(ConflictException.class, () -> controller.createProjectsFromWorkspace(repository, request));
-
-        verify(projectCreationTargetResolver, never()).resolve(repository, "protected/new");
-        verify(projectCreationService, never()).uploadLocalProjects(any(Repository.class), anyList(), any(), any());
     }
 
     @Test
@@ -324,23 +288,6 @@ class DesignTimeRepositoryControllerTest {
         var requestParameter = method.getParameters()[2];
 
         assertTrue(requestParameter.isAnnotationPresent(Valid.class));
-    }
-
-    @Test
-    void createProjectsFromWorkspaceRequestBodyIsValidated() throws NoSuchMethodException {
-        var method = DesignTimeRepositoryController.class.getMethod("createProjectsFromWorkspace", Repository.class,
-                CreateFromWorkspaceModel.class);
-        var requestParameter = method.getParameters()[1];
-
-        assertTrue(requestParameter.isAnnotationPresent(Valid.class));
-    }
-
-    @Test
-    void createProjectsFromWorkspaceLimitsBatchSize() throws NoSuchMethodException {
-        var size = CreateFromWorkspaceModel.class.getMethod("names").getAnnotation(Size.class);
-
-        assertNotNull(size);
-        assertEquals(CreateFromWorkspaceModel.MAX_PROJECTS, size.max());
     }
 
     /** The project the request names as its source, as the identity converter resolves it. */

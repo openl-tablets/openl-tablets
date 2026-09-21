@@ -1,0 +1,7 @@
+POST /rest/projects/{PROJECT_ID}/files/rules-deploy.xml HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/xml
+
+<rules-deploy>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+</rules-deploy>

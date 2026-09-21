@@ -15,10 +15,10 @@ import org.openl.util.formatters.DateFormatter;
  */
 public class XlsDateFormatter extends DateFormatter {
 
-    private static final Pattern date_ptrn = Pattern.compile("^\\[\\$\\-.*?\\]");
+    private static final Pattern LOCALE_PREFIX = Pattern.compile("^\\[\\$\\-.*?\\]");
 
-    @Deprecated
-    public static String convertToJavaFormat(String xlsFormat) {
+    /** Rewrites an Excel date format as the pattern {@link DateFormatter} understands. */
+    private static String convertToJavaFormat(String xlsFormat) {
         xlsFormat = xlsFormat.replace("m", "M");
         if (Pattern.compile("h.MM").matcher(xlsFormat).find()) {
             xlsFormat = xlsFormat.replaceAll("h.MM",
@@ -37,7 +37,7 @@ public class XlsDateFormatter extends DateFormatter {
         }
         xlsFormat = amPmPattern.matcher(xlsFormat).replaceAll("a");
         xlsFormat = xlsFormat.replace("\\ ", " ");
-        xlsFormat = date_ptrn.matcher(xlsFormat).replaceAll("");
+        xlsFormat = LOCALE_PREFIX.matcher(xlsFormat).replaceAll("");
         return xlsFormat;
     }
 

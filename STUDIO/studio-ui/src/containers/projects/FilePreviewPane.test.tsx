@@ -42,6 +42,7 @@ vi.mock('@ant-design/icons', () => ({
     FolderOpenOutlined: () => null,
     MoreOutlined: () => null,
     SaveOutlined: () => null,
+    TableOutlined: () => null,
     UploadOutlined: () => null,
 }))
 
@@ -61,7 +62,7 @@ vi.mock('./CodeEditor', () => ({
 }))
 
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Button = ({ children, onClick, ...rest }: Record<string, unknown>) => {
         const { danger, disabled, icon, loading, size, type, ...dom } = rest
         void danger; void icon; void loading; void size; void type
@@ -129,7 +130,10 @@ vi.mock('antd', () => {
         return <div {...dom}>{title as never}</div>
     }
     const notification = { error: vi.fn(), info: vi.fn() }
-    return { Alert, Button, Dropdown, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
+        Alert, Button, Dropdown, Input, Modal, notification, Popconfirm, Skeleton, Space, Tag, Tooltip
+    })
 })
 
 vi.mock('./CopyFileModal', () => ({
@@ -282,6 +286,43 @@ describe('FilePreviewPane', () => {
         // The toolbar action and the placeholder both offer the download; use the toolbar one.
         await userEvent.click(screen.getByTestId('file-download'))
         expect(downloadFile).toHaveBeenCalledWith('p1', 'rules/Main.xlsx')
+    })
+
+    it('opens a workbook the project declares as a module in the editor', async () => {
+        vi.mocked(isEditableTextFile).mockReturnValue(false)
+        const onOpenModule = vi.fn()
+
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                modules={{ 'rules/Main.xlsx': 'Main' }}
+                onOpenModule={onOpenModule}
+                path="rules/Main.xlsx"
+            />
+        )
+
+        expect(screen.getByText('browser.files.module_hint')).toBeTruthy()
+        await userEvent.click(screen.getByTestId('file-open-module'))
+
+        expect(onOpenModule).toHaveBeenCalledWith('Main')
+        // Exporting it stays in the toolbar; what the placeholder offers is the editor.
+        expect(downloadFile).not.toHaveBeenCalled()
+    })
+
+    it('offers the export for a workbook that is no module of the project', async () => {
+        vi.mocked(isEditableTextFile).mockReturnValue(false)
+
+        render(
+            <FilePreviewPane
+                {...baseProps}
+                modules={{ 'rules/Main.xlsx': 'Main' }}
+                onOpenModule={vi.fn()}
+                path="doc/Handbook.xlsx"
+            />
+        )
+
+        expect(screen.getByText('browser.files.binary_hint')).toBeTruthy()
+        expect(screen.queryByTestId('file-open-module')).toBeNull()
     })
 
     it('saves edited text content', async () => {

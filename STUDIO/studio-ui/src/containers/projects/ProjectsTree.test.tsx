@@ -3,9 +3,14 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProjectsTree } from './ProjectsTree'
 import { getProjectIndex } from '../../services/projectIndex'
+import { getProjectFiles } from '../../services/repositories'
+import { listModules } from '../../services/modules'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
 import type { Repository } from '../../types/repositories'
+
+vi.mock('../../services/repositories', () => ({ getProjectFiles: vi.fn() }))
+vi.mock('../../services/modules', () => ({ listModules: vi.fn() }))
 
 vi.mock('../../services/projectIndex', () => ({
     getProjectIndex: vi.fn(),
@@ -32,6 +37,9 @@ vi.mock('@ant-design/icons', () => {
         DatabaseOutlined: icon('database'),
         DeleteOutlined: icon('delete'),
         EditOutlined: icon('edit'),
+        FileExcelOutlined: icon('file-excel'),
+        FileOutlined: icon('file'),
+        FileTextOutlined: icon('file-text'),
         FolderOpenOutlined: icon('folder-open'),
         FolderOutlined: icon('folder'),
         HddOutlined: icon('hdd'),
@@ -61,7 +69,7 @@ vi.mock('./GroupProjectsModal', () => ({
 // The caret and the node are separate controls here, as they are in the real tree: picking a node does
 // not unfold it.
 vi.mock('antd', () => {
-    interface Node { key: string, title: unknown, icon?: unknown, children?: Node[] }
+    interface Node { key: string, title: unknown, icon?: unknown, isLeaf?: boolean, children?: Node[] }
     const renderNodes = (
         nodes: Node[],
         expanded: string[],
@@ -71,7 +79,7 @@ vi.mock('antd', () => {
         <ul>
             {nodes.map(node => (
                 <li key={node.key}>
-                    {node.children && node.children.length > 0 && (
+                    {node.isLeaf !== true && (
                         <button data-testid={`caret-${node.key}`} onClick={() => onToggle(node.key)} type="button">
                             caret
                         </button>
@@ -86,13 +94,18 @@ vi.mock('antd', () => {
             ))}
         </ul>
     )
-    const Tree = ({ treeData, expandedKeys, onSelect, onExpand, ...rest }: Record<string, unknown>) => {
-        const { blockNode, className, selectedKeys, showIcon, expandAction, ...dom } = rest
-        void blockNode; void className; void selectedKeys; void showIcon; void expandAction
+    const Tree = ({ treeData, expandedKeys, onSelect, onExpand, loadData, ...rest }: Record<string, unknown>) => {
+        const { blockNode, className, loadedKeys, motion, selectedKeys, showIcon, expandAction, ...dom } = rest
+        void blockNode; void className; void motion; void selectedKeys; void showIcon; void expandAction
         const expanded = (expandedKeys as string[]) ?? []
+        const loaded = (loadedKeys as string[]) ?? []
         const select = (key: string) =>
             (onSelect as (keys: unknown, info: unknown) => void)([key], { node: { key } })
         const toggle = (key: string) => {
+            // The real tree reads what a row holds the first time it is opened; so does this one.
+            if (!expanded.includes(key) && !loaded.includes(key)) {
+                void (loadData as ((node: { key: string }) => Promise<void>) | undefined)?.({ key })
+            }
             const next = expanded.includes(key) ? expanded.filter(item => item !== key) : [...expanded, key]
             ;(onExpand as (keys: unknown) => void)(next)
         }
@@ -142,9 +155,13 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
     const onOpenProject = vi.fn()
     const onOpenGroup = vi.fn()
     const onShowAll = vi.fn()
+    const onOpenModule = vi.fn()
+    const onOpenFile = vi.fn()
     render(
         <ProjectsTree
+            onOpenFile={onOpenFile}
             onOpenGroup={onOpenGroup}
+            onOpenModule={onOpenModule}
             onOpenProject={onOpenProject}
             onShowAll={onShowAll}
             repositories={repositories}
@@ -155,7 +172,7 @@ const renderTree = async (props: Partial<Parameters<typeof ProjectsTree>[0]> = {
     await act(async () => {
         await new Promise(resolve => setTimeout(resolve, 0))
     })
-    return { onOpenProject, onOpenGroup, onShowAll }
+    return { onOpenProject, onOpenGroup, onShowAll, onOpenModule, onOpenFile }
 }
 
 /** The grouping is remembered in the browser; each test starts from its own, empty memory. */
@@ -174,6 +191,12 @@ describe('ProjectsTree', () => {
         vi.clearAllMocks()
         stubStorage()
         vi.mocked(getProjectIndex).mockResolvedValue({ projects, statuses: [], projectIndexHealth: {} })
+        vi.mocked(getProjectFiles).mockResolvedValue([
+            { path: 'rules', name: 'rules', basePath: '', type: 'folder' },
+            { path: 'rules/Main.xlsx', name: 'Main.xlsx', basePath: 'rules', type: 'file' },
+            { path: 'rules.xml', name: 'rules.xml', basePath: '', type: 'file' },
+        ])
+        vi.mocked(listModules).mockResolvedValue([{ name: 'Main', path: 'rules/Main.xlsx' }])
     })
 
     it('reads the projects once and groups them by repository by default', async () => {
@@ -266,6 +289,71 @@ describe('ProjectsTree', () => {
         await userEvent.click(screen.getByTestId('tree-project-p1'))
 
         expect(onOpenProject).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }))
+    })
+
+    it('reads the files of a project when its row is opened, once', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        await renderTree()
+
+        // Nothing is read until the reader asks for it.
+        expect(getProjectFiles).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(getProjectFiles).toHaveBeenCalledWith('p1')
+        expect(screen.getByTestId('tree-file-p1-rules.xml')).toBeInTheDocument()
+        // The folders the paths describe are there too, holding what is under them.
+        await userEvent.click(screen.getByTestId('caret-folder:p1:rules'))
+        expect(screen.getByTestId('tree-file-p1-rules/Main.xlsx')).toBeInTheDocument()
+
+        // Folding and opening it again reads nothing a second time.
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        expect(getProjectFiles).toHaveBeenCalledTimes(1)
+    })
+
+    it('opens a file that is a module in the editor, and any other file on the Files tab', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        const { onOpenModule, onOpenFile } = await renderTree()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await userEvent.click(screen.getByTestId('caret-folder:p1:rules'))
+
+        await userEvent.click(screen.getByTestId('tree-file-p1-rules/Main.xlsx'))
+        expect(onOpenModule).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'Main')
+
+        await userEvent.click(screen.getByTestId('tree-file-p1-rules.xml'))
+        expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p1' }), 'rules.xml')
+    })
+
+    it('reads the files of a project that cannot say which of them are modules', async () => {
+        // A closed project keeps no workspace copy, so it answers nothing about its modules; its
+        // workbooks are still listed, and lead to the file rather than to the editor.
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(listModules).mockRejectedValue(new Error('The project is not opened.'))
+        const { onOpenModule, onOpenFile } = await renderTree()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p2'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+        await userEvent.click(screen.getByTestId('caret-folder:p2:rules'))
+
+        await userEvent.click(screen.getByTestId('tree-file-p2-rules/Main.xlsx'))
+
+        expect(onOpenModule).not.toHaveBeenCalled()
+        expect(onOpenFile).toHaveBeenCalledWith(expect.objectContaining({ id: 'p2' }), 'rules/Main.xlsx')
+    })
+
+    it('says why the files of a project could not be read', async () => {
+        localStorage.setItem('openl.projects.grouping', JSON.stringify(['', '', '']))
+        vi.mocked(getProjectFiles).mockRejectedValue(new Error('no access'))
+        await renderTree()
+
+        await userEvent.click(screen.getByTestId('caret-grp/prj:p1'))
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
+
+        expect(screen.getByTestId('tree-files-error-p1')).toHaveTextContent('no access')
     })
 
     it('groups by the levels the user stored, and a group shows what it holds without unfolding', async () => {

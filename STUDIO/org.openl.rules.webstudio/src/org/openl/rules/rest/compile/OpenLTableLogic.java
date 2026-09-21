@@ -3,32 +3,26 @@ package org.openl.rules.rest.compile;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.message.OpenLErrorMessage;
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
-import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.tableeditor.TableBean;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IOpenMethod;
-import org.openl.util.StringUtils;
-import org.openl.util.text.ILocation;
-import org.openl.util.text.TextInfo;
 
-public class OpenLTableLogic {
+/** Answers what a test or run table exercises. */
+public final class OpenLTableLogic {
 
-    public static List<TableBean.TableDescription> getTargetTables(IOpenLTable table,
-                                                                   ProjectModel model,
-                                                                   boolean openedModule) {
-        var targetTables = new ArrayList<TableBean.TableDescription>();
+    private OpenLTableLogic() {
+    }
+
+    public static List<TableDescription> getTargetTables(IOpenLTable table,
+                                                         ProjectModel model,
+                                                         boolean openedModule) {
+        var targetTables = new ArrayList<TableDescription>();
         var tableType = table.getType();
         if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
                 .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
@@ -51,9 +45,9 @@ public class OpenLTableLogic {
                     if (methodInfo != null) {
                         var tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
                         var targetTable = new TableSyntaxNodeAdapter(tsn);
-                        targetTables.add((new TableBean.TableDescription(targetTable.getUri(),
+                        targetTables.add(new TableDescription(targetTable.getUri(),
                                 targetTable.getId(),
-                                getTableName(targetTable))));
+                                getTableName(targetTable)));
                     }
                 }
             }
@@ -64,66 +58,7 @@ public class OpenLTableLogic {
     /** Returns whether a test or run table targets rules with compilation errors. */
     public static boolean testedRulesHaveErrors(IOpenLTable table, ProjectModel model, boolean openedModule) {
         return getTargetTables(table, model, openedModule).stream()
-                .anyMatch(targetTable -> !model.getErrorsByUri(targetTable.getUri()).isEmpty());
-    }
-
-    public static List<OpenlProblemMessage> processTableProblems(List<OpenLMessage> messages, ProjectModel model) {
-        var problems = new ArrayList<OpenlProblemMessage>();
-        for (OpenLMessage message : messages) {
-            ILocation location = null;
-            String sourceCode = null;
-            var hasStackTrace = false;
-            var errorUri = message.getSourceLocation();
-            IOpenSourceCodeModule module = null;
-            String code = null;
-            var messageNodeId = model.getMessageNodeId(message.getSourceLocation());
-            if (message instanceof OpenLErrorMessage errorMessage) {
-                hasStackTrace = errorMessage.getError() != null;
-                var error = errorMessage.getError();
-                location = error.getLocation();
-                sourceCode = error.getSourceCode();
-                code = error.getSourceCode();
-            } else if (message instanceof OpenLWarnMessage warnMessage) {
-                var source = warnMessage.getSource();
-                location = source.getSourceLocation();
-                sourceCode = source.getModule() == null ? null : source.getModule().getCode();
-                module = source.getModule();
-            }
-            if (module != null) {
-                code = module.getCode();
-            }
-            String[] errorCode = OpenLTableLogic.getErrorCode(location, sourceCode);
-            var hasLinkToCell = errorUri != null && (code != null || module instanceof StringSourceCodeModule);
-            String cell = errorUri != null ? new XlsUrlParser(errorUri).getCell() : null;
-            problems.add(new OpenlProblemMessage(message.getId(),
-                    message.getSummary(),
-                    hasStackTrace,
-                    errorCode,
-                    hasLinkToCell,
-                    messageNodeId,
-                    cell,
-                    message.getSeverity()));
-        }
-        return problems;
-    }
-
-    private static String[] getErrorCode(ILocation location, String sourceCode) {
-        String code = StringUtils.isBlank(sourceCode) ? StringUtils.EMPTY : sourceCode;
-
-        var pstart = 0;
-        var pend = code.length();
-
-        if (StringUtils.isNotBlank(code) && location != null && location.isTextLocation()) {
-            var info = new TextInfo(code);
-            pstart = location.getStart().getAbsolutePosition(info);
-            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1, code.length());
-        }
-
-        if (pend != 0) {
-            return new String[]{code.substring(0, pstart), code.substring(pstart, pend), code.substring(pend)};
-        }
-
-        return new String[0];
+                .anyMatch(targetTable -> !model.getErrorsByUri(targetTable.uri()).isEmpty());
     }
 
     private static String getTableName(IOpenLTable table) {
@@ -136,14 +71,14 @@ public class OpenLTableLogic {
                 var propValue = tableProps.getPropertyValueAsString(dimensionProp);
 
                 if (propValue != null && !propValue.isEmpty()) {
-                    dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
+                    dimensionBuilder.append(dimensionBuilder.isEmpty() ? "" : ", ")
                             .append(dimensionProp)
                             .append(" = ")
                             .append(propValue);
                 }
             }
         }
-        if (dimensionBuilder.length() > 0) {
+        if (!dimensionBuilder.isEmpty()) {
             return tableName + " [" + dimensionBuilder + "]";
         } else {
             return tableName;

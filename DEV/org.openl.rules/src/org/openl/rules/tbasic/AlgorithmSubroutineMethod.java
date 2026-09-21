@@ -34,10 +34,6 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
             var firstOperation = algorithmSteps.getFirst();
             gridRegion = firstOperation.getSourceCode().getGridRegion();
             // TODO: expand till the last operation
-            // RuntimeOperation lastOperation = algorithmSteps.get(0);
-            // lastGridRegion = lastOperation.getSourceCode().getGridRegion();
-            // gridRegion = IGridRegion.between(firstGridRegion,
-            // lastGridRegion);
         }
 
         return gridRegion;

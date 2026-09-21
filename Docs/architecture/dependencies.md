@@ -92,7 +92,7 @@
 | **org.openl.security.acl** | security | Spring Security ACL |
 | **org.openl.rules.tableeditor** | rules | None |
 | **org.openl.rules.project.openapi** | rules.project | Swagger |
-| **org.openl.rules.webstudio** | All STUDIO modules | Spring Boot, JSF |
+| **org.openl.rules.webstudio** | All STUDIO modules | Spring Boot |
 | **studio-ui** | None (frontend) | React, TypeScript, Ant Design |
 
 ### WSFrontend Module Dependencies
@@ -200,8 +200,6 @@ JSON/XML Responses
 |---------|---------|--------|----------------|
 | **Apache CXF** | 4.1.3 | REST | 🟡 Could use Spring MVC |
 | **Jakarta Servlet** | 6.0.0 | Web layer | 🔴 Required for web |
-| **JSF** | 4.0.12 | UI (legacy) | 🟢 Being replaced by React |
-| **RichFaces** | 10.0.0 | Components | 🟢 Being replaced |
 
 ### Frontend
 
@@ -268,14 +266,6 @@ org.apache.poi:poi-ooxml:5.4.1
   └─ commons-codec:1.15 (old)
 
 Resolution: Explicitly depend on commons-codec:1.19.0
-```
-
-**Spring → AspectJ**:
-```
-spring-aop:6.2.11
-  └─ aspectjweaver:1.9.19 (old)
-
-Resolution: Explicitly depend on aspectjweaver:1.9.24
 ```
 
 ---
@@ -415,7 +405,6 @@ OpenL Tablets is licensed under **LGPL v3**
 - **ASM** - Bytecode generation compatibility
 - **POI** - Excel parsing/writing
 - **JGit** - Custom fork, maintain separately
-- **RichFaces** - Custom fork, maintain separately
 
 ---
 

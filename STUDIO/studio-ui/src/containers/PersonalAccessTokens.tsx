@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import {
+    App,
     Alert,
     Button,
     DatePicker,
@@ -7,8 +8,6 @@ import {
     Empty,
     Form,
     Input,
-    Modal,
-    notification,
     Select,
     Space,
     Table,
@@ -49,6 +48,7 @@ type ExpirationOption = '7_days' | '30_days' | '60_days' | '90_days' | 'custom' 
 type DrawerMode = 'create' | 'created'
 
 export const PersonalAccessTokens: React.FC = () => {
+    const { modal, notification } = App.useApp()
     const { t } = useTranslation()
     const { styles, cx } = useStyles()
     const { isPersonalAccessTokenEnabled } = useContext(SystemContext)
@@ -160,7 +160,7 @@ export const PersonalAccessTokens: React.FC = () => {
     }
 
     const confirmDeleteToken = (record: PersonalAccessToken) => {
-        Modal.confirm({
+        modal.confirm({
             title: t('pat:delete_confirm_title'),
             content: t('pat:delete_confirm_message', { name: record.name }),
             okType: 'danger',

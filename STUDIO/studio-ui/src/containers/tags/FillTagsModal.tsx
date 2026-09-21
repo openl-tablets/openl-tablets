@@ -7,9 +7,9 @@ import { apiCall } from '../../services'
 import { errorMessage } from '../../utils/errorMessage'
 
 /** What filling does with one derived tag value, as the backend reports it. */
-export type TagFillState = 'assign' | 'create' | 'rejected' | 'keep'
+type TagFillState = 'assign' | 'create' | 'rejected' | 'keep'
 
-export interface TagFillItem {
+interface TagFillItem {
     type: string
     current?: string
     derived: string

@@ -25,7 +25,8 @@ vi.mock('react-i18next', () => {
 // AntD notification pops on the profiling toggle; keep it silent and inspectable.
 vi.mock('antd', async () => {
     const actual = await vi.importActual<typeof import('antd')>('antd')
-    return { ...actual, notification: { ...actual.notification, info: vi.fn() } }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...actual, notification: { ...actual.notification, info: vi.fn() } })
 })
 
 /** Replace the store's async actions with spies so a click can be attributed to one action. */

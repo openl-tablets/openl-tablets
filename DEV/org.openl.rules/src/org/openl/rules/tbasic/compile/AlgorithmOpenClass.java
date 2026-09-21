@@ -72,10 +72,6 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
         invisibleFields.add(fname);
     }
 
-    public void setFieldToVisibleState(String fname) {
-        invisibleFields.remove(fname);
-    }
-
     public void allFieldsToVisible() {
         invisibleFields.clear();
     }

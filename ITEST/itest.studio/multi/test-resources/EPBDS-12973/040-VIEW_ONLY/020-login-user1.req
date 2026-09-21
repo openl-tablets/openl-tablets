@@ -1,4 +1,0 @@
-POST /login HTTP/1.1
-Content-type: application/x-www-form-urlencoded
-
-username=EPBDS_12973&password=pass

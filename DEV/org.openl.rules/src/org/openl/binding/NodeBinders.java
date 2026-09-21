@@ -60,6 +60,10 @@ import org.openl.binding.impl.module.VarDeclarationNodeBinder;
  */
 public class NodeBinders {
 
+    private NodeBinders() {
+        // Utility class
+    }
+
     private static final HashMap<String, INodeBinder> BINDERS = new HashMap<>();
 
     static {

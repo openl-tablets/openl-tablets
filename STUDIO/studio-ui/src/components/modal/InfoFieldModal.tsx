@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Modal } from 'antd'
+import { Button, Modal, theme } from 'antd'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 
@@ -9,6 +9,7 @@ interface InfoFieldModalProps {
 
 export const InfoFieldModal: React.FC<InfoFieldModalProps> = ({ text }) => {
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const showModal = () => {
@@ -21,7 +22,7 @@ export const InfoFieldModal: React.FC<InfoFieldModalProps> = ({ text }) => {
 
     return (
         <>
-            <InfoCircleOutlined onClick={showModal} style={{ color: 'rgba(0, 0, 0, 0.45)', marginLeft: 5 }} />
+            <InfoCircleOutlined onClick={showModal} style={{ color: token.colorTextTertiary, marginLeft: 5 }} />
             <Modal
                 footer={[<Button onClick={handleClose}>OK</Button>]}
                 onCancel={handleClose}

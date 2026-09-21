@@ -11,7 +11,7 @@ export interface ErrorInfo {
   userAgent?: string | undefined;
 }
 
-export class ErrorHandler {
+class ErrorHandler {
     private static instance: ErrorHandler
     private errorLog: ErrorInfo[] = []
     private maxLogSize = 100

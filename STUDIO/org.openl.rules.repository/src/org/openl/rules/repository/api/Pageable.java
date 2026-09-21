@@ -35,7 +35,7 @@ public abstract class Pageable {
 
     private final int size;
 
-    public Pageable(int size) {
+    protected Pageable(int size) {
         if (size < 1) {
             throw new IllegalArgumentException("Page size must be greater than 0.");
         }

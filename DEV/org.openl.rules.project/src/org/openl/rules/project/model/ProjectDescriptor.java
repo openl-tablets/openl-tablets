@@ -519,7 +519,6 @@ public class ProjectDescriptor {
                         m.setWebstudioConfiguration(webstudioConfiguration);
                     }
                     m.setWildcardRulesRootPath(pathPattern);
-                    m.setWildcardName(module.getName());
                     matchedModules.add(m);
                 }
                 return FileVisitResult.CONTINUE;

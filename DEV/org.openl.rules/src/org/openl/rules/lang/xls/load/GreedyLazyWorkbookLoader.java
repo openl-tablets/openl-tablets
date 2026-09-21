@@ -40,6 +40,14 @@ public class GreedyLazyWorkbookLoader implements WorkbookLoader {
     public void setCanUnload(boolean canUnload) {
     }
 
+    /**
+     * Has no effect: this implementation never unloads the workbook, so a change it holds cannot be lost.
+     */
+    @Override
+    public void setModified(boolean modified) {
+        // nothing to do
+    }
+
     @Override
     public int getNumberOfSheets() {
         return getWorkbook().getNumberOfSheets();

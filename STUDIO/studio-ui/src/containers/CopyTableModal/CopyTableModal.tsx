@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { CopyOutlined, DeleteRowOutlined } from '@ant-design/icons'
-import { Input, Modal, notification, Select, Space, Spin } from 'antd'
+import { App, Input, Modal, Select, Space, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { FieldRow } from 'components/FieldRow'
 import { IconAction } from 'components/IconAction'
@@ -58,6 +58,7 @@ const normalizeProperties = (properties: TablePropertyInput[]): TablePropertyInp
     withTrailingBlank(properties, isCompleteProperty, blankProperty)
 
 const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()

@@ -49,7 +49,8 @@ vi.mock('antd', async () => {
                 {footer && <div data-testid="modal-footer">{footer}</div>}
             </div>
         ) : null
-    return {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         ...actual,
         Modal: MockModal,
         notification: {
@@ -57,7 +58,7 @@ vi.mock('antd', async () => {
             error: vi.fn(),
             warning: vi.fn(),
         },
-    }
+    })
 })
 
 vi.mock('store', () => ({

@@ -7,5 +7,7 @@ Content-Type: application/json
   "kind": "Test",
   "name": "IncomeForecastTest",
   "file": "EPBDS-15409/Main.xlsx",
-  "pos": "B57:E62"
+  "sheet": "Tutorial6",
+  "pos": "B57:E62",
+  "signature": "IncomeForecast IncomeForecastTest"
 }

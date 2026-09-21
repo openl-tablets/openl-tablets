@@ -1,41 +1,28 @@
 package org.openl.rules.tableeditor.model;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
-
 public class ArrayCellEditor implements ICellEditor {
 
     public static final String DEFAULT_SEPARATOR = ",";
 
-    private final ArrayEditorParams params = new ArrayEditorParams();
+    private final ArrayEditorParams params;
 
     public ArrayCellEditor(String separator, String entryEditor, boolean intOnly) {
-        this.params.setSeparator(separator);
-        this.params.setEntryEditor(entryEditor);
-        this.params.setIntOnly(intOnly);
+        this.params = new ArrayEditorParams(separator, entryEditor, intOnly);
     }
 
     @Override
     public EditorTypeResponse getEditorTypeAndMetadata() {
-        var typeResponse = new EditorTypeResponse(CE_ARRAY);
-        typeResponse.setParams(params);
-
-        return typeResponse;
+        return new EditorTypeResponse(CE_ARRAY, params);
     }
 
-    public static class ArrayEditorParams {
-
-        @Getter
-        @Setter
-        private String separator;
-        @Getter
-        @Setter
-        private String entryEditor;
-        @Getter
-        @Setter
-        private boolean intOnly;
+    /**
+     * How the entries of an array are written into one cell.
+     *
+     * @param separator   what separates the entries
+     * @param entryEditor the editor one entry is written with
+     * @param intOnly     {@code true} when only whole numbers are accepted as entries
+     */
+    public record ArrayEditorParams(String separator, String entryEditor, boolean intOnly) {
     }
 
 }

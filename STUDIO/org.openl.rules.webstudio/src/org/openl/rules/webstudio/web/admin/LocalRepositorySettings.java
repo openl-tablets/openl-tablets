@@ -13,8 +13,8 @@ import org.openl.util.StringUtils;
 @Schema(allOf = RepositorySettings.class)
 public class LocalRepositorySettings extends RepositorySettings {
 
-    private final static String URI_SUFFIX = ".uri";
-    private final static String BASE_DEPLOY_PATH_SUFFIX = ".base.path";
+    private static final String URI_SUFFIX = ".uri";
+    private static final String BASE_DEPLOY_PATH_SUFFIX = ".base.path";
 
     @Parameter(description = "Local path")
     @SettingPropertyName(URI_SUFFIX)
@@ -29,10 +29,10 @@ public class LocalRepositorySettings extends RepositorySettings {
         this.uriProperty = configPrefix + URI_SUFFIX;
         this.baseDeployPathProperty = configPrefix + BASE_DEPLOY_PATH_SUFFIX;
 
-        load(properties);
+        loadProperties(properties);
     }
 
-    private void load(PropertiesHolder properties) {
+    private void loadProperties(PropertiesHolder properties) {
         uri = properties.getProperty(uriProperty);
     }
 
@@ -48,7 +48,7 @@ public class LocalRepositorySettings extends RepositorySettings {
         super.revert(properties);
 
         properties.revertProperties(uriProperty, baseDeployPathProperty);
-        load(properties);
+        loadProperties(properties);
     }
 
     public String getUri() {

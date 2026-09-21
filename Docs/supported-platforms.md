@@ -23,6 +23,7 @@ description: Supported platforms, application servers, databases, browsers, Java
 * Firefox 140 ESR
 * Chrome 145
 * Edge 145
+* Safari 26
 
 #### Database
 * PostgreSQL 16.1

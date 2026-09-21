@@ -37,6 +37,13 @@ export default defineConfig({
     build: {
         sourcemap: true,
         manifest: true,
+        rollupOptions: {
+            // The API documentation is a page of its own, read without logging in, so it is built as one.
+            input: {
+                index: './index.html',
+                'api-docs': './api-docs.html',
+            },
+        },
     },
     test: {
         globals: true,

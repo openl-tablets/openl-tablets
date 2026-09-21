@@ -17,6 +17,10 @@ import org.openl.rules.util.dates.DateInterval;
 @Operator
 public class Operators {
 
+    private Operators() {
+        // Utility class
+    }
+
     // Add
 
     public static String add(Object x, String y) {

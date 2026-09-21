@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Alert, Modal, Space, notification } from 'antd'
+import { App, Alert, Modal, Space } from 'antd'
 import type { UploadFile } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -35,6 +35,7 @@ export const UpdateFileModal = ({
     onClose,
     onUpdated,
 }: UpdateFileModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
     const [uploading, setUploading] = useState(false)
     const [fileList, setFileList] = useState<UploadFile[]>([])

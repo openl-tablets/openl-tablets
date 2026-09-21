@@ -17,7 +17,7 @@ public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
      */
     static class UndoUndoableInt extends UndoImpl {
 
-        static final ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory FACTORY = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoUndoableInt();
@@ -28,7 +28,7 @@ public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
         private int _value;
 
         static UndoUndoableInt getUndo() {
-            return (UndoUndoableInt) _factory.getElement();
+            return (UndoUndoableInt) FACTORY.getElement();
         }
 
         /**

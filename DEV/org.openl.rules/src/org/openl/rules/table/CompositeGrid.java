@@ -43,10 +43,6 @@ public class CompositeGrid extends AGrid {
     @Getter
     private int height;
 
-    public IGridRegion getMappedRegion(int i) {
-        return mappedRegions[i];
-    }
-
     /**
      * @param tables   Tables to be composed.
      * @param vertical see {@link #vertical}

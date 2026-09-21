@@ -9,6 +9,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -119,10 +120,8 @@ public class ProjectHistoryService {
                     e.getMessage().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
         }
         reloadOpenedModule(webStudio, currentSourceFile);
-        fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
-        if (currentVersion != null) {
-            currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));
-        }
+        markAsCurrent(fileToRestore);
+        removeCurrentVersion(currentVersion);
     }
 
     private static void reloadOpenedModule(@Nullable WebStudio webStudio, File restoredSource) throws Exception {
@@ -137,6 +136,56 @@ public class ProjectHistoryService {
         if (model != null) {
             model.reset(ReloadType.SINGLE);
         }
+    }
+
+    /**
+     * Keeps what the workbook at the given path holds now, before a write replaces it.
+     *
+     * <p>A workbook the editor saves keeps its own history: the editor writes through the workbook itself,
+     * and a listener on it records every save. A workbook written any other way — generated from a
+     * specification, restored, copied in — is written straight into the workspace, where that listener never
+     * hears of it. Such a caller keeps the version it is about to replace by asking here, before it writes,
+     * and records what it wrote by asking again afterwards.
+     *
+     * <p>A path holding no file yet is nothing to keep, and is ignored.
+     *
+     * @param project      project the workbook belongs to
+     * @param workbookPath the workbook, relative to the project
+     */
+    public void keepBeforeWrite(RulesProject project, String workbookPath) {
+        var workbook = workbookOf(project, workbookPath);
+        if (workbook != null) {
+            init(historyFolderOf(project, workbookPath), workbook);
+        }
+    }
+
+    /**
+     * Records the workbook at the given path as the version the project now reads.
+     *
+     * <p>Answered by the copy kept before the write: a version equal to the one already recorded is not
+     * recorded twice.
+     *
+     * @param project      project the workbook belongs to
+     * @param workbookPath the workbook, relative to the project
+     */
+    public void recordWritten(RulesProject project, String workbookPath) {
+        var workbook = workbookOf(project, workbookPath);
+        if (workbook != null) {
+            save(historyFolderOf(project, workbookPath), workbook);
+        }
+    }
+
+    private static String historyFolderOf(RulesProject project, String workbookPath) {
+        return FolderHelper.resolveHistoryFolder(projectFolderOf(project), workbookPath).toString();
+    }
+
+    private static @Nullable File workbookOf(RulesProject project, String workbookPath) {
+        var workbook = projectFolderOf(project).resolve(workbookPath).toFile();
+        return workbook.isFile() ? workbook : null;
+    }
+
+    private static Path projectFolderOf(RulesProject project) {
+        return project.getLocalRepository().getRoot().resolve(project.getFolderPath());
     }
 
     private static HistoryLocation resolveHistoryLocation(RulesProject project, @Nullable String moduleName) {
@@ -284,7 +333,7 @@ public class ProjectHistoryService {
             if (count == 0) {
                 var revisionVersion = new File(storagePath, REVISION_VERSION);
                 if (revisionVersion.exists()) {
-                    revisionVersion.renameTo(new File(revisionVersion.getPath() + CURRENT_VERSION));
+                    markAsCurrent(revisionVersion);
                 }
             }
         } catch (Exception e) {
@@ -307,9 +356,19 @@ public class ProjectHistoryService {
         return null;
     }
 
-    private static void removeCurrentVersion(File currentVersion) {
+    /** Marks the file as the version the module is currently at. */
+    private static void markAsCurrent(File version) throws IOException {
+        Files.move(version.toPath(),
+                Path.of(version.getPath() + CURRENT_VERSION),
+                StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /** Takes the current version mark off the file, leaving it an ordinary history entry. */
+    private static void removeCurrentVersion(@Nullable File currentVersion) throws IOException {
         if (currentVersion != null) {
-            currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));
+            Files.move(currentVersion.toPath(),
+                    Path.of(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")),
+                    StandardCopyOption.REPLACE_EXISTING);
         }
     }
 

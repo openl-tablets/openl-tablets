@@ -70,7 +70,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     }
 
     @Override
-    public Throwable getCause() {
+    public synchronized Throwable getCause() {
         return getOriginalCause();
     }
 

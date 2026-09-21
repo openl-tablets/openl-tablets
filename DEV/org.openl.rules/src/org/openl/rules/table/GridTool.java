@@ -25,6 +25,10 @@ import org.openl.rules.table.ui.CellStyle;
  */
 public class GridTool {
 
+    private GridTool() {
+        // Utility class
+    }
+
     private static final String PROPERTIES_SECTION_NAME = "properties";
     private static final boolean COLUMNS = true, ROWS = false, INSERT = true, REMOVE = false;
 
@@ -538,8 +542,7 @@ public class GridTool {
                                                                MetaInfoWriter metaInfoWriter) {
         var shiftActions = new ArrayList<IUndoableGridTableAction>();
 
-        // The first step: clear cells that will be lost after shifting
-        // columns(just because we need to restore this cells after UNDO)
+        // The first step: clear cells that will be lost after shifting columns
         if (isInsert) {
             shiftActions.addAll(clearCells(region.getRight() + 1,
                     nCols,
@@ -598,8 +601,7 @@ public class GridTool {
                                                             MetaInfoWriter metaInfoWriter) {
         var shiftActions = new ArrayList<IUndoableGridTableAction>();
 
-        // The first step: clear cells that will be lost after shifting
-        // rows(just because we need to restore this cells after UNDO)
+        // The first step: clear cells that will be lost after shifting rows
         if (isInsert) {
             shiftActions.addAll(clearCells(region
                     .getLeft(), IGridRegion.Tool.width(region), region.getBottom() + 1, nRows, grid, metaInfoWriter));

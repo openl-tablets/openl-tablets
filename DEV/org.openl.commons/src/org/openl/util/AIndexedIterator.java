@@ -8,6 +8,7 @@ package org.openl.util;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * @author snshor
@@ -59,6 +60,9 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
     @Override
     public T next() {
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
         var idx = current;
         current += step;
         return indexedElement(idx);

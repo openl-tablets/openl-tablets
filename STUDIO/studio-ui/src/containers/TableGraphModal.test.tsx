@@ -1,9 +1,12 @@
+import { MemoryRouter } from 'react-router-dom'
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TableGraphModal } from 'containers/TableGraphModal'
 import * as services from 'services'
 import cytoscape from 'cytoscape'
+import { useThemeMode } from 'antd-style'
+import { AppThemeProvider } from 'providers/AppThemeProvider'
 import type { MockedFunction } from 'vitest'
 
 const cyMocks = vi.hoisted(() => {
@@ -51,7 +54,13 @@ const cyMocks = vi.hoisted(() => {
     }
 })
 
-vi.mock('services', () => ({ apiCall: vi.fn(), openTableInEditor: vi.fn() }))
+vi.mock('services', () => ({ apiCall: vi.fn() }))
+
+const navigate = vi.fn()
+vi.mock('react-router-dom', async importOriginal => ({
+    ...(await importOriginal<typeof import('react-router-dom')>()),
+    useNavigate: () => navigate,
+}))
 
 vi.mock('cytoscape-dagre', () => ({ default: vi.fn() }))
 
@@ -118,8 +127,14 @@ vi.mock('react-i18next', () => {
 })
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
-const mockOpenTable = services.openTableInEditor as MockedFunction<typeof services.openTableInEditor>
 const mockCytoscape = cytoscape as unknown as MockedFunction<(options: { elements: Array<{ data: { id: string } }> }) => unknown>
+
+/** Flips the appearance from inside the provider, the way the header's switcher does. */
+const ThemeFlip = () => {
+    const { setThemeMode, themeMode } = useThemeMode()
+
+    return <button onClick={() => setThemeMode(themeMode === 'dark' ? 'light' : 'dark')} type="button">flip</button>
+}
 
 const dispatchOpen = async (detail: { projectId: string, projectName?: string, module?: string } | null) => {
     await act(async () => {
@@ -134,7 +149,7 @@ describe('TableGraphModal', () => {
     })
 
     it('does not render without an event', () => {
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
@@ -144,7 +159,7 @@ describe('TableGraphModal', () => {
             { id: 'b', name: 'B', dependencies: ['a']},
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
 
         await waitFor(() => expect(screen.getByTestId('table-graph')).toBeInTheDocument())
@@ -159,7 +174,7 @@ describe('TableGraphModal', () => {
     it('scopes the graph to the opened module when one is given', async () => {
         mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1', module: 'My Module' })
 
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
@@ -170,7 +185,7 @@ describe('TableGraphModal', () => {
         mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
         mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         // launched from a module → first request is module-scoped
         await dispatchOpen({ projectId: 'proj-1', module: 'M1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
@@ -188,7 +203,7 @@ describe('TableGraphModal', () => {
             { id: 'b', name: 'Beta', dependencies: ['a']},
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -205,7 +220,7 @@ describe('TableGraphModal', () => {
             { id: 'x2', name: 'Shared', file: 'rules/B.xlsx', pos: 'D4:E5' },
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -230,7 +245,7 @@ describe('TableGraphModal', () => {
             { id: 'b', name: 'AZ' },
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -248,7 +263,7 @@ describe('TableGraphModal', () => {
             { id: 'c', name: 'C', dependencies: ['a']},
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -275,7 +290,7 @@ describe('TableGraphModal', () => {
             },
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -304,7 +319,7 @@ describe('TableGraphModal', () => {
             { id: 'driver', name: 'Driver', kind: 'Datatype' },
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -331,7 +346,7 @@ describe('TableGraphModal', () => {
             },
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -361,7 +376,7 @@ describe('TableGraphModal', () => {
             { id: 'driver', name: 'Driver', kind: 'Datatype' },
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -383,7 +398,7 @@ describe('TableGraphModal', () => {
             { id: 'b', name: 'Beta', dependencies: ['a']},
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -392,20 +407,32 @@ describe('TableGraphModal', () => {
         expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
     })
 
-    it('opens a table in the editor and closes the graph', async () => {
-        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
-        mockOpenTable.mockResolvedValueOnce(true as never)
+    it('opens a table in the editor, in the module it is read through, and closes the graph', async () => {
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A', module: 'My Module' }] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1', projectName: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
         await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'A')
         await userEvent.click(screen.getByText('graph:panel.open'))
 
-        expect(mockOpenTable).toHaveBeenCalledWith('a')
-        // a table that has an address takes the editor there and dismisses the modal
+        expect(navigate).toHaveBeenCalledWith('/projects/proj-1/modules/My%20Module?table=a')
+        // a table the editor can open takes it there and dismisses the modal
         await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    })
+
+    it('cannot open a table no module of the project holds', async () => {
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
+
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
+        await dispatchOpen({ projectId: 'proj-1', projectName: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'A')
+
+        // There is no screen to read it through, so the way in is offered but refuses.
+        expect(screen.getByText('graph:panel.open').closest('button')).toBeDisabled()
     })
 
     it('does not offer Open for a table from another project', async () => {
@@ -413,7 +440,7 @@ describe('TableGraphModal', () => {
             { id: 'a', name: 'A', project: 'OtherProject' },
         ] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1', projectName: 'CurrentProject' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
@@ -423,10 +450,39 @@ describe('TableGraphModal', () => {
         expect(screen.getByText('graph:panel.external')).toBeInTheDocument()
     })
 
+    it('lays the filter and the selection back over a graph a theme switch rebuilt', async () => {
+        localStorage.clear()
+        mockApiCall.mockResolvedValueOnce([
+            { id: 'a', name: 'Alpha' },
+            { id: 'b', name: 'Beta', dependencies: ['a']},
+        ] as never)
+
+        render(
+            <AppThemeProvider>
+                <MemoryRouter><TableGraphModal /><ThemeFlip /></MemoryRouter>
+            </AppThemeProvider>
+        )
+        await dispatchOpen({ projectId: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'Alpha')
+
+        const builds = mockCytoscape.mock.calls.length
+        cyMocks.remove.mockClear()
+        cyMocks.nodeAddClass.mockClear()
+
+        await userEvent.click(screen.getByText('flip'))
+
+        // A new appearance means new colours on the canvas, so the instance is built afresh...
+        await waitFor(() => expect(mockCytoscape.mock.calls.length).toBeGreaterThan(builds))
+        // ...and it starts with nothing hidden and nothing highlighted, so both must be laid over it again.
+        await waitFor(() => expect(cyMocks.remove).toHaveBeenCalledWith('edge.bridge'))
+        expect(cyMocks.nodeAddClass).toHaveBeenCalledWith('highlighted')
+    })
+
     it('shows the empty state when there are no tables', async () => {
         mockApiCall.mockResolvedValueOnce([] as never)
 
-        render(<TableGraphModal />)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
 
         await waitFor(() => expect(screen.getByText('graph:empty')).toBeInTheDocument())

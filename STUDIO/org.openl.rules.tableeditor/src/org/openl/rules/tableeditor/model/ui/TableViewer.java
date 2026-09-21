@@ -1,18 +1,8 @@
 package org.openl.rules.tableeditor.model.ui;
 
-import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.openl.binding.impl.NodeType;
-import org.openl.binding.impl.NodeUsage;
-import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.ICell;
@@ -20,21 +10,15 @@ import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
-import org.openl.rules.tableeditor.util.Constants;
-import org.openl.util.StringUtils;
 
+/** Lays a table's region out place by place, so that every place of the grid says what stands there. */
 @RequiredArgsConstructor
 @Slf4j
-public class TableViewer {
+class TableViewer {
 
     private final IGrid grid;
     private final IGridRegion reg;
-    private final LinkBuilder linkBuilder;
-    private final String mode;
-    private final String view;
     private final MetaInfoReader metaInfoReader;
-    private final boolean smartNumbers;
 
     private void setStyle(ICell cell, CellModel cm) {
         var style = cell.getStyle();
@@ -72,194 +56,53 @@ public class TableViewer {
         cm.setFont(cell.getFont());
     }
 
-    CellModel buildCell(ICell cell, CellModel cm, CellMetaInfo metaInfo) {
+    CellModel buildCell(ICell cell, CellModel cm) {
         cm.setColspan(getColSpan(cell));
         cm.setRowspan(getRowSpan(cell));
-
-        if (cm.getRow() == 0) {
-            cm.setWidth(getWidth(cell));
-        }
-
-        String formattedValue = XlsDataFormatterFactory.getFormattedValue(cell, metaInfo, smartNumbers);
-        if (StringUtils.isNotBlank(formattedValue)) {
-            String content;
-            if (Constants.MODE_EDIT.equals(mode)) {
-                // In edit mode there should be no links: it's difficult to start cell editing.
-                if (CellMetaInfo.isCellContainsNodeUsages(metaInfo)) {
-                    content = createCellWithMetaInfo(formattedValue, metaInfo, false);
-                } else {
-                    content = escapeHtml4(formattedValue);
-                }
-            } else if (link(formattedValue)) {
-                // has Explanation link
-                content = formattedValue;
-            } else if (isShowLinks() && (CellMetaInfo
-                    .isCellContainsNodeUsages(metaInfo) || (metaInfo != null && metaInfo.isReturnCell()))) {
-                // has method call
-                content = createCellWithMetaInfo(formattedValue, metaInfo, true);
-            } else if (image(formattedValue)) {
-                // has image
-                content = formattedValue;
-            } else if (error(formattedValue)) {
-                content = formattedValue;
-            } else {
-                content = escapeHtml4(formattedValue);
-            }
-            cm.setContent(content);
-            if (cell.getFormula() != null) {
-                cm.setFormula(cell.getFormula());
-            }
-        }
-
-        var cellComment = cell.getComment();
-        cm.setComment(cellComment != null ? cellComment.getText() : null);
-
         setStyle(cell, cm);
         return cm;
     }
 
-    private boolean image(String formattedValue) {
-        return formattedValue.replaceAll("\n", "").matches(".*<i .*>.*</i>.*");
-    }
+    TableModel buildModel(IGridTable gt) {
+        var tm = new TableModel(IGridRegion.Tool.width(reg), IGridRegion.Tool.height(reg), gt);
 
-    private boolean error(String formattedValue) {
-        return formattedValue.matches(".*<span style=\"color: red;\".*>.*</span>.*");
-    }
-
-    private boolean link(String formattedValue) {
-        return formattedValue.matches(".*<a href.*</a>.*");
-    }
-
-    private String createCellWithMetaInfo(String formattedValue, CellMetaInfo metaInfo, boolean addUri) {
-        try {
-            var nextSymbolIndex = 0;
-            var buff = new StringBuilder();
-            if (metaInfo.getUsedNodes() != null) {
-                for (NodeUsage nodeUsage : metaInfo.getUsedNodes()) {
-                    var pstart = nodeUsage.getStart();
-                    var pend = nodeUsage.getEnd();
-                    var tableUri = nodeUsage.getUri();
-                    buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
-                    // add link to used table with signature in tooltip
-                    buff.append("<span class=\"title")
-                            .append(" title-")
-                            .append(nodeUsage.getNodeType().toString().toLowerCase(Locale.ROOT))
-                            .append(" ")
-                            .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
-                            .append("\">");
-                    if (addUri && tableUri != null) {
-                        buff.append(
-                                linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend)));
-                    } else {
-                        buff.append(escapeHtml4(formattedValue.substring(pstart, pend)));
-                    }
-                    buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
-                    nextSymbolIndex = pend;
-                }
-            }
-            buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
-
-            if (metaInfo.isReturnCell()) {
-                buff.append("<span class=\"title title-")
-                        .append(NodeType.OTHER.toString().toLowerCase(Locale.ROOT))
-                        .append(" ")
-                        .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
-                        .append("\">");
-                buff.append("  &#9733;");
-                buff.append("<em>RETURN</em></span>");
-            }
-
-            return buff.toString();
-        } catch (RuntimeException e) {
-            // Fallback to the formula without links
-            log.error(e.getMessage(), e);
-            return escapeHtml4(formattedValue);
-        }
-    }
-
-    private boolean isShowLinks() {
-        return linkBuilder != null;
-    }
-
-    public TableModel buildModel(IGridTable gt, int numRowsToDisplay, List<ICell> modifiedCells, IGridRegion region) {
-        var h = IGridRegion.Tool.height(region);
-        var w = IGridRegion.Tool.width(region);
-
-        var showHeader = true;
-        if ("business".equals(view)) {
-            showHeader = false;
-        }
-
-        var tm = new TableModel(w, h, gt, showHeader);
-        tm.setNumRowsToDisplay(numRowsToDisplay);
-
-        if (gt.getGrid() instanceof CompositeGrid) {
-            metaInfoReader.prepare(((CompositeGrid) gt.getGrid()).getGridTables()[0].getRegion());
+        if (gt.getGrid() instanceof CompositeGrid compositeGrid) {
+            metaInfoReader.prepare(compositeGrid.getGridTables()[0].getRegion());
         } else {
             metaInfoReader.prepare(reg);
         }
 
-        if (modifiedCells != null) {
-            var modifiedRows = modifiedCells.stream().map(ICell::getRow).collect(Collectors.toSet());
-            var lastModifiedRow = modifiedRows.stream().max(Integer::compareTo).orElse(0);
-            if (lastModifiedRow >= h) {
-                tm = new TableModel(w, lastModifiedRow + 1, gt, showHeader);
-            }
-            if (numRowsToDisplay > -1) {
-                if (numRowsToDisplay < modifiedRows.size()) {
-                    modifiedRows = modifiedRows.stream().limit(numRowsToDisplay).collect(Collectors.toSet());
-                } else {
-                    tm.setNumRowsToDisplay(-1);
-                }
-            }
-            for (int row : modifiedRows) {
-                var gridRow = row + region.getTop();
-                var count = modifiedCells.stream().filter(c -> c.getRow() == row).count();
-                addDisplayedCellToTableModel(tm, gridRow, row, region, count == w ? modifiedCells : null);
-            }
-        } else {
-            for (var gridRow = region.getTop(); gridRow <= region.getBottom(); gridRow++) {
-                var row = gridRow - region.getTop();
-                addDisplayedCellToTableModel(tm, gridRow, row, region, null);
-            }
+        for (var gridRow = reg.getTop(); gridRow <= reg.getBottom(); gridRow++) {
+            addDisplayedCellToTableModel(tm, gridRow, gridRow - reg.getTop());
         }
 
         setGrid(tm);
         return tm;
     }
 
-    private void addDisplayedCellToTableModel(TableModel tm,
-                                              int gridRow,
-                                              int displayedRowIndex,
-                                              IGridRegion region,
-                                              List<ICell> modifiedCells) {
-        for (var column = region.getLeft(); column <= region.getRight(); column++) {
-            var c = column - region.getLeft();
+    private void addDisplayedCellToTableModel(TableModel tm, int gridRow, int displayedRowIndex) {
+        for (var column = reg.getLeft(); column <= reg.getRight(); column++) {
+            var c = column - reg.getLeft();
             if (tm.hasCell(displayedRowIndex, c)) {
                 continue;
             }
-            Optional<ICell> changedCell = Optional.empty();
-            if (modifiedCells != null) {
-                changedCell = modifiedCells.stream()
-                        .filter(v -> v.getRow() == displayedRowIndex && v.getColumn() == c)
-                        .findFirst();
-            }
-            var cell = changedCell.orElse(grid.getCell(column, gridRow));
-            var metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
-            var cm = buildCell(cell, new CellModel(displayedRowIndex, c), metaInfo);
+            var cm = buildCell(grid.getCell(column, gridRow), new CellModel(displayedRowIndex, c));
             tm.addCell(cm, displayedRowIndex, c);
             if (cm.getColspan() > 1 || cm.getRowspan() > 1) {
-                var cmd = new CellModelDelegator(cm);
-                for (var i = 0; i < cm.getRowspan(); i++) {
-                    for (var j = 0; j < cm.getColspan(); j++) {
-                        if (i == 0 && j == 0) {
-                            continue;
-                        }
-                        tm.addCell(cmd, displayedRowIndex + i, c + j);
-                    }
+                spread(tm, cm, displayedRowIndex, c);
+            }
+        }
+    }
+
+    /** Points every place a merged cell reaches over at the cell the merge belongs to. */
+    private static void spread(TableModel tm, CellModel cm, int row, int column) {
+        var cmd = new CellModelDelegator(cm);
+        for (var i = 0; i < cm.getRowspan(); i++) {
+            for (var j = 0; j < cm.getColspan(); j++) {
+                if (i > 0 || j > 0) {
+                    tm.addCell(cmd, row + i, column + j);
                 }
             }
-
         }
     }
 
@@ -337,23 +180,6 @@ public class TableViewer {
         }
         IGridRegion intersect = IGridRegion.Tool.intersect(reg, gr);
         return intersect != null ? IGridRegion.Tool.height(intersect) : 1;
-    }
-
-    public int getWidth(ICell cell) {
-        IGridRegion gr;
-        if ((gr = cell.getRegion()) == null) {
-            return grid.getColumnWidth(cell.getColumn());
-        }
-        var w = 0;
-
-        gr = IGridRegion.Tool.intersect(gr, reg);
-        if (gr != null) {
-            for (var c = gr.getLeft(); c <= gr.getRight(); c++) {
-                w += grid.getColumnWidth(c);
-            }
-        }
-
-        return w;
     }
 
     short[] rgb(BorderStyle bs1, BorderStyle bs2) {

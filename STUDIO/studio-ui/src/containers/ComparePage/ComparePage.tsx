@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
-import { isApiHttpError } from 'services'
+import { isStillRunning } from 'services/taskResult'
 import { errorMessage } from 'utils/errorMessage'
 import {
     dropComparison,
@@ -35,19 +35,6 @@ const ACCEPTED = '.xls,.xlsx,.xlsm'
 /** How long a screen that cannot hear the topic waits before asking again, in milliseconds. */
 const ASK_AGAIN = 2000
 
-/** What the server answers with while the comparison it was asked for is still being made. */
-const STILL_RUNNING = 'openl.error.409.compare.not-completed.message'
-
-/**
- * Whether the comparison is still being made.
- *
- * A comparison that is not ready and one that was stopped before it found anything are both refused,
- * so what the refusal says decides whether there is anything left to wait for.
- */
-const stillRunning = (failure: unknown): boolean =>
-    isApiHttpError(failure)
-    && failure.status === 409
-    && (failure.payload as { code?: string } | null | undefined)?.code === STILL_RUNNING
 const FILES_TO_COMPARE = 2
 const EXCEL_FILE = /\.(xlsx?|xlsm)$/i
 
@@ -235,8 +222,8 @@ export const ComparePage: React.FC = () => {
 
     // The result is read when the comparison says it has finished, and again as soon as the page is
     // listening: a comparison of two small files can be over before then, and what was pushed to the
-    // topic by then is not repeated. A comparison still running answers 409, and the topic then says
-    // when to ask again.
+    // topic by then is not repeated. A comparison still running answers that its result is not ready,
+    // and the topic then says when to ask again.
     useEffect(() => {
         if (!comparisonId) {
             return
@@ -258,7 +245,7 @@ export const ComparePage: React.FC = () => {
                 if (cancelled) {
                     return
                 }
-                if (stillRunning(readError)) {
+                if (isStillRunning(readError)) {
                     // The topic says when it ends; a screen that is not listening to it - a connection
                     // that never opened - would wait for a word that never comes, so it asks again.
                     if (!progress.subscribed) {

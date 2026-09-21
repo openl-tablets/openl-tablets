@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Modal, Tabs, Button } from 'antd'
+import { App, Tabs, Button } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DesignRepositoriesConfiguration } from './repositories/DesignRepositoriesConfiguration'
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { FormRefProps } from './repositories/index'
 
 export const Repositories = () => {
+    const { modal } = App.useApp()
     const { t } = useTranslation()
     const { repositoryTab } = useParams()
     const navigate = useNavigate()
@@ -38,7 +39,7 @@ export const Repositories = () => {
             const hasUnsavedChanges = currentFormRef.current?.hasUnsavedChanges?.() ?? false
 
             if (hasUnsavedChanges) {
-                Modal.confirm({
+                modal.confirm({
                     title: t('repository:confirm_leave_without_saving'),
                     content: t('repository:confirm_leave_without_saving_message'),
                     onOk: () => {

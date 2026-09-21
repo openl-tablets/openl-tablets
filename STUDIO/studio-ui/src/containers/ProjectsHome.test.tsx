@@ -78,14 +78,14 @@ vi.mock('./projects/NewProjectModal', () => ({
     NewProjectModal: ({ open, repositories, onCreated }: {
         open: boolean
         repositories?: { id: string }[]
-        onCreated?: (created?: { repositoryId: string, name: string }) => void
+        onCreated?: (created: { repositoryId: string, name: string, branch?: string }) => void
     }) => (open ? (
         <div data-testid="new-project-modal">
             {repositories?.map(repo => repo.id).join(',')}
             <button
                 aria-label="created"
                 data-testid="new-project-fire-created"
-                onClick={() => onCreated?.({ repositoryId: 'design', name: 'Created' })}
+                onClick={() => onCreated?.({ repositoryId: 'design', name: 'Created', branch: 'feature/rates' })}
                 type="button"
             />
         </div>
@@ -280,7 +280,12 @@ vi.mock('antd', async () => {
         : null), { confirm: vi.fn() })
     const notification = { error: vi.fn(), info: vi.fn(), success: vi.fn() }
 
-    return { Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert, Typography, Modal, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+
+    return withStaticApp({
+        Button, Input, Select, Segmented, Dropdown, Checkbox, Empty, Tag, Tooltip, Skeleton, Spin, Alert,
+        Typography, Modal, notification
+    })
 })
 
 const repositories = [
@@ -715,7 +720,11 @@ describe('ProjectsHome', () => {
     })
 
     it('opens the created project page after a successful create', async () => {
-        mockProjectSearch([{ ...projects[0]!, id: 'created-id', name: 'Created', repository: 'design' }])
+        // A same-named project on another branch must not be the one opened.
+        mockProjectSearch([
+            { ...projects[0]!, id: 'other-branch-id', name: 'Created', repository: 'design', branch: 'main' },
+            { ...projects[0]!, id: 'created-id', name: 'Created', repository: 'design', branch: 'feature/rates' },
+        ])
         await renderHome()
 
         await userEvent.click(screen.getByTestId('projects-new'))
@@ -994,7 +1003,7 @@ describe('ProjectsHome row actions', () => {
     })
 
     it('hands branch sync to the shared merge dialog', async () => {
-        mockProjectSearch(single({ canManageBranches: true }))
+        mockProjectSearch(single({ canMerge: true }))
         await renderHome()
 
         await userEvent.click(screen.getByText('browser.sync'))

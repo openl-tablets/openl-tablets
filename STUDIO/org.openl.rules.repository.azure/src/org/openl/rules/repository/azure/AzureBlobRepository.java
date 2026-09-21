@@ -89,10 +89,6 @@ public class AzureBlobRepository implements Repository {
         this.name = name;
     }
 
-    public void setMonitor(ChangesMonitor monitor) {
-        this.monitor = monitor;
-    }
-
     public void setListenerTimerPeriod(int listenerTimerPeriod) {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }

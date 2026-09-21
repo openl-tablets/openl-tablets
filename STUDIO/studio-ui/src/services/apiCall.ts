@@ -1,8 +1,12 @@
-import { notification } from 'antd'
+import { notification } from './popups'
 import CONFIG from './config'
 import { errorMessage } from '../utils/errorMessage'
 import { CLIENT_ID, CLIENT_ID_HEADER } from './clientId'
+import { ResultNotReadyError } from './taskResult'
 import { useAppStore } from 'store'
+
+/** The status a result endpoint answers with while the task producing the result goes on. */
+const ACCEPTED = 202
 
 const fetchInitialConfig = {
     method: 'GET',
@@ -242,6 +246,26 @@ export const notifyLoadFailure = (title: string, error: unknown): void => {
     if (!(error instanceof EmptyError)) {
         notification.error({ title, description: errorMessage(error) })
     }
+}
+
+/**
+ * Reads what a task produced, from an endpoint that accepts the request while the task goes on.
+ *
+ * <p>Such an endpoint answers `202 Accepted` with `{ "status": "notReady" }` until the task - a run, a test
+ * run, a benchmark, a comparison - has ended. That answer is raised as a {@link ResultNotReadyError}, so a
+ * caller waits it out the way it waits for the task itself; the response of a result that is there is
+ * handed back to be read as JSON or as a file.
+ */
+export const readTaskResult = async (
+    url: string,
+    params: RequestInit | undefined,
+    options: ApiCallOptions
+): Promise<Response> => {
+    const response = await apiCall(url, params, { ...options, responseType: 'response' }) as Response
+    if (response.status === ACCEPTED) {
+        throw new ResultNotReadyError()
+    }
+    return response
 }
 
 export { ApiHttpError, NotFoundError, EmptyError, ForbiddenError, isApiHttpError }

@@ -26,6 +26,7 @@
     "dayjs": "^1.11.23",
     "fflate": "^0.8.3",
     "i18next": "^26.4.2",
+    "rapidoc": "^9.3.8",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-i18next": "^17.0.13",
@@ -58,7 +59,7 @@
   "scripts": {
     "start": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "license-checker-rseidelsohn --onlyAllow \"MIT;Apache-2.0;BSD-3-Clause;ISC;0BSD\" --production --excludePrivatePackages && vite build",
+    "build": "license-checker-rseidelsohn --onlyAllow \"MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;BlueOak-1.0.0;ISC;Python-2.0;0BSD\" --production --excludePrivatePackages && vite build",
     "serve": "vite preview --port 3002",
     "clean": "rm -rf dist",
     "lint": "eslint ./src",
@@ -68,9 +69,8 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "baseline 2025",
+      "Firefox ESR"
     ],
     "development": [
       "last 1 chrome version",

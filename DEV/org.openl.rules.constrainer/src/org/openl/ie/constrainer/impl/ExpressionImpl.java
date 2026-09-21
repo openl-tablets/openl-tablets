@@ -31,7 +31,7 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
 
     protected static final Class[] ARGS_IntBoolExp2 = {IntBoolExp.class, IntBoolExp.class};
 
-    public ExpressionImpl(Constrainer constrainer, String name) {
+    protected ExpressionImpl(Constrainer constrainer, String name) {
         super(constrainer, name);
     }
 

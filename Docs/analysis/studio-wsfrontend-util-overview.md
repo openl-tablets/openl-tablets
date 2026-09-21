@@ -192,14 +192,13 @@ security.jwt.expiration = 86400
 ### 1. org.openl.rules.webstudio - Main Application
 
 **Type**: WAR application
-**Technology**: Spring Boot 3.5.6, JSF 4.0.12 (legacy), React 19.2.x (modern)
+**Technology**: Spring Boot 3.5.6 (REST API), React 19.2.x (every screen)
 **Build Output**: `webapp.war`
 
 **Architecture**:
 ```
 OpenL Studio (Spring Boot)
   ├─ REST Controllers (/api/*)
-  ├─ JSF Managed Beans (legacy UI)
   ├─ React SPA (/studio-ui/*)
   ├─ Security Layer
   ├─ Workspace Manager
@@ -235,7 +234,7 @@ public class ProjectController {
 - Dependency management
 
 **Rule Editing**:
-- Table editor (JSF-based, legacy)
+- Table editor
 - Modern React-based editor
 - Syntax validation
 - Type checking
@@ -268,20 +267,19 @@ webstudio.concurrent.builds = 4
 - `WebContext` - Request context holder
 - `ExceptionHandler` - Global exception handling
 
-### 3. org.openl.rules.tableeditor - Table Editor
+### 3. org.openl.rules.tableeditor - Table Layout and Cell Editor Model
 
-**Purpose**: Excel-like table editor component
+**Purpose**: Server-side model behind the table REST API; the table itself is drawn by the React UI
 
-**Technology**: JavaScript, jQuery (legacy)
+**Technology**: Java
 
 **Features**:
-- Cell editing
-- Formatting
-- Formula support
-- Undo/redo
-- Copy/paste
+- Table layout: cell spans, alignment, background and borders as Excel styles them
+- Cell editor selection from the compiled type of a cell (number bounds, choices, dates, ranges)
+- Excel number and date formats applied to displayed values
+- Writing a table's properties section
 
-**Being replaced**: Modern React table editor in development
+**Consumers**: the raw table, table editors and table properties services of `org.openl.rules.webstudio`
 
 ---
 

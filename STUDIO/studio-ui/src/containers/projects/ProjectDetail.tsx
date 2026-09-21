@@ -9,8 +9,8 @@ import {
     type ReactNode,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
-import { Empty, Skeleton, Tabs, Typography, type TabsProps } from 'antd'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Empty, Skeleton, Tabs, type TabsProps } from 'antd'
 import {
     FileTextOutlined,
     HistoryOutlined,
@@ -20,11 +20,13 @@ import {
 } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { ProjectStatus } from '../../constants/project'
-import type { Project } from '../../types/projects'
+import type { Project, ProjectModule } from '../../types/projects'
 import type { FsNode } from '../../types/files'
+import { moduleRoute } from '../../services/projectId'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { StatusMark } from './StatusIndicator'
 import { LiveCompileDot } from './CompileIndicator'
+import { WorkspaceHeader } from '../../components/WorkspaceHeader'
 import { ProjectActionBar, type ProjectActionHandlers } from './ProjectActionBar'
 import type { BusyId } from './projectActions'
 import { FileTree } from './FileTree'
@@ -61,56 +63,9 @@ const useStyles = createStyles(({ css, token }) => ({
         margin: auto;
         padding: ${token.paddingXL}px;
     `,
-    header: css`
-        min-width: 0;
-        padding: 12px 16px;
-        border-bottom: 1px solid ${token.colorBorderSecondary};
-    `,
-    crumb: css`
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: ${token.colorTextTertiary};
-        font-size: 14px;
-
-        a {
-            color: ${token.colorTextSecondary};
-
-            &:hover {
-                color: ${token.colorPrimary};
-            }
-        }
-    `,
     /** A breadcrumb value (repository, branch): reads like the "Projects" link — secondary colour, crumb size. */
     crumbValue: css`
         color: ${token.colorTextSecondary};
-    `,
-    titleRow: css`
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-width: 0;
-        margin-top: 8px;
-    `,
-    titleLeft: css`
-        display: flex;
-        flex: 1 1 auto;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-    `,
-    title: css`
-        margin: 0 !important;
-        min-width: 0;
-        font-size: 22px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-    `,
-    titleMuted: css`
-        color: ${token.colorTextTertiary};
-        text-decoration: line-through;
     `,
     tabs: css`
         flex: 1;
@@ -232,6 +187,24 @@ interface ProjectDetailProps {
  * A single project's workspace: identity header, capability-driven action bar, and the Overview,
  * Revisions, Files, Branches, Deploy Configuration and Access tabs. Table editing is not hosted here yet.
  */
+/**
+ * The name of the module each workbook of the project is, indexed by the file it is written in.
+ *
+ * <p>A declaration whose path is a pattern is no file of its own: the modules it matched are, and those
+ * are the ones a reader opens.
+ */
+const moduleNamesByFile = (modules: ProjectModule[] | undefined): Record<string, string> => {
+    const named: Record<string, string> = {}
+    for (const module of modules ?? []) {
+        for (const resolved of module.modules ?? [module]) {
+            if (resolved.name && resolved.path) {
+                named[resolved.path] = resolved.name
+            }
+        }
+    }
+    return named
+}
+
 export const ProjectDetail = ({
     project,
     statusReadAt,
@@ -249,9 +222,10 @@ export const ProjectDetail = ({
     onBranchSwitching,
     onFilesVisible,
 }: ProjectDetailProps) => {
-    const { styles, cx } = useStyles()
+    const { styles } = useStyles()
     const { t } = useTranslation('repository')
     const { isUserManagementEnabled } = useContext(SystemContext)
+    const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
     // The selected file lives in the URL (?file=…) so the exact view can be shared or reloaded.
     const selectedFile = searchParams.get('file')
@@ -282,6 +256,9 @@ export const ProjectDetail = ({
     // (creating "reports/2026" makes "reports" a folder too), so ancestors never render as a file preview.
     const selectedIsVirtualFolder = !!selectedFile
         && virtualFolders.some(folder => folder === selectedFile || folder.startsWith(`${selectedFile}/`))
+    // A workbook the project declares as a module opens in the editor, so the Files tab offers that
+    // rather than an export of a file nothing on this screen can show.
+    const moduleFiles = useMemo(() => moduleNamesByFile(project?.descriptor?.modules), [project?.descriptor?.modules])
     const selectedIsFolder = selectedNode?.type === 'folder' || selectedIsVirtualFolder
     const selectedTargetFolder = selectedIsFolder ? selectedNode?.path ?? selectedFile ?? '' : selectedNode?.basePath ?? ''
     // Whether the tree is loaded well enough to tell a file from a folder. Until it is, a selection is of
@@ -431,9 +408,11 @@ export const ProjectDetail = ({
                 canWrite={canWriteFiles}
                 changedFiles={changedFiles}
                 folders={folders}
+                modules={moduleFiles}
                 onChanged={() => onChanged?.()}
                 onDeleted={() => { setSelectedFile(null); onChanged?.() }}
                 onMoved={newPath => { setSelectedFile(newPath); onChanged?.() }}
+                onOpenModule={moduleName => navigate(moduleRoute(project.id, moduleName))}
                 path={selectedFile}
                 projectId={project.id}
                 projectName={project.name}
@@ -546,48 +525,43 @@ export const ProjectDetail = ({
 
     return (
         <div className={styles.root} data-testid="project-detail">
-            <div className={styles.header}>
-                <div className={styles.crumb}>
-                    {headerPrefix}
-                    <ValueText className={styles.crumbValue}>{repoLabel}</ValueText>
-                    {hasBranches && (
-                        <>
-                            <span aria-hidden>/</span>
-                            <BranchSwitcher
-                                currentBranch={project.branch}
-                                currentBranchDefault={project.branchDefault}
-                                currentBranchProtected={project.branchProtected}
-                                data-testid="crumb-branch"
-                                disabled={pendingId !== null}
-                                onBusyChange={onBranchSwitching}
-                                onSwitched={() => onChanged?.()}
-                                projectId={project.id}
-                                tone="secondary"
-                            />
-                        </>
-                    )}
-                </div>
-                <div className={styles.titleRow}>
-                    <div className={styles.titleLeft}>
-                        <StatusMark status={project.status} testId={`status-${project.id}`} />
-                        <Typography.Title
-                            className={cx(styles.title, muted && styles.titleMuted)}
-                            ellipsis={{ tooltip: project.name }}
-                            level={3}
-                        >
-                            {project.name}
-                        </Typography.Title>
-                        <LiveCompileDot
-                            branch={project.branch ?? null}
-                            compileStatus={project.compileStatus}
-                            projectId={project.id}
-                            status={project.status}
-                            statusReadAt={statusReadAt}
-                        />
-                    </div>
-                    <ProjectActionBar handlers={handlers} pendingId={pendingId} project={project} />
-                </div>
-            </div>
+            <WorkspaceHeader
+                actions={<ProjectActionBar handlers={handlers} pendingId={pendingId} project={project} />}
+                muted={muted}
+                title={project.name}
+                titleBefore={<StatusMark status={project.status} testId={`status-${project.id}`} />}
+                crumbs={(
+                    <>
+                        {headerPrefix}
+                        <ValueText className={styles.crumbValue}>{repoLabel}</ValueText>
+                        {hasBranches && (
+                            <>
+                                <span aria-hidden>/</span>
+                                <BranchSwitcher
+                                    currentBranch={project.branch}
+                                    currentBranchDefault={project.branchDefault}
+                                    currentBranchProtected={project.branchProtected}
+                                    data-testid="crumb-branch"
+                                    disabled={pendingId !== null}
+                                    onBusyChange={onBranchSwitching}
+                                    onSwitched={() => onChanged?.()}
+                                    projectId={project.id}
+                                    tone="secondary"
+                                />
+                            </>
+                        )}
+                    </>
+                )}
+                titleAfter={(
+                    <LiveCompileDot
+                        branch={project.branch ?? null}
+                        compileStatus={project.compileStatus}
+                        projectId={project.id}
+                        status={project.status}
+                        statusReadAt={statusReadAt}
+                    />
+                )}
+            />
             <Tabs activeKey={activeTab} className={styles.tabs} data-testid="project-tabs" items={items} onChange={onTabChange} />
         </div>
     )

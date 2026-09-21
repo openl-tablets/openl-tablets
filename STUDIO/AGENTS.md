@@ -1,16 +1,13 @@
 # STUDIO Module — Web IDE
 
-Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy, being replaced).
+Spring Boot backend serving a REST API, and a React/TypeScript frontend that draws every screen.
 
 ## Key Conventions
 
-- **JSF pages** (`org.openl.rules.webstudio/src/main/webapp/`): Explicit bug fixes only. Do NOT improve legacy code or possible bugs. New features must go in React frontend.
-- **The rules editor shell** (`pages/modules/index.xhtml`) is a **transient** (`<f:view transient="true">`) view and
-  must stay one. It is the page the user keeps open for the whole session, while its panels and its content are
-  loaded as views of their own; those views share one bounded per-session cache, so a shell kept among them is
-  dropped after a dozen or so panel loads and every later request of its own is answered as expired
-  ([EPBDS-16275](https://jira.eisgroup.com/browse/EPBDS-16275)). Keep the shell free of state to carry between
-  requests, and guard it with `ITEST/itest.studio/simple` → `ShellViewTest`.
+- **The server renders no page.** Every address answers with the one page the frontend build wrote
+  (`StaticResourcesServlet`), and the screen is drawn in the browser; everything else the server answers is REST or
+  a WebSocket message. A feature therefore lands as an endpoint plus a React screen — never as a server-rendered
+  page or a fragment of HTML.
 - **ACL checks are the last thing a condition evaluates.** A permission probe reaches the ACL database
   through a transaction of its own, while the project state it is weighed against is already at hand, so a
   condition tests the state first and asks for the permission only when the answer still depends on it.
@@ -44,7 +41,7 @@ Spring Boot backend + React/TypeScript frontend (modern) + JSF/RichFaces (legacy
 - **org.openl.security.acl** — Access Control Lists
 
 **Supporting modules**:
-- **org.openl.rules.tableeditor** — Table editor component
+- **org.openl.rules.tableeditor** — Table layout and cell editor model read by the table REST API
 - **org.openl.rules.workspace** — Workspace management
 - **org.openl.rules.diff** — Rule diff/comparison
 - **org.openl.rules.demo** — Demo projects

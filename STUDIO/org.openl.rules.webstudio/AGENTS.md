@@ -63,9 +63,9 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 - `decode()` accepts both alphabets, so an id kept in a bookmark or a script keeps working. Never tighten it to one
   alphabet.
 - Never hand a caller an id from anything but `encode()`. A hand-rolled `Base64.getEncoder()` reintroduces the slash.
-- A browser that has to build an id itself uses `encodeProjectId` from `studio-ui`'s `services/projectId.ts`; a legacy
-  JSF page reaches the same function as `globalThis.openl.encodeProjectId`. Never call `btoa` directly: it reads a
-  string as Latin-1, so it throws above U+00FF and mis-encodes the range below it, and it emits the standard alphabet.
+- A browser that has to build an id itself uses `encodeProjectId` from `studio-ui`'s `services/projectId.ts`. Never
+  call `btoa` directly: it reads a string as Latin-1, so it throws above U+00FF and mis-encodes the range below it,
+  and it emits the standard alphabet.
 - **The name inside a project id is its storage folder, not the logical name declared in `rules.xml`.** A design
   project's id uses its design folder; a local-only project's id uses its workspace folder. The names differ when a
   project is renamed in `rules.xml` or when EDT loads a folder whose project declares a friendlier name. A local-only
@@ -76,10 +76,6 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   name read from the currently selected branch: an unsaved rename there must not hide the original name from another
   branch that still contains and declares it. Branch membership remains the deciding scope as documented in
   `Docs/architecture/cross-branch-projects.md`.
-
-  Legacy Editor hash routes are separate from REST project ids: `WebStudio.init` resolves their project segment by
-  the logical `ProjectDescriptor` name. Build every legacy project and module breadcrumb link from that logical name,
-  not from the `RulesProject` workspace folder.
 
   Before a mapped-project rename is saved, the workspace copy already sits in a folder named after the new name while
   the design repository still holds the old one. An id **MUST** keep resolving across that gap, otherwise the project
@@ -99,9 +95,7 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   `@ProjectId` path parameter uses, narrowed to one repository — instead of reaching for
   `UserWorkspace.getProjectsByName` or for a single `ProjectResolveStrategy`. Leave reading the project to the
   endpoint, so its own refusal message survives. An identity more than one project answers to is reported as
-  `project.identifier.ambiguous.message`, naming the ids to choose from. A body that names a project of the
-  user's own workspace (`createProjectsFromWorkspace`) is not covered — a local project has no design folder to
-  tell apart.
+  `project.identifier.ambiguous.message`, naming the ids to choose from.
 
 ## Request Validation
 

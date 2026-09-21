@@ -26,7 +26,7 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t }) }
 })
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Modal = ({ open, children, onOk, okText }: Record<string, unknown>) => open ? (
         <div>
             {children as never}
@@ -55,7 +55,8 @@ vi.mock('antd', () => {
         void block; void loading; void type
         return <button data-testid={rest['data-testid'] as string} onClick={onClick as never}>{children as never}</button>
     }
-    return { Alert, Button, Modal, notification, Select }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Alert, Button, Modal, notification, Select })
 })
 
 const project = {
@@ -258,6 +259,21 @@ describe('ExportProjectModal', () => {
         await userEvent.click(screen.getByTestId('export-ok'))
 
         await waitFor(() => expect(downloadFile).toHaveBeenCalled())
+    })
+
+    it('exports the workspace copy of a local project, which has no revisions', async () => {
+        // Never published, so the history answers with nothing; the workspace copy is the one entry left.
+        vi.mocked(getProjectRevisions).mockResolvedValue({
+            content: [], pageNumber: 0, pageSize: 50, numberOfElements: 0, total: 0,
+        })
+        render(<ExportProjectModal open onClose={vi.fn()} project={{ ...project, status: ProjectStatus.Local }} />)
+        await waitFor(() => expect(getProjectRevisions).toHaveBeenCalled())
+
+        expect(within(screen.getByTestId('export-project-revision')).getAllByRole('option')).toHaveLength(1)
+        expect(screen.getByText('browser.export_dialog.local')).toBeInTheDocument()
+        await userEvent.click(screen.getByTestId('export-ok'))
+
+        expect(downloadProject).toHaveBeenCalledWith('p1', undefined)
     })
 
     it('offers revisions only for a closed project, starting with the latest', async () => {

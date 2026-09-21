@@ -96,25 +96,25 @@ class RulesPublisherTest {
 
     @Test
     void testMethodBeforeInterceptors() throws Exception {
-        assertThrows(MethodInvocationException.class, () -> {
-            assertNotNull(applicationContext);
-            var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
-            assertNotNull(serviceManager);
-            var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-            var count = getCount(serviceManager);
-            final var executedTimes = 10;
-            for (var i = 0; i < executedTimes; i++) {
-                assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
-            }
-            var c = getCount(serviceManager);
-            assertEquals(executedTimes, c - count);
-            var driver = serviceManager.getServiceByDeploy(TUTORIAL4)
-                    .getServiceClass()
-                    .getClassLoader()
-                    .loadClass(DRIVER)
-                    .getDeclaredConstructor().newInstance();
-            frontend.execute(TUTORIAL4, "driverAgeType", driver);
-        });
+        assertNotNull(applicationContext);
+        var serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+        assertNotNull(serviceManager);
+        var frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+        var count = getCount(serviceManager);
+        final var executedTimes = 10;
+        for (var i = 0; i < executedTimes; i++) {
+            assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4_SERVICE_NAME, COVERAGE)));
+        }
+        var c = getCount(serviceManager);
+        assertEquals(executedTimes, c - count);
+        var driver = serviceManager.getServiceByDeploy(TUTORIAL4)
+                .getServiceClass()
+                .getClassLoader()
+                .loadClass(DRIVER)
+                .getDeclaredConstructor().newInstance();
+
+        assertThrows(MethodInvocationException.class,
+                () -> frontend.execute(TUTORIAL4_SERVICE_NAME, "driverAgeType", driver));
     }
 
     @Test

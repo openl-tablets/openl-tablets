@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
-import jakarta.inject.Inject;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.errors.CorruptObjectException;
@@ -35,7 +34,6 @@ public class ZipArchiveValidator implements Validator {
     private final PathFilter zipFilter;
     private final ZipCharsetDetector zipCharsetDetector;
 
-    @Inject
     public ZipArchiveValidator(@Qualifier("zipFilter") PathFilter zipFilter, ZipCharsetDetector zipCharsetDetector) {
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;

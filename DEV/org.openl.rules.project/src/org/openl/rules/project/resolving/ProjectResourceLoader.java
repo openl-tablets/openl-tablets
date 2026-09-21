@@ -10,7 +10,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 public class ProjectResourceLoader {
-    private final static ProjectResource[] EMPTY_ARRAY = new ProjectResource[0];
+    private static final ProjectResource[] EMPTY_ARRAY = new ProjectResource[0];
 
     private final CompiledOpenClass compiledOpenClass;
     private final ProjectDescriptor projectDescriptor;

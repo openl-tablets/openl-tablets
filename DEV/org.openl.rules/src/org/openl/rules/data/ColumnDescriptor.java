@@ -452,10 +452,6 @@ public class ColumnDescriptor {
             }
         }
 
-        public int getLevel() {
-            return level;
-        }
-
         @Override
         public int compareTo(ColumnGroupKey o) {
             var i = Integer.compare(level, o.level);

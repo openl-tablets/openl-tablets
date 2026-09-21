@@ -1,4 +1,4 @@
-import apiCall, { asArray } from './apiCall'
+import apiCall, { asArray, readTaskResult } from './apiCall'
 import { toUrlSafeId } from './projectId'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
@@ -157,16 +157,18 @@ export const getConflictFileText = async (
     return await file.text()
 }
 
+/** Reads a part of a comparison, once the comparison has ended. */
+const readComparison = async (url: string): Promise<unknown> =>
+    (await readTaskResult(url, undefined, API_OPTIONS)).json()
+
 /** What the two compared files hold, grouped by sheet. */
 export const getComparison = async (comparisonId: string): Promise<Comparison> =>
-    await apiCall(`/compare/${encodeURIComponent(comparisonId)}`, undefined, API_OPTIONS) as Comparison
+    await readComparison(`/compare/${encodeURIComponent(comparisonId)}`) as Comparison
 
 /** One table of the comparison, as it stands in each of the two files. */
 export const getComparisonTable = async (comparisonId: string, tableId: string): Promise<ComparisonTable> =>
-    await apiCall(
-        `/compare/${encodeURIComponent(comparisonId)}/tables/${encodeURIComponent(tableId)}`,
-        undefined,
-        API_OPTIONS
+    await readComparison(
+        `/compare/${encodeURIComponent(comparisonId)}/tables/${encodeURIComponent(tableId)}`
     ) as ComparisonTable
 
 /** Releases the comparison and the files it reads. */

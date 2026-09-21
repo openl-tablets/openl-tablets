@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Button, Checkbox, Form, Modal, Space, Spin, Tooltip } from 'antd'
+import { App, Alert, Button, Checkbox, Form, Space, Spin, Tooltip } from 'antd'
 import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
@@ -75,6 +75,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     onMergeConflicts,
     onCheckCommitInfo,
 }) => {
+    const { modal } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()
     const [form] = Form.useForm()
@@ -273,7 +274,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
             } catch (err: unknown) {
                 if (!force && isBypassRequired(err)) {
                     setIsMerging(false)
-                    Modal.confirm({
+                    modal.confirm({
                         title: t('merge:bypass.title'),
                         content: t('merge:bypass.description', { branch: targetBranch }),
                         okText: t('merge:bypass.confirm'),

@@ -19,6 +19,10 @@ import org.eclipse.jetty.util.ClassMatcher;
 
 public class AppServer {
 
+    private AppServer() {
+        // Utility class
+    }
+
     /**
      * Checks that the OpenL application can be run successfully.
      * It is called via reflection in the isolated classloader.

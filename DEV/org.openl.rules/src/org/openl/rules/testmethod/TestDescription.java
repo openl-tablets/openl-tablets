@@ -73,14 +73,6 @@ public class TestDescription {
         return testObj;
     }
 
-    public String[] getParametersNames() {
-        String[] names = new String[executionParams.length];
-        for (var i = 0; i < executionParams.length; i++) {
-            names[i] = executionParams[i].getName();
-        }
-        return names;
-    }
-
     public Object[] getArguments() {
         Object[] args = new Object[executionParams.length];
         for (var i = 0; i < args.length; i++) {

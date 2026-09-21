@@ -1,10 +1,10 @@
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
-import { notification } from 'antd'
+import { App } from 'antd'
 import { getModuleSheets } from 'services/projects'
 import { errorMessage } from 'utils/errorMessage'
 import type { ModuleOption } from './shared'
 
-export interface SheetLoader {
+interface SheetLoader {
     /** Worksheets of the module currently chosen; empty for a module the project does not declare yet. */
     sheets: string[]
     sheetName: string
@@ -28,6 +28,7 @@ export interface SheetLoader {
  * first module's sheets on screen.
  */
 export const useSheetLoader = (errorTitle: string, initialSheetName = ''): SheetLoader => {
+    const { notification } = App.useApp()
     const [sheets, setSheets] = useState<string[]>([])
     const [sheetName, setSheetName] = useState(initialSheetName)
     const [loading, setLoading] = useState(false)

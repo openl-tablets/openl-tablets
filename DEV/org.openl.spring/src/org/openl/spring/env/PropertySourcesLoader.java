@@ -1,6 +1,5 @@
 package org.openl.spring.env;
 
-import java.util.HashMap;
 import jakarta.servlet.ServletContext;
 
 import org.springframework.context.ApplicationContextInitializer;
@@ -44,7 +43,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         var env = new FirewallEnvironment(oldEnv.getPropertySources());
         appContext.setEnvironment(env);
         String appName = normalizeAppName(appContext.getApplicationName());
-        loadEnvironment(appContext, env, appName, null);
+        loadEnvironment(env, appName, null);
     }
 
     public void initialize(ConfigurableApplicationContext appContext, ServletContext servletContext) {
@@ -52,13 +51,10 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         var env = new FirewallEnvironment(new MutablePropertySources());
         appContext.setEnvironment(env);
         String appName = normalizeAppName(servletContext.getContextPath());
-        loadEnvironment(appContext, env, appName, servletContext);
+        loadEnvironment(env, appName, servletContext);
     }
 
-    private void loadEnvironment(ConfigurableApplicationContext appContext,
-                                 FirewallEnvironment env,
-                                 String appName,
-                                 ServletContext servletContext) {
+    private void loadEnvironment(FirewallEnvironment env, String appName, ServletContext servletContext) {
         var props = env.getRawPropertyResolver();
         var propertySources = env.getPropertySources();
 
@@ -100,19 +96,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
 
         ConfigLog.LOG.info("Activating a firewall against insecure properties keys...");
         props.initFirewall();
-        registerPropertyBean(appContext, defaultPropertySource, props);
         ConfigLog.LOG.info("Loading of the properties has been finished.");
-    }
-
-    private void registerPropertyBean(ConfigurableApplicationContext appContext,
-                                      DefaultPropertySource defaultPropertySource,
-                                      FirewallPropertyResolver props) {
-        var propertyMap = new HashMap<String, String>();
-        for (String key : defaultPropertySource.getPropertyNames()) {
-            propertyMap.put(key, props.getRawProperty(key));
-        }
-        appContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("PropertyBean",
-                new PropertyBean(defaultPropertySource.getSource(), propertyMap)));
     }
 
     private static String normalizeAppName(String appName) {

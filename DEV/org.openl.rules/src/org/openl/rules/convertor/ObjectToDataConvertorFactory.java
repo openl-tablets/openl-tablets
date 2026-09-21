@@ -28,6 +28,11 @@ import org.openl.util.RuntimeExceptionWrapper;
  * @author PUdalau
  */
 public class ObjectToDataConvertorFactory {
+
+    private ObjectToDataConvertorFactory() {
+        // Utility class
+    }
+
     @RequiredArgsConstructor
     public static class ClassCastPair {
         @Getter
@@ -182,13 +187,6 @@ public class ObjectToDataConvertorFactory {
         }
         Method method = MethodUtils.getAccessibleMethod(toClass, "valueOf", fromClass);
         return method == null ? MethodUtils.getAccessibleMethod(toClass, "valueOf", Object.class) : method;
-    }
-
-    public static IObjectToDataConvertor registerConvertor(Class<?> toClass,
-                                                           Class<?> fromClass,
-                                                           IObjectToDataConvertor convertor) {
-        var pair = new ClassCastPair(fromClass, toClass);
-        return converters.put(pair, convertor);
     }
 
 }

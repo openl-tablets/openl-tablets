@@ -18,7 +18,7 @@ public class RulesResultExport extends ResultExport {
     }
 
     @Override
-    protected void writeResult(Row row, int colNum, ITestUnit testUnit) {
+    protected void writeResult(Row row, int colNum, TestUnitsResults result, ITestUnit testUnit) {
         createCell(row, colNum, testUnit.getActualParam(), styles.resultSuccess);
     }
 }

@@ -48,6 +48,19 @@ export default [
             'comma-spacing': ['error', { 'before': false, 'after': true }],
             'semi': ['error', 'never'],
             'no-console': ['error', { 'allow': ['warn']}],
+            // Static Ant Design pop-ups render outside React and ignore the theme — use services/popups
+            'no-restricted-imports': ['error', {
+                'paths': [{
+                    'name': 'antd',
+                    'importNames': ['notification', 'message'],
+                    'message': 'Static pop-ups ignore the theme; take them from App.useApp().',
+                }],
+            }],
+            'no-restricted-syntax': ['error', {
+                'selector': "MemberExpression[object.name='Modal']"
+                    + "[property.name=/^(confirm|info|success|error|warning)$/]",
+                'message': 'Static dialogs ignore the theme; take modal from App.useApp().',
+            }],
             'comma-dangle': ['error', {
                 'arrays': 'only-multiline',
                 'objects': 'only-multiline',
@@ -88,6 +101,34 @@ export default [
                 'logical': 'ignore',
                 'prop': 'ignore'
             }],
+        },
+    },
+    {
+        // A component or a hook reaches the pop-ups through App.useApp(); the bridge is for services and stores
+        files: ['./src/{components,containers,hooks,layouts,pages,providers}/**/*.{ts,tsx}'],
+        ignores: ['./src/**/*.test.{ts,tsx}'],
+        rules: {
+            'no-restricted-imports': ['error', {
+                'paths': [
+                    {
+                        'name': 'antd',
+                        'importNames': ['notification', 'message'],
+                        'message': 'Static pop-ups ignore the theme; take them from App.useApp().',
+                    },
+                    {
+                        'name': 'services/popups',
+                        'message': 'A component or a hook takes notification and modal from App.useApp().',
+                    },
+                ],
+            }],
+        },
+    },
+    {
+        // The bridge wraps the static pop-ups, and tests stub them
+        files: ['./src/services/popups.tsx', './src/**/*.test.{ts,tsx}'],
+        rules: {
+            'no-restricted-imports': 'off',
+            'no-restricted-syntax': 'off',
         },
     },
     {

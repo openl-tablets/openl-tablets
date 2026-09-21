@@ -62,7 +62,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     protected OpenMethodDispatcher() {
     }
 
-    public OpenMethodDispatcher(IOpenMethod delegate, XlsModuleOpenClass xlsModuleOpenClass) {
+    protected OpenMethodDispatcher(IOpenMethod delegate, XlsModuleOpenClass xlsModuleOpenClass) {
         // Save method as delegate. It used by decorator to delegate requests
         // about method info such as signature, name, etc.
         //

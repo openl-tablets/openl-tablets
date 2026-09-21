@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -160,7 +159,7 @@ public class TableCopyServiceImpl implements TableCopyService {
      * distinguishable. The change is left in the workbook the caller saves.
      */
     private void standDown(IOpenLTable source) {
-        var editor = new TableEditorModel(source, IXlsTableNames.VIEW_DEVELOPER, false);
+        var editor = new TableEditorModel(source);
         editor.setProperty(TableVersionService.VERSION_PROPERTY, versionService.currentVersion(source));
         editor.setProperty(TableVersionService.ACTIVE_PROPERTY, Boolean.FALSE.toString());
     }

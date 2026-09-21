@@ -9,7 +9,7 @@ import i18next from 'i18next'
 import type { Repository } from 'types/repositories'
 
 /** Detail passed from the legacy JSF editor shell via the {@code openCopyProjectModal} event. */
-export interface CopyProjectModalDetail extends EventProjectDetail {
+interface CopyProjectModalDetail extends EventProjectDetail {
     /** Runs after a successful copy, e.g. to reload the editor page. */
     onSuccess?: () => void
 }

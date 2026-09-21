@@ -1,0 +1,97 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5bd8922c903afffdfb749b3841eddcf1",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:D12",
+  "source": [
+    [
+      {
+        "cell": "B9",
+        "value": 0,
+        "style": {
+          "background": "#ffff00",
+          "color": "#0000ff",
+          "align": "center",
+          "valign": "center",
+          "bold": true,
+          "indent": 1,
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            },
+            "left": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C9",
+        "value": 12,
+        "style": {
+          "background": "#ffff00",
+          "color": "#0000ff",
+          "align": "center",
+          "valign": "center",
+          "bold": true,
+          "indent": 1,
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "D9",
+        "value": "Good Morning",
+        "style": {
+          "background": "#ffff00",
+          "color": "#0000ff",
+          "align": "center",
+          "bold": true,
+          "indent": 1,
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "right": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ]
+  ],
+  "totalRows": 9,
+  "headerHeight": 4
+}

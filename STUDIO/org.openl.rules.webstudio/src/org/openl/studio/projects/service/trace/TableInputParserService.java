@@ -1,6 +1,8 @@
 package org.openl.studio.projects.service.trace;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jspecify.annotations.Nullable;
@@ -32,7 +34,25 @@ public interface TableInputParserService {
      * @param params         array of parsed parameter values matching the method signature
      * @param runtimeContext optional runtime context parsed from input, may be {@code null}
      */
-    record ParseResult(Object[] params, IRulesRuntimeContext runtimeContext) {}
+    record ParseResult(Object[] params, IRulesRuntimeContext runtimeContext) {
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof ParseResult(var otherParams, var otherRuntimeContext)
+                    && Arrays.deepEquals(params, otherParams)
+                    && Objects.equals(runtimeContext, otherRuntimeContext);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * Arrays.deepHashCode(params) + Objects.hashCode(runtimeContext);
+        }
+
+        @Override
+        public String toString() {
+            return "ParseResult[params=%s, runtimeContext=%s]".formatted(Arrays.deepToString(params), runtimeContext);
+        }
+    }
 
     /**
      * Parses JSON input for method execution.

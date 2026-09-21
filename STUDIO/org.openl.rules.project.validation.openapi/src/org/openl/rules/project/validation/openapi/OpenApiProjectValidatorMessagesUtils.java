@@ -48,7 +48,6 @@ final class OpenApiProjectValidatorMessagesUtils {
         addMethodError(context, context.getOpenMethod(), summary);
     }
 
-    @SuppressWarnings("rawtypes")
     private static void addMethodError(Context context, IOpenMethod method, String summary) {
         if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
             for (IOpenMethod m : openMethodDispatcher.getCandidates()) {

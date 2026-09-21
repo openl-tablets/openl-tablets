@@ -35,9 +35,6 @@ public class SetBorderStyleAction extends AUndoableCellAction {
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-
-        savePrevCell(grid);
-
         if (clearCell) {
             grid.clearCell(getCol(), getRow());
         }
@@ -45,9 +42,4 @@ public class SetBorderStyleAction extends AUndoableCellAction {
         grid.setCellBorderStyle(col, row, newCellStyle);
     }
 
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        restorePrevCell(grid);
-    }
 }

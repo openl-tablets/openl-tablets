@@ -83,9 +83,8 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
         return AAggregateInfo.getArrayType(componentType);
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Object makeIndexedAggregate(IOpenClass componentType, int size) {
-        return new HashMap(size);
+        return HashMap.newHashMap(size);
     }
 }

@@ -115,9 +115,13 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     @Override
     public void printStackTrace(PrintStream printStream) {
-        synchronized (printStream) {
-            printStackTrace(new PrintWriter(printStream, true));
-        }
+        var trace = new StringWriter();
+        var writer = new PrintWriter(trace);
+        printStackTrace(writer);
+        writer.flush();
+        // The whole trace leaves in a single write, so a trace printed in parallel cannot be mixed into it.
+        printStream.print(trace.toString());
+        printStream.flush();
     }
 
     @Override

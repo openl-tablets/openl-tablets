@@ -16,13 +16,13 @@ export const GRAPH_LAYOUT: DagreLayoutOptions = {
  * A field a datatype declares, as the graph reports it. A field whose type is another datatype of the graph names
  * that datatype's node in {@code ref}; a field of a simple type carries its type only.
  */
-export interface GraphField extends DatatypeField {
+interface GraphField extends DatatypeField {
     ref?: string
     collection?: boolean
 }
 
 /** One value of a vocabulary. A vocabulary narrows a simple type, so a value is always a JSON scalar. */
-export type VocabularyValue = string | number | boolean | null
+type VocabularyValue = string | number | boolean | null
 
 /**
  * The values a vocabulary declares, as the graph reports them. Only a few of them are previewed: a longer vocabulary
@@ -45,6 +45,8 @@ export interface GraphNode {
     name: string
     kind?: string
     project?: string
+    /** The module the table is written in, which the editor opens it through. */
+    module?: string
     dependencies?: string[]
     dependents?: string[]
     // summary meta, shown in the side panel on click
@@ -71,30 +73,6 @@ export const DISPATCHER_KIND = 'Dispatcher'
 
 /** Kind of a datatype table — a datatype or a vocabulary — the only node kind that carries a data model. */
 export const DATATYPE_KIND = 'Datatype'
-
-const KIND_COLORS: Record<string, string> = {
-    [DISPATCHER_KIND]: '#874d00',
-    'Rules': '#1677ff',
-    'Smart Rules': '#2f54eb',
-    'Spreadsheet': '#722ed1',
-    'Datatype': '#13c2c2',
-    'Vocabulary': '#08979c',
-    'Data': '#52c41a',
-    'Test': '#fa8c16',
-    'Run': '#a0d911',
-    'TBasic': '#eb2f96',
-    'Column Match': '#9254de',
-    'Method': '#4096ff',
-    'Constants': '#faad14',
-    'Conditions': '#fa541c',
-    'Actions': '#f5222d',
-    'Returns': '#597ef7',
-    'Environment': '#8c8c8c',
-    'Properties': '#bfbfbf',
-}
-const DEFAULT_COLOR = '#8c8c8c'
-
-export const kindColor = (kind?: string): string => (kind ? KIND_COLORS[kind] : undefined) ?? DEFAULT_COLOR
 
 /** How many members — fields or values — an entity box lists before the rest are counted in one line. */
 const ENTITY_ROWS = 12
@@ -192,7 +170,7 @@ const areaBands = (entities: NodeCollection): NodeCollection[] =>
 // the band layout must not fit the viewport to itself: the bands are placed by hand once they are all laid out
 const bandLayout = { ...GRAPH_LAYOUT, fit: false } as unknown as LayoutOptions
 
-export interface GraphModel {
+interface GraphModel {
     elements: ElementDefinition[]
     byId: Map<string, GraphNode>
     /** id -> ids of tables it depends on (forward edges, filtered to the node set) */
@@ -352,7 +330,6 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
                 id: node.id,
                 label: entity ? entityLabel(node) : node.name,
                 kind: node.kind ?? '',
-                color: kindColor(node.kind),
                 weight: used,
                 ...(area ? { parent: area } : {}),
             },

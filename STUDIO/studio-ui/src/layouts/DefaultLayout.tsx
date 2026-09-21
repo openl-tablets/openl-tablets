@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Layout } from 'antd'
+import { Layout, theme } from 'antd'
 import { Header } from 'containers/Header'
 import { DeployModal } from 'containers/DeployModal'
 import { MergeModal } from 'containers/MergeModal'
@@ -17,7 +17,6 @@ import { CopyTableModal } from 'containers/CopyTableModal'
 import { CopyProjectModalHost } from 'containers/CopyProjectModalHost'
 import { SaveProjectModalHost } from 'containers/SaveProjectModalHost'
 import { ExportProjectModalHost } from 'containers/ExportProjectModalHost'
-import { JsfIslandHost } from 'components/JsfIslandHost'
 import { LoadingOverlay } from 'components/LoadingOverlay'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useAppStore } from 'store'
@@ -27,13 +26,11 @@ import ServerError from 'pages/500'
 
 const { Content: AntContent } = Layout
 
-const layoutStyle: React.CSSProperties = {
-    backgroundColor: '#fff',
-}
-
 export const DefaultLayout = () => {
     const { showForbidden, showNotFound, showServerError, setShowForbidden, setShowNotFound, setShowServerError } = useAppStore()
     const location = useLocation()
+    const { token } = theme.useToken()
+    const layoutStyle: React.CSSProperties = { backgroundColor: token.colorBgContainer }
 
     React.useEffect(() => {
         if (showForbidden || showNotFound || showServerError) {
@@ -83,7 +80,6 @@ export const DefaultLayout = () => {
             <ExportProjectModalHost />
             <ConfirmModal />
             <LoadingOverlay />
-            <JsfIslandHost />
         </Layout>
     )
 }

@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Divider, Form, Space, Button, notification, Row, Col, Input as AntInput } from 'antd'
+import { App, Divider, Form, Space, Button, Row, Col, Input as AntInput, theme } from 'antd'
 import { Input, Select, InputPassword } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName } from '../../constants'
@@ -32,7 +32,9 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
     onResendVerification,
     requireEmailAndDisplayName = false,
 }) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation()
+    const { token } = theme.useToken()
     const { styles } = useStyles()
     const form = Form.useFormInstance()
     const { isExternalAuthSystem, systemSettings } = useContext(SystemContext)
@@ -177,7 +179,7 @@ export const UserDetailsTab: FC<UserDetailsTabProps> = ({
                                 {t('users:resend_verification_email')}
                             </Button>
                             {cooldownToUse > 0 && (
-                                <div style={{ color: '#888', fontSize: 12, textAlign: 'right' }}>
+                                <div style={{ color: token.colorTextTertiary, fontSize: token.fontSizeSM, textAlign: 'right' }}>
                                     {t('users:resend_verification_email_timer', { seconds: cooldownToUse })}
                                 </div>
                             )}

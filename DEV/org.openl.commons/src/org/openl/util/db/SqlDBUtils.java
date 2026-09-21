@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SqlDBUtils {
 
+    private SqlDBUtils() {
+        // Utility class
+    }
 
     public static void safeClose(ResultSet rs) {
         if (rs != null) {

@@ -1,7 +1,5 @@
 package org.openl.rules.cmatch.algorithm;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -50,19 +48,6 @@ public class MatchAlgorithmFactory {
         }
 
         return builder.build();
-    }
-
-    /**
-     * List all valid algorithm names.
-     *
-     * @return collection of names
-     */
-    public static Collection<String> getAlgorithmNames() {
-        return Collections.unmodifiableSet(builders.keySet());
-    }
-
-    public static IMatchAlgorithmCompilerBuilder getDefaultBuilder() {
-        return defaultBuilder;
     }
 
     /**

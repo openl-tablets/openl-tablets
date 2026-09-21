@@ -63,7 +63,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private final Map<DTColumnsDefinition, PreBindDetails> definitions = new HashMap<>();
     private boolean initialized;
 
-    public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
+    protected ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode);
         this.openl = Objects.requireNonNull(openl, "openl cannot be null");
     }
@@ -123,7 +123,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             }
             final var signatureCode = signatureCode1;
             var finished = false;
-            var prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
+            var prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.secure().next(16, true, false) + "(";
             var headerCode = prefix + signatureCode + ")";
             IOpenMethodHeader header;
             var inputParametersCompilationFailed = false;

@@ -4,6 +4,7 @@ This chapter explains logging into OpenL Studio and briefly introduces the user 
 
 -   [Signing In to OpenL Studio](#signing-in-to-openl-studio)
 -   [Modifying User Profile](#modifying-user-profile)
+-   [Switching the Theme](#switching-the-theme)
 -   [Displaying the OpenL Studio Help](#displaying-the-openl-studio-help)
 -   [Signing Out of OpenL Studio](#signing-out-of-openl-studio)
 -   [Introducing Rules Editor](#introducing-rules-editor)
@@ -179,6 +180,31 @@ To create a personal access token, proceed as follows:
 
 To delete a token, in the tokens list, click the delete icon next to the token and confirm the deletion.
 
+### Switching the Theme
+
+To change how OpenL Studio looks, in the top-right corner, click the theme icon next to the user icon. The menu offers three independent choices.
+
+The first group selects the appearance:
+
+-   **Light** — always use the light appearance
+-   **Dark** — always use the dark appearance
+-   **Follow System** — use the appearance the operating system asks for, and switch along with it
+
+The second group selects the colour theme, shown beside a dot of its own main colour:
+
+-   **Standard** — the OpenL colours
+-   **Evergreen** — a deep teal alternative
+
+Under the themes, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen.
+
+![Theme menu opened next to the user icon, offering Light, Dark, Follow System, the Standard and Evergreen themes, and a Compact switch](images/theme-switcher.png)
+
+*Choosing the appearance, the theme, and the density*
+
+The three choices are independent: any theme is displayed in either appearance, at either density.
+
+New users start with **Follow System**, the **Standard** theme, and the comfortable density. All three choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. Using a different browser or computer starts from the defaults again.
+
 ### Displaying the OpenL Studio Help
 
 To display the OpenL Studio help topics, in OpenL Studio, in the top-right corner, click the user icon and select **Help**.
@@ -273,7 +299,7 @@ By default, tables are sorted by their location in Excel sheets.
 | Mode                     | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
 |--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **By Category**          | The tree structure is rather logical than physical. <br/>Rule tables are organized into categories based on the **Category** table property or, if the property is not defined, based on the Excel table sheet names. <br/>This view is **simple.** An example of a module tree sorted by the category parameter is as follows: <br/>![](images/module-tree-sorted-by-category.png) <br/>*Module tree sorted by category* |
-| **By Category <br/>Detailed** | The **By Category Detailed** view displays modules sorted by the first value of the **Category** property. <br/>In the following example, the same module tree is sorted by **Category Detailed** and, for example, **Test \> Auto** category is displayed <br/>in the **Test** node and **Auto** sub-node: <br/>![](images/module-tree-sorted-by-category-detailed.png) <br/>*Module tree sorted by Category Detailed*            |
+| **By Category <br/>Detailed** | The **By Category Detailed** view displays modules sorted by the first value of the **Category** property, the values being separated by dashes, as in `Test-Auto`; a category of one value holds its tables itself. <br/>In the following example, the same module tree is sorted by **Category Detailed** and, for example, **Test \> Auto** category is displayed <br/>in the **Test** node and **Auto** sub-node: <br/>![](images/module-tree-sorted-by-category-detailed.png) <br/>*Module tree sorted by Category Detailed*            |
 | **By Category <br/>Inversed** | The following example provides the module tree sorted by **Category Inversed** where modules are sorted by the second value of the **Category** property: <br/>![](images/module-tree-sorted-by-category-inversed.png) <br/>*Module tree sorted by Category Inversed*                                                                                                                                                |
 
 **Note:** If the scope in a **Properties** table is defined as **Module**, in the **By Category** view, this table is displayed in the **Module Properties** sub-node as in the last example. If the scope is defined as **Category**, the table is displayed in the Category **Properties** sub-node.
@@ -282,7 +308,7 @@ The two following modes display a project in a way convenient to experienced use
 
 | Mode        | Description                                                                                                                                                                            |
 |-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **By Type** | An example of a module tree displayed in extended view and sorted by type is as follows: <br/>![](images/module-tree-sorted-by-type.png) <br/>*Module tree sorted by type* |
+| **By Type** | The tables are gathered by their kind, in this order: Decision, Spreadsheet, TBasic, Column Match, Data, Run, Test, Datatype, Vocabulary, Method, Constants, Conditions, Actions, Returns, Configuration, Other and Properties. A vocabulary, a datatype that declares values rather than fields, stands in a group of its own, apart from the datatypes. Resting the pointer on a group says what it holds. An example of a module tree sorted by type is as follows: <br/>![](images/module-tree-sorted-by-type.png) <br/>*Module tree sorted by type* |
 | **By Excel Sheet** | The following tree is sorted by the order the tables are stored in the Excel file: <br/>![](images/module-tree-sorted-by-excel-sheet.png) <br/>*Module tree sorted by order in the Excel file*         |
 
 ### Introducing the Projects Page

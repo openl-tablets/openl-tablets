@@ -37,7 +37,7 @@ export const revisionLabel = (revision: ProjectRevision): string => {
     return `${shortRevision(revision.revisionNo)} · ${changedBy}`
 }
 
-export interface ProjectRevisions {
+interface ProjectRevisions {
     /** The revisions loaded so far, newest first; null while the first page is loading. */
     revisions: ProjectRevision[] | null
     /** Ready-made dropdown options, labelled the way a business user reads a revision. */

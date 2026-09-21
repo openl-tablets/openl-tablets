@@ -1,14 +1,14 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Input, notification, Select, Skeleton, Space, Switch, Tag } from 'antd'
+import { App, Alert, Input, Select, Skeleton, Space, Switch, Tag } from 'antd'
 import { createStyles } from 'antd-style'
 import { EditToolbar } from './EditToolbar'
 import { FieldRow } from '../../components/FieldRow'
 import { getFileContent, rootFileExists, writeRootFile } from '../../services/files'
 import { MigrateButton, useDescriptorMigration } from './projectMigration'
+import { MalformedXmlError } from '../../services/xmlDescriptor'
 import {
-    DeployConfigParseError,
     EMPTY_DEPLOY_CONFIG,
     PUBLISHER_TYPES,
     parseDeployConfig,
@@ -112,13 +112,13 @@ interface DeployConfigPanelProps {
  * values underneath it — what a save writes over, what a cancel returns to — and leaves the draft alone.
  */
 export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }: DeployConfigPanelProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     // The working copy an edit changes; off the edit it stands for nothing and the read view is shown.
     const [config, setConfig] = useState<DeployConfig>(EMPTY_DEPLOY_CONFIG)
     // The descriptor as it was last read or saved: what is shown off an edit, and what one starts from.
     const [savedConfig, setSavedConfig] = useState<DeployConfig>(EMPTY_DEPLOY_CONFIG)
-    const [originalXml, setOriginalXml] = useState('')
     // Whether the project has the file, as the last read that answered found it. A save writes against
     // this rather than against the shown state, which also stands for a read that failed.
     const [fileExists, setFileExists] = useState(false)
@@ -168,7 +168,6 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
                 if (overtakenBySave()) {
                     return
                 }
-                setOriginalXml(xml)
                 setFileExists(exists)
                 if (!exists) {
                     setSavedConfig({ ...EMPTY_DEPLOY_CONFIG })
@@ -179,7 +178,7 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
                     setSavedConfig(parseDeployConfig(xml))
                     setState('ready')
                 } catch (e) {
-                    if (!(e instanceof DeployConfigParseError)) {
+                    if (!(e instanceof MalformedXmlError)) {
                         throw e
                     }
                     setSavedConfig({ ...EMPTY_DEPLOY_CONFIG })
@@ -194,7 +193,6 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
                 if (overtakenBySave()) {
                     return
                 }
-                setOriginalXml('')
                 setSavedConfig({ ...EMPTY_DEPLOY_CONFIG })
                 setState('error')
             })
@@ -217,12 +215,11 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
     const save = async () => {
         setSaving(true)
         try {
-            const xml = serializeDeployConfig(config, originalXml)
+            const xml = serializeDeployConfig(config)
             await writeRootFile(projectId, FILE_PATH, xml, fileExists ? 'overwrite' : 'create')
             // The file now says what this save wrote, so a read that started before it is answering a
             // question this save has answered better: its values are dropped rather than put back.
             saves.current += 1
-            setOriginalXml(xml)
             setFileExists(true)
             setSavedConfig(config)
             notification.success({ title: t('browser.deploy_config.saved') })

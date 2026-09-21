@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Modal, notification, Select } from 'antd'
+import { App, Alert, Modal, Select } from 'antd'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../../utils/errorMessage'
 import { isProjectModifiedConflict, openProjectRevision } from '../../services/repositories'
@@ -35,6 +35,7 @@ interface OpenRevisionModalProps {
  * Open then discards them.
  */
 export const OpenRevisionModal = ({ open, project, onClose, onOpened }: OpenRevisionModalProps) => {
+    const { notification } = App.useApp()
     const { styles } = useStyles()
     const { t } = useTranslation('repository')
     const [chosen, setChosen] = useState<string | undefined>(undefined)

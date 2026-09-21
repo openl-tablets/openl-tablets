@@ -8,7 +8,7 @@ import org.openl.types.IOpenClass;
 public abstract class AMatcherMapBuilder<M extends IMatcher> implements IMatcherBuilder {
     private final Map<Class<?>, M> map;
 
-    public AMatcherMapBuilder() {
+    protected AMatcherMapBuilder() {
         map = new HashMap<>();
     }
 

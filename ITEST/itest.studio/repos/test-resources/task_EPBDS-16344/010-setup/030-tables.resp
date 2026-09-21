@@ -11,7 +11,12 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "calc1 (Type1 originalValue)",
       "file": "EPBDS-16344/BugReproducing.xlsx",
-      "pos": "C25:D28"
+      "sheet": "Alg",
+      "pos": "C25:D28",
+      "errors": 1,
+      "module": "BugReproducing",
+      "project": "EPBDS-16344",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ=="
     },
     {
       "id": "37ced736faf0f4c909561d986d5576a1",
@@ -19,7 +24,12 @@ Content-Type: application/json
       "kind": "Test",
       "name": "calc1Test",
       "file": "EPBDS-16344/BugReproducing.xlsx",
-      "pos": "B2:D5"
+      "sheet": "calc1",
+      "pos": "B2:D5",
+      "module": "BugReproducing",
+      "project": "EPBDS-16344",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ==",
+      "signature": "calc3 calc1Test"
     },
     {
       "id": "7eae422f9f4d3a6c07f48d5b4d6d02bc",
@@ -29,7 +39,11 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "calc2 (Type1 someInputValue, Type1[] originalValues)",
       "file": "EPBDS-16344/BugReproducing.xlsx",
-      "pos": "C14:D18"
+      "sheet": "Alg",
+      "pos": "C14:D18",
+      "module": "BugReproducing",
+      "project": "EPBDS-16344",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ=="
     },
     {
       "id": "9b100b5c85a738a5fbec4eac04092603",
@@ -39,7 +53,12 @@ Content-Type: application/json
       "returnType": "SpreadsheetResult",
       "signature": "calc3 (Type3 originalValue, Type3 overriddenValuess)",
       "file": "EPBDS-16344/BugReproducing.xlsx",
-      "pos": "C3:D6"
+      "sheet": "Alg",
+      "pos": "C3:D6",
+      "hasTests": true,
+      "module": "BugReproducing",
+      "project": "EPBDS-16344",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ=="
     },
     {
       "id": "774c0c1077490c3a12ff5708d2be7efc",
@@ -47,7 +66,12 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Type1",
       "file": "EPBDS-16344/BugReproducing.xlsx",
-      "pos": "C52:D53"
+      "sheet": "Alg",
+      "pos": "C52:D53",
+      "module": "BugReproducing",
+      "project": "EPBDS-16344",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ==",
+      "signature": "Type1"
     },
     {
       "id": "43f253f4e7d6410c5669fd2d5271556b",
@@ -55,7 +79,12 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "Type3",
       "file": "EPBDS-16344/BugReproducing.xlsx",
-      "pos": "C35:D37"
+      "sheet": "Alg",
+      "pos": "C35:D37",
+      "module": "BugReproducing",
+      "project": "EPBDS-16344",
+      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYzNDQ6YTlhYTdkNWI0NjJjN2E3MjkwZGRmMjhlYzg4NjRlMzAzMDI3MjI5YzgwYmViNTc0MDI2MGE3Y2M1ZDE4ZjllOQ==",
+      "signature": "Type3"
     }
   ],
   "pageNumber": 0,

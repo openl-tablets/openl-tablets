@@ -12,6 +12,11 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class SysInfo {
+
+    private SysInfo() {
+        // Utility class
+    }
+
     public static Map<String, Object> get() {
         var fn = new LinkedHashMap<String, Object>();
         fn.put("locale", Locale.getDefault());

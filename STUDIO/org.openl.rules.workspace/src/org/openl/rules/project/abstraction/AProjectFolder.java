@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -80,19 +79,6 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
         getArtefact(name).delete();
         getArtefactsInternal().remove(name);
-    }
-
-    public void deleteArtefactsInFolder(String folderName) throws ProjectException {
-        getProject().tryLockOrThrow();
-        var artefactsToDelete = getArtefactsInternal().entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().startsWith(folderName))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toSet());
-        for (AProjectArtefact artefact : artefactsToDelete) {
-            artefact.delete();
-            getArtefactsInternal().remove(artefact.getName());
-        }
     }
 
     public boolean hasArtefact(String name) {

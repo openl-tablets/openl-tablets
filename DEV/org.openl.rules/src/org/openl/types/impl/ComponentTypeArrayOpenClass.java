@@ -20,7 +20,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     @Getter
     protected final IOpenClass componentClass;
-    protected final HashMap<String, IOpenField> fieldMap;
+    protected final HashMap<String, IOpenField> fieldsByName;
     @Getter
     private final String javaName;
     private static final Collection<IOpenClass> OBJECT_CLASS = Set.of(JavaOpenClass.OBJECT);
@@ -40,8 +40,8 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     public ComponentTypeArrayOpenClass(IOpenClass componentClass) {
         var lengthOpenField = new ComponentTypeArrayLengthOpenField();
         this.componentClass = componentClass;
-        this.fieldMap = new HashMap<>(1);
-        this.fieldMap.put(lengthOpenField.getName(), lengthOpenField);
+        this.fieldsByName = HashMap.newHashMap(1);
+        this.fieldsByName.put(lengthOpenField.getName(), lengthOpenField);
         this.javaName = createJavaName(componentClass);
     }
 
@@ -62,7 +62,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     @Override
     protected Map<String, IOpenField> fieldMap() {
-        return fieldMap;
+        return fieldsByName;
     }
 
     @Override
@@ -153,7 +153,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     @Override
     public int hashCode() {
-        return Objects.hash(javaName);
+        return Objects.hash(componentClass);
     }
 
     @Override

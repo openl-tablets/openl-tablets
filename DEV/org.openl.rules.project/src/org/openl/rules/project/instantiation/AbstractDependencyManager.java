@@ -426,8 +426,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         var dependenciesToKeep = new HashSet<IDependencyLoader>();
         var queue = new ArrayDeque<IDependencyLoader>();
         for (ResolvedDependency dependency : dependencies) {
-            if (dependency != null) {
-                var dependencyLoader = findDependencyLoader(dependency);
+            // A dependency this manager does not load is not among the ones it could keep.
+            var dependencyLoader = dependency == null ? null : findDependencyLoader(dependency);
+            if (dependencyLoader != null) {
                 queue.add(dependencyLoader);
                 dependenciesToKeep.add(dependencyLoader);
             }
@@ -455,6 +456,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             return;
         }
         var dependencyLoader = findDependencyLoader(dependency);
+        if (dependencyLoader == null) {
+            // A dependency this manager does not load has nothing compiled here to drop: asked for later, it
+            // is compiled from its sources as they stand then.
+            return;
+        }
         var dependenciesReferencesToRemove = new HashSet<DependencyRelation>();
         var queue = new ArrayDeque<IDependencyLoader>();
         queue.add(dependencyLoader);

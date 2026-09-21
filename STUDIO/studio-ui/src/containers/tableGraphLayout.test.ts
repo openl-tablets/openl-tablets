@@ -1,7 +1,6 @@
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { buildGraphModel, GRAPH_LAYOUT, type GraphNode } from 'containers/tableGraph'
-import { restoreNativeGlobals } from 'utils/prototypeJsCompat'
 
 // Unlike TableGraphModal.test.tsx (which mocks cytoscape), this suite runs the real cytoscape + cytoscape-dagre
 // layout on every graph shape buildGraphModel can emit. The dagre engine bundled into cytoscape-dagre has broken
@@ -71,29 +70,5 @@ describe('tableGraph dagre layout', () => {
     it('lays out an empty and a single-table graph', () => {
         expectLaidOut([])
         expectLaidOut([{ id: 'only', name: 'OnlyTable' }])
-    })
-
-    it('lays out under Prototype.js global pollution once the shim restored Object.values (EPBDS-16212)', () => {
-        // legacy JSF pages load Prototype.js: enumerable Array.prototype extensions + a for-in Object.values;
-        // dagre iterates Object.values of an array and crashed on the extensions until the shim restores it
-        Object.defineProperty(Array.prototype, 'each', { value: () => [], enumerable: true, configurable: true })
-        const forInValues = (obj: object) => {
-            const result: unknown[] = []
-            for (const key in obj) {
-                result.push((obj as Record<string, unknown>)[key])
-            }
-            return result
-        }
-        Object.defineProperty(Object, 'values', { value: forInValues, writable: true, configurable: true })
-        try {
-            restoreNativeGlobals()
-            expectLaidOut([
-                { id: 'policy', name: 'DeterminePolicyPremium', kind: 'Spreadsheet', dependencies: ['driver', 'premium']},
-                { id: 'driver', name: 'DetermineDriverPremium', kind: 'Spreadsheet', dependencies: ['premium']},
-                { id: 'premium', name: 'BasePremium', kind: 'Rules' },
-            ])
-        } finally {
-            Reflect.deleteProperty(Array.prototype, 'each')
-        }
     })
 })

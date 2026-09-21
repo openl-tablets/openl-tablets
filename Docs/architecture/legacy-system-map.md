@@ -56,9 +56,6 @@ This document provides a complete map of legacy, modern, and transitional compon
 | **Jackson Serialization** | ✅ Modern | Jackson 2.20.0 | Continue using |
 | **Workspace Management** | ✅ Modern | Production-ready | Continue using |
 | **Security Framework** | ✅ Modern | Spring Security 6.5.5 | Continue using |
-| **JSF Pages** | 🔴 Legacy | Being replaced | **Bug fixes only** |
-| **RichFaces Components** | 🔴 Legacy | Custom fork | **Bug fixes only** |
-| **Table Editor** (JavaScript) | 🔴 Legacy | Being replaced | **Bug fixes only** |
 
 ### WSFrontend Module
 
@@ -83,81 +80,7 @@ This document provides a complete map of legacy, modern, and transitional compon
 
 ## Legacy Technologies
 
-### 1. JSF/RichFaces (STUDIO)
-
-**Status**: 🔴 **Legacy - Being Replaced**
-
-**Location**:
-- `/STUDIO/org.openl.rules.webstudio/src/main/webapp/`
-- JSF pages (`.xhtml`)
-- Managed beans
-
-**Why Legacy**:
-- Server-side rendering (slow)
-- Limited client-side interactivity
-- Difficult to maintain
-- RichFaces abandoned by upstream
-
-**Migration Path**:
-```
-JSF/RichFaces → React 19.2.x + TypeScript 5.9.x
-```
-
-**Current Status**:
-- React UI covers most features
-- JSF still used for some legacy pages
-- Table editor being migrated
-
-**Action**:
-- **Do not add new JSF pages**
-- **Bug fixes only for existing JSF**
-- **New features in React**
-- Target: Complete migration by 7.0
-
-### 2. RichFaces Custom Fork
-
-**Status**: 🔧 **Custom Fork - Maintained by OpenL**
-
-**Location**: External dependency
-
-**Why Forked**:
-- RichFaces abandoned by JBoss
-- Required Jakarta EE migration
-- OpenL-specific customizations
-
-**Maintenance Burden**:
-- Manual security updates
-- Jakarta namespace migration
-- Bug fixes without upstream
-
-**Action**:
-- Maintain until JSF removal complete
-- No new features
-- Plan deprecation with React migration
-
-### 3. Table Editor (JavaScript/jQuery)
-
-**Status**: 🔴 **Legacy - Being Replaced**
-
-**Location**: `/STUDIO/org.openl.rules.tableeditor/`
-
-**Why Legacy**:
-- jQuery-based (old patterns)
-- Hard to maintain
-- Limited features
-- Browser compatibility issues
-
-**Migration Path**:
-```
-jQuery Table Editor → React Table Editor
-```
-
-**Action**:
-- Bug fixes only
-- Complete React replacement
-- Remove jQuery dependencies
-
-### 4. Constraint Solver
+### 1. Constraint Solver
 
 **Status**: 🔴 **Legacy - Consider Removal**
 
@@ -237,18 +160,9 @@ VirtualSourceCodeModule
 
 ### User Interface
 
-| Feature | Legacy (JSF) | Modern (React) | Status |
-|---------|-------------|----------------|---------|
-| **Dashboard** | ✅ Exists | ✅ Exists | ⚠️ Migrated, JSF fallback |
-| **Project List** | ✅ Exists | ✅ Exists | ⚠️ Migrated, JSF fallback |
-| **Rule Editor** | ✅ Exists | 🚧 In Progress | ⚠️ Migrating |
-| **Test Runner** | ✅ Exists | ✅ Exists | ⚠️ Migrated |
-| **Settings** | ✅ Exists | ✅ Exists | ⚠️ Migrated |
-| **User Management** | ✅ Exists | 🚧 Planned | 🔴 JSF only |
-| **Repository Config** | ✅ Exists | 🚧 Planned | 🔴 JSF only |
-| **Table Editor** | ✅ Exists (jQuery) | 🚧 In Progress | 🔴 Legacy |
-
-**Migration Progress**: ~60% complete
+Every screen is drawn by the React frontend (`STUDIO/studio-ui`); the server renders no page and answers only
+data. The dashboard, the project list, the rule editor and its table editor, the test runner, the settings, user
+management and the repository configuration all live there.
 
 ---
 
@@ -281,19 +195,13 @@ VirtualSourceCodeModule
 
 ### High Priority (Critical)
 
-**1. JSF/RichFaces Removal**
-- **Impact**: High
-- **Effort**: Large (6-12 months)
-- **Risk**: Medium (user disruption)
-- **Action**: Complete React migration
-
-**2. Fix Constraint Solver Tests**
+**1. Fix Constraint Solver Tests**
 - **Impact**: Medium
 - **Effort**: Small (1 week)
 - **Risk**: Low
 - **Action**: Fix or remove
 
-**3. Cache Implementation Review**
+**2. Cache Implementation Review**
 - **Impact**: High (memory leaks)
 - **Effort**: Medium (1 month)
 - **Risk**: High
@@ -337,24 +245,7 @@ VirtualSourceCodeModule
 
 ## Custom Forks Maintained by OpenL
 
-### 1. RichFaces
-
-**Upstream**: Abandoned by JBoss/Red Hat
-**Fork**: Maintained by OpenL Team
-**Version**: 10.0.0 (OpenL custom)
-
-**Modifications**:
-- Jakarta EE namespace migration
-- Security patches
-- Bug fixes
-- OpenL-specific customizations
-
-**Maintenance**:
-- Manual security updates
-- No new features
-- Plan deprecation
-
-### 2. JGit
+### 1. JGit
 
 **Upstream**: Eclipse JGit
 **Fork**: Custom enhancements by OpenL
@@ -370,7 +261,7 @@ VirtualSourceCodeModule
 - OpenL-specific features
 - Long-term maintenance
 
-### 3. Flyway
+### 2. Flyway
 
 **Upstream**: Redgate Flyway
 **Fork**: Custom version
@@ -464,15 +355,12 @@ VirtualSourceCodeModule
 ### Version 7.0 (Next Major)
 
 **Goals**:
-- Remove JSF/RichFaces completely
 - Remove deprecated APIs (`OpenL.getInstance()`, etc.)
-- Complete React table editor
 - Generic type support
 
 **Timeline**: 12-18 months
 
 **Breaking Changes**:
-- JSF pages removed
 - Deprecated APIs removed
 - Configuration changes
 - API changes in core

@@ -1,0 +1,37 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Score",
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Cannot parse cell value '1abc'. Expected value of type 'Double'.",
+      "severity": "ERROR",
+      "location": {
+        "type": "table",
+        "id": "*",
+        "name": "Score",
+        "module": "Score",
+        "projectId": "*",
+        "project": "EPBDS-16640",
+        "cell": "C5",
+        "start": 0,
+        "end": 4
+      },
+      "stacktrace": true
+    }
+  ],
+  "pos": "B2:C5",
+  "source": [
+    [ { "cell": "B2", "value": "SimpleRules Double Score(Integer profit)", "colspan": 2 }, { "covered": true } ],
+    [ { "cell": "B3", "value": "Profit" }, { "cell": "C3", "value": [ "Score" ] } ],
+    [ { "cell": "B4", "value": 1500 }, { "cell": "C4", "value": 0.3 } ],
+    [ { "cell": "B5", "value": 10 }, { "cell": "C5", "value": "1abc" } ]
+  ],
+  "headerHeight": 1
+}
+

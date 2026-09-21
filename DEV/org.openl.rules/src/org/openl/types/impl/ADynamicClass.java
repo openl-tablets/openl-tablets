@@ -28,15 +28,15 @@ public abstract class ADynamicClass extends AOpenClass {
     @Getter
     private final String name;
 
-    protected volatile Map<String, IOpenField> fieldMap;
+    protected volatile Map<String, IOpenField> fieldsByName;
 
     @Getter
     protected Class<?> instanceClass;
 
-    public ADynamicClass(String name, Class<?> instanceClass) {
+    protected ADynamicClass(String name, Class<?> instanceClass) {
         this.name = name;
         this.instanceClass = instanceClass;
-        this.fieldMap = fieldMap();
+        this.fieldsByName = fieldMap();
     }
 
     public void addField(IOpenField field) throws DuplicatedFieldException {
@@ -58,7 +58,7 @@ public abstract class ADynamicClass extends AOpenClass {
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
         Map<MethodKey, IOpenMethod> methodMap = super.initMethodMap();
         if (methodMap == STUB) {
-            methodMap = new HashMap<>(4);
+            methodMap = HashMap.newHashMap(4);
         }
 
         if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass) && isPublic(instanceClass)) {
@@ -109,7 +109,7 @@ public abstract class ADynamicClass extends AOpenClass {
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
         Map<MethodKey, IOpenMethod> constructorMap = super.initConstructorMap();
         if (constructorMap == STUB) {
-            constructorMap = new HashMap<>(1);
+            constructorMap = HashMap.newHashMap(1);
         }
         var cc = getInstanceClass().getDeclaredConstructors();
         for (Constructor<?> constructor : cc) {
@@ -124,14 +124,14 @@ public abstract class ADynamicClass extends AOpenClass {
 
     @Override
     protected Map<String, IOpenField> fieldMap() {
-        if (fieldMap == null) {
+        if (fieldsByName == null) {
             synchronized (this) {
-                if (fieldMap == null) {
-                    fieldMap = new HashMap<>();
+                if (fieldsByName == null) {
+                    fieldsByName = new HashMap<>();
                 }
             }
         }
-        return fieldMap;
+        return fieldsByName;
     }
 
     @Override

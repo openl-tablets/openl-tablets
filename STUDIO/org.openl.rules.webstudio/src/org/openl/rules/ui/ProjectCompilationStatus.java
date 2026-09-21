@@ -12,7 +12,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 
@@ -48,6 +51,26 @@ public final class ProjectCompilationStatus {
 
     public Collection<OpenLMessage> getAllMessage() {
         return messages.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    /**
+     * The stack trace behind one of the messages, named by its identifier.
+     *
+     * <p>Answers {@code null} where no message carries that identifier, and where the one that does was raised
+     * about something other than an error — a warning has no trace to read. An error raised by something that
+     * was never thrown has no trace either.
+     *
+     * @param messageId identifier of the message to read the trace of
+     */
+    public @Nullable String getStacktrace(long messageId) {
+        return getAllMessage().stream()
+                .filter(message -> message.getId() == messageId)
+                .findFirst()
+                .filter(OpenLErrorMessage.class::isInstance)
+                .map(message -> ((OpenLErrorMessage) message).getError())
+                .filter(Throwable.class::isInstance)
+                .map(error -> ExceptionUtils.getStackTrace((Throwable) error))
+                .orElse(null);
     }
 
     public static Builder newBuilder() {

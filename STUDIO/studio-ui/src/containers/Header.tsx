@@ -1,9 +1,10 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert } from 'antd'
+import { Avatar, Layout, Row, Col, Menu, MenuProps, Alert, Space } from 'antd'
 import { UserOutlined } from '@ant-design/icons'
 import { useStyles } from './Header.styles'
 import { UserMenu } from './header/UserMenu'
+import { ThemeSwitch } from './header/ThemeSwitch'
 import { Link, useLocation } from 'react-router-dom'
 import Logo from '../components/Logo'
 import { hasDeploymentRepositories } from '../services/deployments'
@@ -50,10 +51,6 @@ export const Header = () => {
 
     const menuItems: MenuItem[] = [
         {
-            key: '/',
-            label: t('common:menu.editor'),
-        },
-        {
             key: '/projects',
             label: t('common:menu.projects'),
         },
@@ -93,10 +90,6 @@ export const Header = () => {
         if (pathname.startsWith('/deployments')) {
             return '/deployments'
         }
-        // The legacy pages under faces/ are the Editor's own screens.
-        if (pathname.startsWith('/faces/')) {
-            return '/'
-        }
         return pathname
     }, [pathname])
 
@@ -113,8 +106,7 @@ export const Header = () => {
                             </Col>
                             <Col>
                                 <div className="header-title">
-                                    {/* The Editor is a server-rendered page, so the title is a plain document link. */}
-                                    <Link reloadDocument to="/">{t('common:openl_studio')}</Link>
+                                    <Link to="/projects">{t('common:openl_studio')}</Link>
                                 </div>
                             </Col>
                         </Row>
@@ -132,7 +124,10 @@ export const Header = () => {
                         />
                     </Col>
                     <Col>
-                        <Avatar icon={<UserOutlined />} onClick={onOpenUserMenu} />
+                        <Space size="small">
+                            <ThemeSwitch />
+                            <Avatar icon={<UserOutlined />} onClick={onOpenUserMenu} />
+                        </Space>
                     </Col>
                 </Row>
                 <UserMenu isOpen={isUserMenuOpen} onClose={onCloseUserMenu} />

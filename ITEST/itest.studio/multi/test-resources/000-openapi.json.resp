@@ -14,7 +14,7 @@ Content-Type: application/json
   ],
   "security": [
     {
-      "basicAuth": [ ]
+      "basicAuth": []
     }
   ],
   "tags": [
@@ -54,16 +54,10 @@ Content-Type: application/json
       "name": "Mail"
     },
     {
-      "name": "Message"
-    },
-    {
       "name": "Notification"
     },
     {
       "name": "Production Repository"
-    },
-    {
-      "name": "Project Compilation"
     },
     {
       "description": "***",
@@ -80,6 +74,10 @@ Content-Type: application/json
     {
       "description": "***",
       "name": "Projects: Merge (BETA)"
+    },
+    {
+      "description": "***",
+      "name": "Projects: OpenAPI (BETA)"
     },
     {
       "description": "***",
@@ -5239,308 +5237,23 @@ Content-Type: application/json
         ]
       }
     },
-      "/compare/{comparisonId}": {
-        "delete": {
-          "description": "***",
-          "operationId": "***",
-          "parameters": [
-            {
-              "description": "***",
-              "in": "path",
-              "name": "comparisonId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": "***"
-            },
-            "400": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ValidationError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "403": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "404": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "409": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "423": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "500": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            }
-          },
-          "summary": "***",
-          "tags": [
-            "Compare"
-          ]
-        },
-        "get": {
-          "description": "***",
-          "operationId": "***",
-          "parameters": [
-            {
-              "description": "***",
-              "in": "path",
-              "name": "comparisonId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "fields",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ComparisonView"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "400": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ValidationError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "403": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "404": {
-              "description": "***"
-            },
-            "409": {
-              "description": "***"
-            },
-            "423": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "500": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            }
-          },
-          "summary": "***",
-          "tags": [
-            "Compare"
-          ]
-        }
-      },
-      "/compare/{comparisonId}/tables/{tableId}": {
-        "get": {
-          "description": "***",
-          "operationId": "***",
-          "parameters": [
-            {
-              "description": "***",
-              "in": "path",
-              "name": "comparisonId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "path",
-              "name": "tableId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "fields",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ComparisonTableView"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "400": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ValidationError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "403": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "404": {
-              "description": "***"
-            },
-            "409": {
-              "description": "***"
-            },
-            "423": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "500": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            }
-          },
-          "summary": "***",
-          "tags": [
-            "Compare"
-          ]
-        }
-      },
-    "/compile/table/{tableId}": {
-      "get": {
+    "/compare/{comparisonId}": {
+      "delete": {
         "description": "***",
         "operationId": "***",
         "parameters": [
           {
             "description": "***",
             "in": "path",
-            "name": "tableId",
+            "name": "comparisonId",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
             "schema": {
               "type": "string"
             }
           }
         ],
         "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TableInfo"
-                }
-              }
-            },
+          "204": {
             "description": "***"
           },
           "400": {
@@ -5606,15 +5319,127 @@ Content-Type: application/json
         },
         "summary": "***",
         "tags": [
-          "Project Compilation"
+          "Compare"
+        ]
+      },
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "comparisonId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Compare"
         ]
       }
     },
-    "/compile/tests/{tableId}": {
+    "/compare/{comparisonId}/tables/{tableId}": {
       "get": {
         "description": "***",
         "operationId": "***",
         "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "comparisonId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "***",
             "in": "path",
@@ -5639,7 +5464,17 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TableTestsInfo"
+                  "$ref": "#/components/schemas/ComparisonTableView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
                 }
               }
             },
@@ -5666,13 +5501,6 @@ Content-Type: application/json
             "description": "***"
           },
           "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
             "description": "***"
           },
           "409": {
@@ -5708,7 +5536,7 @@ Content-Type: application/json
         },
         "summary": "***",
         "tags": [
-          "Project Compilation"
+          "Compare"
         ]
       }
     },
@@ -6450,194 +6278,6 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Mail"
-        ]
-      }
-    },
-    "/message/{messageId}/stacktrace": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "messageId",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Message"
-        ]
-      }
-    },
-    "/message/{messageId}/url": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "messageId",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Message"
         ]
       }
     },
@@ -7488,6 +7128,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -7519,6 +7169,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -9294,175 +8951,175 @@ Content-Type: application/json
         ]
       }
     },
-      "/projects/{projectId}/history": {
-        "get": {
-          "description": "***",
-          "operationId": "***",
-          "parameters": [
-            {
-              "description": "***",
-              "in": "path",
-              "name": "projectId",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "branch",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "search",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "techRevs",
-              "schema": {
-                "type": "boolean",
-                "default": false
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "offset",
-              "schema": {
-                "type": "integer",
-                "format": "int32",
-                "default": 0,
-                "minimum": 0
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "page",
-              "schema": {
-                "type": "integer",
-                "format": "int32",
-                "default": 0,
-                "minimum": 0
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "size",
-              "schema": {
-                "type": "integer",
-                "format": "int32",
-                "default": 50,
-                "minimum": 1
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "unpaged",
-              "schema": {
-                "type": "boolean",
-                "default": false
-              }
-            },
-            {
-              "description": "***",
-              "in": "query",
-              "name": "fields",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "400": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ValidationError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "403": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "404": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "409": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "423": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
-            },
-            "500": {
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BaseError"
-                  }
-                }
-              },
-              "description": "***"
+    "/projects/{projectId}/history": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
-          "summary": "***",
-          "tags": [
-            "Projects (BETA)"
-          ]
-        }
-      },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "techRevs",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseProjectRevision_Short"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/local-history": {
       "delete": {
         "description": "***",
@@ -10835,6 +10492,117 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/messages/{messageId}/stacktrace": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "messageId",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/migration": {
       "get": {
         "description": "***",
@@ -11041,6 +10809,203 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/modules/{moduleName}/compile": {
+      "delete": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "moduleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      },
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "moduleName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "reset",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/modules/{moduleName}/sheets": {
       "get": {
         "operationId": "***",
@@ -11142,6 +11107,320 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/openapi/generation": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "algorithmModuleName",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "modelModuleName",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiGenerationPlanView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: OpenAPI (BETA)"
+        ]
+      },
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpenApiGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: OpenAPI (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/openapi/schema": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenApiSchemaView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: OpenAPI (BETA)"
         ]
       }
     },
@@ -11632,6 +11911,16 @@ Content-Type: application/json
               }
             }
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -11659,6 +11948,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -11833,6 +12129,44 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "scope",
+            "schema": {
+              "type": "string",
+              "description": "***",
+              "enum": [
+                "module",
+                "project",
+                "all"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "text",
             "schema": {
               "type": "string"
             }
@@ -12244,6 +12578,14 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -12378,6 +12720,32 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "metaInfo",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "When `true`, the answer also says whether the table can be run as it stands and how far a run of it may reach: `can-run`, `can-run-module` while only the open module is built or what is built beyond it has errors, or `cannot-run` for a table that failed to compile and for a test whose rules failed. Working it out reads what the compiler said about the table, so it is answered only when asked for.",
+            "in": "query",
+            "name": "runState",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -12480,6 +12848,14 @@ Content-Type: application/json
             "in": "path",
             "name": "tableId",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
             "schema": {
               "type": "string"
             }
@@ -12618,6 +12994,14 @@ Content-Type: application/json
             }
           },
           {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "fields",
@@ -12722,6 +13106,147 @@ Content-Type: application/json
           }
         },
         "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/actions/batch": {
+      "post": {
+        "description": "Apply a sequence of edits to the raw source of the table in the currently opened project as one change, so a whole editing session is sent in a single request. The edits are applied in the order they are given and each one addresses the table as the previous one left it: a row inserted or deleted earlier shifts the coordinates of everything that follows. The table is written once, after the last edit; an edit that is refused ends the sequence and nothing of it reaches the table. Each edit takes the same shape as the single-edit request. If the table had no room to grow and was relocated, its ID changes and the new ID is returned in the response body together with the new table URL in the `Location` header.",
+        "operationId": "editTableSourceBatch",
+        "parameters": [
+          {
+            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Table ID.",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawTableSourceActions"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableIdView"
+                }
+              }
+            },
+            "description": "Edit applied and the table relocated. The response body carries the new table ID and the `Location` header points to the table under its new ID.",
+            "headers": {
+              "Location": {
+                "description": "URL of the table under its new ID, returned when the table was relocated and its ID changed.",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          },
+          "204": {
+            "description": "Edit applied without changing the table ID."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Edit project table source in one change",
         "tags": [
           "Projects (BETA)"
         ]
@@ -12843,6 +13368,264 @@ Content-Type: application/json
           }
         },
         "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/details": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDetailsView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/editors": {
+      "get": {
+        "description": "Read the ways of entering a value the cells of the table ask for: the values a cell is chosen from, the bounds a number is entered within, how the entries of an array are written, how a range is entered. A screen editing a table reads this once, for the same window of rows it read the table as, and needs nothing more while the user edits. The ways of entering a value are listed once and pointed at by index, because a whole column usually asks for the same one. A cell that is not listed is written as plain text, which a screen can tell from the value itself.",
+        "operationId": "getTableEditors",
+        "parameters": [
+          {
+            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Table ID.",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Zero-based index of the first row of the raw view; omit to start at the top. Combine with `maxRows` to read a large table in slices.",
+            "in": "query",
+            "name": "startRow",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "description": "Maximum number of rows for the raw view, counted from `startRow`; omit to read to the end. When the window omits rows, the response carries `totalRows`.",
+            "in": "query",
+            "name": "maxRows",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableEditorsView"
+                }
+              }
+            },
+            "description": "default response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Get how a project table's cells are written",
         "tags": [
           "Projects (BETA)"
         ]
@@ -13418,6 +14201,14 @@ Content-Type: application/json
             }
           },
           {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "***",
             "in": "query",
             "name": "fields",
@@ -13566,6 +14357,388 @@ Content-Type: application/json
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TablePropertiesView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      },
+      "patch": {
+        "description": "Write properties onto the table of the currently opened project without sending its body. Only the properties named in the request are touched: one carrying a value is written, one carrying no value is removed, and a property the table declares that the request does not name is left as it stands. A removed property that the module or the category also defines applies again from there. A date value is read from ISO-8601; every other value is read the way the Table Details editor writes it. A property the kind of table does not accept is rejected, unless the table already carries it and the request is taking it away. If the table had no room to grow and was relocated, its ID changes and the new ID is returned in the response body together with the new table URL in the `Location` header.",
+        "operationId": "updateTableProperties",
+        "parameters": [
+          {
+            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Table ID.",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TablePropertiesUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableIdView"
+                }
+              }
+            },
+            "description": "Properties written and the table relocated. The response body carries the new table ID and the `Location` header points to the table under its new ID.",
+            "headers": {
+              "Location": {
+                "description": "URL of the table under its new ID, returned when the table was relocated and its ID changed.",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          },
+          "204": {
+            "description": "Properties written without changing the table ID."
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Update project table properties",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/targets": {
+      "get": {
+        "description": "The tables the given test or run table exercises, each named by the id the Tables API addresses it by and by where it lives, since a test may be written against a table of another module or of a project this one depends on. A table written in several versions is tested in all of them at once, and each version is answered under the name that tells it from the others. Any other kind of table exercises nothing and is answered with an empty list.",
+        "operationId": "getTableTargets",
+        "parameters": [
+          {
+            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Table ID.",
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Module the table is asked for through. The answer is ready once that module is compiled and does not wait for the rest of the project.",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of response fields to return, including nested selection, e.g. 'id,name' or 'id,name,modules(id,name)'. When omitted, the full response is returned.",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableTargetView"
+                  }
+                }
+              }
+            },
+            "description": "default response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Get the tables a test exercises (BETA)",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
+    "/projects/{projectId}/tables/{tableId}/tests": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "tableId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableTestView"
+                  }
                 }
               }
             },
@@ -13876,6 +15049,16 @@ Content-Type: application/json
               }
             }
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -13903,6 +15086,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -13985,6 +15175,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNotReadyView"
+                }
+              }
+            },
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -14009,6 +15209,13 @@ Content-Type: application/json
             "description": "***"
           },
           "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
             "description": "***"
           },
           "423": {
@@ -18655,102 +19862,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/repos/{repo-name}/projects/from-workspace": {
-      "post": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "repo-name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateFromWorkspaceModel"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Design Repository"
-        ]
-      }
-    },
     "/repos/{repo-name}/projects/{project-name}": {
       "put": {
         "description": "***",
@@ -21494,6 +22605,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -22511,32 +23626,6 @@ Content-Type: application/json
           "sourceRepositoryId"
         ]
       },
-      "CreateFromWorkspaceModel": {
-        "type": "object",
-        "properties": {
-          "branch": {
-            "type": "string",
-            "description": "***"
-          },
-          "comment": {
-            "type": "string",
-            "description": "***"
-          },
-          "names": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 100,
-            "minItems": 0
-          },
-          "path": {
-            "type": "string",
-            "description": "***"
-          }
-        }
-      },
       "CreateNewTableRequest": {
         "type": "object",
         "properties": {
@@ -22780,6 +23869,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -22794,6 +23888,16 @@ Content-Type: application/json
                 "items": {
                   "$ref": "#/components/schemas/DataRowView"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -22983,6 +24087,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -22990,6 +24099,16 @@ Content-Type: application/json
                   "description": "***"
                 },
                 "description": "***"
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -24436,6 +25555,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -24459,6 +25583,16 @@ Content-Type: application/json
                   },
                   "description": "***"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -24783,6 +25917,14 @@ Content-Type: application/json
               "name": {
                 "type": "string",
                 "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
+                "type": "string",
+                "description": "***"
               }
             }
           }
@@ -24798,6 +25940,14 @@ Content-Type: application/json
             "type": "object",
             "properties": {
               "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
                 "type": "string",
                 "description": "***"
               }
@@ -25042,41 +26192,82 @@ Content-Type: application/json
           "userMode"
         ]
       },
-      "OpenlProblemMessage": {
+      "OpenApiGenerationPlanView": {
         "type": "object",
         "properties": {
-          "errorCell": {
-            "type": "string"
+          "algorithm": {
+            "$ref": "#/components/schemas/OpenApiModuleView"
           },
-          "errorCode": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "hasLinkToCell": {
-            "type": "boolean"
-          },
-          "hasStacktrace": {
-            "type": "boolean"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "severity": {
+          "model": {
+            "$ref": "#/components/schemas/OpenApiModuleView"
+          }
+        }
+      },
+      "OpenApiGenerationRequest": {
+        "type": "object",
+        "properties": {
+          "algorithmModuleName": {
             "type": "string",
-            "enum": [
-              "INFO",
-              "WARN",
-              "ERROR"
-            ]
+            "description": "***",
+            "minLength": 1
           },
-          "summary": {
-            "type": "string"
+          "algorithmModulePath": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
           },
-          "tableId": {
-            "type": "string"
+          "modelModuleName": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          },
+          "modelModulePath": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "algorithmModuleName",
+          "algorithmModulePath",
+          "modelModuleName",
+          "modelModulePath",
+          "path"
+        ]
+      },
+      "OpenApiModuleView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "declared": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "OpenApiSchemaView": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -25194,28 +26385,15 @@ Content-Type: application/json
           "pageSize"
         ]
       },
-      "PairStringTableDescription": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "left": {
-            "type": "string"
-          },
-          "right": {
-            "$ref": "#/components/schemas/TableDescription"
-          },
-          "value": {
-            "$ref": "#/components/schemas/TableDescription"
-          }
-        }
-      },
       "ParameterValue": {
         "type": "object",
         "description": "***",
         "properties": {
           "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "key": {
             "type": "string",
             "description": "***"
           },
@@ -25234,6 +26412,10 @@ Content-Type: application/json
           },
           "schema": {
             "type": "object",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
             "description": "***"
           },
           "value": {
@@ -25453,6 +26635,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "canMerge": {
+            "type": "boolean",
+            "description": "***"
+          },
           "canOpen": {
             "type": "boolean",
             "description": "***"
@@ -25514,6 +26700,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "canMerge": {
+            "type": "boolean",
+            "description": "***"
+          },
           "canOpen": {
             "type": "boolean",
             "description": "***"
@@ -25572,6 +26762,10 @@ Content-Type: application/json
             "description": "***"
           },
           "canManageBranches": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "canMerge": {
             "type": "boolean",
             "description": "***"
           },
@@ -26037,11 +27231,16 @@ Content-Type: application/json
               "compiling",
               "ok",
               "warnings",
-              "errors"
+              "errors",
+              "cancelled"
             ]
           },
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy"
+          },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
           },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges"
@@ -26074,11 +27273,16 @@ Content-Type: application/json
               "compiling",
               "ok",
               "warnings",
-              "errors"
+              "errors",
+              "cancelled"
             ]
           },
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy_Detailed"
+          },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
           },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges_Detailed"
@@ -26111,11 +27315,16 @@ Content-Type: application/json
               "compiling",
               "ok",
               "warnings",
-              "errors"
+              "errors",
+              "cancelled"
             ]
           },
           "lastModifiedBy": {
             "$ref": "#/components/schemas/ModifiedBy_Full"
+          },
+          "manualCompileNeeded": {
+            "type": "boolean",
+            "description": "***"
           },
           "pendingChanges": {
             "$ref": "#/components/schemas/PendingChanges_Full"
@@ -26203,6 +27412,10 @@ Content-Type: application/json
           },
           "name": {
             "type": "string",
+            "description": "***"
+          },
+          "overwritesNewerRevision": {
+            "type": "boolean",
             "description": "***"
           },
           "path": {
@@ -26326,6 +27539,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "overwritesNewerRevision": {
+            "type": "boolean",
+            "description": "***"
+          },
           "path": {
             "type": "string",
             "description": "***"
@@ -26429,6 +27646,10 @@ Content-Type: application/json
           },
           "name": {
             "type": "string",
+            "description": "***"
+          },
+          "overwritesNewerRevision": {
+            "type": "boolean",
             "description": "***"
           },
           "path": {
@@ -26653,6 +27874,51 @@ Content-Type: application/json
           }
         }
       },
+      "RawCellStyleInput": {
+        "type": "object",
+        "description": "Styling to set on the cells: background, font and alignment. An attribute that is left out is not touched, so the cells keep the styling they already carry.",
+        "properties": {
+          "align": {
+            "type": "string",
+            "description": "Horizontal alignment; `left` puts the cells back to the default alignment.",
+            "enum": [
+              "left",
+              "right",
+              "center",
+              "justify"
+            ]
+          },
+          "background": {
+            "type": "string",
+            "description": "Background colour as #rrggbb.",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "bold": {
+            "type": "boolean",
+            "description": "Whether the font is bold."
+          },
+          "color": {
+            "type": "string",
+            "description": "Font colour as #rrggbb.",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "indent": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Left indent in Excel indent units; 0 takes the indent away.",
+            "maximum": 15,
+            "minimum": 0
+          },
+          "italic": {
+            "type": "boolean",
+            "description": "Whether the font is italic."
+          },
+          "underline": {
+            "type": "boolean",
+            "description": "Whether the font is underlined."
+          }
+        }
+      },
       "RawTableAppend": {
         "type": "object",
         "allOf": [
@@ -26690,6 +27956,11 @@ Content-Type: application/json
             "description": "***",
             "readOnly": true
           },
+          "comment": {
+            "type": "string",
+            "description": "***",
+            "readOnly": true
+          },
           "colspan": {
             "type": "integer",
             "format": "int32",
@@ -26698,6 +27969,14 @@ Content-Type: application/json
           "covered": {
             "type": "boolean",
             "description": "***"
+          },
+          "formula": {
+            "type": "string",
+            "description": "***",
+            "readOnly": true
+          },
+          "metaInfo": {
+            "$ref": "#/components/schemas/RawTableCellMetaInfo"
           },
           "rowspan": {
             "type": "integer",
@@ -26765,6 +28044,31 @@ Content-Type: application/json
           }
         }
       },
+      "RawTableCellMetaInfo": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "editor": {
+            "type": "string",
+            "description": "***"
+          },
+          "returnCell": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***"
+          },
+          "usages": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/RawTableCellUsage"
+            }
+          }
+        }
+      },
       "RawTableCellStyle": {
         "type": "object",
         "description": "***",
@@ -26773,6 +28077,7 @@ Content-Type: application/json
             "type": "string",
             "description": "***",
             "enum": [
+              "left",
               "right",
               "center",
               "justify"
@@ -26817,6 +28122,49 @@ Content-Type: application/json
           }
         }
       },
+      "RawTableCellUsage": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "***"
+          },
+          "end": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "rule",
+              "datatype",
+              "data",
+              "field",
+              "underlined",
+              "other"
+            ]
+          },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "***"
+          },
+          "start": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "tableId": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
       "RawTableSourceAction": {
         "type": "object",
         "description": "***",
@@ -26826,6 +28174,7 @@ Content-Type: application/json
             "delete": "#/components/schemas/Delete",
             "insert": "#/components/schemas/Insert",
             "merge": "#/components/schemas/Merge",
+            "style": "#/components/schemas/Style",
             "unmerge": "#/components/schemas/Unmerge",
             "update": "#/components/schemas/Update"
           },
@@ -26849,6 +28198,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/Unmerge"
+          },
+          {
+            "$ref": "#/components/schemas/Style"
           }
         ],
         "properties": {
@@ -26860,6 +28212,22 @@ Content-Type: application/json
           "operation"
         ]
       },
+      "RawTableSourceActions": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": "array",
+            "description": "Edits to apply, in order. Each one addresses the table as the previous one left it, so an insert or a delete shifts the coordinates of everything that follows.",
+            "items": {
+              "$ref": "#/components/schemas/RawTableSourceAction"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "actions"
+        ]
+      },
       "RawTableView": {
         "type": "object",
         "allOf": [
@@ -26869,6 +28237,12 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "headerHeight": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***",
+                "readOnly": true
+              },
               "id": {
                 "type": "string",
                 "description": "***"
@@ -26895,7 +28269,10 @@ Content-Type: application/json
                   "Other"
                 ]
               },
-              "messages": {
+              "layout": {
+            "$ref": "#/components/schemas/TableLayout"
+          },
+          "messages": {
                 "type": "array",
                 "description": "***",
                 "items": {
@@ -26907,9 +28284,24 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "pos": {
                 "type": "string",
                 "description": "***",
+                "readOnly": true
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
                 "readOnly": true
               },
               "source": {
@@ -27218,6 +28610,19 @@ Content-Type: application/json
         "required": [
           "version"
         ]
+      },
+      "ResultNotReadyView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "notReady"
+            ]
+          }
+        }
       },
       "RevisionDetails": {
         "type": "object",
@@ -27569,6 +28974,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -27592,6 +29002,16 @@ Content-Type: application/json
                   },
                   "description": "***"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -27671,6 +29091,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -27682,6 +29107,16 @@ Content-Type: application/json
               "returnType": {
                 "type": "string",
                 "description": "***"
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               },
               "steps": {
                 "type": "array",
@@ -27794,6 +29229,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -27817,6 +29257,16 @@ Content-Type: application/json
                   },
                   "description": "***"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -28014,6 +29464,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -28032,6 +29487,16 @@ Content-Type: application/json
                 "items": {
                   "$ref": "#/components/schemas/SpreadsheetRowView"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               }
             }
           }
@@ -28129,11 +29594,118 @@ Content-Type: application/json
           }
         }
       },
+      "Style": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RawTableSourceAction"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "target": {
+                "$ref": "#/components/schemas/StyleTarget"
+              }
+            }
+          }
+        ],
+        "description": "Sets the styling of a rectangular range of cells.",
+        "required": [
+          "target"
+        ]
+      },
+      "StyleCells": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StyleTarget"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "colspan": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Number of columns the range spans (>= 1).",
+                "minimum": 1
+              },
+              "column": {
+                "type": "integer",
+                "format": "int32",
+                "description": "0-based column index of the top-left cell (0..width-1).",
+                "minimum": 0
+              },
+              "row": {
+                "type": "integer",
+                "format": "int32",
+                "description": "0-based row index of the top-left cell (0..height-1).",
+                "minimum": 0
+              },
+              "rowspan": {
+                "type": "integer",
+                "format": "int32",
+                "description": "Number of rows the range spans (>= 1).",
+                "minimum": 1
+              },
+              "style": {
+                "$ref": "#/components/schemas/RawCellStyleInput"
+              }
+            }
+          }
+        ],
+        "description": "Sets the styling of every cell of a rectangular range. The range must stay within the table; a single cell is a range of one row by one column.",
+        "required": [
+          "colspan",
+          "column",
+          "row",
+          "rowspan",
+          "style"
+        ]
+      },
+      "StyleTarget": {
+        "type": "object",
+        "discriminator": {
+          "mapping": {
+            "cells": "#/components/schemas/StyleCells"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/StyleCells"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
       "SummaryTableView": {
         "type": "object",
         "properties": {
+          "active": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "***"
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
           "file": {
             "type": "string",
+            "description": "***"
+          },
+          "hasTests": {
+            "type": "boolean",
             "description": "***"
           },
           "id": {
@@ -28162,11 +29734,27 @@ Content-Type: application/json
               "Other"
             ]
           },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"
           },
+          "overloadGroup": {
+            "type": "string",
+            "description": "***"
+          },
           "pos": {
+            "type": "string",
+            "description": "***"
+          },
+          "project": {
+            "type": "string",
+            "description": "***"
+          },
+          "projectId": {
             "type": "string",
             "description": "***"
           },
@@ -28179,6 +29767,20 @@ Content-Type: application/json
             "description": "***"
           },
           "returnType": {
+            "type": "string",
+            "description": "***"
+          },
+          "runState": {
+            "type": "string",
+            "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+            "enum": [
+              "can-run",
+              "can-run-module",
+              "cannot-run"
+            ],
+            "readOnly": true
+          },
+          "sheet": {
             "type": "string",
             "description": "***"
           },
@@ -28213,17 +29815,121 @@ Content-Type: application/json
           }
         }
       },
-      "TableDescription": {
+      "TableCellEditorRef": {
+        "type": "object",
+        "description": "A cell and the editor it asks for",
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based column of the cell in the matrix the raw read returns"
+          },
+          "editor": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based index into `editors`"
+          },
+          "row": {
+            "type": "integer",
+            "format": "int32",
+            "description": "0-based row of the cell in the matrix the raw read returns"
+          }
+        }
+      },
+      "TableCellEditorView": {
+        "type": "object",
+        "description": "One way of entering a value, with what that way of entering it needs",
+        "properties": {
+          "choices": {
+            "type": "array",
+            "description": "Values to choose from; carried by 'combo' and 'multiselect'",
+            "items": {
+              "type": "string",
+              "description": "Values to choose from; carried by 'combo' and 'multiselect'"
+            }
+          },
+          "displayValues": {
+            "type": "array",
+            "description": "What to show for each choice, in the order of `choices`",
+            "items": {
+              "type": "string",
+              "description": "What to show for each choice, in the order of `choices`"
+            }
+          },
+          "editor": {
+            "type": "string",
+            "description": "Kind of editor: 'combo', 'multiselect', 'numeric', 'array', 'range', 'date' or 'boolean'."
+          },
+          "entryEditor": {
+            "type": "string",
+            "description": "Editor one entry is written with; carried by 'array' and 'range'"
+          },
+          "intOnly": {
+            "type": "boolean",
+            "description": "true when only whole numbers are accepted; carried by 'numeric' and 'array'"
+          },
+          "max": {
+            "type": "number",
+            "description": "Largest value the cell's type holds; carried by 'numeric'"
+          },
+          "min": {
+            "type": "number",
+            "description": "Smallest value the cell's type holds; carried by 'numeric'"
+          },
+          "separator": {
+            "type": "string",
+            "description": "What separates the chosen values in the cell; carried by 'multiselect' and 'array'"
+          },
+          "separatorEscaper": {
+            "type": "string",
+            "description": "What precedes a separator that belongs to a value; carried by 'multiselect'"
+          }
+        }
+      },
+      "TableDetailsView": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
+          "available": {
+            "type": "array",
+            "description": "Names of the properties that may still be written on the table: the ones its kind accepts, less the ones it already carries or inherits. A value already shown is changed where it stands, which writes it onto the table.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "canEditProperties": {
+            "type": "boolean",
+            "description": "Whether properties may be written on this table. A table that carries no properties at all — the environment, a properties table, whatever OpenL could not name — accepts none."
+          },
+          "groups": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TablePropertyGroupView"
+            }
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "TableEditorsView": {
+        "type": "object",
+        "description": "The ways of entering a value a table's cells ask for",
+        "properties": {
+          "cells": {
+            "type": "array",
+            "description": "Cells that ask for one of the editors; a cell that is absent is written as text",
+            "items": {
+              "$ref": "#/components/schemas/TableCellEditorRef"
+            }
           },
-          "uri": {
-            "type": "string"
+          "editors": {
+            "type": "array",
+            "description": "Ways of entering a value this table needs, pointed at by index from `cells`",
+            "items": {
+              "$ref": "#/components/schemas/TableCellEditorView"
+            }
           }
         }
       },
@@ -28233,40 +29939,6 @@ Content-Type: application/json
           "id": {
             "type": "string",
             "description": "***"
-          }
-        }
-      },
-      "TableInfo": {
-        "type": "object",
-        "properties": {
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OpenlProblemMessage"
-            }
-          },
-          "tableRunState": {
-            "type": "string",
-            "enum": [
-              "CAN_RUN",
-              "CAN_RUN_MODULE",
-              "CANNOT_RUN"
-            ]
-          },
-          "tableUrl": {
-            "type": "string"
-          },
-          "targetTables": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PairStringTableDescription"
-            }
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OpenlProblemMessage"
-            }
           }
         }
       },
@@ -28291,8 +29963,19 @@ Content-Type: application/json
           "tableId": {
             "type": "string",
             "description": "***"
+          }
+        }
+      },
+      "TableLayout": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "firstDataLine": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
           },
-          "testTable": {
+          "transposed": {
             "type": "boolean",
             "description": "***"
           }
@@ -28311,6 +29994,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "end": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
               "id": {
                 "type": "string",
                 "description": "***"
@@ -28321,6 +30009,19 @@ Content-Type: application/json
               },
               "name": {
                 "type": "string",
+                "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
+                "type": "string",
+                "description": "***"
+              },
+              "start": {
+                "type": "integer",
+                "format": "int32",
                 "description": "***"
               }
             }
@@ -28340,6 +30041,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "end": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
               "id": {
                 "type": "string",
                 "description": "***"
@@ -28350,6 +30056,19 @@ Content-Type: application/json
               },
               "name": {
                 "type": "string",
+                "description": "***"
+              },
+              "project": {
+                "type": "string",
+                "description": "***"
+              },
+              "projectId": {
+                "type": "string",
+                "description": "***"
+              },
+              "start": {
+                "type": "integer",
+                "format": "int32",
                 "description": "***"
               }
             }
@@ -28439,6 +30158,10 @@ Content-Type: application/json
               "Dispatcher"
             ]
           },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -28464,6 +30187,21 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "TablePropertiesUpdate": {
+        "type": "object",
+        "properties": {
+          "properties": {
+            "type": "array",
+            "description": "Properties to write. A property with no value is removed from the table; one the table declares and this list does not name is left as it stands.",
+            "items": {
+              "$ref": "#/components/schemas/TableProperty"
+            }
+          }
+        },
+        "required": [
+          "properties"
+        ]
       },
       "TablePropertiesView": {
         "type": "object",
@@ -28523,17 +30261,105 @@ Content-Type: application/json
           "name"
         ]
       },
-      "TableTestsInfo": {
+      "TablePropertyDetailView": {
         "type": "object",
         "properties": {
-          "allTests": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TableDescription"
-            }
+          "displayName": {
+            "type": "string",
+            "description": "***"
           },
-          "compiled": {
-            "type": "boolean"
+          "inheritedFrom": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "category",
+              "module",
+              "external"
+            ]
+          },
+          "inheritedTableId": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "value": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "TablePropertyGroupView": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "properties": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/TablePropertyDetailView"
+            }
+          }
+        }
+      },
+      "TableTargetView": {
+        "type": "object",
+        "description": "A table that a test or run table exercises",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identifier of the tested table, the one the Tables API addresses it by"
+          },
+          "module": {
+            "type": "string",
+            "description": "Module the tested table is written in, which need not be the one being read"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name the tested table is known by, with the dimension properties that tell this version of it from the others"
+          },
+          "project": {
+            "type": "string",
+            "description": "Name of the project the tested table belongs to"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Identifier of that project, as the Projects API addresses it"
+          }
+        }
+      },
+      "TableTestView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "info": {
+            "type": "string",
+            "description": "***"
+          },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "project": {
+            "type": "string",
+            "description": "***"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -28796,6 +30622,10 @@ Content-Type: application/json
             "format": "double",
             "description": "***"
           },
+          "module": {
+            "type": "string",
+            "description": "***"
+          },
           "name": {
             "type": "string",
             "description": "***"
@@ -28960,6 +30790,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -28974,6 +30809,16 @@ Content-Type: application/json
                 "items": {
                   "$ref": "#/components/schemas/DataRowView"
                 }
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               },
               "testedTableName": {
                 "type": "string",
@@ -29913,6 +31758,11 @@ Content-Type: application/json
                 "type": "string",
                 "description": "***"
               },
+              "partial": {
+                "type": "boolean",
+                "description": "***",
+                "readOnly": true
+              },
               "properties": {
                 "type": "object",
                 "additionalProperties": {
@@ -29920,6 +31770,16 @@ Content-Type: application/json
                   "description": "***"
                 },
                 "description": "***"
+              },
+              "runState": {
+                "type": "string",
+                "description": "Whether the table can be run as it stands, and how far a run of it may reach. A table that failed to compile, and a test whose rules failed, runs nothing",
+                "enum": [
+                  "can-run",
+                  "can-run-module",
+                  "cannot-run"
+                ],
+                "readOnly": true
               },
               "type": {
                 "type": "string",

@@ -21,10 +21,4 @@ public class SetUnderlineAction extends AUndoableCellAction {
         grid.setCellFontUnderline(getCol(), getRow(), underlined);
     }
 
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        grid.setCellFontUnderline(getCol(), getRow(), !underlined);
-    }
-
 }

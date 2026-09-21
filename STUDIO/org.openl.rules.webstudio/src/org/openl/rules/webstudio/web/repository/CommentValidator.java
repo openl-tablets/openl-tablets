@@ -4,7 +4,6 @@ import java.util.regex.Pattern;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.webstudio.web.Props;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 public class CommentValidator {
@@ -17,15 +16,24 @@ public class CommentValidator {
         this.invalidMessage = invalidMessage;
     }
 
+    /**
+     * Checks the comment against what the repository accepts.
+     *
+     * @param comment the comment to check; a missing one is read as empty
+     * @throws IllegalArgumentException when the comment does not match the repository's pattern, or is longer than
+     *                                  the maximum
+     */
     public void validate(String comment) {
         if (comment == null) {
             comment = "";
         }
-        if (pattern != null) {
-            WebStudioUtils.validate(pattern.matcher(comment).matches(), invalidMessage);
+        if (pattern != null && !pattern.matcher(comment).matches()) {
+            throw new IllegalArgumentException(invalidMessage);
         }
-        WebStudioUtils.validate(comment.length() <= MAX_COMMENT_LENGTH,
-                "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
+        if (comment.length() > MAX_COMMENT_LENGTH) {
+            throw new IllegalArgumentException(
+                    "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
+        }
     }
 
     public static CommentValidator forRepo(String repoId) {

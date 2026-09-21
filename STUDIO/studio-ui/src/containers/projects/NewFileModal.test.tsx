@@ -12,7 +12,7 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t }) }
 })
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Modal = ({ open, children, onOk, okButtonProps }: Record<string, unknown>) => open ? (
         <div role="dialog">
             {children as never}
@@ -30,7 +30,8 @@ vi.mock('antd', () => {
         )
     }
     const notification = { error: vi.fn() }
-    return { Input, Modal, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Input, Modal, notification })
 })
 
 // The path field has its own tests; here it is just an input carrying the path.

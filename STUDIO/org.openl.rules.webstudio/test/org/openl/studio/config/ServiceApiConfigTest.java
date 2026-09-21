@@ -23,7 +23,6 @@ import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.Props;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -34,9 +33,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.studio.projects.service.ProjectAccessService;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
-import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.studio.security.CurrentUserInfo;
 
 class ServiceApiConfigTest {
@@ -58,7 +55,7 @@ class ServiceApiConfigTest {
     }
 
     @Test
-    void rulesUserSession_registersLegacySessionAttributes() {
+    void rulesUserSession_isRegisteredInTheSession() {
         var session = new MockHttpSession();
         var workspace = workspace();
         var workspaceManager = mock(MultiUserWorkspaceManager.class);
@@ -76,16 +73,12 @@ class ServiceApiConfigTest {
                 mock(SimpleRepositoryAclService.class),
                 mock(ProjectDescriptorArtefactResolver.class),
                 mock(PropertyResolver.class),
-                mock(DeploymentManager.class),
                 mock(ApplicationEventPublisher.class),
                 mock(ProtectedBranchBypassService.class),
-                mock(ProjectIdentifierMapper.class),
-                mock(ProjectStateValidator.class),
                 mock(ProjectAccessService.class),
                 session);
 
         assertSame(rulesUserSession, session.getAttribute(Constants.RULES_USER_SESSION));
-        assertSame(rulesUserSession.getWebStudio(), session.getAttribute("studio"));
     }
 
     private UserWorkspace workspace() {
@@ -102,7 +95,7 @@ class ServiceApiConfigTest {
     private UserSettingManagementService userSettings() {
         var userSettings = mock(UserSettingManagementService.class);
         when(userSettings.getStringProperty("admin", WebStudio.RULES_TREE_VIEW_DEFAULT))
-                .thenReturn(Profile.TREE_VIEWS[0].getName());
+                .thenReturn(Profile.PROFILES[0].getName());
         return userSettings;
     }
 }

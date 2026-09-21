@@ -133,7 +133,6 @@ public class TableSyntaxNodeDispatcherBuilder {
             decisionTableBuilder.setConditions(conditions);
             decisionTableBuilder.setReturnColumn(returnColumn);
             decisionTableBuilder.setTableName(getDispatcherTableName());
-            decisionTableBuilder.setMethodName(getMethodName());
             decisionTableBuilder.setRulesNumber(rules.getRulesNumber());
 
             var sheetWithTable = decisionTableBuilder.build();
@@ -369,7 +368,7 @@ public class TableSyntaxNodeDispatcherBuilder {
 
     private IBindingContext createContextWithAuxiliaryMethods() {
         List<IOpenMethod> candidates = dispatcher.getCandidates();
-        final var auxiliaryMethods = new HashMap<MethodKey, IOpenMethod>(candidates.size());
+        final var auxiliaryMethods = HashMap.<MethodKey, IOpenMethod>newHashMap(candidates.size());
         for (var i = 0; i < candidates.size(); i++) {
             var auxiliaryMethod = generateAuxiliaryMethod(candidates.get(i), i);
             auxiliaryMethods.put(new MethodKey(auxiliaryMethod), auxiliaryMethod);

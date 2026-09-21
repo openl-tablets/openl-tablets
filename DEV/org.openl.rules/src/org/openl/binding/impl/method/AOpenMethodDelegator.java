@@ -15,7 +15,7 @@ public abstract class AOpenMethodDelegator implements IOpenMethod, IMethodSignat
     @Getter
     private final IOpenMethod delegate;
 
-    public AOpenMethodDelegator(IOpenMethod delegate) {
+    protected AOpenMethodDelegator(IOpenMethod delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 

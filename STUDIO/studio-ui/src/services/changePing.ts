@@ -1,7 +1,7 @@
 import { CLIENT_ID } from './clientId'
 
 /** Which ping this is: the one about a project, or the id-free one about the workspace. */
-export type ChangeScope = 'project' | 'workspace'
+type ChangeScope = 'project' | 'workspace'
 
 /**
  * What a change ping stands for. Matches the bodies `ProjectSocketNotificationService` sends: the

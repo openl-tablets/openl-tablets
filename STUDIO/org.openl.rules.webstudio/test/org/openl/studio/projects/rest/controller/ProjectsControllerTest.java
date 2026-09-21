@@ -3,9 +3,15 @@ package org.openl.studio.projects.rest.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -18,8 +24,11 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Page;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
@@ -31,12 +40,14 @@ import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TestCaseView;
+import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
@@ -48,6 +59,7 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
+import org.openl.studio.projects.service.tests.ProjectTestsExecutionProgressListener;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
 import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.RepositoryConfigService;
@@ -195,9 +207,131 @@ class ProjectsControllerTest {
         verify(projectService).getTableProperties(project, "table-id");
     }
 
+    @Test
+    void writingATableCompilesThatModuleAloneRatherThanResettingTheSession() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(1, 1, "Buenos Dias"));
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main")))
+                .thenReturn("table-id");
+
+        controller.editTableSource(project, "table-id", action, "Main");
+
+        // A write touches one module's workbook. Resetting the session would drop every module compiled from
+        // the workspace and read all of it again, which costs a minute for one changed cell.
+        verify(webStudio).recompileCurrentModule();
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
+    void aRefusedWriteLeavesWhatTheSessionCompiledAlone() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(99999, 1, "Buenos Dias"));
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main")))
+                .thenThrow(new BadRequestException("table.action.position.invalid.message"));
+
+        assertThrows(BadRequestException.class,
+                () -> controller.editTableSource(project, "table-id", action, "Main"));
+
+        // Nothing was written, so nothing has to be compiled again: asking for it would throw away a module
+        // the session had compiled, and the next read would wait for it to be built from the workbook afresh.
+        verify(webStudio, never()).recompileCurrentModule();
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
+    void creatingATableInAModuleOfItsOwnReadsTheProjectAgain() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var table = RawTableView.builder().tableType("RawSource").name("Constants").source(List.of()).build();
+        // A module path rather than a module name: the table goes into a module the project did not have, and
+        // the service says so by answering with no identifier.
+        var request = new CreateNewTableRequest(null, "Rules", "rules/New.xlsx", table);
+        when(projectService.createNewTable(project, request)).thenReturn(null);
+
+        controller.createNewTable(project, request);
+
+        verify(webStudio).reset();
+        verify(webStudio, never()).recompileCurrentModule();
+    }
+
+    @Test
+    void creatingATableInAModuleTheProjectHasCompilesThatModuleAlone() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var table = RawTableView.builder().tableType("RawSource").name("Constants").source(List.of()).build();
+        var request = new CreateNewTableRequest("Main", "Rules", null, table);
+        when(projectService.createNewTable(project, request)).thenReturn("created-id");
+
+        controller.createNewTable(project, request);
+
+        verify(webStudio).recompileCurrentModule();
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
+    void changingTheProjectItselfStillResetsTheSession() throws Exception {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+
+        controller.unlockProject(project);
+
+        verify(webStudio).reset();
+        verify(webStudio, never()).recompileCurrentModule();
+    }
+
+    private static ProjectsController controller(WorkspaceProjectService projectService, WebStudio webStudio) {
+        return new ProjectsController(
+                projectService,
+                mock(TestsExecutorService.class),
+                mock(ExecutionTestsResultRegistry.class),
+                mock(SocketProjectAllTestsExecutionProgressListenerFactory.class),
+                mock(ProjectObjectMapperService.class),
+                mock(ProjectsMergeConflictsSessionHolder.class),
+                mock(ProjectIdentifierMapper.class),
+                mock(ProjectStatusMapper.class),
+                mock(ProjectTablesGraphService.class),
+                mock(RepositoryConfigService.class),
+                mock(ProjectMetadataService.class),
+                mock(ProjectMigrationService.class),
+                mock(ProjectRevisionService.class),
+                mock(TableInputService.class)) {
+            @Override
+            public WebStudio getWebStudio() {
+                return webStudio;
+            }
+        };
+    }
+
     private static ProjectsController controller(WorkspaceProjectService projectService,
                                                  ProjectStatusMapper projectStatusMapper) {
         return controller(projectService, projectStatusMapper, mock(ProjectMetadataService.class));
+    }
+
+    private static ProjectsController controller(WorkspaceProjectService projectService,
+                                                 ExecutionTestsResultRegistry testsResultRegistry,
+                                                 SocketProjectAllTestsExecutionProgressListenerFactory listeners) {
+        return controller(projectService, mock(TestsExecutorService.class), testsResultRegistry, listeners);
+    }
+
+    private static ProjectsController controller(WorkspaceProjectService projectService,
+                                                 TestsExecutorService testsExecutorService,
+                                                 ExecutionTestsResultRegistry testsResultRegistry,
+                                                 SocketProjectAllTestsExecutionProgressListenerFactory listeners) {
+        return controller(projectService, mock(ProjectStatusMapper.class), mock(ProjectMetadataService.class),
+                mock(TableInputService.class), mock(ProjectObjectMapperService.class), testsExecutorService,
+                testsResultRegistry, listeners);
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService,
@@ -212,12 +346,25 @@ class ProjectsControllerTest {
                                                  ProjectMetadataService metadataService,
                                                  TableInputService tableInputService,
                                                  ProjectObjectMapperService objectMapperService) {
+        return controller(projectService, projectStatusMapper, metadataService, tableInputService, objectMapperService,
+                mock(TestsExecutorService.class), mock(ExecutionTestsResultRegistry.class),
+                mock(SocketProjectAllTestsExecutionProgressListenerFactory.class));
+    }
+
+    private static ProjectsController controller(WorkspaceProjectService projectService,
+                                                 ProjectStatusMapper projectStatusMapper,
+                                                 ProjectMetadataService metadataService,
+                                                 TableInputService tableInputService,
+                                                 ProjectObjectMapperService objectMapperService,
+                                                 TestsExecutorService testsExecutorService,
+                                                 ExecutionTestsResultRegistry testsResultRegistry,
+                                                 SocketProjectAllTestsExecutionProgressListenerFactory listeners) {
         var webStudio = mock(WebStudio.class);
         return new ProjectsController(
                 projectService,
-                mock(TestsExecutorService.class),
-                mock(ExecutionTestsResultRegistry.class),
-                mock(SocketProjectAllTestsExecutionProgressListenerFactory.class),
+                testsExecutorService,
+                testsResultRegistry,
+                listeners,
                 objectMapperService,
                 mock(ProjectsMergeConflictsSessionHolder.class),
                 mock(ProjectIdentifierMapper.class),
@@ -337,6 +484,92 @@ class ProjectsControllerTest {
         when(model.getTableById("missing")).thenReturn(null);
 
         assertThrows(NotFoundException.class, () -> controller.getTableInputCase(project, "missing", "1", null));
+    }
+
+    /** The compiled model the service answers for a project opened without a module. */
+    private static ProjectModel compiledModel(WorkspaceProjectService projectService, RulesProject project) {
+        var handle = mock(ProjectHandle.class);
+        var model = mock(ProjectModel.class);
+        when(projectService.openProject(project, null)).thenReturn(handle);
+        when(handle.awaitCompiled()).thenReturn(model);
+        return model;
+    }
+
+    @Test
+    void aRunRefusedForAnUnknownCaseCancelsNoRunAndAnnouncesNone() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var testsResultRegistry = mock(ExecutionTestsResultRegistry.class);
+        var listeners = mock(SocketProjectAllTestsExecutionProgressListenerFactory.class);
+        var controller = controller(projectService, testsResultRegistry, listeners);
+        var project = mock(RulesProject.class);
+        var model = compiledModel(projectService, project);
+        var table = mock(IOpenLTable.class);
+        var method = mock(TestSuiteMethod.class);
+        when(model.getTableById("t1")).thenReturn(table);
+        when(table.getUri()).thenReturn("file.xlsx?sheet=Tests&range=A1:B2");
+        when(model.getMethod("file.xlsx?sheet=Tests&range=A1:B2")).thenReturn(method);
+        when(method.getIndices("9")).thenThrow(new IllegalArgumentException("Test case '9' is not found."));
+
+        assertThrows(BadRequestException.class, () -> controller.runAllTests(project, null, "t1", "9"));
+
+        // The run before it goes on, and no run is announced whose end nobody would hear.
+        verify(testsResultRegistry, never()).cancelIfAny();
+        verifyNoInteractions(listeners);
+    }
+
+    /**
+     * A run table compiles to a test suite the way a test table does, so it is run as it stands: run through
+     * the test tables that cover it, it would have nothing to show.
+     */
+    @Test
+    void aRunTableIsRunAsItStandsRatherThanThroughTheTestsThatCoverIt() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var testsExecutorService = mock(TestsExecutorService.class);
+        var listeners = mock(SocketProjectAllTestsExecutionProgressListenerFactory.class);
+        var controller = controller(projectService, testsExecutorService, mock(ExecutionTestsResultRegistry.class),
+                listeners);
+        var project = mock(RulesProject.class);
+        var model = compiledModel(projectService, project);
+        var table = mock(IOpenLTable.class);
+        when(model.getTableById("t1")).thenReturn(table);
+        when(table.getUri()).thenReturn("file.xlsx?sheet=Runs&range=A1:B2");
+        when(model.getMethod("file.xlsx?sheet=Runs&range=A1:B2")).thenReturn(mock(TestSuiteMethod.class));
+        when(projectService.getUserWorkspace()).thenReturn(mock(UserWorkspace.class));
+        when(listeners.create(any(), any(), any(), any())).thenReturn(mock(ProjectTestsExecutionProgressListener.class));
+
+        controller.runAllTests(project, null, "t1", null);
+
+        verify(testsExecutorService).runSingle(any(), eq(model), eq(table), isNull(), eq(false));
+        verify(testsExecutorService, never()).runAllForTable(any(), any(), any(), anyBoolean());
+    }
+
+    @Test
+    void aRunFromABlankModuleMeansTheWholeProject() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService, mock(ExecutionTestsResultRegistry.class),
+                mock(SocketProjectAllTestsExecutionProgressListenerFactory.class));
+        var project = mock(RulesProject.class);
+        when(compiledModel(projectService, project).getTableById("missing")).thenReturn(null);
+
+        // A blank module means the whole project, not a module named "", which would fail to resolve.
+        assertThrows(NotFoundException.class, () -> controller.runAllTests(project, "  ", "missing", null));
+
+        verify(projectService).openProject(project, null);
+    }
+
+    @Test
+    void aRunOfAnUnknownTableCancelsNoRun() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var testsResultRegistry = mock(ExecutionTestsResultRegistry.class);
+        var listeners = mock(SocketProjectAllTestsExecutionProgressListenerFactory.class);
+        var controller = controller(projectService, testsResultRegistry, listeners);
+        var project = mock(RulesProject.class);
+        when(compiledModel(projectService, project).getTableById("missing")).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> controller.runAllTests(project, null, "missing", null));
+
+        verify(testsResultRegistry, never()).cancelIfAny();
+        verifyNoInteractions(listeners);
     }
 
     @Test

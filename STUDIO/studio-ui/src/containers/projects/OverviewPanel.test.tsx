@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { App } from 'antd'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { getProjectFiles } from '../../services/repositories'
 import { OverviewPanel } from './OverviewPanel'
 import { ProjectStatus } from '../../constants/project'
 import { getFileContent, rootFileExists, uploadFile, writeRootFile } from '../../services/files'
@@ -62,12 +63,12 @@ vi.mock('../../services/projectIndex', () => ({
 
 vi.mock('../../services/migration', () => ({
     getProjectMigration: vi.fn().mockResolvedValue({
-        rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
+        rulesXml: { movableRootModules: [], migratable: false, newModules: []},
         rulesDeploy: { migratable: false },
     }),
     migrateProject: vi.fn().mockResolvedValue(undefined),
     EMPTY_MIGRATION: {
-        rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
+        rulesXml: { movableRootModules: [], migratable: false, newModules: []},
         rulesDeploy: { migratable: false },
     },
 }))
@@ -228,14 +229,48 @@ describe('OverviewPanel', () => {
         // Three declarations, three rows — whatever the patterns matched.
         expect(screen.getByText('browser.overview.modules:3')).toBeInTheDocument()
         expect(screen.getByText('rules/**/*.xlsx')).toBeInTheDocument()
-        expect(screen.queryByText('rules/Auto.xlsx')).toBeNull()
+        // What a pattern matched are the modules a reader opens, so they are there from the start.
+        expect(screen.getByText('rules/Auto.xlsx')).toBeInTheDocument()
+        expect(screen.getByText('rules/Home.xlsx')).toBeInTheDocument()
         // A pattern that matched nothing has no switcher, only the mark that it stands for nothing.
         expect(screen.getByTestId('module-unmatched-tests/**/*.xlsx')).toBeInTheDocument()
 
         await user.click(screen.getByTestId('module-matched-rules/**/*.xlsx'))
 
-        expect(screen.getByText('rules/Auto.xlsx')).toBeInTheDocument()
-        expect(screen.getByText('rules/Home.xlsx')).toBeInTheDocument()
+        expect(screen.queryByText('rules/Auto.xlsx')).toBeNull()
+        expect(screen.queryByText('rules/Home.xlsx')).toBeNull()
+    })
+
+    it('marks a module the file has compiled on its own', async () => {
+        setRulesXml(`
+            <project>
+                <modules>
+                    <module>
+                        <name>Tests</name>
+                        <rules-root path="tests/**/*.xlsx"/>
+                        <webstudioConfiguration>
+                            <compileThisModuleOnly>true</compileThisModuleOnly>
+                        </webstudioConfiguration>
+                    </module>
+                    <module>
+                        <name>Main</name>
+                        <rules-root path="rules/Main.xlsx"/>
+                    </module>
+                </modules>
+            </project>
+        `)
+        await renderPanel({
+            ...base,
+            descriptor: { modules: [
+                { name: 'Tests', path: 'tests/**/*.xlsx', modules: [{ name: 'ClaimTests', path: 'tests/ClaimTests.xlsx' }]},
+                { name: 'Main', path: 'rules/Main.xlsx' },
+            ]},
+        })
+
+        expect(await screen.findByTestId('module-compile-only-Tests')).toBeInTheDocument()
+        // The engine gives the flag to every module the pattern matched, and those rows are on screen now.
+        expect(screen.getByTestId('module-compile-only-ClaimTests')).toBeInTheDocument()
+        expect(screen.queryByTestId('module-compile-only-Main')).toBeNull()
     })
 
     it('marks defaulted modules and sources, and overlays a module method-filter from the file', async () => {
@@ -306,7 +341,7 @@ describe('OverviewPanel', () => {
     })
 
     it('disables the migrate when a rewrite would turn undeclared workbooks into modules', async () => {
-        setMigration({ movableRootModules: [], migratable: true, newModules: ['rules/Extra.xlsx'] })
+        setMigration({ movableRootModules: [], migratable: true, newModules: ['rules/Extra.xlsx']})
 
         await renderPanel({ ...base, capabilities: { canWrite: true } })
 
@@ -446,6 +481,19 @@ describe('OverviewPanel', () => {
         expect(onChanged).toHaveBeenCalled()
     })
 
+    it('has a module compiled on its own, and writes the flag to rules.xml', async () => {
+        setRulesXml('<project><name>P</name><modules><module><name>Tests</name><rules-root path="tests/*.xlsx"/></module></modules></project>')
+        await renderPanel({ ...base, capabilities: { canWrite: true } })
+
+        await user.click(screen.getByTestId('overview-edit'))
+        await user.click(screen.getByTestId('edit-module-0-compile-only'))
+        await user.click(screen.getByTestId('overview-save'))
+
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalled())
+        const saved = vi.mocked(writeRootFile).mock.calls.at(-1)![2]
+        expect(saved).toContain('<compileThisModuleOnly>true</compileThisModuleOnly>')
+    })
+
     it('edits the sources and the declared dependencies, and writes them to rules.xml', async () => {
         setRulesXml('<project><name>P</name></project>')
         await act(async () => {
@@ -521,6 +569,62 @@ describe('OverviewPanel', () => {
         const saved = vi.mocked(writeRootFile).mock.calls.at(-1)![2]
         expect(saved).toContain('<mode>GENERATION</mode>')
         expect(saved).toContain('<algorithm-module-name>Algorithms</algorithm-module-name>')
+    })
+
+    it('names the specification the engine reads, which rules.xml need not declare', async () => {
+        // A descriptor naming openapi.json for reconciliation says no more than the engine does by itself,
+        // so the model drops the block on save — and the project would read as having no specification.
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([
+            { type: 'file', path: 'openapi.json' },
+            { type: 'file', path: 'rules/Main.xlsx' },
+        ] as never)
+        setRulesXml(`
+            <project>
+                <name>P</name>
+            </project>
+        `)
+        await act(async () => {
+            render(
+                <App>
+                    <MemoryRouter>
+                        <OverviewPanel
+                            onUnlock={() => {}}
+                            project={{ ...base, capabilities: { canWrite: true } }}
+                            repoLabel="design"
+                        />
+                    </MemoryRouter>
+                </App>
+            )
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        expect(await screen.findByTestId('openapi-by-default')).toBeInTheDocument()
+        expect(screen.queryByTestId('openapi-none')).toBeNull()
+    })
+
+    it('finds the specification a write added once the project is read again', async () => {
+        // The project holds no specification when the overview opens.
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([{ type: 'file', path: 'rules/Main.xlsx' }] as never)
+        setRulesXml('<project><name>P</name></project>')
+        const project = { ...base, capabilities: { canWrite: true } }
+        const result = await renderPanel(project)
+        expect(await screen.findByTestId('openapi-none')).toBeInTheDocument()
+
+        // Writing the specification adds openapi.json, which rules.xml need not name, and reloads the
+        // project; the section looks for the file again rather than keeping the answer it read on opening.
+        vi.mocked(getProjectFiles).mockResolvedValueOnce([
+            { type: 'file', path: 'openapi.json' },
+            { type: 'file', path: 'rules/Main.xlsx' },
+        ] as never)
+        await act(async () => {
+            result.rerender(panel(project, { reloadToken: 1 }))
+            await Promise.resolve()
+            await Promise.resolve()
+        })
+
+        expect(await screen.findByTestId('openapi-by-default')).toBeInTheDocument()
+        expect(screen.queryByTestId('openapi-none')).toBeNull()
     })
 
     it('removes the whole OpenAPI configuration when the file is cleared', async () => {

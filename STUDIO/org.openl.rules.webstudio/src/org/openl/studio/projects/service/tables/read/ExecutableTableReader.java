@@ -17,7 +17,7 @@ import org.openl.studio.projects.model.tables.ExecutableView;
  */
 public abstract class ExecutableTableReader<T extends ExecutableView, R extends ExecutableView.Builder<?>> extends EditableTableReader<T, R> {
 
-    public ExecutableTableReader(Supplier<R> builderCreator) {
+    protected ExecutableTableReader(Supplier<R> builderCreator) {
         super(builderCreator);
     }
 
@@ -77,7 +77,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         return Collections.unmodifiableList(args);
     }
 
-    private static ParsedIdentifier readIdentifier(String source, int from) {
+    static ParsedIdentifier readIdentifier(String source, int from) {
         var pos = rollWhitespaces(source, from);
         var start = pos;
         pos = rollIdentifier(source, pos);
@@ -104,7 +104,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         return pos;
     }
 
-    private record ParsedIdentifier(int pos, String identifier) {
+    record ParsedIdentifier(int pos, String identifier) {
 
         public boolean hasIdentifier() {
             return identifier != null;

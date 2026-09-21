@@ -430,7 +430,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
         if (dm == null || dm.getDependencies() == null || dm.getDependencies().isEmpty()) {
             return null;
         }
-        var map = new HashMap<String, Dependency>(dm.getDependencies().size());
+        var map = HashMap.<String, Dependency>newHashMap(dm.getDependencies().size());
         for (var d : dm.getDependencies()) {
             map.put(OpenLPackagings.ga(d.getGroupId(), d.getArtifactId()), d);
         }

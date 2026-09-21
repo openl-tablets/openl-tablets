@@ -5,7 +5,7 @@ import { toUrlSafeId } from './projectId'
 export type MigrationScope = 'rulesXml' | 'rulesDeploy'
 
 /** The rules.xml migration scope: the root workbooks a migrate would move and whether it applies. */
-export interface RulesXmlMigration {
+interface RulesXmlMigration {
     /** Root-level workbooks a migrate would move into `rules/` — populated only when the project has no rules.xml. */
     movableRootModules: string[]
     /** Whether a migrate would move the root workbooks and write a rules.xml, or rewrite an existing one. */
@@ -18,7 +18,7 @@ export interface RulesXmlMigration {
 }
 
 /** The rules-deploy.xml migration scope. */
-export interface RulesDeployMigration {
+interface RulesDeployMigration {
     /** Whether the project has a rules-deploy.xml that a migrate would rewrite to the minimal modern form. */
     migratable: boolean
 }
@@ -31,7 +31,7 @@ export interface ProjectMigration {
 
 /** Nothing to migrate — the state used before the info loads and when it fails. */
 export const EMPTY_MIGRATION: ProjectMigration = {
-    rulesXml: { movableRootModules: [], migratable: false, newModules: [] },
+    rulesXml: { movableRootModules: [], migratable: false, newModules: []},
     rulesDeploy: { migratable: false },
 }
 

@@ -47,10 +47,10 @@ public class CommonRepositorySettings extends RepositorySettings {
         uriPath = configPrefix + URI_PATH_SUFFIX;
         loginPath = configPrefix + LOGIN_PATH_SUFFIX;
         passwordPath = configPrefix + PASSWORD_PATH_SUFFIX;
-        load(properties);
+        loadProperties(properties);
     }
 
-    private void load(PropertiesHolder properties) {
+    private void loadProperties(PropertiesHolder properties) {
         uri = properties.getProperty(uriPath);
         login = properties.getProperty(loginPath);
         password = properties.getProperty(passwordPath);
@@ -111,7 +111,7 @@ public class CommonRepositorySettings extends RepositorySettings {
         super.revert(properties);
 
         properties.revertProperties(uriPath, loginPath, passwordPath);
-        load(properties);
+        loadProperties(properties);
     }
 
 }

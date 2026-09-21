@@ -87,36 +87,36 @@ public class VerifyMojo extends BaseOpenLMojo {
         // Route log4j-api users (Apache POI) into the Maven slf4j logger instead of the silent log4j fallback.
         openlJars.putAll(getJars("org.apache.logging.log4j:log4j-to-slf4j"));
 
-        var world = new ClassWorld();
-        var jettyClassLoader = world.newRealm("jetty");
+        try (var world = new ClassWorld(); var jettyClassLoader = world.newRealm("jetty")) {
 
-        // JettysourcePathsourcePath Server with annotations
-        for (var x : getJars("org.eclipse.jetty.ee10:jetty-ee10-annotations").values()) {
-            jettyClassLoader.addURL(x.toURI().toURL());
-        }
+            // JettysourcePathsourcePath Server with annotations
+            for (var x : getJars("org.eclipse.jetty.ee10:jetty-ee10-annotations").values()) {
+                jettyClassLoader.addURL(x.toURI().toURL());
+            }
 
-        // Enable logging in the Jetty server via Maven logger API
-        jettyClassLoader.importFrom(plugin.getClassRealm(), "org.slf4j");
+            // Enable logging in the Jetty server via Maven logger API
+            jettyClassLoader.importFrom(plugin.getClassRealm(), "org.slf4j");
 
-        // Required to provide runner AppServer class
-        jettyClassLoader.addURL(plugin.getPluginArtifact().getFile().toURI().toURL());
+            // Required to provide runner AppServer class
+            jettyClassLoader.addURL(plugin.getPluginArtifact().getFile().toURI().toURL());
 
-        // Instantiate and run Jetty server on clean classloader without Maven libraries
-        var oldClassloader = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(jettyClassLoader);
+            // Instantiate and run Jetty server on clean classloader without Maven libraries
+            var oldClassloader = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(jettyClassLoader);
 
-            var appClass = jettyClassLoader.loadClass("org.openl.rules.maven.AppServer");
-            var checkMethod = appClass.getDeclaredMethod("check", String.class, Collection.class, String.class);
-            checkMethod.invoke(null, pathDeployment, openlJars.values(), outputDirectory.getPath());
+                var appClass = jettyClassLoader.loadClass("org.openl.rules.maven.AppServer");
+                var checkMethod = appClass.getDeclaredMethod("check", String.class, Collection.class, String.class);
+                checkMethod.invoke(null, pathDeployment, openlJars.values(), outputDirectory.getPath());
 
-            info("Verification is passed for '%s:%s' artifact.".formatted(project.getGroupId(), project.getArtifactId()));
-        } catch (Exception e) {
-            throw new MojoFailureException("Verification is failed for '%s:%s' artifact."
-                    .formatted(project.getGroupId(), project.getArtifactId()), e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(oldClassloader);
-            world.disposeRealm("jetty");
+                info("Verification is passed for '%s:%s' artifact."
+                        .formatted(project.getGroupId(), project.getArtifactId()));
+            } catch (Exception e) {
+                throw new MojoFailureException("Verification is failed for '%s:%s' artifact."
+                        .formatted(project.getGroupId(), project.getArtifactId()), e);
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldClassloader);
+            }
         }
     }
 
@@ -140,7 +140,7 @@ public class VerifyMojo extends BaseOpenLMojo {
         var dependencyRequest = new DependencyRequest(collectRequest, null);
         var openlDependencies = repositorySystem.resolveDependencies(session, dependencyRequest).getArtifactResults();
 
-        var result = new HashMap<String, File>(openlDependencies.size());
+        var result = HashMap.<String, File>newHashMap(openlDependencies.size());
         for (var x : openlDependencies) {
             var a = x.getArtifact();
             result.put(versionlessKey(a.getGroupId(), a.getArtifactId(), a.getClassifier()), a.getFile());

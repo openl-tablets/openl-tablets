@@ -258,7 +258,7 @@ To create a table for testing the `AirTicketsPrice` rule, proceed as follows:
 
    a. Click on any table cell. The table editor menu becomes enabled.
 
-   b. In the table editor menu, select the ![Insert row](images/icon-insert-row.png) button to insert a row before the
+   b. In the table editor menu, select the ![Insert row](images/icon-insert-row.png) button to insert a row after the
    selected one. Insert two rows.
 
    ![Figure 17: Table editor menu](images/table-editor-menu.png)

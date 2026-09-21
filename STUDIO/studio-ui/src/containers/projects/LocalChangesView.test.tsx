@@ -23,7 +23,7 @@ vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: translate }),
 }))
 
-vi.mock('antd', () => ({
+vi.mock('antd', async () => (await import('testing/staticAntdApp')).withStaticApp({
     Alert: ({ title }: { title: React.ReactNode }) => <div role="alert">{title}</div>,
     Button: ({ children, disabled, onClick, ...props }: {
         children: React.ReactNode
@@ -137,6 +137,19 @@ describe('LocalChangesView', () => {
             title: 'browser.local_history.restore_succeeded',
         })
         expect(reload).toHaveBeenCalledWith(true)
+    })
+
+    it('tells the screen that opened it to read the module again, instead of reloading the page', async () => {
+        const onRestored = vi.fn()
+        render(<LocalChangesView moduleName="Pricing" onRestored={onRestored} projectId="p1" />)
+        await screen.findByText('Yesterday')
+
+        await userEvent.click(screen.getAllByRole('link', { name: 'browser.local_history.restore' })[0]!)
+        await userEvent.click(screen.getByText('confirm restore'))
+
+        // The React editor has no legacy workspace to reload: it reads the module again where it stands.
+        await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1))
+        expect(reload).not.toHaveBeenCalled()
     })
 
     it('shows the empty state when the module has no local changes', async () => {

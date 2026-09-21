@@ -45,7 +45,7 @@ vi.mock('../users/UserProfileCompletionModal', () => ({
         open ? <button data-testid="commit-info-save" onClick={onSave}>identity</button> : null,
 }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Modal = ({ open, title, children, onOk, okButtonProps }: Record<string, unknown>) => {
         const { icon, ...okRest } = (okButtonProps as Record<string, unknown>) ?? {}
         void icon
@@ -71,7 +71,8 @@ vi.mock('antd', () => {
         },
     }
     const notification = { error: vi.fn(), success: vi.fn(), warning: vi.fn() }
-    return { Input, Modal, Typography, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Input, Modal, Typography, notification })
 })
 
 const project = { id: 'p1', name: 'Alpha', repository: 'design', status: 'EDITING', branch: 'main' } as never

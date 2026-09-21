@@ -10,7 +10,6 @@
 - [Overview](#overview)
 - [Version Migration](#version-migration)
 - [Database Migration](#database-migration)
-- [Frontend Migration (JSF to React)](#frontend-migration-jsf-to-react)
 - [Repository Migration](#repository-migration)
 - [Configuration Migration](#configuration-migration)
 - [API Migration](#api-migration)
@@ -24,9 +23,8 @@ This guide covers various migration scenarios in OpenL Tablets:
 
 1. **Version Migration**: Upgrading from one version to another
 2. **Database Migration**: Schema changes and data migration
-3. **Frontend Migration**: Moving from JSF to React
-4. **Repository Migration**: Changing repository backends
-5. **Configuration Migration**: Updating application configuration
+3. **Repository Migration**: Changing repository backends
+4. **Configuration Migration**: Updating application configuration
 
 ---
 
@@ -385,300 +383,6 @@ flyway baseline -baselineVersion=5.0
 
 ---
 
-## Frontend Migration (JSF to React)
-
-### Overview
-
-OpenL Tablets is migrating from JavaServer Faces (JSF) to React:
-
-- **Old**: JSF with PrimeFaces
-- **New**: React 19.2.x + TypeScript + Ant Design
-
-**Location**: `STUDIO/studio-ui/`
-
-### Migration Status
-
-| Component | Status | Priority |
-|-----------|--------|----------|
-| Project List | ✅ Migrated | High |
-| Project Editor | ⏳ In Progress | High |
-| Rule Editor | ❌ Pending | High |
-| User Management | ✅ Migrated | Medium |
-| Repository Settings | ⏳ In Progress | Medium |
-| Deployment Manager | ❌ Pending | High |
-| ACL Editor | ❌ Pending | Low |
-
-### Migration Approach
-
-#### 1. Hybrid Approach
-
-Both JSF and React coexist during migration:
-
-```
-┌─────────────────────────────────────┐
-│  OpenL Tablets Web Application      │
-├─────────────────────────────────────┤
-│  JSF Pages (Legacy)                 │
-│  - Complex rule editor              │
-│  - Some admin pages                 │
-├─────────────────────────────────────┤
-│  React SPA (Modern)                 │
-│  - Project list                     │
-│  - User management                  │
-│  - New features                     │
-└─────────────────────────────────────┘
-```
-
-#### 2. REST API Backend
-
-All new React components use REST APIs:
-
-```typescript
-// Frontend: React + TypeScript
-const projects = await api.get<Project[]>('/api/projects');
-
-// Backend: Spring REST Controller
-@RestController
-@RequestMapping("/api/projects")
-public class ProjectsController {
-    @GetMapping
-    public List<Project> getProjects() {
-        return projectService.findAll();
-    }
-}
-```
-
-### Migrating a JSF Page to React
-
-#### Step 1: Identify JSF Page
-
-```xhtml
-<!-- Old JSF page: projects.xhtml -->
-<ui:composition template="/pages/layout/mainLayout.xhtml">
-    <h:form id="projectsForm">
-        <p:dataTable value="#{projectsBean.projects}" var="project">
-            <p:column headerText="Name">
-                #{project.name}
-            </p:column>
-            <p:column headerText="Version">
-                #{project.version}
-            </p:column>
-        </p:dataTable>
-    </h:form>
-</ui:composition>
-```
-
-#### Step 2: Create REST API
-
-```java
-@RestController
-@RequestMapping("/api/projects")
-public class ProjectsController {
-
-    @Autowired
-    private ProjectService projectService;
-
-    @GetMapping
-    public List<ProjectDTO> getProjects() {
-        return projectService.findAll()
-            .stream()
-            .map(this::toDTO)
-            .collect(Collectors.toList());
-    }
-
-    private ProjectDTO toDTO(Project project) {
-        ProjectDTO dto = new ProjectDTO();
-        dto.setId(project.getId());
-        dto.setName(project.getName());
-        dto.setVersion(project.getVersion());
-        return dto;
-    }
-}
-```
-
-#### Step 3: Create React Component
-
-```typescript
-// src/pages/Projects/ProjectList.tsx
-import React, { useEffect, useState } from 'react';
-import { Table } from 'antd';
-import { api } from '../../services/api';
-
-interface Project {
-  id: string;
-  name: string;
-  version: string;
-}
-
-export const ProjectList: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadProjects();
-  }, []);
-
-  const loadProjects = async () => {
-    try {
-      setLoading(true);
-      const data = await api.get<Project[]>('/api/projects');
-      setProjects(data);
-    } catch (error) {
-      console.error('Failed to load projects', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Version',
-      dataIndex: 'version',
-      key: 'version',
-    },
-  ];
-
-  return (
-    <Table
-      dataSource={projects}
-      columns={columns}
-      loading={loading}
-      rowKey="id"
-    />
-  );
-};
-```
-
-#### Step 4: Add Routing
-
-```typescript
-// src/App.tsx
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { ProjectList } from './pages/Projects/ProjectList';
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/projects" element={<ProjectList />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-```
-
-#### Step 5: Update Navigation
-
-```java
-// Redirect from old JSF URL to new React URL
-@Controller
-public class NavigationController {
-
-    @GetMapping("/faces/pages/projects.xhtml")
-    public String redirectToReact() {
-        return "redirect:/ui/projects";
-    }
-}
-```
-
-### State Management Migration
-
-**Old (JSF Managed Bean)**:
-```java
-@Named
-@ViewScoped
-public class ProjectsBean implements Serializable {
-    private List<Project> projects;
-
-    @PostConstruct
-    public void init() {
-        projects = projectService.findAll();
-    }
-
-    public List<Project> getProjects() {
-        return projects;
-    }
-}
-```
-
-**New (React with Zustand)**:
-```typescript
-// src/stores/projectStore.ts
-import { create } from 'zustand';
-import { api } from '../services/api';
-
-interface ProjectStore {
-  projects: Project[];
-  loading: boolean;
-  loadProjects: () => Promise<void>;
-}
-
-export const useProjectStore = create<ProjectStore>((set) => ({
-  projects: [],
-  loading: false,
-
-  loadProjects: async () => {
-    set({ loading: true });
-    try {
-      const projects = await api.get<Project[]>('/api/projects');
-      set({ projects });
-    } finally {
-      set({ loading: false });
-    }
-  },
-}));
-```
-
-### Testing React Components
-
-```typescript
-// src/pages/Projects/ProjectList.test.tsx
-import { render, screen, waitFor } from '@testing-library/react';
-import { ProjectList } from './ProjectList';
-import { api } from '../../services/api';
-
-jest.mock('../../services/api');
-
-describe('ProjectList', () => {
-  it('should render projects', async () => {
-    const mockProjects = [
-      { id: '1', name: 'Project 1', version: '1.0' },
-      { id: '2', name: 'Project 2', version: '2.0' },
-    ];
-
-    (api.get as jest.Mock).mockResolvedValue(mockProjects);
-
-    render(<ProjectList />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Project 1')).toBeInTheDocument();
-      expect(screen.getByText('Project 2')).toBeInTheDocument();
-    });
-  });
-});
-```
-
-### Migration Checklist
-
-- [ ] Identify JSF page to migrate
-- [ ] Create REST API backend
-- [ ] Create React component
-- [ ] Add state management (if needed)
-- [ ] Add routing
-- [ ] Add internationalization (i18n)
-- [ ] Write unit tests
-- [ ] Write integration tests
-- [ ] Update navigation/links
-- [ ] Remove old JSF page
-- [ ] Update documentation
-
----
-
 ## Repository Migration
 
 ### Supported Repository Types
@@ -745,20 +449,25 @@ repository.uri=file:///path/to/repository
 
 **Issue**: EPBDS-15267 - Migrate project tags from database to repository files
 
-OpenL Tablets 5.26+ automatically migrates project tags:
+Project tags moved from the OpenL Studio database into a `tags.properties` file of each project in 6.0.0. An
+upgrade from an earlier version moves them automatically:
 
-```java
-// ProjectTagsMigrator
-// Migrates tags from database to tags.properties file
-// Supports both folder-based and archive-based repositories
+- The tags of every project are written into its `tags.properties` file, both in a folder-based and in an
+  archive-based repository. A project whose file is already there is left untouched.
+- The legacy `OpenL_Projects` and `OpenL_Project_Tags` tables are dropped once every project has its tags in its
+  own file. A project the repository does not hold — its repository is no longer configured, or the project is
+  gone from it — keeps the tables, and with them its tags, instead of losing them.
 
-// tags.properties format:
-project.tag.environment=production
-project.tag.version=2.1.0
-project.tag.owner=team-a
+The file holds one line per tag type:
+
+```properties
+Environment=production
+Owner=team-a
 ```
 
-**Migration Trigger**: Runs automatically on first startup after upgrade
+**Migration Trigger**: The first startup after an upgrade from a version below 6.0.0. An installation upgraded
+from 6.0.0 or newer, an installation without a database, and one whose legacy tables are already dropped are left
+untouched.
 
 **Location**: Tags stored in `tags.properties` within each project
 

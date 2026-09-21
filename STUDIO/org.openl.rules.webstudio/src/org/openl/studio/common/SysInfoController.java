@@ -77,7 +77,8 @@ public class SysInfoController {
         context.put("VirtualServerName", servletContext.getVirtualServerName());
         info.put("ServletContext", context);
 
-        info.put("RequestedSessionId", request.getRequestedSessionId());
+        // The requested session id is left out on purpose: this endpoint is public, and the id identifies the
+        // session it came from.
         info.put("RequestedSessionIdValid", request.isRequestedSessionIdValid());
         info.put("RequestedSessionIdFromCookie", request.isRequestedSessionIdFromCookie());
         info.put("RequestedSessionIdFromURL", request.isRequestedSessionIdFromURL());

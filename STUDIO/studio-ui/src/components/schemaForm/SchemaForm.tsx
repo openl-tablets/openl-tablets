@@ -18,7 +18,7 @@ export interface SchemaFormParameter {
     value?: unknown
 }
 
-export interface SchemaFormProps {
+interface SchemaFormProps {
     parameters: SchemaFormParameter[]
     /** The values collected so far, keyed by parameter name. A parameter without a value is absent. */
     value: Record<string, unknown>

@@ -15,6 +15,8 @@ import { ProjectsThemeProvider } from '../containers/projects/ProjectsThemeProvi
 // so opening the Projects list stays light.
 const ProjectWorkspace = React.lazy(() =>
     import('../containers/ProjectWorkspace').then(module => ({ default: module.ProjectWorkspace })))
+const ModuleWorkspace = React.lazy(() =>
+    import('../containers/ModuleWorkspace').then(module => ({ default: module.ModuleWorkspace })))
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
 import { DefaultLayout } from '../layouts/DefaultLayout'
@@ -43,11 +45,9 @@ const router = createBrowserRouter([
         errorElement: <RouteErrorFallback />,
         children: [
             {
+                // The welcome page the application opens on, as it did when the server drew the page around it.
                 index: true,
-                element: <></>,
-            },
-            {
-                path: 'faces/*', // To integrate with JSF Repository and Editor tabs
+                element: <Help />,
             },
             {
                 path: 'help',
@@ -71,6 +71,17 @@ const router = createBrowserRouter([
                     <ProjectsThemeProvider>
                         <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
                             <ProjectWorkspace />
+                        </React.Suspense>
+                    </ProjectsThemeProvider>
+                ),
+            },
+            {
+                // A module of the project, opened for reading. It is part of the project, not a place of its own.
+                path: 'projects/:projectId/modules/:moduleName',
+                element: (
+                    <ProjectsThemeProvider>
+                        <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
+                            <ModuleWorkspace />
                         </React.Suspense>
                     </ProjectsThemeProvider>
                 ),

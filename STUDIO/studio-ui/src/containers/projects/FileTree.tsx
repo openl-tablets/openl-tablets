@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Empty, Skeleton, Tree, type TreeDataNode } from 'antd'
-import { FileExcelOutlined, FileOutlined, FileTextOutlined, FolderOpenOutlined, FolderOutlined } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import type { FsNode } from '../../types/files'
+import { buildFileNodes, type FileNode } from './fileNodes'
+import { iconFor } from './fileIcons'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
 import { FileChangeIcon } from './FileChangeIcon'
 import { useSharedStyles } from './sharedStyles'
@@ -55,28 +56,10 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
-/** Icon and colour for a file/folder node, chosen from the extension (green Excel, blue XML, amber props). */
-const iconFor = (name: string, isLeaf: boolean, colors: { success: string, info: string, warning: string, muted: string }) => {
-    if (!isLeaf) {
-        return { Icon: FolderOutlined, color: colors.muted, OpenIcon: FolderOpenOutlined }
-    }
-    const ext = name.slice(name.lastIndexOf('.') + 1).toLowerCase()
-    if (ext === 'xlsx' || ext === 'xls') {
-        return { Icon: FileExcelOutlined, color: colors.success }
-    }
-    if (ext === 'xml' || ext === 'json' || ext === 'yaml' || ext === 'yml') {
-        return { Icon: FileTextOutlined, color: colors.info }
-    }
-    if (ext === 'properties') {
-        return { Icon: FileTextOutlined, color: colors.warning }
-    }
-    return { Icon: FileOutlined, color: colors.muted }
-}
-
 /**
- * Builds a hierarchical tree from flat file paths, deriving intermediate folders as needed.
- * {@link virtualFolders} are folder paths that do not exist on the server yet — they are shown as
- * empty folders until a file is created inside them.
+ * Draws the tree of the project's files: the shape comes from the paths, the icons and the titles from
+ * this screen. {@link virtualFolders} are folder paths that do not exist on the server yet — they are
+ * shown as empty folders until a file is created inside them.
  */
 const buildTreeData = (
     files: FsNode[],
@@ -85,55 +68,20 @@ const buildTreeData = (
     colors: { success: string, info: string, warning: string, muted: string },
     renderTitle: (name: string, path: string, size: number | undefined) => TreeDataNode['title']
 ): TreeDataNode[] => {
-    const roots: TreeDataNode[] = []
-    const childrenByKey = new Map<string, TreeDataNode[]>([['', roots]])
-    const nodeByKey = new Map<string, TreeDataNode>()
-
-    const addPath = (segments: string[], lastIsFile: boolean) => {
-        let parentKey = ''
-        segments.forEach((segment, index) => {
-            const isLeaf = lastIsFile && index === segments.length - 1
-            const key = parentKey ? `${parentKey}/${segment}` : segment
-            if (!nodeByKey.has(key)) {
-                const { Icon, color } = iconFor(segment, isLeaf, colors)
-                const node: TreeDataNode = {
-                    key,
-                    isLeaf,
-                    icon: <Icon style={{ color }} />,
-                    title: renderTitle(segment, key, isLeaf ? sizeByPath.get(key) : undefined),
-                }
-                if (!isLeaf) {
-                    node.children = []
-                    childrenByKey.set(key, node.children)
-                }
-                nodeByKey.set(key, node)
-                childrenByKey.get(parentKey)?.push(node)
-            }
-            parentKey = key
-        })
-    }
-
-    for (const file of files) {
-        addPath(file.path.split('/').filter(Boolean), true)
-    }
-    for (const folder of virtualFolders) {
-        addPath(folder.split('/').filter(Boolean), false)
-    }
-    return sortNodes(roots)
-}
-
-/** Folders first, then files, each alphabetically. */
-const sortNodes = (nodes: TreeDataNode[]): TreeDataNode[] => {
-    for (const node of nodes) {
-        if (node.children) {
-            sortNodes(node.children)
+    const draw = (nodes: FileNode[]): TreeDataNode[] => nodes.map(node => {
+        const { Icon, color } = iconFor(node.name, node.isFile, colors)
+        const drawn: TreeDataNode = {
+            key: node.path,
+            isLeaf: node.isFile,
+            icon: <Icon style={{ color }} />,
+            title: renderTitle(node.name, node.path, node.isFile ? sizeByPath.get(node.path) : undefined),
         }
-    }
-    return nodes.sort((a, b) => {
-        const aFolder = a.children ? 0 : 1
-        const bFolder = b.children ? 0 : 1
-        return aFolder - bFolder || String(a.key).localeCompare(String(b.key))
+        if (node.children) {
+            drawn.children = draw(node.children)
+        }
+        return drawn
     })
+    return draw(buildFileNodes(files.map(file => file.path), virtualFolders))
 }
 
 /** Human-readable file size in the current UI locale. */

@@ -42,7 +42,7 @@ generation.
 Multi-module Maven project. The version inherits from the root `pom.xml`.
 
 - **DEV/** — Core rules engine (type system, parser, binding, bytecode gen, project model)
-- **STUDIO/** — Web IDE (Spring Boot backend + React/TypeScript frontend + legacy JSF)
+- **STUDIO/** — Web IDE (Spring Boot backend + React/TypeScript frontend)
 - **WSFrontend/** — Rule Services (REST endpoints, Kafka, logging, metrics)
 - **ITEST/** — Integration tests (TestContainers, declarative HTTP req/resp suites)
 - **Util/** — CLI tools and utilities

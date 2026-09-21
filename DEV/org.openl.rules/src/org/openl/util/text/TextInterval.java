@@ -11,8 +11,8 @@ package org.openl.util.text;
  */
 public class TextInterval implements ILocation {
 
-    private IPosition start;
-    private IPosition end;
+    private final IPosition start;
+    private final IPosition end;
 
     public TextInterval(IPosition start, IPosition end) {
         this.start = start;
@@ -32,14 +32,6 @@ public class TextInterval implements ILocation {
     @Override
     public boolean isTextLocation() {
         return true;
-    }
-
-    public void setEnd(IPosition position) {
-        end = position;
-    }
-
-    public void setStart(IPosition position) {
-        start = position;
     }
 
     @Override

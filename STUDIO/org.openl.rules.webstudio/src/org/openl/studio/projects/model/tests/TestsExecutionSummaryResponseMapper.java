@@ -20,6 +20,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
+import org.openl.studio.projects.service.tables.TableModules;
 
 public class TestsExecutionSummaryResponseMapper {
 
@@ -34,12 +35,16 @@ public class TestsExecutionSummaryResponseMapper {
 
     private final ObjectMapper objectMapper;
     private final ExecutionValueMapper valueMapper;
+    /** The modules of the project, so every table reported says which one it is read through. */
+    private final TableModules tableModules;
 
     public TestsExecutionSummaryResponseMapper(ObjectMapper objectMapper,
                                                SchemaGenerator schemaGenerator,
-                                               SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy) {
+                                               SpreadsheetResultBeanPropertyNamingStrategy sprNamingStrategy,
+                                               TableModules tableModules) {
         this.objectMapper = objectMapper;
         this.valueMapper = new ExecutionValueMapper(objectMapper, schemaGenerator, sprNamingStrategy);
+        this.tableModules = tableModules;
     }
 
     public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {
@@ -72,6 +77,7 @@ public class TestsExecutionSummaryResponseMapper {
         var builder = TestCaseExecutionResult.builder()
                 .name(TableSyntaxNodeUtils.getTestName(testCase.getTestSuite().getTestSuiteMethod()))
                 .tableId(TableUtils.makeTableId(testCase.getTestSuite().getUri()))
+                .module(tableModules.moduleOf(testCase.getTestSuite().getUri()))
                 .description(testCase.getTestSuite().getTestSuiteMethod().getSyntaxNode().getTableProperties().getDescription())
                 .executionTimeMs(testCase.getExecutionTime() / NANOS_IN_MILLISECOND)
                 .numberOfTests(testCase.getNumberOfTestUnits())
@@ -95,12 +101,15 @@ public class TestsExecutionSummaryResponseMapper {
     public TestUnitExecutionResult mapToTestUnitResult(TestUnitsResults testCase,
                                                        ITestUnit testUnit,
                                                        TestExecutionSummaryQuery query) {
+        // A run table states no expectation to compare against, so what its case returned is the result of
+        // the case: it is written whether or not the whole result was asked for.
+        var runTable = testCase.getTestSuite().getTestSuiteMethod().isRunMethod();
         var builder = TestUnitExecutionResult.builder()
                 .id(testUnit.getTest().getId())
                 .description(testUnit.getTest().getDescription())
                 .status(testUnit.getResultStatus())
                 .executionTimeMs(testUnit.getExecutionTime() / 1_000_000.0)
-                .result(query.compoundResult() ? wholeResult(testUnit, query) : null);
+                .result(query.compoundResult() || runTable ? wholeResult(testUnit, query) : null);
 
         // Map test assertions. Skip them for TR_EXCEPTION (unexpected exception thrown by the test)
         // to mirror the legacy RichFaces UI (test.xhtml renders only #{testCase.errors} when

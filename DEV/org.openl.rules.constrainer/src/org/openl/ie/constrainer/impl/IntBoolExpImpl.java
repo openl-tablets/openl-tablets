@@ -24,9 +24,9 @@ import org.openl.ie.constrainer.IntBoolExpConst;
 /**
  * A generic implementation of the IntBoolExp interface.
  */
-abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
+public abstract class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
 
-    public IntBoolExpImpl(Constrainer c, String name) {
+    protected IntBoolExpImpl(Constrainer c, String name) {
         super(c, name);
     }
 
@@ -42,7 +42,7 @@ abstract public class IntBoolExpImpl extends IntExpImpl implements IntBoolExp {
 
     @Override
     public Constraint asConstraint() {
-        return this.equals(1);
+        return this.equalTo(1);
     }
 
     @Override

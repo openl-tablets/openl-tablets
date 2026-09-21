@@ -12,7 +12,7 @@ class WrapperBeanClassBuilder extends JavaBeanClassBuilder {
 
     private final String methodName;
 
-    private final LinkedHashMap<String, FieldDescription> originalMethodTypeFields = new LinkedHashMap<>(0);
+    private final LinkedHashMap<String, FieldDescription> originalMethodTypeFields = LinkedHashMap.newLinkedHashMap(0);
 
     public WrapperBeanClassBuilder(String beanName, String methodName) {
         super(beanName);

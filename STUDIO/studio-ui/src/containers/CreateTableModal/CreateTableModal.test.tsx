@@ -166,7 +166,8 @@ vi.mock('antd', async () => {
             value={value ?? ''}
         />
     )
-    return {
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
         ...actual,
         AutoComplete: MockAutoComplete,
         DatePicker: MockDatePicker,
@@ -177,7 +178,7 @@ vi.mock('antd', async () => {
         Tooltip: MockTooltip,
         // The static API renders through a portal of its own and warns that it sees no theme context.
         notification: { error: vi.fn() },
-    }
+    })
 })
 
 vi.mock('react-i18next', () => {

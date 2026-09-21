@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -16,19 +17,31 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridRegion.Tool;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.RemoveMergedRegionsAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
+import org.openl.rules.table.actions.style.SetAlignmentAction;
+import org.openl.rules.table.actions.style.SetFillColorAction;
+import org.openl.rules.table.actions.style.SetIndentAction;
+import org.openl.rules.table.actions.style.font.SetBoldAction;
+import org.openl.rules.table.actions.style.font.SetColorAction;
+import org.openl.rules.table.actions.style.font.SetItalicAction;
+import org.openl.rules.table.actions.style.font.SetUnderlineAction;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.AppendTarget;
 import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
+import org.openl.studio.projects.model.tables.RawCellStyleInput;
 import org.openl.studio.projects.model.tables.RawTableAppend;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
 
@@ -239,21 +252,40 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     /**
      * Apply a single in-place edit to the table's raw source matrix and save the result.
      * <p>
-     * The concrete operation is chosen by the action type: appending, inserting or deleting a row or a column, or
-     * updating one cell. All coordinates are 0-based and relative to the developer view (the full table including the
-     * header row), matching the matrix returned by the raw read.
+     * The concrete operation is chosen by the action type: appending, inserting or deleting a row or a column,
+     * updating a cell, a row, a column or a range, merging or unmerging a range, or styling one. All coordinates are
+     * 0-based and relative to the developer view (the full table including the header row), matching the matrix
+     * returned by the raw read.
      *
      * @param action the edit to apply
      */
     public void apply(RawTableSourceAction action) {
+        apply(List.of(action));
+    }
+
+    /**
+     * Apply a sequence of in-place edits to the table's raw source matrix and save the result once.
+     * <p>
+     * The edits are applied in the order they are given, each seeing the table as the previous one left it: a row
+     * inserted by an earlier edit shifts the coordinates every later edit addresses. All coordinates are 0-based and
+     * relative to the developer view (the full table including the header row), matching the matrix returned by the
+     * raw read.
+     * <p>
+     * The whole sequence is one change: the workbook is saved once, after the last edit. An edit that is refused
+     * ends the sequence, and nothing of it reaches the workbook.
+     *
+     * @param actions the edits to apply, in order
+     */
+    public void apply(List<RawTableSourceAction> actions) {
         if (!isUpdateMode()) {
             throw new IllegalStateException("Source actions are only allowed in update mode.");
         }
         try {
             table.getGridTable().edit();
-            // An action must not turn a recognized table into one OpenL cannot parse (an unknown header) — that would
-            // bypass the create/update header check and leave an invisible table.
-            preservingKnownHeader(() -> dispatch(action));
+            // A write must not turn a recognized table into one OpenL cannot parse (an unknown header) — that
+            // would bypass the create/update header check and leave an invisible table. Only the state the
+            // sequence ends in has to be readable; an edit in the middle of it may leave the header half-written.
+            preservingKnownHeader(() -> actions.forEach(this::dispatch));
             save();
         } finally {
             table.getGridTable().stopEditing();
@@ -275,6 +307,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             case RawTableSourceAction.Update(var target) -> update(target);
             case RawTableSourceAction.Merge(var target) -> merge(target);
             case RawTableSourceAction.Unmerge(var target) -> unmerge(target);
+            case RawTableSourceAction.Style(var target) -> style(target);
         }
     }
 
@@ -321,9 +354,17 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
     }
 
+    private void style(StyleTarget target) {
+        switch (target) {
+            case StyleTarget.Cells(var row, var column, var rowspan, var colspan, var style) ->
+                    styleCells(row, column, rowspan, colspan, style);
+        }
+    }
+
     private void insertRows(int position, List<List<RawCellInput>> rows) {
         var developerView = developerView();
-        // The first row is the header; a new row goes at index 1..height (height appends to the end).
+        // A row is laid down after the one before it, whose styling it takes — so the topmost row a write can
+        // add is the second one, and index 1..height is what the table takes (height adds at the end).
         requirePosition(position, 1, Tool.height(developerView.getRegion()));
         requireNotEmpty(rows);
         var width = Tool.width(developerView.getRegion());
@@ -339,8 +380,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void insertColumns(int position, List<List<RawCellInput>> columns) {
         var developerView = developerView();
-        // The first column carries the leading labels; a new column goes at index 1..width (width appends to the end).
-        requirePosition(position, 1, Tool.width(developerView.getRegion()));
+        // A column is laid down where the one at that index stands, whose styling it takes, and pushes it
+        // aside — the first column included. Index 0..width is what the table takes (width adds at the end).
+        requirePosition(position, 0, Tool.width(developerView.getRegion()));
         requireNotEmpty(columns);
         var height = Tool.height(developerView.getRegion());
         requireBatchLines(columns, position, false, height, "table.action.column.height.message");
@@ -372,23 +414,25 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private void deleteRows(int position, int count) {
         var developerView = developerView();
-        // The first row is the header; the block (position..position+count-1) must stay within the body.
-        requirePosition(position, 1, Tool.height(developerView.getRegion()) - count);
-        // Drop merges anchored in the deleted rows first: removeRows only resizes a merge taller than the block, so a
-        // merge fully inside it would otherwise linger as an orphan over the shifted-up rows.
+        // The block (position..position+count-1) must stay within the table — the first row included, which
+        // is the reader's to take away as it was in the Editor.
+        requirePosition(position, 0, Tool.height(developerView.getRegion()) - count);
+        // Drop the merges the deleted rows hold whole first: removeRows only resizes a merge taller than the
+        // block, so a merge fully inside it would otherwise linger as an orphan over the shifted-up rows.
         var tableRegion = developerView.getRegion();
-        removeMergedRegionsIn(developerView, new GridRegion(tableRegion.getTop() + position, tableRegion.getLeft(),
-                tableRegion.getTop() + position + count - 1, tableRegion.getRight()));
+        removeMergedRegionsWithin(developerView, new GridRegion(tableRegion.getTop() + position,
+                tableRegion.getLeft(), tableRegion.getTop() + position + count - 1, tableRegion.getRight()));
         removeRows(developerView, count, position);
     }
 
     private void deleteColumns(int position, int count) {
         var developerView = developerView();
-        requirePosition(position, 1, Tool.width(developerView.getRegion()) - count);
-        // Same as deleteRows: drop merges anchored in the deleted columns so a fully-contained merge does not linger.
+        requirePosition(position, 0, Tool.width(developerView.getRegion()) - count);
+        // Same as deleteRows: drop the merges the deleted columns hold whole so none of them lingers.
         var tableRegion = developerView.getRegion();
-        removeMergedRegionsIn(developerView, new GridRegion(tableRegion.getTop(), tableRegion.getLeft() + position,
-                tableRegion.getBottom(), tableRegion.getLeft() + position + count - 1));
+        removeMergedRegionsWithin(developerView, new GridRegion(tableRegion.getTop(),
+                tableRegion.getLeft() + position, tableRegion.getBottom(),
+                tableRegion.getLeft() + position + count - 1));
         removeColumns(developerView, count, position);
     }
 
@@ -519,8 +563,76 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             throw new BadRequestException("table.action.unmerge.not-merged.message",
                     new Object[]{row, column});
         }
-        // Remove exactly the found merge through the undoable action (consistent with the rest of the writer).
+        // Remove exactly the found merge through a grid action (consistent with the rest of the writer).
         removeMergedRegionsIn(developerView, merged);
+    }
+
+    private void styleCells(int row, int column, int rowspan, int colspan, RawCellStyleInput style) {
+        if (style.isEmpty()) {
+            throw new BadRequestException("table.action.style.empty.message");
+        }
+        var developerView = developerView();
+        var tableRegion = developerView.getRegion();
+        requireRangeInBounds(row, column, rowspan, colspan, Tool.height(tableRegion), Tool.width(tableRegion));
+        for (var r = row; r < row + rowspan; r++) {
+            for (var c = column; c < column + colspan; c++) {
+                styleCell(developerView, tableRegion.getLeft() + c, tableRegion.getTop() + r, style);
+            }
+        }
+    }
+
+    /**
+     * Sets on one cell the attributes the request names, leaving the ones it does not name as they stand.
+     *
+     * <p>The font colour is set last on purpose: changing the weight, the slant or the underline of a cell rebuilds
+     * its font from the colour index Excel keeps beside the font, which does not carry an exact RGB colour. Setting
+     * the colour after them keeps the colour the request asked for.
+     */
+    private void styleCell(IGridTable developerView, int col, int row, RawCellStyleInput style) {
+        var metaInfoWriter = getMetaInfoWriter();
+        if (style.background() != null) {
+            run(developerView, new SetFillColorAction(col, row, rgb(style.background()), metaInfoWriter));
+        }
+        if (style.align() != null) {
+            run(developerView, new SetAlignmentAction(col, row, alignment(style.align()), metaInfoWriter));
+        }
+        if (style.indent() != null) {
+            run(developerView, new SetIndentAction(col, row, style.indent(), metaInfoWriter));
+        }
+        if (style.bold() != null) {
+            run(developerView, new SetBoldAction(col, row, style.bold(), metaInfoWriter));
+        }
+        if (style.italic() != null) {
+            run(developerView, new SetItalicAction(col, row, style.italic(), metaInfoWriter));
+        }
+        if (style.underline() != null) {
+            run(developerView, new SetUnderlineAction(col, row, style.underline(), metaInfoWriter));
+        }
+        if (style.color() != null) {
+            run(developerView, new SetColorAction(col, row, rgb(style.color()), metaInfoWriter));
+        }
+    }
+
+    /** Applies an action, the way every other edit of this writer is applied. */
+    private void run(IGridTable developerView, IUndoableGridTableAction action) {
+        action.doAction(developerView);
+    }
+
+    /** The colour as the workbook takes it: one component per entry. The request shape is already validated. */
+    private static short[] rgb(String hex) {
+        return new short[]{
+                (short) Integer.parseInt(hex.substring(1, 3), 16),
+                (short) Integer.parseInt(hex.substring(3, 5), 16),
+                (short) Integer.parseInt(hex.substring(5, 7), 16)};
+    }
+
+    private static HorizontalAlignment alignment(RawTableHorizontalAlign align) {
+        return switch (align) {
+            case LEFT -> HorizontalAlignment.LEFT;
+            case RIGHT -> HorizontalAlignment.RIGHT;
+            case CENTER -> HorizontalAlignment.CENTER;
+            case JUSTIFY -> HorizontalAlignment.JUSTIFY;
+        };
     }
 
     /**
@@ -539,12 +651,30 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     /**
-     * Runs an undoable removal of the merged regions intersecting {@code region} and queues it for save.
+     * Removes the merged regions intersecting {@code region}.
      */
     private void removeMergedRegionsIn(IGridTable developerView, IGridRegion region) {
-        var action = new RemoveMergedRegionsAction(region);
-        action.doAction(developerView);
-        actionsQueue.addNewAction(action);
+        run(developerView, new RemoveMergedRegionsAction(region));
+    }
+
+    /**
+     * Drops the merges a block of lines holds whole, before the block is taken away.
+     *
+     * <p>A merge reaching past the block is left alone: the removal shrinks it, and dropping it here would take
+     * its value away with the line its top-left cell sits on. A table's header is written as one cell banked
+     * across every column, so taking the first column away would otherwise take the header with it.
+     */
+    private void removeMergedRegionsWithin(IGridTable developerView, IGridRegion block) {
+        var grid = (IWritableGrid) developerView.getGrid();
+        var held = new ArrayList<IGridRegion>();
+        for (var i = 0; i < grid.getNumberOfMergedRegions(); i++) {
+            var merged = grid.getMergedRegion(i);
+            if (IGridRegion.Tool.contains(block, merged.getLeft(), merged.getTop())
+                    && IGridRegion.Tool.contains(block, merged.getRight(), merged.getBottom())) {
+                held.add(merged);
+            }
+        }
+        held.forEach(merged -> run(developerView, new RemoveMergedRegionsAction(merged)));
     }
 
     private IGridTable developerView() {
@@ -552,15 +682,11 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private void insertBlankRows(IGridTable developerView, int beforeRow) {
-        var action = new UndoableInsertRowsAction(1, beforeRow, 0, getMetaInfoWriter());
-        action.doAction(developerView);
-        actionsQueue.addNewAction(action);
+        run(developerView, new UndoableInsertRowsAction(1, beforeRow, 0, getMetaInfoWriter()));
     }
 
     private void insertBlankColumns(IGridTable developerView, int beforeColumn) {
-        var action = new UndoableInsertColumnsAction(1, beforeColumn, 0, getMetaInfoWriter());
-        action.doAction(developerView);
-        actionsQueue.addNewAction(action);
+        run(developerView, new UndoableInsertColumnsAction(1, beforeColumn, 0, getMetaInfoWriter()));
     }
 
     private void writeRow(IGridTable developerView, int row, List<RawCellInput> cells, boolean skipCovered) {

@@ -15,11 +15,11 @@ import org.openl.util.CollectionUtils;
  */
 public abstract class ExecutableTableWriter<T extends ExecutableView> extends TableWriter<T> {
 
-    public ExecutableTableWriter(IOpenLTable table) {
+    protected ExecutableTableWriter(IOpenLTable table) {
         super(table);
     }
 
-    public ExecutableTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
+    protected ExecutableTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
         super(gridTable, metaInfoWriter);
     }
 

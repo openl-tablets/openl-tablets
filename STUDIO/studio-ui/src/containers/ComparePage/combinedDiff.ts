@@ -3,7 +3,7 @@ import type { ComparisonSide, ComparisonTable } from 'types/compare'
 import { keepRows } from './diffRows'
 
 /** What the combined view says about a row: how the second file arrived at it. */
-export type RowKind = 'equal' | 'changed' | 'added' | 'removed'
+type RowKind = 'equal' | 'changed' | 'added' | 'removed'
 
 /** What the combined view says about one cell of such a row. */
 export interface CellMark {

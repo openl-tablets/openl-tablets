@@ -35,7 +35,7 @@ vi.mock('antd-style', () => ({
     }),
 }))
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const Modal = ({ open, children, onOk, okText, title }: Record<string, unknown>) => open ? (
         <div>
             <h2>{title as never}</h2>
@@ -58,7 +58,8 @@ vi.mock('antd', () => {
         </select>
     )
     const notification = { success: vi.fn(), error: vi.fn() }
-    return { Alert, Modal, Select, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ Alert, Modal, Select, notification })
 })
 
 const project = {

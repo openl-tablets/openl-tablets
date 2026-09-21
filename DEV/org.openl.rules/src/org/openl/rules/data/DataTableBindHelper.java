@@ -98,7 +98,7 @@ public class DataTableBindHelper {
             var cell = potentialForeignKeysRow.getColumn(i);
             var value = cell.getSource().getCell(0, 0).getStringValue();
 
-            if (value == null || value.trim().length() == 0) {
+            if (value == null || value.trim().isEmpty()) {
                 continue;
             }
 

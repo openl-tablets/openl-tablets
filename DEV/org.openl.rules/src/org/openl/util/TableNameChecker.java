@@ -14,7 +14,7 @@ public class TableNameChecker {
      * @return true if string doesn't contain invalid characters
      */
     public static boolean isInvalidJavaIdentifier(String s) {
-        if (s == null || s.length() == 0) {
+        if (s == null || s.isEmpty()) {
             return true;
         }
         var c = s.toCharArray();

@@ -31,7 +31,7 @@ export async function getDesignRepositories(apiOptions: ApiCallOptions = THROW_A
     return asArray(response)
 }
 
-export interface GetProjectsQuery {
+interface GetProjectsQuery {
     page?: number
     size?: number
     /** Ask for every project at once instead of a page of them. */
@@ -233,7 +233,7 @@ export async function copyProject(
  * creator access. The comment is a query parameter; the archive is the `template` multipart field. The
  * backend enforces the CREATE grant on the repository.
  */
-export interface CreateProjectOptions {
+interface CreateProjectOptions {
     /** Uploaded content: a single .zip, one or more Excel files, or a single OpenAPI file. */
     files?: File[]
     /** Bundled/custom template to create from (no upload). */
@@ -309,18 +309,6 @@ export async function getProjectTemplates(): Promise<ProjectTemplateGroup[]> {
     return asArray(response)
 }
 
-/** Publish one or more local workspace projects to a design repository, keeping their names. */
-export async function createProjectsFromWorkspace(
-    repositoryId: string,
-    body: { names: string[], path?: string | undefined, comment?: string | undefined, branch?: string | undefined }
-): Promise<void> {
-    await apiCall(
-        `/repos/${encodeURIComponent(repositoryId)}/projects/from-workspace`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
-        { throwError: true }
-    )
-}
-
 /** List the actual Git branches of a design repository. */
 export async function getDesignRepositoryBranches(repositoryId: string): Promise<string[]> {
     const response = await apiCall(
@@ -347,14 +335,14 @@ export function downloadProject(projectId: string, version?: string): void {
     )
 }
 
-export type ProjectStatusToSet = 'OPENED' | 'CLOSED'
+type ProjectStatusToSet = 'OPENED' | 'CLOSED'
 
-export interface SetProjectStatusOptions {
+interface SetProjectStatusOptions {
     discardChanges?: boolean
     openDependencies?: boolean
 }
 
-export interface DiscardChangesOptions {
+interface DiscardChangesOptions {
     discardChanges?: boolean
 }
 
@@ -438,7 +426,7 @@ export async function createProjectBranch(projectId: string, branch: string, rev
     }, { throwError: true })
 }
 
-export interface RevisionAuthor {
+interface RevisionAuthor {
     email?: string
     displayName?: string
 }

@@ -1,16 +1,24 @@
 import { createStyles } from 'antd-style'
 
-export const useStyles = createStyles(({ css }) => ({
+export const useStyles = createStyles(({ css, token }) => ({
     table: css`
         tbody .editable-cell-wrap {
             padding: 5px 12px;
             cursor: pointer;
+            /* The cell opens its field from the keyboard, so it is a real button; these undo what that brings with it. */
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            font: inherit;
+            color: inherit;
+            text-align: left;
         }
 
         tbody tr:hover td .editable-cell-wrap {
             padding: 4px 24px 4px 11px;
-            border: 1px solid #d9d9d9;
-            border-radius: 2px;
+            border: 1px solid ${token.colorBorder};
+            border-radius: ${token.borderRadiusXS}px;
         }
     `,
 }))

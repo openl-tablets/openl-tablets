@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Modal, notification, Select } from 'antd'
+import { App, Alert, Button, Modal, Select } from 'antd'
 import { downloadProject } from '../../services/repositories'
 import { downloadFile, fileExistsAt } from '../../services/files'
 import { ProjectStatus } from '../../constants/project'
@@ -37,18 +37,21 @@ interface ExportProjectModalProps {
  * Downloads the project, or a single file of it, from the workspace copy or from any earlier revision.
  *
  * The workspace copy leads the list while the project is open: for a project being edited it carries the
- * local changes, and for one merely opened it is the revision it was opened on.
+ * local changes, and for one merely opened it is the revision it was opened on. A local project is nothing
+ * but its workspace copy, so that copy is the one entry it offers.
  *
  * Exporting a file offers that file's own revisions rather than the project's, so every entry is one the
  * file can actually be read from.
  */
 export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportProjectModalProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const [chosen, setChosen] = useState<string | undefined>(undefined)
     const [checking, setChecking] = useState(false)
 
     const editing = project?.status === ProjectStatus.Editing
-    const opened = editing || project?.status === ProjectStatus.Opened
+    const local = project?.status === ProjectStatus.Local
+    const opened = editing || local || project?.status === ProjectStatus.Opened
         || project?.status === ProjectStatus.ViewingVersion
     const { revisions, options: revisionOptions, error, hasMore, loadMore, loadingMore } = useProjectRevisions(project, open, filePath)
     // The workspace copy is what an open project exports; a closed one exports its latest revision — the
@@ -65,7 +68,7 @@ export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportP
         ...(opened
             ? [{
                 value: WORKSPACE,
-                label: editing ? t('browser.export_dialog.in_editing') : t('browser.export_dialog.viewing'),
+                label: t(`browser.export_dialog.${editing ? 'in_editing' : local ? 'local' : 'viewing'}`),
             }]
             : []),
         ...revisionOptions,

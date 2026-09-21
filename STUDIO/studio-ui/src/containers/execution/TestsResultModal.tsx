@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
-import { ValueCell } from 'components/values/ParameterValues'
+import { ValueCell, valueLabel } from 'components/values/ParameterValues'
 import { useTestCase } from 'hooks/useTestCase'
 import {
     ALL_TESTS_ON_A_PAGE,
@@ -13,13 +13,13 @@ import {
     FAILURES_PER_TEST_OPTIONS,
     getTestCaseResult,
     getTestsSummaryWorkbook,
-    isStillRunning,
     readTestsSummary,
     TESTS_PAGE_SIZE,
     TESTS_PAGE_SIZES,
     XLSX_MEDIA_TYPE,
     type TestsQuery,
 } from 'services/execution'
+import { isStillRunning } from 'services/taskResult'
 import { useUserStore } from 'store'
 import type { TestsSummary, TestStatus, TestTableResult, TestUnitResult } from 'types/execution'
 import type { UserProfile } from 'types/user'
@@ -100,6 +100,7 @@ const columnsOf = (
                 const value = inputsOf(unit)[index]
                 return (
                     <ValueCell
+                        label={value ? valueLabel(value) : undefined}
                         lazy={value?.lazy ?? false}
                         onLoad={() => readCase(table.tableId, unit.id).then(read => inputsOf(read)[index])}
                         path={`${key}-in-${unit.id}-${index}`}
@@ -131,13 +132,16 @@ const columnsOf = (
                 )
             },
         })),
-        ...(compoundResult ? [{
+        // A Run table states no expected values: what a case returned is its result, shown whether or not the
+        // compound result is asked for.
+        ...(compoundResult || table.runTable ? [{
             key: 'compound',
-            title: t('tests.compoundResult'),
+            title: table.runTable ? t('tests.result') : t('tests.compoundResult'),
             render: (unit: TestUnitResult) => (
                 <Space size={4}>
                     {!table.runTable && <StatusMark status={unit.status} title={t(STATUS[unit.status])} />}
                     <ValueCell
+                        label={unit.result ? valueLabel(unit.result) : undefined}
                         lazy={unit.result?.lazy ?? false}
                         onLoad={() => readCase(table.tableId, unit.id).then(read => read.result)}
                         path={`${key}-whole-${unit.id}`}
@@ -160,10 +164,11 @@ type ReadCase = (tableId: string, caseId: string) => Promise<TestUnitResult>
 /** The results of the test units of one test table, a case to a row. */
 const TestTable: React.FC<{
     table: TestTableResult
+    projectId: string
     compoundResult: boolean
     readCase: ReadCase
     onOpenTable: () => void
-}> = ({ table, compoundResult, readCase, onOpenTable }) => {
+}> = ({ table, projectId, compoundResult, readCase, onOpenTable }) => {
     const { t } = useTranslation('execution')
 
     // A test table holds test cases; a Run table holds runs, because it states no expected values.
@@ -180,7 +185,9 @@ const TestTable: React.FC<{
                 <Title level={5} style={{ margin: 0 }}>
                     <TableLink
                         data-testid={`test-table-${table.tableId}`}
+                        module={table.module}
                         onOpen={onOpenTable}
+                        projectId={projectId}
                         tableId={table.tableId}
                         {...(!table.runTable && { type: table.numberOfFailures > 0 ? 'danger' : 'success' })}
                     >
@@ -220,7 +227,7 @@ const savedQuery = (profile: UserProfile | null): Required<TestsQuery> => ({
     size: profile?.testsPerPage || TESTS_PAGE_SIZE,
 })
 
-export interface TestsResultModalProps {
+interface TestsResultModalProps {
     projectId: string
     /** The table whose tests ran, when a single table was asked for. */
     tableId?: string | undefined
@@ -377,6 +384,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                             key={table.tableId}
                             compoundResult={query.compoundResult}
                             onOpenTable={onClose}
+                            projectId={projectId}
                             readCase={readCase}
                             table={table}
                         />

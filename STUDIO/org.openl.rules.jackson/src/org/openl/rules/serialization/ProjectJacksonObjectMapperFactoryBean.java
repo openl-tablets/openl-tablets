@@ -34,7 +34,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     private static final AtomicLong incrementer = new AtomicLong();
 
     public static final String ROOT_CLASS_NAMES_BINDING_OLD = "rootClassNamesBinding";
-    public static final String SUPPORT_VARIATIONS = "ruleservice.isSupportVariations";
     public static final String ROOT_CLASS_NAMES_BINDING = "databinding.rootClassNames";
     public static final String JACKSON_CASE_INSENSITIVE_PROPERTIES = "jackson.caseInsensitiveProperties";
     public static final String JACKSON_DEFAULT_DATE_FORMAT = "jackson.defaultDateFormat";

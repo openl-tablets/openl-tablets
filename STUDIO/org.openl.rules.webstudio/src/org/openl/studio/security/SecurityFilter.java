@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -64,15 +63,5 @@ public class SecurityFilter implements Filter {
             return "/healthcheck/startup".equals(path) || "/healthcheck/readiness".equals(path);
         }
         return false;
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) {
-
-    }
-
-    @Override
-    public void destroy() {
-
     }
 }

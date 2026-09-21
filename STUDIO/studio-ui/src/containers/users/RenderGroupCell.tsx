@@ -35,7 +35,7 @@ const addColorAttribute = (group?: string): string => {
         case UserGroupType.Default:
             return 'blue'
         default:
-            return 'gray'
+            return 'default'
     }
 }
 

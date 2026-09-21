@@ -26,6 +26,9 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 @Slf4j
 public class KeyPairCertUtils {
 
+    private KeyPairCertUtils() {
+        // Utility class
+    }
 
     private static Pair<String, String> generate() throws Exception {
 

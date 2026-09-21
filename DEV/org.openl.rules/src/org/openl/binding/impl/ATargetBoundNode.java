@@ -14,7 +14,7 @@ public abstract class ATargetBoundNode extends ABoundNode {
     @Getter
     private final IBoundNode targetNode;
 
-    public ATargetBoundNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode... children) {
+    protected ATargetBoundNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode... children) {
         super(syntaxNode, children);
         this.targetNode = targetNode;
     }

@@ -16,6 +16,22 @@ by `ProjectDescriptorValidatorTest`):
 - `050-valid-settings-accepted` — valid settings uploaded as a file, the API's other write path;
 - `060-accepted-settings-are-stored` — that write is the one the project keeps.
 
+`030-module-validation` covers what the Editor checked field by field and the API did not — the project's name
+and every module's name and path — written the same way, one rejection per error code:
+
+- `010-module-name-with-forbidden-characters-rejected` — a module name a repository cannot hold;
+- `020-two-modules-of-one-name-rejected` — reported on the module that repeats, not on the one it repeats;
+- `030-module-without-a-path-rejected` — a module declaring nothing to read its rules from;
+- `040-module-pointing-at-a-missing-file-rejected` — a path naming a file the project does not hold;
+- `050-path-already-read-by-another-module-rejected` — the same rules read twice;
+- `060-project-name-with-forbidden-characters-rejected`, `070-reserved-project-name-rejected` — the name the
+  project is known by, which names its folder in a repository;
+- `080-descriptor-is-untouched-by-the-rejections` — the project still holds the descriptor it was left with;
+- `090-a-named-pattern-module-accepted` — a pattern carrying a name of its own is a module like any other.
+
+A module that declares no name is accepted throughout: the engine names it after the file its path points at,
+and the modules a pattern stands for after the files it matched.
+
 `999-tierdown` deletes the project and requires the shared `design-flat` repository to hold nothing under that
 name afterwards. The closing listing asks for deleted projects too, so an archived leftover is not read as a
 clean repository.

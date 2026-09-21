@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.openl.types.IOpenClass;
 
@@ -91,24 +90,6 @@ public class XlsDefinitions {
 
     public Collection<DTColumnsDefinition> getDtColumnsDefinitions() {
         return Collections.unmodifiableCollection(dtColumnsDefinitions);
-    }
-
-    public Collection<DTColumnsDefinition> getConditionDefinitions() {
-        return dtColumnsDefinitions.stream()
-                .filter(e -> DTColumnsDefinitionType.CONDITION.equals(e.getType()))
-                .collect(Collectors.toList());
-    }
-
-    public Collection<DTColumnsDefinition> getActionDefinitions() {
-        return dtColumnsDefinitions.stream()
-                .filter(e -> DTColumnsDefinitionType.ACTION.equals(e.getType()))
-                .collect(Collectors.toList());
-    }
-
-    public Collection<DTColumnsDefinition> getReturnDefinitions() {
-        return dtColumnsDefinitions.stream()
-                .filter(e -> DTColumnsDefinitionType.RETURN.equals(e.getType()))
-                .collect(Collectors.toList());
     }
 
     public void addAll(XlsDefinitions xlsModuleDefinitions) {

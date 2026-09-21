@@ -9,7 +9,12 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "TypeA",
       "file": "EPBDS-16086/EPBDS-16086.xlsx",
-      "pos": "B11:C15"
+      "sheet": "Main",
+      "pos": "B11:C15",
+      "module": "EPBDS-16086",
+      "project": "EPBDS-16086",
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "signature": "TypeA"
     },
     {
       "id": "91e1b83d71ebd6206c0bff53079bdcb1",
@@ -17,7 +22,12 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "TypeB",
       "file": "EPBDS-16086/EPBDS-16086.xlsx",
-      "pos": "B18:C22"
+      "sheet": "Main",
+      "pos": "B18:C22",
+      "module": "EPBDS-16086",
+      "project": "EPBDS-16086",
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "signature": "TypeB"
     },
     {
       "id": "dec94b5ec4595b84a118532580fdb200",
@@ -25,7 +35,12 @@ Content-Type: application/json
       "kind": "Datatype",
       "name": "TypeC",
       "file": "EPBDS-16086/EPBDS-16086.xlsx",
-      "pos": "B8:C9"
+      "sheet": "Main",
+      "pos": "B8:C9",
+      "module": "EPBDS-16086",
+      "project": "EPBDS-16086",
+      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "signature": "TypeC"
     }
   ],
   "pageNumber": 0,

@@ -1,7 +1,6 @@
 package org.openl.validation;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 
@@ -61,10 +60,6 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
         var messages = new LinkedHashSet<OpenLMessage>(delegate.getAllMessages());
         messages.addAll(validationMessages);
         return messages;
-    }
-
-    public Collection<OpenLMessage> getValidationMessages() {
-        return Collections.unmodifiableCollection(validationMessages);
     }
 
     public void addMessage(OpenLMessage message) {

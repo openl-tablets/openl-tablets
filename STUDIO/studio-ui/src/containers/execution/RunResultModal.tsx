@@ -6,7 +6,8 @@ import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
 import { ValueCell } from 'components/values/ParameterValues'
 import { SpreadsheetValue } from 'components/values/SpreadsheetValue'
-import { getRunResultWorkbook, isStillRunning, readRunResult, XLSX_MEDIA_TYPE, type RunFileOptions } from 'services/execution'
+import { getRunResultWorkbook, readRunResult, XLSX_MEDIA_TYPE, type RunFileOptions } from 'services/execution'
+import { isStillRunning } from 'services/taskResult'
 import type { RunResult } from 'types/execution'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
@@ -52,7 +53,7 @@ const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
     )
 }
 
-export interface RunResultModalProps {
+interface RunResultModalProps {
     projectId: string
     tableId: string
     /** How the workbook of this run is written, as the launch panel asked for it. */

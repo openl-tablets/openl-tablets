@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Divider, Empty, Modal, Segmented, Select, Space, Spin, Tag, Tooltip, Typography } from 'antd'
+import { Button, Divider, Empty, Modal, Segmented, Select, Space, Spin, Tag, Tooltip, Typography, theme } from 'antd'
 import {
     AimOutlined,
     BgColorsOutlined,
@@ -12,10 +12,13 @@ import {
     ZoomOutOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import cytoscape, { type Core } from 'cytoscape'
+import type { GlobalToken } from 'antd'
 import dagre from 'cytoscape-dagre'
 import { useGlobalEvents } from '../hooks'
-import { apiCall, openTableInEditor, type ApiCallOptions } from '../services'
+import { apiCall, type ApiCallOptions } from '../services'
+import { moduleRoute } from '../services/projectId'
 import {
     bridgeHiddenNodes,
     buildGraphModel,
@@ -25,11 +28,11 @@ import {
     type GraphCycle,
     type GraphNode,
     type GraphVocabulary,
-    kindColor,
     layoutBands,
     visibleNeighbours,
     vocabularyValue,
 } from './tableGraph'
+import { graphPalette, kindColor, kindRules } from './tableGraphTheme'
 
 cytoscape.use(dagre)
 
@@ -66,13 +69,6 @@ const candidateTooltip = (node: GraphNode): string => [node.kind, node.project, 
 const canOpenTable = (node: GraphNode | undefined, projectName?: string): boolean =>
     !!node && node.kind !== DISPATCHER_KIND && (!projectName || !node.project || node.project === projectName)
 
-// Schematic palette. One accent is reserved for selection and never names a table kind; red means "problem" only.
-const SELECT_ACCENT = '#fa8c16'
-const PROBLEM_ACCENT = '#f5222d'
-const DISPATCHER_ACCENT = '#ffc53d'
-// Data model edges (inheritance, fields) are teal, the colour the Datatype kind already carries.
-const DATA_MODEL_ACCENT = '#13c2c2'
-const HAIRLINE = '#e8e8e8'
 // IDs, cells and signatures are code, so they are set in a monospace utility face.
 const MONO = 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
 // Crow's foot cardinality, read from the line towards the entity: a ring for optional, then a bar for one value and a
@@ -81,184 +77,190 @@ const ERD_ZERO_OR_ONE = '○|'
 const ERD_ZERO_OR_MANY = '○≺'
 // the legend swatch is a narrow slot, and a two-glyph symbol must stay on one line in it
 const ERD_MARKER = { fontFamily: MONO, fontSize: 12, whiteSpace: 'nowrap' as const }
-// A faint blueprint dot-grid behind the graph, so nodes read as placed on a board rather than floating in a void.
-const CANVAS_BG = '#fbfcfe'
-const DOT_GRID = 'radial-gradient(circle, #e6ebf2 1.1px, transparent 1.2px)'
 
-const buildStyle = (maxWeight: number) => [
-    {
-        selector: 'node',
-        style: {
-            'background-color': 'data(color)',
-            'label': 'data(label)',
-            'color': '#ffffff',
-            'font-size': 11,
-            'font-weight': 500,
-            // a dark halo keeps the white label readable on light kind fills (e.g. Properties grey)
-            'text-outline-color': 'rgba(0, 0, 0, 0.45)',
-            'text-outline-width': 1.4,
-            'text-valign': 'center',
-            'text-halign': 'center',
-            'text-wrap': 'ellipsis',
-            'text-max-width': '120px',
-            'shape': 'round-rectangle',
-            'width': 'label',
-            'height': 'label',
-            'padding': '6px',
-            'border-color': '#000000',
-            'border-opacity': 0.35,
-            'border-width': `mapData(weight, 0, ${Math.max(maxWeight, 1)}, 0, 7)`,
+// A faint blueprint dot-grid behind the graph, so nodes read as placed on a board rather than floating in a void.
+const dotGrid = (colour: string): string => `radial-gradient(circle, ${colour} 1.1px, transparent 1.2px)`
+
+const buildStyle = (maxWeight: number, token: GlobalToken) => {
+    const palette = graphPalette(token)
+    return [
+        {
+            selector: 'node',
+            style: {
+                'background-color': kindColor(token),
+                'label': 'data(label)',
+                'color': palette.label,
+                'font-size': 11,
+                'font-weight': 500,
+                // a dark halo keeps the white label readable on light kind fills (e.g. Properties grey)
+                'text-outline-color': palette.labelHalo,
+                'text-outline-width': 1.4,
+                'text-valign': 'center',
+                'text-halign': 'center',
+                'text-wrap': 'ellipsis',
+                'text-max-width': '120px',
+                'shape': 'round-rectangle',
+                'width': 'label',
+                'height': 'label',
+                'padding': '6px',
+                'border-color': palette.weight,
+                'border-opacity': 0.35,
+                'border-width': `mapData(weight, 0, ${Math.max(maxWeight, 1)}, 0, 7)`,
+            },
         },
-    },
-    {
-        // a datatype is an ER entity box: the type on top, a rule, and the members it declares under it — so the data
-        // model reads as a diagram of types rather than as named dots
-        selector: 'node.entity',
-        style: {
-            'background-color': '#ffffff',
-            'shape': 'round-rectangle',
-            'color': '#262626',
-            'font-family': MONO,
-            'font-size': 10,
-            'font-weight': 400,
-            'text-outline-width': 0,
-            'text-valign': 'center',
-            'text-halign': 'center',
-            'text-wrap': 'wrap',
-            'text-justification': 'left',
-            'text-max-width': '260px',
-            'padding': '9px',
-            'border-width': 1.5,
-            'border-color': DATA_MODEL_ACCENT,
-            'border-opacity': 1,
+        // Each kind is painted by its own rule rather than by a colour carried in the node data, so the graph
+        // repaints when the appearance changes instead of keeping the hues it was built with.
+        ...kindRules(token),
+        {
+            // a datatype is an ER entity box: the type on top, a rule, and the members it declares under it — so the data
+            // model reads as a diagram of types rather than as named dots
+            selector: 'node.entity',
+            style: {
+                'background-color': palette.entityBg,
+                'shape': 'round-rectangle',
+                'color': palette.entityText,
+                'font-family': MONO,
+                'font-size': 10,
+                'font-weight': 400,
+                'text-outline-width': 0,
+                'text-valign': 'center',
+                'text-halign': 'center',
+                'text-wrap': 'wrap',
+                'text-justification': 'left',
+                'text-max-width': '260px',
+                'padding': '9px',
+                'border-width': 1.5,
+                'border-color': palette.dataModel,
+                'border-opacity': 1,
+            },
         },
-    },
-    {
-        // the subject area a data model belongs to: a titled frame around the entities of one project
-        selector: 'node.area',
-        style: {
-            'background-color': '#f0fdfd',
-            'background-opacity': 0.6,
-            'shape': 'round-rectangle',
-            'label': 'data(label)',
-            'color': '#08979c',
-            'font-size': 13,
-            'font-weight': 600,
-            'text-outline-width': 0,
-            'text-valign': 'top',
-            'text-halign': 'center',
-            'text-margin-y': -4,
-            'padding': '22px',
-            'border-width': 1,
-            'border-style': 'dashed',
-            'border-color': DATA_MODEL_ACCENT,
-            'border-opacity': 0.7,
+        {
+            // the subject area a data model belongs to: a titled frame around the entities of one project
+            selector: 'node.area',
+            style: {
+                'background-color': palette.areaBg,
+                'background-opacity': 0.6,
+                'shape': 'round-rectangle',
+                'label': 'data(label)',
+                'color': palette.areaText,
+                'font-size': 13,
+                'font-weight': 600,
+                'text-outline-width': 0,
+                'text-valign': 'top',
+                'text-halign': 'center',
+                'text-margin-y': -4,
+                'padding': '22px',
+                'border-width': 1,
+                'border-style': 'dashed',
+                'border-color': palette.dataModel,
+                'border-opacity': 0.7,
+            },
         },
-    },
-    {
-        selector: 'node.isolated',
-        style: { 'border-width': 3, 'border-style': 'dashed', 'border-color': PROBLEM_ACCENT, 'border-opacity': 1 },
-    },
-    {
-        // the technical dispatcher table that selects one overloaded version: a distinct cut-rectangle with a gold frame
-        selector: 'node.dispatcher',
-        style: { 'shape': 'cut-rectangle', 'border-width': 3, 'border-color': DISPATCHER_ACCENT, 'border-opacity': 1 },
-    },
-    {
-        // selection is a detached ring (elevation), not a fill colour — so it never collides with a table kind
-        selector: 'node.highlighted',
-        style: {
-            'outline-width': 3,
-            'outline-color': SELECT_ACCENT,
-            'outline-offset': 3,
-            'outline-opacity': 1,
-            'border-color': '#7a3b00',
-            'border-width': 2,
-            'border-opacity': 1,
+        {
+            selector: 'node.isolated',
+            style: { 'border-width': 3, 'border-style': 'dashed', 'border-color': palette.problem, 'border-opacity': 1 },
         },
-    },
-    { selector: '.faded', style: { 'opacity': 0.12 } },
-    { selector: '.hidden', style: { 'display': 'none' } },
-    {
-        selector: 'edge',
-        style: {
-            'width': 1.3,
-            'line-color': '#c0c0c0',
-            'target-arrow-color': '#c0c0c0',
-            'target-arrow-shape': 'triangle',
-            'curve-style': 'bezier',
-            'arrow-scale': 0.8,
+        {
+            // the technical dispatcher table that selects one overloaded version: a distinct cut-rectangle with a gold frame
+            selector: 'node.dispatcher',
+            style: { 'shape': 'cut-rectangle', 'border-width': 3, 'border-color': palette.dispatcher, 'border-opacity': 1 },
         },
-    },
-    {
-        // UML generalization: a hollow closed triangle pointing at the datatype being extended
-        selector: 'edge.extends',
-        style: {
-            'line-color': DATA_MODEL_ACCENT,
-            'target-arrow-color': DATA_MODEL_ACCENT,
-            'target-arrow-fill': 'hollow',
-            'arrow-scale': 1.1,
-            'width': 1.6,
+        {
+            // selection is a detached ring (elevation), not a fill colour — so it never collides with a table kind
+            selector: 'node.highlighted',
+            style: {
+                'outline-width': 3,
+                'outline-color': palette.select,
+                'outline-offset': 3,
+                'outline-opacity': 1,
+                'border-color': palette.selectBorder,
+                'border-width': 2,
+                'border-opacity': 1,
+            },
         },
-    },
-    {
-        // A relationship between two entities, in crow's foot (information engineering) notation. Cytoscape's arrow
-        // shapes all point their tip into the node, so the symbol is drawn as an autorotated end label instead: it
-        // turns with the line and reads the same whichever way the edge runs.
-        selector: 'edge.field',
-        style: {
-            'line-color': DATA_MODEL_ACCENT,
-            'target-arrow-shape': 'none',
-            'target-text-rotation': 'autorotate',
-            'target-text-offset': 14,
-            'font-size': 18,
-            'font-family': MONO,
-            'color': DATA_MODEL_ACCENT,
+        { selector: '.faded', style: { 'opacity': 0.12 } },
+        { selector: '.hidden', style: { 'display': 'none' } },
+        {
+            selector: 'edge',
+            style: {
+                'width': 1.3,
+                'line-color': palette.edge,
+                'target-arrow-color': palette.edge,
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier',
+                'arrow-scale': 0.8,
+            },
         },
-    },
-    // The ring is the optional half of the symbol — a datatype field never has to be filled in — and the bar or the
-    // crow's foot next to the entity is how many of it the field holds.
-    { selector: 'edge.field.one', style: { 'target-label': ERD_ZERO_OR_ONE } },
-    { selector: 'edge.field.many', style: { 'target-label': ERD_ZERO_OR_MANY } },
-    {
-        selector: 'edge.cycle',
-        style: { 'line-color': PROBLEM_ACCENT, 'target-arrow-color': PROBLEM_ACCENT, 'line-style': 'dashed', 'width': 2 },
-    },
-    {
-        // self-loops (a table that calls itself): dagre ignores them for ranking, so give them an explicit, compact
-        // loop on top of the node. A tight sweep keeps both ends anchored near the top-centre — otherwise the target
-        // endpoint lands on the node side and, on a wide node, the arrowhead is flung far past the box.
-        selector: 'edge:loop',
-        style: {
-            'curve-style': 'bezier',
-            'control-point-step-size': 36,
-            'loop-direction': '0deg',
-            'loop-sweep': '-28deg',
-            'line-color': PROBLEM_ACCENT,
-            'target-arrow-color': PROBLEM_ACCENT,
-            'line-style': 'dashed',
-            'width': 2,
+        {
+            // UML generalization: a hollow closed triangle pointing at the datatype being extended
+            selector: 'edge.extends',
+            style: {
+                'line-color': palette.dataModel,
+                'target-arrow-color': palette.dataModel,
+                'target-arrow-fill': 'hollow',
+                'arrow-scale': 1.1,
+                'width': 1.6,
+            },
         },
-    },
-    {
-        // a datatype with a field of its own type is a plain self-association, not recursion: keep the loop geometry
-        // above but restore the data model's own notation on top of it
-        selector: 'edge:loop.field',
-        style: {
-            'line-color': DATA_MODEL_ACCENT,
-            'target-arrow-color': DATA_MODEL_ACCENT,
-            'line-style': 'solid',
-            'width': 1.3,
+        {
+            // A relationship between two entities, in crow's foot (information engineering) notation. Cytoscape's arrow
+            // shapes all point their tip into the node, so the symbol is drawn as an autorotated end label instead: it
+            // turns with the line and reads the same whichever way the edge runs.
+            selector: 'edge.field',
+            style: {
+                'line-color': palette.dataModel,
+                'target-arrow-shape': 'none',
+                'target-text-rotation': 'autorotate',
+                'target-text-offset': 14,
+                'font-size': 18,
+                'font-family': MONO,
+                'color': palette.dataModel,
+            },
         },
-    },
-    // @types/cytoscape's StylesheetCSS types each property narrowly and omits several used here (mapData() expressions,
-    // text/loop/underlay properties, the :loop selector), so the stylesheet is cast rather than fought field by field.
-] as unknown as cytoscape.StylesheetCSS[]
+        // The ring is the optional half of the symbol — a datatype field never has to be filled in — and the bar or the
+        // crow's foot next to the entity is how many of it the field holds.
+        { selector: 'edge.field.one', style: { 'target-label': ERD_ZERO_OR_ONE } },
+        { selector: 'edge.field.many', style: { 'target-label': ERD_ZERO_OR_MANY } },
+        {
+            selector: 'edge.cycle',
+            style: { 'line-color': palette.problem, 'target-arrow-color': palette.problem, 'line-style': 'dashed', 'width': 2 },
+        },
+        {
+            // self-loops (a table that calls itself): dagre ignores them for ranking, so give them an explicit, compact
+            // loop on top of the node. A tight sweep keeps both ends anchored near the top-centre — otherwise the target
+            // endpoint lands on the node side and, on a wide node, the arrowhead is flung far past the box.
+            selector: 'edge:loop',
+            style: {
+                'curve-style': 'bezier',
+                'control-point-step-size': 36,
+                'loop-direction': '0deg',
+                'loop-sweep': '-28deg',
+                'line-color': palette.problem,
+                'target-arrow-color': palette.problem,
+                'line-style': 'dashed',
+                'width': 2,
+            },
+        },
+        {
+            // a datatype with a field of its own type is a plain self-association, not recursion: keep the loop geometry
+            // above but restore the data model's own notation on top of it
+            selector: 'edge:loop.field',
+            style: {
+                'line-color': palette.dataModel,
+                'target-arrow-color': palette.dataModel,
+                'line-style': 'solid',
+                'width': 1.3,
+            },
+        },
+        // @types/cytoscape's StylesheetCSS types each property narrowly and omits several used here (mapData() expressions,
+        // text/loop/underlay properties, the :loop selector), so the stylesheet is cast rather than fought field by field.
+    ] as unknown as cytoscape.StylesheetCSS[]
+}
 
 /**
  * Detail passed from the legacy JSF page via the {@code openTableGraphModal} event.
  */
-export interface TableGraphModalDetail {
+interface TableGraphModalDetail {
     projectId: string
     /** Name of the opened project. Tables from other (dependency) projects in the graph cannot be opened in the editor. */
     projectName?: string
@@ -269,14 +271,13 @@ export interface TableGraphModalDetail {
 /** The editor keeps the open table in the URL fragment as `…table?id=<tableId>`; read it so the graph can preselect it. */
 const tableIdFromHash = (): string | undefined => /[?&]id=([^&]+)/.exec(globalThis.location.hash)?.[1]
 
-/** Opens the tapped table in the editor and closes the graph, leaving it open when the table has no address. */
-const openTable = (id: string): void => {
-    void openTableInEditor(id).then(opened => {
-        if (opened) {
-            globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
-        }
-    })
-}
+/**
+ * The address of a table in the editor: its module and itself.
+ *
+ * <p>A node that names no module cannot be opened — there is no screen to read the table through.
+ */
+const tableAddress = (projectId: string, node?: GraphNode): string | null =>
+    node?.module ? moduleRoute(projectId, node.module, node.id) : null
 
 /**
  * TableGraphModal renders an interactive dependency graph of the current project's tables with Cytoscape: nodes are
@@ -287,6 +288,9 @@ const openTable = (id: string): void => {
  */
 export const TableGraphModal: React.FC = () => {
     const { t } = useTranslation()
+    const { token } = theme.useToken()
+    const palette = useMemo(() => graphPalette(token), [token])
+    const navigate = useNavigate()
     const { detail } = useGlobalEvents<TableGraphModalDetail>('openTableGraphModal')
 
     const [visible, setVisible] = useState(false)
@@ -429,7 +433,7 @@ export const TableGraphModal: React.FC = () => {
         if (!visible || loading || !containerRef.current || model.elements.length === 0) {
             return
         }
-        const cy = cytoscape({ container: containerRef.current, elements: model.elements, style: buildStyle(maxWeight) })
+        const cy = cytoscape({ container: containerRef.current, elements: model.elements, style: buildStyle(maxWeight, token) })
         cyRef.current = cy
         layoutBands(cy)
 
@@ -453,7 +457,7 @@ export const TableGraphModal: React.FC = () => {
             // Double-tap opens the table, but only when it lives in the active project — foreign tables cannot be opened.
             if (id === lastTap.id && now - lastTap.time < 350) {
                 if (canOpenTable(model.byId.get(id), projectNameRef.current)) {
-                    openTable(id)
+                    openTableRef.current(model.byId.get(id))
                 }
                 lastTap = { id: '', time: 0 }
             } else {
@@ -471,7 +475,7 @@ export const TableGraphModal: React.FC = () => {
             cy.destroy()
             cyRef.current = null
         }
-    }, [visible, loading, model, maxWeight])
+    }, [visible, loading, model, maxWeight, token])
 
     // Apply the kind filter / exploration scope.
     useEffect(() => {
@@ -491,7 +495,9 @@ export const TableGraphModal: React.FC = () => {
             cy.remove('edge.bridge')
             cy.add(bridgeHiddenNodes(visibleIds, kindHidden, model.dependencies))
         })
-    }, [visibleIds, kindHidden, model])
+        // token is a dependency because a new theme builds a new Cytoscape instance, which starts with nothing
+        // hidden and no bridges — the filter has to be laid over it again.
+    }, [visibleIds, kindHidden, model, token])
 
     // Focus the selected table or the picked cycle: highlight it, fade the rest, and bring it into view.
     useEffect(() => {
@@ -523,8 +529,9 @@ export const TableGraphModal: React.FC = () => {
         node.addClass('highlighted')
         cy.animate({ center: { eles: node }, zoom: Math.max(cy.zoom(), 1) }, { duration: 300 })
         // visibleIds is a dependency because a kind filter / exploration change re-hides nodes, and the fade set must be
-        // recomputed against the new '.hidden' nodes — otherwise the previous highlight/fade is left stale.
-    }, [selectedId, activeCycle, visibleIds])
+        // recomputed against the new '.hidden' nodes — otherwise the previous highlight/fade is left stale. token is
+        // one because a new theme builds a new instance, on which nothing is highlighted, faded or centred yet.
+    }, [selectedId, activeCycle, visibleIds, token])
 
     // The bottom bars (cycles / name candidates) take vertical space from the graph; keep the canvas matched.
     useEffect(() => {
@@ -534,6 +541,19 @@ export const TableGraphModal: React.FC = () => {
     const handleClose = useCallback(() => {
         globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
     }, [])
+
+    /** Leaves the graph for the table itself, in the module the editor reads it through. */
+    const openTable = useCallback((node?: GraphNode) => {
+        const address = tableAddress(projectIdRef.current ?? '', node)
+        if (address !== null) {
+            handleClose()
+            navigate(address)
+        }
+    }, [handleClose, navigate])
+
+    // The graph itself is built once and its taps are wired there, so the way out is read when a tap happens.
+    const openTableRef = useRef(openTable)
+    openTableRef.current = openTable
 
     const toggleKind = useCallback((kind: string) => {
         setHiddenKinds(prev => {
@@ -615,7 +635,7 @@ export const TableGraphModal: React.FC = () => {
     // The found cycles, shown as a bar under the graph. Each chip is clickable and highlights the cycle; long chains are
     // truncated with the full path kept in the chip tooltip.
     const renderCyclesBar = () => (
-        <div data-testid="table-graph-cycles" style={{ borderTop: '1px solid #f0f0f0', marginTop: 8, paddingTop: 8 }}>
+        <div data-testid="table-graph-cycles" style={{ borderTop: `1px solid ${token.colorSplit}`, marginTop: 8, paddingTop: 8 }}>
             <Space size={8}>
                 <Typography.Text strong>
                     {cycles && cycles.length > 0 ? t('graph:cycles_found', { count: cycles.length }) : t('graph:cycles_none')}
@@ -654,7 +674,7 @@ export const TableGraphModal: React.FC = () => {
     // When a searched name maps to several tables, list them as a bar under the graph so the user can pick which one to
     // focus. Each chip shows the table's location (or signature) and highlights that table on click.
     const renderMatchesBar = () => (
-        <div data-testid="table-graph-matches" style={{ borderTop: '1px solid #f0f0f0', marginTop: 8, paddingTop: 8 }}>
+        <div data-testid="table-graph-matches" style={{ borderTop: `1px solid ${token.colorSplit}`, marginTop: 8, paddingTop: 8 }}>
             <Typography.Text strong>{t('graph:search_matches', { count: nameMatches.length, name: searchName })}</Typography.Text>
             <div style={{ height: 76, marginTop: 4, overflowY: 'auto' }}>
                 <Space wrap size={4}>
@@ -806,7 +826,7 @@ export const TableGraphModal: React.FC = () => {
                     {node.name}
                 </Typography.Title>
                 <Space wrap size={4} style={{ marginBottom: 8 }}>
-                    {node.kind && <Tag color={kindColor(node.kind)}>{node.kind}</Tag>}
+                    {node.kind && <Tag color={kindColor(token, node.kind)}>{node.kind}</Tag>}
                     {node.project && <Tag>{node.project}</Tag>}
                 </Space>
                 {dims.length > 0 && (
@@ -840,8 +860,9 @@ export const TableGraphModal: React.FC = () => {
                     )}
                     {!isDispatcher && !foreign && (
                         <Button
+                            disabled={!node.module}
                             icon={<ExportOutlined />}
-                            onClick={() => openTable(node.id)}
+                            onClick={() => openTable(node)}
                             size="small"
                             style={{ marginBottom: 10 }}
                             type="primary"
@@ -886,8 +907,8 @@ export const TableGraphModal: React.FC = () => {
                 data-testid="table-graph-legend"
                 style={{
                     position: 'absolute', top: 8, left: 8, zIndex: 2, width: 210, maxHeight: 'calc(100% - 16px)',
-                    overflowY: 'auto', background: '#ffffff', border: `1px solid ${HAIRLINE}`, borderRadius: 8,
-                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)', padding: '8px 10px',
+                    overflowY: 'auto', background: palette.panelBg, border: `1px solid ${palette.hairline}`, borderRadius: 8,
+                    boxShadow: palette.panelShadow, padding: '8px 10px',
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -909,7 +930,7 @@ export const TableGraphModal: React.FC = () => {
                                     userSelect: 'none', width: '100%', border: 'none', background: 'none', padding: 0, font: 'inherit', textAlign: 'left',
                                 }}
                             >
-                                <span style={{ width: 12, height: 12, borderRadius: 3, background: kindColor(kind), flex: '0 0 auto' }} />
+                                <span style={{ width: 12, height: 12, borderRadius: 3, background: kindColor(token, kind), flex: '0 0 auto' }} />
                                 <Typography.Text ellipsis style={{ fontSize: 12, flex: 1, textDecoration: hidden ? 'line-through' : 'none' }}>
                                     {kind}
                                 </Typography.Text>
@@ -923,23 +944,23 @@ export const TableGraphModal: React.FC = () => {
                 <Divider style={{ margin: '8px 0' }} />
                 <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                     {kindCounts.has(DISPATCHER_KIND)
-                        && marker(<span style={{ width: 11, height: 11, border: `2px solid ${DISPATCHER_ACCENT}` }} />, t('graph:legend.dispatcher'))}
+                        && marker(<span style={{ width: 11, height: 11, border: `2px solid ${palette.dispatcher}` }} />, t('graph:legend.dispatcher'))}
                     {model.stats.isolated > 0
-                        && marker(<span style={{ width: 11, height: 11, border: `2px dashed ${PROBLEM_ACCENT}` }} />, t('graph:legend.isolated'))}
-                    {marker(<span style={{ width: 14, height: 0, borderTop: `2px dashed ${PROBLEM_ACCENT}` }} />, t('graph:legend.cycle'))}
+                        && marker(<span style={{ width: 11, height: 11, border: `2px dashed ${palette.problem}` }} />, t('graph:legend.isolated'))}
+                    {marker(<span style={{ width: 14, height: 0, borderTop: `2px dashed ${palette.problem}` }} />, t('graph:legend.cycle'))}
                     {kindCounts.has(DATATYPE_KIND) && (
                         <>
                             {marker(
                                 <span
                                     style={{
-                                        width: 13, height: 11, background: '#ffffff', position: 'relative',
-                                        border: `1px solid ${DATA_MODEL_ACCENT}`,
+                                        width: 13, height: 11, background: palette.entityBg, position: 'relative',
+                                        border: `1px solid ${palette.dataModel}`,
                                     }}
                                 >
                                     <span
                                         style={{
                                             position: 'absolute', top: 3, left: 0, right: 0,
-                                            borderTop: `1px solid ${DATA_MODEL_ACCENT}`,
+                                            borderTop: `1px solid ${palette.dataModel}`,
                                         }}
                                     />
                                 </span>,
@@ -949,29 +970,29 @@ export const TableGraphModal: React.FC = () => {
                                 <span
                                     style={{
                                         width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
-                                        borderBottom: `8px solid ${DATA_MODEL_ACCENT}`,
+                                        borderBottom: `8px solid ${palette.dataModel}`,
                                     }}
                                 />,
                                 t('graph:legend.extends')
                             )}
                             {marker(
-                                <Typography.Text style={{ ...ERD_MARKER, color: DATA_MODEL_ACCENT }}>{ERD_ZERO_OR_ONE}</Typography.Text>,
+                                <Typography.Text style={{ ...ERD_MARKER, color: palette.dataModel }}>{ERD_ZERO_OR_ONE}</Typography.Text>,
                                 t('graph:legend.one')
                             )}
                             {marker(
-                                <Typography.Text style={{ ...ERD_MARKER, color: DATA_MODEL_ACCENT }}>{ERD_ZERO_OR_MANY}</Typography.Text>,
+                                <Typography.Text style={{ ...ERD_MARKER, color: palette.dataModel }}>{ERD_ZERO_OR_MANY}</Typography.Text>,
                                 t('graph:legend.many')
                             )}
                             {marker(
-                                <span style={{ width: 13, height: 11, border: `1px dashed ${DATA_MODEL_ACCENT}`, background: '#f0fdfd' }} />,
+                                <span style={{ width: 13, height: 11, border: `1px dashed ${palette.dataModel}`, background: palette.areaBg }} />,
                                 t('graph:legend.area')
                             )}
                         </>
                     )}
                     {marker(
                         <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
-                            <span style={{ width: 7, height: 11, border: '1px solid #999' }} />
-                            <span style={{ width: 7, height: 11, border: '3px solid #555' }} />
+                            <span style={{ width: 7, height: 11, border: `1px solid ${palette.weightThin}` }} />
+                            <span style={{ width: 7, height: 11, border: `3px solid ${palette.weightThick}` }} />
                         </span>,
                         t('graph:legend.weight')
                     )}
@@ -1075,14 +1096,17 @@ export const TableGraphModal: React.FC = () => {
                                     ref={containerRef}
                                     data-testid="table-graph"
                                     style={{
-                                        width: '100%', height: '100%', border: `1px solid ${HAIRLINE}`, borderRadius: 8,
-                                        background: CANVAS_BG, backgroundImage: DOT_GRID, backgroundSize: '18px 18px',
+                                        width: '100%', height: '100%', border: `1px solid ${palette.hairline}`, borderRadius: 8,
+                                        // The colour is the longhand on purpose: the `background` shorthand resets the
+                                        // image and its size, and a theme switch rewrites the colour alone, which would
+                                        // leave the board without its dot grid.
+                                        backgroundColor: palette.canvas, backgroundImage: dotGrid(palette.dot), backgroundSize: '18px 18px',
                                     }}
                                 />
                                 {legendOpen && renderLegend()}
                             </div>
                             {selected && (
-                                <div style={{ width: 296, overflowY: 'auto', paddingLeft: 12, borderLeft: `1px solid ${HAIRLINE}` }}>
+                                <div style={{ width: 296, overflowY: 'auto', paddingLeft: 12, borderLeft: `1px solid ${palette.hairline}` }}>
                                     {renderNodeInfo(selected)}
                                 </div>
                             )}

@@ -148,7 +148,7 @@ vi.mock('antd-style', () => ({
 interface Node { key: string, title?: unknown, children?: Node[] }
 interface Item { key: string, label?: unknown, children?: unknown, title?: unknown }
 
-vi.mock('antd', () => {
+vi.mock('antd', async () => {
     const drop = <T extends Record<string, unknown>>(props: T) => props
     const domProps = (props: unknown): Record<string, unknown> => {
         if (!props || typeof props !== 'object') {
@@ -263,7 +263,12 @@ vi.mock('antd', () => {
     const Divider = () => <span />
     const notification = { error: vi.fn(), info: vi.fn() }
 
-    return { Button, Input, Dropdown, Popconfirm, Tag, Tooltip, Empty, Skeleton, Spin, Modal, Tabs, Tree, Descriptions, Alert, Typography, Space, Divider, notification }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+
+    return withStaticApp({
+        Button, Input, Dropdown, Popconfirm, Tag, Tooltip, Empty, Skeleton, Spin, Modal, Tabs, Tree, Descriptions,
+        Alert, Typography, Space, Divider, notification
+    })
 })
 
 const repositories = [
@@ -523,7 +528,7 @@ describe('ProjectWorkspace', () => {
     })
 
     it('holds the Sync action through the branch-list request and leaves its dialog unrefreshed', async () => {
-        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true } }) as never)
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true, canMerge: true } }) as never)
         const branches = deferred<unknown[]>()
         vi.mocked(getProjectBranches).mockReturnValue(branches.promise as never)
         const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
@@ -798,7 +803,7 @@ describe('ProjectWorkspace', () => {
     })
 
     it('opens the merge dialog via the Sync action', async () => {
-        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true } }) as never)
+        vi.mocked(getProject).mockResolvedValue(project({ capabilities: { canManageBranches: true, canMerge: true } }) as never)
         const dispatchSpy = vi.spyOn(window, 'dispatchEvent')
         await renderWorkspace()
 
@@ -825,7 +830,7 @@ describe('ProjectWorkspace', () => {
         // The main branch cannot be deleted, so the server withholds the capability while still allowing
         // the other branch operations.
         vi.mocked(getProject)
-            .mockResolvedValue(project({ branchDefault: true, capabilities: { canManageBranches: true } }) as never)
+            .mockResolvedValue(project({ branchDefault: true, capabilities: { canManageBranches: true, canMerge: true } }) as never)
         await renderWorkspace()
 
         expect(screen.getByTestId('sync-p1')).toBeInTheDocument()

@@ -33,7 +33,8 @@ To configure the email server, proceed as follows:
 To stop sending verification emails, clear the **Enable email address verification** check box and click **Apply**. The
 stored email server configuration is deleted.
 
-If a user email address is not verified, an orange exclamation mark is displayed next to this address in the user list.
+If a user email address is not verified, an orange exclamation mark is displayed next to this address in the user
+list. Hover over the mark to see the **Email not verified** tooltip.
 
 ![A user with unverified email](../images/user-unverified-email.png "A user with unverified email")
 

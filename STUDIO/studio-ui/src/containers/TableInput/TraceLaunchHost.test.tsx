@@ -27,7 +27,8 @@ vi.mock('services/traceLaunch', () => ({
 // auto-close timer that would fire after jsdom is gone. The tests assert on the launch, not the toast.
 vi.mock('antd', async (importOriginal) => {
     const actual = await importOriginal<typeof import('antd')>()
-    return { ...actual, notification: { ...actual.notification, error: vi.fn() } }
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({ ...actual, notification: { ...actual.notification, error: vi.fn() } })
 })
 
 vi.mock('react-i18next', () => {
@@ -46,14 +47,12 @@ const anchor = { left: 10, top: 20, width: 40, height: 30 }
 const ruleTable: TableInput = {
     tableId: 't1',
     name: 'Premium',
-    testTable: false,
     parameters: [{ name: 'age', description: 'int', lazy: false, schema: { type: 'integer' } }],
 }
 
 const testTable: TableInput = {
     tableId: 't1',
     name: 'PremiumTest',
-    testTable: true,
 }
 
 const casesPage = {
@@ -66,7 +65,7 @@ const casesPage = {
 
 const open = (detail: Record<string, unknown> = {}) => act(async () => {
     window.dispatchEvent(new CustomEvent('openTraceLaunch', {
-        detail: { projectId: 'p1', tableId: 't1', moduleName: 'Main', anchor, ...detail },
+        detail: { projectId: 'p1', tableId: 't1', kind: 'Rules', moduleName: 'Main', anchor, ...detail },
     }))
     await new Promise(resolve => setTimeout(resolve, 20))
 })
@@ -135,7 +134,7 @@ describe('TraceLaunchHost', () => {
         inputRead.mockResolvedValue(testTable)
         render(<TraceLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await screen.findByTestId('test-cases')
         expect(casesRead).toHaveBeenCalledWith('real-p1', 't1', { page: 0, size: 25 })
         await userEvent.click(screen.getByTestId('pick-case-2'))
@@ -151,7 +150,7 @@ describe('TraceLaunchHost', () => {
         casesRead.mockResolvedValue({ total: 120, content: casesPage.content })
         render(<TraceLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await userEvent.click(await screen.findByTitle('2'))
 
         await waitFor(() => expect(casesRead).toHaveBeenLastCalledWith('real-p1', 't1', { page: 1, size: 25 }))
@@ -164,7 +163,7 @@ describe('TraceLaunchHost', () => {
         casesRead.mockResolvedValue({ total: 0, content: []})
         render(<TraceLaunchHost />)
 
-        await open()
+        await open({ kind: 'Test' })
         await userEvent.click(await screen.findByTestId('trace-start'))
 
         expect(await screen.findByTestId('launch-error')).toHaveTextContent('testCases.noCase')
@@ -177,7 +176,7 @@ describe('TraceLaunchHost', () => {
         casesRead.mockResolvedValue({ total: 1, content: [{ id: '1', parameters: [{ name: 'car', description: 'Car', lazy: true }]}]})
         render(<TraceLaunchHost />)
 
-        await open({ moduleOnlyLocked: true })
+        await open({ kind: 'Test', moduleOnlyLocked: true })
         await userEvent.click(await screen.findByTestId('load-case-1-0'))
 
         expect(casesRead).toHaveBeenCalledWith('real-p1', 't1', { fromModule: 'Main', page: 0, size: 25 })
@@ -185,7 +184,7 @@ describe('TraceLaunchHost', () => {
         expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
     })
 
-    it('traces a table that takes nothing at once, without asking', async () => {
+    it('still asks a table that takes nothing, since the panel carries more than its parameters', async () => {
         // The API leaves an empty parameter list out altogether.
         const { parameters: _parameters, ...bare } = ruleTable
         inputRead.mockResolvedValue(bare)
@@ -193,9 +192,16 @@ describe('TraceLaunchHost', () => {
 
         await open()
 
+        // The Editor opened this panel whatever the table took: the settings and the trace into a file are here.
+        expect(await screen.findByTestId('trace-start')).toBeInTheDocument()
+        expect(launch).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('trace-start'))
+
         await waitFor(() => expect(launch).toHaveBeenCalledTimes(1))
-        expect(launchRequest()).toMatchObject({ projectId: 'real-p1', inputJson: '{}' })
-        expect(screen.queryByTestId('trace-start')).toBeNull()
+        expect(launchRequest()).toMatchObject({ projectId: 'real-p1' })
+        // A table that declares nothing is traced with an empty set of parameters, which is what it takes.
+        expect(JSON.parse(launchRequest()['inputJson'] as string)).toEqual({ params: {} })
     })
 
     it('keeps the launcher open with the reason when the trace cannot start', async () => {

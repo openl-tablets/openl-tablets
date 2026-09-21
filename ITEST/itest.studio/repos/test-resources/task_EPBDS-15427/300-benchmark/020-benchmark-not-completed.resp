@@ -1,7 +1,6 @@
-HTTP/1.1 409
+HTTP/1.1 202
 Content-Type: application/json
 
 {
-  "code": "openl.error.409.benchmark.execution.not.completed.message",
-  "message": "Cannot get the benchmarks because the measurement is not completed yet."
+  "status": "notReady"
 }

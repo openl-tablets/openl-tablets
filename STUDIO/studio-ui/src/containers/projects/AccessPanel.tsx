@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, notification, Popconfirm, Select, Skeleton, Tag } from 'antd'
+import { App, Alert, Button, Empty, Popconfirm, Select, Skeleton, Tag } from 'antd'
 import { DeleteOutlined, PlusOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { useSharedStyles } from './sharedStyles'
@@ -83,6 +83,7 @@ interface AccessPanelProps {
 
 /** Per-project ACL tab: lists the subjects and their roles, and lets a manager change or revoke access. */
 export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelProps) => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles } = useStyles()

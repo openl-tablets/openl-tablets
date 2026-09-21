@@ -15,11 +15,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.openl.util.StringUtils;
 
 public final class Comments {
-    /**
-     * Repository id for default repository
-     */
-    public static final String DESIGN_CONFIG_REPO_ID = "design";
-
     private static final String PROJECT_NAME = "{project-name}";
     private static final String REVISION = "{revision}";
     private static final String AUTHOR = "{author}";
@@ -72,14 +67,6 @@ public final class Comments {
 
     public String createProject(String projectName) {
         return createProjectTemplate.replace(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
-    }
-
-    // Only for creation from Workspace!
-    public String createProject(String template, String projectName) {
-        if (StringUtils.isBlank(template)) {
-            return createProject(projectName);
-        }
-        return template.replace(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName);
     }
 
     public String copiedFrom(String sourceProjectName) {

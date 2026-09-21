@@ -1,19 +1,19 @@
 import { createStyles } from 'antd-style'
 
-export const useStyles = createStyles(({ css }) => ({
+export const useStyles = createStyles(({ css, token }) => ({
     rowExpired: css`
-        background-color: #fff2f0;
+        background-color: ${token.colorErrorBg};
 
         &:hover > td {
-            background-color: #ffebe8 !important;
+            background-color: ${token.colorErrorBgHover} !important;
         }
     `,
     codeBlock: css`
         position: relative;
-        background-color: #f6f8fa;
-        border: 1px solid #d1d9e0;
-        border-radius: 6px;
-        padding: 16px;
+        background-color: ${token.colorFillQuaternary};
+        border: 1px solid ${token.colorBorderSecondary};
+        border-radius: ${token.borderRadius}px;
+        padding: ${token.padding}px;
         padding-right: 48px;
 
         pre {
@@ -24,29 +24,29 @@ export const useStyles = createStyles(({ css }) => ({
         }
 
         pre code {
-            font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
-            font-size: 13px;
+            font-family: ${token.fontFamilyCode};
+            font-size: ${token.fontSizeSM}px;
             line-height: 1.5;
-            color: #1f2328;
+            color: ${token.colorText};
         }
     `,
     codeBlockNoCopy: css`
-        padding-right: 16px;
+        padding-right: ${token.padding}px;
     `,
     codeBlockCopy: css`
         position: absolute;
-        top: 8px;
-        right: 8px;
-        color: #636c76;
+        top: ${token.paddingXS}px;
+        right: ${token.paddingXS}px;
+        color: ${token.colorTextTertiary};
         border: 1px solid transparent;
-        border-radius: 6px;
-        padding: 4px 8px;
+        border-radius: ${token.borderRadius}px;
+        padding: ${token.paddingXXS}px ${token.paddingXS}px;
         height: auto;
 
         &:hover {
-            background-color: #eaeef2;
-            border-color: #d1d9e0;
-            color: #1f2328;
+            background-color: ${token.colorFillSecondary};
+            border-color: ${token.colorBorderSecondary};
+            color: ${token.colorText};
         }
     `,
 }))

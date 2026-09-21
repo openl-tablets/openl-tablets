@@ -40,8 +40,23 @@ public class Lock {
     private final Path lockPath;
 
     Lock(Path locksLocation, String lockId) {
-        this.locksLocation = locksLocation;
-        this.lockPath = locksLocation.resolve(lockId);
+        this.locksLocation = locksLocation.toAbsolutePath().normalize();
+        this.lockPath = resolveLockPath(this.locksLocation, lockId);
+    }
+
+    /**
+     * Resolves the folder keeping the lock files of the given lock ID.
+     *
+     * <p>The ID comes from user input, so it is kept inside the locks folder.
+     *
+     * @throws IllegalArgumentException if the ID names a location outside of the locks folder
+     */
+    private static Path resolveLockPath(Path locksLocation, String lockId) {
+        var lockPath = locksLocation.resolve(lockId).normalize();
+        if (!lockPath.startsWith(locksLocation) || lockPath.equals(locksLocation)) {
+            throw new IllegalArgumentException("Lock id '%s' is outside of the locks folder.".formatted(lockId));
+        }
+        return lockPath;
     }
 
     public boolean tryLock(String lockedBy) {
@@ -179,7 +194,13 @@ public class Lock {
     Path createLockFile(String userName) {
         String userNameHash = Integer.toString(userName.hashCode(), 24);
         try {
-            Files.createDirectories(lockPath);
+            var folder = Files.createDirectories(lockPath);
+            // A lock id that stays inside the locks folder can still be led out of it by a link on the way,
+            // which the id alone does not show. The real path does.
+            if (!folder.toRealPath().startsWith(locksLocation.toRealPath())) {
+                log.warn("A lock folder is led outside of the locks folder by a link.");
+                return null;
+            }
             var lock = lockPath.resolve(userNameHash + ".lock");
             try (Writer os = Files.newBufferedWriter(lock, StandardOpenOption.CREATE_NEW)) {
                 os.write("#Lock info\n");

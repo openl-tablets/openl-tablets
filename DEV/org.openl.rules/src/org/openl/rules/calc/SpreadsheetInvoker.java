@@ -40,11 +40,14 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
      */
     protected Object[][] preFetchResult(Spreadsheet spreadsheet) {
         var cc = spreadsheet.getCells();
+        if (cc.length == 0) {
+            return EMPTY_RESULT;
+        }
 
         var height = spreadsheet.getHeight();
         var width = spreadsheet.getWidth();
 
-        Object[][] res = cc.length == 0 ? EMPTY_RESULT : new Object[height][width];
+        Object[][] res = new Object[height][width];
 
         // cells[][] is now indexed with logical indices, so we iterate directly
         for (var i = 0; i < height; i++) {

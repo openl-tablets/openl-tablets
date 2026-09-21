@@ -6,6 +6,7 @@ import org.openl.spring.env.DisablePropertySource;
 import org.openl.util.StringUtils;
 
 public class Props {
+
     private static Environment env;
 
     public static String text(String key) {

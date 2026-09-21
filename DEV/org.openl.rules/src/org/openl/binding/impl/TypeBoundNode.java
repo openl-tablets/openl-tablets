@@ -21,8 +21,6 @@ public class TypeBoundNode extends ABoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         // TODO probably create another class for static method access
-        // throw new UnsupportedOperationException("TypeNode cannot be
-        // evaluated");
         return type;
     }
 

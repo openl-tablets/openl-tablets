@@ -3,7 +3,7 @@ import { getDesignRepositoryConfig, getRepositoryConfig } from '../services/repo
 import type { RepositoryConfig } from '../types/repositories'
 
 /** Where the settings are read from: an existing project, or a repository a project is created in. */
-export interface RepositoryConfigSource {
+interface RepositoryConfigSource {
     projectId?: string | undefined
     repositoryId?: string | undefined
 }

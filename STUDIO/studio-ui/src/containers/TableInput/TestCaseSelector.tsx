@@ -22,12 +22,24 @@ export interface TestCaseSelectorProps {
     /** Whether the page is on its way. */
     loading?: boolean | undefined
     onPageChange: (page: number) => void
-    /** Ids of the chosen cases. They stay chosen while the user looks through the other pages. */
-    value: string[]
-    onChange: (caseIds: string[]) => void
+    /**
+     * The chosen cases: every case of the table but the ones left out, or the ids of some. Both stand while
+     * the user looks through the other pages.
+     */
+    value: CaseSelection
+    onChange: (selection: CaseSelection) => void
     /** Reads one case with every value, for the values a page only refers to. */
     loadCase: ReadTestCase<TableInputTestCase>
 }
+
+/** Every case of the table but the ids left out, or the ids of the chosen ones. */
+export type CaseSelection = { except: string[] } | string[]
+
+/** Every case of the table. */
+export const EVERY_CASE: CaseSelection = { except: []}
+
+/** Whether the selection stands for every case of the table, less the ones left out. */
+export const isEveryCase = (selection: CaseSelection): selection is { except: string[] } => !Array.isArray(selection)
 
 interface CaseRow {
     id: string
@@ -47,12 +59,21 @@ const columnValue = (parameter: TraceParameterValue): TraceParameterValue => ({
     description: '',
 })
 
-/** The cases picked after one of them is clicked: the only one, or one more (or one less) of several. */
-const pickOne = (picked: string[], caseId: string, selection: 'single' | 'multiple'): string[] => {
+const toggled = (ids: string[], caseId: string): string[] => (ids.includes(caseId)
+    ? ids.filter(id => id !== caseId)
+    : [...ids, caseId])
+
+/**
+ * The cases picked after one of them is clicked: the only one, or one more (or one less) of several.
+ *
+ * Every case is picked at first, on every page; a case clicked then is left out of all of them, and the
+ * rest stay picked, the way the legacy list of ticked cases did.
+ */
+const pickOne = (picked: CaseSelection, caseId: string, selection: 'single' | 'multiple'): CaseSelection => {
     if (selection === 'single') {
         return [caseId]
     }
-    return picked.includes(caseId) ? picked.filter(id => id !== caseId) : [...picked, caseId]
+    return isEveryCase(picked) ? { except: toggled(picked.except, caseId) } : toggled(picked, caseId)
 }
 
 /**
@@ -88,24 +109,23 @@ export const TestCaseSelector: React.FC<TestCaseSelectorProps> = ({
         parameters: testCase.parameters.map(columnValue),
     })), [testCases])
 
-    const picked = (row: CaseRow) => value.includes(row.id)
-    const pageIds = rows.map(row => row.id)
-    const allPicked = pageIds.length > 0 && pageIds.every(id => value.includes(id))
-
-    const pickAll = (checked: boolean) => onChange(checked
-        ? [...value, ...pageIds.filter(id => !value.includes(id))]
-        : value.filter(id => !pageIds.includes(id)))
+    const picked = (row: CaseRow) => (isEveryCase(value) ? !value.except.includes(row.id) : value.includes(row.id))
+    const everyCase = isEveryCase(value) && value.except.length === 0
+    // Every case left out one by one is no case at all.
+    const someCases = isEveryCase(value) ? value.except.length < total : value.length > 0
 
     const columns: ListTableColumn<CaseRow>[] = [
         {
             key: 'pick',
             fit: true,
             align: 'center',
+            // The box in the header stands for every case of the table, on this page and the others.
             title: selection === 'multiple' && (
                 <Checkbox
-                    checked={allPicked}
+                    checked={everyCase}
                     data-testid="pick-all-cases"
-                    onChange={event => pickAll(event.target.checked)}
+                    indeterminate={!everyCase && someCases}
+                    onChange={event => onChange(event.target.checked ? EVERY_CASE : [])}
                 />
             ),
             // The row itself picks the case, so a click on the box must not pick it a second time.

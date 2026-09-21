@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { Button, Divider, Form, Modal, Row, Tabs, Spin } from 'antd'
+import { App, Button, Divider, Form, Row, Tabs, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { isFormValuesEqual } from './formComparison'
 import { RepositoryDataType, RepositoryType } from './constants'
@@ -17,6 +17,7 @@ interface DesignRepositoriesConfigurationProps {
 }
 
 export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRepositoriesConfigurationProps>(({ repositoryDataType, onEditingStateChange }, ref) => {
+    const { modal } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()
     const { isLoading: isConfigurationLoading,
@@ -155,19 +156,11 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                         form.setFieldsValue(selectedRepository)
                         // Wait a bit more and verify again
                         const rafId3 = requestAnimationFrame(() => {
-                            const retryValues = form.getFieldsValue(true) as Record<string, unknown>
-                            const retrySynced = isFormValuesEqual(retryValues, selectedRepository as unknown as Record<string, unknown>)
-                            if (retrySynced) {
-                                // Form is synced after retry, update last synced repository ref
-                                lastSyncedRepositoryRef.current = selectedRepository
-                                setIsFormInitialized(true)
-                            } else {
-                                // If still not synced after retry, mark as initialized anyway
-                                // The form should be synced by now, and this prevents infinite waiting
-                                // The checkHasUnsavedChanges will verify actual sync before reporting changes
-                                lastSyncedRepositoryRef.current = selectedRepository
-                                setIsFormInitialized(true)
-                            }
+                            // Mark as initialized whether or not the retry synced the form: it should be
+                            // synced by now, and waiting any longer would never end. checkHasUnsavedChanges
+                            // verifies the actual sync before it reports changes.
+                            lastSyncedRepositoryRef.current = selectedRepository
+                            setIsFormInitialized(true)
                         })
                         rafIdsRef.current.push(rafId3)
                     }
@@ -260,7 +253,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     }
 
     const handleDeleteRepository = async (id: string) => {
-        Modal.confirm({
+        modal.confirm({
             title: t('repository:confirm_delete_repository'),
             content: t('repository:confirm_delete_repository_message'),
             onOk: () => {
@@ -281,7 +274,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
     }
 
     const handleApplyConfiguration = async (values: any) => {
-        Modal.confirm({
+        modal.confirm({
             title: t('repository:confirm_apply_configuration'),
             content: t('repository:confirm_apply_configuration_message'),
             onOk: () => {
@@ -375,7 +368,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         const hasChanges = checkHasUnsavedChanges()
 
         if (hasChanges || tabType === 'card') {
-            Modal.confirm({
+            modal.confirm({
                 title: t('repository:confirm_leave_without_saving'),
                 content: t('repository:confirm_leave_without_saving_message'),
                 onOk: () => {

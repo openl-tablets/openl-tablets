@@ -7,7 +7,6 @@ import org.openl.rules.table.actions.AUndoableCellAction;
 
 public class SetColorAction extends AUndoableCellAction {
 
-    private short[] prevColor;
     private final short[] newColor;
 
     public SetColorAction(int col, int row, short[] color, MetaInfoWriter metaInfoWriter) {
@@ -18,17 +17,7 @@ public class SetColorAction extends AUndoableCellAction {
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
-
-        var font = grid.getCell(getCol(), getRow()).getFont();
-        prevColor = font != null ? font.getFontColor() : null;
-
         grid.setCellFontColor(getCol(), getRow(), newColor);
-    }
-
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        grid.setCellFontColor(getCol(), getRow(), prevColor);
     }
 
 }

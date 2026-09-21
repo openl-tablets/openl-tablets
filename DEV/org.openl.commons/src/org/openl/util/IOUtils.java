@@ -13,6 +13,10 @@ import java.nio.charset.StandardCharsets;
  */
 public class IOUtils {
 
+    private IOUtils() {
+        // Utility class
+    }
+
     /**
      * Unconditionally close a <code>AutoCloseable</code>.
      * <p/>

@@ -1,0 +1,97 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "greeting",
+  "pos": "B2:D7",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "SimpleRules String greeting(String name)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "properties",
+        "rowspan": 2
+      },
+      {
+        "cell": "C3",
+        "value": "modifiedOn"
+      },
+      {
+        "cell": "D3",
+        "value": "***"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C4",
+        "value": "modifiedBy"
+      },
+      {
+        "cell": "D4",
+        "value": "admin"
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "name"
+      },
+      {
+        "cell": "C5",
+        "value": "greeting",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "John"
+      },
+      {
+        "cell": "C6",
+        "value": "Hello again, John",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Mary"
+      },
+      {
+        "cell": "C7",
+        "value": "Hello, Mary",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ]
+  ],
+  "headerHeight": 3
+}
+

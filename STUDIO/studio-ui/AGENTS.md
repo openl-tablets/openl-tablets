@@ -1,6 +1,6 @@
 # studio-ui — React/TypeScript Frontend
 
-Replaces legacy JSF screens for administration, user/group management, repository settings, notifications.
+Draws every screen of OpenL Studio: the editor, the projects, administration, user and group management, repository settings and notifications.
 
 ## Tech Stack
 
@@ -27,7 +27,7 @@ src/
 ├── components/          # Reusable widgets (accessManagement/, form/, modal/, schemaForm/, values/, shared)
 ├── containers/          # Feature screens (System, Security, Users, Groups, Tags, Repositories, Trace, execution, Merge…)
 ├── contexts/            # PermissionContext, SystemContext, GroupsContext
-├── providers/           # SecurityProvider (wraps app with SystemContext + PermissionContext)
+├── providers/           # AppThemeProvider (light/dark appearance), SecurityProvider (SystemContext + PermissionContext)
 ├── hooks/               # Shared hooks (forms, global events, websocket, scripts)
 ├── layouts/             # DefaultLayout, AdministrationLayout
 ├── pages/               # Standalone routes (403/404/500, Login)
@@ -42,19 +42,29 @@ src/
 
 ## Boot Sequence
 
-1. `index.tsx` initializes i18n and mounts `App` into `#appRoot`.
-2. `App` fetches the user profile, blocks rendering until auth completes, then mounts the router inside Ant Design's
-   `App` provider and initializes WebSocket notifications.
+The build writes two pages (`build.rollupOptions.input`):
+
+1. `index.html` → an inline script paints `color-scheme` from the remembered appearance (`openl.theme.mode`,
+   mirrored by a test against `THEME_MODE_KEY`) so a dark reader sees no white flash, then `index.tsx`
+   initializes i18n and mounts `App` into `#appRoot`.
+2. `App` fetches the user profile, blocks rendering until auth completes, then mounts the router inside
+   `AppThemeProvider` and Ant Design's `App` provider (with `PopupsBridge`, see Quality Rules), and initializes
+   WebSocket notifications.
+3. `api-docs.html` → `api-docs.tsx` mounts `ApiDocs` alone. The REST API documentation is read without logging in,
+   so it carries no shell, no router and no auth bootstrap; the server answers `/api-docs` with this page and
+   redirects the former `/rest/api-docs` to it.
 
 ## Key Patterns
 
 - **REST**: always use `services/apiCall.ts` — it prepends `CONFIG.CONTEXT`, handles JSON/text, surfaces validation
   errors, and updates `useAppStore` flags for 401/403/404/500.
 - **State**: Zustand stores in `src/store/`. Use selectors that subscribe to specific slices to avoid re-renders.
-- **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Legacy JSF content under `faces/*`. Admin
-  features under `administration/` with `AdministrationLayout`.
+- **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Admin features under `administration/`
+  with `AdministrationLayout`.
 - **i18n**: bundles in `src/locales/*.en.ts`, registered as namespaces. Reference keys like `t('common:menu.users')` or
-  `t('system:tabs.repositories')`.
+  `t('system:tabs.repositories')`. A key that no bundle defines renders as the key itself, and component tests mock `t`
+  so they cannot notice — `src/locales/lookups.test.ts` resolves every literal `t('…')` and `i18nKey` in the sources
+  against the bundles and fails on the first miss.
 - **Permissions**: `SecurityProvider` derives system flags from the backend. Use `PermissionContext` and `SystemContext`
   to gate features (e.g., `isUserManagementEnabled`, `isExternalAuthSystem`).
 - **Forms**: `components/form` wraps Ant Design inputs. `hooks/useIsFormChanged.ts` drives dirty-state detection.
@@ -62,6 +72,33 @@ src/
   `createStyles(({ css }) => ({ ... }))`; consume with `const { styles, cx } = useStyles()` and apply via
   `className={styles.foo}`. Global styles use `createGlobalStyle` (see `src/App.styles.ts`, mounted as
   `<AppStyles />` inside `<AntApp>`). Prefer component-level scoped styles over global overrides.
+- **Appearance**: `AppThemeProvider` (antd-style `ThemeProvider`) gives the application the light or dark appearance
+  the user picked in the header's `ThemeSwitch`, or the one the operating system asks for. The choice lives in
+  `localStorage` under `openl.theme.mode` (`utils/themeMode.ts`), defaulting to `auto`. Read the appearance with
+  `useThemeMode()` from antd-style, or `isDarkMode` inside `createStyles`. The provider passes
+  `defaultAppearance={appearanceOf(themeMode)}`, because antd-style starts every appearance as light and
+  switches in an effect — without it a dark reader sees a white frame on every load. `App` mounts the provider
+  and `AppStyles` before the auth gate, so the surface is painted while the profile is still loading. A
+  third-party widget with a theme of
+  its own (CodeMirror in `CodeEditor`) is handed `isDarkMode` too. The provider also keeps the `theme-color`
+  meta on the surface colour in force, and `AppStyles` sits directly under it, so the loading fallback is
+  themed as well.
+- **Theme**: the same switcher picks which palette the colours come from — `THEMES` in `styles/listPageTheme.ts`,
+  remembered under `openl.theme.name` and defaulting to `standard`. A theme supplies a whole `Palette` per
+  appearance; `paletteOf(name, isDarkMode)` resolves the one in force, `appTheme(palette)` turns it into the
+  application-wide Ant Design tokens, and `AppStyles` republishes it as the `--openl-*` custom properties. Adding a
+  theme means adding one entry to `THEMES` (both appearances, every key) plus its name in `common.en.ts`.
+  The palette in force also travels as the **`openl` custom token** (`styles/customToken.ts`), so a style that
+  needs a real colour reads `token.openl.…` inside `createStyles` instead of importing a palette.
+  A theme scoped to one area (`ProjectsThemeProvider`) nests another antd-style `ThemeProvider` and passes the
+  appearance through. A bare Ant Design `ConfigProvider` is not enough: `createStyles` takes its token from the
+  nearest **antd-style** provider, so a `ConfigProvider` would restyle the Ant Design components and leave the
+  co-located styles on the application-wide token.
+- **Density**: the same `ThemeSwitch` offers the compact density, remembered in `localStorage` under
+  `openl.theme.compact`. It is an Ant Design *algorithm*, not a set of tokens, so it is added through
+  `densityTheme(compact)` from `AppThemeProvider` and read with `useAppTheme()`. antd-style builds the algorithm
+  chain as `[appearance, ...theme.algorithm]`, and a nested provider starts that chain again — so **every scoped
+  theme merges `densityTheme(compact)` in**, or its area stays comfortable inside a compact application.
 
 ## Development
 
@@ -147,12 +184,53 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
 - Use the `apiCall` wrapper, never raw `fetch`.
 - Guard screens with `PermissionContext` and `SystemContext` flags.
 - Add translations from day one — no hardcoded user-facing strings.
+- **Colours follow the appearance.** Never hardcode a colour in a style — take an Ant Design token
+  (`createStyles(({ token }) => ...)`), or, for an OpenL hue with no token, `LIST_PAGE_COLORS` from
+  `styles/listPageTheme.ts`. Its values are `var(--openl-*)` custom properties that `AppStyles` republishes when the
+  appearance changes, so a style that uses them repaints with the theme. A new colour is added to **both**
+  `LIGHT_PALETTE` and `DARK_PALETTE`. Besides the surfaces and the text, the palette carries the compilation
+  states (`COMPILE_COLORS`), the fills of the solid status badges, and the syntax hues of a parameter value.
+  Ant Design derives whole palettes from a colour and cannot read a custom property, so a `ThemeConfig` token takes
+  the palette itself — see `projectsTheme(isDarkMode)`.
+  Ant Design's **static** `notification`/`message`/`Modal.confirm` calls render outside React and stay light on a
+  dark page, so ESLint forbids them. A component or a hook takes `notification` and `modal` from
+  `App.useApp()` — the instances of the application's `<AntApp>`, which sits inside the theme provider. Only a
+  module that cannot call a hook — a service or a store — imports them from `services/popups`, a bridge that
+  `<PopupsBridge />` points at the same instances and that falls back to the static ones before the
+  application mounts. Outside `<AntApp>`, `App.useApp()` answers with empty objects, so a test of a component
+  that pops something up either renders it inside `<AntApp>` or mocks `antd` with
+  `App: { useApp: () => ({ notification, modal }) }` (see `staticAntdApp` in `src/testing/`).
+    - **The logo is part of the palette.** `components/Logo.tsx` draws the cube from `primary`, `brand` and
+      `primaryFg`, so it turns with the theme and the appearance; it carries no colour of its own.
+    - **A canvas needs a real colour.** Cytoscape paints the table dependency graph on a `<canvas>`, which cannot
+      read a custom property, so the graph takes its colours from the Ant Design token through
+      `containers/tableGraphTheme.ts` (`kindColor`, `kindRules`, `graphPalette`) and lists `token` among the
+      dependencies of the effect that builds the instance, so it is rebuilt when the appearance changes.
+    - **A shell-less screen wears the shared card.** The login page, the `403`/`404`/`500` pages and the e-mail
+      verification screen take `styles/splashCard.styles.ts` rather than repeating a card of their own.
+    - **A class component reads the theme through a child.** `createStyles` and `theme.useToken()` are hooks, so a
+      class such as `ErrorBoundary` keeps its styled part in a small function component beside it.
 - **Form field labels** use the shared `FieldRow` component (right-aligned `Label :` with the required
   asterisk to the left), matching the create-project modal and the administration screens.
 - **Label casing.** A label of **at most three words** (not counting the articles `a`/`an`/`the`) is written in
   Title Case — capitalise every word except `a`/`an`/`the` when it is not first (e.g. `Project Name`, `Service
   Class`, `Provide Runtime Context`). Longer labels stay in sentence case (e.g. `Path for Module with Data
   Types`). Never append `(optional)` to a label — mark required fields instead.
+- **Animate only `transform` and `opacity`.** Those two the compositor moves on its own; everything else —
+  `box-shadow`, `background`, `color`, `width`, `top` — is painted by the page, so an animation of them makes
+  the page recalculate style and repaint on **every frame**, for as long as it runs. While a reader is
+  scrolling, that is what takes the content away and leaves the screen blank behind the scroll: the compositor
+  can no longer scroll by itself. A measured example: the compiling indicator beating with a `box-shadow` cost
+  346 style recalculations and 610 paints over a four-second scroll (the GPU process pegged); the same beat as
+  a ring moved by `transform`/`opacity` cost 6 paints. Animate a pseudo-element rather than the element itself,
+  add `will-change: transform, opacity`, and silence it under `@media (prefers-reduced-motion: reduce)`.
+  The same rule applies to motion a component brings with it: Ant Design's `Tree` slides a folder open on a
+  `height` animation, which the page paints frame by frame, so a tree of any size is given `motion={false}`
+  and opens at once — measured at 64 repaints over 350 ms against 9.
+- **A long list is virtualised.** A tree or table that can hold hundreds of rows is given a height and drawn a
+  screenful at a time (Ant Design's `Tree` takes `height`, `itemHeight` and `scrollWidth`); and a table is laid
+  out at the width its values need rather than squeezed into the screen, which otherwise wraps every value into
+  a tower of lines and multiplies the pixels the browser has to paint.
 - **Names in titles.** When a form or dialog title includes the name of a concrete thing (a project, file,
   user, repository…), wrap that name in double quotes — e.g. `Copy project "{{name}}"`, `Revoke access for
   "{{subject}}"?`.

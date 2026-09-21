@@ -13,6 +13,7 @@ Content-Type: application/json
     {
       "name": "WrapperTest",
       "tableId": "f1552629c7b9999283c19b9092f79399",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
       "numberOfFailures": 1,
@@ -61,6 +62,7 @@ Content-Type: application/json
     {
       "name": "PolicyOverrideCalculationTest",
       "tableId": "2ff5dc4c24660d5a98036ed71cb26293",
+      "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
       "numberOfFailures": 0,

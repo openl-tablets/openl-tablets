@@ -34,8 +34,16 @@ abstract class BaseExport {
         cell.setCellComment(comment);
     }
 
+    /**
+     * Sizes the columns to what they hold. A sheet nothing was written to - a run that found no test to run
+     * leaves its result sheet empty - has no columns to size.
+     */
     protected void autoSizeColumns(SXSSFSheet sheet) {
-        short lastColumn = sheet.getRow(sheet.getLastRowNum()).getLastCellNum();
+        var lastRow = sheet.getRow(sheet.getLastRowNum());
+        if (lastRow == null) {
+            return;
+        }
+        short lastColumn = lastRow.getLastCellNum();
 
         // Skip column with Test name and ID column
         for (var i = FIRST_COLUMN + 1; i < lastColumn; i++) {

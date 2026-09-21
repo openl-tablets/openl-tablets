@@ -3,7 +3,7 @@ import { errorMessage } from '../utils/errorMessage'
 import { creatableRepositories } from '../utils/repositoryFeatures'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Empty, notification, Pagination, Skeleton, Spin, type InputRef } from 'antd'
+import { App, Alert, Button, Empty, Pagination, Skeleton, Spin, type InputRef } from 'antd'
 import { ClearOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import {
@@ -13,6 +13,7 @@ import {
 } from '../services/repositories'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
+import { moduleRoute, projectFileRoute } from '../services/projectId'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import type { Repository, RepositoryInfo } from '../types/repositories'
 import type {
@@ -68,13 +69,13 @@ const useStyles = createStyles(({ css, token }) => ({
         display: inline-flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 4px 14px;
-        font-size: 12px;
+        gap: ${token.marginXXS}px ${token.margin - 2}px;
+        font-size: ${token.fontSizeSM}px;
     `,
     compileItem: css`
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: ${token.marginXXS}px;
         color: ${token.colorTextSecondary};
     `,
     compileNum: css`
@@ -89,11 +90,11 @@ const useStyles = createStyles(({ css, token }) => ({
     indexingToggle: css`
         height: auto;
         padding: 0;
-        font-size: 12px;
+        font-size: ${token.fontSizeSM}px;
     `,
     /** Keeps the indexing notice off the search box below it, in the header's own rhythm. */
     indexingBanner: css`
-        margin-bottom: 12px;
+        margin-bottom: ${token.marginSM}px;
     `,
     content: css`
         position: relative;
@@ -106,12 +107,12 @@ const useStyles = createStyles(({ css, token }) => ({
     paginationBar: css`
         display: flex;
         justify-content: flex-end;
-        padding: 10px 16px;
+        padding: ${token.paddingXS}px ${token.padding}px;
         border-top: 1px solid ${token.colorBorderSecondary};
         background: ${token.colorBgContainer};
     `,
     gridPad: css`
-        padding: 16px;
+        padding: ${token.padding}px;
     `,
 }))
 
@@ -181,6 +182,7 @@ const renderFilterRail = (props: ComponentProps<typeof ProjectsFilterRail>) => <
  * the project's workspace page.
  */
 export const ProjectsHome = () => {
+    const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -471,16 +473,14 @@ export const ProjectsHome = () => {
     )
     // Compilation health of the projects the server reported a live state for (the active workspace).
     const compileTally = useMemo(() => {
-        const tally: Record<ProjectCompileState, number> = { idle: 0, compiling: 0, ok: 0, warnings: 0, errors: 0 }
+        const tally: Record<ProjectCompileState, number> = {
+            idle: 0, compiling: 0, ok: 0, warnings: 0, errors: 0, cancelled: 0,
+        }
         for (const status of compileStatuses) {
             tally[status.compileState] += 1
         }
         return tally
     }, [compileStatuses])
-    const localProjectNames = useMemo(
-        () => projects.filter(project => project.status === ProjectStatus.Local).map(project => project.name),
-        [projects]
-    )
 
     // Each project reports its own repository, so the list stays complete for a user who was granted single
     // projects and cannot read the repositories they live in.
@@ -493,25 +493,36 @@ export const ProjectsHome = () => {
         navigate(`/projects/${encodeURIComponent(project.id)}`)
     }, [navigate])
 
+    // A file picked in the tree is followed to where it is read: a module to the editor, anything else
+    // to the Files tab of the project it belongs to.
+    const openModule = useCallback(
+        (project: Project, moduleName: string) => navigate(moduleRoute(project.id, moduleName)),
+        [navigate]
+    )
+    const openFile = useCallback(
+        (project: Project, path: string) => navigate(projectFileRoute(project.id, path)),
+        [navigate]
+    )
+
     // After a create, land on the new project's page. Its server id is not known here (the create
-    // response omits it), so a freshly read index is searched by repository and name; if the project
+    // response omits it), so a freshly read index is searched by repository, name and — where one was
+    // chosen — branch, since a same-named project may already live on another branch; if the project
     // cannot be resolved the screen just refreshes its list instead.
-    const openCreated = useCallback(async (created?: { repositoryId: string, name: string }) => {
+    const openCreated = useCallback(async (created: { repositoryId: string, name: string, branch?: string }) => {
         setCreateOpen(false)
         invalidateProjectIndex()
-        if (created) {
-            try {
-                const index = await getProjectIndex()
-                const match = index.projects.find(
-                    project => project.repository === created.repositoryId && project.name === created.name
-                )
-                if (match) {
-                    navigate(`/projects/${encodeURIComponent(match.id)}`)
-                    return
-                }
-            } catch {
-                // Fall back to refreshing the list below.
+        try {
+            const index = await getProjectIndex()
+            const match = index.projects.find(
+                project => project.repository === created.repositoryId && project.name === created.name
+                    && (created.branch === undefined || project.branch === created.branch)
+            )
+            if (match) {
+                navigate(`/projects/${encodeURIComponent(match.id)}`)
+                return
             }
+        } catch {
+            // Fall back to refreshing the list below.
         }
         void load(true)
     }, [load, navigate])
@@ -776,7 +787,9 @@ export const ProjectsHome = () => {
     return (
         <div className={cx(shared.page, shared.listPageRoot)} data-testid="projects-home">
             <ProjectsRail
+                onOpenFile={openFile}
                 onOpenGroup={openGroup}
+                onOpenModule={openModule}
                 onOpenProject={openProject}
                 onRefresh={() => void load(true)}
                 onShowAll={resetFilters}
@@ -897,7 +910,6 @@ export const ProjectsHome = () => {
                 )}
             </div>
             <NewProjectModal
-                localProjects={localProjectNames}
                 onClose={() => setCreateOpen(false)}
                 onCreated={openCreated}
                 open={createOpen}

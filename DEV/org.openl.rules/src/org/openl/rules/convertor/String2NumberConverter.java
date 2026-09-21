@@ -27,7 +27,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
         if (data == null) {
             return null;
         }
-        if (data.length() == 0) {
+        if (data.isEmpty()) {
             throw new NumberFormatException("Cannot convert an empty string to a number.");
         }
         if ("%".equals(data)) {

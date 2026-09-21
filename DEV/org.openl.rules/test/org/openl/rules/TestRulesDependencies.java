@@ -1,6 +1,8 @@
 package org.openl.rules;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -153,6 +155,20 @@ class TestRulesDependencies extends BaseOpenlBuilderHelper {
         } else {
             fail("Cannot find expected table");
         }
+    }
+
+    @Test
+    void testCaseRangesNameCasesByIdAndRefuseAnUnknownOne() {
+        var moduleOpenClass = getCompiledOpenClass().getOpenClass();
+        var testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest", IOpenClass.EMPTY);
+
+        assertArrayEquals(new int[]{0, 1}, testMethod.getIndices("1-2"));
+        assertArrayEquals(new int[]{1}, testMethod.getIndices(" 2 "));
+        var unknown = assertThrows(IllegalArgumentException.class, () -> testMethod.getIndices("1-99"));
+        assertEquals("Test case '99' is not found.", unknown.getMessage());
+        // A dash on its own names no case either, rather than reading past the ends of the range.
+        var dashes = assertThrows(IllegalArgumentException.class, () -> testMethod.getIndices("-"));
+        assertEquals("Test case '-' is not found.", dashes.getMessage());
     }
 
     @Test

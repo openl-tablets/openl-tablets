@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.util.text.LocationUtils;
 
 class TokenizerParserTest {
 
@@ -29,5 +30,14 @@ class TokenizerParserTest {
         } catch (Exception e) {
             fail("Should not throw exception");
         }
+    }
+
+    @Test
+    void stopsSkippingWhenTheLocationStartsBeyondTheEndOfTheSource() throws Exception {
+        var source = new StringSourceCodeModule("ab", null);
+
+        var tokens = Tokenizer.tokenize(source, " \n\r", LocationUtils.createTextInterval(10, 12));
+
+        assertEquals(0, tokens.length);
     }
 }

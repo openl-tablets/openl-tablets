@@ -11,7 +11,7 @@ import type { ProjectStatusUpdate } from './projectStatus'
  * once instead of on every interaction. The facet counts are not asked for at all — they are counted
  * from the snapshot, which is the expensive part of the list response.
  */
-export interface ProjectIndex {
+interface ProjectIndex {
     projects: Project[]
     /** The compile state of the projects the workspace has a live one for. */
     statuses: ProjectStatusUpdate[]

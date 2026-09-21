@@ -57,7 +57,7 @@ public class ProjectAccessService {
         // must be opened for editing first. canModify folds in the branch-protection and lock state.
         var editable = projectStateValidator.canModify(workspaceProject)
                 && (localOnly || workspaceProject.isOpenedForEditing());
-        // Compare, view-history and export are all "read a shared (non-local) project".
+        // Compare and view-history are both "read a shared (non-local) project".
         var readShared = !localOnly && read.getAsBoolean();
         return ProjectCapabilities.builder()
                 .project(Capabilities.builder()
@@ -78,8 +78,13 @@ public class ProjectAccessService {
                 // repository list — not just the source repository.
                 .canCopy(flag(!localOnly && canCreateSomewhere()))
                 .canManageBranches(flag(!localOnly && canBranch(workspaceProject, write)))
+                // A merge writes over the working copy, so a project carrying changes of its own cannot take
+                // one until they are saved — the same rule the merge itself is refused by.
+                .canMerge(flag(canMerge(workspaceProject, write)))
                 .canDeleteBranch(flag(canDeleteBranch(workspaceProject, write, delete)))
-                .canExport(flag(readShared))
+                // A local project is its own working copy and nobody else's, so it is always exported; an
+                // archive is also its only way into a Design repository.
+                .canExport(flag(localOnly || readShared))
                 .build();
     }
 
@@ -144,6 +149,19 @@ public class ProjectAccessService {
      */
     private boolean canBranch(UserWorkspaceProject project, BooleanSupplier write) {
         return project.isSupportsBranches() && write.getAsBoolean();
+    }
+
+    /**
+     * Whether another branch can be merged into the one the project sits on.
+     *
+     * <p>Only what the project itself says is weighed — a repository with branches, a project that is not
+     * local, nothing of its own left unsaved. Which branches there are to merge from is read by the dialog
+     * that offers them, not by every project of a list.
+     */
+    private boolean canMerge(UserWorkspaceProject project, BooleanSupplier write) {
+        return project instanceof RulesProject rulesProject
+                && projectStateValidator.canTakeMerge(rulesProject)
+                && write.getAsBoolean();
     }
 
     /**

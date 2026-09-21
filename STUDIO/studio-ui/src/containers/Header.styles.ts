@@ -1,10 +1,11 @@
 import { createStyles } from 'antd-style'
+import { LIST_PAGE_COLORS } from '../styles/listPageTheme'
 
-export const useStyles = createStyles(({ css }) => ({
+export const useStyles = createStyles(({ css, token }) => ({
     header: css`
         &.ant-layout-header {
-            background-color: #fff;
-            border-bottom: 1px solid rgb(5 5 5 / 6%);
+            background-color: ${token.colorBgContainer};
+            border-bottom: 1px solid ${token.colorSplit};
             display: flex;
             align-items: center;
             padding: 0 15px;
@@ -24,7 +25,7 @@ export const useStyles = createStyles(({ css }) => ({
         .header-title a {
             font-size: 20px;
             font-family: Georgia, Verdana, Helvetica, Arial, serif;
-            color: rgb(56 79 129);
+            color: ${LIST_PAGE_COLORS.brand};
         }
 
         ul.ant-menu-overflow {

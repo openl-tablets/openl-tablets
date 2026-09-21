@@ -1,14 +1,13 @@
+import { MemoryRouter } from 'react-router-dom'
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { readTestsSummary, getTestCaseResult, getTestsSummaryWorkbook } from 'services/execution'
-import { openTableInEditor, tableUrl } from 'services/tableNavigation'
 import { saveFile } from 'utils/download'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 
 vi.mock('services/execution', () => ({
     readTestsSummary: vi.fn(),
-    isStillRunning: () => false,
     getTestCaseResult: vi.fn(),
     getTestsSummaryWorkbook: vi.fn(),
     ALL_TESTS_ON_A_PAGE: -1,
@@ -26,10 +25,6 @@ vi.mock('store', () => ({
 }))
 
 vi.mock('utils/download', () => ({ saveFile: vi.fn() }))
-
-vi.mock('services/tableNavigation', () => ({ openTableInEditor: vi.fn(), tableUrl: vi.fn() }))
-
-
 
 vi.mock('containers/execution/useExecutionProgress', () => ({
     useExecutionProgress: () => ({ status: null, error: null, arrived: 0, subscribed: true }),
@@ -62,8 +57,6 @@ const readSummary = readTestsSummary as ReturnType<typeof vi.fn>
 const readWorkbook = getTestsSummaryWorkbook as ReturnType<typeof vi.fn>
 const readCase = getTestCaseResult as ReturnType<typeof vi.fn>
 const save = saveFile as ReturnType<typeof vi.fn>
-const openTable = openTableInEditor as ReturnType<typeof vi.fn>
-const readUrl = tableUrl as ReturnType<typeof vi.fn>
 
 const driver = (name: string) => [{ name: 'driver', description: 'Driver', lazy: false, value: name }]
 
@@ -71,6 +64,7 @@ const summary = {
     testCases: [{
         name: 'DriverPremiumTest',
         tableId: 'tt1',
+        module: 'Auto Policy Tests',
         executionTimeMs: 5,
         numberOfTests: 2,
         numberOfFailures: 1,
@@ -101,7 +95,7 @@ const summary = {
 }
 
 const show = async () => act(async () => {
-    render(<TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" />)
+    render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
     await new Promise(resolve => setTimeout(resolve, 20))
 })
 
@@ -111,12 +105,11 @@ describe('TestsResultModal', () => {
         saved.profile = null
         readSummary.mockResolvedValue(summary)
         readWorkbook.mockResolvedValue(new Blob(['x']))
-        readUrl.mockResolvedValue(null)
     })
 
     it('waits for the tests while they are still running', async () => {
         readSummary.mockReturnValue(new Promise(() => undefined))
-        render(<TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('tests.running')).toBeInTheDocument()
     })
@@ -167,36 +160,29 @@ describe('TestsResultModal', () => {
         expect(screen.queryByTestId('test-results-tt1')).toBeNull()
     })
 
-    it('carries the address of the test table its name stands for', async () => {
+    it('leads to the test table, through the module it is written in', async () => {
         const onClose = vi.fn()
-        readUrl.mockResolvedValue('#design/Project/Module/table?id=tt1')
         await act(async () => {
-            render(<TestsResultModal onClose={onClose} projectId="p1" tableId="t1" />)
+            render(<MemoryRouter><TestsResultModal onClose={onClose} projectId="p1" tableId="t1" /></MemoryRouter>)
             await new Promise(resolve => setTimeout(resolve, 20))
         })
 
-        expect(screen.getByTestId('test-table-tt1')).toHaveAttribute('href', '#design/Project/Module/table?id=tt1')
+        // The editor opens a module and reads the table through it; the results already name both.
+        expect(screen.getByTestId('test-table-tt1'))
+            .toHaveAttribute('href', '/projects/p1/modules/Auto%20Policy%20Tests?table=tt1')
 
         await userEvent.click(screen.getByTestId('test-table-tt1'))
 
-        // The browser follows the address itself; the window only steps aside.
-        expect(openTable).not.toHaveBeenCalled()
         await waitFor(() => expect(onClose).toHaveBeenCalled())
     })
 
-    it('opens the test table by asking for its address when it is not known yet', async () => {
-        const onClose = vi.fn()
-        readUrl.mockReturnValue(new Promise(() => undefined))
-        openTable.mockResolvedValue(true)
-        await act(async () => {
-            render(<TestsResultModal onClose={onClose} projectId="p1" tableId="t1" />)
-            await new Promise(resolve => setTimeout(resolve, 20))
-        })
+    it('writes a table whose module is unknown as its name alone', async () => {
+        const { module: _module, ...withoutModule } = summary.testCases[0] as { module?: string }
+        readSummary.mockResolvedValue({ ...summary, testCases: [withoutModule]})
+        await show()
 
-        await userEvent.click(screen.getByTestId('test-table-tt1'))
-
-        await waitFor(() => expect(openTable).toHaveBeenCalledWith('tt1'))
-        await waitFor(() => expect(onClose).toHaveBeenCalled())
+        // There is no screen to open it with, so the name is not offered as a way in.
+        expect(screen.getByTestId('test-table-tt1')).not.toHaveAttribute('href')
     })
 
     it('marks the case and every comparison of it with a tick or a cross', async () => {
@@ -295,7 +281,7 @@ describe('TestsResultModal', () => {
                 ...summary.testCases[0],
                 testUnits: [{
                     ...summary.testCases[0]?.testUnits[0],
-                    parameters: [{ name: 'driver', description: 'Driver', lazy: true }],
+                    parameters: [{ name: 'driver', description: 'Driver', lazy: true, type: 'Driver', key: 'Sara' }],
                 }],
             }],
         })
@@ -305,10 +291,37 @@ describe('TestsResultModal', () => {
         })
 
         await show()
+        // Until it is read, the value is known by its type and the key its data table row is referred to by.
+        expect(screen.getByTestId('summary-tt1-in-1-0')).toHaveTextContent('Driver (Sara)')
         await userEvent.click(screen.getByTestId('load-tt1-in-1-0'))
 
         await waitFor(() => expect(readCase).toHaveBeenCalledWith('p1', 'tt1', '1'))
-        expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
+        // Read, the value keeps the key it is known by as its title instead of a count of its fields.
+        await waitFor(() => expect(screen.queryByTestId('load-tt1-in-1-0')).toBeNull())
+        expect(screen.getByText('Driver (Sara)')).toBeInTheDocument()
+        expect(screen.queryByText('{1 fields}')).toBeNull()
+    })
+
+    it('shows what every case of a Run table returned, with no compound result asked for', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                runTable: true,
+                testUnits: [{
+                    ...summary.testCases[0]?.testUnits[0],
+                    testAssertions: [],
+                    result: { name: 'result', lazy: false, value: 'Good Morning' },
+                }],
+            }],
+        })
+
+        await show()
+
+        // The result stands under its own heading, as the returned value of the case rather than a comparison.
+        expect(screen.getByText('tests.result')).toBeInTheDocument()
+        expect(screen.getByText('"Good Morning"')).toBeInTheDocument()
+        expect(screen.queryByText('tests.compoundResult', { selector: 'th *' })).toBeNull()
     })
 
     it('reads the whole returned value only when the compound result is asked for', async () => {
@@ -348,7 +361,7 @@ describe('TestsResultModal', () => {
 
     it('says why the results could not be read', async () => {
         readSummary.mockRejectedValue(new Error('No tests execution task found'))
-        render(<TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" />)
+        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('No tests execution task found')).toBeInTheDocument()
     })

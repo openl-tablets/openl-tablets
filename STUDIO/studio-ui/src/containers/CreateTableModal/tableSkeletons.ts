@@ -154,7 +154,7 @@ export const hasTableHeader = (preset: TablePreset): boolean => preset !== 'free
 export const isLookup = (preset: TablePreset): preset is 'smartLookup' | 'simpleLookup' =>
     preset === 'smartLookup' || preset === 'simpleLookup'
 
-export interface HeaderBand {
+interface HeaderBand {
     /** Rows at the top of the body that belong to the table type. */
     rows: number
     /** Leading columns the table type titles itself, each merged down the whole band. */

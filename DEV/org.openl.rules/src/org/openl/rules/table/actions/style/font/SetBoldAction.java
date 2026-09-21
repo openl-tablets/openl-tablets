@@ -21,10 +21,4 @@ public class SetBoldAction extends AUndoableCellAction {
         grid.setCellFontBold(getCol(), getRow(), bold);
     }
 
-    @Override
-    public void undoAction(IGridTable table) {
-        var grid = (IWritableGrid) table.getGrid();
-        grid.setCellFontBold(getCol(), getRow(), !bold);
-    }
-
 }

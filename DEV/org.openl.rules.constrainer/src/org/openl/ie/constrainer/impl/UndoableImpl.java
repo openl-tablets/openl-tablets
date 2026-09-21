@@ -26,7 +26,7 @@ public abstract class UndoableImpl extends ConstrainerObjectImpl implements Undo
     /**
      * Constructor with a given constrainer and name.
      */
-    public UndoableImpl(Constrainer c, String name) {
+    protected UndoableImpl(Constrainer c, String name) {
         super(c, name);
     }
 
