@@ -2,8 +2,9 @@
 
 ## Resume point
 
-- Everything up to and including `origin/main` at the EPBDS-14123 tag migration is swept; sweep only what main
-  gains after it. Do not pin main's SHA — dependabot bumps move it constantly and are never a dead-code delta.
+- No open PR and no sweep branch: #2145 merged, `dead-code/delta-sweep` is deleted. Cut a fresh branch from a
+  freshly fetched `origin/main` for the next finding. Everything up to the EPBDS-14123 tag migration is swept;
+  sweep only what main gains after it, and never pin main's SHA — dependabot moves it daily.
 - All 13 change types are exhausted repo-wide. A run is now: maintain the PR, sweep the delta (expect zero),
   spend the rest on a NEW vein. Code veins are mined out; the paying vein is documentation that names something
   the code no longer has.
@@ -19,7 +20,7 @@
 | 3 | Unused locals, private fields/methods/params | done; 14 PMD hits, all documented FPs |
 | 4 | Unused Maven dependency declarations | done; 537 analyze hits + npm deps, all FPs |
 | 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done; 6 hits, all plugin-read flags |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; 1 removal, PR #2145 |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; 1 removal, merged in #2145 |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
@@ -27,22 +28,18 @@
 | 11 | TypeScript exports, types, components, imports | done; 1,151 exports, 0 dead |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
-| 14 | Documentation of settings and classes the code no longer has | done for deletions; 1 removal, PR #2145 |
+| 14 | Documentation of settings and classes the code no longer has | done; 1 removal, merged in #2145 |
 
 ## Open PR
 
-- #2145 `dead-code/delta-sweep`, head `9d76bf21c7`. Others rebase and push to it, so re-fetch and reset the local
-  branch before adding, and never force-push what you did not write. Two commits: "Drop the decision-table match
-  type no matched definition can carry" (type 6, `MatchType.PARAMS_RENAMED_CASTED`) and "Stop documenting the
-  data source setting removed in 5.23.8" (type 14, `ruleservice.datasource.filesystem.supportVersion`).
-- GREEN on `9d76bf21c7`: all 21 checks pass and SonarCloud analysed that exact SHA, gate OK, 0 new issues.
-  Waiting on reviewers only; a close-out comment already says so, so do not post another.
+- none
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, the session passivation path).
+- #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, session passivation), #2145 (-2,
+  an unreachable enum constant and a documented setting 5.23.8 removed; rebase-merged, so its SHAs changed).
 - A removal proven by unreachable behaviour, not by non-reference, is accepted on that evidence alone.
-- The maintainer does not merge a sweep PR red: on #2145 they rebased it onto new main and left it to CI.
+- The maintainer does not merge a sweep PR red: they rebase it onto new main, wait for green, then rebase-merge.
 
 ## Module coverage
 
@@ -297,4 +294,4 @@
 - 2026-09-19 b: no delta to sweep; closed the JSF-orphan vein at zero and compacted the ledger to its ceiling.
 - 2026-09-20: swept the delta over 13 change types plus 6 new veins. One finding, PR #2145.
 - 2026-09-21: delta was 2 dependabot bumps and a clean tag migration; 6 new code veins closed at zero, the
-  documentation veins paid 1 removal and 7 follow-ups. PR #2145 is green on its 2-commit head.
+  documentation veins paid 1 removal and 7 follow-ups. PR #2145 MERGED (-2) and its branch deleted.
