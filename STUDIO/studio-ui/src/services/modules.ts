@@ -340,6 +340,8 @@ interface TablePropertyGroup {
 /** What a table says about itself besides its cells, and what may still be written on it. */
 export interface TableDetails {
     name: string
+    /** The family the table belongs to — `Rules`, `Spreadsheet`, ... — which is what its properties are read for. */
+    kind: string
     groups: TablePropertyGroup[]
     /** Whether this kind of table carries properties at all; one that does not is never edited here. */
     canEditProperties: boolean
@@ -368,6 +370,7 @@ export const getTableDetails = async (
     // A table with nothing to say about itself answers without the list at all.
     return {
         name: read?.name ?? '',
+        kind: read?.kind ?? '',
         groups: asArray(read?.groups),
         canEditProperties: read?.canEditProperties ?? false,
         available: asArray(read?.available),

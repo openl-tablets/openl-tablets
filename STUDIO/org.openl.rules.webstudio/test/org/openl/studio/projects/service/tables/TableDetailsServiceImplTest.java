@@ -31,6 +31,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.tables.PropertyInheritance;
 import org.openl.studio.projects.model.tables.TableDetailsView;
+import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TablePropertyDetailView;
 import org.openl.studio.projects.model.tables.TablePropertyGroupView;
 
@@ -78,6 +79,8 @@ class TableDetailsServiceImplTest {
         var details = service.read(table(XlsNodeTypes.XLS_DT));
 
         assertEquals("Hello", details.name());
+        // The kind is what the properties the table may be given are read for.
+        assertEquals(TableKind.RULES, details.kind());
         // The dictionary decides both the groups and the order inside them.
         assertEquals(List.of("Info", "Business Dimension", "Dev"),
                 details.groups().stream().map(TablePropertyGroupView::name).toList());

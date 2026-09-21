@@ -21,8 +21,10 @@ export const getModuleSheets = (projectId: string, moduleName: string): Promise<
     projectResource(projectId, `modules/${encodeURIComponent(moduleName)}/sheets`)
 
 /**
- * Properties applicable to one place in a workbook. Without a table kind, returns properties for the contents of a
- * Properties table. With a kind, returns properties for the table's own properties section.
+ * The properties a kind of table may declare on itself; for `Properties`, the ones its contents may name, since a
+ * Properties table declares them for the tables of its scope rather than for itself. Without a kind, every property
+ * of the dictionary, deprecated ones aside: whatever a table may carry, written on it, inherited from a Properties
+ * table or stamped by OpenL Studio — what a search across tables of every kind narrows by.
  */
 export const getProjectProperties = (projectId: string, tableType?: string): Promise<ProjectProperty[]> =>
     projectResource(projectId, `properties${tableType ? `?tableType=${encodeURIComponent(tableType)}` : ''}`)

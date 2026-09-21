@@ -1,0 +1,16 @@
+PATCH /rest/projects/EPBDS-16664/tables/fdaec0fae818c34b97d43719f0d00359/properties HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "properties": [
+    {
+      "name": "description",
+      "value": "Greets by name"
+    },
+    {
+      "name": "tags",
+      "value": "greeting"
+    }
+  ]
+}

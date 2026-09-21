@@ -207,9 +207,11 @@ One question per resource, each asked of the thing that owns the answer:
 
 - **The project's modules** — so the destination can be chosen.
 - **The project's types** — its Datatype tables, which is what a vocabulary is written as too.
-- **The properties applicable to the requested place** — without a table kind,
-  `/projects/{projectId}/properties` describes what may appear in the contents of a Properties table. With a table
-  kind, it describes the properties the table itself may carry, filtered by kind and Table inheritance level. Each
+- **The properties applicable to the requested place** — with a table kind,
+  `/projects/{projectId}/properties` describes the properties a table of that kind may declare on itself; asked for
+  `Properties`, it describes what may appear in the contents of a Properties table, which declares them for the
+  tables of its scope rather than for itself. Without a kind, it describes every property a table may carry —
+  written on it, inherited or stamped — which is what the extended search narrows by. Each
   definition carries how the property is presented — its display name, its group and whether the engine dispatches on
   it — and the shape of its value: text, a date, a boolean, or enum codes paired with their display values, plus the
   value it defaults to and the pattern the compiler validates it with. A dialog names, groups, prefills and validates

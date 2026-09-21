@@ -504,7 +504,8 @@ To create a table as a copy of the existing table, proceed as follows:
     offered the way the **Table Details** editor lists them — by display name, under the **Info**, **Business
     Dimension**, **Version** and **Dev** groups, so the dimensional properties are presented rather than guessed:
     - complete the last row to add another property, or delete a row with its row control;
-    - select a property by its display name;
+    - select a property by its display name; a property another row already carries is not offered again, since
+      a table declares each property once;
     - enter text directly, select a date in the date picker, select or clear a Boolean check box, or select an enum
       display value from the dropdown, according to the property type. A single-value enum is selected from a closed
       dropdown and does not accept typed text.

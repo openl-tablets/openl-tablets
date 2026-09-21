@@ -143,7 +143,10 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
     const isNewModule = Boolean(moduleName) && !modules.some(module => module.name === moduleName)
     const moduleOptions = useMemo(() => toSortedOptions(modules), [modules])
     const sheetOptions = useMemo(() => asOptions(sheets), [sheets])
-    const propertyOptions = useMemo(() => toPropertyGroups(projectProperties), [projectProperties])
+    // A row picks from what the other rows do not hold: a property said twice would say two things about one
+    // property, so one the copy already carries — the source's, or one the author added — is not offered again.
+    const propertyOptionsFor = (index: number) => toPropertyGroups(projectProperties.filter(definition =>
+        !properties.some((row, rowIndex) => rowIndex !== index && row.name.trim() === definition.name)))
     /** What the project says about a property, by the name a row holds. */
     const definitionOf = (name: string) => projectProperties.find(definition => definition.name === name.trim())
     // The value the source already carries is let through as it stands: it was written when a shorter version was
@@ -185,8 +188,6 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
     const partialProperty = properties.some(property =>
         !isEmptyProperty(property) && !isCompleteProperty(property))
     const submittedProperties = properties.filter(isCompleteProperty)
-    const propertyNames = submittedProperties.map(property => property.name.trim().toLocaleLowerCase())
-    const propertyNamesUnique = new Set(propertyNames).size === propertyNames.length
     const valid = Boolean(
         sourceInfo
         && IDENTIFIER.test(tableName.trim())
@@ -194,7 +195,6 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
         && isValidSheetName(sheetName)
         && !partialProperty
         && !properties.some(rejectedProperty)
-        && propertyNamesUnique
         && !loading
         && !sheetLoader.loading
     )
@@ -347,7 +347,7 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                                                 allowClear
                                                 data-testid={`copy-table-property-name-${index}`}
                                                 onChange={value => updatePropertyName(index, value ?? '')}
-                                                options={propertyOptions}
+                                                options={propertyOptionsFor(index)}
                                                 placeholder={t('project:copy_table_modal.property_name')}
                                                 showSearch={{ optionFilterProp: 'label' }}
                                                 value={property.name || undefined}

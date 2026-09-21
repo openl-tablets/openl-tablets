@@ -29147,6 +29147,28 @@ Content-Type: application/json
               "$ref": "#/components/schemas/TablePropertyGroupView"
             }
           },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "Rules",
+              "Spreadsheet",
+              "Datatype",
+              "Data",
+              "Test",
+              "TBasic",
+              "Column Match",
+              "Method",
+              "Run",
+              "Constants",
+              "Conditions",
+              "Actions",
+              "Returns",
+              "Environment",
+              "Properties",
+              "Other"
+            ]
+          },
           "name": {
             "type": "string",
             "description": "***"

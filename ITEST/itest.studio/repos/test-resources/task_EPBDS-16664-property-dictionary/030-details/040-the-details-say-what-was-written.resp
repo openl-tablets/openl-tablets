@@ -1,0 +1,52 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "MyRules2",
+  "kind": "Rules",
+  "groups": [
+    {
+      "name": "Info",
+      "properties": [
+        {
+          "name": "description",
+          "displayName": "Description",
+          "value": "Greets by name"
+        },
+        {
+          "name": "tags",
+          "displayName": "Tags",
+          "value": "greeting"
+        }
+      ]
+    }
+  ],
+  "canEditProperties": true,
+  "available": [
+    "category",
+    "effectiveDate",
+    "expirationDate",
+    "startRequestDate",
+    "endRequestDate",
+    "caRegions",
+    "caProvinces",
+    "country",
+    "region",
+    "currency",
+    "lang",
+    "lob",
+    "origin",
+    "usregion",
+    "state",
+    "active",
+    "id",
+    "buildPhase",
+    "validateDT",
+    "failOnMiss",
+    "cacheable",
+    "recalculate",
+    "emptyResultProcessing",
+    "parallel",
+    "nature"
+  ]
+}

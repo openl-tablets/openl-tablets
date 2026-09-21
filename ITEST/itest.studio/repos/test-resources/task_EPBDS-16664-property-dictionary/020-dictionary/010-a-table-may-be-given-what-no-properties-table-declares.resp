@@ -1,0 +1,89 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "active"
+  },
+  {
+    "name": "buildPhase"
+  },
+  {
+    "name": "cacheable"
+  },
+  {
+    "name": "caProvinces"
+  },
+  {
+    "name": "caRegions"
+  },
+  {
+    "name": "category"
+  },
+  {
+    "name": "country"
+  },
+  {
+    "name": "currency"
+  },
+  {
+    "name": "description"
+  },
+  {
+    "name": "effectiveDate"
+  },
+  {
+    "name": "emptyResultProcessing"
+  },
+  {
+    "name": "endRequestDate"
+  },
+  {
+    "name": "expirationDate"
+  },
+  {
+    "name": "failOnMiss"
+  },
+  {
+    "name": "id"
+  },
+  {
+    "name": "lang"
+  },
+  {
+    "name": "lob"
+  },
+  {
+    "name": "nature"
+  },
+  {
+    "name": "origin"
+  },
+  {
+    "name": "parallel"
+  },
+  {
+    "name": "recalculate"
+  },
+  {
+    "name": "region"
+  },
+  {
+    "name": "startRequestDate"
+  },
+  {
+    "name": "state"
+  },
+  {
+    "name": "tags"
+  },
+  {
+    "name": "usregion"
+  },
+  {
+    "name": "validateDT"
+  },
+  {
+    "name": "version"
+  }
+]

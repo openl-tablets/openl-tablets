@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
+import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
@@ -82,7 +85,8 @@ class ProjectMetadataServiceTest {
 
     @Test
     void offersOnlyPropertiesAPropertiesTableMayDeclare() {
-        var names = service.getProperties(null).stream().map(PropertyDefinitionView::name).toList();
+        // A Properties table declares nothing on itself: asked for that kind, the dictionary is of its contents.
+        var names = service.getProperties("Properties").stream().map(PropertyDefinitionView::name).toList();
 
         // Stamped by OpenL Studio, never typed.
         assertFalse(names.contains("createdBy"));
@@ -104,6 +108,27 @@ class ProjectMetadataServiceTest {
         assertTrue(spreadsheet.containsAll(List.of("version", "active", "autoType")));
         assertFalse(spreadsheet.contains("scope"));
         assertFalse(spreadsheet.contains("failOnMiss"));
+    }
+
+    @Test
+    void offersEveryPropertyATableMayCarryWhenAskedForNoKind() {
+        var names = service.getProperties(null).stream().map(PropertyDefinitionView::name).toList();
+
+        // Written on a table, declared for it by a Properties table, or stamped by OpenL Studio: a search across
+        // tables of every kind may narrow by any of them.
+        assertTrue(names.containsAll(List.of("description", "tags", "id", "active", "scope", "createdBy")));
+    }
+
+    @Test
+    void leavesADeprecatedPropertyOut() {
+        var deprecated = Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
+                .filter(definition -> definition.getDeprecation() != null)
+                .map(TablePropertyDefinition::getName)
+                .toList();
+        var names = service.getProperties(null).stream().map(PropertyDefinitionView::name).toList();
+
+        assertFalse(deprecated.isEmpty(), "the dictionary keeps a deprecated property to leave out");
+        assertTrue(deprecated.stream().noneMatch(names::contains));
     }
 
     @Test

@@ -3,6 +3,17 @@ Content-Type: application/json
 
 [
   {
+    "name": "active",
+    "displayName": "Active",
+    "group": "Version",
+    "type": "boolean",
+    "multiple": false,
+    "dimensional": false,
+    "defaultValue": "true",
+    "pattern": null,
+    "values": []
+  },
+  {
     "name": "autoType",
     "displayName": "Auto Type Discovery",
     "group": "Dev",
@@ -558,6 +569,28 @@ Content-Type: application/json
     ]
   },
   {
+    "name": "createdBy",
+    "displayName": "Created By",
+    "group": "Info",
+    "type": "text",
+    "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
+    "values": []
+  },
+  {
+    "name": "createdOn",
+    "displayName": "Created On",
+    "group": "Info",
+    "type": "date",
+    "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
+    "values": []
+  },
+  {
     "name": "currency",
     "displayName": "Currency",
     "group": "Business Dimension",
@@ -865,6 +898,17 @@ Content-Type: application/json
     "values": []
   },
   {
+    "name": "description",
+    "displayName": "Description",
+    "group": "Info",
+    "type": "text",
+    "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
+    "values": []
+  },
+  {
     "name": "effectiveDate",
     "displayName": "Effective Date",
     "group": "Business Dimension",
@@ -926,6 +970,17 @@ Content-Type: application/json
     "dimensional": false,
     "defaultValue": "false",
     "pattern": null,
+    "values": []
+  },
+  {
+    "name": "id",
+    "displayName": "ID",
+    "group": "Dev",
+    "type": "text",
+    "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": "([a-zA-Z_][a-zA-Z0-9_]*)",
     "values": []
   },
   {
@@ -1103,6 +1158,28 @@ Content-Type: application/json
     "type": "text",
     "multiple": true,
     "dimensional": true,
+    "defaultValue": null,
+    "pattern": null,
+    "values": []
+  },
+  {
+    "name": "modifiedBy",
+    "displayName": "Modified By",
+    "group": "Info",
+    "type": "text",
+    "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
+    "values": []
+  },
+  {
+    "name": "modifiedOn",
+    "displayName": "Modified On",
+    "group": "Info",
+    "type": "date",
+    "multiple": false,
+    "dimensional": false,
     "defaultValue": null,
     "pattern": null,
     "values": []
@@ -1504,6 +1581,17 @@ Content-Type: application/json
     "values": []
   },
   {
+    "name": "tags",
+    "displayName": "Tags",
+    "group": "Info",
+    "type": "text",
+    "multiple": true,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
+    "values": []
+  },
+  {
     "name": "usregion",
     "displayName": "US Region",
     "group": "Business Dimension",
@@ -1554,5 +1642,16 @@ Content-Type: application/json
         "value": "Off"
       }
     ]
+  },
+  {
+    "name": "version",
+    "displayName": "Version",
+    "group": "Version",
+    "type": "text",
+    "multiple": false,
+    "dimensional": false,
+    "defaultValue": null,
+    "pattern": null,
+    "values": []
   }
 ]

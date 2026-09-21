@@ -18,6 +18,7 @@ vi.mock('react-i18next', () => {
 
 const DETAILS: TableDetails = {
     name: 'Greeting',
+    kind: 'Rules',
     groups: [
         {
             name: 'Info',
@@ -35,7 +36,7 @@ const DETAILS: TableDetails = {
         },
     ],
     canEditProperties: true,
-    available: ['category'],
+    available: ['category', 'tags'],
 }
 
 const property = (over: Partial<ProjectProperty>): ProjectProperty => ({
@@ -55,6 +56,10 @@ const DICTIONARY: ProjectProperty[] = [
     property({}),
     property({ name: 'category', displayName: 'Category' }),
     property({ name: 'lob', displayName: 'LOB', group: 'Business Dimension' }),
+    // Written on a table alone, never in a Properties table: only the dictionary of the table's kind knows it.
+    property({ name: 'tags', displayName: 'Tags', multiple: true }),
+    // In the dictionary, but not among the ones this table may still be given.
+    property({ name: 'createdBy', displayName: 'Created By', group: 'Info' }),
 ]
 
 interface DrawProps {
@@ -64,20 +69,25 @@ interface DrawProps {
     onSaved?: (tableId: string) => void
 }
 
+const panel = (props: DrawProps) => (
+    <TableDetailsPanel
+        canWrite={props.canWrite ?? false}
+        moduleName="Claims"
+        onOpenTable={props.onOpenTable ?? vi.fn()}
+        onSaved={props.onSaved}
+        projectId="p1"
+        tableId={props.tableId === undefined ? 'table-1' : props.tableId}
+    />
+)
+
+/** Lets the reads on their way answer. */
+const settle = () => act(async () => {
+    await new Promise(resolve => setTimeout(resolve, 50))
+})
+
 const draw = async (props: DrawProps = {}) => {
-    const view = render(
-        <TableDetailsPanel
-            canWrite={props.canWrite ?? false}
-            moduleName="Claims"
-            onOpenTable={props.onOpenTable ?? vi.fn()}
-            onSaved={props.onSaved}
-            projectId="p1"
-            tableId={props.tableId === undefined ? 'table-1' : props.tableId}
-        />
-    )
-    await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 50))
-    })
+    const view = render(panel(props))
+    await settle()
     return view
 }
 
@@ -85,9 +95,7 @@ const draw = async (props: DrawProps = {}) => {
 const edit = async (props: DrawProps = {}) => {
     const view = await draw({ canWrite: true, ...props })
     await userEvent.click(screen.getByTestId('table-details-edit'))
-    await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 50))
-    })
+    await settle()
     return view
 }
 
@@ -123,7 +131,7 @@ describe('TableDetailsPanel', () => {
 
     it('says so when the table declares no properties at all', async () => {
         vi.mocked(getTableDetails).mockResolvedValue({
-            name: 'Greeting', groups: [], canEditProperties: true, available: [],
+            name: 'Greeting', kind: 'Rules', groups: [], canEditProperties: true, available: [],
         })
         await draw()
 
@@ -152,7 +160,7 @@ describe('TableDetailsPanel', () => {
     it('keeps its own name for a table that carries none', async () => {
         // A properties table has no name of its own, and a bare panel head would name nothing at all.
         vi.mocked(getTableDetails).mockResolvedValue({
-            name: '', groups: [], canEditProperties: false, available: [],
+            name: '', kind: 'Other', groups: [], canEditProperties: false, available: [],
         })
         await draw()
 
@@ -174,7 +182,7 @@ describe('TableDetailsPanel', () => {
 
     it('offers no writing on a table that carries no properties at all', async () => {
         vi.mocked(getTableDetails).mockResolvedValue({
-            name: 'Environment', groups: [], canEditProperties: false, available: [],
+            name: 'Environment', kind: 'Environment', groups: [], canEditProperties: false, available: [],
         })
         await draw({ canWrite: true })
 
@@ -225,10 +233,22 @@ describe('TableDetailsPanel', () => {
         // The ones it already shows are not offered again: they are changed where they stand.
         expect(await screen.findByTitle('Category')).toBeInTheDocument()
         expect(screen.queryByTitle('Description')).not.toBeInTheDocument()
+        // Nor is one the table may not carry, whatever the dictionary holds.
+        expect(screen.queryByTitle('Created By')).not.toBeInTheDocument()
 
         await userEvent.click(screen.getByTitle('Category'))
 
         expect(screen.getByTestId('table-details-input-category')).toBeInTheDocument()
+    })
+
+    it('offers a property a table alone may carry, which no Properties table declares', async () => {
+        await edit()
+
+        await userEvent.click(screen.getByTestId('table-details-add'))
+
+        // The dictionary is read for the table's own kind: the one read for a Properties table would not hold it.
+        expect(getProjectProperties).toHaveBeenCalledWith('p1', 'Rules')
+        expect(await screen.findByTitle('Tags')).toBeInTheDocument()
     })
 
     it('drops what was written when the reader gives up', async () => {
@@ -240,6 +260,72 @@ describe('TableDetailsPanel', () => {
 
         expect(updateTableProperties).not.toHaveBeenCalled()
         expect(screen.getByTestId('table-details-description')).toHaveTextContent('Says hello')
+    })
+
+    it('reads the dictionary of the kind the table belongs to, once per kind', async () => {
+        vi.mocked(getTableDetails).mockResolvedValue({ ...DETAILS, kind: 'Spreadsheet' })
+        const view = await edit()
+        expect(getProjectProperties).toHaveBeenCalledWith('p1', 'Spreadsheet')
+
+        // Another table of the same kind: the dictionary read for it is the one already held.
+        vi.mocked(getTableDetails).mockResolvedValue({ ...DETAILS, name: 'Farewell', kind: 'Spreadsheet' })
+        view.rerender(panel({ canWrite: true, tableId: 'table-2' }))
+        await settle()
+        await userEvent.click(screen.getByTestId('table-details-edit'))
+        await settle()
+        expect(getProjectProperties).toHaveBeenCalledTimes(1)
+    })
+
+    it('holds a dictionary that answers late under its own kind', async () => {
+        const forData = Promise.withResolvers<ProjectProperty[]>()
+        vi.mocked(getProjectProperties).mockImplementation((_project, kind) => kind === 'Data'
+            ? forData.promise
+            : Promise.resolve(DICTIONARY))
+        vi.mocked(getTableDetails).mockResolvedValue({ ...DETAILS, kind: 'Data' })
+        const view = await edit()
+
+        // A Rules table is looked at while the Data dictionary is still on its way, and that one answers last.
+        vi.mocked(getTableDetails).mockResolvedValue(DETAILS)
+        view.rerender(panel({ canWrite: true, tableId: 'table-2' }))
+        await settle()
+        await userEvent.click(screen.getByTestId('table-details-edit'))
+        await settle()
+        forData.resolve([property({ name: 'category', displayName: 'Category of a Data table' })])
+        await settle()
+
+        await userEvent.click(screen.getByTestId('table-details-add'))
+        expect(await screen.findByTitle('Category')).toBeInTheDocument()
+        expect(screen.queryByTitle('Category of a Data table')).not.toBeInTheDocument()
+    })
+
+    it('asks for a dictionary once while it is on its way', async () => {
+        const forRules = Promise.withResolvers<ProjectProperty[]>()
+        vi.mocked(getProjectProperties).mockReturnValue(forRules.promise)
+        await edit()
+
+        // Writing is given up and taken up again before the dictionary answers: it is not asked for a second time.
+        await userEvent.click(screen.getByTestId('table-details-cancel'))
+        await userEvent.click(screen.getByTestId('table-details-edit'))
+        await settle()
+        expect(getProjectProperties).toHaveBeenCalledTimes(1)
+
+        forRules.resolve(DICTIONARY)
+        await userEvent.click(screen.getByTestId('table-details-add'))
+        expect(await screen.findByTitle('Category')).toBeInTheDocument()
+    })
+
+    it('asks for a dictionary again after a read of it failed', async () => {
+        vi.mocked(getProjectProperties).mockRejectedValueOnce(new Error('down'))
+        await edit()
+        expect(getProjectProperties).toHaveBeenCalledTimes(1)
+
+        // Nothing was held for the failure: the next time the reader writes, the dictionary is read again.
+        await userEvent.click(screen.getByTestId('table-details-cancel'))
+        await userEvent.click(screen.getByTestId('table-details-edit'))
+        await settle()
+        expect(getProjectProperties).toHaveBeenCalledTimes(2)
+        await userEvent.click(screen.getByTestId('table-details-add'))
+        expect(await screen.findByTitle('Category')).toBeInTheDocument()
     })
 
     it('asks for nothing while it stands folded away', async () => {

@@ -1,0 +1,98 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "autoType"
+  },
+  {
+    "name": "buildPhase"
+  },
+  {
+    "name": "cacheable"
+  },
+  {
+    "name": "calculateAllCells"
+  },
+  {
+    "name": "caProvinces"
+  },
+  {
+    "name": "caRegions"
+  },
+  {
+    "name": "category"
+  },
+  {
+    "name": "country"
+  },
+  {
+    "name": "currency"
+  },
+  {
+    "name": "datatypePackage"
+  },
+  {
+    "name": "effectiveDate"
+  },
+  {
+    "name": "emptyResultProcessing"
+  },
+  {
+    "name": "endRequestDate"
+  },
+  {
+    "name": "expirationDate"
+  },
+  {
+    "name": "failOnMiss"
+  },
+  {
+    "name": "lang"
+  },
+  {
+    "name": "lob"
+  },
+  {
+    "name": "nature"
+  },
+  {
+    "name": "origin"
+  },
+  {
+    "name": "parallel"
+  },
+  {
+    "name": "precision"
+  },
+  {
+    "name": "priority"
+  },
+  {
+    "name": "recalculate"
+  },
+  {
+    "name": "region"
+  },
+  {
+    "name": "scope"
+  },
+  {
+    "name": "spreadsheetResultPackage"
+  },
+  {
+    "name": "startRequestDate"
+  },
+  {
+    "name": "state"
+  },
+  {
+    "name": "tableStructureDetails"
+  },
+  {
+    "name": "usregion"
+  },
+  {
+    "name": "validateDT"
+  }
+]

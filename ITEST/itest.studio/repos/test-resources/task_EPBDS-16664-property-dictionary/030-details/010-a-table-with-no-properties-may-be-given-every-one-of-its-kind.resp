@@ -1,0 +1,37 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "MyRules2",
+  "kind": "Rules",
+  "canEditProperties": true,
+  "available": [
+    "category",
+    "description",
+    "tags",
+    "effectiveDate",
+    "expirationDate",
+    "startRequestDate",
+    "endRequestDate",
+    "caRegions",
+    "caProvinces",
+    "country",
+    "region",
+    "currency",
+    "lang",
+    "lob",
+    "origin",
+    "usregion",
+    "state",
+    "active",
+    "id",
+    "buildPhase",
+    "validateDT",
+    "failOnMiss",
+    "cacheable",
+    "recalculate",
+    "emptyResultProcessing",
+    "parallel",
+    "nature"
+  ]
+}
