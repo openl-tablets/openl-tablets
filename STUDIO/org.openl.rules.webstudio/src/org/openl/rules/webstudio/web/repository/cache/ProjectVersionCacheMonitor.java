@@ -150,8 +150,8 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     void cacheProjectVersion(AProject project,
                              ProjectVersionH2CacheDB.RepoType repoType,
                              Map<String, String> fileHashCache) throws IOException {
-        var md5 = projectVersionCacheManager.computeMD5(project, fileHashCache);
-        projectVersionCacheDB.insertProject(project.getBusinessName(), project.getVersion(), md5, repoType);
+        var hash = projectVersionCacheManager.computeHash(project, fileHashCache);
+        projectVersionCacheDB.insertProject(project.getBusinessName(), project.getVersion(), hash, repoType);
     }
 
     public void setProjectVersionCacheDB(ProjectVersionH2CacheDB projectVersionCacheDB) {
