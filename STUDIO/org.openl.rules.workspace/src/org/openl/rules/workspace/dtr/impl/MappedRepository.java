@@ -65,7 +65,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     private final ReadWriteLock indexLock = new ReentrantReadWriteLock();
     private BoundedCache<String, ProjectIndex> indexesByTreeRevision =
             new BoundedCache<>(TREE_REVISION_CACHE_CAPACITY);
-    private BoundedCache<String, Optional<String>> projectNamesByDescriptorRevision =
+    private BoundedCache<String, String> projectNamesByDescriptorRevision =
             new BoundedCache<>(DESCRIPTOR_REVISION_CACHE_CAPACITY);
     private Map<String, String> hashesByPath = new ConcurrentHashMap<>();
 
@@ -741,15 +741,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         if (descriptorName == null) {
             var fileItem = delegate.read(descriptorPath);
             try (var stream = fileItem.getStream()) {
-                // The name is cached even when absent, so a nameless descriptor is not read and parsed again.
-                descriptorName = Optional.ofNullable(getProjectName(stream));
+                // A nameless descriptor is cached as an empty name, so it is not read and parsed again.
+                descriptorName = Objects.requireNonNullElse(getProjectName(stream), "");
             }
             if (descriptorRevision != null) {
                 projectNamesByDescriptorRevision.putIfAbsent(descriptorRevision, descriptorName);
             }
         }
 
-        var projectName = ProjectDescriptor.resolveName(descriptorName.orElse(null), FileUtils.getName(folderPath));
+        var projectName = ProjectDescriptor.resolveName(descriptorName, FileUtils.getName(folderPath));
         return new ProjectInfo(projectName, folderPath);
     }
 
