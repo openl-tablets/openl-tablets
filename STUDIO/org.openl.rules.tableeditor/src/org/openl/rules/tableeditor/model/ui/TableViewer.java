@@ -44,6 +44,7 @@ class TableViewer {
             case BOTTOM -> { /* Bottom by default */ }
             case CENTER -> cm.setValign("center");
             case TOP -> cm.setValign("top");
+            default -> { /* Other alignments are drawn as bottom */ }
         }
 
         if (style.getIndent() > 0) {

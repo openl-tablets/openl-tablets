@@ -214,15 +214,12 @@ class ProjectVersionCacheMonitorTest {
 
     private Repository createRepository(File local) {
         return new GitRepositoryFactory().create(s -> {
-            switch (s) {
-                case "id":
-                    return "design";
-                case "uri":
-                    return local.toURI().toString();
-                case "local-repositories-folder":
-                    return localRepositoriesFolder.getAbsolutePath();
-            }
-            return null;
+            return switch (s) {
+                case "id" -> "design";
+                case "uri" -> local.toURI().toString();
+                case "local-repositories-folder" -> localRepositoriesFolder.getAbsolutePath();
+                default -> null;
+            };
         });
     }
 

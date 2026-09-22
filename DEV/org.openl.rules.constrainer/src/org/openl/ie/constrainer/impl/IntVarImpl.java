@@ -86,6 +86,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
                     _domain = new DomainImpl(this, min, max);
                 }
             }
+            default -> throw new IllegalArgumentException("Unknown domain type: " + domain_type);
         }
 
         _history = new IntDomainHistory(this);

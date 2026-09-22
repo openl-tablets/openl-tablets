@@ -301,20 +301,21 @@ public class RangeParser {
         // the first and the last symbols are always values between which separator is defined.
         start = start + 1;
         for (var i = start; i < end; i++) {
-            switch (text.charAt(i)) {
-                case ';':
-                case '-':
-                case '…':
-                    return i;
-                case '.':
-                    // the separator is at least two dots
-                    if (i + 1 < end && text.charAt(i + 1) == '.') {
-                        return i;
-                    }
+            if (isSeparator(text, i, end)) {
+                return i;
             }
         }
         //not found
         return -1;
+    }
+
+    private static boolean isSeparator(CharSequence text, int i, int end) {
+        return switch (text.charAt(i)) {
+            case ';', '-', '…' -> true;
+            // the separator is at least two dots
+            case '.' -> i + 1 < end && text.charAt(i + 1) == '.';
+            default -> false;
+        };
     }
 
     private static int findNextWord(CharSequence word, CharSequence text, int start, int end) {

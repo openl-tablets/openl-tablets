@@ -54,6 +54,9 @@ public class SharedValueListener implements HSSFListener {
                     tableRecords.add((TableRecord) record);
                 }
                 break;
+            default:
+                // other records carry no shared values
+                break;
         }
     }
 

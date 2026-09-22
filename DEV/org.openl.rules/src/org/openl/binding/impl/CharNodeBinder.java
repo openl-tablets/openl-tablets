@@ -66,6 +66,9 @@ public class CharNodeBinder extends ANodeBinder {
                     c = StringNodeBinder.processOctal(s, 2);
                     break;
                 }
+                default:
+                    // an unknown escape sequence keeps the backslash
+                    break;
             }
         }
 

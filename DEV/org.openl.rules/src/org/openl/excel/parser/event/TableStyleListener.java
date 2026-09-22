@@ -197,6 +197,9 @@ public class TableStyleListener implements HSSFListener {
                     shapeRecords.add(record);
                 }
                 break;
+            default:
+                // other records carry no style
+                break;
         }
     }
 
