@@ -11,9 +11,40 @@ public final class EnumUtils {
         return constant.name();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public static Object valueOf(Class enumClass, String constantName) {
-        return StringUtils.isEmpty(constantName) ? null : Enum.valueOf(enumClass, constantName);
+    /**
+     * The constant of an enumeration a text names, matched ignoring case.
+     *
+     * <p>Case is ignored because a value is written by hand as often as it is chosen from a list. Text naming
+     * no constant of the enumeration, and text holding nothing, stand for no value.
+     *
+     * @param enumClass    the enumeration the constant belongs to
+     * @param constantName the text naming it
+     * @return the constant it names, or {@code null} when it names none
+     */
+    public static Object valueOf(Class<?> enumClass, String constantName) {
+        return StringUtils.isEmpty(constantName) ? null : valueOf(getEnumConstants(enumClass), constantName);
+    }
+
+    /**
+     * The same, over constants read once.
+     *
+     * <p>Reading them costs a copy of the array, so a reader that answers many texts of one enumeration keeps
+     * them rather than asking the class each time.
+     *
+     * @param constants    the constants of the enumeration
+     * @param constantName the text naming one of them
+     * @return the constant it names, or {@code null} when it names none
+     */
+    public static Object valueOf(Object[] constants, String constantName) {
+        if (StringUtils.isEmpty(constantName)) {
+            return null;
+        }
+        for (Object constant : constants) {
+            if (constantName.equalsIgnoreCase(getName((Enum<?>) constant))) {
+                return constant;
+            }
+        }
+        return null;
     }
 
     public static String[] getNames(Object[] constants) {

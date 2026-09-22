@@ -1,0 +1,314 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "900c5129d77d17c8bbbed7e79ef44757",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "MyRules4",
+  "pos": "B11:D31",
+  "source": [
+    [
+      {
+        "cell": "B11",
+        "value": "SimpleRules BigDecimal MyRules4(String InputPar, String InputPar2)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B12",
+        "value": "properties",
+        "rowspan": 18
+      },
+      {
+        "cell": "C12",
+        "value": "emptyResultProcessing"
+      },
+      {
+        "cell": "D12",
+        "value": "RETURN"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C13",
+        "value": "lob"
+      },
+      {
+        "cell": "D13",
+        "value": [
+          "004"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C14",
+        "value": "usregion"
+      },
+      {
+        "cell": "D14",
+        "value": [
+          "MW",
+          "NE",
+          "SW"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C15",
+        "value": "country"
+      },
+      {
+        "cell": "D15",
+        "value": [
+          "ZA"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C16",
+        "value": "startRequestDate"
+      },
+      {
+        "cell": "D16",
+        "value": "2016-04-01"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C17",
+        "value": "endRequestDate"
+      },
+      {
+        "cell": "D17",
+        "value": "2016-04-02"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C18",
+        "value": "expirationDate"
+      },
+      {
+        "cell": "D18",
+        "value": "2016-04-03"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C19",
+        "value": "effectiveDate"
+      },
+      {
+        "cell": "D19",
+        "value": "2016-04-04"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C20",
+        "value": "currency"
+      },
+      {
+        "cell": "D20",
+        "value": [
+          "VEF"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C21",
+        "value": "lang"
+      },
+      {
+        "cell": "D21",
+        "value": [
+          "GER",
+          "THA",
+          "TUR",
+          "UKR"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C22",
+        "value": "state"
+      },
+      {
+        "cell": "D22",
+        "value": [
+          "WI"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C23",
+        "value": "region"
+      },
+      {
+        "cell": "D23",
+        "value": [
+          "EU"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C24",
+        "value": "origin"
+      },
+      {
+        "cell": "D24",
+        "value": "Deviation"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C25",
+        "value": "caProvinces"
+      },
+      {
+        "cell": "D25",
+        "value": [
+          "PE"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C26",
+        "value": "caRegions"
+      },
+      {
+        "cell": "D26",
+        "value": [
+          "QC"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C27",
+        "value": "buildPhase"
+      },
+      {
+        "cell": "D27",
+        "value": "BuildCategoryOverwrite"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C28",
+        "value": "validateDT"
+      },
+      {
+        "cell": "D28",
+        "value": "OFF"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C29",
+        "value": "failOnMiss"
+      },
+      {
+        "cell": "D29",
+        "value": true
+      }
+    ],
+    [
+      {
+        "cell": "B30",
+        "value": "InputPar"
+      },
+      {
+        "cell": "C30",
+        "value": "InputPar2"
+      },
+      {
+        "cell": "D30",
+        "value": "RETURN"
+      }
+    ],
+    [
+      {
+        "cell": "B31",
+        "value": "Hello"
+      },
+      {
+        "cell": "C31",
+        "value": "Kitty"
+      },
+      {
+        "cell": "D31",
+        "value": 100
+      }
+    ]
+  ],
+  "headerHeight": 19
+}
+

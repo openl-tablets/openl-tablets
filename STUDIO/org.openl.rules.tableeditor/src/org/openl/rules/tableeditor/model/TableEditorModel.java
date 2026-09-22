@@ -20,10 +20,7 @@ import org.openl.rules.table.actions.UndoableEditTableAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
 import org.openl.rules.table.actions.UndoableRemoveMergedRowsAction;
-import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.util.StringUtils;
 
 /**
  * Writes a table's properties section.
@@ -107,21 +104,6 @@ public class TableEditorModel {
         if (action != null) {
             action.doAction(gridTable);
         }
-    }
-
-    public void setProperty(String name, String value) {
-        Object objectValue = null;
-        if (StringUtils.isNotBlank(value)) {
-            var tablePropeprtyDefinition = TablePropertyDefinitionUtils.getPropertyByName(name);
-            if (tablePropeprtyDefinition != null) {
-                Class<?> type = tablePropeprtyDefinition.getType().getInstanceClass();
-                var formatter = FormattersManager.getFormatter(type, tablePropeprtyDefinition.getFormat());
-                objectValue = formatter.parse(value);
-            } else {
-                objectValue = value;
-            }
-        }
-        setProperty(name, objectValue);
     }
 
     private void removeRows(int nRows, int startRow, int col) {

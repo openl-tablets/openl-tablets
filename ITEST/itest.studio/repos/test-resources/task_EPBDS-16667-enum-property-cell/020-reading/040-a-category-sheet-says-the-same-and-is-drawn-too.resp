@@ -1,0 +1,254 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "9e39487ed81a96758321075f396df297",
+  "tableType": "RawSource",
+  "kind": "Properties",
+  "name": "myProperty2",
+  "pos": "G11:H32",
+  "source": [
+    [
+      {
+        "cell": "G11",
+        "value": "Properties myProperty2"
+      },
+      {
+        "cell": "H11"
+      }
+    ],
+    [
+      {
+        "cell": "G12",
+        "value": "scope"
+      },
+      {
+        "cell": "H12",
+        "value": "Category"
+      }
+    ],
+    [
+      {
+        "cell": "G13",
+        "value": "lob"
+      },
+      {
+        "cell": "H13",
+        "value": [
+          "003"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G14",
+        "value": "usregion"
+      },
+      {
+        "cell": "H14",
+        "value": [
+          "SW"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G15",
+        "value": "country"
+      },
+      {
+        "cell": "H15",
+        "value": [
+          "PT"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G16",
+        "value": "startRequestDate"
+      },
+      {
+        "cell": "H16",
+        "value": "2016-03-01"
+      }
+    ],
+    [
+      {
+        "cell": "G17",
+        "value": "endRequestDate"
+      },
+      {
+        "cell": "H17",
+        "value": "2016-03-02"
+      }
+    ],
+    [
+      {
+        "cell": "G18",
+        "value": "expirationDate"
+      },
+      {
+        "cell": "H18",
+        "value": "2016-03-03"
+      }
+    ],
+    [
+      {
+        "cell": "G19",
+        "value": "effectiveDate"
+      },
+      {
+        "cell": "H19",
+        "value": "2016-03-04"
+      }
+    ],
+    [
+      {
+        "cell": "G20",
+        "value": "currency"
+      },
+      {
+        "cell": "H20",
+        "value": [
+          "USD"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G21",
+        "value": "lang"
+      },
+      {
+        "cell": "H21",
+        "value": [
+          "GER"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G22",
+        "value": "state"
+      },
+      {
+        "cell": "H22",
+        "value": [
+          "FL",
+          "PR",
+          "TX"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G23",
+        "value": "region"
+      },
+      {
+        "cell": "H23",
+        "value": [
+          "EU",
+          "APJ"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G24",
+        "value": "origin"
+      },
+      {
+        "cell": "H24",
+        "value": "Base"
+      }
+    ],
+    [
+      {
+        "cell": "G25",
+        "value": "caProvinces"
+      },
+      {
+        "cell": "H25",
+        "value": [
+          "NT"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G26",
+        "value": "caRegions"
+      },
+      {
+        "cell": "H26",
+        "value": [
+          "HQ"
+        ]
+      }
+    ],
+    [
+      {
+        "cell": "G27",
+        "value": "buildPhase"
+      },
+      {
+        "cell": "H27",
+        "value": "BuildCategoryPhase"
+      }
+    ],
+    [
+      {
+        "cell": "G28",
+        "value": "validateDT"
+      },
+      {
+        "cell": "H28",
+        "value": "ON"
+      }
+    ],
+    [
+      {
+        "cell": "G29",
+        "value": "failOnMiss"
+      },
+      {
+        "cell": "H29",
+        "value": false
+      }
+    ],
+    [
+      {
+        "cell": "G30",
+        "value": "precision"
+      },
+      {
+        "cell": "H30",
+        "value": 3
+      }
+    ],
+    [
+      {
+        "cell": "G31",
+        "value": "autoType"
+      },
+      {
+        "cell": "H31",
+        "value": false
+      }
+    ],
+    [
+      {
+        "cell": "G32",
+        "value": "emptyResultProcessing"
+      },
+      {
+        "cell": "H32",
+        "value": "SKIP"
+      }
+    ]
+  ],
+  "headerHeight": 0
+}
+

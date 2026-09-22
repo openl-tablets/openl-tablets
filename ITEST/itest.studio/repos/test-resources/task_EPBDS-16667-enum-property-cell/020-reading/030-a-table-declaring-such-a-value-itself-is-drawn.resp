@@ -1,0 +1,310 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "feb3b5c18cbc214a09808ba84bc95bec",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "MyRules2",
+  "pos": "B7:D27",
+  "source": [
+    [
+      {
+        "cell": "B7",
+        "value": "SimpleRules BigDecimal MyRules2(String InputPar, String InputPar2)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "properties",
+        "rowspan": 18
+      },
+      {
+        "cell": "C8",
+        "value": "emptyResultProcessing"
+      },
+      {
+        "cell": "D8",
+        "value": "SKIP"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C9",
+        "value": "lob"
+      },
+      {
+        "cell": "D9",
+        "value": [
+          "002"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C10",
+        "value": "usregion"
+      },
+      {
+        "cell": "D10",
+        "value": [
+          "SE"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C11",
+        "value": "country"
+      },
+      {
+        "cell": "D11",
+        "value": [
+          "GB"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C12",
+        "value": "startRequestDate"
+      },
+      {
+        "cell": "D12",
+        "value": "2016-02-01"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C13",
+        "value": "endRequestDate"
+      },
+      {
+        "cell": "D13",
+        "value": "2016-02-02"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C14",
+        "value": "expirationDate"
+      },
+      {
+        "cell": "D14",
+        "value": "2016-02-03"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C15",
+        "value": "effectiveDate"
+      },
+      {
+        "cell": "D15",
+        "value": "2016-02-04"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C16",
+        "value": "currency"
+      },
+      {
+        "cell": "D16",
+        "value": [
+          "GBP"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C17",
+        "value": "lang"
+      },
+      {
+        "cell": "D17",
+        "value": [
+          "DUT"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C18",
+        "value": "state"
+      },
+      {
+        "cell": "D18",
+        "value": [
+          "TX"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C19",
+        "value": "region"
+      },
+      {
+        "cell": "D19",
+        "value": [
+          "EU"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C20",
+        "value": "origin"
+      },
+      {
+        "cell": "D20",
+        "value": "Deviation"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C21",
+        "value": "caProvinces"
+      },
+      {
+        "cell": "D21",
+        "value": [
+          "NL"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C22",
+        "value": "caRegions"
+      },
+      {
+        "cell": "D22",
+        "value": [
+          "HQ",
+          "QC"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C23",
+        "value": "buildPhase"
+      },
+      {
+        "cell": "D23",
+        "value": "ModuleOverlapped"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C24",
+        "value": "validateDT"
+      },
+      {
+        "cell": "D24",
+        "value": "OFF"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C25",
+        "value": "failOnMiss"
+      },
+      {
+        "cell": "D25",
+        "value": false
+      }
+    ],
+    [
+      {
+        "cell": "B26",
+        "value": "InputPar"
+      },
+      {
+        "cell": "C26",
+        "value": "InputPar2"
+      },
+      {
+        "cell": "D26",
+        "value": "RETURN"
+      }
+    ],
+    [
+      {
+        "cell": "B27",
+        "value": "Hello"
+      },
+      {
+        "cell": "C27",
+        "value": "Kitty"
+      },
+      {
+        "cell": "D27",
+        "value": 100
+      }
+    ]
+  ],
+  "headerHeight": 19
+}
+

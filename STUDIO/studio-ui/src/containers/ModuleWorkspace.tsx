@@ -615,7 +615,7 @@ export const ModuleWorkspace = () => {
                 showIcon
                 data-testid="module-workspace-error"
                 description={loadError}
-                title={t('browser.load_error')}
+                title={t('browser.module.load_failed')}
                 type="error"
             />
         )
@@ -734,7 +734,12 @@ export const ModuleWorkspace = () => {
         if (tableError !== null) {
             return (
                 <div className={styles.centered}>
-                    <Alert showIcon description={tableError} title={t('browser.load_error')} type="error" />
+                    <Alert
+                        showIcon
+                        description={tableError}
+                        title={t('browser.module.table_load_failed')}
+                        type="error"
+                    />
                 </div>
             )
         }
