@@ -19,7 +19,6 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
 
-import org.openl.util.StringUtils;
 
 /**
  * Lazy RelyingPartyRegistration initialization, for the case when IDP is not available for some reason.
@@ -70,7 +69,7 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
     private void assertingPartyMetadata(AssertingPartyMetadata.Builder<?> party) {
         // Override certificate from the Metadata XML to prevent MITM attack.
         var serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");
-        if (StringUtils.isNotBlank(serverCertificate)) {
+        if (serverCertificate != null && !serverCertificate.isBlank()) {
             try {
                 X509Certificate idpCert = X509Support.decodeCertificate(serverCertificate);
                 Saml2X509Credential verification = Saml2X509Credential.verification(idpCert);
