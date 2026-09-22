@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Skeleton, Tag, Tooltip } from 'antd'
 import { createStyles } from 'antd-style'
 import { getProductionRepositories, getProjectDeployments } from '../../services/deployments'
+import type { DeploymentDetail } from '../../services/deployments'
+import type { Repository } from '../../types/repositories'
 import { formatDateTime } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
 import { AuthorDate } from './AuthorDate'
@@ -90,6 +92,24 @@ interface DeploymentCard {
     deployedAt: string | undefined
 }
 
+/** The cards of one production repository: one per deployment that carries the project. */
+const toDeploymentCards = (repo: Repository, deployments: DeploymentDetail[], projectName: string): DeploymentCard[] =>
+    deployments.flatMap(deployment => {
+        const item = deployment.items?.find(candidate => candidate.name === projectName)
+        if (!item) {
+            return []
+        }
+        const card: DeploymentCard = {
+            key: `${repo.id}:${deployment.id}`,
+            service: deployment.name,
+            env: repo.name,
+            author: item.designRevision?.modifiedBy,
+            revisionDate: item.designRevision?.modifiedAt,
+            deployedAt: item.modifiedAt,
+        }
+        return [card]
+    })
+
 interface ProjectDeployedDetail {
     projectId?: string
 }
@@ -145,22 +165,7 @@ export const PublishPanel = ({
             .then(async repos => {
                 const perRepo = await Promise.all(repos.map(async repo => {
                     try {
-                        const list = await getProjectDeployments(repo.id, projectName)
-                        return list.flatMap(deployment => {
-                            const item = deployment.items?.find(candidate => candidate.name === projectName)
-                            if (!item) {
-                                return []
-                            }
-                            const card: DeploymentCard = {
-                                key: `${repo.id}:${deployment.id}`,
-                                service: deployment.name,
-                                env: repo.name,
-                                author: item.designRevision?.modifiedBy,
-                                revisionDate: item.designRevision?.modifiedAt,
-                                deployedAt: item.modifiedAt,
-                            }
-                            return [card]
-                        })
+                        return toDeploymentCards(repo, await getProjectDeployments(repo.id, projectName), projectName)
                     } catch {
                         return []
                     }
