@@ -217,7 +217,7 @@
         <jspecify.version>1.0.1</jspecify.version>
         <lombok.version>1.18.48</lombok.version>
 
-        <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
+        <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
         <node.version>v24.21.0</node.version>
         <npm.version>12.0.2</npm.version>
         <npm.test.skip>false</npm.test.skip>
