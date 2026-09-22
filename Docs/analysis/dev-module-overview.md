@@ -516,7 +516,7 @@ OpenLException
 - ASM 9.8 (Bytecode generation) - CRITICAL
 - Apache Commons Lang3 3.19.0
 - Apache Commons Collections4 4.5.0
-- Groovy 4.0.28 (expression evaluation)
+- Groovy 6.0.0 (expression evaluation)
 - Jakarta XML Bind 4.0.4
 
 **Internal**:
@@ -1146,7 +1146,7 @@ Generated Proxy
 ### Compile-Time & Runtime
 - **ASM 9.8** - Bytecode generation (CRITICAL)
 - **Apache POI 5.4.1** - Excel parsing (CRITICAL)
-- **Groovy 4.0.28** - Expression evaluation
+- **Groovy 6.0.0** - Expression evaluation
 - **Apache Commons** - Lang3, Collections4
 - **SLF4J 2.0.17** - Logging
 - **Jakarta XML Bind 4.0.4** - JAXB

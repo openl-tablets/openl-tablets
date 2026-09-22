@@ -66,7 +66,7 @@ depending on the size and complexity of the projects being developed, on the cou
 * OpenID Connect 1.0
 * OpenAPI 3.0
 * Java 21
-* Groovy 4.0
+* Groovy 6.0
 * JavaScript ES2023
 
 ## Java Version Compatibility Matrix

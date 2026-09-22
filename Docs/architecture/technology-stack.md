@@ -95,7 +95,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 ### Parsing & Language Processing
 | Library | Version | Purpose |
 |---------|---------|---------|
-| Groovy | 4.0.30 | Expression evaluation |
+| Groovy | 6.0.0 | Expression evaluation |
 | Apache Velocity | 2.4.1 | Template engine for code generation |
 | ANTLR | (Not used - JavaCC instead) | N/A |
 

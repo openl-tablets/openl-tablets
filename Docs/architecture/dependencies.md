@@ -183,7 +183,7 @@ JSON/XML Responses
 |---------|---------|---------|----------------|
 | **ASM** | 9.8 | Bytecode generation | 🔴 Critical |
 | **Apache POI** | 5.4.1 | Excel I/O | 🔴 Critical |
-| **Groovy** | 4.0.28 | Expression eval | 🟡 Could replace |
+| **Groovy** | 6.0.0 | Expression eval | 🟡 Could replace |
 | **JavaCC** | 3.1.1 | Parser generation | 🟡 Could replace with ANTLR |
 
 ### Spring Ecosystem

@@ -13,6 +13,12 @@
     <url>https://openl-tablets.org</url>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <!-- 2MB over the project-wide perf budget, measured as the least that fits Groovy 6. Its runtime
+             occupies more of the heap at rest than Groovy 4 did, which left EPBDS-8059_Not_very_big_Spreadsheet
+             without the headroom its SpreadsheetResult.toMap() call needs. The boundary is sharp: three runs
+             of the module pass at 63m and all three fail at 62m. The noPerf budget is untouched, and so is
+             the perf budget of every other module, so both keep detecting leaks as before. -->
+        <surefire.argLine.perf>-Xms8m -Xmx63m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
     </properties>
 
     <dependencies>

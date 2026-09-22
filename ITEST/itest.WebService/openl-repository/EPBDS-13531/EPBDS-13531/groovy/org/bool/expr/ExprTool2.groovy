@@ -1027,7 +1027,7 @@ class ExprTool {
                     if (isLiteral0 && isLiteral1) {
                         Literal<Node> literal0 = (Literal<Node>) p0
                         Literal<Node> literal1 = (Literal<Node>) p1
-                        Literal<Node> x = Literal<Node>.of(literal0.value && literal1.value)
+                        Literal<Node> x = Literal.of(literal0.value && literal1.value)
                         return "eq" == method.getName() ? x : Not.of(x)
                     }
                     if (isLiteral0) {
