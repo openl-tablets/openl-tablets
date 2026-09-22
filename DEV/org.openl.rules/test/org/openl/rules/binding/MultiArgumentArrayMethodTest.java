@@ -1,5 +1,7 @@
 package org.openl.rules.binding;
 
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -117,7 +119,7 @@ class MultiArgumentArrayMethodTest {
     void testVoidMultiCall() {
         // calling method with void return type many times
         //
-        instance.callVoidMethod();
+        assertDoesNotThrow(instance::callVoidMethod);
     }
 
     public interface MultiArgumentArrayMethodInterf {

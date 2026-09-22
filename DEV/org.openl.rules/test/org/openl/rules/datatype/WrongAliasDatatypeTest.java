@@ -1,5 +1,7 @@
 package org.openl.rules.datatype;
 
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -10,7 +12,7 @@ class WrongAliasDatatypeTest {
 
     @Test
     void test1() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatype1Test.xlsx");
+        assertNotNull(TestUtils.create("test/rules/datatype/WrongAliasDatatype1Test.xlsx"));
     }
 
     @Test

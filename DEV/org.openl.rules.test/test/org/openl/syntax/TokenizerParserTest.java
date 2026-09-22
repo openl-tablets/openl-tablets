@@ -35,7 +35,7 @@ class TokenizerParserTest {
 
         log.info("Time: {} 1 run: {}mks per char: {}mks", (end - start), 1000.0 * (end - start) / n, 1000.0 * (end - start) / n / test
                 .length());
-
+        assertEquals(3, Tokenizer.tokenize(src, " \n\r").length);
     }
 
     @Test

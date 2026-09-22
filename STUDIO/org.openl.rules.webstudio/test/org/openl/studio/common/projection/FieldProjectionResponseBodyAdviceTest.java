@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -100,12 +101,15 @@ class FieldProjectionResponseBodyAdviceTest {
         var returnType = new MethodParameter(
                 FieldProjectionResponseBodyAdviceTest.class.getDeclaredMethod("errorResponse"), -1);
 
+        var body = new MappingJacksonValue(errorResponse());
         advice.beforeBodyWriteInternal(
-                new MappingJacksonValue(errorResponse()),
+                body,
                 MediaType.APPLICATION_JSON,
                 returnType,
                 new ServletServerHttpRequest(servletRequest),
                 new ServletServerHttpResponse(new MockHttpServletResponse()));
+
+        assertNull(body.getFilters(), "an error is written as it is");
     }
 
     @Test

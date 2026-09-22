@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -168,8 +169,8 @@ class AbstractExecutionResultRegistryTest {
 
     @Test
     void cancelIfAny_empty() {
-        // Should not throw
-        registry.cancelIfAny();
+        assertDoesNotThrow(registry::cancelIfAny);
+        assertFalse(registry.hasTask(projectId));
     }
 
     @Test
@@ -200,8 +201,8 @@ class AbstractExecutionResultRegistryTest {
 
     @Test
     void clear_empty() {
-        // Should not throw
-        registry.clear();
+        assertDoesNotThrow(registry::clear);
+        assertFalse(registry.hasTask(projectId));
     }
 
     @Test

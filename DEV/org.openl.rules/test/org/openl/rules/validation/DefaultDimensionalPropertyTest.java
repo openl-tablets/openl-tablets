@@ -1,5 +1,9 @@
 package org.openl.rules.validation;
 
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
@@ -14,7 +18,10 @@ class DefaultDimensionalPropertyTest extends BaseOpenlBuilderHelper {
 
     @Test
     void testError() {
-        getCompiledOpenClass().getOpenClass();
+        var compiledOpenClass = getCompiledOpenClass();
+
+        assertFalse(compiledOpenClass.hasErrors(), () -> compiledOpenClass.getAllMessages().toString());
+        assertNotNull(compiledOpenClass.getOpenClass());
     }
 
 }

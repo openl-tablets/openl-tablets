@@ -272,6 +272,7 @@ class ModuleTest {
         var run = (double) (end - start) / N;
 
         log.info("TestModule: Result: {}. Elapsed time = {}.", res, run);
+        assertEquals(Boolean.TRUE, res);
 
     }
 
