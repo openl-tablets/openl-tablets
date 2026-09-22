@@ -46,11 +46,11 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         var i = value.length() - 1;
         while (i >= 0) {
             if (d > 0) {
-                if (value.charAt(i) != Character.MAX_CODE_POINT) {
+                if (value.charAt(i) != Character.MAX_VALUE) {
                     sb.append((char) (value.charAt(i) + d));
                     d = 0;
                 } else {
-                    sb.append(Character.MIN_CODE_POINT);
+                    sb.append(Character.MIN_VALUE);
                 }
             } else {
                 sb.append(value.charAt(i));
