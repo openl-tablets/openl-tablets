@@ -350,7 +350,7 @@ class TableCopyServiceTest {
         var grid = table.table().getGridTable();
         grid.edit();
         try {
-            new TableEditorModel(table.table()).setProperty(name, value);
+            new TableEditorModel(table.table()).setProperty(name, TablePropertyText.parse(name, value));
         } finally {
             grid.stopEditing();
         }

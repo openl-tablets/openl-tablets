@@ -1,0 +1,3 @@
+GET /rest/projects/EPBDS-16667/tables/9e39487ed81a96758321075f396df297?raw=true&module=TestModuleCategoryInheritedProperties HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

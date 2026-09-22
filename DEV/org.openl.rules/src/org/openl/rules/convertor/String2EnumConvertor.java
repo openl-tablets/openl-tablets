@@ -1,5 +1,7 @@
 package org.openl.rules.convertor;
 
+import org.openl.util.EnumUtils;
+
 class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E> {
 
     private final Class<E> enumType;
@@ -14,13 +16,11 @@ class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E
             return null;
         }
 
-        for (E enumConstant : enumType.getEnumConstants()) {
-            if (data.equalsIgnoreCase(enumConstant.name())) {
-                return enumConstant;
-            }
+        var constant = EnumUtils.valueOf(enumType, data);
+        if (constant == null) {
+            throw new IllegalArgumentException("Constant corresponding to value '%s' cannot be found in Enum %s "
+                    .formatted(data, enumType.getName()));
         }
-
-        throw new IllegalArgumentException("Constant corresponding to value '%s' cannot be found in Enum %s "
-                .formatted(data, enumType.getName()));
+        return enumType.cast(constant);
     }
 }

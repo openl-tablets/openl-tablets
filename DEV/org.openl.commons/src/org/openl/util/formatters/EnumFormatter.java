@@ -10,9 +10,11 @@ public class EnumFormatter implements IFormatter {
 
 
     private final Class<?> enumClass;
+    private final Object[] constants;
 
     public EnumFormatter(Class<?> enumType) {
         this.enumClass = enumType;
+        this.constants = EnumUtils.getEnumConstants(enumType);
     }
 
     @Override
@@ -26,12 +28,19 @@ public class EnumFormatter implements IFormatter {
         return EnumUtils.getName((Enum<?>) value);
     }
 
+    /**
+     * The constant of the enumeration the whole text names.
+     *
+     * <p>The name is matched ignoring case, the way {@link EnumUtils#valueOf} reads it, so a value written by
+     * hand in another case is still the value it names.
+     */
     @Override
     public Object parse(String value) {
-        if (value == null) {
-            return null;
+        var constant = EnumUtils.valueOf(constants, value);
+        if (constant == null) {
+            log.debug("Could not parse {}: {}", enumClass, value);
         }
-        return EnumUtils.valueOf(enumClass, value);
+        return constant;
     }
 
 }

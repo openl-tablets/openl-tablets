@@ -161,7 +161,7 @@ public class TableCopyServiceImpl implements TableCopyService {
     private void standDown(IOpenLTable source) {
         var editor = new TableEditorModel(source);
         editor.setProperty(TableVersionService.VERSION_PROPERTY, versionService.currentVersion(source));
-        editor.setProperty(TableVersionService.ACTIVE_PROPERTY, Boolean.FALSE.toString());
+        editor.setProperty(TableVersionService.ACTIVE_PROPERTY, Boolean.FALSE);
     }
 
     private static String build(IOpenLTable source, IGridTable original, String newName,

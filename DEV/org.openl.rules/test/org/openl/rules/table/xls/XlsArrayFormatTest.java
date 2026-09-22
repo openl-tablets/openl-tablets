@@ -66,6 +66,27 @@ class XlsArrayFormatTest {
     }
 
     @Test
+    void readsEveryConstantTheTextNamesWhateverCaseItIsWrittenIn() {
+        var arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
+
+        var result = (TestConstants[]) arrayFormat.parse("TEST_CONST_1,test_const_2");
+
+        assertNotNull(result);
+        assertEquals(2, result.length);
+        assertEquals(TestConstants.TEST_CONST_1, result[0]);
+        assertEquals(TestConstants.TEST_CONST_2, result[1]);
+    }
+
+    @Test
+    void readsNoArrayOutOfTextNamingAConstantTheEnumDoesNotHave() {
+        var arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
+
+        // The display name is not the constant's name, so it names no constant of this enumeration.
+        assertNull(arrayFormat.parse("Test Constant 1"));
+        assertNull(arrayFormat.parse("TEST_CONST_1,TEST_CONST_3"));
+    }
+
+    @Test
     void testFormatNull() {
         var arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
 
