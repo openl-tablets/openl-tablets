@@ -308,6 +308,8 @@ OpenL Tablets module tables are listed in the module tree. Table types are repre
 
 For more information on table types, see [OpenL Tablets Reference Guide](https://openldocs.readthedocs.io/en/latest/documentation/guides/reference_guide/). If a table contains an error, a small red cross is displayed in the corner of the icon.
 
+The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Details** pane offers none for it.
+
 To view contents of a particular table, in the module tree, select the table. The table is displayed in the middle pane. If the project is not in the **In Editing** status, the table can be viewed but cannot be modified.
 
 ### Modifying Tables
@@ -564,7 +566,7 @@ Advanced search allows specifying criteria to narrow the search through tables. 
 
     *Specifying search area*
 
-1.  In the filter form, click the **Table Types** field and select the required table type or select **Select All** to search in all table types.
+1.  In the filter form, click the **Table Types** field and select the required table type or select **Select All** to search in all table types. The utility tables, of the type **Other**, are found only when that type is selected.
 2.  In the **Header contains** field, enter the word or phrase to search for.
 3.  Expand the **Table Properties** list, select the required table property, and then click the **Add** button on the right.
 

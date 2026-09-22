@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useUserStore } from '../../store'
 import { useTranslation } from 'react-i18next'
-import { Button, Empty, Input, Select, Tooltip, Tree } from 'antd'
-import { CheckCircleFilled, FilterOutlined } from '@ant-design/icons'
+import { Button, Checkbox, Empty, Input, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
+import { CheckCircleFilled, FilterOutlined, SlidersOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import { COMPILE_COLORS } from '../projects/projectsTheme'
@@ -38,11 +38,8 @@ const useStyles = createStyles(({ css, token }) => ({
         padding: 8px 12px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
-    picker: css`
-        margin-top: 8px;
-    `,
-    /** The search sits above the grouping, as the Editor kept it above its tree. */
-    search: css`
+    /** The search, and under it the grouping with its filter beside it, as the Editor kept them, set apart. */
+    control: css`
         margin-top: 8px;
     `,
     /**
@@ -193,6 +190,16 @@ interface ModuleTablesTreeProps {
     onSelectTable: (table: ModuleTable) => void
     /** Opens the extended search, carrying what the reader has typed so far. */
     onExtendedSearch: (typed: string) => void
+    /** Whether the free-form tables — the ones OpenL does not recognize — are listed with the rest. */
+    showOther: boolean
+    /** Asks for the free-form tables to be listed, or to be left out again. */
+    onShowOther: (shown: boolean) => void
+    /**
+     * Set while the list on screen is being read again, with or without the free-form tables. The list stays
+     * on screen, dimmed, so the reader keeps their place; the filter is held while any list is on its way, or
+     * a choice made in it would start a second read of the same module beside the one in flight.
+     */
+    reloading: boolean
 }
 
 /**
@@ -205,12 +212,19 @@ interface ModuleTablesTreeProps {
  *
  * The tree stands closed except along the way down to the table being read, so a module of hundreds of tables
  * opens as a short list rather than as everything at once.
+ *
+ * The free-form tables are not in the list unless asked for, as the Editor's tree hid its utility tables until
+ * its filter dialog said otherwise; the rail keeps that dialog behind the sliders beside the grouping, and the
+ * server lists them on the choice made there.
  */
 export const ModuleTablesTree = ({
     tables,
     selectedTableId,
     onSelectTable,
     onExtendedSearch,
+    showOther,
+    onShowOther,
+    reloading,
 }: ModuleTablesTreeProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -221,6 +235,9 @@ export const ModuleTablesTree = ({
     const preferredView = useUserStore(state => state.userProfile?.treeView)
     const [expanded, setExpanded] = useState<string[]>([])
     const [search, setSearch] = useState('')
+    // The filter dialog works on a copy of the choice, applied or thrown away when it closes, as the Editor's did.
+    const [filterOpen, setFilterOpen] = useState(false)
+    const [draftOther, setDraftOther] = useState(showOther)
     // The tree draws the rows that fit and no more, so it has to be told what fits.
     const bodyRef = useRef<HTMLDivElement>(null)
     const [body, setBody] = useState({ height: 0, width: 0 })
@@ -288,12 +305,14 @@ export const ModuleTablesTree = ({
     }
 
     /**
-     * What the rail draws: the tables of the module being read — nothing while they are still being read,
-     * and a word when the search matched none of them.
+     * What the rail draws: the tables of the module being read — the shape of a list while they are still on
+     * their way, and a word when the search matched none of them.
      */
     const railBody = () => {
         if (tables === null) {
-            return null
+            return (
+                <Skeleton active className={styles.state} paragraph={{ rows: 8 }} title={false} />
+            )
         }
         if (shown.length === 0) {
             return (
@@ -330,7 +349,7 @@ export const ModuleTablesTree = ({
             <div className={styles.top}>
                 <Input
                     allowClear
-                    className={styles.search}
+                    className={styles.control}
                     data-testid="module-tables-search"
                     onChange={event => setSearch(event.target.value)}
                     placeholder={t('browser.module.search_placeholder')}
@@ -349,22 +368,60 @@ export const ModuleTablesTree = ({
                         </Tooltip>
                     )}
                 />
-                <Select
-                    className={styles.picker}
-                    data-testid="module-tables-view"
-                    options={viewOptions}
-                    size="small"
-                    style={{ width: '100%' }}
-                    value={view}
-                    onChange={chosen => {
-                        setView(chosen)
-                        saveView(chosen)
-                    }}
-                />
+                <Space.Compact className={cx(shared.compactField, styles.control)}>
+                    <Select
+                        data-testid="module-tables-view"
+                        options={viewOptions}
+                        size="small"
+                        value={view}
+                        onChange={chosen => {
+                            setView(chosen)
+                            saveView(chosen)
+                        }}
+                    />
+                    <Tooltip title={t('browser.module.filter')}>
+                        <Button
+                            aria-label={t('browser.module.filter')}
+                            data-testid="module-tables-filter"
+                            disabled={reloading || tables === null}
+                            icon={<SlidersOutlined />}
+                            size="small"
+                            onClick={() => {
+                                setDraftOther(showOther)
+                                setFilterOpen(true)
+                            }}
+                        />
+                    </Tooltip>
+                </Space.Compact>
             </div>
             <div ref={bodyRef} className={styles.body}>
-                {railBody()}
+                <Spin data-testid="module-tables-reloading" spinning={reloading}>
+                    {railBody()}
+                </Spin>
             </div>
+            <Modal
+                cancelText={t('common:btn.cancel')}
+                okText={t('common:btn.apply')}
+                onCancel={() => setFilterOpen(false)}
+                open={filterOpen}
+                title={t('browser.module.filter')}
+                width={420}
+                onOk={() => {
+                    setFilterOpen(false)
+                    if (draftOther !== showOther) {
+                        onShowOther(draftOther)
+                    }
+                }}
+            >
+                <Checkbox
+                    checked={draftOther}
+                    data-testid="module-tables-other"
+                    onChange={event => setDraftOther(event.target.checked)}
+                >
+                    {t('browser.module.show_other')}
+                </Checkbox>
+                <Typography.Paragraph type="secondary">{t('browser.module.show_other_hint')}</Typography.Paragraph>
+            </Modal>
         </aside>
     )
 }

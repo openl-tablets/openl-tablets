@@ -26,6 +26,14 @@ export const loadView = (preferred?: string): TableView =>
 
 export const saveView = (view: TableView): void => writeJson(STORAGE_KEY, view)
 
+const OTHER_STORAGE_KEY = 'openl.module.otherTables'
+
+/** Whether this browser last chose to list the free-form tables — the ones OpenL does not recognize. */
+export const loadShowOther = (): boolean =>
+    readJson(OTHER_STORAGE_KEY, false, (value): value is boolean => typeof value === 'boolean')
+
+export const saveShowOther = (shown: boolean): void => writeJson(OTHER_STORAGE_KEY, shown)
+
 /** Reads a label of the tree in the user's language. */
 type Translate = (key: string) => string
 

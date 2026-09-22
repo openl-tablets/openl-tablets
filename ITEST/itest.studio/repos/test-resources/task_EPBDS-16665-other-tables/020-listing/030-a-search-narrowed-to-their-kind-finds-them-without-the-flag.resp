@@ -1,0 +1,29 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "86f2a2a7572c12e4c058bdbf7e8d303a",
+      "tableType": "Other",
+      "kind": "Other",
+      "name": "Test123",
+      "file": "EPBDS-16665/rules/Notes.xlsx",
+      "sheet": "Rules",
+      "pos": "B9:C10"
+    },
+    {
+      "id": "fa1f860f74ff3564bc44fecf9b80fcfc",
+      "tableType": "Other",
+      "kind": "Other",
+      "name": "Test123",
+      "file": "EPBDS-16665/rules/Notes.xlsx",
+      "sheet": "Rules",
+      "pos": "B14:C15"
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 2,
+  "numberOfElements": 2,
+  "total": 2
+}

@@ -7,6 +7,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITable;
 import org.openl.studio.projects.model.tables.LookupView;
@@ -185,6 +186,26 @@ public abstract class OpenLTableUtils {
      */
     public static boolean hasBody(IOpenLTable table) {
         return table.getSyntaxNode().getTableBody() != null;
+    }
+
+    /**
+     * Checks if provided table is a free-form one: a table OpenL does not recognize and never compiles.
+     *
+     * @param table table to check
+     * @return {@code true} if provided table is a free-form table, {@code false} otherwise
+     */
+    public static boolean isFreeFormTable(IOpenLTable table) {
+        return isFreeFormTable(table.getSyntaxNode());
+    }
+
+    /**
+     * Checks if the table of the given syntax node is a free-form one.
+     *
+     * @param tsn syntax node of the table to check
+     * @return {@code true} if the table is a free-form table, {@code false} otherwise
+     */
+    public static boolean isFreeFormTable(TableSyntaxNode tsn) {
+        return XlsNodeTypes.getEnumByValue(tsn.getType()) == XlsNodeTypes.XLS_OTHER;
     }
 
     /**

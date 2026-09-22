@@ -42,10 +42,10 @@ public class ProjectTableCriteriaQuery {
     }
 
     /**
-     * Tells whether free-form tables take part in the search.
+     * Tells whether free-form tables take part in a search that names no kind.
      *
-     * <p>They are left out by default: a table OpenL does not recognize carries no kind, no name and no properties to
-     * match on, so it only adds noise to a browsing query.
+     * <p>They are left out by default: a table OpenL does not recognize has no signature and no properties to match
+     * on, so it only adds noise to a browsing query. A search that names kinds says for itself what takes part.
      */
     public boolean isIncludeOther() {
         return includeOther;

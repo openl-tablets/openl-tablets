@@ -54,6 +54,10 @@ class SummaryTableReaderTest {
             // A table an author has only begun: a header with nothing under it.
             row(sheet, 24, "Spreadsheet ");
 
+            // A table OpenL does not recognize: a note an author left beside the rules.
+            row(sheet, 26, "Reviewed by the underwriters", "May");
+            row(sheet, 27, "Rates", "confirmed");
+
             try (OutputStream out = Files.newOutputStream(projectDir.resolve("Rules.xlsx"))) {
                 workbook.write(out);
             }
@@ -109,6 +113,16 @@ class SummaryTableReaderTest {
         // Every table of the module is read on the way to this one: the unfinished table is listed by its kind
         // with the others, rather than failing the module's listing.
         assertEquals("Spreadsheet", tables("Spreadsheet").getFirst().tableType);
+    }
+
+    @Test
+    void readsAFreeFormTableByWhatItsFirstCellSays() {
+        var note = tables("Reviewed by the underwriters").getFirst();
+
+        // No kind word starts it, so nothing of the first cell is a line of its own: the tree names the table by
+        // the whole of it, and nothing is said in its place.
+        assertNull(note.signature);
+        assertEquals(TableKind.OTHER, note.kind);
     }
 
     @Test

@@ -1,5 +1,5 @@
 import apiCall from 'services/apiCall'
-import { cancelModuleCompilation, getRawTable, startModuleCompilation } from 'services/modules'
+import { cancelModuleCompilation, getModuleTables, getRawTable, startModuleCompilation } from 'services/modules'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('services/apiCall', async () => {
@@ -30,6 +30,22 @@ describe('modules service', () => {
 
         expect(mockApiCall).toHaveBeenCalledWith(
             '/projects/p1/modules/Bank%20Rating/compile', { method: 'DELETE' }, expect.anything())
+    })
+
+    it('lists the tables of a module, the free-form ones only when they are asked for', async () => {
+        await getModuleTables('p1', 'Bank Rating')
+
+        const [listed] = mockApiCall.mock.calls[0] as [string]
+        expect(listed).toContain('/projects/p1/tables?')
+        expect(listed).toContain('module=Bank+Rating')
+        expect(listed).toContain('unpaged=true')
+        // Left out by default, as the Editor's tree hid them: they take no part in the rules.
+        expect(listed).not.toContain('includeOther')
+
+        await getModuleTables('p1', 'Bank Rating', { includeOther: true })
+
+        const [withOther] = mockApiCall.mock.calls[1] as [string]
+        expect(withOther).toContain('includeOther=true')
     })
 
     it('reads a table through the module it belongs to, a window at a time', async () => {

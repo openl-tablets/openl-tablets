@@ -1,0 +1,33 @@
+POST /rest/projects/EPBDS-16665/tables/86f2a2a7572c12e4c058bdbf7e8d303a/actions/batch?module=Notes HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "actions": [
+    {
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 1,
+        "column": 1,
+        "value": "confirmed by June"
+      }
+    },
+    {
+      "operation": "append",
+      "target": {
+        "type": "rows",
+        "cells": [
+          [
+            {
+              "value": "July"
+            },
+            {
+              "value": "signed off"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+PATCH /rest/projects/EPBDS-16665/tables/86f2a2a7572c12e4c058bdbf7e8d303a/properties?module=Notes HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "properties": [
+    {
+      "name": "description",
+      "value": "Notes of the underwriters"
+    }
+  ]
+}

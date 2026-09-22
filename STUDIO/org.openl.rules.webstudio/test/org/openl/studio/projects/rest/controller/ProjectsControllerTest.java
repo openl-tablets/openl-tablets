@@ -1,8 +1,10 @@
 package org.openl.studio.projects.rest.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -10,11 +12,13 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -23,6 +27,7 @@ import org.mockito.ArgumentCaptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Page;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
@@ -52,6 +57,7 @@ import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
+import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
@@ -205,6 +211,23 @@ class ProjectsControllerTest {
 
         assertEquals(expected, controller.getTableProperties(project, "table-id"));
         verify(projectService).getTableProperties(project, "table-id");
+    }
+
+    @Test
+    void getTablesCarriesTheAskForFreeFormTablesToTheQuery() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService, mock(ProjectStatusMapper.class));
+        var project = mock(RulesProject.class);
+        var page = Pageable.unpaged();
+        var query = ArgumentCaptor.forClass(ProjectTableCriteriaQuery.class);
+
+        controller.getTables(project, Map.of(), null, null, "Main", null, null, null, true, page);
+        controller.getTables(project, Map.of(), null, null, "Main", null, null, null, false, page);
+
+        verify(projectService, times(2)).getTables(eq(project), query.capture(), eq(page));
+        // The tree asks for the free-form tables with the flag; without it they are left out, as they always were.
+        assertTrue(query.getAllValues().get(0).isIncludeOther());
+        assertFalse(query.getAllValues().get(1).isIncludeOther());
     }
 
     @Test

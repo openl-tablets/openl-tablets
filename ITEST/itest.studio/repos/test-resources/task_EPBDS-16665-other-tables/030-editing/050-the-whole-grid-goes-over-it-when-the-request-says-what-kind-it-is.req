@@ -1,0 +1,34 @@
+PUT /rest/projects/EPBDS-16665/tables/86f2a2a7572c12e4c058bdbf7e8d303a?module=Notes HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "RawSource",
+  "kind": "Other",
+  "source": [
+    [
+      {
+        "value": "Test123"
+      },
+      {
+        "value": "reviewed"
+      }
+    ],
+    [
+      {
+        "value": "May"
+      },
+      {
+        "value": "confirmed"
+      }
+    ],
+    [
+      {
+        "value": "July"
+      },
+      {
+        "value": "signed off"
+      }
+    ]
+  ]
+}
