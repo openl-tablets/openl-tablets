@@ -32,14 +32,13 @@ public class SecurityContextHandshakeInterceptor implements HandshakeInterceptor
                                    WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) {
 
-        if (attributes.containsKey(SPRING_SECURITY_CONTEXT_KEY)) {
-            // Security context is already provided by the HTTP session.
-            return true;
-        }
-        var securityContext = SecurityContextHolder.getContext();
-        var auth = securityContext.getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
-            attributes.put(SPRING_SECURITY_CONTEXT_KEY, securityContext);
+        // A security context provided by the HTTP session is left as it is.
+        if (!attributes.containsKey(SPRING_SECURITY_CONTEXT_KEY)) {
+            var securityContext = SecurityContextHolder.getContext();
+            var auth = securityContext.getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                attributes.put(SPRING_SECURITY_CONTEXT_KEY, securityContext);
+            }
         }
         return true;
     }
