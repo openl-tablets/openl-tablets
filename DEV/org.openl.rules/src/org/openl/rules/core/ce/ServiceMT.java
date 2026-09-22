@@ -4,6 +4,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import org.openl.vm.SimpleRuntimeEnv;
 
 public final class ServiceMT {
 
-    private volatile ForkJoinPool forkJoinPool;
+    private final AtomicReference<ForkJoinPool> forkJoinPool = new AtomicReference<>();
 
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();
@@ -26,13 +27,13 @@ public final class ServiceMT {
     }
 
     private ForkJoinPool pool() {
-        var pool = forkJoinPool;
+        var pool = forkJoinPool.get();
         if (pool == null || pool.isShutdown()) {
             synchronized (this) {
-                pool = forkJoinPool;
+                pool = forkJoinPool.get();
                 if (pool == null || pool.isShutdown()) {
                     pool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
-                    forkJoinPool = pool;
+                    forkJoinPool.set(pool);
                 }
             }
         }
@@ -49,8 +50,7 @@ public final class ServiceMT {
     public void shutdown() {
         ForkJoinPool pool;
         synchronized (this) {
-            pool = forkJoinPool;
-            forkJoinPool = null;
+            pool = forkJoinPool.getAndSet(null);
         }
         if (pool == null) {
             return;

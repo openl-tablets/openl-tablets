@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 
@@ -28,7 +29,7 @@ public abstract class ADynamicClass extends AOpenClass {
     @Getter
     private final String name;
 
-    protected volatile Map<String, IOpenField> fieldsByName;
+    private final AtomicReference<Map<String, IOpenField>> fieldsByName = new AtomicReference<>();
 
     @Getter
     protected Class<?> instanceClass;
@@ -36,7 +37,7 @@ public abstract class ADynamicClass extends AOpenClass {
     protected ADynamicClass(String name, Class<?> instanceClass) {
         this.name = name;
         this.instanceClass = instanceClass;
-        this.fieldsByName = fieldMap();
+        fieldMap();
     }
 
     public void addField(IOpenField field) throws DuplicatedFieldException {
@@ -124,14 +125,26 @@ public abstract class ADynamicClass extends AOpenClass {
 
     @Override
     protected Map<String, IOpenField> fieldMap() {
-        if (fieldsByName == null) {
+        var fields = fieldsByName.get();
+        if (fields == null) {
             synchronized (this) {
-                if (fieldsByName == null) {
-                    fieldsByName = new HashMap<>();
+                fields = fieldsByName.get();
+                if (fields == null) {
+                    fields = newFieldMap();
+                    fieldsByName.set(fields);
                 }
             }
         }
-        return fieldsByName;
+        return fields;
+    }
+
+    /**
+     * Creates the empty map the fields of the class are kept in, by name.
+     *
+     * A subclass may choose a map that keeps the fields in the order they were added.
+     */
+    protected Map<String, IOpenField> newFieldMap() {
+        return new HashMap<>();
     }
 
     @Override

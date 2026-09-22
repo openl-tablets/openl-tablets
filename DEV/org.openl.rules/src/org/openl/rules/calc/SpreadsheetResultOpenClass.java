@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 
@@ -32,7 +33,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private XlsModuleOpenClass module;
     private final Map<String, IOpenField> strictMatchCache = new HashMap<>();
     private final Map<String, IOpenField> noStrictMatchCache = new HashMap<>();
-    private volatile CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
+    private final AtomicReference<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClass =
+            new AtomicReference<>();
     private final Map<String, IOpenField> strictBlankCache = new HashMap<>();
     private final Map<String, IOpenField> noStrictBlankCache = new HashMap<>();
 
@@ -158,9 +160,11 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     }
 
     public CustomSpreadsheetResultOpenClass toCustomSpreadsheetResultOpenClass() {
-        if (this.customSpreadsheetResultOpenClass == null) {
+        var result = customSpreadsheetResultOpenClass.get();
+        if (result == null) {
             synchronized (this) {
-                if (this.customSpreadsheetResultOpenClass == null) {
+                result = customSpreadsheetResultOpenClass.get();
+                if (result == null) {
                     // HERE
                     var anySpreadsheetResultName = "AnySpreadsheetResult";
                     var i = 0;
@@ -176,23 +180,26 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                                 .anyMatch(t -> t.getName()
                                         .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
                     }
-                    var customSpreadsheetResultOpenClass = new CustomAnySpreadsheetResultOpenClass(
+                    var anySpreadsheetResult = new CustomAnySpreadsheetResultOpenClass(
                             anySpreadsheetResultName,
                             this.module,
                             null,
                             false);
                     for (IOpenClass openClass : module.getTypes()) {
-                        if (openClass instanceof CustomSpreadsheetResultOpenClass csrop && this.customSpreadsheetResultOpenClass == null) {
-                            customSpreadsheetResultOpenClass.updateWithType(csrop);
+                        if (openClass instanceof CustomSpreadsheetResultOpenClass csrop
+                                && customSpreadsheetResultOpenClass.get() == null) {
+                            anySpreadsheetResult.updateWithType(csrop);
                         }
                     }
-                    if (this.customSpreadsheetResultOpenClass == null) {
-                        this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
+                    result = customSpreadsheetResultOpenClass.get();
+                    if (result == null) {
+                        result = anySpreadsheetResult;
+                        customSpreadsheetResultOpenClass.set(result);
                     }
                 }
             }
         }
-        return this.customSpreadsheetResultOpenClass;
+        return result;
     }
 
     @Override

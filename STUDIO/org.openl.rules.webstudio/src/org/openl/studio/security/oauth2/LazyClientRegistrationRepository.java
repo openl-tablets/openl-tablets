@@ -1,5 +1,8 @@
 package org.openl.studio.security.oauth2;
 
+
+import java.util.concurrent.atomic.AtomicReference;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertyResolver;
@@ -21,7 +24,7 @@ import org.openl.util.StringUtils;
 public class LazyClientRegistrationRepository implements ClientRegistrationRepository {
 
 
-    private volatile ClientRegistrationRepository clientRegistrationRepository;
+    private final AtomicReference<ClientRegistrationRepository> clientRegistrationRepository = new AtomicReference<>();
     private final PropertyResolver propertyResolver;
 
     private void init() {
@@ -35,7 +38,7 @@ public class LazyClientRegistrationRepository implements ClientRegistrationRepos
                     .authorizationGrantType(
                             new AuthorizationGrantType(propertyResolver.getProperty("security.oauth2.grant-type")))
                     .build();
-            clientRegistrationRepository = new InMemoryClientRegistrationRepository(clientRegistration);
+            clientRegistrationRepository.set(new InMemoryClientRegistrationRepository(clientRegistration));
         } catch (Exception e) {
             log.warn("", e);
         }
@@ -43,14 +46,16 @@ public class LazyClientRegistrationRepository implements ClientRegistrationRepos
 
     @Override
     public ClientRegistration findByRegistrationId(String registrationId) {
-        if (clientRegistrationRepository == null) {
+        var repository = clientRegistrationRepository.get();
+        if (repository == null) {
             synchronized (this) {
-                if (clientRegistrationRepository == null) {
+                repository = clientRegistrationRepository.get();
+                if (repository == null) {
                     init();
+                    repository = clientRegistrationRepository.get();
                 }
             }
         }
-        return clientRegistrationRepository != null ? clientRegistrationRepository.findByRegistrationId(registrationId)
-                : null;
+        return repository != null ? repository.findByRegistrationId(registrationId) : null;
     }
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 import lombok.Getter;
@@ -118,7 +119,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * session moves between modules and projects. Building the one that happens to be open next instead would
      * rebuild a module nobody wrote to and leave the written one answering from the workbook it used to have.
      */
-    private volatile Module rewrittenModule;
+    private final AtomicReference<Module> rewrittenModule = new AtomicReference<>();
     /**
      * The module whose workbook a write has changed while compiling is the reader's to ask for, waiting for
      * them to ask.
@@ -127,7 +128,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * back to this one, and opening another module must neither take the request away nor spend it on a module
      * nobody wrote to.
      */
-    private volatile Module moduleToVerify;
+    private final AtomicReference<Module> moduleToVerify = new AtomicReference<>();
     private final Map<String, Object> externalProperties;
 
     private final RulesUserSession rulesUserSession;
@@ -449,7 +450,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * session holds in a state that answers for nothing, and it has to be read again before anything else is.
      */
     public synchronized void rebuildCurrentModule() {
-        rewrittenModule = getCurrentModule();
+        rewrittenModule.set(getCurrentModule());
         // What the session holds about the module was worked out from the workbook as it was before the write:
         // the compilation it followed, the results of the tests it ran, the trace it kept. None of that answers
         // for the module any more, so it is dropped — and the status says the module is waiting to be compiled
@@ -471,7 +472,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             rebuildCurrentModule();
             return;
         }
-        moduleToVerify = getCurrentModule();
+        moduleToVerify.set(getCurrentModule());
         publishWorkspaceReset();
     }
 
@@ -486,7 +487,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * project, and a reader of one field has no business waiting behind that.
      */
     public boolean isAwaitingRecompile() {
-        return rewrittenModule != null;
+        return rewrittenModule.get() != null;
     }
 
     /** Tells the session's caches that what they hold was worked out from a workbook that has since changed. */
@@ -537,7 +538,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public boolean isManualCompileNeeded() {
-        return !isAutoCompile() && moduleToVerify != null;
+        return !isAutoCompile() && moduleToVerify.get() != null;
     }
 
     public void invokeManualCompile() {
@@ -587,10 +588,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
             boolean anotherModuleOpened = !ProjectModel.isSameModule(currentModule, module);
             // The module a write changed is built from its workbook again the next time it is opened, and only
             // it — a write elsewhere leaves this one alone, and opening another module does not consume it.
-            boolean rewritten = ProjectModel.isSameModule(rewrittenModule, module);
+            boolean rewritten = ProjectModel.isSameModule(rewrittenModule.get(), module);
             // The reader asked for the module a write left them to compile. Asked for by name: Verify on
             // another module compiles that one and leaves this request standing.
-            boolean verifying = manualCompile && ProjectModel.isSameModule(moduleToVerify, module);
+            boolean verifying = manualCompile && ProjectModel.isSameModule(moduleToVerify.get(), module);
             boolean anotherProjectOpened = anotherRepositoryOpened
                     || !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
                             .getProject()
@@ -642,10 +643,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 forcedCompile = false;
                 manualCompile = false;
                 if (rewritten) {
-                    rewrittenModule = null;
+                    rewrittenModule.set(null);
                 }
                 if (verifying) {
-                    moduleToVerify = null;
+                    moduleToVerify.set(null);
                 }
             }
         } catch (Exception e) {

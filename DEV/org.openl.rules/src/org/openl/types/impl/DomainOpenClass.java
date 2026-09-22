@@ -2,6 +2,7 @@ package org.openl.types.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,7 @@ import org.openl.vm.IRuntimeEnv;
  * {@link IOpenClass} implementation, that adds restriction for instances of this class by {@link IDomain}
  */
 public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
-    private volatile StaticOpenClass staticOpenClass;
+    private final AtomicReference<StaticOpenClass> staticOpenClass = new AtomicReference<>();
 
     @Getter
     @Setter
@@ -309,14 +310,17 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public IOpenClass toStaticClass() {
-        if (staticOpenClass == null) {
+        var staticClass = staticOpenClass.get();
+        if (staticClass == null) {
             synchronized (this) {
-                if (staticOpenClass == null) {
-                    staticOpenClass = new StaticDomainOpenClass(this);
+                staticClass = staticOpenClass.get();
+                if (staticClass == null) {
+                    staticClass = new StaticDomainOpenClass(this);
+                    staticOpenClass.set(staticClass);
                 }
             }
         }
-        return staticOpenClass;
+        return staticClass;
     }
 
     @Override

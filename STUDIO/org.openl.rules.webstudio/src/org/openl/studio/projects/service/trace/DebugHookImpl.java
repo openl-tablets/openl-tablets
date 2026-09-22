@@ -71,7 +71,7 @@ final class DebugHookImpl implements DebugHook {
      */
     private boolean breakOnErrors = true;
     /** Cell names or refs whose value is captured on every execution of their table. May be updated mid-run. */
-    private volatile Set<String> watches = Set.of();
+    private final AtomicReference<Set<String>> watches = new AtomicReference<>(Set.of());
     /** Captured watched values, appended on the worker thread as cells compute. */
     private final List<WatchCapture> captures = new ArrayList<>();
     /** Per-table invocation counter, so each execution of a table gets a stable instance number. */
@@ -115,11 +115,11 @@ final class DebugHookImpl implements DebugHook {
 
     /** Watch a set of cells by name ({@code $...} label) or ref, capturing their value on every execution. */
     void setWatches(Set<String> watches) {
-        this.watches = Set.copyOf(watches);
+        this.watches.set(Set.copyOf(watches));
     }
 
     Set<String> getWatches() {
-        return watches;
+        return watches.get();
     }
 
     /** All watched-cell captures gathered so far. Read while the worker is parked or finished. */
@@ -190,7 +190,7 @@ final class DebugHookImpl implements DebugHook {
         if (executor instanceof ActionInvoker invoker) {
             top.recordFiredRules(invoker.getRules());
         }
-        if (!watches.isEmpty()) {
+        if (!watches.get().isEmpty()) {
             captureWatch(top, location, ref, result);
         }
         if (profiling && enclosing != null) {
@@ -283,7 +283,8 @@ final class DebugHookImpl implements DebugHook {
     /** Record a watched cell's value if this step is watched (by its name or ref), unless the cap is hit. */
     private void captureWatch(DebugFrame frame, CurrentLocation location, String ref, @Nullable Object value) {
         String label = location.label();
-        if (!watches.contains(ref) && (label == null || !watches.contains(label))) {
+        var watched = watches.get();
+        if (!watched.contains(ref) && (label == null || !watched.contains(label))) {
             return;
         }
         if (captures.size() >= MAX_WATCH_CAPTURES) {

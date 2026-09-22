@@ -23,15 +23,15 @@ class OpenLServiceTest {
 
     @Test
     void callNoService() {
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
         var ex = assertThrows(IllegalArgumentException.class, () -> {
             OpenLService.call("OpenLRulesService", "worldHello");
         });
         assertEquals("Service 'OpenLRulesService' is not found.", ex.getMessage());
-        assertNotNull(OpenLService.rulesFrontend);
-        assertTrue(OpenLService.rulesFrontend.getServiceNames().isEmpty());
+        assertNotNull(OpenLService.rulesFrontend.get());
+        assertTrue(OpenLService.rulesFrontend.get().getServiceNames().isEmpty());
         OpenLService.reset();
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
     }
 
     @Test
@@ -39,7 +39,7 @@ class OpenLServiceTest {
     @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
     @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
     void callService() throws Exception {
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
 
         assertEquals("World, Good Morning!", OpenLService.call("RulesFrontendTest_multimodule", "worldHello", 10));
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
@@ -51,8 +51,8 @@ class OpenLServiceTest {
         assertEquals("i: 5 s: null", OpenLService.call("RulesFrontendTest_multimodule", "worldHello", 5, null));
         assertEquals("i: null s: null", OpenLService.call("RulesFrontendTest_multimodule", "worldHello", null, null));
 
-        assertNotNull(OpenLService.rulesFrontend);
-        assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "RulesFrontendTest_multimodule", "simple/name"), OpenLService.rulesFrontend.getServiceNames());
+        assertNotNull(OpenLService.rulesFrontend.get());
+        assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "RulesFrontendTest_multimodule", "simple/name"), OpenLService.rulesFrontend.get().getServiceNames());
 
         // Reset without changing properties
         OpenLService.reset();
@@ -65,7 +65,7 @@ class OpenLServiceTest {
             OpenLService.call("RulesFrontendTest_multimodule", "worldHello", 10);
         });
         assertEquals("Service 'RulesFrontendTest_multimodule' is not found.", ex.getMessage());
-        assertEquals(Arrays.asList("first-hello", "second-hello", "third-hello"), OpenLService.rulesFrontend.getServiceNames());
+        assertEquals(Arrays.asList("first-hello", "second-hello", "third-hello"), OpenLService.rulesFrontend.get().getServiceNames());
         assertEquals("Hello First world", OpenLService.call("first-hello", "sayHello"));
         assertEquals("Hello Second world", OpenLService.call("second-hello", "sayHello"));
         assertEquals("Hello First world", OpenLService.call("third-hello", "sayHello"));
@@ -84,11 +84,11 @@ class OpenLServiceTest {
         });
         assertEquals("Service 'first-hello' is not found.", ex.getMessage());
 
-        assertTrue(OpenLService.rulesFrontend.getServiceNames().isEmpty());
+        assertTrue(OpenLService.rulesFrontend.get().getServiceNames().isEmpty());
 
         // Free resources
         OpenLService.reset();
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
     }
 
     @Test
@@ -96,7 +96,7 @@ class OpenLServiceTest {
     @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
     @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
     void callJsonService() throws Exception {
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
 
         assertEquals("Good Morning", OpenLService.callJSON("RulesFrontendTest_multimodule", "baseHello", "10"));
         var ex = assertThrows(IllegalArgumentException.class, () -> {
@@ -122,7 +122,7 @@ class OpenLServiceTest {
         assertTrue(OpenLService.callJSON("RulesFrontendTest_multimodule", "toString", null)
                 .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
 
-        assertNotNull(OpenLService.rulesFrontend);
+        assertNotNull(OpenLService.rulesFrontend.get());
         OpenLService.reset();
         System.setProperty("production-repository.uri", "no repo");
 
@@ -133,7 +133,7 @@ class OpenLServiceTest {
 
         // Free resources
         OpenLService.reset();
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
     }
 
     @Test
@@ -141,7 +141,7 @@ class OpenLServiceTest {
     @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
     @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
     void tryJsonService() {
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
 
         assertEquals("{\"result\":\"Good Morning\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "baseHello", "10"));
         assertEquals("{\"result\":null,\"error\":{\"message\":\"Non-unique 'worldHello' method name in service 'RulesFrontendTest_multimodule'. There are 2 methods with the same name.\",\"type\":\"SYSTEM\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "worldHello", "10"));
@@ -175,7 +175,7 @@ class OpenLServiceTest {
                  at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 8]","type":"BAD_REQUEST"}}\
                 """, OpenLService.tryJSON("RulesFrontendTest_multimodule", "twoArgs", "{\"s\":\"\"Mike\",\"i\":80}"));
 
-        assertNotNull(OpenLService.rulesFrontend);
+        assertNotNull(OpenLService.rulesFrontend.get());
         OpenLService.reset();
         System.setProperty("production-repository.uri", "no repo");
 
@@ -183,7 +183,7 @@ class OpenLServiceTest {
 
         // Free resources
         OpenLService.reset();
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
     }
 
     @Test
@@ -191,7 +191,7 @@ class OpenLServiceTest {
     @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
     @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
     void callJsonArrayService() throws Exception {
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
 
         assertEquals("Good Morning", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "baseHello", "10"));
         assertEquals("World, Good Morning!", OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "worldHello", "10"));
@@ -242,7 +242,7 @@ class OpenLServiceTest {
         assertTrue(OpenLService.callJSONArgs("RulesFrontendTest_multimodule", "toString")
                 .startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
 
-        assertNotNull(OpenLService.rulesFrontend);
+        assertNotNull(OpenLService.rulesFrontend.get());
         OpenLService.reset();
         System.setProperty("production-repository.uri", "no repo");
 
@@ -253,7 +253,7 @@ class OpenLServiceTest {
 
         // Free resources
         OpenLService.reset();
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
     }
 
     @Test
@@ -261,10 +261,10 @@ class OpenLServiceTest {
     @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
     @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
     void getService() throws Exception {
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
 
         assertNull(OpenLService.get("absent"));
-        assertNotNull(OpenLService.rulesFrontend);
+        assertNotNull(OpenLService.rulesFrontend.get());
         var serviceBean = OpenLService.get("RulesFrontendTest_multimodule");
         assertNotNull(serviceBean);
         assertSame(serviceBean, OpenLService.get("RulesFrontendTest_multimodule"));
@@ -283,7 +283,7 @@ class OpenLServiceTest {
 
         // Free resources
         OpenLService.reset();
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
     }
 
     @Test
@@ -291,16 +291,16 @@ class OpenLServiceTest {
     @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
     @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
     void proxyService() throws Exception {
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
 
         assertNotNull(OpenLService.proxy("absent", Proxy.class));
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
 
         var serviceBean = OpenLService.proxy("RulesFrontendTest_multimodule", Proxy.class);
         assertNotNull(serviceBean);
 
         assertEquals("i: 8 s: Peace", serviceBean.worldHello(8, "Peace"));
-        assertNotNull(OpenLService.rulesFrontend);
+        assertNotNull(OpenLService.rulesFrontend.get());
 
         assertTrue(serviceBean.toString().startsWith("org.openl.generated.interfaces.VirtualModule$$Proxy"));
 
@@ -319,14 +319,14 @@ class OpenLServiceTest {
 
         // Free resources
         OpenLService.reset();
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
     }
 
     @Test
     void reset() {
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
         OpenLService.reset();
-        assertNull(OpenLService.rulesFrontend);
+        assertNull(OpenLService.rulesFrontend.get());
     }
 
     public interface Proxy {

@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -52,8 +53,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private static final String DESIGN_REPOSITORIES = "design-repository-configs";
     private static final String PROJECT_DETECT_BY_EXCEL_FILES = "project.detect-by-excel-files";
 
-    @Getter
-    private volatile List<Repository> repositories;
+    private final AtomicReference<List<Repository>> repositories = new AtomicReference<>();
     @Getter
     private volatile String rulesLocation;
     private volatile boolean projectsRefreshNeeded = true;
@@ -85,13 +85,19 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         this.indexService = indexService;
     }
 
+    @Override
+    public List<Repository> getRepositories() {
+        return repositories.get();
+    }
+
     public void init() {
         synchronized (projects) {
-            if (repositories != null) {
+            if (repositories.get() != null) {
                 return;
             }
 
-            repositories = new ArrayList<>();
+            var repositoryList = new ArrayList<Repository>();
+            repositories.set(repositoryList);
 
             rulesLocation = getBasePath();
             var designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
@@ -100,7 +106,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
                 var repository = createRepo(repoId, rulesLocation);
 
-                repositories.add(repository);
+                repositoryList.add(repository);
                 if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
                     configuredBranchFallbacks.put(repository.getId(), scanProjects(repository));
                     // The callback runs after both the early default-branch snapshot and the complete one, so the
@@ -111,10 +117,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     repository.setListener(new RepositoryListener(() -> repositoryChanged(repository)));
                 }
             }
-            repositories = repositories.stream()
+            repositories.set(repositoryList.stream()
                     .filter(r -> Objects.nonNull(r.getName()))
                     .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
             refreshProjects();
         }
     }
@@ -361,7 +367,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public void refresh() {
         var hasNonBranchedRepository = false;
-        var currentRepositories = repositories;
+        var currentRepositories = repositories.get();
         if (currentRepositories == null) {
             synchronized (projects) {
                 projectsRefreshNeeded = true;
@@ -460,7 +466,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         projectsVersions.clear();
         branchedProjects.clear();
         exceptions.clear();
-        for (Repository repository : repositories) {
+        for (Repository repository : repositories.get()) {
             if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
                 var snapshot = indexService.getSnapshot(repository.getId());
                 if (!snapshot.published()) {
@@ -571,12 +577,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         destroyed = true;
         indexService.close();
         synchronized (projects) {
-            if (repositories != null) {
-                for (Repository repository : repositories) {
+            var currentRepositories = repositories.get();
+            if (currentRepositories != null) {
+                for (Repository repository : currentRepositories) {
                     repository.setListener(null);
                     repository.close();
                 }
-                repositories = null;
+                repositories.set(null);
             }
 
             projects.clear();
@@ -588,7 +595,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public Repository getRepository(String id) {
-        return repositories.stream()
+        return repositories.get().stream()
                 .filter(repository -> Objects.equals(id, repository.getId()))
                 .findFirst()
                 .orElse(null);

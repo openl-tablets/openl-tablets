@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -57,8 +58,8 @@ public class RulesEngineFactory<T> {
     @Setter
     private IDependencyManager dependencyManager;
     private final IRuntimeEnvBuilder runtimeEnvBuilder = () -> new SimpleRulesVM().getRuntimeEnv();
-    // Volatile is required for correct double locking checking pattern
-    private volatile OpenL openl;
+    // Published atomically for the double-checked locking in getOpenL()
+    private final AtomicReference<OpenL> openl = new AtomicReference<>();
 
     public RulesEngineFactory(String sourceFile) {
         sourceCode = new URLSourceCodeModule(sourceFile);
@@ -172,16 +173,16 @@ public class RulesEngineFactory<T> {
     }
 
     private OpenL getOpenL() {
-        var instance = openl;
+        var instance = openl.get();
         if (instance == null) {
             synchronized (this) {
-                instance = openl;
+                instance = openl.get();
                 if (instance == null) {
                     instance = new OpenL();
                     instance.setParser(new Parser());
                     instance.setBinder(new XlsBinder(new RulesCompileContext()));
                     instance.setVm(new SimpleRulesVM());
-                    openl = instance;
+                    openl.set(instance);
                 }
             }
         }

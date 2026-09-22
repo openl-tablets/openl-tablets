@@ -19,10 +19,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -86,7 +88,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private Map<String, Point> fieldsCoordinates;
     @Getter
     private final XlsModuleOpenClass module;
-    private volatile Class<?> beanClass;
+    private final AtomicReference<Class<?>> beanClass = new AtomicReference<>();
     @Getter
     private boolean simpleRefByRow;
     @Getter
@@ -98,11 +100,18 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     @Getter
     private ILogicalTable logicalTable;
 
-    private volatile byte[] beanClassByteCode;
+    private final AtomicReference<GeneratedBean> generatedBean = new AtomicReference<>();
     protected volatile String beanClassName;
-    volatile Map<String, List<IOpenField>> beanFieldsMap;
-    volatile Map<String, String> xmlNamesMap;
     private volatile boolean initializing;
+
+    /** The generated bean: its bytecode, the spreadsheet fields behind each of its fields and their XML names. */
+    @Getter
+    @RequiredArgsConstructor
+    private static final class GeneratedBean {
+        private final byte[] byteCode;
+        private final Map<String, List<IOpenField>> fieldsMap;
+        private final Map<String, String> xmlNames;
+    }
 
     private String[][] descriptions;
     @Getter
@@ -194,7 +203,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     public byte[] getBeanClassByteCode() {
-        return beanClassByteCode.clone();
+        return generatedBean.get().getByteCode().clone();
     }
 
     @Override
@@ -231,7 +240,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                          Collection<IOpenField> fields,
                                          boolean simpleRefByRow,
                                          boolean simpleRefByColumn) {
-        if (beanClass != null) {
+        if (beanClass.get() != null) {
             throw new IllegalStateException(
                     "Bean class for custom spreadsheet result is already generated. This spreadsheet result type cannot be extended.");
         }
@@ -322,7 +331,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public void updateWithType(IOpenClass openClass) {
-        if (beanClassByteCode != null) {
+        if (generatedBean.get() != null) {
             throw new IllegalStateException(
                     """
                     Java bean class for custom spreadsheet result is loaded to classloader. \
@@ -545,16 +554,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     public boolean isBeanClassInitialized() {
-        return beanClass != null;
+        return beanClass.get() != null;
     }
 
     public Class<?> getBeanClass() {
-        if (beanClass == null) {
+        var type = beanClass.get();
+        if (type == null) {
             synchronized (this) {
-                if (beanClass == null) {
+                type = beanClass.get();
+                if (type == null) {
                     try {
                         generateBeanClass();
-                        this.beanClass = getModule().getClassGenerationClassLoader().loadClass(getBeanClassName());
+                        type = getModule().getClassGenerationClassLoader().loadClass(getBeanClassName());
+                        beanClass.set(type);
                     } catch (Exception | LinkageError e) {
                         throw new IllegalStateException(
                                 "Failed to create bean class for '%s' spreadsheet result.".formatted(getName()),
@@ -563,13 +575,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 }
             }
         }
-        return beanClass;
+        return type;
     }
 
     protected void generateBeanClass() {
-        if (beanClassByteCode == null) {
+        if (generatedBean.get() == null) {
             synchronized (this) {
-                if (beanClassByteCode == null && !initializing) {
+                if (generatedBean.get() == null && !initializing) {
                     try {
                         initializing = true;
                         var xmlNames = new TreeMap<String, String>(FIELD_COMPARATOR);
@@ -586,9 +598,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         var bc = generateBytecode(beanClassName, beanFields);
                         getModule().getClassGenerationClassLoader().addGeneratedClass(beanClassName, bc);
 
-                        beanFieldsMap = Collections.unmodifiableMap(fieldsMap);
-                        xmlNamesMap = Collections.unmodifiableMap(xmlNames);
-                        beanClassByteCode = bc;
+                        generatedBean.set(new GeneratedBean(bc,
+                                Collections.unmodifiableMap(fieldsMap),
+                                Collections.unmodifiableMap(xmlNames)));
                     } finally {
                         initializing = false;
                     }
@@ -609,17 +621,24 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     public Map<String, List<IOpenField>> getBeanFieldsMap() {
-        if (beanFieldsMap == null) {
-            generateBeanClass();
-        }
-        return beanFieldsMap;
+        return generatedBean().getFieldsMap();
     }
 
     public Map<String, String> getXmlNamesMap() {
-        if (xmlNamesMap == null) {
+        return generatedBean().getXmlNames();
+    }
+
+    private GeneratedBean generatedBean() {
+        var bean = generatedBean.get();
+        if (bean == null) {
             generateBeanClass();
+            bean = generatedBean.get();
         }
-        return xmlNamesMap;
+        if (bean == null) {
+            throw new IllegalStateException(
+                    "The bean class of '%s' spreadsheet result is not generated yet.".formatted(getName()));
+        }
+        return bean;
     }
 
     private static final Comparator<Pair<Point, IOpenField>> COMP = Comparator.comparing(Pair::getLeft,
@@ -820,7 +839,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public SpreadsheetResult createSpreadsheetResult(Object bean,
                                                      Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSpr) {
         var spreadsheetResult = (SpreadsheetResult) newInstance(null);
-        for (Map.Entry<String, List<IOpenField>> cell : beanFieldsMap.entrySet()) {
+        for (Map.Entry<String, List<IOpenField>> cell : getBeanFieldsMap().entrySet()) {
             var fieldName = cell.getKey();
             Object v;
             try {

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     private static final Pattern SLASH_SIGN = Pattern.compile("\\s*/\\s*");
 
 
-    private volatile CopyOnWriteArraySet<IDependencyLoader> dependencyLoaders;
+    private final AtomicReference<CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new AtomicReference<>();
     private final Object dependencyLoadersFlag = new Object();
     private final LinkedHashSet<DependencyRelation> dependencyRelations = new LinkedHashSet<>();
     private final ThreadLocal<Deque<IDependencyLoader>> compilationStackThreadLocal = ThreadLocal
@@ -142,20 +143,23 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     protected void addDependencyLoaders(Collection<IDependencyLoader> dependencyLoadersToAdd) {
         if (dependencyLoadersToAdd != null) {
             synchronized (dependencyLoadersFlag) {
-                dependencyLoaders.addAll(dependencyLoadersToAdd);
+                dependencyLoaders.get().addAll(dependencyLoadersToAdd);
             }
         }
     }
 
     public Collection<IDependencyLoader> getDependencyLoaders() {
-        if (dependencyLoaders == null) {
+        var loaders = dependencyLoaders.get();
+        if (loaders == null) {
             synchronized (this) {
-                if (dependencyLoaders == null) {
-                    dependencyLoaders = new CopyOnWriteArraySet<>(initDependencyLoaders());
+                loaders = dependencyLoaders.get();
+                if (loaders == null) {
+                    loaders = new CopyOnWriteArraySet<>(initDependencyLoaders());
+                    dependencyLoaders.set(loaders);
                 }
             }
         }
-        return Collections.unmodifiableSet(dependencyLoaders);
+        return Collections.unmodifiableSet(loaders);
     }
 
     protected abstract Set<IDependencyLoader> initDependencyLoaders();

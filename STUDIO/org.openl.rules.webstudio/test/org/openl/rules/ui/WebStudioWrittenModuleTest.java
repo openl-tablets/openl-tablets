@@ -6,7 +6,10 @@ import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import org.openl.rules.project.model.Module;
 
@@ -15,6 +18,9 @@ class WebStudioWrittenModuleTest {
 
     private static WebStudio studio(boolean autoCompile) {
         var studio = mock(WebStudio.class, CALLS_REAL_METHODS);
+        // The mock skips the constructor, so the holders the real methods write to are supplied here.
+        ReflectionTestUtils.setField(studio, "rewrittenModule", new AtomicReference<>());
+        ReflectionTestUtils.setField(studio, "moduleToVerify", new AtomicReference<>());
         doReturn(new Module()).when(studio).getCurrentModule();
         doReturn(autoCompile).when(studio).isAutoCompile();
         return studio;

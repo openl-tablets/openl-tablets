@@ -15,7 +15,9 @@ public final class SystemValuesManager {
 
     private final Map<String, ISystemValue> systemValues = new HashMap<>();
 
-    private static volatile SystemValuesManager instance;
+    private static final class InstanceHolder {
+        private static final SystemValuesManager INSTANCE = new SystemValuesManager();
+    }
 
     public static final String CURRENT_USER_DESCRIPTOR = "currentUser";
     public static final String CURRENT_DATE_DESCRIPTOR = "currentDate";
@@ -35,14 +37,7 @@ public final class SystemValuesManager {
     }
 
     public static SystemValuesManager getInstance() {
-        if (instance == null) { // Double-checked locking
-            synchronized (SystemValuesManager.class) {
-                if (instance == null) {
-                    instance = new SystemValuesManager();
-                }
-            }
-        }
-        return instance;
+        return InstanceHolder.INSTANCE;
     }
 
     public Object getSystemValue(String descriptor) {

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +42,7 @@ abstract class DBRepository implements Repository, Closeable {
     @Getter
     @Setter
     private String name;
-    private volatile Settings settings;
+    private final AtomicReference<Settings> settings = new AtomicReference<>();
     private ChangesMonitor monitor;
     @Setter
     private int listenerTimerPeriod = 10;
@@ -55,7 +56,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.selectAllMetaInfo);
+            statement = connection.prepareStatement(settings.get().selectAllMetaInfo);
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
@@ -90,7 +91,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.readActualFile);
+            statement = connection.prepareStatement(settings.get().readActualFile);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -195,7 +196,7 @@ abstract class DBRepository implements Repository, Closeable {
         try {
             connection = getConnection();
             var username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
-            statement = connection.prepareStatement(settings.copyFile);
+            statement = connection.prepareStatement(settings.get().copyFile);
             statement.setString(1, destData.getName());
             statement.setString(2, username);
             statement.setString(3, destData.getComment());
@@ -225,7 +226,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.selectAllHistoryMetaInfo);
+            statement = connection.prepareStatement(settings.get().selectAllHistoryMetaInfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -260,7 +261,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.readHistoricFile);
+            statement = connection.prepareStatement(settings.get().readHistoricFile);
             statement.setLong(1, Long.parseLong(version));
             statement.setString(2, name);
             rs = statement.executeQuery();
@@ -293,7 +294,7 @@ abstract class DBRepository implements Repository, Closeable {
         if (version == null) {
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(settings.deleteAllHistory);
+                statement = connection.prepareStatement(settings.get().deleteAllHistory);
                 statement.setString(1, dataName);
                 var rows = statement.executeUpdate();
 
@@ -312,7 +313,7 @@ abstract class DBRepository implements Repository, Closeable {
         } else {
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(settings.deleteVersion);
+                statement = connection.prepareStatement(settings.get().deleteVersion);
                 statement.setLong(1, Long.parseLong(version));
                 statement.setString(2, dataName);
                 var rows = statement.executeUpdate();
@@ -343,7 +344,7 @@ abstract class DBRepository implements Repository, Closeable {
         try {
             connection = getConnection();
             var username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
-            statement = connection.prepareStatement(settings.copyHistory);
+            statement = connection.prepareStatement(settings.get().copyHistory);
             statement.setString(1, destData.getName());
             statement.setString(2, username);
             statement.setString(3, destData.getComment());
@@ -414,7 +415,7 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = connection.prepareStatement(settings.readActualFileMetaInfo);
+            statement = connection.prepareStatement(settings.get().readActualFileMetaInfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -437,7 +438,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.readHistoricFileMetaInfo);
+            statement = connection.prepareStatement(settings.get().readHistoricFileMetaInfo);
             statement.setLong(1, Long.parseLong(version));
             statement.setString(2, name);
             rs = statement.executeQuery();
@@ -506,7 +507,7 @@ abstract class DBRepository implements Repository, Closeable {
         }
 
         synchronized (this) {
-            settings = null;
+            settings.set(null);
             initialized = false;
         }
     }
@@ -534,7 +535,7 @@ abstract class DBRepository implements Repository, Closeable {
 
         PreparedStatement statement = null;
         try {
-            statement = connection.prepareStatement(settings.insertFile);
+            statement = connection.prepareStatement(settings.get().insertFile);
             var username = Optional.ofNullable(data.getAuthor()).map(UserInfo::getUsername).orElse(null);
             statement.setString(1, data.getName());
             statement.setString(2, username);
@@ -584,7 +585,7 @@ abstract class DBRepository implements Repository, Closeable {
             log.info("Database name    : {}", metaData.getDatabaseProductName());
             log.info("Database version : {}", metaData.getDatabaseProductVersion());
             log.info("Database code    : {}-v{}.{}", databaseCode, majorVersion, minorVersion);
-            settings = new Settings(databaseCode, majorVersion, minorVersion);
+            settings.set(new Settings(databaseCode, majorVersion, minorVersion));
         } finally {
             SqlDBUtils.safeClose(connection);
         }
@@ -601,7 +602,7 @@ abstract class DBRepository implements Repository, Closeable {
                 return;
             }
 
-            if (settings == null) {
+            if (settings.get() == null) {
                 loadDBSettings();
             }
 
@@ -622,7 +623,7 @@ abstract class DBRepository implements Repository, Closeable {
                 connection.setAutoCommit(false);
                 statement = connection.createStatement();
 
-                for (String query : settings.initStatements) {
+                for (String query : settings.get().initStatements) {
                     if (StringUtils.isNotBlank(query)) {
                         statement.execute(query);
                     }
@@ -673,7 +674,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = createConnection();
-            statement = connection.prepareStatement(settings.selectLastChange);
+            statement = connection.prepareStatement(settings.get().selectLastChange);
             rs = statement.executeQuery();
 
             if (rs.next()) {
