@@ -401,6 +401,11 @@ i18next.addResourceBundle('en', 'repository', {
             target_tables: 'Target Tables',
             search_placeholder: 'Search tables by name',
             search_extended: 'Extended search',
+            filter: 'Advanced filter',
+            show_other: 'Show utility tables',
+            show_other_hint: 'The tables that do not belong to any known OpenL type take no part in the rules, '
+                + 'and the tree leaves them out unless they are asked for.',
+            tables_load_failed: 'Failed to load the tables of the module',
             search: 'Search',
             search_scope: 'Scope',
             search_scope_module: 'Current module',

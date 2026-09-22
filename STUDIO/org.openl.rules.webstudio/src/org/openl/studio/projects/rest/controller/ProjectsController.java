@@ -443,6 +443,7 @@ public class ProjectsController {
                                                     @RequestParam(value = "scope", required = false) TableSearchScope scope,
                                                     @RequestParam(value = "header", required = false) String header,
                                                     @RequestParam(value = "text", required = false) String text,
+                                                    @RequestParam(value = "includeOther", defaultValue = "false") @Parameter(description = "projects.tables.list.param.include-other.desc") boolean includeOther,
                                                     @PaginationDefault Pageable page) {
 
         var queryBuilder = ProjectTableCriteriaQuery.builder()
@@ -451,7 +452,8 @@ public class ProjectsController {
                 .module(module)
                 .scope(scope)
                 .header(header)
-                .text(text);
+                .text(text)
+                .includeOther(includeOther);
         params.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))

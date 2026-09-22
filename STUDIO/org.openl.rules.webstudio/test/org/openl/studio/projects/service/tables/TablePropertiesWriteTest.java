@@ -114,9 +114,15 @@ class TablePropertiesWriteTest {
 
     @Test
     void refusesATableThatCarriesNoPropertiesAtAll() throws IOException {
-        var project = TableTestProjects.writeProject(tempDir.resolve("environment"), "environment", "Env",
-                new String[][]{{"Environment", null}, {"include", "Rules.xlsx"}});
-        var table = TableTestProjects.onlyTable(project);
+        assertRefused("environment", "Env", new String[][]{{"Environment", null}, {"include", "Rules.xlsx"}});
+        // A note OpenL does not recognize as any kind of table: it is listed among the utility tables, and it is
+        // edited as the grid it is, never through properties it cannot hold.
+        assertRefused("note", "Notes", new String[][]{{"Test123", "reviewed"}, {"May", "confirmed"}});
+    }
+
+    /** Writes a project holding the one table given, and checks that no property can be written on it. */
+    private void assertRefused(String name, String sheetName, String[][] grid) throws IOException {
+        var table = TableTestProjects.onlyTable(TableTestProjects.writeProject(tempDir.resolve(name), name, sheetName, grid));
         var properties = List.of(new TableProperty("description", "Anything"));
 
         assertThrows(BadRequestException.class, () -> service.write(table, properties));

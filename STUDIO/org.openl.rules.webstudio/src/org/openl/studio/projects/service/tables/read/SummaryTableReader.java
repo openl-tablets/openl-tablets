@@ -77,7 +77,9 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         var member = tsn.getMember();
         if (member instanceof AMethod) {
             initializeMethodSignature(builder, tsn.getHeader());
-        } else {
+        } else if (!OpenLTableUtils.isFreeFormTable(table)) {
+            // A free-form table is written with no kind word to read past: whatever its first cell says is its
+            // name, and none of it is a line of its own.
             initializeHeaderSignature(builder, tsn.getHeader());
         }
 

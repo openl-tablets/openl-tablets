@@ -1,0 +1,33 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "86f2a2a7572c12e4c058bdbf7e8d303a",
+  "tableType": "RawSource",
+  "kind": "Other",
+  "name": "Test123",
+  "pos": "B9:C10",
+  "source": [
+    [
+      {
+        "cell": "B9",
+        "value": "Test123"
+      },
+      {
+        "cell": "C9",
+        "value": "reviewed"
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": "May"
+      },
+      {
+        "cell": "C10",
+        "value": "confirmed"
+      }
+    ]
+  ],
+  "headerHeight": 0
+}

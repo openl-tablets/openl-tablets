@@ -16,7 +16,7 @@ import {
     TABLE_PAGE_ROWS,
     type ModuleInfo,
 } from '../services/modules'
-import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
+import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { moduleRoute, toUrlSafeId } from '../services/projectId'
 import { supportsBranches } from '../utils/repositoryFeatures'
@@ -33,6 +33,7 @@ import { CrumbSwitcher } from './projects/CrumbSwitcher'
 import { ProjectSwitcher } from './projects/ProjectSwitcher'
 import { closeProjectDialog, openProjectDialog } from './projects/openProjectDialog'
 import { ModuleTablesTree } from './modules/ModuleTablesTree'
+import { loadShowOther, saveShowOther } from './modules/tableGrouping'
 import { ModuleActionBar } from './modules/ModuleActionBar'
 import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import { TableProblems } from './modules/TableProblems'
@@ -132,7 +133,23 @@ export const ModuleWorkspace = () => {
     const [loadError, setLoadError] = useState<string | null>(null)
     const [opening, setOpening] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
-    const [loaded, setLoaded] = useState<{ at: string, tables: ModuleTable[] } | null>(null)
+    const [loaded, setLoaded] = useState<{ at: string, other: boolean, tables: ModuleTable[] } | null>(null)
+    // The free-form tables — the ones OpenL does not recognize — are left out of the tree unless the reader asks
+    // for them, as the Editor's tree hid its utility tables. Asked for, they are read with the rest: the server
+    // lists them only on request. The choice is this browser's, as the tree's view is — when it is the reader's:
+    // a screen that turns them on to show a table it was sent to does so for this visit alone.
+    const [showOther, setShowOther] = useState(loadShowOther)
+    const chooseOther = useCallback((shown: boolean) => {
+        setShowOther(shown)
+        saveShowOther(shown)
+    }, [])
+    // A screen sent to a free-form table it knows the kind of asks for them before going there, so the module
+    // is read once, with the table in the list.
+    const showIfOther = useCallback((kind: string) => {
+        if (kind === 'Other') {
+            setShowOther(true)
+        }
+    }, [])
     const [table, setTable] = useState<RawTableView | null>(null)
     const [tableError, setTableError] = useState<string | null>(null)
     const [moreLoading, setMoreLoading] = useState(false)
@@ -171,6 +188,9 @@ export const ModuleWorkspace = () => {
 
     // Only the tables read for the module now open count as this screen's.
     const tables = loaded?.at === here ? loaded.tables : null
+    // The list on screen was read without the free-form tables the reader has since asked for, or with the ones
+    // they no longer want: it stays until the one asked for is in, and the rail says that one is on its way.
+    const tablesReloading = loaded?.at === here && loaded.other !== showOther
 
     // The table on screen rides in the address, so a link to it opens it again, Back steps between tables, and
     // a refresh keeps the reader where they were.
@@ -265,35 +285,65 @@ export const ModuleWorkspace = () => {
     // that moves while it is in flight — the project read again beside it, the compilation saying once more that
     // it is done — would otherwise ask for the same module a second time. Two such reads open the same module of
     // the same session at once, and the second takes the compilation the first is waiting on out from under it.
+    //
+    // Asking for the free-form tables, or no longer asking, reads the module again with the answer to that
+    // question; what was read before stays on screen until the new list is in, rather than the tree going blank.
+    // A read that fails leaves that list where it is and puts the choice back to what it was read with, so the
+    // screen stays readable and the rail says what it shows; the failure is reported beside it.
     const reading = useRef<string | null>(null)
     useEffect(() => {
-        const asked = `${here} ${reloadToken}`
-        if (!projectId || !compilation.ready || reading.current === asked || loaded?.at === here) {
+        const asked = `${here} ${reloadToken} ${showOther}`
+        if (!projectId || !compilation.ready || reading.current === asked || (tables !== null && !tablesReloading)) {
             return
         }
         reading.current = asked
-        getModuleTables(projectId, moduleName)
-            .then(found => setLoaded({ at: here, tables: found }))
-            .catch((error: unknown) => setLoadError(errorMessage(error)))
+        getModuleTables(projectId, moduleName, { includeOther: showOther })
+            .then(found => setLoaded({ at: here, other: showOther, tables: found }))
+            .catch((error: unknown) => {
+                if (tablesReloading) {
+                    chooseOther(!showOther)
+                    notifyLoadFailure(t('browser.module.tables_load_failed'), error)
+                } else {
+                    setLoadError(errorMessage(error))
+                }
+            })
             .finally(() => {
                 if (reading.current === asked) {
                     reading.current = null
                 }
             })
-    }, [here, projectId, moduleName, compilation.ready, loaded, reloadToken])
+    }, [here, projectId, moduleName, compilation.ready, tables, tablesReloading, reloadToken, showOther, chooseOther, t])
 
     // A module opens on a table rather than on an empty canvas: the first one the list carries. The same
     // correction moves off a table named in the address that this module does not hold — the one the module
     // left behind was showing.
+    //
+    // A link may name a free-form table, which a list read without them does not hold. The table the module
+    // was opened on is looked for among them once, before the address is given up on; a table that goes
+    // missing later is one the reader took out of the list themselves, by asking for the free-form tables no
+    // more. Nothing is decided while a list is still on its way.
+    const arrival = useRef<{ at: string, table: string | null }>({ at: '', table: null })
     useEffect(() => {
-        if (tables === null || tables.length === 0) {
+        if (tables === null || tablesReloading) {
             return
+        }
+        if (arrival.current.at !== here) {
+            arrival.current = { at: here, table: selectedId }
         }
         if (selectedId !== null && tables.some(candidate => candidate.id === selectedId)) {
+            // Whatever the address names is on screen: the table the module was opened on is settled.
+            arrival.current.table = null
             return
         }
-        navigate(moduleRoute(projectId ?? '', moduleName, (tables[0] as ModuleTable).id), { replace: true })
-    }, [tables, selectedId, moduleName, navigate, projectId])
+        if (selectedId !== null && selectedId === arrival.current.table && !showOther) {
+            arrival.current.table = null
+            setShowOther(true)
+            return
+        }
+        if (tables.length > 0) {
+            navigate(moduleRoute(projectId ?? '', moduleName, (tables[0] as ModuleTable).id), { replace: true })
+        }
+    }, [tables, tablesReloading, showOther, selectedId, here, moduleName, navigate, projectId])
 
     // A compilation of a large project takes minutes, and a reader who no longer wants to wait says so. What
     // was compiled stays readable; Refresh starts it again.
@@ -329,8 +379,9 @@ export const ModuleWorkspace = () => {
     const openWritten = useCallback((written: SummaryTable, module: string) => {
         load()
         refresh(false)
+        showIfOther(written.kind)
         navigate(moduleRoute(projectId ?? '', module, written.id))
-    }, [load, navigate, projectId, refresh])
+    }, [load, navigate, projectId, refresh, showIfOther])
 
     // The properties of a table are rows of the table itself, so writing them rewrites it: the module is
     // compiled again and the table drawn afresh, under the id it has once it was written.
@@ -453,12 +504,13 @@ export const ModuleWorkspace = () => {
     // A table a search found is opened where it is written: this screen when it belongs to the module on it,
     // its own module's screen — of its own project — when it does not.
     const openFound = useCallback((found: ModuleTable) => {
+        showIfOther(found.kind)
         if (!found.module || found.module === moduleName) {
             openTableById(found.id)
             return
         }
         navigate(moduleRoute(found.projectId ?? projectId ?? '', found.module, found.id))
-    }, [moduleName, navigate, openTableById, projectId])
+    }, [moduleName, navigate, openTableById, projectId, showIfOther])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
     //
@@ -776,7 +828,10 @@ export const ModuleWorkspace = () => {
                 <ModuleTablesTree
                     onExtendedSearch={setSearchFor}
                     onSelectTable={openTable}
+                    onShowOther={chooseOther}
+                    reloading={tablesReloading}
                     selectedTableId={selected?.id}
+                    showOther={showOther}
                     tables={tables}
                 />
                 <TableSearchModal

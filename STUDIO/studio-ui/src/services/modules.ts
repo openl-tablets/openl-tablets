@@ -40,21 +40,6 @@ export const startModuleCompilation = async (
 }
 
 /**
- * The tables of one module, the whole list at once.
- *
- * The answer is ready once this module is compiled and does not wait for the modules that follow it. Called before
- * that, it waits — which is why the editor asks only after the status channel has named the module as compiled.
- */
-export const getModuleTables = async (projectId: string, moduleName: string): Promise<ModuleTable[]> => {
-    const page = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables?module=${encodeURIComponent(moduleName)}&unpaged=true`,
-        undefined,
-        LOCAL_LOAD_API_OPTIONS
-    ) as { content?: ModuleTable[] } | null
-    return asArray(page?.content)
-}
-
-/**
  * Tells the compilation of a module to stop.
  *
  * <p>Answers at once: the module being compiled at that moment is finished and nothing after it is started.
@@ -283,6 +268,12 @@ export interface TableSearchCriteria {
     kinds?: string[]
     /** Values the table's properties must carry, by property name. */
     properties?: Record<string, string>
+    /**
+     * Whether the free-form tables — the ones OpenL does not recognize, which take no part in the rules — are
+     * listed with the rest. They are left out unless asked for, as the Editor's tree hid its utility tables
+     * unless told to show them; a search naming their kind asks for them by itself.
+     */
+    includeOther?: boolean | undefined
 }
 
 /**
@@ -309,6 +300,9 @@ export const searchTables = async (projectId: string, criteria: TableSearchCrite
     for (const [name, value] of Object.entries(criteria.properties ?? {})) {
         add(`properties.${name}`, value)
     }
+    if (criteria.includeOther) {
+        params.set('includeOther', 'true')
+    }
     const page = await apiCall(
         `/projects/${toUrlSafeId(projectId)}/tables?${params}`,
         undefined,
@@ -316,6 +310,18 @@ export const searchTables = async (projectId: string, criteria: TableSearchCrite
     ) as { content?: ModuleTable[] } | null
     return asArray(page?.content)
 }
+
+/**
+ * The tables of one module, the whole list at once.
+ *
+ * The answer is ready once this module is compiled and does not wait for the modules that follow it. Called before
+ * that, it waits — which is why the editor asks only after the status channel has named the module as compiled.
+ */
+export const getModuleTables = async (
+    projectId: string,
+    moduleName: string,
+    options: { includeOther?: boolean } = {}
+): Promise<ModuleTable[]> => searchTables(projectId, { module: moduleName, includeOther: options.includeOther })
 
 /** Where a property that applies to a table is defined, when it is not written on the table itself. */
 export type PropertyInheritance = 'category' | 'module' | 'external'

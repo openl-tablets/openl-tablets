@@ -1731,17 +1731,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
-        Predicate<TableSyntaxNode> selectors = tsn -> query.isIncludeOther()
-                || !XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType());
-
         var tableTypes = query.getKinds()
                 .stream()
                 .map(OpenLTableUtils.getTableTypeItems().inverse()::get)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        if (CollectionUtils.isNotEmpty(tableTypes)) {
-            selectors = selectors.and(tsn -> tableTypes.contains(tsn.getType()));
+        // A kind filter names exactly what takes part, the free-form tables included when it names their kind.
+        // Without one, they are left out unless asked for: a table OpenL does not recognize only adds noise to
+        // a browsing query.
+        Predicate<TableSyntaxNode> selectors;
+        if (!tableTypes.isEmpty()) {
+            selectors = tsn -> tableTypes.contains(tsn.getType());
+        } else if (query.isIncludeOther()) {
+            selectors = tsn -> true;
+        } else {
+            selectors = tsn -> !OpenLTableUtils.isFreeFormTable(tsn);
         }
 
         if (query.getName().isPresent()) {

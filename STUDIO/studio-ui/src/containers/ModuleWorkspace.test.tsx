@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react'
+import type { ModuleTable } from 'types/tables'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ModuleWorkspace } from './ModuleWorkspace'
 import { getModuleTables, getRawTable, listModules } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
+import { notifyLoadFailure } from '../services/apiCall'
 
 const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -31,6 +33,11 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('../hooks', async () => ({
     ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
+}))
+
+vi.mock('../services/apiCall', async importOriginal => ({
+    ...await importOriginal<typeof import('../services/apiCall')>(),
+    notifyLoadFailure: vi.fn(),
 }))
 
 vi.mock('../services/repositories', () => ({
@@ -68,11 +75,39 @@ vi.mock('./projects/openProjectDialog', () => ({
     closeProjectDialog: vi.fn(),
 }))
 
-vi.mock('./modules/ModuleTablesTree', () => ({ ModuleTablesTree: () => <div data-testid="tables-tree" /> }))
+// The tree itself is tested elsewhere; here it only has to ask for the utility tables, as its checkbox does,
+// and to open the extended search.
+vi.mock('./modules/ModuleTablesTree', () => ({
+    ModuleTablesTree: ({ showOther, onShowOther, reloading, onExtendedSearch }: {
+        showOther?: boolean
+        onShowOther?: (shown: boolean) => void
+        reloading?: boolean
+        onExtendedSearch?: (typed: string) => void
+    }) => (
+        <>
+            <button
+                data-reloading={String(reloading)}
+                data-testid="tables-tree"
+                onClick={() => onShowOther?.(!showOther)}
+                type="button"
+            >
+                {String(showOther)}
+            </button>
+            <button data-testid="tables-search" onClick={() => onExtendedSearch?.('')} type="button" />
+        </>
+    ),
+}))
 vi.mock('./modules/ModuleActionBar', () => ({ ModuleActionBar: () => null }))
 vi.mock('./modules/TableDetailsPanel', () => ({ TableDetailsPanel: () => <div data-testid="table-details" /> }))
 vi.mock('./modules/TableProblems', () => ({ TableProblems: () => null }))
-vi.mock('./modules/TableSearchModal', () => ({ TableSearchModal: () => null }))
+// The search itself is tested elsewhere; here it only hands over the note it found.
+vi.mock('./modules/TableSearchModal', () => ({
+    TableSearchModal: ({ open, onOpen }: { open?: boolean, onOpen?: (found: ModuleTable) => void }) => (
+        open
+            ? <button data-testid="search-found" onClick={() => onOpen?.(notes)} type="button" />
+            : null
+    ),
+}))
 // The band shows what it is handed, so a test can read what the screen decided.
 vi.mock('./modules/TableToolbar', () => ({
     TableToolbar: ({ runState, projectCompiled }: { runState?: string, projectCompiled?: boolean }) => (
@@ -100,6 +135,14 @@ vi.mock('./modules/TableEditor', () => ({
     ),
 }))
 
+// The rules table the module is read with, and the note OpenL does not recognize, listed only when asked for.
+const bankRating = { id: 't-1', name: 'BankRating', kind: 'Rules', tableType: 'SimpleRules' } as ModuleTable
+const notes = { id: 't-9', name: 'Notes', kind: 'Other', tableType: 'Other' } as ModuleTable
+
+/** The module's tables as the server answers: the note among them only when the free-form tables are asked for. */
+const tablesRead = (_projectId: string, _module: string, options?: { includeOther?: boolean }) =>
+    Promise.resolve(options?.includeOther ? [bankRating, notes] : [bankRating])
+
 const project = (status: string) => ({
     id: 'p1',
     name: 'Example 1 - Bank Rating',
@@ -111,6 +154,7 @@ const project = (status: string) => ({
 
 describe('ModuleWorkspace', () => {
     beforeEach(() => {
+        localStorage.clear()
         routeParams.projectId = 'p1'
         routeParams.moduleName = 'Bank Rating'
         workspace.opened = false
@@ -132,9 +176,7 @@ describe('ModuleWorkspace', () => {
             numberOfElements: 2,
             total: 2,
         } as never)
-        vi.mocked(getModuleTables).mockResolvedValue([
-            { id: 't-1', name: 'BankRating', kind: 'Rules', tableType: 'SimpleRules' },
-        ] as never)
+        vi.mocked(getModuleTables).mockImplementation(tablesRead)
         vi.mocked(getRawTable).mockResolvedValue({
             id: 't-1',
             name: 'BankRating',
@@ -188,13 +230,122 @@ describe('ModuleWorkspace', () => {
     it('reads the tables of the module of the project the address names', async () => {
         workspace.opened = true
         const { rerender } = render(<ModuleWorkspace />)
-        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating'))
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: false }))
 
         // Another project whose module carries the same name: its tables are none of the first one's.
         routeParams.projectId = 'p2'
         rerender(<ModuleWorkspace />)
 
-        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p2', 'Bank Rating'))
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p2', 'Bank Rating', { includeOther: false }))
+    })
+
+    it('reads the module again with the utility tables once they are asked for, and remembers the choice', async () => {
+        workspace.opened = true
+        // The first list answers at once; the one with the utility tables takes as long as the server takes.
+        const { promise: withOther, resolve: answerWithOther } = Promise.withResolvers<ModuleTable[]>()
+        vi.mocked(getModuleTables).mockImplementation((projectId, module, options) =>
+            options?.includeOther ? withOther : tablesRead(projectId, module, options))
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: false }))
+        expect(screen.getByTestId('tables-tree')).toHaveAttribute('data-reloading', 'false')
+
+        await userEvent.click(screen.getByTestId('tables-tree'))
+
+        // The server lists the free-form tables only on request, so asking is a read of the module, not a filter.
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: true }))
+        expect(getModuleTables).toHaveBeenCalledTimes(2)
+        // Until it answers, the list that was on screen stays, and the rail is told the next one is on its way.
+        expect(screen.getByTestId('table-toolbar')).toBeInTheDocument()
+        expect(screen.getByTestId('tables-tree')).toHaveAttribute('data-reloading', 'true')
+
+        await act(async () => {
+            answerWithOther([bankRating, notes])
+            await withOther
+        })
+
+        expect(screen.getByTestId('tables-tree')).toHaveAttribute('data-reloading', 'false')
+        // Kept by this browser, as the tree's view is: the next module opens with them listed.
+        expect(localStorage.getItem('openl.module.otherTables')).toBe('true')
+    })
+
+    it('keeps the list on screen and puts the choice back when the utility tables cannot be read', async () => {
+        workspace.opened = true
+        vi.mocked(getModuleTables).mockImplementation((projectId, module, options) =>
+            options?.includeOther ? Promise.reject(new Error('Gone away')) : tablesRead(projectId, module, options))
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledTimes(1))
+
+        await userEvent.click(screen.getByTestId('tables-tree'))
+
+        await waitFor(() => expect(notifyLoadFailure).toHaveBeenCalled())
+        // The list read before is still there, the rail says it is that list, and nothing waits any more.
+        expect(screen.queryByTestId('module-workspace-error')).toBeNull()
+        expect(screen.getByTestId('tables-tree')).toHaveTextContent('false')
+        expect(screen.getByTestId('tables-tree')).toHaveAttribute('data-reloading', 'false')
+        expect(localStorage.getItem('openl.module.otherTables')).toBe('false')
+        expect(getModuleTables).toHaveBeenCalledTimes(2)
+    })
+
+    it('looks for the table a link named among the utility tables before giving up on the address', async () => {
+        workspace.opened = true
+        // A link to a free-form table, opened while the tree leaves them out.
+        searchParams.set('table', 't-9')
+        render(<ModuleWorkspace />)
+
+        // The list read without them does not hold the table, so they are asked for rather than the address
+        // being replaced with the first table of the list.
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: true }))
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-9', expect.anything()))
+        expect(navigateMock).not.toHaveBeenCalled()
+        // The tree shows them for this visit, the opened one among them — not for every visit to come.
+        expect(screen.getByTestId('tables-tree')).toHaveTextContent('true')
+        expect(localStorage.getItem('openl.module.otherTables')).toBeNull()
+    })
+
+    it('gives up on a table the whole list does not hold, the utility tables included', async () => {
+        workspace.opened = true
+        searchParams.set('table', 't-gone')
+        render(<ModuleWorkspace />)
+
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: true }))
+        // Only once the whole list has answered is the address replaced with the first table.
+        await waitFor(() => expect(navigateMock).toHaveBeenCalledWith(
+            '/projects/p1/modules/Bank%20Rating?table=t-1', { replace: true }))
+        expect(getModuleTables).toHaveBeenCalledTimes(2)
+    })
+
+    it('moves off a utility table the reader took out of the list, rather than listing them again', async () => {
+        workspace.opened = true
+        searchParams.set('table', 't-9')
+        localStorage.setItem('openl.module.otherTables', 'true')
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-9', expect.anything()))
+
+        // The reader asks for the free-form tables no more, while reading one of them.
+        await userEvent.click(screen.getByTestId('tables-tree'))
+
+        // The one on screen is gone from the list by the reader's own choice: the first table is opened instead,
+        // and the choice stands — it is not the link's table being looked for again.
+        await waitFor(() => expect(navigateMock).toHaveBeenCalledWith(
+            '/projects/p1/modules/Bank%20Rating?table=t-1', { replace: true }))
+        expect(getModuleTables).toHaveBeenCalledTimes(2)
+        expect(screen.getByTestId('tables-tree')).toHaveTextContent('false')
+        expect(localStorage.getItem('openl.module.otherTables')).toBe('false')
+    })
+
+    it('asks for the utility tables before opening one the search found, so the module is read once more, not twice', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledTimes(1))
+
+        await userEvent.click(screen.getByTestId('tables-search'))
+        await userEvent.click(await screen.findByTestId('search-found'))
+
+        // The search says what kind the table is, so the list it belongs in is asked for straight away.
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: true }))
+        expect(getModuleTables).toHaveBeenCalledTimes(2)
+        expect(setSearchParamsMock).toHaveBeenCalled()
+        expect(navigateMock).not.toHaveBeenCalled()
     })
 
     it('reads the module again on the branch that was switched to', async () => {
@@ -347,7 +498,7 @@ describe('ModuleWorkspace', () => {
         routeParams.moduleName = 'Car Rating'
         rerender(<ModuleWorkspace />)
 
-        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Car Rating'))
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Car Rating', { includeOther: false }))
         await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'true'))
     })
 
