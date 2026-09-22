@@ -5,11 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -38,13 +39,15 @@ import org.openl.util.FileTypeHelper;
  * Migrates a project to the current {@code rules.xml} conventions, the way the {@code openl:migrate} Maven
  * goal does — but from the workspace, over the project file API.
  *
- * <p>A project that has no {@code rules.xml} keeps its workbooks in the root and relies on the resolver to
- * treat each Excel file as a module. Migrating it moves every root workbook — {@code .xls}, {@code .xlsx}
- * and {@code .xlsm} — under {@code rules/} and writes a {@code rules.xml}: an all-{@code .xlsx} project keeps
- * a bare descriptor and relies on the {@code rules/}/{@code tests/} defaults, while a moved {@code .xls} or
- * {@code .xlsm} — which no default matches — makes every workbook a declared module so none is lost. A
- * project that already has a {@code rules.xml} is migrated by running the goal's content migrations and
- * rewriting the file. The method-filter migration runs as the goal's no-compile variant, lifting module
+ * <p>A project that has no {@code rules.xml} keeps its workbooks in the root, and the resolver treats each
+ * Excel file as a module. Migrating it moves every root workbook — {@code .xls}, {@code .xlsx} and
+ * {@code .xlsm} — under {@code rules/} and writes a {@code rules.xml} that names the project and declares
+ * that module set in its minimal form: the {@code .xlsx} workbooks through the {@code rules/} default, an
+ * {@code .xls} or {@code .xlsm} on its own. A migrate that cannot write the descriptor puts the workbooks
+ * back.
+ *
+ * <p>A project that already has a {@code rules.xml} is migrated by running the goal's content migrations
+ * and rewriting the file. The method-filter migration runs as the goal's no-compile variant, lifting module
  * filters to a project-level {@code <exposed-methods>}. Unlike the goal, Studio never drops the project
  * {@code <name>}: the goal drops one that repeats the project folder, while in Studio the folder of a
  * mapped repository is not the project's business name, so dropping it would rename the project.
@@ -61,6 +64,7 @@ import org.openl.util.FileTypeHelper;
  *
  * <p>A rewrite writes the descriptor anew, so comments and layout in the file do not survive it.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectMigrationService {
@@ -118,14 +122,14 @@ public class ProjectMigrationService {
         var root = fileRootFactory.of(project);
         var rootFiles = rootFiles(root);
         switch (scope) {
-            case RULES_XML -> migrateRulesXmlScope(root, rootFiles);
+            case RULES_XML -> migrateRulesXmlScope(root, rootFiles, project.getBusinessName());
             case RULES_DEPLOY -> migrateRulesDeploy(root, rootFiles);
         }
     }
 
-    private void migrateRulesXmlScope(FileRoot root, List<FsNode> rootFiles) {
+    private void migrateRulesXmlScope(FileRoot root, List<FsNode> rootFiles, String projectName) {
         if (!hasRulesXml(rootFiles)) {
-            migrateRootWorkbooks(root, rootFiles);
+            migrateRootWorkbooks(root, rootFiles, projectName);
             return;
         }
         migrateDescriptor(root, RULES_XML, planRulesXml(readFile(root, RULES_XML), root));
@@ -151,7 +155,15 @@ public class ProjectMigrationService {
         }
     }
 
-    private void migrateRootWorkbooks(FileRoot root, List<FsNode> rootFiles) {
+    /**
+     * Moves the root workbooks under {@code rules/} and writes the {@code rules.xml} that declares them.
+     *
+     * <p>The descriptor is written last, where the project files API validates it. When that write or a move
+     * fails, every workbook already moved goes back to the root, so its workbooks are still the modules and the
+     * migrate is still offered. In an opened project the moves there and back stay unsaved changes that amount
+     * to nothing.
+     */
+    private void migrateRootWorkbooks(FileRoot root, List<FsNode> rootFiles, String projectName) {
         var movable = movableWorkbooks(rootFiles);
         if (movable.isEmpty()) {
             // Nothing to move, so nothing to migrate — matches migrationInfo()'s migratable flag, and
@@ -159,32 +171,61 @@ public class ProjectMigrationService {
             // for no reason.
             return;
         }
-        for (var path : movable) {
-            filesService.moveResource(root, path, RULES_FOLDER + path);
+        var rulesXml = rulesXmlForMovedWorkbooks(root, movable, projectName);
+        var moved = new ArrayList<String>(movable.size());
+        try {
+            for (var path : movable) {
+                filesService.moveResource(root, path, RULES_FOLDER + path);
+                moved.add(path);
+            }
+            filesService.createResource(root, RULES_XML, new ByteArrayInputStream(rulesXml), false);
+        } catch (RuntimeException e) {
+            moveBack(root, moved);
+            throw e;
         }
-        filesService.createResource(root, RULES_XML, new ByteArrayInputStream(rulesXmlForMovedWorkbooks(movable)), false);
+    }
+
+    /** Puts the moved workbooks back in the root; one that cannot go back is logged, the rest go back anyway. */
+    private void moveBack(FileRoot root, List<String> moved) {
+        for (var path : moved) {
+            try {
+                filesService.moveResource(root, RULES_FOLDER + path, path);
+            } catch (RuntimeException rollbackFailure) {
+                log.warn("Failed to move '{}' back to the project root after the migrate failed", path,
+                        rollbackFailure);
+            }
+        }
     }
 
     /**
-     * The {@code rules.xml} to write for the moved workbooks. The {@code rules/**}{@code /*.xlsx} and
-     * {@code tests/**}{@code /*.xlsx} defaults match the moved {@code .xlsx} files, so an all-{@code .xlsx}
-     * project stays a bare descriptor whose folder is its identity — nothing a later migrate would strip. A
-     * {@code .xls} or {@code .xlsm} file no default matches, so once any is moved every workbook is declared
-     * explicitly to keep them all as modules.
+     * The {@code rules.xml} to write for the moved workbooks: the module set the project has today, each root
+     * workbook a module, in the minimal form a rewrite brings any descriptor to — so nothing is left for a later
+     * migrate. It names the project, as the project files API requires of a new descriptor.
+     *
+     * <p>A migrate never widens the module set. When the minimal form would take in a workbook the migrate does
+     * not move — one already under {@code rules/} or {@code tests/}, no module while the project has no
+     * descriptor — each moved workbook stays declared on its own, and a later migrate names that workbook as
+     * the reason the rewrite is withheld, as it does for any descriptor.
      */
-    private static byte[] rulesXmlForMovedWorkbooks(List<String> movable) {
+    private byte[] rulesXmlForMovedWorkbooks(FileRoot root, List<String> movable, String projectName) {
         var descriptor = new ProjectDescriptor();
-        if (movable.stream().allMatch(path -> path.toLowerCase(Locale.ROOT).endsWith(".xlsx"))) {
-            return descriptor.toBytes();
-        }
-        var modules = new ArrayList<Module>(movable.size());
-        for (var path : movable) {
-            var module = new Module();
-            module.setRulesRootPath(RULES_FOLDER + path);
-            modules.add(module);
-        }
-        descriptor.setModules(modules);
-        return descriptor.toBytes();
+        descriptor.setName(projectName);
+        // toBytes() prunes the list, so it must be mutable.
+        descriptor.setModules(movable.stream()
+                .map(path -> module(RULES_FOLDER + path))
+                .collect(Collectors.toCollection(ArrayList::new)));
+        var declared = descriptor.toBytes();
+        // Planned over the files as they lie: a root workbook matches no default, so only one that stays put
+        // can widen the module set.
+        var plan = planRulesXml(descriptor, root);
+        var migrated = plan.migrated;
+        return migrated == null || !plan.newModules.isEmpty() ? declared : migrated;
+    }
+
+    private static Module module(String path) {
+        var module = new Module();
+        module.setRulesRootPath(path);
+        return module;
     }
 
     /**
@@ -200,9 +241,11 @@ public class ProjectMigrationService {
      */
     private @Nullable DescriptorPlan planRulesXml(byte[] original, FileRoot root) {
         var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(original));
-        if (descriptor == null) {
-            return null;
-        }
+        return descriptor == null ? null : planRulesXml(descriptor, root);
+    }
+
+    /** Plans the migration of a descriptor held in memory, which is left migrated. */
+    private DescriptorPlan planRulesXml(ProjectDescriptor descriptor, FileRoot root) {
         var declared = descriptor.toBytes();
         var modulesBefore = declaredModulePaths(descriptor);
         RulesXmlMigrations.apply(descriptor);

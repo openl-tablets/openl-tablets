@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/xml
+
+<project>
+    <name>EPBDS-16666-nested</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main.xlsx"/>
+        </module>
+    </modules>
+</project>
+
