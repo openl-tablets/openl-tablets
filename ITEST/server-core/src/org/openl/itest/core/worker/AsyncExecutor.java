@@ -83,7 +83,7 @@ public class AsyncExecutor {
         try {
             executor.awaitTermination(timeout, unit);
         } catch (InterruptedException e) {
-            e.printStackTrace(); // For debug purposes
+            e.printStackTrace(System.err); // the console is the only log of the test harness
             Thread.currentThread().interrupt();
             return true;
         }
@@ -118,7 +118,7 @@ public class AsyncExecutor {
                 } catch (Exception | AssertionError ex) {
                     error = true;
                     run = false;
-                    ex.printStackTrace(); // For debug purposes
+                    ex.printStackTrace(System.err); // the console is the only log of the test harness
                 }
             }
         }
