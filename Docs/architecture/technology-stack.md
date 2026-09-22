@@ -75,7 +75,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 |------|---------|---------|
 | Webpack | 5.105.x | Module bundler |
 | SCSS/Sass | 1.97.x | CSS preprocessor |
-| Frontend Maven Plugin | 1.15.4 | Maven integration |
+| Frontend Maven Plugin | 2.0.2 | Maven integration |
 | Node.js | 24.13.x | Runtime for build tools |
 
 ---
