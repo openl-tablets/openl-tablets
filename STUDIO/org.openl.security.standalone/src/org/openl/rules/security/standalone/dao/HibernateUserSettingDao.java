@@ -12,6 +12,28 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
     @Override
     @Transactional
     public UserSetting getProperty(String login, String key) {
+        return findProperty(login, key);
+    }
+
+    @Override
+    @Transactional
+    public void setProperty(String login, String key, String value) {
+        var session = getSession();
+        var property = findProperty(login, key);
+        if (property == null) {
+            property = new UserSetting();
+            property.setId(new UserSettingId(login, key));
+            property.setSettingValue(value);
+            session.persist(property);
+        } else {
+            property.setSettingValue(value);
+            if (!session.contains(property)) {
+                session.merge(property);
+            }
+        }
+    }
+
+    private UserSetting findProperty(String login, String key) {
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(UserSetting.class);
         var u = criteria.from(UserSetting.class);
@@ -21,21 +43,6 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
                 .distinct(true);
         List<UserSetting> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.getFirst();
-    }
-
-    @Override
-    @Transactional
-    public void setProperty(String login, String key, String value) {
-        var property = getProperty(login, key);
-        if (property == null) {
-            property = new UserSetting();
-            property.setId(new UserSettingId(login, key));
-            property.setSettingValue(value);
-            save(property);
-        } else {
-            property.setSettingValue(value);
-            update(property);
-        }
     }
 
     @Override
