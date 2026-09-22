@@ -28,6 +28,8 @@ class SpreadsheetResultBeanPropertyNamingStrategyTest {
         var lower = new LowerCaseStrategy();
 
         assertNull(snake.transform(null));
+        assertNull(new LowerCamelCaseStrategy().transform(null));
+        assertNull(new UpperCamelCaseStrategy().transform(null));
         assertEquals("", snake.transform(""));
         assertNull(lower.transform(null));
         assertEquals("", lower.transform(""));

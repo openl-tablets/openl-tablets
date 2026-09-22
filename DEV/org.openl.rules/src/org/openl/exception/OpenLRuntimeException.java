@@ -52,10 +52,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         if (node != null) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
-                this.sourceCode = syntaxNode.getModule().getCode();
-                this.location = syntaxNode.getSourceLocation();
-                this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
-                        syntaxNode.getModule());
+                pointTo(syntaxNode);
             }
         }
     }
@@ -65,10 +62,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         if (node != null) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
-                this.sourceCode = syntaxNode.getModule().getCode();
-                this.location = syntaxNode.getSourceLocation();
-                this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
-                        syntaxNode.getModule());
+                pointTo(syntaxNode);
             }
         }
     }
@@ -76,11 +70,16 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     protected OpenLRuntimeException(String message, ISyntaxNode syntaxNode) {
         super(message);
         if (syntaxNode != null) {
-            this.sourceCode = syntaxNode.getModule().getCode();
-            this.location = syntaxNode.getSourceLocation();
-            this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
-                    syntaxNode.getModule());
+            pointTo(syntaxNode);
         }
+    }
+
+    /** Remembers where in the rules the failure happened; a node without a source leaves the code unknown. */
+    private void pointTo(ISyntaxNode syntaxNode) {
+        var module = syntaxNode.getModule();
+        this.sourceCode = module == null ? null : module.getCode();
+        this.location = syntaxNode.getSourceLocation();
+        this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(location, module);
     }
 
     public String getOriginalMessage() {

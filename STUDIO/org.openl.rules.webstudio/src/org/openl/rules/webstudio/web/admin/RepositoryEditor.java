@@ -157,6 +157,6 @@ public class RepositoryEditor {
     }
 
     private String[] split(String s) {
-        return StringUtils.split(s, ',');
+        return s == null ? StringUtils.EMPTY_STRING_ARRAY : StringUtils.split(s, ',');
     }
 }

@@ -18,6 +18,14 @@ class RandomValuePropertySource extends PropertySource<Random> {
         super("random", new Random());
     }
 
+    private static String[] splitRange(String range) {
+        var values = StringUtils.split(range, ',');
+        if (values == null || values.length == 0) {
+            throw new IllegalArgumentException("Illegal range '" + range + "'");
+        }
+        return values;
+    }
+
     @Override
     public Object getProperty(String name) {
         switch (name) {
@@ -28,7 +36,7 @@ class RandomValuePropertySource extends PropertySource<Random> {
 
         if (name.startsWith("random.int(")) {
             var range = name.substring(11, name.length() - 1);
-            String[] values = StringUtils.split(range, ',');
+            var values = splitRange(range);
 
             var min = 0;
             var max = Integer.valueOf(values[0]);
@@ -46,7 +54,7 @@ class RandomValuePropertySource extends PropertySource<Random> {
 
         if (name.startsWith("random.long(")) {
             var range = name.substring(12, name.length() - 1);
-            String[] values = StringUtils.split(range, ',');
+            var values = splitRange(range);
 
             var min = 0L;
             var max = Long.valueOf(values[0]);

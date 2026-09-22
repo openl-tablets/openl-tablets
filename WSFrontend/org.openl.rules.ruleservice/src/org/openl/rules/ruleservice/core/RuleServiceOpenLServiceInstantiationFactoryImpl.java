@@ -90,8 +90,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private ClassLoader resolveServiceClassLoader(OpenLService service,
                                                   RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException,
             RuleServiceInstantiationException {
-        var moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) service.getOpenClass())
-                .getClassGenerationClassLoader();
+        var openClass = (XlsModuleOpenClass) Objects.requireNonNull(service.getOpenClass(),
+                () -> "Service '%s' is not compiled".formatted(service.getDeployPath()));
+        var moduleGeneratedClassesClassLoader = openClass.getClassGenerationClassLoader();
         var openLClassLoader = new OpenLClassLoader(null);
         openLClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
         openLClassLoader.addClassLoader(instantiationStrategy.getClassLoader());

@@ -121,10 +121,6 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {
         // Sort zip entries names alphabetically
         var sortedNames = new TreeSet<String>();
-        if (zipFile == null) {
-            return sortedNames;
-        }
-
         for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
                 var item = items.nextElement();

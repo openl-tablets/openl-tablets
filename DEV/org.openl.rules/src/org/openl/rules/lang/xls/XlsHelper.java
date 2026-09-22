@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,11 +96,12 @@ public final class XlsHelper {
     }
 
     public static String getModuleName(XlsModuleSyntaxNode node) {
-        if (node.getModule() instanceof IModuleInfo) {
-            return ((IModuleInfo) node.getModule()).getModuleName();
+        var module = Objects.requireNonNull(node.getModule(), "The module node has no source");
+        if (module instanceof IModuleInfo moduleInfo) {
+            return moduleInfo.getModuleName();
         }
 
-        var uri = node.getModule().getUri();
+        var uri = module.getUri();
 
         try {
             var url = new URL(uri);

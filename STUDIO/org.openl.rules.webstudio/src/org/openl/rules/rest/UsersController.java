@@ -311,7 +311,7 @@ public class UsersController {
         if (adminUsersInitializer.isSuperuser(username)) {
             throw new ForbiddenException("users.cannot-delete-superuser.message");
         }
-        if (currentUserInfo.getUserName().equals(username)) {
+        if (Objects.equals(currentUserInfo.getUserName(), username)) {
             throw new ForbiddenException("users.cannot-delete-yourself.message");
         }
     }
@@ -350,7 +350,7 @@ public class UsersController {
                 .setLastName(user.getLastName())
                 .setEmail(user.getEmail())
                 .setUsername(user.getUsername())
-                .setCurrentUser(currentUserInfo.getUserName().equals(user.getUsername()))
+                .setCurrentUser(Objects.equals(currentUserInfo.getUserName(), user.getUsername()))
                 .setSuperUser(adminUsersInitializer.isSuperuser(user.getUsername()))
                 .setUnsafePassword(
                         user.getPassword() != null && passwordEncoder.matches(user.getUsername(), user.getPassword()))

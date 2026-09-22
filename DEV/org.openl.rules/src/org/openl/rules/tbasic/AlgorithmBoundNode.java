@@ -34,7 +34,9 @@ public class AlgorithmBoundNode extends AMethodBasedNode {
         var tableBody = getTableSyntaxNode().getTableBody();
         builder.build(cxt, tableBody);
 
-        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
+        if (tableBody != null) {
+            getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
+        }
     }
 
     public Algorithm getAlgorithm() {

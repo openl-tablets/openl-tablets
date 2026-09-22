@@ -18,6 +18,12 @@ import org.opentest4j.AssertionFailedError;
 class ComparatorsTest {
 
     @Test
+    void textWithoutActualBodyMatchesOnlyAnAbsentExpectedOne() {
+        assertDoesNotThrow(() -> Comparators.txt("message", (String) null, null));
+        assertThrows(AssertionFailedError.class, () -> Comparators.txt("message", "expected", null));
+    }
+
+    @Test
     void patternToRegexp() {
         assertEquals("\\$<\\?\\{[#\\d]+\\}\\+\\[[^￿]*\\]\\.\\{\\\\\\}\\?>\\^", Comparators.patternToRegexp("$<?{###}+[***].{\\}?>^"));
     }

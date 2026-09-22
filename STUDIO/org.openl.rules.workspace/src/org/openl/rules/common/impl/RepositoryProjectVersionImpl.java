@@ -1,6 +1,7 @@
 package org.openl.rules.common.impl;
 
 import java.io.Serial;
+import java.util.Objects;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
     private boolean deleted;
 
     public RepositoryProjectVersionImpl(CommonVersion version, VersionInfo versionInfo) {
+        Objects.requireNonNull(version, "version cannot be null");
         major = version.getMajor();
         minor = version.getMinor();
         revision = version.getRevision();

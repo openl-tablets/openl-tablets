@@ -1,6 +1,7 @@
 package org.openl.rules.table.properties;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openl.OpenL;
@@ -8,7 +9,6 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -107,7 +107,7 @@ public class PropertiesLoader {
         if (category != null) {
             return category;
         } else {
-            return ((XlsSheetSourceCodeModule) tsn.getModule()).getSheetName();
+            return Objects.requireNonNull(tsn.getXlsSheetSourceCodeModule(), "The table has no sheet").getSheetName();
         }
     }
 

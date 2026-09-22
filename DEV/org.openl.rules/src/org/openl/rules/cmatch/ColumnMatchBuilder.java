@@ -27,6 +27,9 @@ public class ColumnMatchBuilder {
     private List<TableColumn> columns;
 
     public void build(ILogicalTable tableBody) throws SyntaxNodeException {
+        if (tableBody == null) {
+            throw SyntaxNodeExceptionUtils.createError("Invalid table. Provide table body", null, tsn);
+        }
         if (tableBody.getHeight() < 4) {
             throw SyntaxNodeExceptionUtils.createError("Insufficient rows. At least 4 are expected.", null, tsn);
         }

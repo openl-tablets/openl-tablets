@@ -1266,9 +1266,13 @@ public class ProjectModel {
     }
 
     private ProjectDescriptor getProjectDescriptor() {
+        var project = getProject();
+        if (project == null) {
+            return moduleInfo.getProject();
+        }
         try {
             ProjectResolver projectResolver = studio.getProjectResolver();
-            var localFile = getProject().getLocalRepository().getRoot().resolve(getProject().getName());
+            var localFile = project.getLocalRepository().getRoot().resolve(project.getName());
             return projectResolver.resolve(localFile);
         } catch (Exception e) {
             // Fail-safe behavior for mock tests where studio.getProjectResolver() is not set.
@@ -1413,12 +1417,13 @@ public class ProjectModel {
     private void initHistoryStoragePath() {
         // A model outside a workspace — a project read straight from disk — keeps no history of its edits.
         var workspace = studio.getUserWorkspace();
-        if (workspace == null) {
+        var project = getProject();
+        if (workspace == null || project == null) {
             return;
         }
         var location = workspace.getLocalWorkspace().getLocation();
         this.historyStoragePath = Path
-                .of(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
+                .of(location.getPath(), FolderHelper.resolveHistoryFolder(project, moduleInfo))
                 .toString();
     }
 

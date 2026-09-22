@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.project.compile;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,6 +45,16 @@ class CompilationJobRegistryImplTest {
         var model = mock(ProjectModel.class);
         when(model.getCurrentCompilation()).thenReturn(compilation);
         when(webStudio.getModel()).thenReturn(model);
+    }
+
+    @Test
+    void acquiresAJobForAModelThatHoldsNoProject() {
+        var compilation = mock(RegisteredCompilation.class);
+        when(compilation.future()).thenReturn(CompletableFuture.completedFuture(null));
+        var model = mock(ProjectModel.class);
+        when(model.getCurrentCompilation()).thenReturn(compilation);
+
+        assertNotNull(registry.acquire(PROJECT, model));
     }
 
     @Test

@@ -35,7 +35,9 @@ public class ColumnMatchBoundNode extends AMethodBasedNode {
         var builder = new ColumnMatchBuilder(cxt, getColumnMatch(), getTableSyntaxNode());
         var tableBody = getTableSyntaxNode().getTableBody();
         builder.build(tableBody);
-        getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
+        if (tableBody != null) {
+            getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
+        }
     }
 
     @Override

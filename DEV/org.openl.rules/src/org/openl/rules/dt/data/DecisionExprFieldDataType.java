@@ -31,7 +31,7 @@ public class DecisionExprFieldDataType extends ComponentOpenClass {
             return new ExprParameterField(field2);
         } else if (openField instanceof DTColumnsDefinitionField field1) {
             return new ExprParameterDTColumnsDefinitionField(field1);
-        } else if (openField == null && !name.startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
+        } else if (openField == null && name != null && !name.startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
             openField = decisionTableDataType.getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + name, strictMatch);
             if (openField instanceof DecisionRowField field) {
                 return new ExprConditionOrActionField(field);

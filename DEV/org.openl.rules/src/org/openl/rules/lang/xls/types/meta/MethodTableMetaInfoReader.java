@@ -16,6 +16,9 @@ public class MethodTableMetaInfoReader extends AMethodMetaInfoReader<MethodTable
     @Override
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
         var body = getTableSyntaxNode().getTableBody();
+        if (body == null) {
+            return null;
+        }
         var height = body.getHeight();
 
         for (var i = 0; i < height; i++) {

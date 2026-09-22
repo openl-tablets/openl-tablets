@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -116,7 +117,12 @@ class ProjectsBenchmarkControllerTest {
                 listenerFactory,
                 inputParserService,
                 objectMapperService,
-                projectIdentifierMapper);
+                projectIdentifierMapper) {
+            @Override
+            protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
+                return mock(SchemaGenerator.class);
+            }
+        };
     }
 
     @Test

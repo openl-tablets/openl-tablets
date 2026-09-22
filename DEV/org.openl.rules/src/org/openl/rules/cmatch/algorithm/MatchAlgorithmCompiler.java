@@ -300,8 +300,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                                           ColumnMatch columnMatch,
                                           SubValue sv,
                                           ConstantOpenField constantOpenField) {
-        if (!bindingContext.isExecutionMode()) {
-            var tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
+        var tableBody = columnMatch.getSyntaxNode().getTableBody();
+        if (!bindingContext.isExecutionMode() && tableBody != null) {
+            var tableBodyGrid = tableBody.getSource();
             var grid = tableBodyGrid.getGrid();
             var gridRegion = sv.getGridRegion();
             var cell = grid.getCell(gridRegion.getLeft(), gridRegion.getTop());

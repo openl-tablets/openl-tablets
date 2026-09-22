@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -72,6 +73,9 @@ import org.openl.studio.repositories.service.ProjectRevisionService;
 import org.openl.studio.repositories.service.RepositoryConfigService;
 
 class ProjectsControllerTest {
+
+    /** Stands in for the generator Spring hands the controller through its lookup methods. */
+    private static final SchemaGenerator SCHEMA_GENERATOR = mock(SchemaGenerator.class);
 
     @Test
     void getProjectPassesIncludesToService() {
@@ -407,6 +411,16 @@ class ProjectsControllerTest {
             public WebStudio getWebStudio() {
                 return webStudio;
             }
+
+            @Override
+            protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
+                return SCHEMA_GENERATOR;
+            }
+
+            @Override
+            protected SchemaGenerator getInputSchemaGenerator(ObjectMapper objectMapper) {
+                return SCHEMA_GENERATOR;
+            }
         };
     }
 
@@ -427,7 +441,7 @@ class ProjectsControllerTest {
         when(handle.awaitCompiled()).thenReturn(model);
         when(model.getTableById("t1")).thenReturn(table);
         when(objectMapperService.createObjectMapper()).thenReturn(objectMapper);
-        when(tableInputService.describe(model, table, true, objectMapper, null)).thenReturn(expected);
+        when(tableInputService.describe(model, table, true, objectMapper, SCHEMA_GENERATOR)).thenReturn(expected);
 
         assertEquals(expected, controller.getTableInput(project, "t1", "Main"));
     }
@@ -450,7 +464,7 @@ class ProjectsControllerTest {
         when(handle.awaitCompiled()).thenReturn(model);
         when(model.getTableById("t1")).thenReturn(table);
         when(objectMapperService.createObjectMapper()).thenReturn(objectMapper);
-        when(tableInputService.describe(model, table, false, objectMapper, null)).thenReturn(expected);
+        when(tableInputService.describe(model, table, false, objectMapper, SCHEMA_GENERATOR)).thenReturn(expected);
 
         assertEquals(expected, controller.getTableInput(project, "t1", "  "));
     }
@@ -473,7 +487,7 @@ class ProjectsControllerTest {
         when(handle.awaitCompiled()).thenReturn(model);
         when(model.getTableById("t1")).thenReturn(table);
         when(objectMapperService.createObjectMapper()).thenReturn(objectMapper);
-        when(tableInputService.listTestCases(model, table, false, page, objectMapper, null)).thenReturn(expected);
+        when(tableInputService.listTestCases(model, table, false, page, objectMapper, SCHEMA_GENERATOR)).thenReturn(expected);
 
         assertEquals(expected, controller.getTableInputCases(project, "t1", null, page));
     }
@@ -495,7 +509,7 @@ class ProjectsControllerTest {
         when(handle.awaitCompiled()).thenReturn(model);
         when(model.getTableById("t1")).thenReturn(table);
         when(objectMapperService.createObjectMapper()).thenReturn(objectMapper);
-        when(tableInputService.describeTestCase(model, table, false, "7", objectMapper, null)).thenReturn(expected);
+        when(tableInputService.describeTestCase(model, table, false, "7", objectMapper, SCHEMA_GENERATOR)).thenReturn(expected);
 
         assertEquals(expected, controller.getTableInputCase(project, "t1", "7", null));
     }

@@ -54,9 +54,9 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
     }
 
     protected Object processResult(Object res) {
-        return  ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule()
-                .getObjectToDataOpenCastConvertor()
-                .convert(res, getType());
+        var declaringClass = (CustomSpreadsheetResultOpenClass) Objects.requireNonNull(getDeclaringClass(),
+                "The field has no declaring class");
+        return declaringClass.getModule().getObjectToDataOpenCastConvertor().convert(res, getType());
     }
 
     @Override

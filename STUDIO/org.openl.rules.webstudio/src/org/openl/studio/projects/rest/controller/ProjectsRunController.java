@@ -74,7 +74,8 @@ public class ProjectsRunController {
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
-        return null;
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
     @Operation(summary = "run.start.summary", description = "run.start.desc",

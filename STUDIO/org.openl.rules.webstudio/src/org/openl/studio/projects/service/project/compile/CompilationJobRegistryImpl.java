@@ -61,13 +61,19 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
 
         public boolean canReuse(ProjectIdModel projectId, ProjectModel model) {
             return this.projectId.equals(projectId)
-                    && Objects.equals(this.branch, model.getProject().getBranch())
+                    && Objects.equals(this.branch, branchOf(model))
                     && this.job.project() == model
                     && this.job.tracksCurrentCompilation();
         }
     }
 
     private final AtomicReference<Entry> ref = new AtomicReference<>();
+
+    /** The branch the model's project is on, or null when the model holds no project. */
+    private static @Nullable String branchOf(ProjectModel model) {
+        var project = model.getProject();
+        return project == null ? null : project.getBranch();
+    }
 
     @Override
     @NotNull
@@ -79,7 +85,7 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
         if (previous != null && !previous.job().isFinished()) {
             previous.job().future().cancel(false);
         }
-        var branch = model.getProject().getBranch();
+        var branch = branchOf(model);
         var entry = new Entry(projectId, branch, new CompilationJobImpl(model));
         ref.set(entry);
         return entry.job();

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -112,7 +113,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
         var result = new TreeSet<Integer>();
 
-        String[] ranges = StringUtils.split(ids.trim(), ',');
+        var ranges = Objects.requireNonNullElse(StringUtils.split(ids.trim(), ','), StringUtils.EMPTY_STRING_ARRAY);
         for (String range : ranges) {
             if (range.isEmpty() && indexes.containsKey(",")) {
                 result.add(indexes.get(","));

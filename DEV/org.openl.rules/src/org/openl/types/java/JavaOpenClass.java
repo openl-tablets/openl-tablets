@@ -88,6 +88,7 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     public static JavaOpenClass getOpenClass(Class<?> c) {
+        Objects.requireNonNull(c, "c cannot be null");
         var res = JavaOpenClassCache.getInstance().get(c);
         if (res == null) {
             if (c.isInterface()) {

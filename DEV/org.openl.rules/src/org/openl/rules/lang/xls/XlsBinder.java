@@ -520,8 +520,11 @@ public class XlsBinder implements IOpenBinder {
     private static String getSprResTypeNameIfCustomSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
         if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType()) || XlsNodeTypes.XLS_DT
                 .equals(tableSyntaxNode.getNodeType())) {
-            var code = tableSyntaxNode.getHeader().getHeaderToken().getModule().getCode();
-            code = code.replaceAll("\\s+", " ");
+            var headerModule = tableSyntaxNode.getHeader().getHeaderToken().getModule();
+            if (headerModule == null) {
+                return null;
+            }
+            var code = headerModule.getCode().replaceAll("\\s+", " ");
             var x = code.indexOf("(");
             if (x < 1) {
                 return null;

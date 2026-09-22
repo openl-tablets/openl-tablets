@@ -120,7 +120,8 @@ public final class AlgorithmCompilerTool {
      */
     public static AlgorithmTreeNode getLastExecutableOperation(List<AlgorithmTreeNode> nodes) {
         var lastOperation = nodes.getLast();
-        if (lastOperation.getSpecificationKeyword().startsWith(TBasicSpecificationKey.END.toString())) {
+        var keyword = lastOperation.getSpecificationKeyword();
+        if (keyword != null && keyword.startsWith(TBasicSpecificationKey.END.toString())) {
             lastOperation = getLastExecutableOperation(nodes.subList(0, nodes.size() - 1));
         } else if (!lastOperation.getChildren().isEmpty()) {
             lastOperation = getLastExecutableOperation(lastOperation.getChildren());
@@ -212,7 +213,7 @@ public final class AlgorithmCompilerTool {
             case "FOR EACH" -> new String[]{"END FOR EACH"};
             case "SUB" -> new String[]{"END SUB"};
             case "FUNCTION" -> new String[]{"END FUNCTION"};
-            default -> null;
+            case null, default -> null;
         };
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.servlet.SpringInitializer;
@@ -39,7 +38,10 @@ public final class WebStudioUtils {
     }
 
     public static RulesUserSession getRulesUserSession(HttpSession session, boolean create) {
-        RulesUserSession rulesUserSession = getRulesUserSession(session);
+        if (session == null) {
+            return null;
+        }
+        var rulesUserSession = getRulesUserSession(session);
         if (rulesUserSession == null && create) {
             ApplicationContext appContext = SpringInitializer.getApplicationContext(session.getServletContext());
             rulesUserSession = appContext.getBean(RulesUserSession.class);
@@ -62,15 +64,14 @@ public final class WebStudioUtils {
         return rulesUserSession == null ? null : rulesUserSession.getWebStudio();
     }
 
-    public static ProjectModel getProjectModel() {
-        return getWebStudio().getModel();
-    }
 
     public static UserWorkspace getUserWorkspace(HttpSession session) {
         UserWorkspace userWorkspace = null;
         try {
-            RulesUserSession rulesUserSession = getRulesUserSession(session, true);
-            userWorkspace = rulesUserSession.getUserWorkspace();
+            var rulesUserSession = getRulesUserSession(session, true);
+            if (rulesUserSession != null) {
+                userWorkspace = rulesUserSession.getUserWorkspace();
+            }
         } catch (Exception e) {
             log.error("Failed to get user workspace", e);
         }

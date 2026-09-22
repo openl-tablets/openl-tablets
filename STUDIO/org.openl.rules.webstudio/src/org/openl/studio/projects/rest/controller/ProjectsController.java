@@ -170,7 +170,8 @@ public class ProjectsController {
 
     @Lookup
     public WebStudio getWebStudio() {
-        return null;
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
     /**
@@ -199,13 +200,15 @@ public class ProjectsController {
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
-        return null;
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
     /** The generator for the input a table takes. It also records the defaults a datatype declares. */
     @Lookup("inputSchemaGenerator")
     protected SchemaGenerator getInputSchemaGenerator(ObjectMapper objectMapper) {
-        return null;
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
     @GetMapping

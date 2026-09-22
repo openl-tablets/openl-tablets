@@ -3,6 +3,8 @@ package org.openl.types.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +45,19 @@ class ComponentTypeArrayOpenClassTest {
     @Test
     void test_toString() {
         assertEquals("[Lorg.openl.generated.packA.MyType;", from.toString());
+    }
+
+    @Test
+    void componentClassIsRequired() {
+        assertThrows(NullPointerException.class, () -> new ComponentTypeArrayOpenClass(null));
+    }
+
+    @Test
+    void componentWithoutJavaClassAnswersNothingAsItsInstance() {
+        var noJavaClass = new ComponentTypeArrayOpenClass(NullOpenClass.the);
+        assertNull(noJavaClass.getInstanceClass());
+        assertFalse(noJavaClass.isInstance(new Object[0]));
+        assertFalse(noJavaClass.isAssignableFrom(JavaOpenClass.STRING));
     }
 
 }

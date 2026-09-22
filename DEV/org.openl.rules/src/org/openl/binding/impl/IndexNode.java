@@ -53,7 +53,10 @@ public class IndexNode extends ATargetBoundNode {
 
     @Override
     public void updateAssignFieldDependency(BindingDependencies dependencies) {
-        getTargetNode().updateAssignFieldDependency(dependencies);
+        var target = getTargetNode();
+        if (target != null) {
+            target.updateAssignFieldDependency(dependencies);
+        }
     }
 
 }

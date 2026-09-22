@@ -876,6 +876,9 @@ public class OpenApiProjectValidator {
             arraySuffix.append("[]");
             dim++;
             schema = ((ArraySchema) schema).getItems();
+            if (schema == null) {
+                return "schema";
+            }
         }
         var prefix = StringUtils.EMPTY;
         if (dim > 0) {

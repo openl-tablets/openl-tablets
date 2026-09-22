@@ -129,7 +129,12 @@ public class TableCopyServiceImpl implements TableCopyService {
     }
 
     private static boolean sameWorkbook(IOpenLTable source, XlsSheetGridModel destGrid) {
-        var sourceWorkbook = source.getSyntaxNode().getXlsSheetSourceCodeModule().getWorkbookSource();
+        var sourceNode = source.getSyntaxNode();
+        var sourceSheet = sourceNode == null ? null : sourceNode.getXlsSheetSourceCodeModule();
+        if (sourceSheet == null) {
+            return false;
+        }
+        var sourceWorkbook = sourceSheet.getWorkbookSource();
         return Objects.equals(sourceWorkbook.getUri(), destGrid.getSheetSource().getWorkbookSource().getUri());
     }
 

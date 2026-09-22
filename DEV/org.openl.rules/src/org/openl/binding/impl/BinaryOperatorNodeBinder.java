@@ -6,7 +6,6 @@ package org.openl.binding.impl;
 
 import java.lang.reflect.Modifier;
 import java.util.Map;
-import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -95,28 +94,29 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
                                                              IBindingContext bindingContext) {
         var b1Type = b1.getType();
         var b2Type = b2.getType();
-        if (!Objects.equals(b1Type, b2Type)) {
-            Class<?> b1InstanceClass = b1Type.getInstanceClass();
-            Class<?> b2InstanceClass = b2Type.getInstanceClass();
-            if (b1InstanceClass == null || b2InstanceClass == null) {
-                return;
-            }
-            var b1Final = Modifier.isFinal(b1InstanceClass.getModifiers());
-            var b2Final = Modifier.isFinal(b2InstanceClass.getModifiers());
-            if (!b1Final && !b2Final) {
-                return;
-            }
-            if (b1Final && b2InstanceClass.isAssignableFrom(b1InstanceClass)) {
-                return;
-            }
-            if (b2Final && b1InstanceClass.isAssignableFrom(b2InstanceClass)) {
-                return;
-            }
-            BindHelper.processWarn("Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.".formatted(
-                    b1.getType().getName(),
-                    b2.getType().getName(),
-                    "ne".equals(method.getName())), node, bindingContext);
+        if (b1Type == null || b2Type == null || b1Type.equals(b2Type)) {
+            return;
         }
+        Class<?> b1InstanceClass = b1Type.getInstanceClass();
+        Class<?> b2InstanceClass = b2Type.getInstanceClass();
+        if (b1InstanceClass == null || b2InstanceClass == null) {
+            return;
+        }
+        var b1Final = Modifier.isFinal(b1InstanceClass.getModifiers());
+        var b2Final = Modifier.isFinal(b2InstanceClass.getModifiers());
+        if (!b1Final && !b2Final) {
+            return;
+        }
+        if (b1Final && b2InstanceClass.isAssignableFrom(b1InstanceClass)) {
+            return;
+        }
+        if (b2Final && b1InstanceClass.isAssignableFrom(b2InstanceClass)) {
+            return;
+        }
+        BindHelper.processWarn("Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.".formatted(
+                b1Type.getName(),
+                b2Type.getName(),
+                "ne".equals(method.getName())), node, bindingContext);
     }
 
     public static String errorMsg(String methodName, IOpenClass t1, IOpenClass t2) {

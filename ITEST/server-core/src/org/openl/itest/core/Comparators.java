@@ -49,6 +49,7 @@ final class Comparators {
     static void txt(String message, String expected, String actual) {
         if (actual == null) {
             assertEquals(expected, actual, message);
+            return;
         }
         String regExp = getRegExp(expected);
         boolean matches = trimExtraSpaces(actual).matches(regExp);

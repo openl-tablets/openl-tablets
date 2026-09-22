@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -52,7 +53,7 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     public AProject(Repository repository, FileData fileData) {
-        super(null, repository, fileData.getName(), null);
+        super(null, repository, Objects.requireNonNull(fileData, "fileData cannot be null").getName(), null);
         historyVersionResolved = false;
         setFileData(fileData, false);
     }

@@ -582,26 +582,6 @@ public class SpreadsheetResult implements Serializable {
     private static Object convertSpreadsheetResult(Object v,
                                                    boolean spreadsheetResultsToMap,
                                                    SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-        if (v instanceof SpreadsheetResult spreadsheetResult) {
-            if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
-                var customSpreadsheetResultOpenClass = spreadsheetResult
-                        .getCustomSpreadsheetResultOpenClass()
-                        .getModule()
-                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass();
-                return convertSpreadsheetResult(v,
-                        customSpreadsheetResultOpenClass.getBeanClass(),
-                        customSpreadsheetResultOpenClass,
-                        spreadsheetResultsToMap,
-                        spreadsheetResultBeanPropertyNamingStrategy);
-            } else {
-                return convertSpreadsheetResult(v,
-                        null,
-                        null,
-                        spreadsheetResultsToMap,
-                        spreadsheetResultBeanPropertyNamingStrategy);
-            }
-        }
         return convertSpreadsheetResult(v,
                 null,
                 null,
