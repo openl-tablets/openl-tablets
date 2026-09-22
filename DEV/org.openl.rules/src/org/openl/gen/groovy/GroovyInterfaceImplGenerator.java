@@ -88,9 +88,9 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
         StringBuilder imports = new StringBuilder();
         for (String defaultImport : getDefaultImports()) {
             // Remove Generic parameters to use in imports
-            defaultImport = defaultImport.indexOf("<") > 0 ? defaultImport.substring(0, defaultImport.indexOf("<"))
-                    : defaultImport;
-            imports.append("import").append(" ").append(defaultImport);
+            var genericStart = defaultImport.indexOf('<');
+            var importedType = genericStart >= 0 ? defaultImport.substring(0, genericStart) : defaultImport;
+            imports.append("import").append(" ").append(importedType);
             imports.append(GroovyMethodWriter.LINE_SEPARATOR);
         }
         imports.append(GroovyMethodWriter.LINE_SEPARATOR);
