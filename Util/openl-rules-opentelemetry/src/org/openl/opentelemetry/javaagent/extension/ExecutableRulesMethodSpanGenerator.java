@@ -33,6 +33,8 @@ public class ExecutableRulesMethodSpanGenerator implements TypeInstrumentation {
 
     @SuppressWarnings("unused")
     public static class MethodAdvice {
+        // Byte Buddy hands an @Advice.Local value over to the exit advice through the parameter it is assigned to.
+        @SuppressWarnings("java:S1226")
         @Advice.OnMethodEnter(suppress = Throwable.class)
         public static void onEnter(
                 @Advice.This ExecutableRulesMethod openLTable,
