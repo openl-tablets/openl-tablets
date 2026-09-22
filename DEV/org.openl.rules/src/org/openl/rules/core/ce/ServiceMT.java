@@ -116,9 +116,9 @@ public final class ServiceMT {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class RunnableRecursiveAction extends RecursiveAction {
         private static final long serialVersionUID = -6827837658658403954L;
-        private final Runnable runnable;
-        private final SimpleRuntimeEnv env;
-        private final ClassLoader classLoader;
+        private final transient Runnable runnable;
+        private final transient SimpleRuntimeEnv env;
+        private final transient ClassLoader classLoader;
 
         @Override
         protected void compute() {

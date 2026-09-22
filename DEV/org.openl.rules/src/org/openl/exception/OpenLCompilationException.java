@@ -17,7 +17,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     private static final long serialVersionUID = -8075090606797764194L;
 
     private final Throwable insideCause;
-    private final ILocation location;
+    private final transient ILocation location;
     private final String sourceLocation;
     private String sourceUri;
     private String sourceCode;

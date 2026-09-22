@@ -11,5 +11,5 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class ValidationException extends RuntimeException {
 
     @Getter
-    private final BindingResult bindingResult;
+    private final transient BindingResult bindingResult;
 }

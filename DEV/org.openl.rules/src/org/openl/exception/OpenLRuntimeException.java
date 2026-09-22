@@ -26,7 +26,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     private final LinkedList<IBoundNode> openlCallStack = new LinkedList<>();
     @Getter
-    private ILocation location;
+    private transient ILocation location;
     @Getter
     private String sourceLocation;
     @Getter

@@ -1,5 +1,9 @@
 package org.openl.rules.security;
 
+
+import java.io.Serial;
+import java.io.Serializable;
+
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +15,10 @@ import lombok.RequiredArgsConstructor;
  * @author Vladyslav Pikus
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserExternalFlags {
+public class UserExternalFlags implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final int features;
 

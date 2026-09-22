@@ -22,7 +22,7 @@ public class FieldNotFoundException extends OpenLCompilationException {
 
     private final String fieldName;
 
-    private final IOpenClass type;
+    private final transient IOpenClass type;
 
     public FieldNotFoundException(String msg, String fieldName, IOpenClass type) {
         super(msg);

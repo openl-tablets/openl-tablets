@@ -20,9 +20,9 @@ public class TypeCastException extends SyntaxNodeException {
     private static final long serialVersionUID = 5570752529258476343L;
 
     @Getter
-    private final IOpenClass from;
+    private final transient IOpenClass from;
     @Getter
-    private final IOpenClass to;
+    private final transient IOpenClass to;
 
     public TypeCastException(ISyntaxNode node, IOpenClass from, IOpenClass to) {
         super("Cannot convert from '%s' to '%s'.".formatted(from.getName(), to.getName()), null, node);

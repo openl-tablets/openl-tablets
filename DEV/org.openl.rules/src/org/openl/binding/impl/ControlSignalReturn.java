@@ -16,6 +16,6 @@ import lombok.RequiredArgsConstructor;
 public class ControlSignalReturn extends ControlSignal {
 
     @Getter
-    private final Object returnValue;
+    private final transient Object returnValue;
 
 }
