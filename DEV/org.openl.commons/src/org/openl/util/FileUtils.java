@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -250,25 +249,15 @@ public class FileUtils {
             throw new IOException("Destination '%s' exists but is a directory".formatted(destFile));
         }
 
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
-        FileChannel input = null;
-        FileChannel output = null;
-        try {
-            fis = new FileInputStream(srcFile);
-            fos = new FileOutputStream(destFile);
-            input = fis.getChannel();
-            output = fos.getChannel();
+        try (var fis = new FileInputStream(srcFile);
+             var fos = new FileOutputStream(destFile);
+             var input = fis.getChannel();
+             var output = fos.getChannel()) {
             var size = input.size();
             var pos = 0L;
             while (pos < size) {
                 pos += output.transferFrom(input, pos, DEFAULT_BUFFER_SIZE);
             }
-        } finally {
-            IOUtils.closeQuietly(output);
-            IOUtils.closeQuietly(fos);
-            IOUtils.closeQuietly(input);
-            IOUtils.closeQuietly(fis);
         }
 
         if (srcFile.length() != destFile.length()) {

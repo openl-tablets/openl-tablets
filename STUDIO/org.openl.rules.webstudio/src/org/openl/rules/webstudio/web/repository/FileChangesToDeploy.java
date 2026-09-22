@@ -177,11 +177,9 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
 
     private InputStream addManifestIntoArchive(InputStream in, Manifest manifest) throws IOException {
         var out = new ByteArrayOutputStream();
-        try {
+        try (in) {
             RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
             return new ByteArrayInputStream(out.toByteArray());
-        } finally {
-            IOUtils.closeQuietly(in);
         }
     }
 

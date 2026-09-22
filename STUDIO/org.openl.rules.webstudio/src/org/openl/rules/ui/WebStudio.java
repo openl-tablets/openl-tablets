@@ -62,7 +62,6 @@ import org.openl.studio.projects.service.ProjectAccessService;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.util.CollectionUtils;
-import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
@@ -222,7 +221,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void saveProject(RulesProject project) throws ProjectException {
-        InputStream content = null;
         try {
             String projectName = project.getName();
             freezeProject(projectName);
@@ -236,8 +234,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     // Revert project name in rules.xml
                     AProjectResource artefact = (AProjectResource) project
                             .getArtefact(ProjectDescriptor.FILE_NAME);
-                    content = artefact.getContent();
-                    ProjectDescriptor projectDescriptor = ProjectDescriptor.read(content);
+                    ProjectDescriptor projectDescriptor;
+                    try (var content = artefact.getContent()) {
+                        projectDescriptor = ProjectDescriptor.read(content);
+                    }
                     projectDescriptor.setName(project.getName());
                     if (!designRepositoryAclService.isGranted(artefact, List.of(BasePermission.WRITE))) {
                         throw new Message("There is no permission for modifying '%s' file.".formatted(
@@ -286,7 +286,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             releaseProject(project.getName());
-            IOUtils.closeQuietly(content);
         }
     }
 

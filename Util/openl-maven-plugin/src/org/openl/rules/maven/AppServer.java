@@ -62,20 +62,21 @@ public class AppServer {
             server.start();
 
             var port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-            var client = HttpClient.newBuilder()
+            try (var client = HttpClient.newBuilder()
                     .executor(Runnable::run) // To prevent memory leak via the default thread pool
                     .version(HttpClient.Version.HTTP_1_1)
                     .connectTimeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
-                    .build();
-            var uri = new URI("http://localhost:" + port + "/admin/healthcheck/readiness");
-            var req = HttpRequest.newBuilder()
-                    .uri(uri)
-                    .timeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
-                    .GET()
-                    .build();
-            var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-            if (resp.statusCode() != 200 || !resp.body().equals("READY")) {
-                throw new IOException("Server startup failure: " + resp);
+                    .build()) {
+                var uri = new URI("http://localhost:" + port + "/admin/healthcheck/readiness");
+                var req = HttpRequest.newBuilder()
+                        .uri(uri)
+                        .timeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
+                        .GET()
+                        .build();
+                var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+                if (resp.statusCode() != 200 || !resp.body().equals("READY")) {
+                    throw new IOException("Server startup failure: " + resp);
+                }
             }
         } finally {
             server.stop();
