@@ -101,10 +101,17 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         return decode(property);
     }
 
-    static DynamicPropertySource THE;
+    private static DynamicPropertySource THE;
 
     public static DynamicPropertySource get() {
         return THE;
+    }
+
+    /**
+     * Makes the given source the one {@link #get()} returns.
+     */
+    static void register(DynamicPropertySource source) {
+        THE = source;
     }
 
     /**

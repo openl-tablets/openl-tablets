@@ -86,7 +86,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
 
         ConfigLog.LOG.info("Loading reconfigurable properties...");
         var propertySource = new DynamicPropertySource(appName, props);
-        DynamicPropertySource.THE = propertySource;
+        DynamicPropertySource.register(propertySource);
         propertySources.addBefore(ApplicationPropertySource.PROPS_NAME, propertySource);
 
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, new DisablePropertySource(propertySources));
