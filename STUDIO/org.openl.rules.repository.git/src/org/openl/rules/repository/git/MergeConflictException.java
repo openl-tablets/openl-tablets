@@ -12,5 +12,5 @@ import lombok.RequiredArgsConstructor;
 public class MergeConflictException extends IOException {
 
     @Getter
-    private final MergeConflictDetails details;
+    private final transient MergeConflictDetails details;
 }

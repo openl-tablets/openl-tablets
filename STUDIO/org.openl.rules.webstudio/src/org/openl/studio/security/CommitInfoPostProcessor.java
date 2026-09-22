@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CommitInfoPostProcessor extends AbstractAdvisingBeanPostProcessor implements InitializingBean {
 
-    private final CommitInfoInterceptor commitInfoInterceptor;
+    private final transient CommitInfoInterceptor commitInfoInterceptor;
 
     @Override
     public void afterPropertiesSet() {

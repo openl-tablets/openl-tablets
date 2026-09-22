@@ -15,7 +15,7 @@ import org.openl.types.IOpenClass;
 @RequiredArgsConstructor
 public class TypesCombinationNotSupportedException extends OpenlNotCheckedException {
 
-    private final List<IOpenClass> type;
+    private final transient List<IOpenClass> type;
 
     @Override
     public String getMessage() {

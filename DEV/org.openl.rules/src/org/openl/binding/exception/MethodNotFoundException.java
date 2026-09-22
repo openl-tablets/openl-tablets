@@ -16,8 +16,8 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
     private static final long serialVersionUID = -6505424809898412642L;
 
     private final String methodName;
-    private final IOpenClass[] params;
-    private final IOpenClass target;
+    private final transient IOpenClass[] params;
+    private final transient IOpenClass target;
 
     public MethodNotFoundException(String methodName, IOpenClass... params) {
         this.methodName = methodName;

@@ -22,11 +22,11 @@ import org.openl.types.IOpenMethod;
 public class AmbiguousMethodException extends OpenlNotCheckedException {
 
     @Getter
-    private final List<IOpenMethod> matchingMethods;
+    private final transient List<IOpenMethod> matchingMethods;
 
     private final String methodName;
 
-    private IOpenClass[] pars;
+    private transient IOpenClass[] pars;
 
     public AmbiguousMethodException(String methodName, List<IOpenMethod> matchingMethods) {
         this.methodName = methodName;

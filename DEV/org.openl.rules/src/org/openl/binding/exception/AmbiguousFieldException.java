@@ -24,7 +24,7 @@ import org.openl.types.IOpenField;
 public class AmbiguousFieldException extends OpenlNotCheckedException {
 
     @Getter
-    private final Collection<IOpenField> matchingFields;
+    private final transient Collection<IOpenField> matchingFields;
 
     private final String fieldName;
 

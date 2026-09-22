@@ -17,7 +17,7 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
     private static final long serialVersionUID = -4044064134031015107L;
 
     @Getter
-    private ILocation location;
+    private transient ILocation location;
     @Getter
     private String sourceCode;
     @Getter

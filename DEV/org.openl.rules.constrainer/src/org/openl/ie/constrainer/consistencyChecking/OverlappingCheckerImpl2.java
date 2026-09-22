@@ -40,7 +40,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
         private static final long serialVersionUID = 4298252562811799305L;
 
-        private final List<Overlapping> overlappingRules;
+        private final transient List<Overlapping> overlappingRules;
 
         private GoalSaveSolutions(Constrainer c, List<Overlapping> ovlRules) {
             super(c);
