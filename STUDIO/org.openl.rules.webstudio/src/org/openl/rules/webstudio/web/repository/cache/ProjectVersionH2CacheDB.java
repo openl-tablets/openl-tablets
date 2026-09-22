@@ -21,7 +21,8 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
 
     // cache table fields
     private static final String TABLE_NAME = "VERSION_HASHES";
-    private static final int CACHE_VERSION = 2;
+    // 3: the content hash became SHA-256; a cache of another version is dropped and indexed again
+    private static final int CACHE_VERSION = 3;
     private static final String PROJECT_NAME = "project_name";
     private static final String VERSION = "version";
     private static final String HASH = "hash";
@@ -29,7 +30,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     private static final String CREATED_BY = "created_by";
     private static final String REPOSITORY = "repository";
 
-    private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(1000)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(32), " + REPOSITORY + " varchar(6))";
+    private static final String CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(" + PROJECT_NAME + " varchar(1000)," + VERSION + " varchar(50), " + CREATED_AT + " TIMESTAMP, " + CREATED_BY + " varchar(50), " + HASH + " varchar(64), " + REPOSITORY + " varchar(6))";
     private static final String SELECT_VERSION_QUERY = "SELECT " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + " FROM " + TABLE_NAME + " WHERE " + PROJECT_NAME + "=? AND " + HASH + "=? AND " + REPOSITORY + "=? ORDER BY " + CREATED_AT + " DESC FETCH FIRST 1 ROW ONLY";
     private static final String SELECT_HASH_QUERY = "SELECT " + HASH + " FROM " + TABLE_NAME + " WHERE " + CREATED_AT + "=? AND " + PROJECT_NAME + "=? AND " + REPOSITORY + "=? AND " + VERSION + "=?";
     private static final String INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + PROJECT_NAME + ", " + VERSION + ", " + CREATED_AT + ", " + CREATED_BY + ", " + HASH + ", " + REPOSITORY + ") values" + "(?,?,?,?,?,?)";

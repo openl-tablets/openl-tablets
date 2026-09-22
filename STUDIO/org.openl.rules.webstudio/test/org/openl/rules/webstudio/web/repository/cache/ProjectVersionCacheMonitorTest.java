@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository.cache;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -127,14 +128,15 @@ class ProjectVersionCacheMonitorTest {
 
         // A cache warmed by an earlier version must not change the hash of a later one.
         var warmCache = new HashMap<String, String>();
-        projectVersionCacheManager.computeMD5(projectV2, warmCache);
+        projectVersionCacheManager.computeHash(projectV2, warmCache);
         assertEquals(2, warmCache.size(), "both files of the earlier version are memoized");
 
-        var hashWarm = projectVersionCacheManager.computeMD5(projectV3, warmCache);       // b taken from the cache
-        var hashCold = projectVersionCacheManager.computeMD5(projectV3, new HashMap<>()); // b read again
+        var hashWarm = projectVersionCacheManager.computeHash(projectV3, warmCache);       // b taken from the cache
+        var hashCold = projectVersionCacheManager.computeHash(projectV3, new HashMap<>()); // b read again
 
         assertEquals(3, warmCache.size(), "only the changed file is read and memoized again");
         assertNotNull(hashCold);
+        assertTrue(hashCold.matches("[0-9a-f]{64}"), "a SHA-256 digest in hex: " + hashCold);
         assertEquals(hashCold, hashWarm);
     }
 
