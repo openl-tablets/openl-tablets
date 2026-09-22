@@ -1593,8 +1593,6 @@
                                 <include>**/*.md</include>
                                 <include>**/*.svg</include>
                                 <include>**/*.sql</include>
-                                <include>**/*.sql</include>
-                                <include>**/*.sql</include>
                                 <include>**/*.csv</include>
                                 <include>**/*.aj</include>
                                 <include>**/*.apt</include>
