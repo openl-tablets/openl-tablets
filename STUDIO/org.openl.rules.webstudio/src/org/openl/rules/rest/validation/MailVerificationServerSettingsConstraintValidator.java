@@ -19,6 +19,7 @@ public class MailVerificationServerSettingsConstraintValidator implements Constr
 
     @Override
     public void initialize(MailConfigConstraint constraintAnnotation) {
+        // The constraint has no attributes to read.
     }
 
     @Override

@@ -223,6 +223,7 @@ public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluat
 
     @Override
     public void setOptimizedSourceCode(String code) {
+        // The evaluator keeps the source code as it is.
     }
 
     @Override

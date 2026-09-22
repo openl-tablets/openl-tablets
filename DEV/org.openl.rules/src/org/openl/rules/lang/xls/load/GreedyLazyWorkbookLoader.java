@@ -38,6 +38,7 @@ public class GreedyLazyWorkbookLoader implements WorkbookLoader {
 
     @Override
     public void setCanUnload(boolean canUnload) {
+        // A greedy loader keeps the workbook loaded.
     }
 
     /**

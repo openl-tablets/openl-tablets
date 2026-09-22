@@ -50,9 +50,11 @@ public class MetaInfoWriterImpl implements MetaInfoWriter {
 
     @Override
     public void prepare(IGridRegion region) {
+        // The writer holds no resources for a region.
     }
 
     @Override
     public void release() {
+        // The writer holds no resources for a region.
     }
 }

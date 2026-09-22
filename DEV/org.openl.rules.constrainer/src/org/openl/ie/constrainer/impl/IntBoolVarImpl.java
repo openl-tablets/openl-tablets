@@ -95,6 +95,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
 
         @Override
         public void free() {
+            // The observer holds nothing that has to be freed.
         }
 
         @Override
@@ -147,6 +148,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
 
         @Override
         public void free() {
+            // The observer holds nothing that has to be freed.
         }
 
         @Override

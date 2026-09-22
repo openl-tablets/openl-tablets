@@ -203,6 +203,7 @@ public final class NullOpenClass implements IOpenClass {
 
     @Override
     public void setMetaInfo(IMetaInfo info) {
+        // The null type carries nothing.
     }
 
     @Override
@@ -212,6 +213,7 @@ public final class NullOpenClass implements IOpenClass {
 
     @Override
     public void addType(IOpenClass type) {
+        // The null type carries nothing.
     }
 
     @Override

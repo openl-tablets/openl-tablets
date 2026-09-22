@@ -16,6 +16,7 @@ public final class EmptyMetaInfoWriter implements MetaInfoWriter {
 
     @Override
     public void setMetaInfo(int row, int col, CellMetaInfo metaInfo) {
+        // The empty writer discards meta information.
     }
 
     @Override
@@ -25,10 +26,12 @@ public final class EmptyMetaInfoWriter implements MetaInfoWriter {
 
     @Override
     public void prepare(IGridRegion region) {
+        // The empty writer discards meta information.
     }
 
     @Override
     public void release() {
+        // The empty writer discards meta information.
     }
 
 }

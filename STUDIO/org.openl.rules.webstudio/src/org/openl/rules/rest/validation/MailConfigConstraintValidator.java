@@ -20,6 +20,7 @@ public class MailConfigConstraintValidator implements ConstraintValidator<MailCo
 
     @Override
     public void initialize(MailConfigConstraint constraintAnnotation) {
+        // The constraint has no attributes to read.
     }
 
     @Override

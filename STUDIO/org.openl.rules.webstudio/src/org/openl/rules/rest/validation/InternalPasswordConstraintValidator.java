@@ -16,6 +16,7 @@ public class InternalPasswordConstraintValidator implements ConstraintValidator<
 
     @Override
     public void initialize(InternalPasswordConstraint constraintAnnotation) {
+        // The constraint has no attributes to read.
     }
 
     @Override

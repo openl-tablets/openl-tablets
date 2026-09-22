@@ -19,6 +19,7 @@ import org.openl.util.TableNameChecker;
 public class ParameterDeclarationNodeBinder extends ANodeBinder {
 
     protected void validateMetaData(ISyntaxNode syntaxNode, IBindingContext bindingContext) {
+        // A hook for subclasses: a plain parameter has no metadata to validate.
     }
 
     protected IBoundNode makeParameterNode(ISyntaxNode node,

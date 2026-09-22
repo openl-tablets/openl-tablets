@@ -10,7 +10,7 @@ public class ProjectNameConstraintValidator implements ConstraintValidator<Proje
 
     @Override
     public void initialize(ProjectNameConstraint constraintAnnotation) {
-
+        // The constraint has no attributes to read.
     }
 
     @Override

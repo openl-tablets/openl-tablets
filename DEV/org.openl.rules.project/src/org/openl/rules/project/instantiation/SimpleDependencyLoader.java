@@ -153,6 +153,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected void onCompilationComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+        // A hook for subclasses: the loader itself has nothing to do here.
     }
 
     protected CompiledDependency onCompilationFailure(Exception ex,
@@ -170,6 +171,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected void onResetComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+        // A hook for subclasses: the loader itself has nothing to do here.
     }
 
     @Override

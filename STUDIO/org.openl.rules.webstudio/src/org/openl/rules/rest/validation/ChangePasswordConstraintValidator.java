@@ -24,6 +24,7 @@ public class ChangePasswordConstraintValidator implements ConstraintValidator<Ch
 
     @Override
     public void initialize(ChangePasswordConstraint constraintAnnotation) {
+        // The constraint has no attributes to read.
     }
 
     @Override

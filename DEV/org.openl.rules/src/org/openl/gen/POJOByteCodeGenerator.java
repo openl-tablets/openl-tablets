@@ -234,6 +234,7 @@ public class POJOByteCodeGenerator {
                                      FieldDescription field,
                                      String javaType,
                                      int index) {
+                                         // A hook for subclasses: the plain generator adds nothing.
     }
 
     private void visitOpenLContextAnnotation(String fieldName, FieldVisitor fieldVisitor) {
@@ -244,7 +245,7 @@ public class POJOByteCodeGenerator {
     }
 
     protected void visitExtraByteCodeGeneration(ClassWriter classWriter) {
-
+        // A hook for subclasses: the plain generator adds nothing.
     }
 
     /**

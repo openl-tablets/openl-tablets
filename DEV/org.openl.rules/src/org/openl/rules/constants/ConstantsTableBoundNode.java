@@ -60,6 +60,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
     @Override
     public void addTo(ModuleOpenClass openClass) {
+        // The constants are registered while the table is bound.
     }
 
     private void processRow(ILogicalTable row, IBindingContext cxt) {
