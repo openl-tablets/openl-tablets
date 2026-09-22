@@ -53,7 +53,9 @@ public class AppServer {
 
         var backupProperties = System.getProperties();
         try {
-            System.setProperty("groovy.use.classvalue", "false"); // Prevent memory leak via JDK ClassValue. See GROOVY-7591
+            // Prevent memory leak via JDK ClassValue. See GROOVY-7591.
+            // GroovyClassValueLeakTest guards the property, which Groovy 5 dropped and Groovy 6 brought back.
+            System.setProperty("groovy.use.classvalue", "false");
             server.start();
 
             var port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
