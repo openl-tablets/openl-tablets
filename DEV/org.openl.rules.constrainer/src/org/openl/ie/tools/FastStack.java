@@ -17,7 +17,7 @@ package org.openl.ie.tools;
 import java.io.Serializable;
 
 // "implements serializable"  was added by Eugeny Tseitlin 18.06.2003
-public final class FastStack implements Cloneable, Serializable {
+public final class FastStack implements Serializable {
 
     static final int DEFAULT_CAPACITY = 10;
 
@@ -36,21 +36,17 @@ public final class FastStack implements Cloneable, Serializable {
         m_data = new Object[capacity];
     }
 
+    /**
+     * Creates an independent copy of another stack.
+     */
+    public FastStack(FastStack other) {
+        m_data = other.m_data.clone();
+        m_size = other.m_size;
+    }
+
     public void clear() {
         m_size = 0;
         m_data = new Object[m_data.length];
-    }
-
-    @Override
-    public Object clone() {
-        try {
-            var v = (FastStack) super.clone();
-            v.m_data = m_data.clone();
-            return v;
-        } catch (CloneNotSupportedException e) {
-            // this shouldn't happen, since we are Cloneable
-            throw new InternalError();
-        }
     }
 
     public boolean empty() {

@@ -66,11 +66,6 @@ public class ArtefactPathImpl implements ArtefactPath {
     }
 
     @Override
-    protected Object clone() {
-        return new ArtefactPathImpl(this);
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
