@@ -202,9 +202,11 @@ jobs:
         # 'ci' rather than 'install': the runner starts without node_modules, and the lockfile alone
         # decides what lands there. The Maven build keeps 'install', which is the cheaper one to repeat
         # over a tree that already has node_modules.
+        # '--ignore-scripts': no package of the lockfile needs an install hook to run the suite, and a hook
+        # is code the lockfile does not pin.
       - name: Install dependencies
         working-directory: STUDIO/studio-ui
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run tests
         working-directory: STUDIO/studio-ui
