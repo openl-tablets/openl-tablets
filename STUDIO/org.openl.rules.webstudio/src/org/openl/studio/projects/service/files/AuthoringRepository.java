@@ -33,6 +33,9 @@ import org.openl.util.StringUtils;
 @RequiredArgsConstructor
 public class AuthoringRepository implements BranchRepository {
 
+    private static final String SAVE_PREFIX = "Save ";
+    private static final String DELETE_PREFIX = "Delete ";
+
     /**
      * Write operations intercepted to stamp the author and comment. Excluded from delegation so the
      * methods below are used instead of generated pass-throughs.
@@ -89,35 +92,35 @@ public class AuthoringRepository implements BranchRepository {
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        return delegate.save(stamp(data, "Save " + nameOf(data)), stream);
+        return delegate.save(stamp(data, SAVE_PREFIX + nameOf(data)), stream);
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        fileItems.forEach(item -> stamp(item.getData(), "Save " + nameOf(item.getData())));
+        fileItems.forEach(item -> stamp(item.getData(), SAVE_PREFIX + nameOf(item.getData())));
         return delegate.save(fileItems);
     }
 
     @Override
     public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
-        files.forEach(item -> stamp(item.getData(), "Save " + nameOf(item.getData())));
+        files.forEach(item -> stamp(item.getData(), SAVE_PREFIX + nameOf(item.getData())));
         return delegate.save(stamp(folderData, "Update files"), files, changesetType);
     }
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        return delegate.delete(stamp(data, "Delete " + nameOf(data)));
+        return delegate.delete(stamp(data, DELETE_PREFIX + nameOf(data)));
     }
 
     @Override
     public boolean delete(List<FileData> data) throws IOException {
-        data.forEach(item -> stamp(item, "Delete " + nameOf(item)));
+        data.forEach(item -> stamp(item, DELETE_PREFIX + nameOf(item)));
         return delegate.delete(data);
     }
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        return delegate.deleteHistory(stamp(data, "Delete " + nameOf(data)));
+        return delegate.deleteHistory(stamp(data, DELETE_PREFIX + nameOf(data)));
     }
 
     @Override

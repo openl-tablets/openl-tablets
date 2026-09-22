@@ -88,6 +88,15 @@ import org.openl.util.generation.InterfaceTransformer;
 
 public class JAXRSOpenLServiceEnhancerHelper {
 
+    private static final String VALUE = "value";
+    private static final String PATH_PARAMETER = "\\{[^}]*}";
+    private static final String DESCRIPTION = "description";
+    private static final String RESPONSE_CODE = "responseCode";
+    private static final String SCHEMA = "schema";
+    private static final String INTEGER_TYPE = "integer";
+    private static final String INT32_FORMAT = "int32";
+    private static final String IMPLEMENTATION = "implementation";
+
     private JAXRSOpenLServiceEnhancerHelper() {
         // Utility class
     }
@@ -165,7 +174,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
             if (!originalClass.isAnnotationPresent(Path.class)) {
                 var annotationVisitor = this.visitAnnotation(Type.getDescriptor(Path.class), true);
-                annotationVisitor.visit("value", "/");
+                annotationVisitor.visit(VALUE, "/");
                 annotationVisitor.visitEnd();
             }
 
@@ -326,7 +335,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (s == null) {
                 s = "/";
             }
-            s = s.replaceAll("\\{[^}]*}", "{}");
+            s = s.replaceAll(PATH_PARAMETER, "{}");
             while (!Objects.equals(s, s.replace("//", "/"))) {
                 s = s.replace("//", "/");
             }
@@ -587,7 +596,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (returnType != null && isTextMediaType(returnType) && !originalMethod
                     .isAnnotationPresent(Produces.class)) {
                 var av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
-                var av2 = av.visitArray("value");
+                var av2 = av.visitArray(VALUE);
                 av2.visit(null, "text/plain;charset=UTF-8"); // All I/O of Strings are serialized as UTF-8
                 av2.visitEnd();
                 av.visitEnd();
@@ -595,7 +604,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (originalParameterTypes.length == 1 && isTextMediaType(originalParameterTypes[0]) && !originalMethod
                     .isAnnotationPresent(Consumes.class)) {
                 var av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
-                var av2 = av.visitArray("value");
+                var av2 = av.visitArray(VALUE);
                 av2.visit(null, MediaType.TEXT_PLAIN);
                 av2.visitEnd();
                 av.visitEnd();
@@ -669,7 +678,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private String addPathAnnotation(MethodVisitor mv, Method originalMethod, String path) {
             if (!originalMethod.isAnnotationPresent(Path.class)) {
                 var av = mv.visitAnnotation(Type.getDescriptor(Path.class), true);
-                av.visit("value", path);
+                av.visit(VALUE, path);
                 av.visitEnd();
                 return path;
             } else {
@@ -699,7 +708,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 if (StringUtils.isBlank(description)) {
                     description = (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary;
                 }
-                av.visit("description", description);
+                av.visit(DESCRIPTION, description);
                 Map<String, String> parameterDescriptions = methodDescription.parameterDescriptions();
                 var paramList = parameterDescriptions.entrySet().stream()
                         .filter(entry -> usedParamNames != null && usedParamNames.contains(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())).collect(Collectors.toSet());
@@ -708,7 +717,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     paramList.forEach(entry -> {
                         var av2 = av1.visitAnnotation(null, Type.getDescriptor(io.swagger.v3.oas.annotations.Parameter.class));
                         av2.visit("name", entry.getKey());
-                        av2.visit("description", entry.getValue());
+                        av2.visit(DESCRIPTION, entry.getValue());
                         av2.visitEnd();
                     });
                     av1.visitEnd();
@@ -719,10 +728,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private PathItem findPathItem(String path) {
             if (this.openApi != null && this.openApi.getPaths() != null) {
-                path = path.replaceAll("\\{[^}]*}", "{}");
+                path = path.replaceAll(PATH_PARAMETER, "{}");
                 for (Map.Entry<String, PathItem> entry : this.openApi.getPaths().entrySet()) {
                     var k = entry.getKey();
-                    k = k.replaceAll("\\{[^}]*}", "{}");
+                    k = k.replaceAll(PATH_PARAMETER, "{}");
                     if (Objects.equals(path, k)) {
                         return entry.getValue();
                     }
@@ -784,13 +793,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
             var type = extractOriginalType(originalMethod.getReturnType());
             final var isVoidType = void.class == type || Void.class == type;
             var av = mv.visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
-            var av1 = av.visitArray("value");
+            var av1 = av.visitArray(VALUE);
             if (isVoidType || !type.isPrimitive()) {
                 // empty response body can be only for void or non-primitive types
                 var noContentAv = av1.visitAnnotation(null,
                         Type.getDescriptor(ApiResponse.class));
-                noContentAv.visit("responseCode", String.valueOf(Response.Status.NO_CONTENT.getStatusCode()));
-                noContentAv.visit("description", "Successful operation");
+                noContentAv.visit(RESPONSE_CODE, String.valueOf(Response.Status.NO_CONTENT.getStatusCode()));
+                noContentAv.visit(DESCRIPTION, "Successful operation");
                 noContentAv.visitEnd();
             }
             if (!isVoidType) {
@@ -804,8 +813,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
         /** A multi-dimensional array is described as a plain object. */
         private void addOkResponseAnnotation(AnnotationVisitor av, IOpenMember openMember, Method originalMethod) {
             var av2 = av.visitAnnotation("responses", Type.getDescriptor(ApiResponse.class));
-            av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
-            av2.visit("description", "Successful operation");
+            av2.visit(RESPONSE_CODE, String.valueOf(Response.Status.OK.getStatusCode()));
+            av2.visit(DESCRIPTION, "Successful operation");
             var av3 = av2.visitArray("content");
             var av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
             var returnType = originalMethod.getReturnType();
@@ -837,7 +846,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 acceptLanguage.visit("name", "Accept-Language");
                 acceptLanguage.visitEnum("in", "Lio/swagger/v3/oas/annotations/enums/ParameterIn;", "HEADER");
                 acceptLanguage.visit("example", "en-GB");
-                var av1 = acceptLanguage.visitAnnotation("schema", "Lio/swagger/v3/oas/annotations/media/Schema;");
+                var av1 = acceptLanguage.visitAnnotation(SCHEMA, "Lio/swagger/v3/oas/annotations/media/Schema;");
                 av1.visit("name", "string");
                 av1.visitEnd();
                 acceptLanguage.visitEnd();
@@ -860,10 +869,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private static final Map<Class<?>, PrimitiveSchema> PRIMITIVE_SCHEMAS = Map.of(
-                Integer.class, new PrimitiveSchema("integer", "int32"),
-                Short.class, new PrimitiveSchema("integer", "int32"),
-                Byte.class, new PrimitiveSchema("integer", "int32"),
-                Long.class, new PrimitiveSchema("integer", "int64"),
+                Integer.class, new PrimitiveSchema(INTEGER_TYPE, INT32_FORMAT),
+                Short.class, new PrimitiveSchema(INTEGER_TYPE, INT32_FORMAT),
+                Byte.class, new PrimitiveSchema(INTEGER_TYPE, INT32_FORMAT),
+                Long.class, new PrimitiveSchema(INTEGER_TYPE, "int64"),
                 Float.class, new PrimitiveSchema("number", "float"),
                 Double.class, new PrimitiveSchema("number", "double"),
                 Boolean.class, new PrimitiveSchema("boolean", null),
@@ -879,7 +888,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (extractedType != null) {
                 type = extractedType;
             }
-            var av1 = av.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+            var av1 = av.visitAnnotation(SCHEMA, Type.getDescriptor(Schema.class));
             visitSchemaType(av1, type);
             if (allowableValues != null) {
                 OpenApiSchemaAnnotations.visitAllowableValues(av1, allowableValues);
@@ -899,28 +908,28 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     av.visit("format", primitive.format());
                 }
             } else if (Map.class.isAssignableFrom(type)) {
-                av.visit("implementation", Type.getType(Object.class)); // Impossible to define Map through Schema
+                av.visit(IMPLEMENTATION, Type.getType(Object.class)); // Impossible to define Map through Schema
                 // annotations.
             } else {
-                av.visit("implementation", Type.getType(type));
+                av.visit(IMPLEMENTATION, Type.getType(type));
             }
         }
 
         private void addPathParamAnnotation(MethodVisitor mv, int index, String paramName) {
             var av = mv.visitParameterAnnotation(index, Type.getDescriptor(PathParam.class), true);
-            av.visit("value", paramName);
+            av.visit(VALUE, paramName);
             av.visitEnd();
         }
 
         private void addQueryParamAnnotation(MethodVisitor mv, int index, String paramName) {
             var av = mv.visitParameterAnnotation(index, Type.getDescriptor(QueryParam.class), true);
-            av.visit("value", paramName);
+            av.visit(VALUE, paramName);
             av.visitEnd();
         }
 
         private void addProducesAnnotation(ClassVisitor cv) {
             var av = cv.visitAnnotation(Type.getDescriptor(Produces.class), true);
-            var av1 = av.visitArray("value");
+            var av1 = av.visitArray(VALUE);
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visitEnd();
             av.visitEnd();
@@ -928,7 +937,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private void addConsumesAnnotation(ClassVisitor cv) {
             var av = cv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
-            var av1 = av.visitArray("value");
+            var av1 = av.visitArray(VALUE);
             av1.visit(null, MediaType.APPLICATION_JSON);
             av1.visitEnd();
             av.visitEnd();
@@ -937,7 +946,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private void addOpenApiResponsesAnnotation(ClassVisitor cv) {
             var av = cv
                     .visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
-            var arrayAv = av.visitArray("value");
+            var arrayAv = av.visitArray(VALUE);
 
             var allUserApiResponses = new ArrayList<Class<?>>();
             allUserApiResponses.add(JAXRSUserErrorResponse.class);
@@ -977,16 +986,16 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                   String... jsonExamples) {
             var apiResponseAv = av.visitAnnotation(null,
                     Type.getDescriptor(ApiResponse.class));
-            apiResponseAv.visit("responseCode", String.valueOf(code));
-            apiResponseAv.visit("description", message);
+            apiResponseAv.visit(RESPONSE_CODE, String.valueOf(code));
+            apiResponseAv.visit(DESCRIPTION, message);
 
             var contentArrayAv = apiResponseAv.visitArray("content");
             var contentAv = contentArrayAv.visitAnnotation(null, Type.getDescriptor(Content.class));
             contentAv.visit("mediaType", MediaType.APPLICATION_JSON);
 
-            var schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+            var schemaAv = contentAv.visitAnnotation(SCHEMA, Type.getDescriptor(Schema.class));
             if (responseTypes.length == 1) {
-                schemaAv.visit("implementation", Type.getType(responseTypes[0]));
+                schemaAv.visit(IMPLEMENTATION, Type.getType(responseTypes[0]));
             } else {
                 var oneOf = schemaAv.visitArray("oneOf");
                 for (Class<?> respType : responseTypes) {
@@ -1001,7 +1010,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             for (String jsonExample : jsonExamples) {
                 var exampleObjectAv = examplesArrAv.visitAnnotation(null,
                         Type.getDescriptor(ExampleObject.class));
-                exampleObjectAv.visit("value", jsonExample);
+                exampleObjectAv.visit(VALUE, jsonExample);
                 if (jsonExamples.length > 1) {
                     // if more than one example then add name
                     exampleObjectAv.visit("name", "Example " + exampleCnt++);

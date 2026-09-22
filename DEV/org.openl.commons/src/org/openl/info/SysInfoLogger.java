@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 final class SysInfoLogger extends OpenLLogger {
+    private static final String RUNTIME_ACCESS_FAILURE = "##### Cannot access to the Runtime environment";
+
     @Override
     protected String getName() {
         return "sys";
@@ -39,7 +41,7 @@ final class SysInfoLogger extends OpenLLogger {
                     toMiB(runtime.totalMemory()),
                     toMiB(runtime.totalMemory() - runtime.freeMemory()));
         } catch (Exception ignored) {
-            log("##### Cannot access to the Runtime environment");
+            log(RUNTIME_ACCESS_FAILURE);
         }
         try {
             log("    Time : {} ({} - {})",
@@ -70,7 +72,7 @@ final class SysInfoLogger extends OpenLLogger {
                     toMiB(runtime.totalMemory()),
                     toMiB(runtime.totalMemory() - runtime.freeMemory()));
         } catch (Exception e) {
-            log("##### Cannot access to the Runtime environment");
+            log(RUNTIME_ACCESS_FAILURE);
         }
 
         try {
@@ -95,7 +97,7 @@ final class SysInfoLogger extends OpenLLogger {
                         "%15s".formatted(pool.getType()));
             }
         } catch (Exception ignored) {
-            log("##### Cannot access to the Runtime environment");
+            log(RUNTIME_ACCESS_FAILURE);
         }
     }
 

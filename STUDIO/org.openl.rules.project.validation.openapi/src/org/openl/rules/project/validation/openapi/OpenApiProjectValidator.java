@@ -94,6 +94,15 @@ import org.openl.validation.ValidatedCompiledOpenClass;
 @Slf4j
 public class OpenApiProjectValidator {
 
+    private static final String PATH_PARAMETER = "\\{[^}]*}";
+    private static final String SCHEMA = "schema";
+    private static final String BIG_INTEGER = "BigInteger";
+    private static final String BIG_DECIMAL = "BigDecimal";
+    private static final String INTEGER = "Integer";
+    private static final String DOUBLE = "Double";
+    private static final String FLOAT = "Float";
+    private static final String OBJECT_TYPE = "object";
+
     private static final String OPENAPI_JSON = "openapi.json";
     private static final String OPENAPI_YAML = "openapi.yaml";
     private static final String OPENAPI_YML = "openapi.yml";
@@ -260,10 +269,10 @@ public class OpenApiProjectValidator {
 
     private Pair<String, PathItem> findPathItem(Paths paths, String path) {
         if (paths != null) {
-            path = path.replaceAll("\\{[^}]*}", "{}");
+            path = path.replaceAll(PATH_PARAMETER, "{}");
             for (Map.Entry<String, PathItem> entry : paths.entrySet()) {
                 var k = entry.getKey();
-                k = k.replaceAll("\\{[^}]*}", "{}");
+                k = k.replaceAll(PATH_PARAMETER, "{}");
                 if (Objects.equals(path, k)) {
                     return Pair.of(entry.getKey(), entry.getValue());
                 }
@@ -415,7 +424,7 @@ public class OpenApiProjectValidator {
         if (s == null) {
             s = "/";
         }
-        s = s.replaceAll("\\{[^}]*}", "{}");
+        s = s.replaceAll(PATH_PARAMETER, "{}");
         while (!Objects.equals(s, s.replace("//", "/"))) {
             s = s.replace("//", "/");
         }
@@ -867,7 +876,7 @@ public class OpenApiProjectValidator {
     private String buildOpenApiTypeMessagePart(Schema schema) {
         var s = resolveSimplifiedName(schema);
         if (s == null) {
-            return "schema";
+            return SCHEMA;
         }
         var dim = 0;
         var arraySuffix = new StringBuilder();
@@ -877,7 +886,7 @@ public class OpenApiProjectValidator {
             dim++;
             schema = ((ArraySchema) schema).getItems();
             if (schema == null) {
-                return "schema";
+                return SCHEMA;
             }
         }
         var prefix = StringUtils.EMPTY;
@@ -890,7 +899,7 @@ public class OpenApiProjectValidator {
                 ? StringUtils.EMPTY
                 : " with the values " + schema.getEnum();
         return (dim == 0 && isSimpleJavaType(
-                s) ? "type" : "schema") + " '" + prefix + type + (format != null ? "(" + format + ")" : "") + "'" + values;
+                s) ? "type" : SCHEMA) + " '" + prefix + type + (format != null ? "(" + format + ")" : "") + "'" + values;
     }
 
     private String getMethodForPathStringPart(String methodName, String path) {
@@ -1126,8 +1135,8 @@ public class OpenApiProjectValidator {
         return formParam != null ? formParam.value() : null;
     }
 
-    private static final List<String> ORDER_TYPES1 = Arrays.asList("Integer", "Long", "BigInteger", "BigDecimal");
-    private static final List<String> ORDER_TYPES2 = Arrays.asList("Integer", "Long", "Float", "Double", "BigDecimal");
+    private static final List<String> ORDER_TYPES1 = Arrays.asList(INTEGER, "Long", BIG_INTEGER, BIG_DECIMAL);
+    private static final List<String> ORDER_TYPES2 = Arrays.asList(INTEGER, "Long", FLOAT, DOUBLE, BIG_DECIMAL);
 
     private boolean isCompatibleSimpleTypes(String actualType, String expectedType) {
         var actualIndex = ORDER_TYPES1.indexOf(actualType);
@@ -1179,9 +1188,9 @@ public class OpenApiProjectValidator {
     }
 
     private boolean isSimpleJavaType(String type) {
-        return "String".equals(type) || "Float".equals(type) || "Double".equals(type) || "Integer"
+        return "String".equals(type) || FLOAT.equals(type) || DOUBLE.equals(type) || INTEGER
                 .equals(type) || "Long".equals(type) || "Boolean"
-                .equals(type) || "Date".equals(type) || "BigDecimal".equals(type) || "BigInteger".equals(type);
+                .equals(type) || "Date".equals(type) || BIG_DECIMAL.equals(type) || BIG_INTEGER.equals(type);
     }
 
     private String resolveType(Schema<?> schema) {
@@ -1198,8 +1207,8 @@ public class OpenApiProjectValidator {
         if (schema.get$ref() != null) {
             return RefUtils.computeDefinitionName(schema.get$ref());
         }
-        if ("object".equals(schema.getType())) {
-            return "object";
+        if (OBJECT_TYPE.equals(schema.getType())) {
+            return OBJECT_TYPE;
         } else if ("string".equals(schema.getType())) {
             if ("date".equals(schema.getFormat())) {
                 return "Date";
@@ -1209,19 +1218,19 @@ public class OpenApiProjectValidator {
             return "String";
         } else if ("number".equals(schema.getType())) {
             if ("float".equals(schema.getFormat())) {
-                return "Float";
+                return FLOAT;
             } else if ("double".equals(schema.getFormat())) {
-                return "Double";
+                return DOUBLE;
             } else {
-                return "BigDecimal";
+                return BIG_DECIMAL;
             }
         } else if ("integer".equals(schema.getType())) {
             if ("int32".equals(schema.getFormat())) {
-                return "Integer";
+                return INTEGER;
             } else if ("int64".equals(schema.getFormat())) {
                 return "Long";
             } else {
-                return "BigInteger";
+                return BIG_INTEGER;
             }
         } else if ("boolean".equals(schema.getType())) {
             return "Boolean";
@@ -1412,7 +1421,7 @@ public class OpenApiProjectValidator {
         if (actualSchema != null && Optional.ofNullable(expectedSchema)
                 .filter(s -> s.getProperties() == null)
                 .map(Schema::getType)
-                .filter("object"::equals)
+                .filter(OBJECT_TYPE::equals)
                 .isPresent()) {
             return;
         }
@@ -1573,7 +1582,7 @@ public class OpenApiProjectValidator {
                                         context.setIsIncompatibleTypesPredicate(isIncompatibleTypesPredicate);
                                         var actualSchemaMessagePartString = buildOpenApiTypeMessagePart(
                                                 fieldActualSchema);
-                                        if (Objects.equals("schema", actualSchemaMessagePartString)) {
+                                        if (Objects.equals(SCHEMA, actualSchemaMessagePartString)) {
                                             actualSchemaMessagePartString = StringUtils.EMPTY;
                                         } else {
                                             actualSchemaMessagePartString = " that incompatible with actual %s".formatted(

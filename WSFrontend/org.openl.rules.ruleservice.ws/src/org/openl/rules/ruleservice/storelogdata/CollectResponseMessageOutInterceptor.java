@@ -29,6 +29,8 @@ import org.apache.cxf.phase.Phase;
 @Slf4j
 public class CollectResponseMessageOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    private static final String IGNORED_ERROR = "Ignored error: ";
+
     @Getter
     private final StoreLogDataManager storeLoggingManager;
 
@@ -160,7 +162,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
                 // Just transform the XML message when the cos has content
                 builder.append(w2.getBuffer());
             } catch (Exception e) {
-                log.debug("Ignored error: ", e);
+                log.debug(IGNORED_ERROR, e);
             }
             var id = (String) message.getExchange().get(CollectRequestMessageInInterceptor.ID_KEY);
             var loggingMessage = new LoggingMessage(null, id);
@@ -230,7 +232,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
                 cos.lockOutputStream();
                 cos.resetOut(null, false);
             } catch (Exception e) {
-                log.debug("Ignored error: ", e);
+                log.debug(IGNORED_ERROR, e);
             }
             message.setContent(OutputStream.class, origStream);
             if (fault != null) {
@@ -240,7 +242,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
                     try {
                         stream.copyCacheToFlowThroughStream();
                     } catch (Exception e) {
-                        log.debug("Ignored error: ", e);
+                        log.debug(IGNORED_ERROR, e);
                     }
                 }
             }

@@ -82,6 +82,8 @@ import org.openl.util.text.TextInterval;
 
 public class SpreadsheetStructureBuilder {
 
+    private static final String CANNOT_PARSE_HEADER = "Cannot parse header.";
+
     private static final SpreadsheetHeaderDefinition[] EMPTY_SPREADSHEET_HEADER_DEFINITION_ARRAY = new SpreadsheetHeaderDefinition[0];
 
     public static final String DOLLAR_SIGN = "$";
@@ -834,11 +836,11 @@ public class SpreadsheetStructureBuilder {
         try {
             nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMITER.toString());
         } catch (OpenLCompilationException e) {
-            bindingContext.addError(SyntaxNodeExceptionUtils.createError("Cannot parse header.", source));
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError(CANNOT_PARSE_HEADER, source));
             return;
         }
         if (nodes.length == 0) {
-            bindingContext.addError(SyntaxNodeExceptionUtils.createError("Cannot parse header.", source));
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError(CANNOT_PARSE_HEADER, source));
             return;
         }
         if (nodes.length > 2) {
@@ -951,7 +953,7 @@ public class SpreadsheetStructureBuilder {
                 }
             }
         } catch (OpenLCompilationException e) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header.",
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(CANNOT_PARSE_HEADER,
                     typeIdentifierNode);
             bindingContext.addError(error);
         }

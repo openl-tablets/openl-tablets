@@ -103,6 +103,8 @@ import org.openl.util.IOUtils;
 
 public final class DecisionTableHelper {
 
+    private static final String RETURN_PREFIX = "Return: ";
+
     public static final String HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER = "/";
     private static final String RET1_COLUMN_NAME = DecisionTableColumnHeaders.RETURN.getHeaderKey() + "1";
     private static final String CRET1_COLUMN_NAME = DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + "1";
@@ -719,7 +721,7 @@ public final class DecisionTableHelper {
                     }
                     if (!bindingContext.isExecutionMode()) {
                         var sb = new StringBuilder();
-                        sb.append("Return: ").append(header);
+                        sb.append(RETURN_PREFIX).append(header);
                         if (!StringUtils.isEmpty(declaredReturn.getStatement())) {
                             sb.append("\n")
                                     .append("Expression: ")
@@ -1053,7 +1055,7 @@ public final class DecisionTableHelper {
                 var statement = buildStatementByFieldsChain(compoundReturnType, fuzzyDTHeader.getFieldsChain())
                         .getKey();
                 var sb1 = new StringBuilder();
-                sb1.append("Return: ").append(header);
+                sb1.append(RETURN_PREFIX).append(header);
 
                 if (!StringUtils.isEmpty(statement)) {
                     sb1.append("\n")
@@ -1105,7 +1107,7 @@ public final class DecisionTableHelper {
 
         if (!bindingContext.isExecutionMode()) {
             var sb = new StringBuilder();
-            sb.append("Return: ").append(header);
+            sb.append(RETURN_PREFIX).append(header);
             var cell = originalTable.getSource().getCell(simpleReturnDTHeader.getColumn(), 0);
             if (!StringUtils.isEmpty(simpleReturnDTHeader.getStatement())) {
                 sb.append("\n").append("Expression: ").append(simpleReturnDTHeader.getStatement());

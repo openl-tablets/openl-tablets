@@ -27,6 +27,9 @@ import org.openl.util.StringUtils;
  * @author Yury Molchan
  */
 final class SpreadsheetResultBeanByteCodeGenerator {
+    private static final String NAMESPACE_ATTRIBUTE = "namespace";
+    private static final String VALUES_FIELD = "values";
+
     private static final Method DEFAULT_CONSTRUCTOR = Method.getMethod("void <init> ()");
     private static final String SR_BEAN_CLASS = Type.getDescriptor(SpreadsheetResultBeanClass.class);
     private static final String SPREADSHEET_CELL = Type.getDescriptor(SpreadsheetCell.class);
@@ -122,7 +125,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
 
     private void visitClassAnnotations(ClassWriter classWriter) {
         var av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlRootElement;", true);
-        av.visit("namespace", namespace);
+        av.visit(NAMESPACE_ATTRIBUTE, namespace);
         av.visit("name", name);
         av.visitEnd();
 
@@ -134,7 +137,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         av.visitEnd();
 
         av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlType;", true);
-        av.visit("namespace", namespace);
+        av.visit(NAMESPACE_ATTRIBUTE, namespace);
         av.visit("name", name);
         var av1 = av.visitArray("propOrder");
         for (var e : fields) {
@@ -145,7 +148,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void visitConstructor(ClassWriter classWriter) {
-        var map = classWriter.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, "values", "Ljava/util/HashMap;", "Ljava/util/HashMap<Lorg/openl/cache/GenericKey;Ljava/lang/Object;>;", null);
+        var map = classWriter.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, VALUES_FIELD, "Ljava/util/HashMap;", "Ljava/util/HashMap<Lorg/openl/cache/GenericKey;Ljava/lang/Object;>;", null);
         map.visitEnd();
 
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, DEFAULT_CONSTRUCTOR, null, null, classWriter);
@@ -160,7 +163,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         mg.push(fields.size());
         mg.push(1.0f);
         mg.invokeConstructor(VALUES_TYPE, Method.getMethod("void <init> (int, float)"));
-        mg.putField(beanType, "values", VALUES_TYPE);
+        mg.putField(beanType, VALUES_FIELD, VALUES_TYPE);
 
         mg.returnValue();
         mg.endMethod();
@@ -177,7 +180,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         var getterMethod = fieldDescription.className + " " + ClassUtils.getter(fieldName) + "()";
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(getterMethod), null, null, classWriter);
         mg.loadThis();
-        mg.getField(beanType, "values", VALUES_TYPE);
+        mg.getField(beanType, VALUES_FIELD, VALUES_TYPE);
         mg.push(fieldDescription.cell);
         mg.invokeVirtual(VALUES_TYPE, GET_VALUE);
         mg.checkCast(fieldDescription.type);
@@ -205,7 +208,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         // having the same type (AnySpreadsheetResult) and the same set of the annotations.
         // So io.swagger.v3.core.converter.ModelConverterContextImpl.processedTypes contains no fully processed type.
         // See also InheritanceFixConverter class.
-        av.visit("namespace", propertyNameSpace);
+        av.visit(NAMESPACE_ATTRIBUTE, propertyNameSpace);
         av.visitEnd();
 
         OpenApiSchemaAnnotations.visit(mg::visitAnnotation,
@@ -222,7 +225,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(setterMethod), null, null, classWriter);
 
         mg.loadThis();
-        mg.getField(beanType, "values", VALUES_TYPE);
+        mg.getField(beanType, VALUES_FIELD, VALUES_TYPE);
         mg.push(fieldDescription.cell);
         mg.loadArg(0);
         mg.invokeVirtual(VALUES_TYPE, SET_VALUE);
@@ -302,7 +305,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
 
         // put on the stack
         mg.loadLocal(bean);
-        mg.getField(beanType, "values", VALUES_TYPE);
+        mg.getField(beanType, VALUES_FIELD, VALUES_TYPE);
         mg.loadLocal(cell); // cell
         mg.loadArg(1); // converter
 

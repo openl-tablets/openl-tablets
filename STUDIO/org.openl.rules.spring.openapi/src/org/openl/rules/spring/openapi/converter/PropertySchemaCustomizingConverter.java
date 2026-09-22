@@ -43,6 +43,8 @@ import org.openl.util.StringUtils;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PropertySchemaCustomizingConverter implements ModelConverter {
 
+    private static final String OBJECT_TYPE = "object";
+
     private final OpenApiPropertyResolver apiPropertyResolver;
     private final ObjectMapper objectMapper;
 
@@ -61,7 +63,7 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
             }
             removeInferredObjectTypeFromUnion(resolvedSchema);
             removeInferredObjectTypeFromUnion(resolvedSchema.getItems());
-            if (resolvedSchema.get$ref() != null || (resolvedSchema.getName() != null && "object".equals(resolvedSchema.getType()))) {
+            if (resolvedSchema.get$ref() != null || (resolvedSchema.getName() != null && OBJECT_TYPE.equals(resolvedSchema.getType()))) {
                 JavaType javaType;
                 if (type.getType() instanceof JavaType) {
                     javaType = (JavaType) type.getType();
@@ -126,7 +128,7 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
     }
 
     private static void removeInferredObjectTypeFromUnion(Schema<?> schema) {
-        if (schema == null || !"object".equals(schema.getType()) || CollectionUtils.isEmpty(schema.getOneOf())) {
+        if (schema == null || !OBJECT_TYPE.equals(schema.getType()) || CollectionUtils.isEmpty(schema.getOneOf())) {
             return;
         }
         if (schema.getOneOf().stream().anyMatch(PropertySchemaCustomizingConverter::isNonObjectSchema)) {
@@ -135,7 +137,7 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
     }
 
     private static boolean isNonObjectSchema(Schema<?> schema) {
-        return schema.get$ref() == null && schema.getType() != null && !"object".equals(schema.getType());
+        return schema.get$ref() == null && schema.getType() != null && !OBJECT_TYPE.equals(schema.getType());
     }
 
     @SuppressWarnings("rawtypes")

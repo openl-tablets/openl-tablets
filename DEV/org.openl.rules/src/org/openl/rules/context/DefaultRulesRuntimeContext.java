@@ -18,6 +18,20 @@ import org.openl.types.IOpenMethod;
 
 public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesRuntimeContextOptimizationForOpenMethodDispatcher, Serializable {
 
+    private static final String CURRENT_DATE_KEY = "currentDate";
+    private static final String REQUEST_DATE_KEY = "requestDate";
+    private static final String LOB_KEY = "lob";
+    private static final String NATURE_KEY = "nature";
+    private static final String US_STATE_KEY = "usState";
+    private static final String COUNTRY_KEY = "country";
+    private static final String US_REGION_KEY = "usRegion";
+    private static final String CURRENCY_KEY = "currency";
+    private static final String LANG_KEY = "lang";
+    private static final String REGION_KEY = "region";
+    private static final String CA_PROVINCE_KEY = "caProvince";
+    private static final String CA_REGION_KEY = "caRegion";
+    private static final String LOCALE_KEY = "locale";
+
     @Serial
     private static final long serialVersionUID = 670283457423670894L;
 
@@ -155,55 +169,55 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     @Override
     public void setValue(String name, Object value) {
-        if ("currentDate".equals(name)) {
+        if (CURRENT_DATE_KEY.equals(name)) {
             setCurrentDate((java.util.Date) value);
             return;
         }
-        if ("requestDate".equals(name)) {
+        if (REQUEST_DATE_KEY.equals(name)) {
             setRequestDate((java.util.Date) value);
             return;
         }
-        if ("lob".equals(name)) {
+        if (LOB_KEY.equals(name)) {
             setLob((java.lang.String) value);
             return;
         }
-        if ("nature".equals(name)) {
+        if (NATURE_KEY.equals(name)) {
             setNature((java.lang.String) value);
             return;
         }
-        if ("usState".equals(name)) {
+        if (US_STATE_KEY.equals(name)) {
             setUsState((org.openl.rules.enumeration.UsStatesEnum) value);
             return;
         }
-        if ("country".equals(name)) {
+        if (COUNTRY_KEY.equals(name)) {
             setCountry((org.openl.rules.enumeration.CountriesEnum) value);
             return;
         }
-        if ("usRegion".equals(name)) {
+        if (US_REGION_KEY.equals(name)) {
             setUsRegion((org.openl.rules.enumeration.UsRegionsEnum) value);
             return;
         }
-        if ("currency".equals(name)) {
+        if (CURRENCY_KEY.equals(name)) {
             setCurrency((org.openl.rules.enumeration.CurrenciesEnum) value);
             return;
         }
-        if ("lang".equals(name)) {
+        if (LANG_KEY.equals(name)) {
             setLang((org.openl.rules.enumeration.LanguagesEnum) value);
             return;
         }
-        if ("region".equals(name)) {
+        if (REGION_KEY.equals(name)) {
             setRegion((org.openl.rules.enumeration.RegionsEnum) value);
             return;
         }
-        if ("caProvince".equals(name)) {
+        if (CA_PROVINCE_KEY.equals(name)) {
             setCaProvince((org.openl.rules.enumeration.CaProvincesEnum) value);
             return;
         }
-        if ("caRegion".equals(name)) {
+        if (CA_REGION_KEY.equals(name)) {
             setCaRegion((org.openl.rules.enumeration.CaRegionsEnum) value);
             return;
         }
-        if ("locale".equals(name)) {
+        if (LOCALE_KEY.equals(name)) {
             setLocale((java.util.Locale) value);
             return;
         }
@@ -215,7 +229,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setCurrentDate(java.util.Date currentDate) {
         this.currentDate = currentDate;
-        internalMap.put("currentDate", currentDate);
+        internalMap.put(CURRENT_DATE_KEY, currentDate);
         cache = null;
     }
 
@@ -225,7 +239,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setRequestDate(java.util.Date requestDate) {
         this.requestDate = requestDate;
-        internalMap.put("requestDate", requestDate);
+        internalMap.put(REQUEST_DATE_KEY, requestDate);
         cache = null;
     }
 
@@ -235,7 +249,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setLob(java.lang.String lob) {
         this.lob = lob;
-        internalMap.put("lob", lob);
+        internalMap.put(LOB_KEY, lob);
         cache = null;
     }
 
@@ -245,7 +259,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setNature(java.lang.String nature) {
         this.nature = nature;
-        internalMap.put("nature", nature);
+        internalMap.put(NATURE_KEY, nature);
         cache = null;
     }
 
@@ -255,7 +269,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setUsState(org.openl.rules.enumeration.UsStatesEnum usState) {
         this.usState = usState;
-        internalMap.put("usState", usState);
+        internalMap.put(US_STATE_KEY, usState);
         cache = null;
     }
 
@@ -265,7 +279,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setCountry(org.openl.rules.enumeration.CountriesEnum country) {
         this.country = country;
-        internalMap.put("country", country);
+        internalMap.put(COUNTRY_KEY, country);
         cache = null;
     }
 
@@ -275,7 +289,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setUsRegion(org.openl.rules.enumeration.UsRegionsEnum usRegion) {
         this.usRegion = usRegion;
-        internalMap.put("usRegion", usRegion);
+        internalMap.put(US_REGION_KEY, usRegion);
         cache = null;
     }
 
@@ -285,7 +299,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setCurrency(org.openl.rules.enumeration.CurrenciesEnum currency) {
         this.currency = currency;
-        internalMap.put("currency", currency);
+        internalMap.put(CURRENCY_KEY, currency);
         cache = null;
     }
 
@@ -295,7 +309,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setLang(org.openl.rules.enumeration.LanguagesEnum lang) {
         this.lang = lang;
-        internalMap.put("lang", lang);
+        internalMap.put(LANG_KEY, lang);
         cache = null;
     }
 
@@ -305,7 +319,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setRegion(org.openl.rules.enumeration.RegionsEnum region) {
         this.region = region;
-        internalMap.put("region", region);
+        internalMap.put(REGION_KEY, region);
         cache = null;
     }
 
@@ -315,7 +329,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setCaProvince(org.openl.rules.enumeration.CaProvincesEnum caProvince) {
         this.caProvince = caProvince;
-        internalMap.put("caProvince", caProvince);
+        internalMap.put(CA_PROVINCE_KEY, caProvince);
         cache = null;
     }
 
@@ -325,7 +339,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion) {
         this.caRegion = caRegion;
-        internalMap.put("caRegion", caRegion);
+        internalMap.put(CA_REGION_KEY, caRegion);
         cache = null;
     }
 
@@ -335,7 +349,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     @Override
     public void setLocale(java.util.Locale locale) {
         this.locale = locale;
-        internalMap.put("locale", locale);
+        internalMap.put(LOCALE_KEY, locale);
         cache = null;
     }
 
@@ -343,19 +357,19 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     static {
         var contextFields = new TreeMap<String, Class<?>>();
-        contextFields.put("currentDate", java.util.Date.class);
-        contextFields.put("requestDate", java.util.Date.class);
-        contextFields.put("lob", java.lang.String.class);
-        contextFields.put("nature", java.lang.String.class);
-        contextFields.put("usState", org.openl.rules.enumeration.UsStatesEnum.class);
-        contextFields.put("country", org.openl.rules.enumeration.CountriesEnum.class);
-        contextFields.put("usRegion", org.openl.rules.enumeration.UsRegionsEnum.class);
-        contextFields.put("currency", org.openl.rules.enumeration.CurrenciesEnum.class);
-        contextFields.put("lang", org.openl.rules.enumeration.LanguagesEnum.class);
-        contextFields.put("region", org.openl.rules.enumeration.RegionsEnum.class);
-        contextFields.put("caProvince", org.openl.rules.enumeration.CaProvincesEnum.class);
-        contextFields.put("caRegion", org.openl.rules.enumeration.CaRegionsEnum.class);
-        contextFields.put("locale", java.util.Locale.class);
+        contextFields.put(CURRENT_DATE_KEY, java.util.Date.class);
+        contextFields.put(REQUEST_DATE_KEY, java.util.Date.class);
+        contextFields.put(LOB_KEY, java.lang.String.class);
+        contextFields.put(NATURE_KEY, java.lang.String.class);
+        contextFields.put(US_STATE_KEY, org.openl.rules.enumeration.UsStatesEnum.class);
+        contextFields.put(COUNTRY_KEY, org.openl.rules.enumeration.CountriesEnum.class);
+        contextFields.put(US_REGION_KEY, org.openl.rules.enumeration.UsRegionsEnum.class);
+        contextFields.put(CURRENCY_KEY, org.openl.rules.enumeration.CurrenciesEnum.class);
+        contextFields.put(LANG_KEY, org.openl.rules.enumeration.LanguagesEnum.class);
+        contextFields.put(REGION_KEY, org.openl.rules.enumeration.RegionsEnum.class);
+        contextFields.put(CA_PROVINCE_KEY, org.openl.rules.enumeration.CaProvincesEnum.class);
+        contextFields.put(CA_REGION_KEY, org.openl.rules.enumeration.CaRegionsEnum.class);
+        contextFields.put(LOCALE_KEY, java.util.Locale.class);
         CONTEXT_PROPERTIES = Collections.unmodifiableMap(contextFields);
     }
     // <<< END INSERT >>>

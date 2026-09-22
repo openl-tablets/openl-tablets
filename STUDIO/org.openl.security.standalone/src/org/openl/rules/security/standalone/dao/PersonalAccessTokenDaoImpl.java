@@ -12,6 +12,9 @@ import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
 @Component("personalAccessTokenDao")
 public class PersonalAccessTokenDaoImpl extends BaseHibernateDao<PersonalAccessToken> implements PersonalAccessTokenDao {
 
+    private static final String PUBLIC_ID = "publicId";
+    private static final String LOGIN_NAME = "loginName";
+
     @Override
     public PersonalAccessToken getByPublicId(String publicId) {
         var session = getSession();
@@ -20,7 +23,7 @@ public class PersonalAccessTokenDaoImpl extends BaseHibernateDao<PersonalAccessT
         var root = query.from(PersonalAccessToken.class);
 
         query.select(root)
-                .where(cb.equal(root.get("publicId"), publicId));
+                .where(cb.equal(root.get(PUBLIC_ID), publicId));
 
         var results = session.createQuery(query)
                 .setMaxResults(1)
@@ -37,7 +40,7 @@ public class PersonalAccessTokenDaoImpl extends BaseHibernateDao<PersonalAccessT
         var root = query.from(PersonalAccessToken.class);
 
         query.select(root)
-                .where(cb.equal(root.get("loginName"), loginName))
+                .where(cb.equal(root.get(LOGIN_NAME), loginName))
                 .orderBy(cb.desc(root.get("createdAt")));
 
         return session.createQuery(query).getResultList();
@@ -50,7 +53,7 @@ public class PersonalAccessTokenDaoImpl extends BaseHibernateDao<PersonalAccessT
         var query = cb.createQuery(PersonalAccessToken.class);
         var root = query.from(PersonalAccessToken.class);
 
-        query.select(root).where(cb.and(cb.equal(root.get("loginName"), loginName), cb.equal(root.get("name"), name)));
+        query.select(root).where(cb.and(cb.equal(root.get(LOGIN_NAME), loginName), cb.equal(root.get("name"), name)));
 
         var results = session.createQuery(query)
                 .setMaxResults(1)
@@ -67,7 +70,7 @@ public class PersonalAccessTokenDaoImpl extends BaseHibernateDao<PersonalAccessT
         var delete = cb.createCriteriaDelete(PersonalAccessToken.class);
         var root = delete.from(PersonalAccessToken.class);
 
-        delete.where(cb.equal(root.get("publicId"), publicId));
+        delete.where(cb.equal(root.get(PUBLIC_ID), publicId));
 
         session.createMutationQuery(delete).executeUpdate();
     }
@@ -80,7 +83,7 @@ public class PersonalAccessTokenDaoImpl extends BaseHibernateDao<PersonalAccessT
         var delete = cb.createCriteriaDelete(PersonalAccessToken.class);
         var root = delete.from(PersonalAccessToken.class);
 
-        delete.where(cb.equal(root.get("loginName"), loginName));
+        delete.where(cb.equal(root.get(LOGIN_NAME), loginName));
 
         session.createMutationQuery(delete).executeUpdate();
     }
@@ -94,7 +97,7 @@ public class PersonalAccessTokenDaoImpl extends BaseHibernateDao<PersonalAccessT
         var root = query.from(PersonalAccessToken.class);
 
         query.select(cb.literal(1))
-                .where(cb.equal(root.get("publicId"), publicId));
+                .where(cb.equal(root.get(PUBLIC_ID), publicId));
 
         var results = session.createQuery(query)
                 .setMaxResults(1)

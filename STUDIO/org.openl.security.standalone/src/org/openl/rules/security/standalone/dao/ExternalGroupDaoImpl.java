@@ -20,6 +20,9 @@ import org.openl.rules.security.standalone.persistence.Group;
 @Component("externalGroupDao")
 public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implements ExternalGroupDao {
 
+    private static final String LOGIN_NAME = "loginName";
+    private static final String GROUP_NAME = "groupName";
+
     @Override
     public void deleteAll() {
         getSession().createMutationQuery("DELETE ExternalGroup").executeUpdate();
@@ -28,7 +31,7 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
     @Override
     public void deleteAllForUser(String loginName) {
         getSession().createMutationQuery("DELETE ExternalGroup ext where ext.loginName = :loginName")
-                .setParameter("loginName", loginName)
+                .setParameter(LOGIN_NAME, loginName)
                 .executeUpdate();
     }
 
@@ -57,7 +60,7 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
     }
 
     private Predicate[] getPredicatesAllForUser(Root<ExternalGroup> root, CriteriaBuilder cb, String loginName) {
-        return new Predicate[]{cb.equal(root.get("loginName"), loginName)};
+        return new Predicate[]{cb.equal(root.get(LOGIN_NAME), loginName)};
     }
 
     @Override
@@ -90,8 +93,8 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
                                                     String loginName) {
         var extGroupRoot = query.from(ExternalGroup.class);
 
-        return new Predicate[]{cb.equal(extGroupRoot.get("loginName"), loginName),
-                cb.equal(root.get("name"), extGroupRoot.get("groupName"))};
+        return new Predicate[]{cb.equal(extGroupRoot.get(LOGIN_NAME), loginName),
+                cb.equal(root.get("name"), extGroupRoot.get(GROUP_NAME))};
     }
 
     @Override
@@ -125,8 +128,8 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         var sqGroup = query.subquery(String.class);
         var rootGroup = sqGroup.from(Group.class);
 
-        return new Predicate[]{cb.equal(root.get("loginName"), loginName),
-                root.get("groupName").in(sqGroup.select(rootGroup.get("name"))).not()};
+        return new Predicate[]{cb.equal(root.get(LOGIN_NAME), loginName),
+                root.get(GROUP_NAME).in(sqGroup.select(rootGroup.get("name"))).not()};
     }
 
     @Override
@@ -136,10 +139,10 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         var query = cb.createQuery(String.class);
         var extGroupRoot = query.from(ExternalGroup.class);
 
-        query.select(extGroupRoot.get("groupName"))
+        query.select(extGroupRoot.get(GROUP_NAME))
                 .distinct(true)
                 .where(cb
-                        .like(cb.lower(extGroupRoot.get("groupName")), "%" + escape(groupName) + "%", cb.literal(ESCAPE_CHAR)));
+                        .like(cb.lower(extGroupRoot.get(GROUP_NAME)), "%" + escape(groupName) + "%", cb.literal(ESCAPE_CHAR)));
         return session.createQuery(query).setMaxResults(limit).getResultList();
     }
 
@@ -151,7 +154,7 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         var extGroupRoot = query.from(ExternalGroup.class);
 
         query.select(cb.count(extGroupRoot))
-                .where(cb.equal(extGroupRoot.get("groupName"), groupName));
+                .where(cb.equal(extGroupRoot.get(GROUP_NAME), groupName));
 
         return getSession().createQuery(query).getSingleResult();
     }

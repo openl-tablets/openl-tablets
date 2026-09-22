@@ -13,6 +13,12 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
  * @author snshor Created Jul 21, 2009
  */
 public final class DefaultPropertyDefinitions {
+    private static final String FILTER_BY_USER_ROLE = "yes (coma separated filter specification by user role: category/role pairs)";
+    private static final String DATE_TIME_FORMAT = "MM/dd/yyyy hh:mm a";
+    private static final String BUSINESS_DIMENSION = "Business Dimension";
+    private static final String VERSION = "Version";
+    private static final String FALSE_VALUE = "false";
+
     private static final TablePropertyDefinition[] definitions;
 
     private DefaultPropertyDefinitions() {
@@ -46,7 +52,7 @@ public final class DefaultPropertyDefinitions {
         definitions[1].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[1].setName("category");
         definitions[1].setPrimaryKey(false);
-        definitions[1].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[1].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[1].setSystem(false);
         definitions[1].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 
@@ -70,7 +76,7 @@ public final class DefaultPropertyDefinitions {
         definitions[3].setDescription("Date of the table creation in OpenL Studio");
         definitions[3].setDimensional(false);
         definitions[3].setDisplayName("Created On");
-        definitions[3].setFormat("MM/dd/yyyy hh:mm a");
+        definitions[3].setFormat(DATE_TIME_FORMAT);
         definitions[3].setGroup("Info");
         definitions[3].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.TABLE});
         definitions[3].setName("createdOn");
@@ -101,7 +107,7 @@ public final class DefaultPropertyDefinitions {
         definitions[5].setDescription("The date of the last table modification in OpenL Studio");
         definitions[5].setDimensional(false);
         definitions[5].setDisplayName("Modified On");
-        definitions[5].setFormat("MM/dd/yyyy hh:mm a");
+        definitions[5].setFormat(DATE_TIME_FORMAT);
         definitions[5].setGroup("Info");
         definitions[5].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.TABLE});
         definitions[5].setName("modifiedOn");
@@ -144,8 +150,8 @@ public final class DefaultPropertyDefinitions {
         definitions[8].setDimensional(true);
         definitions[8].setDisplayName("Effective Date");
         definitions[8].setExpression(new MatchingExpression("le(currentDate)"));
-        definitions[8].setFormat("MM/dd/yyyy hh:mm a");
-        definitions[8].setGroup("Business Dimension");
+        definitions[8].setFormat(DATE_TIME_FORMAT);
+        definitions[8].setGroup(BUSINESS_DIMENSION);
         definitions[8].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[8].setName("effectiveDate");
         definitions[8].setPrimaryKey(true);
@@ -160,8 +166,8 @@ public final class DefaultPropertyDefinitions {
         definitions[9].setDimensional(true);
         definitions[9].setDisplayName("Expiration Date");
         definitions[9].setExpression(new MatchingExpression("ge(currentDate)"));
-        definitions[9].setFormat("MM/dd/yyyy hh:mm a");
-        definitions[9].setGroup("Business Dimension");
+        definitions[9].setFormat(DATE_TIME_FORMAT);
+        definitions[9].setGroup(BUSINESS_DIMENSION);
         definitions[9].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[9].setName("expirationDate");
         definitions[9].setPrimaryKey(false);
@@ -176,8 +182,8 @@ public final class DefaultPropertyDefinitions {
         definitions[10].setDimensional(true);
         definitions[10].setDisplayName("Start Request Date");
         definitions[10].setExpression(new MatchingExpression("le(requestDate)"));
-        definitions[10].setFormat("MM/dd/yyyy hh:mm a");
-        definitions[10].setGroup("Business Dimension");
+        definitions[10].setFormat(DATE_TIME_FORMAT);
+        definitions[10].setGroup(BUSINESS_DIMENSION);
         definitions[10].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[10].setName("startRequestDate");
         definitions[10].setPrimaryKey(true);
@@ -192,8 +198,8 @@ public final class DefaultPropertyDefinitions {
         definitions[11].setDimensional(true);
         definitions[11].setDisplayName("End Request Date");
         definitions[11].setExpression(new MatchingExpression("ge(requestDate)"));
-        definitions[11].setFormat("MM/dd/yyyy hh:mm a");
-        definitions[11].setGroup("Business Dimension");
+        definitions[11].setFormat(DATE_TIME_FORMAT);
+        definitions[11].setGroup(BUSINESS_DIMENSION);
         definitions[11].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[11].setName("endRequestDate");
         definitions[11].setPrimaryKey(false);
@@ -207,7 +213,7 @@ public final class DefaultPropertyDefinitions {
         definitions[12].setDimensional(true);
         definitions[12].setDisplayName("Canada Region");
         definitions[12].setExpression(new MatchingExpression("contains(caRegion)"));
-        definitions[12].setGroup("Business Dimension");
+        definitions[12].setGroup(BUSINESS_DIMENSION);
         definitions[12].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[12].setName("caRegions");
         definitions[12].setPrimaryKey(false);
@@ -221,7 +227,7 @@ public final class DefaultPropertyDefinitions {
         definitions[13].setDimensional(true);
         definitions[13].setDisplayName("Canada Province");
         definitions[13].setExpression(new MatchingExpression("contains(caProvince)"));
-        definitions[13].setGroup("Business Dimension");
+        definitions[13].setGroup(BUSINESS_DIMENSION);
         definitions[13].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[13].setName("caProvinces");
         definitions[13].setPrimaryKey(false);
@@ -235,11 +241,11 @@ public final class DefaultPropertyDefinitions {
         definitions[14].setDimensional(true);
         definitions[14].setDisplayName("Countries");
         definitions[14].setExpression(new MatchingExpression("contains(country)"));
-        definitions[14].setGroup("Business Dimension");
+        definitions[14].setGroup(BUSINESS_DIMENSION);
         definitions[14].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[14].setName("country");
         definitions[14].setPrimaryKey(false);
-        definitions[14].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[14].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[14].setSystem(false);
         definitions[14].setTableType(new XlsNodeTypes[]{XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[14].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CountriesEnum[].class));
@@ -249,11 +255,11 @@ public final class DefaultPropertyDefinitions {
         definitions[15].setDimensional(true);
         definitions[15].setDisplayName("Region");
         definitions[15].setExpression(new MatchingExpression("contains(region)"));
-        definitions[15].setGroup("Business Dimension");
+        definitions[15].setGroup(BUSINESS_DIMENSION);
         definitions[15].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[15].setName("region");
         definitions[15].setPrimaryKey(false);
-        definitions[15].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[15].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[15].setSystem(false);
         definitions[15].setTableType(new XlsNodeTypes[]{XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RegionsEnum[].class));
@@ -263,11 +269,11 @@ public final class DefaultPropertyDefinitions {
         definitions[16].setDimensional(true);
         definitions[16].setDisplayName("Currency");
         definitions[16].setExpression(new MatchingExpression("contains(currency)"));
-        definitions[16].setGroup("Business Dimension");
+        definitions[16].setGroup(BUSINESS_DIMENSION);
         definitions[16].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[16].setName("currency");
         definitions[16].setPrimaryKey(false);
-        definitions[16].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[16].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[16].setSystem(false);
         definitions[16].setTableType(new XlsNodeTypes[]{XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CurrenciesEnum[].class));
@@ -277,11 +283,11 @@ public final class DefaultPropertyDefinitions {
         definitions[17].setDimensional(true);
         definitions[17].setDisplayName("Language");
         definitions[17].setExpression(new MatchingExpression("contains(lang)"));
-        definitions[17].setGroup("Business Dimension");
+        definitions[17].setGroup(BUSINESS_DIMENSION);
         definitions[17].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[17].setName("lang");
         definitions[17].setPrimaryKey(false);
-        definitions[17].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[17].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[17].setSystem(false);
         definitions[17].setTableType(new XlsNodeTypes[]{XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[17].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.LanguagesEnum[].class));
@@ -292,11 +298,11 @@ public final class DefaultPropertyDefinitions {
         definitions[18].setDimensional(true);
         definitions[18].setDisplayName("LOB");
         definitions[18].setExpression(new MatchingExpression("contains(lob)"));
-        definitions[18].setGroup("Business Dimension");
+        definitions[18].setGroup(BUSINESS_DIMENSION);
         definitions[18].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[18].setName("lob");
         definitions[18].setPrimaryKey(false);
-        definitions[18].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[18].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[18].setSystem(false);
         definitions[18].setTableType(new XlsNodeTypes[]{XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
@@ -305,7 +311,7 @@ public final class DefaultPropertyDefinitions {
         definitions[19].setDescription("Indicates origin of the rules to allow hierarchy of more generic and more specific rules");
         definitions[19].setDimensional(true);
         definitions[19].setDisplayName("Origin");
-        definitions[19].setGroup("Business Dimension");
+        definitions[19].setGroup(BUSINESS_DIMENSION);
         definitions[19].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[19].setName("origin");
         definitions[19].setPrimaryKey(false);
@@ -319,11 +325,11 @@ public final class DefaultPropertyDefinitions {
         definitions[20].setDimensional(true);
         definitions[20].setDisplayName("US Region");
         definitions[20].setExpression(new MatchingExpression("contains(usRegion)"));
-        definitions[20].setGroup("Business Dimension");
+        definitions[20].setGroup(BUSINESS_DIMENSION);
         definitions[20].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[20].setName("usregion");
         definitions[20].setPrimaryKey(false);
-        definitions[20].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[20].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[20].setSystem(false);
         definitions[20].setTableType(new XlsNodeTypes[]{XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[20].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsRegionsEnum[].class));
@@ -333,11 +339,11 @@ public final class DefaultPropertyDefinitions {
         definitions[21].setDimensional(true);
         definitions[21].setDisplayName("US States");
         definitions[21].setExpression(new MatchingExpression("contains(usState)"));
-        definitions[21].setGroup("Business Dimension");
+        definitions[21].setGroup(BUSINESS_DIMENSION);
         definitions[21].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[21].setName("state");
         definitions[21].setPrimaryKey(false);
-        definitions[21].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[21].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[21].setSystem(false);
         definitions[21].setTableType(new XlsNodeTypes[]{XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[21].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsStatesEnum[].class));
@@ -346,8 +352,8 @@ public final class DefaultPropertyDefinitions {
         definitions[22].setConstraints(new Constraints("NN.NN[.NN]"));
         definitions[22].setDescription("Defines a version of this table. The “version” should be different for each table with the same signature and business dimensional properties values");
         definitions[22].setDimensional(false);
-        definitions[22].setDisplayName("Version");
-        definitions[22].setGroup("Version");
+        definitions[22].setDisplayName(VERSION);
+        definitions[22].setGroup(VERSION);
         definitions[22].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.TABLE});
         definitions[22].setName("version");
         definitions[22].setPrimaryKey(false);
@@ -361,7 +367,7 @@ public final class DefaultPropertyDefinitions {
         definitions[23].setDescription("Indicates if the current table version is active or not");
         definitions[23].setDimensional(false);
         definitions[23].setDisplayName("Active");
-        definitions[23].setGroup("Version");
+        definitions[23].setGroup(VERSION);
         definitions[23].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.TABLE});
         definitions[23].setName("active");
         definitions[23].setPrimaryKey(false);
@@ -411,7 +417,7 @@ public final class DefaultPropertyDefinitions {
         definitions[26].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.ValidateDTEnum.class));
 
         definitions[27] = new TablePropertyDefinition();
-        definitions[27].setDefaultValue("false");
+        definitions[27].setDefaultValue(FALSE_VALUE);
         definitions[27].setDescription("Defines whether to raise an error in case no rules are matched");
         definitions[27].setDimensional(false);
         definitions[27].setDisplayName("Fail On Miss");
@@ -529,7 +535,7 @@ public final class DefaultPropertyDefinitions {
         definitions[35].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 
         definitions[36] = new TablePropertyDefinition();
-        definitions[36].setDefaultValue("false");
+        definitions[36].setDefaultValue(FALSE_VALUE);
         definitions[36].setDescription("Controls generation additional properties with table structure details in an output model");
         definitions[36].setDimensional(false);
         definitions[36].setDisplayName("Table Structure Details");
@@ -571,7 +577,7 @@ public final class DefaultPropertyDefinitions {
         definitions[38].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 
         definitions[39] = new TablePropertyDefinition();
-        definitions[39].setDefaultValue("false");
+        definitions[39].setDefaultValue(FALSE_VALUE);
         definitions[39].setDescription("Controls parallel execution feature. By default = false.");
         definitions[39].setDimensional(false);
         definitions[39].setDisplayName("Concurrent Execution");
@@ -590,11 +596,11 @@ public final class DefaultPropertyDefinitions {
         definitions[40].setDimensional(true);
         definitions[40].setDisplayName("Nature");
         definitions[40].setExpression(new MatchingExpression("eq(nature)"));
-        definitions[40].setGroup("Business Dimension");
+        definitions[40].setGroup(BUSINESS_DIMENSION);
         definitions[40].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[40].setName("nature");
         definitions[40].setPrimaryKey(false);
-        definitions[40].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[40].setSecurityFilter(FILTER_BY_USER_ROLE);
         definitions[40].setSystem(false);
         definitions[40].setTableType(new XlsNodeTypes[]{XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[40].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));

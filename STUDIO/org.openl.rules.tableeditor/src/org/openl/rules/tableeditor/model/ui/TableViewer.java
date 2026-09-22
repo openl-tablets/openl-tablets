@@ -16,6 +16,8 @@ import org.openl.rules.table.ui.ICellStyle;
 @Slf4j
 class TableViewer {
 
+    private static final String SOLID = "solid";
+
     private final IGrid grid;
     private final IGridRegion reg;
     private final MetaInfoReader metaInfoReader;
@@ -138,11 +140,11 @@ class TableViewer {
             }
             case THIN -> {
                 bs.setWidth(1);
-                bs.setStyle("solid");
+                bs.setStyle(SOLID);
             }
             case THICK -> {
                 bs.setWidth(2);
-                bs.setStyle("solid");
+                bs.setStyle(SOLID);
             }
             case HAIR -> {
                 bs.setWidth(1);
@@ -150,7 +152,7 @@ class TableViewer {
             }
             case MEDIUM -> {
                 bs.setWidth(2);
-                bs.setStyle("solid");
+                bs.setStyle(SOLID);
             }
             case MEDIUM_DASH_DOT, MEDIUM_DASH_DOT_DOT, MEDIUM_DASHED -> {
                 bs.setWidth(2);
@@ -159,7 +161,7 @@ class TableViewer {
             default -> {
                 log.warn("Unknown border style: {}", xlsStyle);
                 bs.setWidth(1);
-                bs.setStyle("solid");
+                bs.setStyle(SOLID);
             }
         }
         return bs;

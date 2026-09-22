@@ -275,7 +275,7 @@ public class OpenLPomlessParticipant extends AbstractMavenLifecycleParticipant {
      * at the OpenL folder — see {@link #retargetProjectFile}.
      */
     private static void materialiseInstallPom(MavenProject built, Path folder) throws IOException {
-        var pomFile = OpenLPackagings.materialiseInstallPom(built.getOriginalModel(), folder.resolve("target"));
+        var pomFile = OpenLPackagings.materialiseInstallPom(built.getOriginalModel(), folder.resolve(TARGET_DIR));
         retargetProjectFile(built, pomFile.toFile());
     }
 

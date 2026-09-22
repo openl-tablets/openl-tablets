@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SqlDBUtils {
 
+    private static final String UNEXPECTED_SQL_FAILURE = "Unexpected sql failure";
+
     private SqlDBUtils() {
         // Utility class
     }
@@ -18,7 +20,7 @@ public class SqlDBUtils {
             try {
                 rs.close();
             } catch (Exception e) {
-                log.warn("Unexpected sql failure", e);
+                log.warn(UNEXPECTED_SQL_FAILURE, e);
             }
         }
     }
@@ -35,7 +37,7 @@ public class SqlDBUtils {
             try {
                 connection.close();
             } catch (Exception e) {
-                log.warn("Unexpected sql failure", e);
+                log.warn(UNEXPECTED_SQL_FAILURE, e);
             }
         }
     }
@@ -45,7 +47,7 @@ public class SqlDBUtils {
             try {
                 st.close();
             } catch (Exception e) {
-                log.warn("Unexpected sql failure", e);
+                log.warn(UNEXPECTED_SQL_FAILURE, e);
             }
         }
     }

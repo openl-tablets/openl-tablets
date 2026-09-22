@@ -44,6 +44,8 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
 class HttpData {
+    private static final String BOUNDARY = "boundary=";
+
     static final ObjectMapper OBJECT_MAPPER;
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
@@ -395,8 +397,8 @@ class HttpData {
         String ct = headers.get(CONTENT_TYPE_HEADER);
         String ce = headers.get(CONTENT_ENCODING_HEADER);
 
-        if (ct != null && ct.startsWith("multipart/form-data") && ct.contains("boundary=")) {
-            String boundary = ct.substring(ct.indexOf("boundary=") + "boundary=".length());
+        if (ct != null && ct.startsWith("multipart/form-data") && ct.contains(BOUNDARY)) {
+            String boundary = ct.substring(ct.indexOf(BOUNDARY) + BOUNDARY.length());
             String boundaryEnd = "--" + boundary + "--";
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             try (PrintWriter writer = new PrintWriter(os, false, StandardCharsets.UTF_8)) {

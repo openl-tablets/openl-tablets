@@ -22,6 +22,9 @@ import org.openl.gen.FieldDescription;
  */
 public class HashCodeWriter extends DefaultBeanByteCodeWriter {
 
+    private static final String HASH_CODE = "hashCode";
+    private static final String ARRAYS = "java/util/Arrays";
+
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *                            (e.g. <code>my/test/TestClass</code>)
@@ -34,7 +37,7 @@ public class HashCodeWriter extends DefaultBeanByteCodeWriter {
     @Override
     public void write(ClassWriter classWriter) {
         MethodVisitor mv;
-        mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "hashCode", "()I", null, null);
+        mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, HASH_CODE, "()I", null, null);
 
         // hash = 5
         mv.visitInsn(Opcodes.ICONST_5);
@@ -66,23 +69,23 @@ public class HashCodeWriter extends DefaultBeanByteCodeWriter {
 
     private void calculateHashCode(MethodVisitor mv, String type) {
         if ("double".equals(type)) {
-            invoke(mv, "java/lang/Double", "hashCode", "(D)I");
+            invoke(mv, "java/lang/Double", HASH_CODE, "(D)I");
         } else if ("float".equals(type)) {
-            invoke(mv, "java/lang/Float", "hashCode", "(F)I");
+            invoke(mv, "java/lang/Float", HASH_CODE, "(F)I");
         } else if ("long".equals(type)) {
-            invoke(mv, "java/lang/Long", "hashCode", "(J)I");
+            invoke(mv, "java/lang/Long", HASH_CODE, "(J)I");
         } else if ("int".equals(type) || "short".equals(type) || "byte".equals(type) || "char".equals(type)) {
             // No conversions
         } else if ("boolean".equals(type)) {
-            invoke(mv, "java/lang/Boolean", "hashCode", "(Z)I");
+            invoke(mv, "java/lang/Boolean", HASH_CODE, "(Z)I");
         } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
-            invoke(mv, "java/util/Arrays", "hashCode", "(" + type + ")I");
+            invoke(mv, ARRAYS, HASH_CODE, "(" + type + ")I");
         } else if (type.startsWith("[L")) { // Array of objects
-            invoke(mv, "java/util/Arrays", "hashCode", "([Ljava/lang/Object;)I");
+            invoke(mv, ARRAYS, HASH_CODE, "([Ljava/lang/Object;)I");
         } else if (type.startsWith("[[")) { // Multi array
-            invoke(mv, "java/util/Arrays", "deepHashCode", "([Ljava/lang/Object;)I");
+            invoke(mv, ARRAYS, "deepHashCode", "([Ljava/lang/Object;)I");
         } else {
-            invoke(mv, "java/util/Objects", "hashCode", "(Ljava/lang/Object;)I");
+            invoke(mv, "java/util/Objects", HASH_CODE, "(Ljava/lang/Object;)I");
         }
     }
 

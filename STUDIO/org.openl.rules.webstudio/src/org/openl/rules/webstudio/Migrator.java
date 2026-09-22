@@ -45,6 +45,8 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class Migrator {
 
+    private static final String DESIGN_LOCAL_REPOSITORY_PATH = "repository.design.local-repository-path";
+
     private static final String REPOSITORY_PREFIX = "repository.";
     private static final String DEFAULT_COMMENT_ARCHIVE_SUFFIX = ".comment-template.user-message.default.archive";
     private static final String DEFAULT_COMMENT_DELETE_SUFFIX = ".comment-template.user-message.default.delete";
@@ -460,7 +462,7 @@ public class Migrator {
         migratePropsTo5_24(settings, props);
 
         // migrate project paths and properties if repoType is Git
-        var designRepo = settings.getProperty("repository.design.local-repository-path");
+        var designRepo = settings.getProperty(DESIGN_LOCAL_REPOSITORY_PATH);
         var designRepoPath = designRepo != null ? designRepo : Props.text("openl.home") + "/design-repository";
         var nonFlatProjectPaths = loadProjectsPathes(designRepoPath);
         writeProjectPathesToYAML(nonFlatProjectPaths);
@@ -505,9 +507,9 @@ public class Migrator {
 
         // migrate design repository path
         var desRepo = settings.getProperty("repository.design.factory");
-        if (settings.getProperty("repository.design.local-repository-path") == null && (desRepo == null || "repo-git"
+        if (settings.getProperty(DESIGN_LOCAL_REPOSITORY_PATH) == null && (desRepo == null || "repo-git"
                 .equals(desRepo)) || "org.openl.rules.repository.git.GitRepository".equals(desRepo)) {
-            props.put("repository.design.local-repository-path", "${openl.home}/design-repository");
+            props.put(DESIGN_LOCAL_REPOSITORY_PATH, "${openl.home}/design-repository");
         }
 
         // migrate design new-branch-pattern

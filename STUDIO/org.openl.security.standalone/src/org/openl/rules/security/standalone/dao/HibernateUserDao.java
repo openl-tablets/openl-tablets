@@ -25,13 +25,15 @@ import org.openl.rules.security.standalone.persistence.UserGroup;
  */
 public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao {
 
+    private static final String LOGIN_NAME = "loginName";
+
     @Override
     @Transactional
     public User getUserByName(final String name) {
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(User.class);
         var u = criteria.from(User.class);
-        criteria.select(u).where(builder.equal(u.get("loginName"), name)).distinct(true);
+        criteria.select(u).where(builder.equal(u.get(LOGIN_NAME), name)).distinct(true);
         List<User> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.getFirst();
     }
@@ -43,7 +45,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var query = cb.createQuery(Long.class);
         var u = query.from(User.class);
 
-        query.select(cb.count(u)).where(cb.equal(u.get("loginName"), name)).distinct(true);
+        query.select(cb.count(u)).where(cb.equal(u.get(LOGIN_NAME), name)).distinct(true);
 
         return getSession().createQuery(query).getSingleResult() > 0;
     }
@@ -55,7 +57,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var cb = session.getCriteriaBuilder();
         var delete = cb.createCriteriaDelete(User.class);
         var root = delete.from(User.class);
-        delete.where(cb.equal(root.get("loginName"), name));
+        delete.where(cb.equal(root.get(LOGIN_NAME), name));
         session.createMutationQuery(delete).executeUpdate();
     }
 
@@ -67,7 +69,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var update = cb.createCriteriaUpdate(User.class);
         var root = update.from(User.class);
         update.set("lastLoginTime", lastLoginTime);
-        update.where(cb.equal(root.get("loginName"), loginName));
+        update.where(cb.equal(root.get(LOGIN_NAME), loginName));
         session.createMutationQuery(update).executeUpdate();
     }
 
@@ -77,7 +79,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(User.class);
         var root = criteria.from(User.class);
-        criteria.select(root).orderBy(builder.asc(builder.upper(root.get("loginName"))));
+        criteria.select(root).orderBy(builder.asc(builder.upper(root.get(LOGIN_NAME))));
         return getSession().createQuery(criteria).getResultList();
     }
 
@@ -89,7 +91,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var root = criteria.from(User.class);
         criteria.select(root)
                 .where(belongsToGroup(builder, criteria, root, groupName))
-                .orderBy(builder.asc(builder.upper(root.get("loginName"))));
+                .orderBy(builder.asc(builder.upper(root.get(LOGIN_NAME))));
         return getSession().createQuery(criteria).getResultList();
     }
 
@@ -117,15 +119,15 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var groupSubquery = internal.subquery(Long.class);
         var groupRoot = groupSubquery.from(Group.class);
         groupSubquery.select(groupRoot.get("id")).where(builder.equal(groupRoot.get("name"), groupName));
-        internal.select(ugRoot.get("id").get("loginName"))
+        internal.select(ugRoot.get("id").get(LOGIN_NAME))
                 .where(ugRoot.get("id").get("groupId").in(groupSubquery));
 
         // Subquery: users having a matched external group with the same name
         var external = query.subquery(String.class);
         var egRoot = external.from(ExternalGroup.class);
-        external.select(egRoot.get("loginName")).where(builder.equal(egRoot.get("groupName"), groupName));
+        external.select(egRoot.get(LOGIN_NAME)).where(builder.equal(egRoot.get("groupName"), groupName));
 
-        return builder.or(root.get("loginName").in(internal), root.get("loginName").in(external));
+        return builder.or(root.get(LOGIN_NAME).in(internal), root.get(LOGIN_NAME).in(external));
     }
 
     @Override
@@ -134,11 +136,11 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(String.class);
         var root = criteria.from(User.class);
-        criteria.select(root.get("loginName"))
-                .where(builder.like(builder.lower(root.get("loginName")),
+        criteria.select(root.get(LOGIN_NAME))
+                .where(builder.like(builder.lower(root.get(LOGIN_NAME)),
                         "%" + escape(searchTerm) + "%",
                         builder.literal(ESCAPE_CHAR)))
-                .orderBy(builder.asc(builder.upper(root.get("loginName"))));
+                .orderBy(builder.asc(builder.upper(root.get(LOGIN_NAME))));
         return getSession().createQuery(criteria).setMaxResults(limit).getResultList();
     }
 
@@ -147,8 +149,8 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(String.class);
         var root = criteria.from(User.class);
-        criteria.select(root.get("loginName"));
-        criteria.orderBy(builder.asc(builder.upper(root.get("loginName"))));
+        criteria.select(root.get(LOGIN_NAME));
+        criteria.orderBy(builder.asc(builder.upper(root.get(LOGIN_NAME))));
         return getSession().createQuery(criteria).getResultStream()
                 .collect(Collectors.toSet());
     }
@@ -164,7 +166,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         var subquery = criteria.subquery(Long.class);
         var ugRoot = subquery.from(UserGroup.class);
         subquery.select(ugRoot.get("id").get("groupId"))
-                .where(builder.equal(ugRoot.get("id").get("loginName"), loginName));
+                .where(builder.equal(ugRoot.get("id").get(LOGIN_NAME), loginName));
 
         criteria.select(groupRoot).where(groupRoot.get("id").in(subquery));
         return new HashSet<>(getSession().createQuery(criteria).getResultList());
@@ -179,7 +181,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
         // Delete existing mappings
         var deleteCriteria = builder.createCriteriaDelete(UserGroup.class);
         var deleteRoot = deleteCriteria.from(UserGroup.class);
-        deleteCriteria.where(builder.equal(deleteRoot.get("id").get("loginName"), loginName));
+        deleteCriteria.where(builder.equal(deleteRoot.get("id").get(LOGIN_NAME), loginName));
         session.createMutationQuery(deleteCriteria).executeUpdate();
 
         // Insert new mappings

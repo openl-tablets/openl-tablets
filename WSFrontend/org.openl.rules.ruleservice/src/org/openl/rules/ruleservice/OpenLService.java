@@ -29,6 +29,8 @@ import org.openl.spring.env.PropertySourcesLoader;
  */
 public class OpenLService {
 
+    private static final String SERVICE_NOT_FOUND = "Service '%s' is not found.";
+
     private OpenLService() {
         // Utility class
     }
@@ -100,7 +102,7 @@ public class OpenLService {
     private static Invoker getInvoker(String serviceName, String ruleName, String json) throws Exception {
         var service = getService(serviceName);
         if (service == null) {
-            throw new IllegalArgumentException("Service '%s' is not found.".formatted(serviceName));
+            throw new IllegalArgumentException(SERVICE_NOT_FOUND.formatted(serviceName));
         }
         var instance = service.getServiceBean();
 
@@ -198,7 +200,7 @@ public class OpenLService {
     public static String callJSONArgs(String serviceName, String ruleName, String... json) throws Exception {
         var service = getService(serviceName);
         if (service == null) {
-            throw new IllegalArgumentException("Service '%s' is not found.".formatted(serviceName));
+            throw new IllegalArgumentException(SERVICE_NOT_FOUND.formatted(serviceName));
         }
         var instance = service.getServiceBean();
 
@@ -297,7 +299,7 @@ public class OpenLService {
                                   Object[] params) throws Exception {
         var instance = get(serviceName);
         if (instance == null) {
-            throw new IllegalArgumentException("Service '%s' is not found.".formatted(serviceName));
+            throw new IllegalArgumentException(SERVICE_NOT_FOUND.formatted(serviceName));
         }
         var method = MethodUtil.getMatchingAccessibleMethod(instance.getClass(), ruleName, inputParamsTypes);
         if (method == null) {

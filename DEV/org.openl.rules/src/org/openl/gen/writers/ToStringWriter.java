@@ -15,6 +15,11 @@ import org.openl.gen.FieldDescription;
  * @author Yury Molchan
  */
 public class ToStringWriter extends DefaultBeanByteCodeWriter {
+    private static final String TO_STRING = "toString";
+    private static final String STRING_BUILDER = "java/lang/StringBuilder";
+    private static final String ARRAYS = "java/util/Arrays";
+    private static final String APPEND_STRING = "(Ljava/lang/String;)Ljava/lang/StringBuilder;";
+
     private static final int MAX_FIELDS = 100;
 
     /**
@@ -29,12 +34,12 @@ public class ToStringWriter extends DefaultBeanByteCodeWriter {
     @Override
     public void write(ClassWriter classWriter) {
         MethodVisitor methodVisitor;
-        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
+        methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, TO_STRING, "()Ljava/lang/String;", null, null);
 
         // create StringBuilder
-        methodVisitor.visitTypeInsn(Opcodes.NEW, "java/lang/StringBuilder");
+        methodVisitor.visitTypeInsn(Opcodes.NEW, STRING_BUILDER);
         methodVisitor.visitInsn(Opcodes.DUP);
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);
+        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, STRING_BUILDER, "<init>", "()V", false);
 
         String type = getBeanNameWithPackage().substring(getBeanNameWithPackage().lastIndexOf('/') + 1);
         // write fields
@@ -63,8 +68,8 @@ public class ToStringWriter extends DefaultBeanByteCodeWriter {
 
         // return
         methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                "java/lang/StringBuilder",
-                "toString",
+                STRING_BUILDER,
+                TO_STRING,
                 "()Ljava/lang/String;",
                 false);
         methodVisitor.visitInsn(Opcodes.ARETURN);
@@ -85,14 +90,14 @@ public class ToStringWriter extends DefaultBeanByteCodeWriter {
         } else if ("boolean".equals(type)) {
             invokeAppend(mv, "(Z)Ljava/lang/StringBuilder;");
         } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
-            invoke(mv, "java/util/Arrays", "toString", "(" + type + ")Ljava/lang/String;");
-            invokeAppend(mv, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+            invoke(mv, ARRAYS, TO_STRING, "(" + type + ")Ljava/lang/String;");
+            invokeAppend(mv, APPEND_STRING);
         } else if (type.startsWith("[L")) { // Array of objects
-            invoke(mv, "java/util/Arrays", "toString", "([Ljava/lang/Object;)Ljava/lang/String;");
-            invokeAppend(mv, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+            invoke(mv, ARRAYS, TO_STRING, "([Ljava/lang/Object;)Ljava/lang/String;");
+            invokeAppend(mv, APPEND_STRING);
         } else if (type.startsWith("[[")) { // Multi array
-            invoke(mv, "java/util/Arrays", "deepToString", "([Ljava/lang/Object;)Ljava/lang/String;");
-            invokeAppend(mv, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+            invoke(mv, ARRAYS, "deepToString", "([Ljava/lang/Object;)Ljava/lang/String;");
+            invokeAppend(mv, APPEND_STRING);
         } else {
             invokeAppend(mv, "(Ljava/lang/Object;)Ljava/lang/StringBuilder;");
         }
@@ -101,11 +106,11 @@ public class ToStringWriter extends DefaultBeanByteCodeWriter {
 
     private void invokeAppendValue(MethodVisitor methodVisitor, String str) {
         methodVisitor.visitLdcInsn(str);
-        invokeAppend(methodVisitor, "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+        invokeAppend(methodVisitor, APPEND_STRING);
     }
 
     private void invokeAppend(MethodVisitor methodVisitor, String desc) {
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", desc, false);
+        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, STRING_BUILDER, "append", desc, false);
     }
 
     private static void invoke(MethodVisitor mv, String clazz, String methodName, String descriptor) {

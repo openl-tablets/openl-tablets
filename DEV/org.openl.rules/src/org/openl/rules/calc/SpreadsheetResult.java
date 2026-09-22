@@ -35,6 +35,8 @@ import org.openl.util.CollectionUtils;
 @AllowOnlyStrictFieldMatchType
 public class SpreadsheetResult implements Serializable {
 
+    private static final String TRUNCATED_TABLE = "... TRUNCATED TABLE ...";
+
     private static final int MAX_WIDTH = 4;
     private static final int MAX_HEIGHT = 10;
     private static final int MAX_DEPTH = 2;
@@ -403,7 +405,7 @@ public class SpreadsheetResult implements Serializable {
                 for (var j1 = 0; j1 <= maxWidth; j1++) {
                     width[j1] = Math.max(width[j1],
                             i1 > 0 && j1 > 0 && getValue(i1 - 1,
-                                    j1 - 1) instanceof SpreadsheetResult && d > MAX_DEPTH ? "... TRUNCATED TABLE ..."
+                                    j1 - 1) instanceof SpreadsheetResult && d > MAX_DEPTH ? TRUNCATED_TABLE
                                     .length() : truncateStringValue(getStringValue(j1, i1)).length());
                 }
             }
@@ -415,7 +417,7 @@ public class SpreadsheetResult implements Serializable {
                     }
                     String cell;
                     if (i > 0 && j > 0 && getValue(i - 1, j - 1) instanceof SpreadsheetResult && d > MAX_DEPTH) {
-                        cell = "... TRUNCATED TABLE ...";
+                        cell = TRUNCATED_TABLE;
                     } else {
                         cell = truncateStringValue(getStringValue(j, i));
                     }
@@ -428,7 +430,7 @@ public class SpreadsheetResult implements Serializable {
                 sb.append('\n');
             }
             if (getWidth() > MAX_WIDTH || getHeight() > MAX_HEIGHT) {
-                sb.append("... TRUNCATED TABLE ...");
+                sb.append(TRUNCATED_TABLE);
             }
         } finally {
             if (d == 0) {

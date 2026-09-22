@@ -70,6 +70,8 @@ import org.openl.types.impl.ThisField;
 @Mojo(name = "test", defaultPhase = LifecyclePhase.TEST, threadSafe = true,
         requiresDependencyResolution = ResolutionScope.TEST)
 public final class TestMojo extends BaseOpenLMojo {
+    private static final String EXPECTED_PREFIX = " expected: <";
+
     private static final String FAILURE = "<<< FAILURE";
     private static final String ERROR = "<<< ERROR";
 
@@ -453,7 +455,7 @@ public final class TestMojo extends BaseOpenLMojo {
                             var actualValue = toString(comparisonResult.getActualValue());
                             if (fieldName == null || ThisField.THIS.equals(fieldName)) {
                                 info("    Expected: <" + expectedValue + "> but was: <" + actualValue + ">");
-                                summaryBuilder.append(" expected: <")
+                                summaryBuilder.append(EXPECTED_PREFIX)
                                         .append(expectedValue)
                                         .append("> but was <")
                                         .append(actualValue)
@@ -462,11 +464,11 @@ public final class TestMojo extends BaseOpenLMojo {
                                 if (rowNum > 0) {
                                     summaryBuilder.append(",");
                                 }
-                                info("    Field " + fieldName + " expected: <" + expectedValue + "> but was: <" + actualValue + ">");
+                                info("    Field " + fieldName + EXPECTED_PREFIX + expectedValue + "> but was: <" + actualValue + ">");
 
                                 summaryBuilder.append(" field ")
                                         .append(fieldName)
-                                        .append(" expected: <")
+                                        .append(EXPECTED_PREFIX)
                                         .append(expectedValue)
                                         .append("> but was <")
                                         .append(actualValue)
