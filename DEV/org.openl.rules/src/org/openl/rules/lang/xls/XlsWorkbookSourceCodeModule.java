@@ -26,7 +26,6 @@ import org.openl.rules.lang.xls.load.WorkbookLoader;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 
 @Deprecated
@@ -183,10 +182,10 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
          * Create deferred output stream.
          *
          * @param fileName the system-dependent file name
-         * @throws FileNotFoundException if the file exists but is a directory rather than a regular file, does not
-         *                               exist but cannot be created, or cannot be opened for any other reason.
+         * @throws IOException if the file exists but is a directory rather than a regular file, does not exist but
+         *                     cannot be created, or cannot be opened for any other reason.
          */
-        private DeferredCreateFileOutputStream(String fileName) throws FileNotFoundException {
+        private DeferredCreateFileOutputStream(String fileName) throws IOException {
             this.fileName = fileName;
             throwExceptionIfNotWritable(fileName);
         }
@@ -195,15 +194,13 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
          * Check that file is writable. File should not be rewritten in this method.
          *
          * @param fileName the checking file
-         * @throws FileNotFoundException if the file exists but is a directory rather than a regular file, does not
-         *                               exist but cannot be created, or cannot be opened for any other reason.
+         * @throws IOException if the file exists but is a directory rather than a regular file, does not exist but
+         *                     cannot be created, or cannot be opened for any other reason.
          */
-        private void throwExceptionIfNotWritable(String fileName) throws FileNotFoundException {
-            FileOutputStream os = null;
-            try {
-                os = new FileOutputStream(fileName, true);
-            } finally {
-                IOUtils.closeQuietly(os);
+        private void throwExceptionIfNotWritable(String fileName) throws IOException {
+            try (var ignored = new FileOutputStream(fileName, true)) {
+                // The file is opened for appending only, so that an unwritable file is reported before anything is
+                // written.
             }
         }
 

@@ -26,7 +26,6 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
 
 @Slf4j
 public class ZipFileProjectCreator extends AProjectCreator {
@@ -96,17 +95,12 @@ public class ZipFileProjectCreator extends AProjectCreator {
     }
 
     private boolean isEmptyZip(File uploadedFile) {
-        ZipInputStream zipInputStream = null;
-        try {
-            zipInputStream = new ZipInputStream(new FileInputStream(uploadedFile), charset);
-            if (zipInputStream.getNextEntry() == null) {
-                return true;
-            }
-        } catch (IOException ignored) {
-        } finally {
-            IOUtils.closeQuietly(zipInputStream);
+        try (var zipInputStream = new ZipInputStream(new FileInputStream(uploadedFile), charset)) {
+            return zipInputStream.getNextEntry() == null;
+        } catch (IOException e) {
+            // A damaged archive is not empty; it is rejected when it is read.
+            return false;
         }
-        return false;
     }
 
     private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) {

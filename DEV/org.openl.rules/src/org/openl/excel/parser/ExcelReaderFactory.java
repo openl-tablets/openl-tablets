@@ -9,7 +9,6 @@ import org.apache.poi.poifs.filesystem.FileMagic;
 import org.openl.excel.parser.dom.DOMReader;
 import org.openl.excel.parser.event.EventReader;
 import org.openl.excel.parser.sax.SAXReader;
-import org.openl.util.IOUtils;
 
 public abstract class ExcelReaderFactory {
 
@@ -46,10 +45,7 @@ public abstract class ExcelReaderFactory {
                 throw new IllegalArgumentException("Only one argument can be non-null.");
             }
 
-            InputStream tempStream = null;
-            try {
-                tempStream = FileMagic.prepareToCheckMagic(useFile ? new FileInputStream(fileName) : is);
-
+            try (var tempStream = FileMagic.prepareToCheckMagic(useFile ? new FileInputStream(fileName) : is)) {
                 // Opening the file by name is preferred because using an InputStream has a higher memory footprint than
                 // using a File
                 if (isXlsx(tempStream)) {
@@ -59,8 +55,6 @@ public abstract class ExcelReaderFactory {
                 }
             } catch (IOException e) {
                 throw new ExcelParseException(e);
-            } finally {
-                IOUtils.closeQuietly(tempStream);
             }
         }
 

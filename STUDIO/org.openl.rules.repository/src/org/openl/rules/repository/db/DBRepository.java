@@ -405,14 +405,10 @@ abstract class DBRepository implements Repository, Closeable {
     }
 
     private FileData getLatestVersionFileData(String name) throws IOException {
-        Connection connection = null;
-        try {
-            connection = getConnection();
+        try (var connection = getConnection()) {
             return getLatestVersionFileData(connection, name);
         } catch (SQLException e) {
             throw new IOException(e);
-        } finally {
-            SqlDBUtils.safeClose(connection);
         }
     }
 

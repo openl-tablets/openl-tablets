@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -393,7 +394,6 @@ public class GitRepository implements BranchRepository, Closeable {
         return deleted;
     }
 
-    @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
     private FileData copy(String srcName, FileData destData) throws IOException {
         String commitId = null;
 
@@ -407,7 +407,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
             var src = new File(getLocalGitRoot(), srcName);
             var dest = new File(getLocalGitRoot(), destData.getName());
-            IOUtils.copyAndClose(new FileInputStream(src), new FileOutputStream(dest));
+            Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
             git().add().addFilepattern(destData.getName()).call();
             var commit = git().commit()

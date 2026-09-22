@@ -30,7 +30,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -194,14 +193,12 @@ public class DeploymentManager implements InitializingBean {
                                                    InputStream in,
                                                    Manifest manifest) throws ProjectException {
         var out = new ByteArrayOutputStream();
-        try {
+        try (in) {
             RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
             dest.setSize(out.size());
             deployRepo.save(dest, new ByteArrayInputStream(out.toByteArray()));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(in);
         }
     }
 

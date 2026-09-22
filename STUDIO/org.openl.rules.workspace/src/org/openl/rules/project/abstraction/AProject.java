@@ -416,9 +416,7 @@ public class AProject extends AProjectFolder implements IProject {
         // Archive the folder using zip
         var fileData = getFileData();
         var out = new ByteArrayOutputStream();
-        ZipOutputStream zipOutputStream = null;
         try {
-
             List<FileItem> changes = new ArrayList<>();
             for (AProjectArtefact artefact : projectFrom.getArtefacts()) {
                 writeArtefact(changes, artefact);
@@ -428,24 +426,23 @@ public class AProject extends AProjectFolder implements IProject {
                 changes = getResourceTransformer().transformChangedFiles(null, changes);
             }
 
-            zipOutputStream = new ZipOutputStream(out);
-            for(FileItem file: changes) {
-                zipOutputStream.putNextEntry(new ZipEntry(file.getData().getName()));
+            try (var zipOutputStream = new ZipOutputStream(out)) {
+                for (FileItem file : changes) {
+                    zipOutputStream.putNextEntry(new ZipEntry(file.getData().getName()));
 
-                try (var content = file.getStream()) {
-                    content.transferTo(zipOutputStream);
-                    zipOutputStream.closeEntry();
+                    try (var content = file.getStream()) {
+                        content.transferTo(zipOutputStream);
+                        zipOutputStream.closeEntry();
+                    }
                 }
+                zipOutputStream.finish();
             }
-            zipOutputStream.finish();
 
             fileData.setAuthor(user == null ? null : user.getUserInfo());
             fileData.setSize(out.size());
             setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(zipOutputStream);
         }
     }
 
@@ -453,7 +450,6 @@ public class AProject extends AProjectFolder implements IProject {
                             Repository repositoryTo,
                             String folderTo,
                             CommonUser user) throws ProjectException {
-        ZipInputStream stream = null;
         try {
             FileItem fileItem;
             if (projectFrom.isHistoric()) {
@@ -465,15 +461,14 @@ public class AProject extends AProjectFolder implements IProject {
             if (fileItem == null) {
                 return getFileData();
             }
-            stream = new ZipInputStream(fileItem.getStream());
-            var fileData = getFileData();
-            fileData.setAuthor(user == null ? null : user.getUserInfo());
-            return repositoryTo
-                    .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
+            try (var stream = new ZipInputStream(fileItem.getStream())) {
+                var fileData = getFileData();
+                fileData.setAuthor(user == null ? null : user.getUserInfo());
+                return repositoryTo
+                        .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
+            }
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
-        } finally {
-            IOUtils.closeQuietly(stream);
         }
     }
 

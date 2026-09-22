@@ -48,10 +48,7 @@ public final class RepositoryUtils {
                                String version,
                                OutputStream out,
                                Manifest manifest) throws IOException {
-        ZipOutputStream zipOutputStream = null;
-        try {
-            zipOutputStream = new DeploymentOutputStream(out, manifest);
-
+        try (ZipOutputStream zipOutputStream = new DeploymentOutputStream(out, manifest)) {
             var projectPath = rulesPath + projectName + "/";
             folderRepository = getRepositoryForVersion(
                     designTimeRepository, folderRepository, rulesPath, projectName, version);
@@ -78,8 +75,6 @@ public final class RepositoryUtils {
                 zipOutputStream.closeEntry();
             }
             zipOutputStream.finish();
-        } finally {
-            IOUtils.closeQuietly(zipOutputStream);
         }
     }
 
