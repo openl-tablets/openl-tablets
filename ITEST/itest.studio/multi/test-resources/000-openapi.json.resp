@@ -21956,6 +21956,7 @@ Content-Type: application/json
                   "enum": [
                     "AES256",
                     "aws:fsx",
+                    "aws:backup",
                     "aws:kms",
                     "aws:kms:dsse",
                     "null"
@@ -21993,6 +21994,7 @@ Content-Type: application/json
                 "enum": [
                   "AES256",
                   "aws:fsx",
+                  "aws:backup",
                   "aws:kms",
                   "aws:kms:dsse",
                   "null"
