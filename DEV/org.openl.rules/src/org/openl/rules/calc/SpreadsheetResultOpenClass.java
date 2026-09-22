@@ -25,6 +25,8 @@ import org.openl.vm.IRuntimeEnv;
 
 // Do not extend this class
 public final class SpreadsheetResultOpenClass extends JavaOpenClass {
+    private static final String ANY_SPREADSHEET_RESULT = "AnySpreadsheetResult";
+
     private final IOpenField RESOLVING_IN_PROGRESS = new SpreadsheetResultField(this,
             "IN_PROGRESS",
             JavaOpenClass.OBJECT);
@@ -166,14 +168,14 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 result = customSpreadsheetResultOpenClass.get();
                 if (result == null) {
                     // HERE
-                    var anySpreadsheetResultName = "AnySpreadsheetResult";
+                    var anySpreadsheetResultName = ANY_SPREADSHEET_RESULT;
                     var i = 0;
                     var nameExists = this.module.getTypes()
                             .stream()
                             .anyMatch(t -> t.getName()
-                                    .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + "AnySpreadsheetResult"));
+                                    .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + ANY_SPREADSHEET_RESULT));
                     while (nameExists) {
-                        anySpreadsheetResultName = "AnySpreadsheetResult" + i++;
+                        anySpreadsheetResultName = ANY_SPREADSHEET_RESULT + i++;
                         var anySpreadsheetResultName0 = anySpreadsheetResultName;
                         nameExists = this.module.getTypes()
                                 .stream()

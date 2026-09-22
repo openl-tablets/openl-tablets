@@ -26,6 +26,8 @@ import org.openl.studio.projects.service.tests.TestExecutionStatus;
 @RequiredArgsConstructor
 public class ProjectSocketNotificationService {
 
+    private static final String ORIGINS = "origins";
+
     private static final  String STATUS = "/status";
     private static final String RESULTS = "/results";
     private static final String TOPIC_PROJECTS_TESTS = "/topic/projects/%s/tests";
@@ -256,7 +258,7 @@ public class ProjectSocketNotificationService {
      * deleted, switched to another branch, or edited — so a projects list they show may be stale.
      * The client re-reads the list through the REST API.
      *
-     * <p>The body is {@code {"origins": [...]}}, naming the clients whose requests caused the ping.
+     * <p>The body is {@code {ORIGINS: [...]}}, naming the clients whose requests caused the ping.
      * A client that finds itself the sole origin has already read the change and skips the re-read.
      *
      * @param userName destination user
@@ -282,7 +284,7 @@ public class ProjectSocketNotificationService {
         for (var user : userRegistry.getUsers()) {
             var named = writersByUser.getOrDefault(user.getName(), Set.of());
             messagingTemplate.convertAndSendToUser(user.getName(), TOPIC_PROJECTS_CHANGED,
-                    Map.of("origins", sorted(named)));
+                    Map.of(ORIGINS, sorted(named)));
         }
     }
 
@@ -290,7 +292,7 @@ public class ProjectSocketNotificationService {
      * Tells the user's sessions that one project of their workspace changed — its state, its branch or
      * its content — so an open page of that project can re-read it.
      *
-     * <p>The body is {@code {"files": [...], "origins": [...]}}. The files are the project-relative
+     * <p>The body is {@code {"files": [...], ORIGINS: [...]}}. The files are the project-relative
      * ones the change touched, when known — a folder means anything under it; empty when the change
      * is project-wide. The page re-reads through the REST API either way; the files let it refresh an
      * open one precisely.
@@ -302,11 +304,11 @@ public class ProjectSocketNotificationService {
     public void notifyProjectChanged(String userName, ProjectIdModel projectId, ChangeNotes notes) {
         messagingTemplate.convertAndSendToUser(userName,
                 TOPIC_PROJECT_CHANGED.formatted(encodePathSegment(projectId.encode())),
-                Map.of("files", sorted(notes.files()), "origins", sorted(notes.origins())));
+                Map.of("files", sorted(notes.files()), ORIGINS, sorted(notes.origins())));
     }
 
     private static Map<String, List<String>> origins(ChangeNotes notes) {
-        return Map.of("origins", sorted(notes.origins()));
+        return Map.of(ORIGINS, sorted(notes.origins()));
     }
 
     /** The ping bodies list their sets in a stable order, so identical changes read identically. */

@@ -52,6 +52,8 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
+    private static final String PARAMETER_CELL_FORMAT = "Parameter cell format: <type> or <type> <name>";
+
     @Getter
     @Setter
     private String tableName;
@@ -165,7 +167,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             while (j < d) {
                 if (pGridCellSourceCodeModule != null && parametersForMergedTitle
                         .size() == 1 && parametersForMergedTitle.getFirst() == null) {
-                    var errMsg = "Parameter cell format: <type> or <type> <name>";
+                    var errMsg = PARAMETER_CELL_FORMAT;
                     BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
                     finished = true;
                     break;
@@ -183,7 +185,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     parameterDeclaration = OpenLManager
                             .makeParameterDeclaration(openl, pGridCellSourceCodeModule, bindingContext);
                     if (parameterDeclaration == null) {
-                        var errMsg = "Parameter cell format: <type> or <type> <name>";
+                        var errMsg = PARAMETER_CELL_FORMAT;
                         BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
                         finished = true;
                         break;
@@ -191,7 +193,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 }
 
                 if (!parametersForMergedTitle.isEmpty() && parameterDeclaration == null) {
-                    var errMsg = "Parameter cell format: <type> or <type> <name>";
+                    var errMsg = PARAMETER_CELL_FORMAT;
                     BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
                     finished = true;
                     break;

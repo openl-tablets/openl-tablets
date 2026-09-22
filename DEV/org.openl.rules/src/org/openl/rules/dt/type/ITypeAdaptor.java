@@ -40,7 +40,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
     };
 
     static String incrementString(String value) {
-        Objects.requireNonNull(value, "value cannot be null");
+        requireValue(value);
         var d = 1;
         var sb = new StringBuilder();
         var i = value.length() - 1;
@@ -64,7 +64,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
     ITypeAdaptor<Byte, Byte> BYTE = new NumberTypeAdaptor<Byte, Byte>() {
         @Override
         public Byte increment(Byte value) {
-            Objects.requireNonNull(value, "value cannot be null");
+            requireValue(value);
             if (value.equals(Byte.MAX_VALUE)) {
                 return null;
             }
@@ -81,7 +81,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
     ITypeAdaptor<Short, Short> SHORT = new NumberTypeAdaptor<Short, Short>() {
         @Override
         public Short increment(Short value) {
-            Objects.requireNonNull(value, "value cannot be null");
+            requireValue(value);
             if (value.equals(Short.MAX_VALUE)) {
                 return null;
             }
@@ -99,7 +99,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public Integer increment(Integer value) {
-            Objects.requireNonNull(value, "value cannot be null");
+            requireValue(value);
             if (value.equals(Integer.MAX_VALUE)) {
                 return null;
             }
@@ -117,7 +117,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
         @Override
         public Long increment(Long value) {
-            Objects.requireNonNull(value, "value cannot be null");
+            requireValue(value);
             if (value.equals(Long.MAX_VALUE)) {
                 return null;
             }
@@ -220,4 +220,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     Class<C> getTargetType();
 
+    private static void requireValue(Object value) {
+        Objects.requireNonNull(value, "value cannot be null");
+    }
 }

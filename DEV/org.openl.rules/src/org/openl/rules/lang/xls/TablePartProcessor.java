@@ -24,6 +24,8 @@ import org.openl.source.IOpenSourceCodeModule;
 
 public class TablePartProcessor {
 
+    private static final String TABLE_PART_NUMBER = "TablePart number ";
+
     @Getter
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
@@ -58,7 +60,7 @@ public class TablePartProcessor {
         for (TablePart tablePart : set) {
 
             if (tablePart.getPart() != cnt + 1) {
-                var message = "TablePart number " + tablePart.getPart() + " is out of order";
+                var message = TABLE_PART_NUMBER + tablePart.getPart() + " is out of order";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
             }
 
@@ -85,14 +87,14 @@ public class TablePartProcessor {
                 dimension = myDim;
             } else {
                 if (myVert != vertical) {
-                    var message = "TablePart number " + tablePart.getPart() + " must use " + (vertical ?
+                    var message = TABLE_PART_NUMBER + tablePart.getPart() + " must use " + (vertical ?
                             "row" :
                             "column");
                     throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
                 }
 
                 if (myDim != dimension) {
-                    var message = "TablePart number " + tablePart.getPart() + " has " + (vertical ?
+                    var message = TABLE_PART_NUMBER + tablePart.getPart() + " has " + (vertical ?
                             "width" :
                             "height") + " = " + myDim + " instead of " + dimension;
                     if (vertical) {

@@ -25,6 +25,9 @@ import org.openl.util.print.NicePrinterAdaptor;
 
 public class TableProperties implements ITableProperties {
 
+    private static final String EXPIRATION_DATE = "expirationDate";
+    private static final String END_REQUEST_DATE = "endRequestDate";
+
     private final HashMap<String, Object> fieldValues = new HashMap<>();
 
     private String currentTableType;
@@ -176,12 +179,12 @@ public class TableProperties implements ITableProperties {
 
     @Override
     public java.util.Date getExpirationDate() {
-        return (java.util.Date) getPropertyValue("expirationDate");
+        return (java.util.Date) getPropertyValue(EXPIRATION_DATE);
     }
 
     @Override
     public void setExpirationDate(java.util.Date expirationDate) {
-        setFieldValue("expirationDate", expirationDate);
+        setFieldValue(EXPIRATION_DATE, expirationDate);
         reset();
     }
 
@@ -198,12 +201,12 @@ public class TableProperties implements ITableProperties {
 
     @Override
     public java.util.Date getEndRequestDate() {
-        return (java.util.Date) getPropertyValue("endRequestDate");
+        return (java.util.Date) getPropertyValue(END_REQUEST_DATE);
     }
 
     @Override
     public void setEndRequestDate(java.util.Date endRequestDate) {
-        setFieldValue("endRequestDate", endRequestDate);
+        setFieldValue(END_REQUEST_DATE, endRequestDate);
         reset();
     }
 
@@ -827,7 +830,7 @@ public class TableProperties implements ITableProperties {
      * <p>A table stays in force through its last day, so the moment such a property is kept as is the end of that
      * day rather than its start. The date a table declares names the day; the moment is the engine's.
      */
-    public static final Set<String> END_OF_DAY_PROPERTIES = Set.of("expirationDate", "endRequestDate");
+    public static final Set<String> END_OF_DAY_PROPERTIES = Set.of(EXPIRATION_DATE, END_REQUEST_DATE);
 
     /**
      * The value a property stands for, as the engine keeps it.

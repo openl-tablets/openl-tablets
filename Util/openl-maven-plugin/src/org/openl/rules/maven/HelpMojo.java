@@ -27,6 +27,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 @Mojo(name = "help", requiresProject = false, threadSafe = true)
 public final class HelpMojo extends AbstractMojo {
 
+    private static final String INDENT = "      ";
+
     @Parameter(defaultValue = "${plugin}", readonly = true)
     private PluginDescriptor plugin;
 
@@ -109,13 +111,13 @@ public final class HelpMojo extends AbstractMojo {
 
     private static void writeParameter(StringBuilder sb, org.apache.maven.plugin.descriptor.Parameter p,
                                        String nl) {
-        sb.append(nl).append("      ").append(p.getName());
+        sb.append(nl).append(INDENT).append(p.getName());
         var defaultValue = p.getDefaultValue();
         if (defaultValue != null && !defaultValue.isBlank()) {
             sb.append(" (Default: ").append(defaultValue).append(')');
         }
         sb.append(nl);
-        wrapText(sb, p.getDescription(), "      ", nl);
+        wrapText(sb, p.getDescription(), INDENT, nl);
         if (p.isRequired()) {
             sb.append("        Required: Yes").append(nl);
         }
@@ -143,7 +145,7 @@ public final class HelpMojo extends AbstractMojo {
 
                 """);
         for (var m : MigrateMojo.allMigratorsAlphabetical()) {
-            sb.append("      ").append(m.getId()).append("  —  ").append(m.getCommitMessage()).append(nl);
+            sb.append(INDENT).append(m.getId()).append("  —  ").append(m.getCommitMessage()).append(nl);
             m.getDescription().lines().forEach(line -> sb.append("        ").append(line).append(nl));
             sb.append(nl);
         }

@@ -33,6 +33,9 @@ import org.openl.util.StringUtils;
 @Slf4j
 public class AlgorithmBuilder {
 
+    private static final String WHILE = "WHILE";
+    private static final String FUNCTION = "FUNCTION";
+
     private static final String LABEL = "label";
     private static final String DESCRIPTION = "description";
     private static final String OPERATION1 = "operation";
@@ -114,7 +117,7 @@ public class AlgorithmBuilder {
                     .predecessorOperations(new String[]{"IF", "ELSE"})
                     .build(),
             TableParserSpecificationBean.builder()
-                    .keyword("WHILE")
+                    .keyword(WHILE)
                     .condition(REQUIRED)
                     .action(REQUIRED)
                     .label(OPTIONAL)
@@ -123,7 +126,7 @@ public class AlgorithmBuilder {
                     .loopOperation(true)
                     .build(),
             TableParserSpecificationBean.builder()
-                    .keyword("WHILE")
+                    .keyword(WHILE)
                     .multiline(true)
                     .condition(REQUIRED)
                     .action(PROHIBITED)
@@ -139,7 +142,7 @@ public class AlgorithmBuilder {
                     .label(OPTIONAL)
                     .beforeAndAfter(PROHIBITED)
                     .topLevel(OPTIONAL)
-                    .predecessorOperations(new String[]{"WHILE"})
+                    .predecessorOperations(new String[]{WHILE})
                     .build(),
             TableParserSpecificationBean.builder()
                     .keyword("FOR EACH")
@@ -187,7 +190,7 @@ public class AlgorithmBuilder {
                     .predecessorOperations(new String[]{"SUB"})
                     .build(),
             TableParserSpecificationBean.builder()
-                    .keyword("FUNCTION")
+                    .keyword(FUNCTION)
                     .condition(PROHIBITED)
                     .action(REQUIRED)
                     .label(REQUIRED)
@@ -195,7 +198,7 @@ public class AlgorithmBuilder {
                     .topLevel(REQUIRED)
                     .build(),
             TableParserSpecificationBean.builder()
-                    .keyword("FUNCTION")
+                    .keyword(FUNCTION)
                     .multiline(true)
                     .condition(PROHIBITED)
                     .action(PROHIBITED)
@@ -210,7 +213,7 @@ public class AlgorithmBuilder {
                     .label(OPTIONAL)
                     .beforeAndAfter(PROHIBITED)
                     .topLevel(OPTIONAL)
-                    .predecessorOperations(new String[]{"FUNCTION"})
+                    .predecessorOperations(new String[]{FUNCTION})
                     .build(),
             TableParserSpecificationBean.builder()
                     .keyword("GOTO")

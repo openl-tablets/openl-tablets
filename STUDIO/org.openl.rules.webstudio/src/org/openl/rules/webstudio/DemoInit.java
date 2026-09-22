@@ -47,6 +47,10 @@ import org.openl.studio.repositories.service.ProjectCreationService;
 @Slf4j
 public class DemoInit {
 
+    private static final String VIEWERS = "Viewers";
+    private static final String EXAMPLES = "examples";
+    private static final String TUTORIALS = "tutorials";
+
     private final TemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
 
     @Qualifier("zipFilter")
@@ -78,10 +82,10 @@ public class DemoInit {
         initUser("a1", "a1@example.com", "A1", "Administrators");
         initUser("u0", "u0@example.com", "U0", "Testers");
         initUser("u1", "u1@example.com", "U1", "Developers", "Analysts");
-        initUser("u2", "u2@example.com", "U2", "Viewers");
-        initUser("u3", "u3@example.com", "U3", "Viewers");
+        initUser("u2", "u2@example.com", "U2", VIEWERS);
+        initUser("u3", "u3@example.com", "U3", VIEWERS);
         initUser("u4", "u4@example.com", "U4", "Deployers");
-        initUser("user", "user@example.com", "User", "Viewers");
+        initUser("user", "user@example.com", "User", VIEWERS);
 
         var user = new WorkspaceUserImpl(usr.getUsername(),
                 (x) -> new UserInfo(usr.getUsername(),
@@ -89,17 +93,17 @@ public class DemoInit {
                         usr.getDisplayName()));
         var userWorkspace = workspaceManager.getUserWorkspace(user);
 
-        createProject(userWorkspace, "examples", "Example 1 - Bank Rating", true, false);
-        createProject(userWorkspace, "examples", "Example 2 - Corporate Rating", true, false);
-        createProject(userWorkspace, "examples", "Example 3 - Auto Policy Calculation", false, true);
-        createProject(userWorkspace, "tutorials", "Tutorial 1 - Introduction to Decision Tables", true, false);
-        createProject(userWorkspace, "tutorials", "Tutorial 2 - Introduction to Data Tables", true, false);
-        createProject(userWorkspace, "tutorials", "Tutorial 3 - More Advanced Decision and Data Tables", true, false);
-        createProject(userWorkspace, "tutorials", "Tutorial 4 - Introduction to Column Match Tables", false, false);
-        createProject(userWorkspace, "tutorials", "Tutorial 5 - Introduction to TBasic Tables", false, false);
-        createProject(userWorkspace, "tutorials", "Tutorial 6 - Introduction to Spreadsheet Tables", false, false);
-        createProject(userWorkspace, "tutorials", "Tutorial 7 - Introduction to Table Properties", false, false);
-        createProject(userWorkspace, "tutorials", "Tutorial 8 - Introduction to Smart Rules and Smart Lookup Tables", true, false);
+        createProject(userWorkspace, EXAMPLES, "Example 1 - Bank Rating", true, false);
+        createProject(userWorkspace, EXAMPLES, "Example 2 - Corporate Rating", true, false);
+        createProject(userWorkspace, EXAMPLES, "Example 3 - Auto Policy Calculation", false, true);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 1 - Introduction to Decision Tables", true, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 2 - Introduction to Data Tables", true, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 3 - More Advanced Decision and Data Tables", true, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 4 - Introduction to Column Match Tables", false, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 5 - Introduction to TBasic Tables", false, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 6 - Introduction to Spreadsheet Tables", false, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 7 - Introduction to Table Properties", false, false);
+        createProject(userWorkspace, TUTORIALS, "Tutorial 8 - Introduction to Smart Rules and Smart Lookup Tables", true, false);
     }
 
     private void initUser(String user, String email, String displayName, String... groups) {

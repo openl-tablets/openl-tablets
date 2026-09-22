@@ -12,6 +12,8 @@ import org.openl.gen.TypeDescription;
 
 public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
 
+    private static final String CONSTRUCTOR = "<init>";
+
     private final Map<String, FieldDescription> parentFields;
     private final Map<String, FieldDescription> allFields;
 
@@ -40,13 +42,13 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         String parentName = getParentType().getTypeName().replace('.', '/');
         if (parentFields.isEmpty()) {
             methodVisitor = classWriter
-                    .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(getBeanFields()), null, null);
+                    .visitMethod(Opcodes.ACC_PUBLIC, CONSTRUCTOR, getMethodSignatureForByteCode(getBeanFields()), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V", false);
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, CONSTRUCTOR, "()V", false);
         } else {
             // Parent fields are not empty only if parent class is datatype and constructor exists in generated class.
             methodVisitor = classWriter
-                    .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(allFields), null, null);
+                    .visitMethod(Opcodes.ACC_PUBLIC, CONSTRUCTOR, getMethodSignatureForByteCode(allFields), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
 
             // push to stack all parameters for parent constructor
@@ -63,7 +65,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
 
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
                     parentName,
-                    "<init>",
+                    CONSTRUCTOR,
                     getMethodSignatureForByteCode(parentFields),
                     false);
         }

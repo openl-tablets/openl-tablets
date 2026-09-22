@@ -57,6 +57,8 @@ import org.openl.util.StringUtils;
  */
 @Slf4j
 public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean {
+    private static final String UNDEPLOY_FAILED = "Failed to undeploy service '{}'.";
+
     @Setter
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
     @Setter
@@ -129,7 +131,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 try {
                     undeploy(services.get(deployPath));
                 } catch (Exception e) {
-                    log.error("Failed to undeploy service '{}'.", deployPath, e);
+                    log.error(UNDEPLOY_FAILED, deployPath, e);
                 }
             }
         }
@@ -150,7 +152,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                             try {
                                 undeploy(old);
                             } catch (Exception e) {
-                                log.error("Failed to undeploy service '{}'.", serviceDescription.getDeployPath(), e);
+                                log.error(UNDEPLOY_FAILED, serviceDescription.getDeployPath(), e);
                             }
                         }
                     }
@@ -376,7 +378,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 try {
                     publisher.undeploy(service);
                 } catch (RuleServiceUndeployException e) {
-                    log.error("Failed to undeploy service '{}'.", servicePath, e);
+                    log.error(UNDEPLOY_FAILED, servicePath, e);
                 }
             }
             throw new RuleServiceDeployException("Failed to deploy service.", e1);

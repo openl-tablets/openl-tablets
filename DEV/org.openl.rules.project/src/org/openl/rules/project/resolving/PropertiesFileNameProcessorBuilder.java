@@ -11,6 +11,8 @@ import org.openl.util.StringUtils;
 
 public final class PropertiesFileNameProcessorBuilder {
 
+    private static final String INSTANTIATION_FAILURE = "Failed to instantiate file name processor class '";
+
     private PropertiesFileNameProcessor processor;
     private URLClassLoader classLoader;
 
@@ -35,7 +37,7 @@ public final class PropertiesFileNameProcessorBuilder {
                 var message = "Properties file name processor class '" + prcClass + "' is not found.";
                 throw new InvalidFileNameProcessorException(message, e);
             } catch (NoClassDefFoundError e) {
-                var message = "Failed to instantiate file name processor class '" + prcClass + "'.";
+                var message = INSTANTIATION_FAILURE + prcClass + "'.";
                 throw new InvalidFileNameProcessorException(message, e);
             }
 
@@ -59,7 +61,7 @@ public final class PropertiesFileNameProcessorBuilder {
                     declaredConstructor = clazz.getDeclaredConstructor();
                     processor = newInstance(declaredConstructor);
                 } catch (NoSuchMethodException e1) {
-                    var message = "Failed to instantiate file name processor class '" + prcClass + "'. Constructor with 'String' argument or default constructor is not found.";
+                    var message = INSTANTIATION_FAILURE + prcClass + "'. Constructor with 'String' argument or default constructor is not found.";
                     throw new InvalidFileNameProcessorException(message, e);
                 }
             }
@@ -102,11 +104,11 @@ public final class PropertiesFileNameProcessorBuilder {
             if (targetException instanceof RuntimeException exception) {
                 throw exception;
             }
-            var message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
+            var message = INSTANTIATION_FAILURE + procConstructor.getDeclaringClass()
                     .getTypeName() + "'. Unexpected exception is thrown, only InvalidFileNamePatternException is supported.";
             throw new InvalidFileNameProcessorException(message, e);
         } catch (Exception e) {
-            var message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
+            var message = INSTANTIATION_FAILURE + procConstructor.getDeclaringClass()
                     .getTypeName() + "'.";
             throw new InvalidFileNameProcessorException(message, e);
         }

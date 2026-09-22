@@ -28,6 +28,8 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.ZipUtils;
 
 abstract class BaseOpenLMojo extends AbstractMojo {
+    private static final String SKIP_PREFIX = "SKIP : ";
+
     private static final String SEPARATOR = "--------------------------------------------------";
     private static final Collection<String> OPENL_FILES = Arrays.asList(ProjectDescriptor.FILE_NAME, RulesDeploy.FILE_NAME);
 
@@ -268,16 +270,16 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         var dependencies = new HashSet<Artifact>();
         for (Artifact artifact : getDependentNonOpenLProjects()) {
             if (!scopeFilter.test(artifact.getScope()) || isOpenLCoreDependency(artifact.getGroupId())) {
-                debug("SKIP : ", artifact);
+                debug(SKIP_PREFIX, artifact);
                 continue;
             }
             List<String> dependencyTrail = artifact.getDependencyTrail();
             if (dependencyTrail.size() < 2) {
-                debug("SKIP : ", artifact, " (by dependency depth)");
+                debug(SKIP_PREFIX, artifact, " (by dependency depth)");
                 continue;
             }
             if (skipOpenLCoreDependency(dependencyTrail)) {
-                debug("SKIP : ", artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
+                debug(SKIP_PREFIX, artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
                 continue;
             }
             var tr = dependencyTrail.get(1);
@@ -302,7 +304,7 @@ abstract class BaseOpenLMojo extends AbstractMojo {
             // is applied later by the artifact resolver, not the model — normalize here.
             var scope = dep.getScope() == null ? Artifact.SCOPE_COMPILE : dep.getScope();
             if (!scopeFilter.test(scope) || isOpenLCoreDependency(dep.getGroupId())) {
-                debug("SKIP : ", dep);
+                debug(SKIP_PREFIX, dep);
                 continue;
             }
             allowed.add(ArtifactUtils.versionlessKey(dep.getGroupId(), dep.getArtifactId()));

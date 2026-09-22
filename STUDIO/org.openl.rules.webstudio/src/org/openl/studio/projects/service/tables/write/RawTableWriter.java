@@ -75,6 +75,9 @@ import org.openl.studio.projects.model.tables.UpdateTarget;
  */
 public class RawTableWriter extends TableWriter<RawTableView> {
 
+    private static final String ROW_WIDTH_MESSAGE = "table.action.row.width.message";
+    private static final String COLUMN_HEIGHT_MESSAGE = "table.action.column.height.message";
+
     public RawTableWriter(IOpenLTable table) {
         super(table);
     }
@@ -368,7 +371,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requirePosition(position, 1, Tool.height(developerView.getRegion()));
         requireNotEmpty(rows);
         var width = Tool.width(developerView.getRegion());
-        requireBatchLines(rows, position, true, width, "table.action.row.width.message");
+        requireBatchLines(rows, position, true, width, ROW_WIDTH_MESSAGE);
         // A single multi-row grid insert at the table's top boundary corrupts the region, so allocate the rows one
         // at a time. Do not write or merge them until the complete block exists: a later insertion inside an inline
         // merge would otherwise expand the merge and hide an existing row.
@@ -385,7 +388,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requirePosition(position, 0, Tool.width(developerView.getRegion()));
         requireNotEmpty(columns);
         var height = Tool.height(developerView.getRegion());
-        requireBatchLines(columns, position, false, height, "table.action.column.height.message");
+        requireBatchLines(columns, position, false, height, COLUMN_HEIGHT_MESSAGE);
         // Allocate the complete block before applying inline merges, for the same reason as row insertion. Column
         // insertion lands the blank at the given index (unlike row insertion).
         for (var i = 0; i < columns.size(); i++) {
@@ -399,7 +402,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requireNotEmpty(rows);
         var width = Tool.width(developerView.getRegion());
         var startRow = Tool.height(developerView.getRegion());
-        requireBatchLines(rows, startRow, true, width, "table.action.row.width.message");
+        requireBatchLines(rows, startRow, true, width, ROW_WIDTH_MESSAGE);
         writeLines(developerView, rows, startRow, true, width, startRow + rows.size());
     }
 
@@ -408,7 +411,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requireNotEmpty(columns);
         var height = Tool.height(developerView.getRegion());
         var startColumn = Tool.width(developerView.getRegion());
-        requireBatchLines(columns, startColumn, false, height, "table.action.column.height.message");
+        requireBatchLines(columns, startColumn, false, height, COLUMN_HEIGHT_MESSAGE);
         writeLines(developerView, columns, startColumn, false, startColumn + columns.size(), height);
     }
 
@@ -853,12 +856,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     }
 
     private static void requireRowWidth(List<RawCellInput> cells, int width) {
-        requireLineLength(cells, width, "table.action.row.width.message");
+        requireLineLength(cells, width, ROW_WIDTH_MESSAGE);
         requireSomeContent(cells);
     }
 
     private static void requireColumnHeight(List<RawCellInput> cells, int height) {
-        requireLineLength(cells, height, "table.action.column.height.message");
+        requireLineLength(cells, height, COLUMN_HEIGHT_MESSAGE);
         requireSomeContent(cells);
     }
 

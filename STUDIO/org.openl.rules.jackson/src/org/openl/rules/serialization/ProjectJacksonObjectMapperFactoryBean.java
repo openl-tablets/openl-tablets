@@ -31,6 +31,8 @@ import org.openl.util.generation.InterfaceTransformer;
 
 public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
+    private static final String EXPECTED_STRING_VALUE = "Expected string value for '%s' in the configuration for service '%s'.";
+
     private static final AtomicLong incrementer = new AtomicLong();
 
     public static final String ROOT_CLASS_NAMES_BINDING_OLD = "rootClassNamesBinding";
@@ -184,7 +186,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 }
             } else {
                 throw new ObjectMapperConfigurationParsingException(
-                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
+                        EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_SERIALIZATION_INCLUSION,
                                 rulesDeploy.getServiceName()));
             }
@@ -205,7 +207,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         } else {
             if (rootClassNamesBinding != null) {
                 throw new ObjectMapperConfigurationParsingException(
-                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
+                        EXPECTED_STRING_VALUE.formatted(
                                 ROOT_CLASS_NAMES_BINDING,
                                 rulesDeploy.getServiceName()));
             }
@@ -218,7 +220,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         } else {
             if (typingPropertyName != null) {
                 throw new ObjectMapperConfigurationParsingException(
-                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
+                        EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_TYPING_PROPERTY_NAME,
                                 rulesDeploy.getServiceName()));
             }
@@ -234,7 +236,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                     delegate.setJsonTypeInfoId(jtiId);
                 }
                 case null, default -> throw new ObjectMapperConfigurationParsingException(
-                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
+                        EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_JSON_TYPE_INFO_ID,
                                 rulesDeploy.getServiceName()));
             }
@@ -252,7 +254,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                     }
                 }
                 case null, default -> throw new ObjectMapperConfigurationParsingException(
-                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
+                        EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_DEFAULT_TYPING_MODE,
                                 rulesDeploy.getServiceName()));
             }
@@ -274,7 +276,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 }
             } else {
                 throw new ObjectMapperConfigurationParsingException(
-                        "Expected string value for '%s' in the configuration for service '%s'.".formatted(
+                        EXPECTED_STRING_VALUE.formatted(
                                 JACKSON_DEFAULT_DATE_FORMAT,
                                 rulesDeploy.getServiceName()));
             }
@@ -391,7 +393,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                         }
                     } else {
                         throw new ObjectMapperConfigurationParsingException(
-                                "Expected string value for '%s' in the configuration for service '%s'.".formatted(
+                                EXPECTED_STRING_VALUE.formatted(
                                         JACKSON_PROPERTY_NAMING_STRATEGY,
                                         rulesDeploy.getServiceName()));
                     }

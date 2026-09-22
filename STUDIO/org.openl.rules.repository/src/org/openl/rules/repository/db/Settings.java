@@ -14,6 +14,8 @@ import org.openl.util.IOUtils;
 
 @Slf4j
 final class Settings {
+    private static final String QUERIES_PREFIX = "/openl-db-repository-";
+
     Collection<String> initStatements;
     String selectAllMetaInfo;
     String selectAllHistoryMetaInfo;
@@ -31,9 +33,9 @@ final class Settings {
     Settings(String databaseCode, int major, int minor) throws IOException {
         var queries = new TreeMap<String, String>();
         fillQueries(queries, "/openl-db-repository");
-        fillQueries(queries, "/openl-db-repository-" + databaseCode);
-        fillQueries(queries, "/openl-db-repository-" + databaseCode + "-v" + major);
-        fillQueries(queries, "/openl-db-repository-" + databaseCode + "-v" + major + "." + minor);
+        fillQueries(queries, QUERIES_PREFIX + databaseCode);
+        fillQueries(queries, QUERIES_PREFIX + databaseCode + "-v" + major);
+        fillQueries(queries, QUERIES_PREFIX + databaseCode + "-v" + major + "." + minor);
         fillQueries(queries, "/openl-db-repository-ext"); // For customization purposes
         resolve(queries);
 

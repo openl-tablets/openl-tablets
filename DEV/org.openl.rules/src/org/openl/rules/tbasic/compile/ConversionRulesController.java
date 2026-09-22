@@ -9,6 +9,24 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 
 public final class ConversionRulesController {
 
+    private static final String PERFORM = "Perform";
+    private static final String EXECUTION = "execution";
+    private static final String CALCULATE = "Calculate";
+    private static final String IF_CONDITION = "IF.condition";
+    private static final String CONDITION_CALCULATION = "condition calculation";
+    private static final String CONDITIONAL_GOTO = "ConditionalGoto";
+    private static final String LABEL_END = "gen_label_end";
+    private static final String FALSE_VALUE = "FALSE";
+    private static final String COMPILE = "!Compile";
+    private static final String IF_ELSE = "IFELSE";
+    private static final String LABEL_ELSE = "gen_label_else";
+    private static final String WHILE = "WHILE";
+    private static final String LABEL_BEGIN_LOOP = "gen_label_begin_loop";
+    private static final String LABEL_END_LOOP = "gen_label_end_loop";
+    private static final String FOR_EACH = "FOR EACH";
+    private static final String FOR_EACH_CONDITION = "FOR EACH.condition";
+    private static final String FUNCTION = "FUNCTION";
+
     private ConversionRulesController() {
         // Utility class
     }
@@ -17,9 +35,9 @@ public final class ConversionRulesController {
             ConversionRuleBean.builder()
                     .operation("SET")
                     .step(s -> s
-                            .operationType("Perform")
+                            .operationType(PERFORM)
                             .operationParam1("SET.action")
-                            .nameForDebug("execution"))
+                            .nameForDebug(EXECUTION))
                     .build(),
             ConversionRuleBean.builder()
                     .operation("VAR")
@@ -28,7 +46,7 @@ public final class ConversionRulesController {
                             .operationParam1("VAR.condition")
                             .operationParam2("VAR.action"))
                     .step(s -> s
-                            .operationType("Calculate")
+                            .operationType(CALCULATE)
                             .operationParam1("VAR.action")
                             .nameForDebug("initial value"))
                     .step(s -> s
@@ -38,173 +56,173 @@ public final class ConversionRulesController {
             ConversionRuleBean.builder()
                     .operation("IF")
                     .step(s -> s
-                            .operationType("Calculate")
-                            .operationParam1("IF.condition")
-                            .nameForDebug("condition calculation"))
+                            .operationType(CALCULATE)
+                            .operationParam1(IF_CONDITION)
+                            .nameForDebug(CONDITION_CALCULATION))
                     .step(s -> s
-                            .operationType("ConditionalGoto")
-                            .operationParam1("gen_label_end")
-                            .operationParam2("FALSE"))
+                            .operationType(CONDITIONAL_GOTO)
+                            .operationParam1(LABEL_END)
+                            .operationParam2(FALSE_VALUE))
                     .step(s -> s
-                            .operationType("Perform")
+                            .operationType(PERFORM)
                             .operationParam1("IF.action")
-                            .nameForDebug("execution"))
+                            .nameForDebug(EXECUTION))
                     .step(s -> s
                             .operationType("Nop")
-                            .labelInstruction("gen_label_end"))
+                            .labelInstruction(LABEL_END))
                     .build(),
             ConversionRuleBean.builder()
                     .operation("IF")
                     .multiLine(true)
                     .step(s -> s
-                            .operationType("Calculate")
-                            .operationParam1("IF.condition")
-                            .nameForDebug("condition calculation"))
+                            .operationType(CALCULATE)
+                            .operationParam1(IF_CONDITION)
+                            .nameForDebug(CONDITION_CALCULATION))
                     .step(s -> s
-                            .operationType("ConditionalGoto")
-                            .operationParam1("gen_label_end")
-                            .operationParam2("FALSE"))
+                            .operationType(CONDITIONAL_GOTO)
+                            .operationParam1(LABEL_END)
+                            .operationParam2(FALSE_VALUE))
                     .step(s -> s
-                            .operationType("!Compile")
+                            .operationType(COMPILE)
                             .operationParam1("IF.children"))
                     .step(s -> s
                             .operationType("Nop")
-                            .labelInstruction("gen_label_end"))
+                            .labelInstruction(LABEL_END))
                     .build(),
             ConversionRuleBean.builder()
-                    .operation("IFELSE")
+                    .operation(IF_ELSE)
                     .step(s -> s
-                            .operationType("Calculate")
-                            .operationParam1("IF.condition")
-                            .nameForDebug("condition calculation"))
+                            .operationType(CALCULATE)
+                            .operationParam1(IF_CONDITION)
+                            .nameForDebug(CONDITION_CALCULATION))
                     .step(s -> s
-                            .operationType("ConditionalGoto")
-                            .operationParam1("gen_label_else")
-                            .operationParam2("FALSE"))
+                            .operationType(CONDITIONAL_GOTO)
+                            .operationParam1(LABEL_ELSE)
+                            .operationParam2(FALSE_VALUE))
                     .step(s -> s
-                            .operationType("Perform")
+                            .operationType(PERFORM)
                             .operationParam1("IF.action")
-                            .nameForDebug("execution"))
+                            .nameForDebug(EXECUTION))
                     .step(s -> s
                             .operationType("Goto")
-                            .operationParam1("gen_label_end"))
+                            .operationParam1(LABEL_END))
                     .step(s -> s
-                            .operationType("Perform")
+                            .operationType(PERFORM)
                             .operationParam1("ELSE.action")
-                            .labelInstruction("gen_label_else")
-                            .nameForDebug("execution"))
+                            .labelInstruction(LABEL_ELSE)
+                            .nameForDebug(EXECUTION))
                     .step(s -> s
                             .operationType("Nop")
-                            .labelInstruction("gen_label_end"))
+                            .labelInstruction(LABEL_END))
                     .build(),
             ConversionRuleBean.builder()
-                    .operation("IFELSE")
+                    .operation(IF_ELSE)
                     .multiLine(true)
                     .step(s -> s
-                            .operationType("Calculate")
-                            .operationParam1("IF.condition")
-                            .nameForDebug("condition calculation"))
+                            .operationType(CALCULATE)
+                            .operationParam1(IF_CONDITION)
+                            .nameForDebug(CONDITION_CALCULATION))
                     .step(s -> s
-                            .operationType("ConditionalGoto")
-                            .operationParam1("gen_label_else")
-                            .operationParam2("FALSE"))
+                            .operationType(CONDITIONAL_GOTO)
+                            .operationParam1(LABEL_ELSE)
+                            .operationParam2(FALSE_VALUE))
                     .step(s -> s
-                            .operationType("!Compile")
+                            .operationType(COMPILE)
                             .operationParam1("IF.children"))
                     .step(s -> s
                             .operationType("Goto")
-                            .operationParam1("gen_label_end"))
+                            .operationParam1(LABEL_END))
                     .step(s -> s
-                            .operationType("!Compile")
+                            .operationType(COMPILE)
                             .operationParam1("ELSE.children")
-                            .labelInstruction("gen_label_else"))
+                            .labelInstruction(LABEL_ELSE))
                     .step(s -> s
                             .operationType("Nop")
-                            .labelInstruction("gen_label_end"))
+                            .labelInstruction(LABEL_END))
                     .build(),
             ConversionRuleBean.builder()
-                    .operation("WHILE")
+                    .operation(WHILE)
                     .step(s -> s
-                            .operationType("Calculate")
+                            .operationType(CALCULATE)
                             .operationParam1("WHILE.condition")
-                            .labelInstruction("gen_label_begin_loop")
-                            .nameForDebug("condition calculation"))
+                            .labelInstruction(LABEL_BEGIN_LOOP)
+                            .nameForDebug(CONDITION_CALCULATION))
                     .step(s -> s
-                            .operationType("ConditionalGoto")
-                            .operationParam1("gen_label_end_loop")
-                            .operationParam2("FALSE"))
+                            .operationType(CONDITIONAL_GOTO)
+                            .operationParam1(LABEL_END_LOOP)
+                            .operationParam2(FALSE_VALUE))
                     .step(s -> s
-                            .operationType("Perform")
+                            .operationType(PERFORM)
                             .operationParam1("WHILE.action")
-                            .nameForDebug("execution"))
+                            .nameForDebug(EXECUTION))
                     .step(s -> s
                             .operationType("Goto")
-                            .operationParam1("gen_label_begin_loop"))
+                            .operationParam1(LABEL_BEGIN_LOOP))
                     .step(s -> s
                             .operationType("Nop")
-                            .labelInstruction("gen_label_end_loop"))
+                            .labelInstruction(LABEL_END_LOOP))
                     .build(),
             ConversionRuleBean.builder()
-                    .operation("WHILE")
+                    .operation(WHILE)
                     .multiLine(true)
                     .step(s -> s
-                            .operationType("Calculate")
+                            .operationType(CALCULATE)
                             .operationParam1("WHILE.condition")
-                            .labelInstruction("gen_label_begin_loop")
-                            .nameForDebug("condition calculation"))
+                            .labelInstruction(LABEL_BEGIN_LOOP)
+                            .nameForDebug(CONDITION_CALCULATION))
                     .step(s -> s
-                            .operationType("ConditionalGoto")
-                            .operationParam1("gen_label_end_loop")
-                            .operationParam2("FALSE"))
+                            .operationType(CONDITIONAL_GOTO)
+                            .operationParam1(LABEL_END_LOOP)
+                            .operationParam2(FALSE_VALUE))
                     .step(s -> s
-                            .operationType("!Compile")
+                            .operationType(COMPILE)
                             .operationParam1("WHILE.children"))
                     .step(s -> s
                             .operationType("Goto")
-                            .operationParam1("gen_label_begin_loop"))
+                            .operationParam1(LABEL_BEGIN_LOOP))
                     .step(s -> s
                             .operationType("Nop")
-                            .labelInstruction("gen_label_end_loop"))
+                            .labelInstruction(LABEL_END_LOOP))
                     .build(),
             ConversionRuleBean.builder()
-                    .operation("FOR EACH")
+                    .operation(FOR_EACH)
                     .multiLine(true)
                     .step(s -> s
-                            .operationType("Calculate")
+                            .operationType(CALCULATE)
                             .operationParam1("FOR EACH.action"))
                     .step(s -> s
                             .operationType("DeclareIterator")
                             .operationParam1("declare iterator")
-                            .operationParam2("FOR EACH.condition"))
+                            .operationParam2(FOR_EACH_CONDITION))
                     .step(s -> s
                             .operationType("!DeclareArrayElement")
-                            .operationParam1("FOR EACH.condition")
+                            .operationParam1(FOR_EACH_CONDITION)
                             .operationParam2("FOR EACH.action"))
                     .step(s -> s
                             .operationType("IteratorHasNext")
-                            .operationParam1("FOR EACH.condition")
-                            .labelInstruction("gen_label_begin_loop"))
+                            .operationParam1(FOR_EACH_CONDITION)
+                            .labelInstruction(LABEL_BEGIN_LOOP))
                     .step(s -> s
-                            .operationType("ConditionalGoto")
-                            .operationParam1("gen_label_end_loop")
-                            .operationParam2("FALSE"))
+                            .operationType(CONDITIONAL_GOTO)
+                            .operationParam1(LABEL_END_LOOP)
+                            .operationParam2(FALSE_VALUE))
                     .step(s -> s
                             .operationType("IteratorNext")
-                            .operationParam1("FOR EACH.condition"))
+                            .operationParam1(FOR_EACH_CONDITION))
                     .step(s -> s
                             .operationType("AssignVariable")
                             .operationParam1("gen_localVariable")
-                            .operationParam2("FOR EACH.condition")
+                            .operationParam2(FOR_EACH_CONDITION)
                             .nameForDebug("next"))
                     .step(s -> s
-                            .operationType("!Compile")
+                            .operationType(COMPILE)
                             .operationParam1("FOR EACH.children"))
                     .step(s -> s
                             .operationType("Goto")
-                            .operationParam1("gen_label_begin_loop"))
+                            .operationParam1(LABEL_BEGIN_LOOP))
                     .step(s -> s
                             .operationType("Nop")
-                            .labelInstruction("gen_label_end_loop"))
+                            .labelInstruction(LABEL_END_LOOP))
                     .build(),
             ConversionRuleBean.builder()
                     .operation("GOTO")
@@ -220,14 +238,14 @@ public final class ConversionRulesController {
                     .operation("BREAK")
                     .step(s -> s
                             .operationType("Goto")
-                            .operationParam1("gen_label_end_loop")
+                            .operationParam1(LABEL_END_LOOP)
                             .nameForDebug(""))
                     .build(),
             ConversionRuleBean.builder()
                     .operation("CONTINUE")
                     .step(s -> s
                             .operationType("Goto")
-                            .operationParam1("gen_label_begin_loop")
+                            .operationParam1(LABEL_BEGIN_LOOP)
                             .nameForDebug(""))
                     .build(),
             ConversionRuleBean.builder()
@@ -242,9 +260,9 @@ public final class ConversionRulesController {
                     .step(s -> s
                             .operationType("!Subroutine"))
                     .step(s -> s
-                            .operationType("Perform")
+                            .operationType(PERFORM)
                             .operationParam1("SUB.action")
-                            .nameForDebug("execution"))
+                            .nameForDebug(EXECUTION))
                     .build(),
             ConversionRuleBean.builder()
                     .operation("SUB")
@@ -252,27 +270,27 @@ public final class ConversionRulesController {
                     .step(s -> s
                             .operationType("!Subroutine"))
                     .step(s -> s
-                            .operationType("!Compile")
+                            .operationType(COMPILE)
                             .operationParam1("SUB.children"))
                     .build(),
             ConversionRuleBean.builder()
-                    .operation("FUNCTION")
+                    .operation(FUNCTION)
                     .step(s -> s
                             .operationType("!Function")
                             .operationParam1("FUNCTION.action"))
                     .step(s -> s
                             .operationType("Return")
                             .operationParam1("FUNCTION.action")
-                            .nameForDebug("execution"))
+                            .nameForDebug(EXECUTION))
                     .build(),
             ConversionRuleBean.builder()
-                    .operation("FUNCTION")
+                    .operation(FUNCTION)
                     .multiLine(true)
                     .step(s -> s
                             .operationType("!Function")
                             .operationParam1("FUNCTION.children:first:RETURN.condition"))
                     .step(s -> s
-                            .operationType("!Compile")
+                            .operationType(COMPILE)
                             .operationParam1("FUNCTION.children"))
                     .build()
     };
@@ -316,12 +334,12 @@ public final class ConversionRulesController {
 
     private static String whatIsOperationsGroupName(LinkedHashSet<String> groupedOperationNames) {
         return switch (groupedOperationNames) {
-            case LinkedHashSet<String> s when s.containsAll(List.of("IF", "ELSE")) -> "IFELSE";
+            case LinkedHashSet<String> s when s.containsAll(List.of("IF", "ELSE")) -> IF_ELSE;
             case LinkedHashSet<String> s when s.containsAll(List.of("IF", "END IF")) -> "IF";
-            case LinkedHashSet<String> s when s.containsAll(List.of("WHILE", "END WHILE")) -> "WHILE";
-            case LinkedHashSet<String> s when s.containsAll(List.of("FOR EACH", "END FOR EACH")) -> "FOR EACH";
+            case LinkedHashSet<String> s when s.containsAll(List.of(WHILE, "END WHILE")) -> WHILE;
+            case LinkedHashSet<String> s when s.containsAll(List.of(FOR_EACH, "END FOR EACH")) -> FOR_EACH;
             case LinkedHashSet<String> s when s.containsAll(List.of("SUB", "END SUB")) -> "SUB";
-            case LinkedHashSet<String> s when s.containsAll(List.of("FUNCTION", "END FUNCTION")) -> "FUNCTION";
+            case LinkedHashSet<String> s when s.containsAll(List.of(FUNCTION, "END FUNCTION")) -> FUNCTION;
             default -> groupedOperationNames.getFirst();
         };
     }

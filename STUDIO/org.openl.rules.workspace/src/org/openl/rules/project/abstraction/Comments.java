@@ -87,13 +87,12 @@ public final class Comments {
         if (StringUtils.isBlank(comment)) {
             return Collections.singletonList(comment);
         }
-        var paramName = "{project-name}";
-        var from = copiedFromTemplate.indexOf(paramName);
+        var from = copiedFromTemplate.indexOf(PROJECT_NAME);
         if (from == -1) {
             return Collections.singletonList(comment);
         }
         var prefix = copiedFromTemplate.substring(0, from);
-        var suffix = copiedFromTemplate.substring(from + paramName.length());
+        var suffix = copiedFromTemplate.substring(from + PROJECT_NAME.length());
         if (comment.startsWith(prefix) && comment.endsWith(suffix)) {
             return Arrays.asList(prefix, comment.substring(from, comment.lastIndexOf(suffix)), suffix);
         } else {

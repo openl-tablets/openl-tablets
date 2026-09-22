@@ -112,7 +112,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             properties.setProperty(nameWithPrefix + ".new-branch.$ref", defaultSettingsPrefix + ".new-branch");
         }
 
-        var defValue = properties.getProperty(defaultSettingsPrefix + ".name");
+        var defValue = properties.getProperty(defaultSettingsPrefix + REPOSITORY_NAME_SUFFIX);
         setName(valueFinder.apply("name", defValue));
         oldName = name;
 

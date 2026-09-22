@@ -46,6 +46,8 @@ import org.openl.util.text.TextInterval;
 @Slf4j
 public class DataTableBindHelper {
 
+    private static final String ERROR_OCCURRED = "Error occurred: ";
+
     private DataTableBindHelper() {
     }
 
@@ -608,7 +610,7 @@ public class DataTableBindHelper {
                     fieldAccessorChainTokens = trimAndSplitPrecisionToken(
                             Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
-                    log.debug("Error occurred: ", e);
+                    log.debug(ERROR_OCCURRED, e);
                     var message = "Cannot parse field source '%s'".formatted(code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
                     bindingContext.addError(error);
@@ -1096,7 +1098,7 @@ public class DataTableBindHelper {
                     bindingContext.addError(e);
                     return null;
                 } catch (Exception e) {
-                    log.debug("Error occurred: ", e);
+                    log.debug(ERROR_OCCURRED, e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
                             currentFieldNameNode);
                     bindingContext.addError(error);
@@ -1111,7 +1113,7 @@ public class DataTableBindHelper {
                 try {
                     index = getCollectionIndex(currentFieldNameNode);
                 } catch (Exception e) {
-                    log.debug("Error occurred: ", e);
+                    log.debug(ERROR_OCCURRED, e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
                             currentFieldNameNode);
                     bindingContext.addError(error);
@@ -1173,7 +1175,7 @@ public class DataTableBindHelper {
                                 .getConvertor(keyOpenClass.getInstanceClass());
                         return converter.parse(s, null);
                     } catch (Exception e) {
-                        log.debug("Error occurred: ", e);
+                        log.debug(ERROR_OCCURRED, e);
                         throw SyntaxNodeExceptionUtils.createError(
                                 "Cannot convert a key value '%s' to type '%s'.".formatted(s, keyOpenClass.getName()),
                                 currentFieldNameNode);

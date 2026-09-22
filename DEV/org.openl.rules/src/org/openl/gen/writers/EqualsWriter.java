@@ -16,6 +16,9 @@ import org.openl.gen.FieldDescription;
  */
 public class EqualsWriter extends DefaultBeanByteCodeWriter {
 
+    private static final String EQUALS = "equals";
+    private static final String ARRAYS = "java/util/Arrays";
+
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *                            (e.g. <code>my/test/TestClass</code>)
@@ -28,7 +31,7 @@ public class EqualsWriter extends DefaultBeanByteCodeWriter {
     @Override
     public void write(ClassWriter classWriter) {
         MethodVisitor mv;
-        mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, "equals", "(Ljava/lang/Object;)Z", null, null);
+        mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC, EQUALS, "(Ljava/lang/Object;)Z", null, null);
 
         trueIfTheSame(mv);
         falseIfNull(mv);
@@ -81,16 +84,16 @@ public class EqualsWriter extends DefaultBeanByteCodeWriter {
             // No conversions
             mv.visitJumpInsn(Opcodes.IF_ICMPNE, gotoIfNotEqual);
         } else if (type.charAt(0) == '[' && type.length() == 2) { // Array of primitives
-            invoke(mv, "java/util/Arrays", "equals", "(" + type + type + ")Z");
+            invoke(mv, ARRAYS, EQUALS, "(" + type + type + ")Z");
             mv.visitJumpInsn(Opcodes.IFEQ, gotoIfNotEqual);
         } else if (type.startsWith("[L")) { // Array of objects
-            invoke(mv, "java/util/Arrays", "equals", "([Ljava/lang/Object;[Ljava/lang/Object;)Z");
+            invoke(mv, ARRAYS, EQUALS, "([Ljava/lang/Object;[Ljava/lang/Object;)Z");
             mv.visitJumpInsn(Opcodes.IFEQ, gotoIfNotEqual);
         } else if (type.startsWith("[[")) { // Multi array
-            invoke(mv, "java/util/Arrays", "deepEquals", "([Ljava/lang/Object;[Ljava/lang/Object;)Z");
+            invoke(mv, ARRAYS, "deepEquals", "([Ljava/lang/Object;[Ljava/lang/Object;)Z");
             mv.visitJumpInsn(Opcodes.IFEQ, gotoIfNotEqual);
         } else {
-            invoke(mv, "java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+            invoke(mv, "java/util/Objects", EQUALS, "(Ljava/lang/Object;Ljava/lang/Object;)Z");
             mv.visitJumpInsn(Opcodes.IFEQ, gotoIfNotEqual);
 
         }

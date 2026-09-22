@@ -25,6 +25,8 @@ import org.openl.util.ClassUtils;
 @Slf4j
 public class RulesFrontendImpl implements RulesFrontend {
 
+    private static final String SERVICE_NAME_REQUIRED = "serviceName cannot be null";
+
     private final Map<String, OpenLService> runningServices = new ConcurrentHashMap<>();
 
     /**
@@ -44,7 +46,7 @@ public class RulesFrontendImpl implements RulesFrontend {
      */
     @Override
     public void unregisterService(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(serviceName, SERVICE_NAME_REQUIRED);
         runningServices.remove(serviceName);
     }
 
@@ -60,7 +62,7 @@ public class RulesFrontendImpl implements RulesFrontend {
 
     @Override
     public OpenLService findServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(serviceName, SERVICE_NAME_REQUIRED);
         return getService(serviceName);
     }
 
@@ -72,7 +74,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                           String ruleName,
                           Class<?>[] inputParamsTypes,
                           Object[] params) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(serviceName, SERVICE_NAME_REQUIRED);
         Objects.requireNonNull(ruleName, "ruleName cannot be null");
         var service = getService(serviceName);
         if (service == null) {
@@ -130,7 +132,7 @@ public class RulesFrontendImpl implements RulesFrontend {
      */
     @Override
     public Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(serviceName, SERVICE_NAME_REQUIRED);
         Objects.requireNonNull(ruleName, "ruleName cannot be null");
 
         log.debug("Executing rule from service with name='{}', ruleName='{}'.", serviceName, ruleName);
@@ -147,7 +149,7 @@ public class RulesFrontendImpl implements RulesFrontend {
      */
     @Override
     public Object getValue(String serviceName, String fieldName) throws MethodInvocationException {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        Objects.requireNonNull(serviceName, SERVICE_NAME_REQUIRED);
         Objects.requireNonNull(fieldName, "fieldName cannot be null");
 
         log.debug("Getting value from service with name='{}', fieldName='{}'.", serviceName, fieldName);

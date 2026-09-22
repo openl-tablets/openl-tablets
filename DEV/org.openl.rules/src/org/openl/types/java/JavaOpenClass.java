@@ -51,6 +51,8 @@ import org.openl.vm.IRuntimeEnv;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JavaOpenClass extends AOpenClass {
 
+    private static final String CLASS_FIELD = "class";
+
     public static final JavaOpenClass INT = new JavaPrimitiveClass(int.class, 0);
     public static final JavaOpenClass LONG = new JavaPrimitiveClass(long.class, 0L);
     public static final JavaOpenClass DOUBLE = new JavaPrimitiveClass(double.class, 0.0);
@@ -181,8 +183,8 @@ public class JavaOpenClass extends AOpenClass {
         if (instanceClass.isArray()) {
             openFields.put("length", new JavaArrayLengthField());
         }
-        openFields.put("class", new JavaClassClassField(instanceClass, this));
-        staticOpenFields.put("class", new JavaClassClassField(instanceClass, this));
+        openFields.put(CLASS_FIELD, new JavaClassClassField(instanceClass, this));
+        staticOpenFields.put(CLASS_FIELD, new JavaClassClassField(instanceClass, this));
         BeanOpenField.collectFields(openFields, instanceClass);
 
         return new FieldMaps(openFields, staticOpenFields);
@@ -414,7 +416,7 @@ public class JavaOpenClass extends AOpenClass {
 
         @Override
         public String getDisplayName(int mode) {
-            return "class";
+            return CLASS_FIELD;
         }
 
         @Override
@@ -424,7 +426,7 @@ public class JavaOpenClass extends AOpenClass {
 
         @Override
         public String getName() {
-            return "class";
+            return CLASS_FIELD;
         }
 
         @Override

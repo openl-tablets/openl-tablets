@@ -38,6 +38,8 @@ import org.openl.syntax.impl.IdentifierNode;
 @Slf4j
 public abstract class AbstractDependencyManager implements IDependencyManager {
 
+    private static final String DEPENDENCY_NOT_FOUND = "Dependency '%s' is not found.";
+
     private static final Pattern ASTERISK_SIGN = Pattern.compile("\\*");
     private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
     private static final Pattern SLASH_SIGN = Pattern.compile("\\s*/\\s*");
@@ -324,7 +326,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (!withWildcard && ret.size() != 1) {
             if (ret.isEmpty()) {
                 throw new DependencyNotFoundException(
-                        "Dependency '%s' is not found.".formatted(dependency.getNode().getIdentifier()),
+                        DEPENDENCY_NOT_FOUND.formatted(dependency.getNode().getIdentifier()),
                         null,
                         dependency.getNode().getSourceLocation(),
                         dependency.getNode().getModule());
@@ -344,7 +346,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         var dependencyLoader = findDependencyLoader(dependency);
         if (dependencyLoader == null) {
             throw new OpenLCompilationException(
-                    "Dependency '%s' is not found.".formatted(dependency.getNode().getIdentifier()),
+                    DEPENDENCY_NOT_FOUND.formatted(dependency.getNode().getIdentifier()),
                     null,
                     dependency.getNode().getSourceLocation(),
                     dependency.getNode().getModule());
@@ -383,7 +385,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private CompiledDependency throwDependencyNotFoundError(IDependency dependency) throws OpenLCompilationException {
         var node = dependency.getNode();
-        throw new OpenLCompilationException("Dependency '%s' is not found.".formatted(node.getIdentifier()),
+        throw new OpenLCompilationException(DEPENDENCY_NOT_FOUND.formatted(node.getIdentifier()),
                 null,
                 node.getSourceLocation(),
                 node.getModule());

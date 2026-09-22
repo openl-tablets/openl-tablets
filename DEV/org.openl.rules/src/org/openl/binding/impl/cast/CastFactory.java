@@ -44,6 +44,8 @@ import org.openl.util.OpenClassUtils;
 @Slf4j
 public class CastFactory implements ICastFactory {
 
+    private static final String IGNORED_ERROR = "Ignored error: ";
+
     private static final Set<Class<?>> INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS = Set
             .of(Serializable.class, Cloneable.class, Comparable.class);
 
@@ -1061,7 +1063,7 @@ public class CastFactory implements ICastFactory {
                         new IOpenClass[]{openClassFrom, openClassTo});
             }
         } catch (AmbiguousMethodException e) {
-            log.debug("Ignored error: ", e);
+            log.debug(IGNORED_ERROR, e);
         }
 
         // If appropriate auto cast method is not found try to find explicit
@@ -1105,7 +1107,7 @@ public class CastFactory implements ICastFactory {
                 }
 
             } catch (AmbiguousMethodException e) {
-                log.debug("Ignored error: ", e);
+                log.debug(IGNORED_ERROR, e);
             }
         }
 
@@ -1119,7 +1121,7 @@ public class CastFactory implements ICastFactory {
             distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
                     new IOpenClass[]{fromOpenClass, toOpenClass});
         } catch (AmbiguousMethodException e) {
-            log.debug("Ignored error: ", e);
+            log.debug(IGNORED_ERROR, e);
         }
 
         if (distanceCaller != null) {
