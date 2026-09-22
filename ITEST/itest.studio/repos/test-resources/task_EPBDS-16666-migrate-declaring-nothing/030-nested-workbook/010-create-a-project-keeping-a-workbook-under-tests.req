@@ -1,0 +1,16 @@
+PUT /rest/repos/design-flat/projects/{NESTED_PROJECT_NAME}?comment=EPBDS-16666%20Create%20a%20project%20keeping%20a%20scratch%20workbook%20under%20tests HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="EPBDS-16666-nested.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&EPBDS-16666-nested.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+OPENED
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

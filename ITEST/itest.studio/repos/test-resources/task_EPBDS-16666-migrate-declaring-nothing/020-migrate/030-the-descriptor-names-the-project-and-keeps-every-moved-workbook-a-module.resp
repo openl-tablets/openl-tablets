@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/xml
+
+<project>
+    <name>EPBDS-16666</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Legacy.xls"/>
+        </module>
+        <module>
+            <rules-root path="rules/**/*.xlsx"/>
+        </module>
+    </modules>
+</project>
+

@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -8,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,9 +24,11 @@ import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.migration.RulesXmlMigrations;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.projects.model.MigrationScope;
 import org.openl.studio.projects.model.files.FileNode;
@@ -72,12 +76,15 @@ class ProjectMigrationServiceTest {
         verify(filesService).moveResource(root, "Legacy.xls", "rules/Legacy.xls");
         verify(filesService).moveResource(root, "Macro.xlsm", "rules/Macro.xlsm");
         verify(filesService, never()).moveResource(root, "notes.txt", "rules/notes.txt");
-        var written = ArgumentCaptor.forClass(InputStream.class);
-        verify(filesService).createResource(eq(root), eq("rules.xml"), written.capture(), eq(false));
-        // .xls/.xlsm are not matched by the rules/** default, so every moved workbook is declared explicitly.
-        assertEquals(List.of("rules/Legacy.xls", "rules/Macro.xlsm", "rules/Main.xlsx"),
-                ProjectDescriptor.read(written.getValue()).getModules().stream()
-                        .map(Module::getRulesRootPath).sorted().toList());
+        var descriptor = writtenRulesXml();
+        // The .xlsx is read through the rules/** default; an .xls or .xlsm matches no default, so each is
+        // declared on its own.
+        assertEquals(List.of("rules/Legacy.xls", "rules/Macro.xlsm", "rules/**/*.xlsx"), modulePaths(descriptor));
+        assertEquals("Pricing", descriptor.getName());
+        // Written in its minimal form, so no later migrate is offered for it.
+        var asWritten = descriptor.toBytes();
+        RulesXmlMigrations.apply(descriptor);
+        assertArrayEquals(asWritten, descriptor.toBytes());
     }
 
     @Test
@@ -232,11 +239,84 @@ class ProjectMigrationServiceTest {
 
         verify(filesService).moveResource(root, "Pricing.xlsx", "rules/Pricing.xlsx");
         verify(filesService).moveResource(root, "Rating.xlsx", "rules/Rating.xlsx");
-        var written = ArgumentCaptor.forClass(InputStream.class);
-        verify(filesService).createResource(eq(root), eq("rules.xml"), written.capture(), eq(false));
         verify(filesService, never()).updateResource(any(), any(), any());
-        // All workbooks are .xlsx, matched by the rules/** default, so the descriptor stays bare.
-        assertTrue(ProjectDescriptor.read(written.getValue()).getModules().isEmpty());
+        var descriptor = writtenRulesXml();
+        // All workbooks are .xlsx, matched by the rules/** default, so the descriptor declares no modules.
+        assertTrue(descriptor.getModules().isEmpty());
+        // The file API refuses a new rules.xml that names no project, so the descriptor carries the name.
+        assertEquals("Pricing", descriptor.getName());
+    }
+
+    @Test
+    void migrate_declares_the_moved_workbook_on_its_own_when_the_minimal_form_would_take_in_a_nested_one() {
+        // rules/Extra.xlsx is no module of a project without a rules.xml — only the root is read — but the
+        // rules/**\/*.xlsx default the minimal form relies on would make it one.
+        rootFiles(file("Pricing.xlsx"), file("rules/Extra.xlsx"));
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        // The module set stays what it was; the rewrite is what a later migrate withholds, naming Extra.
+        assertEquals(List.of("rules/Pricing.xlsx"), modulePaths(writtenRulesXml()));
+        verify(filesService, never()).moveResource(eq(root), eq("rules/Extra.xlsx"), any());
+    }
+
+    @Test
+    void migrate_writes_the_minimal_form_when_it_leaves_a_nested_workbook_out() {
+        rootFiles(file("Main.xlsx"), file("Legacy.xls"), file("tests/Scratch.xlsx"));
+
+        service.migrate(project, MigrationScope.RULES_XML);
+
+        // The minimal form of these modules declares no tests/** default, so tests/Scratch.xlsx stays no module
+        // and nothing keeps the migrate from writing it.
+        assertEquals(List.of("rules/Legacy.xls", "rules/**/*.xlsx"), modulePaths(writtenRulesXml()));
+        verify(filesService, never()).moveResource(eq(root), eq("tests/Scratch.xlsx"), any());
+    }
+
+    @Test
+    void migrate_puts_the_workbooks_back_when_the_rules_xml_is_refused() {
+        rootFiles(file("Pricing.xlsx"), file("Rating.xlsx"));
+        var refused = new BadRequestException("file.descriptor.name.invalid.message");
+        doThrow(refused).when(filesService).createResource(eq(root), eq("rules.xml"), any(), eq(false));
+
+        var thrown = assertThrows(BadRequestException.class, () -> service.migrate(project, MigrationScope.RULES_XML));
+
+        // The workbooks were moved before the descriptor could be checked, so a refusal puts them back where a
+        // project without a rules.xml reads them from — otherwise it declares nothing, lists no module and is
+        // offered no migrate to repair itself with.
+        assertEquals(refused, thrown);
+        verify(filesService).moveResource(root, "rules/Pricing.xlsx", "Pricing.xlsx");
+        verify(filesService).moveResource(root, "rules/Rating.xlsx", "Rating.xlsx");
+    }
+
+    @Test
+    void migrate_puts_the_moved_workbooks_back_when_a_later_move_fails() {
+        rootFiles(file("Pricing.xlsx"), file("Rating.xlsx"), file("Tariffs.xlsx"));
+        doThrow(new ConflictException("file.move.failed.message"))
+                .when(filesService).moveResource(root, "Rating.xlsx", "rules/Rating.xlsx");
+
+        assertThrows(ConflictException.class, () -> service.migrate(project, MigrationScope.RULES_XML));
+
+        // Only what was moved goes back; the workbook that failed to move and the one after it never left.
+        verify(filesService).moveResource(root, "rules/Pricing.xlsx", "Pricing.xlsx");
+        verify(filesService, never()).moveResource(root, "Tariffs.xlsx", "rules/Tariffs.xlsx");
+        verify(filesService, never()).moveResource(root, "rules/Rating.xlsx", "Rating.xlsx");
+        verify(filesService, never()).createResource(any(), any(), any(), anyBoolean());
+    }
+
+    @Test
+    void migrate_reports_the_refusal_even_when_a_workbook_cannot_be_put_back() {
+        rootFiles(file("Pricing.xlsx"), file("Rating.xlsx"));
+        var refused = new BadRequestException("file.descriptor.name.invalid.message");
+        doThrow(refused).when(filesService).createResource(eq(root), eq("rules.xml"), any(), eq(false));
+        doThrow(new ConflictException("file.move.failed.message"))
+                .when(filesService).moveResource(root, "rules/Pricing.xlsx", "Pricing.xlsx");
+
+        var thrown = assertThrows(BadRequestException.class, () -> service.migrate(project, MigrationScope.RULES_XML));
+
+        // The caller is told why the migrate was refused, not that the cleanup after it failed; the workbooks
+        // that can go back still do.
+        assertEquals(refused, thrown);
+        verify(filesService).moveResource(root, "rules/Rating.xlsx", "Rating.xlsx");
     }
 
     @Test
@@ -413,6 +493,17 @@ class ProjectMigrationServiceTest {
         service.migrate(project, MigrationScope.RULES_XML);
 
         verify(filesService).updateResource(eq(root), eq("rules.xml"), any());
+    }
+
+    /** The {@code rules.xml} the migrate created, read back. */
+    private ProjectDescriptor writtenRulesXml() {
+        var written = ArgumentCaptor.forClass(InputStream.class);
+        verify(filesService).createResource(eq(root), eq("rules.xml"), written.capture(), eq(false));
+        return ProjectDescriptor.read(written.getValue());
+    }
+
+    private static List<String> modulePaths(ProjectDescriptor descriptor) {
+        return descriptor.getModules().stream().map(Module::getRulesRootPath).toList();
     }
 
     private void rootFiles(FsNode... nodes) {
