@@ -17,7 +17,7 @@ package org.openl.ie.tools;
 import java.io.Serializable;
 
 // "implements serializable"  was added by Eugeny Tseitlin 18.06.2003
-public final class FastVectorInt implements Cloneable, Serializable {
+public final class FastVectorInt implements Serializable {
 
     static final int DEFAULT_CAPACITY = 10;
 
@@ -42,18 +42,6 @@ public final class FastVectorInt implements Cloneable, Serializable {
 
     public void clear() {
         m_size = 0;
-    }
-
-    @Override
-    public Object clone() {
-        try {
-            var v = (FastVectorInt) super.clone();
-            v.m_data = m_data.clone();
-            return v;
-        } catch (CloneNotSupportedException e) {
-            // this shouldn't happen, since we are Cloneable
-            throw new InternalError();
-        }
     }
 
     public void cutSize(int new_size) {

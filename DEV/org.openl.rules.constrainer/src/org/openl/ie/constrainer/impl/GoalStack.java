@@ -22,7 +22,7 @@ public final class GoalStack implements Serializable {
         public ChoicePoint(Goal goal, ChoicePointLabel label, FastStack exeStack, int undoStackSize) {
             _goal = goal;
             _label = label;
-            _exeStack = (FastStack) exeStack.clone();
+            _exeStack = new FastStack(exeStack);
             _undoStackSize = undoStackSize;
         }
 
@@ -54,7 +54,7 @@ public final class GoalStack implements Serializable {
      * Constructor with given initial goals and undo stack.
      */
     public GoalStack(FastStack initialGoals, UndoStack undoStack) {
-        init((FastStack) initialGoals.clone(), undoStack);
+        init(new FastStack(initialGoals), undoStack);
     }
 
     /**
