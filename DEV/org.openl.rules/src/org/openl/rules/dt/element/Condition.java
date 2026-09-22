@@ -10,6 +10,7 @@ import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -755,7 +756,7 @@ public class Condition extends FunctionalRow implements ICondition {
      * {@code null} that the index has to be asked for the value.
      */
     @Override
-    public Boolean evaluateStaticDecision(Object[] params, IRuntimeEnv env) {
+    public @Nullable Boolean evaluateStaticDecision(Object[] params, IRuntimeEnv env) {
         var result = (Boolean) staticMethod.invoke(null, params, env);
         if (staticAnswerMethod != null) {
             // the test chooses between the lookup and an answer that does not look at the rules at all

@@ -2,6 +2,8 @@ package org.openl.rules.util;
 
 import java.math.BigInteger;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A set of util methods to work with booleans.
  * <p>
@@ -91,7 +93,7 @@ public final class Booleans {
         return anyFalse(values);
     }
 
-    static Boolean and(boolean[] values) {
+    static @Nullable Boolean and(boolean[] values) {
         if (values == null || values.length == 0) {
             return null;
         }
@@ -103,7 +105,7 @@ public final class Booleans {
         return true;
     }
 
-    static Boolean and(Boolean[] values) {
+    static @Nullable Boolean and(Boolean[] values) {
         if (values == null || values.length == 0) {
             return null;
         }
@@ -118,7 +120,7 @@ public final class Booleans {
         return result;
     }
 
-    static Boolean or(boolean[] values) {
+    static @Nullable Boolean or(boolean[] values) {
         if (values == null || values.length == 0) {
             return null;
         }
@@ -130,7 +132,7 @@ public final class Booleans {
         return false;
     }
 
-    static Boolean or(Boolean[] values) {
+    static @Nullable Boolean or(Boolean[] values) {
         if (values == null || values.length == 0) {
             return null;
         }
@@ -166,14 +168,14 @@ public final class Booleans {
      * @param ch the Character to check
      * @return the Boolean value of the Character, {@code null} if no match or {@code null} input
      */
-    public static Boolean toBoolean(Character ch) {
+    public static @Nullable Boolean toBoolean(Character ch) {
         if (ch == null) {
             return null;
         }
         return toBoolean(ch.charValue());
     }
 
-    public static Boolean toBoolean(char ch) {
+    public static @Nullable Boolean toBoolean(char ch) {
         if (ch == 'y' || ch == 'Y' || ch == '1') {
             return Boolean.TRUE;
         }
@@ -201,7 +203,7 @@ public final class Booleans {
      * @param i the BigInteger to check
      * @return the Boolean value of the BigInteger, {@code null} if no match or {@code null} input
      */
-    public static Boolean toBoolean(BigInteger i) {
+    public static @Nullable Boolean toBoolean(BigInteger i) {
         if (i == null) {
             return null;
         }
@@ -233,7 +235,7 @@ public final class Booleans {
      * @param b the byte number to check
      * @return the Boolean value of the byte number, {@code null} if no match or {@code null} input
      */
-    public static Boolean toBoolean(Byte b) {
+    public static @Nullable Boolean toBoolean(Byte b) {
         if (b == null) {
             return null;
         }
@@ -267,7 +269,7 @@ public final class Booleans {
      * @param s the short number to check
      * @return the Boolean value of the short number, {@code null} if no match or {@code null} input
      */
-    public static Boolean toBoolean(Short s) {
+    public static @Nullable Boolean toBoolean(Short s) {
         if (s == null) {
             return null;
         }
@@ -301,7 +303,7 @@ public final class Booleans {
      * @param i the int number to check
      * @return the Boolean value of the int number, {@code null} if no match or {@code null} input
      */
-    public static Boolean toBoolean(Integer i) {
+    public static @Nullable Boolean toBoolean(Integer i) {
         if (i == null) {
             return null;
         }
@@ -335,14 +337,14 @@ public final class Booleans {
      * @param l the long number to check
      * @return the Boolean value of the long number, {@code null} if no match or {@code null} input
      */
-    public static Boolean toBoolean(Long l) {
+    public static @Nullable Boolean toBoolean(Long l) {
         if (l == null) {
             return null;
         }
         return toBoolean(l.longValue());
     }
 
-    public static Boolean toBoolean(long l) {
+    public static @Nullable Boolean toBoolean(long l) {
         if (l == 0L) {
             return Boolean.FALSE;
         }
@@ -389,7 +391,7 @@ public final class Booleans {
      * @param str the String to check; upper and lower case are treated as the same
      * @return the Boolean value of the string, {@code null} if no match or {@code null} input
      */
-    public static Boolean toBoolean(String str) {
+    public static @Nullable Boolean toBoolean(String str) {
         if (str == null) {
             return null;
         }

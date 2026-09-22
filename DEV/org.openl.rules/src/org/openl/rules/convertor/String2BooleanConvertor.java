@@ -1,11 +1,14 @@
 package org.openl.rules.convertor;
 
+
+import org.jspecify.annotations.Nullable;
+
 import org.openl.util.BooleanUtils;
 
 class String2BooleanConvertor implements IString2DataConvertor<Boolean> {
 
     @Override
-    public Boolean parse(String data, String format) {
+    public @Nullable Boolean parse(String data, String format) {
         if (data == null) {
             return null;
         }
