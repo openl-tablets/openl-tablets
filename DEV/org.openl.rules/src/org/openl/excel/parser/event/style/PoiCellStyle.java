@@ -29,7 +29,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setDataFormat(short fmt) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -56,7 +56,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setFont(Font font) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -72,7 +72,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setHidden(boolean hidden) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -82,6 +82,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setLocked(boolean locked) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -91,7 +92,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setQuotePrefixed(boolean quotePrefix) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -101,6 +102,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setAlignment(HorizontalAlignment align) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -110,7 +112,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setWrapText(boolean wrapped) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -120,6 +122,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setVerticalAlignment(VerticalAlignment align) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -129,6 +132,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setRotation(short rotation) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -147,7 +151,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setIndention(short indent) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -157,6 +161,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setBorderLeft(BorderStyle border) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -166,7 +171,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setBorderRight(BorderStyle border) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -176,6 +181,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setBorderTop(BorderStyle border) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -185,7 +191,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setBorderBottom(BorderStyle border) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -195,7 +201,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setLeftBorderColor(short color) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -205,6 +211,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setRightBorderColor(short color) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -214,6 +221,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setTopBorderColor(short color) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -223,7 +231,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setBottomBorderColor(short color) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -233,7 +241,7 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setFillPattern(FillPatternType fp) {
-
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -243,10 +251,12 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setFillBackgroundColor(short bg) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
     public void setFillBackgroundColor(Color color) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -267,10 +277,12 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setFillForegroundColor(short bg) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
     public void setFillForegroundColor(Color color) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
@@ -285,10 +297,12 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void cloneStyleFrom(CellStyle source) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override
     public void setShrinkToFit(boolean shrinkToFit) {
+        // The style is read from the workbook and never changed.
     }
 
     @Override

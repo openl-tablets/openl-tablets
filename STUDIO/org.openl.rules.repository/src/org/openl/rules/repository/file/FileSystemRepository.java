@@ -63,6 +63,7 @@ public class FileSystemRepository implements Repository, Closeable {
     }
 
     public void initialize() {
+        // The root folder is used as it is.
     }
 
     /**

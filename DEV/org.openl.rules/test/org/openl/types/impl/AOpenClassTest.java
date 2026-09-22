@@ -43,9 +43,11 @@ class AOpenClassTest {
     private static class A {
 
         public void foo() {
+            // The method only has to exist for the test.
         }
 
         public void bar() {
+            // The method only has to exist for the test.
         }
 
     }
@@ -56,6 +58,7 @@ class AOpenClassTest {
     public static class C extends A {
 
         private void getC() {
+            // The method only has to exist for the test.
         }
 
     }

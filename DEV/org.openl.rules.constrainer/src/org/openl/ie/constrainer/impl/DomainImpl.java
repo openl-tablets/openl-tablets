@@ -43,6 +43,7 @@ public class DomainImpl implements Domain {
 
     @Override
     public void forceInsert(int val) {
+        // The plain domain keeps no bit mask to update.
     }
 
     @Override
@@ -57,6 +58,7 @@ public class DomainImpl implements Domain {
 
     @Override
     public void forceSize(int val) {
+        // The plain domain keeps no bit mask to update.
     }
 
     @Override

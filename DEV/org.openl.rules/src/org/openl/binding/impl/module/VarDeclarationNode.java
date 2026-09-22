@@ -55,6 +55,7 @@ public final class VarDeclarationNode extends ABoundNode implements IMemberBound
      */
     @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        // The node is bound completely on creation.
     }
 
     /*

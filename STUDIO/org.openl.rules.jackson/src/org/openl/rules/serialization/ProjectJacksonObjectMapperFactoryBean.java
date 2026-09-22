@@ -466,6 +466,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     protected void applyBeforeProjectConfiguration() {
+        // A hook for subclasses: nothing is applied by default.
     }
 
     protected void applyAfterProjectConfiguration() {

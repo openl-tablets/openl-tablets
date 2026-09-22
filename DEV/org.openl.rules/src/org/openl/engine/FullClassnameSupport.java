@@ -38,6 +38,7 @@ class FullClassnameSupport {
 
     private static class IdentifierChainException extends Exception {
         public IdentifierChainException() {
+            // The exception is a signal only and carries no message.
         }
     }
 

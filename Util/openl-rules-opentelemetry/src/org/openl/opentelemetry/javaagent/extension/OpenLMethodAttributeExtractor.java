@@ -29,6 +29,6 @@ public class OpenLMethodAttributeExtractor implements AttributesExtractor<Execut
 
     @Override
     public void onEnd(AttributesBuilder attributes, Context context, ExecutableRulesMethod request, Object response, Throwable error) {
-
+        // All attributes are set when the call starts.
     }
 }

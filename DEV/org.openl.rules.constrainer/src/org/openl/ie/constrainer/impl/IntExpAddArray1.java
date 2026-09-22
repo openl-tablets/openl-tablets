@@ -191,6 +191,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
     @Override
     public void onMaskChange() {
+        // The sum does not depend on the event mask.
     }
 
     @Override

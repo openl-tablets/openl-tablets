@@ -192,21 +192,26 @@ class JavaOpenClassTest {
 
     public static class MyType {
         public void method1(int i, double j) {
+            // The method only has to exist for the test.
         }
 
         public void method1(Byte i, Double j) {
+            // The method only has to exist for the test.
         }
 
         public void method1(byte i) {
+            // The method only has to exist for the test.
         }
     }
 
     public static class Extended extends MyType {
         @Override
         public void method1(int i, double j) {
+            // The method only has to exist for the test.
         }
 
         public void method1(Integer i, double j) {
+            // The method only has to exist for the test.
         }
     }
 

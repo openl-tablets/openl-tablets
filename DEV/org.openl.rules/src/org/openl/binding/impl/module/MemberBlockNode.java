@@ -31,6 +31,7 @@ public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
      */
     @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
+        // The node is bound completely on creation.
     }
 
     @Override

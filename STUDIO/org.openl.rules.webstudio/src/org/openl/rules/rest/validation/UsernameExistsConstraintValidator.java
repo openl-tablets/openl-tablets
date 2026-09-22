@@ -14,6 +14,7 @@ public class UsernameExistsConstraintValidator implements ConstraintValidator<Us
 
     @Override
     public void initialize(UsernameExistsConstraint constraintAnnotation) {
+        // The constraint has no attributes to read.
     }
 
     @Override

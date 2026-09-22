@@ -63,6 +63,7 @@ public class DefaultConditionEvaluator implements IConditionEvaluator {
 
     @Override
     public void setOptimizedSourceCode(String code) {
+        // The evaluator keeps the source code as it is.
     }
 
     @Override

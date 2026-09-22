@@ -216,6 +216,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public void addType(IOpenClass type) {
+        // A domain type cannot contain nested types.
     }
 
     @Override

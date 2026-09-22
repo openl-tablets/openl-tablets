@@ -357,6 +357,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public void set(Object target, Object value, IRuntimeEnv env) {
+            // The field is read-only.
         }
 
         @Override
@@ -445,6 +446,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public void set(Object target, Object value, IRuntimeEnv env) {
+            // The field is read-only.
         }
 
         @Override

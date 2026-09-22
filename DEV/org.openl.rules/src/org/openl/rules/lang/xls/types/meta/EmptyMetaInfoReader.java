@@ -20,9 +20,11 @@ public final class EmptyMetaInfoReader implements MetaInfoReader {
 
     @Override
     public void prepare(IGridRegion region) {
+        // There is no meta information behind this reader.
     }
 
     @Override
     public void release() {
+        // There is no meta information behind this reader.
     }
 }

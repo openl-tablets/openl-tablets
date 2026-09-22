@@ -180,6 +180,7 @@ public final class KafkaService implements Runnable {
 
             @Override
             public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+                // Nothing to do when partitions are assigned.
             }
         });
     }

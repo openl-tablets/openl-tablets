@@ -36,6 +36,7 @@ public class DateRangeDomain implements IDomain<Date> {
 
         @Override
         public void remove() {
+            // The domain is immutable, so there is nothing to remove.
         }
     }
 

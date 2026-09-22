@@ -98,6 +98,7 @@ public class IntExpConst extends IntExpImpl {
 
     @Override
     public final void propagate() throws Failure {
+        // A constant never changes, so there is nothing to propagate.
     }
 
     /**

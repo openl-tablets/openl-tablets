@@ -39,7 +39,7 @@ class EmptyStorage implements IStorage<Object> {
 
     @Override
     public void setValue(int index, Object o) {
-
+        // An empty storage holds nothing.
     }
 
     @Override
@@ -49,20 +49,21 @@ class EmptyStorage implements IStorage<Object> {
 
     @Override
     public void setSpace(int index) {
-
+        // An empty storage holds nothing.
     }
 
     @Override
     public void setElse(int index) {
-
+        // An empty storage holds nothing.
     }
 
     @Override
     public void setFormula(int index, Object formula) {
-
+        // An empty storage holds nothing.
     }
 
     @Override
     public void removeExprs() {
+        // An empty storage holds nothing.
     }
 }

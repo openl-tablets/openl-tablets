@@ -274,11 +274,13 @@ class PackageMojoTest {
         @Override
         public void addResource(MavenProject project, String resourceDirectory, List<String> includes,
                                 List<String> excludes) {
+                                    // The test does not need the resources to be registered.
         }
 
         @Override
         public void addTestResource(MavenProject project, String resourceDirectory, List<String> includes,
                                     List<String> excludes) {
+                                        // The test does not need the resources to be registered.
         }
     }
 }
