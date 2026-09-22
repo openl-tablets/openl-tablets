@@ -1,8 +1,9 @@
 package org.openl.studio.config;
 
+
 import jakarta.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,10 +35,10 @@ import org.openl.studio.security.CurrentUserInfo;
  * REST services configuration
  */
 @Configuration
+@RequiredArgsConstructor
 public class ServiceApiConfig {
 
-    @Autowired
-    private PropertyResolver propertyResolver;
+    private final PropertyResolver propertyResolver;
 
     @Bean
     @Scope(BeanDefinition.SCOPE_PROTOTYPE)
