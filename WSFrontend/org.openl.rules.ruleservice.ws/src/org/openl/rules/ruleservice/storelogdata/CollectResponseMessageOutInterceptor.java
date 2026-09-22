@@ -158,12 +158,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
             try {
                 var builder = buffer.getPayload();
                 // Just transform the XML message when the cos has content
-                var buffer1 = w2.getBuffer();
-                if (buffer1.length() > Integer.MAX_VALUE) {
-                    builder.append(buffer1.subSequence(0, Integer.MAX_VALUE));
-                } else {
-                    builder.append(buffer1);
-                }
+                builder.append(w2.getBuffer());
             } catch (Exception e) {
                 log.debug("Ignored error: ", e);
             }
