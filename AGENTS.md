@@ -70,6 +70,9 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **`-DskipTests`** — skip all tests and drop the integration-test modules (ITEST, the archetypes) from
   the reactor; openl-maven-plugin still builds with its tests skipped. CI re-adds the dropped modules
   with `-Pitest` where it needs them
+- **`-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.build.skip`** — leave out one studio-ui step at a time:
+  the vitest suite, the `tsc --noEmit` pass, the production bundle. `-DskipTests` and `-Dquick` already imply
+  the first
 - **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
   `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).

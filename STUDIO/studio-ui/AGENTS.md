@@ -113,8 +113,10 @@ npm run typecheck              # tsc --noEmit
 
 Docker dev: set `_REACT_UI_ROOT_: http://localhost:3100` in root `compose.override.yaml` under the `studio` service.
 
-Maven: `mvn clean install` runs `npm install` + `npm run typecheck` +  `npm run build` + `npm run test` via
-`frontend-maven-plugin`. Bundled UI is published relative to `CONFIG.CONTEXT`.
+Maven: `mvn clean install` runs `npm install` + `npm run typecheck` + `npm run build` + `npm run test` via
+`frontend-maven-plugin`. Bundled UI is published relative to `CONFIG.CONTEXT`. Each step after the install has a
+switch of its own — `-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.build.skip` — for a build that needs only
+some of them.
 
 ## Testing
 
