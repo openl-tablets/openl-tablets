@@ -21,6 +21,12 @@ export class WebSocketConnectionTimeoutError extends Error {
     }
 }
 
+/** A random token for a subscription id, drawn from the browser's cryptographic source. */
+function randomSuffix(): string {
+    const bytes = crypto.getRandomValues(new Uint8Array(5))
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
 class WebSocketService {
     private client: Client | null = null
     private subscriptions: Map<string, WebSocketSubscription> = new Map()
@@ -139,7 +145,7 @@ class WebSocketService {
         callback: (message: WebSocketMessage) => void,
         subscriptionId?: string
     ): string {
-        const id = subscriptionId || `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        const id = subscriptionId || `sub_${Date.now()}_${randomSuffix()}`
 
         const subscription: WebSocketSubscription = {
             id,

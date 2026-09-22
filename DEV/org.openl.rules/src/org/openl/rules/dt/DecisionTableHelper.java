@@ -781,11 +781,11 @@ public final class DecisionTableHelper {
             if (j < fieldsChain.length - 1) {
                 Map<IOpenField, String> vm = variables.get(currentVariable);
                 if (vm == null || vm.get(fieldsChain[j]) == null) {
-                    var = RandomStringUtils.random(8, true, false);
+                    var = RandomStringUtils.secure().next(8, true, false);
                     while (generatedNames.contains(var)) { // Prevent
                         // variable
                         // duplication
-                        var = RandomStringUtils.random(8, true, false);
+                        var = RandomStringUtils.secure().next(8, true, false);
                     }
                     generatedNames.add(var);
                     sb.append(getTypeNameForCode(type, module, cache))
@@ -1006,7 +1006,7 @@ public final class DecisionTableHelper {
 
         var generatedNames = new HashSet<String>();
         while (generatedNames.size() < fuzzyReturns.size()) {
-            generatedNames.add(RandomStringUtils.random(8, true, false));
+            generatedNames.add(RandomStringUtils.secure().next(8, true, false));
         }
         var compoundColumnParamNames = generatedNames.toArray(EMPTY_STRING_ARRAY);
         var variables = new HashMap<String, Map<IOpenField, String>>();
@@ -3720,7 +3720,7 @@ public final class DecisionTableHelper {
                         CompositeMethod compositeMethod = OpenLManager.makeMethodWithUnknownType(
                                 bindingContext.getOpenL(),
                                 expressionCellSourceCodeModule,
-                                RandomStringUtils.random(16, true, false),
+                                RandomStringUtils.secure().next(16, true, false),
                                 decisionTable.getSignature(),
                                 decisionTable.getDeclaringClass(),
                                 bindingContext);
