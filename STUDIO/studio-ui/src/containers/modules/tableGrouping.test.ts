@@ -21,12 +21,32 @@ describe('tableGrouping', () => {
         expect(TABLE_VIEWS).toContain('excelSheet')
     })
 
-    it('gathers the tables by the sheet they are written on', () => {
+    it('gathers the tables by the sheet they are written on, in the order they were given', () => {
         const nodes = treeOf(
             [table('Premium'), table('Policy', { sheet: 'Data' }), table('Rate')], 'excelSheet', key)
 
-        expect(nodes.map(node => node.title)).toEqual(['Data', 'Rules'])
-        expect(nodes[1]?.children.map(child => child.title)).toEqual(['Premium', 'Rate'])
+        // A sheet stands where its first table does, not where its name would put it.
+        expect(nodes.map(node => node.title)).toEqual(['Rules', 'Data'])
+        expect(nodes[0]?.children.map(child => child.title)).toEqual(['Premium', 'Rate'])
+    })
+
+    it('keeps the order the module is written in, whatever the names are', () => {
+        // The workbook of EPBDS-16668: the tables stand in no alphabetical order, and the tree draws them
+        // where they stand.
+        const written = ['_MyRules', 'Test123', 'MyRules', 'Second', 'Atable']
+        const nodes = treeOf(written.map(name => table(name)), 'excelSheet', key)
+
+        expect(nodes[0]?.children.map(child => child.title)).toEqual(written)
+    })
+
+    it('reads a branch by name in every view but the one that shows the sheets', () => {
+        // The list always arrives in the order the module is written in; only the By Excel Sheet view shows it,
+        // as only its builder kept that order in the Editor's tree.
+        const written = ['Zebra', 'Alpha'].map(name => table(name))
+
+        expect(treeOf(written, 'excelSheet', key)[0]?.children.map(n => n.title)).toEqual(['Zebra', 'Alpha'])
+        expect(treeOf(written, 'type', key)[0]?.children.map(n => n.title)).toEqual(['Alpha', 'Zebra'])
+        expect(treeOf(written, 'category', key)[0]?.children.map(n => n.title)).toEqual(['Alpha', 'Zebra'])
     })
 
     it('gathers the tables by their family in the type view, in the order and under the names of the Editor', () => {
@@ -124,10 +144,10 @@ describe('tableGrouping', () => {
         expect(new Set(keys).size).toEqual(keys.length)
     })
 
-    it('lists the tables by name when the view groups by nothing they carry', () => {
+    it('lists the tables as they were given when the view groups by nothing they carry', () => {
         const nodes = treeOf([table('beta', { sheet: '' }), table('Alpha', { sheet: '' })], 'excelSheet', key)
 
-        expect(nodes.map(node => node.title)).toEqual(['Alpha', 'beta'])
+        expect(nodes.map(node => node.title)).toEqual(['beta', 'Alpha'])
         expect(nodes.every(node => node.table !== undefined)).toBe(true)
     })
 
@@ -144,6 +164,7 @@ describe('tableGrouping', () => {
             const sheet = nodes[0]
 
             expect(sheet?.title).toEqual('Rules')
+            // The folder stands where the first of its versions stood; the versions inside it read by name.
             expect(sheet?.children.map(child => child.title)).toEqual(['CarPrice', 'Premium'])
             expect(sheet?.children[0]?.children.map(child => child.title))
                 .toEqual(['CarPrice [lob=Banking]', 'CarPrice [lob=Insurance]'])
@@ -166,10 +187,10 @@ describe('tableGrouping', () => {
             // The other version is written on another sheet, so this branch gathers a single one.
             const nodes = treeOf([carPrice('Banking'), carPrice('Insurance', { sheet: 'More' })], 'excelSheet', key)
 
-            expect(nodes.map(node => node.title)).toEqual(['More', 'Rules'])
+            expect(nodes.map(node => node.title)).toEqual(['Rules', 'More'])
             expect(nodes.every(sheet => sheet.children[0]?.title === 'CarPrice')).toBe(true)
             expect(nodes.flatMap(sheet => sheet.children.flatMap(folder => folder.children.map(v => v.title))))
-                .toEqual(['CarPrice [lob=Insurance]', 'CarPrice [lob=Banking]'])
+                .toEqual(['CarPrice [lob=Banking]', 'CarPrice [lob=Insurance]'])
         })
 
         it('gives the folder and its versions keys of their own', () => {

@@ -12202,6 +12202,20 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string",
+              "default": "name",
+              "description": "***",
+              "enum": [
+                "name",
+                "position"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "offset",
             "schema": {
               "type": "integer",

@@ -1,0 +1,3 @@
+GET /rest/projects/EPBDS-16668/tables?unpaged=true&includeOther=true&sort=position&module=sortingtesting1 HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

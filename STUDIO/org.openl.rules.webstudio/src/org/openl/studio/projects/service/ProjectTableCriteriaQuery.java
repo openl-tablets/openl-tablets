@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableSort;
 
 /**
  * Project criteria query. Used to filter project tables in {@link ProjectService}.
@@ -24,6 +25,7 @@ public class ProjectTableCriteriaQuery {
     private final TableSearchScope scope;
     private final Map<String, Object> properties;
     private final boolean includeOther;
+    private final TableSort sort;
 
     private ProjectTableCriteriaQuery(Builder builder) {
         this.kinds = builder.kinds == null ? List.of()
@@ -35,6 +37,7 @@ public class ProjectTableCriteriaQuery {
         this.scope = builder.scope;
         this.properties = builder.properties == null ? Map.of() : Map.copyOf(builder.properties);
         this.includeOther = builder.includeOther;
+        this.sort = builder.sort;
     }
 
     public Collection<String> getKinds() {
@@ -49,6 +52,11 @@ public class ProjectTableCriteriaQuery {
      */
     public boolean isIncludeOther() {
         return includeOther;
+    }
+
+    /** The order the tables are answered in; by name unless the request asks otherwise. */
+    public TableSort getSort() {
+        return sort;
     }
 
     public Optional<String> getName() {
@@ -111,6 +119,7 @@ public class ProjectTableCriteriaQuery {
         private TableSearchScope scope;
         private Map<String, Object> properties = new HashMap<>();
         private boolean includeOther;
+        private TableSort sort = TableSort.NAME;
 
         public Builder kinds(Collection<String> kinds) {
             this.kinds = kinds;
@@ -119,6 +128,11 @@ public class ProjectTableCriteriaQuery {
 
         public Builder includeOther(boolean includeOther) {
             this.includeOther = includeOther;
+            return this;
+        }
+
+        public Builder sort(TableSort sort) {
+            this.sort = sort;
             return this;
         }
 

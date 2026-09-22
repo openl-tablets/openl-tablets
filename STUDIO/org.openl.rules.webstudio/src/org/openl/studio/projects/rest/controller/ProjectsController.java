@@ -100,6 +100,7 @@ import org.openl.studio.projects.model.tables.TableNodeView;
 import org.openl.studio.projects.model.tables.TablePropertiesUpdate;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
@@ -444,6 +445,7 @@ public class ProjectsController {
                                                     @RequestParam(value = "header", required = false) String header,
                                                     @RequestParam(value = "text", required = false) String text,
                                                     @RequestParam(value = "includeOther", defaultValue = "false") @Parameter(description = "projects.tables.list.param.include-other.desc") boolean includeOther,
+                                                    @RequestParam(value = "sort", defaultValue = "name") @Parameter(description = "projects.tables.list.param.sort.desc") TableSort sort,
                                                     @PaginationDefault Pageable page) {
 
         var queryBuilder = ProjectTableCriteriaQuery.builder()
@@ -453,7 +455,8 @@ public class ProjectsController {
                 .scope(scope)
                 .header(header)
                 .text(text)
-                .includeOther(includeOther);
+                .includeOther(includeOther)
+                .sort(sort);
         params.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))

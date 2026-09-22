@@ -242,29 +242,33 @@ const majorityName = (versions: ModuleTable[]): string => {
  * The folder stands even where a branch holds a single version — the other versions are written on another
  * sheet, or under another category — so a version is always found in the same place.
  */
-const tableNodes = (tables: ModuleTable[], keyPrefix: string): TableNode[] => {
+const tableNodes = (tables: ModuleTable[], keyPrefix: string, asWritten: boolean): TableNode[] => {
     const versions = new Map<string, ModuleTable[]>()
-    const alone: ModuleTable[] = []
     for (const table of tables) {
         const group = table.overloadGroup
-        if (group === undefined) {
-            alone.push(table)
-        } else {
+        if (group !== undefined) {
             versions.set(group, [...versions.get(group) ?? [], table])
         }
     }
-    const folders = [...versions.entries()].map(([group, grouped]) => {
-        const key = `${keyPrefix}/versions/${group}`
-        return {
-            key,
-            title: majorityName(grouped),
-            groupedBy: 'overload' as const,
-            children: grouped.map(table => tableNode(table, key))
-                .sort((left, right) => byLabel(left.title, right.title)),
+    const nodes: TableNode[] = []
+    for (const table of tables) {
+        const grouped = table.overloadGroup === undefined ? undefined : versions.get(table.overloadGroup)
+        if (grouped === undefined) {
+            nodes.push(tableNode(table, keyPrefix))
+        } else if (grouped[0] === table) {
+            // A folder stands where the first of its versions does, so a branch that keeps the written order
+            // keeps the folder in it too. The versions inside it are listed by name, as the Editor listed them.
+            const key = `${keyPrefix}/versions/${table.overloadGroup}`
+            nodes.push({
+                key,
+                title: majorityName(grouped),
+                groupedBy: 'overload',
+                children: grouped.map(version => tableNode(version, key))
+                    .sort((left, right) => byLabel(left.title, right.title)),
+            })
         }
-    })
-    return [...folders, ...alone.map(table => tableNode(table, keyPrefix))]
-        .sort((left, right) => byLabel(left.title, right.title))
+    }
+    return asWritten ? nodes : nodes.sort((left, right) => byLabel(left.title, right.title))
 }
 
 /**
@@ -273,16 +277,23 @@ const tableNodes = (tables: ModuleTable[], keyPrefix: string): TableNode[] => {
  * A table carrying no value for a level stays at that level, beside the groups, so a table is never hidden by a
  * property it does not declare.
  *
+ * A branch is read by name, the way the Editor's tree read one — except where the tables are filed by the sheet
+ * they are written on. Only that level kept the order the workbook holds its tables in, and it still does: the
+ * sheets, and the tables on each of them, stand where they are written.
+ *
  * The tree is built from the tables already in the browser, so changing the view costs no request.
+ *
+ * @param asWritten what the level above decided, which the leaves of this branch follow
  */
 const buildTableTree = (
     tables: ModuleTable[],
     levels: Level[],
     t: Translate,
+    asWritten: boolean,
     keyPrefix = 'grp'
 ): TableNode[] => {
     if (levels.length === 0) {
-        return tableNodes(tables, keyPrefix)
+        return tableNodes(tables, keyPrefix, asWritten)
     }
     const [level, ...rest] = levels as [Level, ...Level[]]
     const groups = new Map<string, ModuleTable[]>()
@@ -300,13 +311,19 @@ const buildTableTree = (
             groups.set(value, [table])
         }
     }
-    // The groups of the Type view stand in the Editor's order, under the Editor's names; the groups of any
-    // other level are read by name, together with whatever stands beside them, the way the Editor ordered a
-    // branch. A folder of properties tables holds them as they are; any other group goes on down the levels.
+    // The groups of the Type view stand in the Editor's order, under the Editor's names; the sheets stand
+    // where the workbook holds them; every other group is read by name. A folder of properties tables holds
+    // them as they are; any other group goes on down the levels.
     const folder = level.by === 'moduleProperties' || level.by === 'categoryProperties'
-    const nodes: TableNode[] = [...groups.entries()]
-        .sort(([left], [right]) => (level.by === 'kind' ? typeGroupOrder(left) - typeGroupOrder(right) : 0)
-            || byLabel(left, right))
+    // The sheet is the one level that files the tables where the workbook holds them.
+    const keepsOrder = level.by === 'sheet'
+    const entries = [...groups.entries()]
+    if (level.by === 'kind') {
+        entries.sort(([left], [right]) => typeGroupOrder(left) - typeGroupOrder(right) || byLabel(left, right))
+    } else if (!keepsOrder) {
+        entries.sort(([left], [right]) => byLabel(left, right))
+    }
+    const nodes: TableNode[] = entries
         .map(([value, grouped]) => {
             const key = `${keyPrefix}/${level.by}${level.by === 'categoryStep' ? level.step : ''}/${value}`
             const typeGroup = level.by === 'kind' ? TYPE_GROUPS.find(group => group.id === value) : undefined
@@ -315,15 +332,17 @@ const buildTableTree = (
                 title: typeGroup ? t(`browser.module.types.${typeGroup.key}`) : value,
                 ...(typeGroup && { hint: t(`browser.module.type_hints.${typeGroup.key}`) }),
                 groupedBy: level.by,
-                children: folder ? tableNodes(grouped, key) : buildTableTree(grouped, rest, t, key),
+                children: folder
+                    ? tableNodes(grouped, key, keepsOrder)
+                    : buildTableTree(grouped, rest, t, keepsOrder, key),
             }
         })
-    const beside = buildTableTree(ungrouped, rest, t, `${keyPrefix}/rest`)
-    return level.by === 'kind'
+    const beside = buildTableTree(ungrouped, rest, t, keepsOrder, `${keyPrefix}/rest`)
+    return keepsOrder || level.by === 'kind'
         ? [...nodes, ...beside]
         : [...nodes, ...beside].sort((left, right) => byLabel(left.title, right.title))
 }
 
 /** The tree of the given view, its groups named in the user's language. */
 export const treeOf = (tables: ModuleTable[], view: TableView, t: Translate): TableNode[] =>
-    buildTableTree(tables, levelsOf(view), t)
+    buildTableTree(tables, levelsOf(view), t, false)

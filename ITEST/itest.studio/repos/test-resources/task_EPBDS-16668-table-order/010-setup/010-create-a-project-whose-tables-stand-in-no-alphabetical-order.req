@@ -1,0 +1,16 @@
+PUT /rest/repos/design-flat/projects/EPBDS-16668?comment=EPBDS-16668%20Create%20a%20project%20whose%20tables%20stand%20in%20no%20alphabetical%20order HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="EPBDS-16668.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&EPBDS-16668.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="status"
+
+OPENED
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

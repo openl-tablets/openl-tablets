@@ -1,0 +1,73 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "4d3d5f96d71661faa48b4e125da53960",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "_MyRules",
+      "returnType": "Double",
+      "signature": "_MyRules(int a)",
+      "file": "EPBDS-16668/rules/sortingtesting1.xlsx",
+      "sheet": "Sheet1",
+      "pos": "C2:D5"
+    },
+    {
+      "id": "0d0926f194ae1c2ebd3546eb3f6c803c",
+      "tableType": "Other",
+      "kind": "Other",
+      "name": "Test123",
+      "file": "EPBDS-16668/rules/sortingtesting1.xlsx",
+      "sheet": "Sheet1",
+      "pos": "H3"
+    },
+    {
+      "id": "1a4b87507419c2d1cab6d245d8b4e0fb",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "MyRules",
+      "returnType": "Double",
+      "signature": "MyRules(int a, int b)",
+      "file": "EPBDS-16668/rules/sortingtesting1.xlsx",
+      "sheet": "Sheet1",
+      "pos": "H6:I9"
+    },
+    {
+      "id": "25a4a8635c8afb438c527b8fd26ab737",
+      "tableType": "SmartRules",
+      "kind": "Rules",
+      "name": "MyRules",
+      "returnType": "Double",
+      "signature": "MyRules(int a)",
+      "file": "EPBDS-16668/rules/sortingtesting1.xlsx",
+      "sheet": "Sheet1",
+      "pos": "B7:C10"
+    },
+    {
+      "id": "af6506ccb5de948706ef3a3c365ec520",
+      "tableType": "Other",
+      "kind": "Other",
+      "name": "Test123",
+      "file": "EPBDS-16668/rules/sortingtesting1.xlsx",
+      "sheet": "Sheet1",
+      "pos": "C14"
+    },
+    {
+      "id": "2746a675d270a08cb8319879db133c91",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Atable",
+      "signature": "Atable",
+      "file": "EPBDS-16668/rules/sortingtesting1.xlsx",
+      "sheet": "Sheet1",
+      "pos": "C18:D19"
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 6,
+  "numberOfElements": 6,
+  "total": 6
+}
+
