@@ -39,6 +39,8 @@ describe('modules service', () => {
         expect(listed).toContain('/projects/p1/tables?')
         expect(listed).toContain('module=Bank+Rating')
         expect(listed).toContain('unpaged=true')
+        // The tree draws a module the way it is written, so it asks for the tables in that order.
+        expect(listed).toContain('sort=position')
         // Left out by default, as the Editor's tree hid them: they take no part in the rules.
         expect(listed).not.toContain('includeOther')
 

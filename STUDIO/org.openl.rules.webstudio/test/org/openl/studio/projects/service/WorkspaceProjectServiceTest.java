@@ -17,6 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -106,6 +107,7 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
@@ -1561,6 +1563,48 @@ class WorkspaceProjectServiceTest {
         // compilation would hold the answer back for every other module of the project as well.
         verify(job, never()).future();
         verify(webStudio).init("design", "main", "Pricing", "Claims");
+    }
+
+    @Test
+    void tables_are_listed_by_name_unless_the_order_of_the_module_is_asked_for() throws Exception {
+        var summaryTableReader = mock(SummaryTableReader.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                summaryTableReader));
+        var projectModel = mock(ProjectModel.class);
+        var registry = mock(CompilationJobRegistry.class);
+        var job = mock(CompilationJob.class);
+        var project = openedProject(webStudio, projectModel, "Pricing", "Claims");
+        doReturn(registry).when(service).getCompilationJobRegistry();
+        when(registry.acquire(any(), any())).thenReturn(job);
+
+        // Two tables the module holds in an order its names do not give.
+        var second = mock(IOpenLTable.class);
+        var first = mock(IOpenLTable.class);
+        var zebra = SummaryTableView.builder().id("2").name("Zebra").build();
+        var alpha = SummaryTableView.builder().id("1").name("Alpha").build();
+        when(summaryTableReader.read(eq(second), any())).thenReturn(zebra);
+        when(summaryTableReader.read(eq(first), any())).thenReturn(alpha);
+        when(projectModel.search(any(), eq(SearchScope.CURRENT_MODULE))).thenReturn(List.of(second, first));
+
+        var asked = ProjectTableCriteriaQuery.builder().module("Claims");
+        assertEquals(List.of(alpha, zebra),
+                service.getTables(project, asked.build(), Pageable.unpaged()).getContent(),
+                "a list read by a reader looking for one table is read by name");
+        assertEquals(List.of(zebra, alpha),
+                service.getTables(project, asked.sort(TableSort.POSITION).build(), Pageable.unpaged())
+                        .getContent(),
+                "the order the module is written in is answered as it stands");
+        // The module is asked the same way either time: it hands its tables over as the compiler read them,
+        // and putting them in a reader's order is the listing's own doing.
+        verify(projectModel, times(2)).search(any(), eq(SearchScope.CURRENT_MODULE));
     }
 
     @Test

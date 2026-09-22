@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,6 @@ import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
-import org.openl.base.INamedThing;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.message.OpenLMessage;
@@ -87,8 +87,8 @@ import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependenc
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -98,10 +98,6 @@ import org.openl.types.NullOpenClass;
 @Slf4j
 public class ProjectModel {
 
-
-    private static final Comparator<TableSyntaxNode> DEFAULT_NODE_CMP = Comparator.comparing(
-            node -> Optional.ofNullable(node.getMember()).map(INamedThing::getName).orElse(null),
-            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     /**
      * Compiled rules with errors. Representation of wrapper.
@@ -721,6 +717,11 @@ public class ProjectModel {
         return false;
     }
 
+    /**
+     * The tables of the given scope the selectors accept, in the order the modules hold them in: workbook by
+     * workbook, sheet by sheet, and top to bottom within a sheet. A caller that lists them for a reader puts
+     * them in the order that reader asks for.
+     */
     public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors, SearchScope searchScope) {
         return getSearchScopeData(searchScope).stream()
                 .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
@@ -772,19 +773,16 @@ public class ProjectModel {
     }
 
     public synchronized Set<TableSyntaxNode> getAllTableSyntaxNodes() {
-        Set<TableSyntaxNode> result = ConcurrentHashMap.newKeySet();
-        if (webStudioWorkspaceDependencyManager != null) {
-            webStudioWorkspaceDependencyManager.findAllProjectDependencyLoaders(getProjectDescriptor())
-                    .stream()
-                    .filter(IDependencyLoader::isProjectLoader)
-                    .map(e -> getModuleSyntaxNodesByProject(e.getProject().getName()))
-                    .flatMap(Collection::stream)
-                    .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
-                    .filter(Objects::nonNull)
-                    .map(Arrays::asList)
-                    .forEach(result::addAll);
+        if (webStudioWorkspaceDependencyManager == null) {
+            return new LinkedHashSet<>();
         }
-        return result;
+        var modules = webStudioWorkspaceDependencyManager
+                .findAllProjectDependencyLoaders(getProjectDescriptor())
+                .stream()
+                .filter(IDependencyLoader::isProjectLoader)
+                .map(e -> getModuleSyntaxNodesByProject(e.getProject().getName()))
+                .flatMap(Collection::stream);
+        return tablesOf(modules);
     }
 
     /**
@@ -807,13 +805,29 @@ public class ProjectModel {
         return Optional.ofNullable(studio.getCurrentProjectDescriptor())
                 .map(ProjectDescriptor::getName)
                 .map(this::getModuleSyntaxNodesByProject)
-                .map(nodes -> nodes.stream()
-                        .filter(Objects::nonNull)
-                        .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
-                        .map(Arrays::asList)
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toSet()))
+                .<Set<TableSyntaxNode>>map(nodes -> tablesOf(nodes.stream().filter(Objects::nonNull)))
                 .orElse(Collections.emptySet());
+    }
+
+    /**
+     * The tables the given modules hold, workbook by workbook and top to bottom within a sheet.
+     *
+     * <p>A module keeps its own tables in the order the compiler read them, but the modules themselves are
+     * gathered as they compile, which is no order at all. They are read by the workbook each is written in, so
+     * that a listing spanning several of them reads the same way twice.
+     */
+    private static Set<TableSyntaxNode> tablesOf(Stream<XlsModuleSyntaxNode> modules) {
+        return modules
+                .sorted(Comparator.comparing(ProjectModel::workbookOf, String.CASE_INSENSITIVE_ORDER))
+                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                .filter(Objects::nonNull)
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    /** The workbook a module is written in, which is what tells one module from another. */
+    private static String workbookOf(XlsModuleSyntaxNode module) {
+        return Optional.ofNullable(module.getModule()).map(IOpenSourceCodeModule::getUri).orElse("");
     }
 
 
@@ -939,25 +953,30 @@ public class ProjectModel {
         }
     }
 
-    // Logic in this block of code implemented with a recursion to achieve sorting of each dataset by comparator
-    // and place this sets in the proper order.
-    public synchronized Set<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
-        if (searchScope == SearchScope.ALL) {
-            Set<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
-            getAllTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
-            return nodes;
-        } else if (searchScope == SearchScope.CURRENT_PROJECT) {
-            Set<TableSyntaxNode> nodes = WebStudioUtils.getWebStudio().getCurrentModule() != null ? getSearchScopeData(
-                    SearchScope.CURRENT_MODULE) : new LinkedHashSet<>();
-            getCurrentProjectTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
-            return nodes;
-        } else if (searchScope == SearchScope.CURRENT_MODULE) {
-            return Arrays.stream(getXlsModuleNode().getXlsTableSyntaxNodes())
-                    .sorted(DEFAULT_NODE_CMP)
+    /**
+     * The tables of the given scope, the scopes kept apart: the module first, then the rest of its project,
+     * then everything else.
+     *
+     * <p>Each scope hands its tables over in the order the modules hold them in, so the whole answer reads
+     * workbook by workbook and top to bottom within a sheet.
+     */
+    private synchronized Set<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
+        return switch (searchScope) {
+            case CURRENT_MODULE -> Arrays.stream(getTableSyntaxNodes())
                     .collect(Collectors.toCollection(LinkedHashSet::new));
-        } else {
-            throw new IllegalStateException();
-        }
+            case CURRENT_PROJECT -> {
+                Set<TableSyntaxNode> nodes = studio.getCurrentModule() != null
+                        ? getSearchScopeData(SearchScope.CURRENT_MODULE)
+                        : new LinkedHashSet<>();
+                nodes.addAll(getCurrentProjectTableSyntaxNodes());
+                yield nodes;
+            }
+            case ALL -> {
+                Set<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
+                nodes.addAll(getAllTableSyntaxNodes());
+                yield nodes;
+            }
+        };
     }
 
     public synchronized void clearModuleInfo() {

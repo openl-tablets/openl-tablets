@@ -51,6 +51,7 @@ import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
+import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -214,20 +215,24 @@ class ProjectsControllerTest {
     }
 
     @Test
-    void getTablesCarriesTheAskForFreeFormTablesToTheQuery() {
+    void getTablesCarriesWhatTheTreeAsksForToTheQuery() {
         var projectService = mock(WorkspaceProjectService.class);
         var controller = controller(projectService, mock(ProjectStatusMapper.class));
         var project = mock(RulesProject.class);
         var page = Pageable.unpaged();
         var query = ArgumentCaptor.forClass(ProjectTableCriteriaQuery.class);
 
-        controller.getTables(project, Map.of(), null, null, "Main", null, null, null, true, page);
-        controller.getTables(project, Map.of(), null, null, "Main", null, null, null, false, page);
+        controller.getTables(project, Map.of(), null, null, "Main", null, null, null, true, TableSort.POSITION,
+                page);
+        controller.getTables(project, Map.of(), null, null, "Main", null, null, null, false, TableSort.NAME, page);
 
         verify(projectService, times(2)).getTables(eq(project), query.capture(), eq(page));
-        // The tree asks for the free-form tables with the flag; without it they are left out, as they always were.
+        // The tree asks for the free-form tables and for the order the module is written in; a reader looking
+        // for one table asks for neither, and is answered the way the list always was.
         assertTrue(query.getAllValues().get(0).isIncludeOther());
+        assertEquals(TableSort.POSITION, query.getAllValues().get(0).getSort());
         assertFalse(query.getAllValues().get(1).isIncludeOther());
+        assertEquals(TableSort.NAME, query.getAllValues().get(1).getSort());
     }
 
     @Test

@@ -122,6 +122,7 @@ import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.model.tables.TableRunState;
 import org.openl.studio.projects.model.tables.TableSearchScope;
+import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableView;
@@ -169,6 +170,10 @@ import org.openl.util.StringUtils;
 @ParametersAreNonnullByDefault
 @Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
+
+    /** The name a table is listed under, ignoring case. */
+    private static final Comparator<SummaryTableView> BY_VIEW_NAME =
+            Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER);
 
     /** Answered when a project does not declare the module a request names. */
     private static final String NO_SUCH_MODULE = "project.module.identifier.message";
@@ -1654,12 +1659,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // the whole list rather than worked out again for every row of it.
         var statuses = TableStatuses.of(moduleModel);
         var selectors = buildTableSelector(query);
-        var allTables = moduleModel.search(selectors, scope)
+        // The module hands its tables over where the compiler read them; a reader looking for one by name is
+        // answered by name instead.
+        var byName = query.getSort() == TableSort.NAME;
+        var read = moduleModel.search(selectors, scope)
                 .stream()
                 .map(table -> report(locate(summaryTableReader.read(table, overloads), table, locations),
-                        table, statuses))
-                .sorted(Comparator.comparing(view -> view.name, String.CASE_INSENSITIVE_ORDER))
-                .toList();
+                        table, statuses));
+        var allTables = (byName ? read.sorted(BY_VIEW_NAME) : read).toList();
 
         long total = allTables.size();
 

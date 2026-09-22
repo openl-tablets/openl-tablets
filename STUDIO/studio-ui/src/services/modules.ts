@@ -253,6 +253,12 @@ export const getTableTargets = async (
 /** How wide a search reaches, as the Tables API names it. */
 export type TableSearchScope = 'module' | 'project' | 'all'
 
+/**
+ * The order the tables are answered in: by name, or the order the modules hold them in — workbook by workbook,
+ * sheet by sheet, top to bottom within a sheet.
+ */
+export type TableSort = 'name' | 'position'
+
 /** What an extended search asks for. Everything is optional: a search asking nothing lists the tables. */
 export interface TableSearchCriteria {
     /** The module the search is made through, and the one it covers unless the scope says wider. */
@@ -274,6 +280,8 @@ export interface TableSearchCriteria {
      * unless told to show them; a search naming their kind asks for them by itself.
      */
     includeOther?: boolean | undefined
+    /** The order the tables are answered in; by name unless asked otherwise. */
+    sort?: TableSort | undefined
 }
 
 /**
@@ -303,6 +311,7 @@ export const searchTables = async (projectId: string, criteria: TableSearchCrite
     if (criteria.includeOther) {
         params.set('includeOther', 'true')
     }
+    add('sort', criteria.sort)
     const page = await apiCall(
         `/projects/${toUrlSafeId(projectId)}/tables?${params}`,
         undefined,
@@ -321,7 +330,13 @@ export const getModuleTables = async (
     projectId: string,
     moduleName: string,
     options: { includeOther?: boolean } = {}
-): Promise<ModuleTable[]> => searchTables(projectId, { module: moduleName, includeOther: options.includeOther })
+): Promise<ModuleTable[]> => searchTables(projectId, {
+    module: moduleName,
+    includeOther: options.includeOther,
+    // The tree draws the module the way it is written, so it asks for the tables in that order and files
+    // them into groups without reordering them.
+    sort: 'position',
+})
 
 /** Where a property that applies to a table is defined, when it is not written on the table itself. */
 export type PropertyInheritance = 'category' | 'module' | 'external'
