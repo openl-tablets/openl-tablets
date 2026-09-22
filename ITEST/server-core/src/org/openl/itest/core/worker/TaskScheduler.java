@@ -53,7 +53,7 @@ public class TaskScheduler {
                 scheduledExecutor.awaitTermination(timeout, unit);
             }
         } catch (InterruptedException e) {
-            e.printStackTrace(); // For debug purposes
+            e.printStackTrace(System.err); // the console is the only log of the test harness
             Thread.currentThread().interrupt();
             return true;
         }
@@ -72,7 +72,7 @@ public class TaskScheduler {
                 command.run();
             } catch (Exception | AssertionError e) {
                 error = true;
-                e.printStackTrace(); // For debug purposes
+                e.printStackTrace(System.err); // the console is the only log of the test harness
             }
         };
     }

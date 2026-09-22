@@ -4,6 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -12,6 +13,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
+@Slf4j
 public class TestSuite implements INamedThing {
     public static final String VIRTUAL_TEST_SUITE = "Virtual test suite";
     @Getter
@@ -67,7 +69,7 @@ public class TestSuite implements INamedThing {
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("Test execution failed", e);
                 } finally {
                     countDownLatch.countDown();
                 }

@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
@@ -27,6 +28,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  *
  * @author PUdalau
  */
+@Slf4j
 public class ObjectToDataConvertorFactory {
 
     private ObjectToDataConvertorFactory() {
@@ -143,7 +145,7 @@ public class ObjectToDataConvertorFactory {
                     .toLocalDateTime());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to register the built-in convertors", e);
         }
     }
 

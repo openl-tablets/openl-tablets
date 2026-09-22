@@ -148,7 +148,7 @@ public class HttpClient implements AutoCloseable {
                 } catch (Exception | AssertionError ex) {
                     long end = System.currentTimeMillis();
                     System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end - start) + "ms)");
-                    ex.printStackTrace();
+                    ex.printStackTrace(System.err); // the console is the only log of the test harness
                     return true;
                 }
             }).filter(p -> p).count();
