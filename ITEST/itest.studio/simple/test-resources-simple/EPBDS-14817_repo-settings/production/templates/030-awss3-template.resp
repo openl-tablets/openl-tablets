@@ -14,7 +14,7 @@ Content-Type: application/json
     "sseAlgorithm": "UNKNOWN_TO_SDK_VERSION",
     "listenerTimerPeriod": 10,
     "allAllowedRegions": "[{\"id\":\"*\",\"description\":\"*\"},***]",
-    "allSseAlgorithms": ["AES256", "AWS_FSX", "AWS_KMS", "AWS_KMS_DSSE"]
+    "allSseAlgorithms": ["AES256", "AWS_FSX", "AWS_BACKUP", "AWS_KMS", "AWS_KMS_DSSE"]
   },
   "type": "repo-aws-s3",
   "id": "production1"
