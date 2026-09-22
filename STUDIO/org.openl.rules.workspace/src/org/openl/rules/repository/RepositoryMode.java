@@ -14,6 +14,6 @@ public enum RepositoryMode {
 
     //FIXME remove after implementation of unification of default settings
     public String getId() {
-        return name().toLowerCase(Locale.ROOT).replaceAll("_", "-");
+        return name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 }

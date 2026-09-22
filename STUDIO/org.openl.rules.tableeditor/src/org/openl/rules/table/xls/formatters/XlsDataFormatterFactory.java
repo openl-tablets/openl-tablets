@@ -99,7 +99,7 @@ public final class XlsDataFormatterFactory {
             short formatIndex = xlsStyle.getFormatIndex();
             var format = xlsStyle.getFormatString();
             if (format.contains("#\" \"")) {
-                format = format.replaceAll("#\" \"", "# ");
+                format = format.replace("#\" \"", "# ");
             }
             return new XlsNumberFormatter(formatIndex, format, dataFormatter, locale);
         }

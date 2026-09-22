@@ -245,7 +245,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             if (!sb.isEmpty()) {
                 sb.append("\n");
             }
-            sb.append("Expression: ").append(statement.replaceAll("\n", StringUtils.SPACE));
+            sb.append("Expression: ").append(statement.replace("\n", StringUtils.SPACE));
         }
         if (!StringUtils.isEmpty(headerMetaInfo.getAdditionalDetails())) {
             if (!sb.isEmpty()) {
@@ -299,7 +299,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         var sb = new StringBuilder();
         sb.append("Action: ").append(header);
         if (!StringUtils.isEmpty(statement)) {
-            sb.append("\n").append("Expression: ").append(statement.replaceAll("\n", StringUtils.SPACE));
+            sb.append("\n").append("Expression: ").append(statement.replace("\n", StringUtils.SPACE));
         }
         if (!StringUtils.isEmpty(headerMetaInfo.getAdditionalDetails())) {
             sb.append("\n").append(headerMetaInfo.getAdditionalDetails());

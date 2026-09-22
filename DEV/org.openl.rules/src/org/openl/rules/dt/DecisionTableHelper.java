@@ -723,7 +723,7 @@ public final class DecisionTableHelper {
                         if (!StringUtils.isEmpty(declaredReturn.getStatement())) {
                             sb.append("\n")
                                     .append("Expression: ")
-                                    .append(declaredReturn.getStatement().replaceAll("\n", StringUtils.SPACE));
+                                    .append(declaredReturn.getStatement().replace("\n", StringUtils.SPACE));
 
                         }
                         DecisionTableMetaInfoReader.appendParameters(sb,
@@ -3585,12 +3585,12 @@ public final class DecisionTableHelper {
                     JavaOpenClass.getOpenClass(rangeClass),
                     condition.getStatement());
         } else if (type == 1) {
-            final var paramName = "_" + condition.getStatement().replaceAll("\\.", "_");
+            final var paramName = "_" + condition.getStatement().replace('.', '_');
             return Triple.of(new String[]{rangeClass.getSimpleName() + "[]", paramName},
                     AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 1),
                     "contains(" + paramName + ", " + condition.statement + ")");
         } else {
-            final var paramName = "_" + condition.getStatement().replaceAll("\\.", "_");
+            final var paramName = "_" + condition.getStatement().replace('.', '_');
             return Triple.of(new String[]{rangeClass.getSimpleName() + "[][]", paramName},
                     AOpenClass.getArrayType(JavaOpenClass.getOpenClass(rangeClass), 2),
                     "contains(" + paramName + ", " + condition.statement + ")");

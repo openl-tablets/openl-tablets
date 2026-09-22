@@ -205,8 +205,8 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private String dateFormatToPattern(String format) {
         var pattern = format.replaceAll("[ydDwWHkmsSuF]", "\\\\d");
         pattern = pattern.replaceAll("MMM+", "\\\\p{Alpha}+");
-        pattern = pattern.replaceAll("MM", "\\\\d{2}");
-        pattern = pattern.replaceAll("M", "\\\\d{1,2}");
+        pattern = pattern.replace("MM", "\\d{2}");
+        pattern = pattern.replace("M", "\\d{1,2}");
         return pattern;
     }
 

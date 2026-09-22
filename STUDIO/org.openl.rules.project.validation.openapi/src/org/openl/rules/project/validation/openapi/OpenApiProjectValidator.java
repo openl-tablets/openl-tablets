@@ -416,8 +416,8 @@ public class OpenApiProjectValidator {
             s = "/";
         }
         s = s.replaceAll("\\{[^}]*}", "{}");
-        while (!Objects.equals(s, s.replaceAll("//", "/"))) {
-            s = s.replaceAll("//", "/");
+        while (!Objects.equals(s, s.replace("//", "/"))) {
+            s = s.replace("//", "/");
         }
         if (!s.startsWith("/")) {
             s = "/" + s;

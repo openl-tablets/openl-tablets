@@ -327,8 +327,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 s = "/";
             }
             s = s.replaceAll("\\{[^}]*}", "{}");
-            while (!Objects.equals(s, s.replaceAll("//", "/"))) {
-                s = s.replaceAll("//", "/");
+            while (!Objects.equals(s, s.replace("//", "/"))) {
+                s = s.replace("//", "/");
             }
             while (!s.startsWith("/")) {
                 s = "/" + s;

@@ -26,7 +26,7 @@ public final class URLHelper {
             } else {
                 sb.append("/");
             }
-            sb.append(URLEncoder.encode(s, StandardCharsets.UTF_8).replaceAll("\\+", "%20"));
+            sb.append(URLEncoder.encode(s, StandardCharsets.UTF_8).replace("+", "%20"));
         }
         try {
             var uri = new URI(sb.toString());

@@ -170,7 +170,7 @@ public class POJOByteCodeGenerator {
             av.visit("defaultValue", defaultFieldValue);
         }
         try {
-            String componentJavaType = javaType.replaceAll("\\[", "");
+            String componentJavaType = javaType.replace("[", "");
             String clsName = Type.getType(componentJavaType).getClassName();
             Class<?> type = Thread.currentThread().getContextClassLoader().loadClass(clsName);
             if (type.isInterface() && !Map.class.isAssignableFrom(type) && !Collection.class.isAssignableFrom(type)) {
