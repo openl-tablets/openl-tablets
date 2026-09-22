@@ -33,6 +33,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableCell;
@@ -83,6 +84,15 @@ class TableCreatorServiceTest {
             }
             return null;
         }).when(projectFilesService).updateResource(any(), anyString(), any());
+    }
+
+    @Test
+    void refusesASheetOfAModuleThatDidNotCompile() {
+        var model = mock(ProjectModel.class);
+
+        var error = assertThrows(NullPointerException.class, () -> service.sheetGridModel(model, "Sheet1"));
+
+        assertEquals("The module is not compiled", error.getMessage());
     }
 
     @Test

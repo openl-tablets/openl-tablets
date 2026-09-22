@@ -4110,7 +4110,10 @@ public final class DecisionTableHelper {
                 }
             }
         } else if (condition instanceof DeclaredDTHeader declaredDTHeader) {
-            return declaredDTHeader.getDtColumnsDefinition().getCompositeMethod().getType();
+            var compositeMethod = declaredDTHeader.getDtColumnsDefinition().getCompositeMethod();
+            if (compositeMethod != null) {
+                return compositeMethod.getType();
+            }
         }
         if (condition.isMethodParameterUsed()) {
             return decisionTable.getSignature().getParameterTypes()[condition.getMethodParameterIndex()];

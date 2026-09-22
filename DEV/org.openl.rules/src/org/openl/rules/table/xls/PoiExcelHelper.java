@@ -46,7 +46,8 @@ public final class PoiExcelHelper {
         if (row == null) {
             row = sheet.createRow(rowIndex);
         }
-        return row.getCell(colIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        var cell = row.getCell(colIndex);
+        return cell != null ? cell : row.createCell(colIndex);
     }
 
     /**
@@ -73,13 +74,8 @@ public final class PoiExcelHelper {
     }
 
     public static CellStyle cloneStyleFrom(Cell cell) {
-        CellStyle newStyle = null;
-        if (cell != null) {
-            var sheet = cell.getSheet();
-            newStyle = createCellStyle(sheet.getWorkbook());
-            var fromStyle = cell.getCellStyle();
-            newStyle.cloneStyleFrom(fromStyle);
-        }
+        var newStyle = createCellStyle(cell.getSheet().getWorkbook());
+        newStyle.cloneStyleFrom(cell.getCellStyle());
         return newStyle;
     }
 

@@ -13,6 +13,7 @@ import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.cmatch.algorithm.ArgumentsHelper;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmCompiler;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
+import org.openl.rules.table.IGrid;
 import org.openl.types.java.JavaOpenClass;
 
 public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatchBoundNode> {
@@ -22,17 +23,20 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
 
     @Override
     protected CellMetaInfo getBodyMetaInfo(int row, int col) {
-        if (isSpecialRow(row)) {
-            return checkSpecialRowMetaInfo(row, col);
+        var columnMatch = getBoundNode().getColumnMatch();
+        var tableBody = columnMatch.getSyntaxNode().getTableBody();
+        if (tableBody == null) {
+            return null;
+        }
+        var grid = tableBody.getSource().getGrid();
+        if (isSpecialRow(columnMatch, grid, row)) {
+            return checkSpecialRowMetaInfo(columnMatch, grid, row, col);
         } else {
-            return checkValueMetaInfo(row, col);
+            return checkValueMetaInfo(columnMatch, grid, row, col);
         }
     }
 
-    private boolean isSpecialRow(int rowNum) {
-        var columnMatch = getBoundNode().getColumnMatch();
-        var grid = columnMatch.getSyntaxNode().getTableBody().getSource().getGrid();
-
+    private boolean isSpecialRow(ColumnMatch columnMatch, IGrid grid, int rowNum) {
         var firstNameRowNum = getSpecialRowCount(columnMatch);
         var firstNameRegion = columnMatch.getRows().get(firstNameRowNum).get(NAMES)[0].getGridRegion();
         var cell = grid.getCell(firstNameRegion.getLeft(), firstNameRegion.getTop());
@@ -40,12 +44,10 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         return rowNum < cell.getAbsoluteRow();
     }
 
-    private CellMetaInfo checkSpecialRowMetaInfo(int rowNum, int colNum) {
-        var columnMatch = getBoundNode().getColumnMatch();
-
+    private CellMetaInfo checkSpecialRowMetaInfo(ColumnMatch columnMatch, IGrid grid, int rowNum, int colNum) {
         var row0 = columnMatch.getRows().getFirst();
 
-        var metaInfo = searchMetaInfo(columnMatch,
+        var metaInfo = searchMetaInfo(grid,
                 rowNum,
                 colNum,
                 row0.get(VALUES),
@@ -57,7 +59,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         if (getSpecialRowCount(columnMatch) > 1) {
             var totalScoreRow = columnMatch.getRows().get(WeightAlgorithmCompiler.ROW_TOTAL_SCORE_IDX);
             var totalScore = columnMatch.getTotalScore();
-            metaInfo = searchMetaInfo(columnMatch,
+            metaInfo = searchMetaInfo(grid,
                     rowNum,
                     colNum,
                     totalScoreRow.get(VALUES),
@@ -67,7 +69,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
             }
 
             var scoreRow = columnMatch.getRows().get(WeightAlgorithmCompiler.ROW_SCORE_IDX);
-            metaInfo = searchMetaInfo(columnMatch,
+            metaInfo = searchMetaInfo(grid,
                     rowNum,
                     colNum,
                     scoreRow.get(VALUES),
@@ -88,12 +90,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         return objects;
     }
 
-    private CellMetaInfo searchMetaInfo(ColumnMatch columnMatch,
-                                        int rowNum,
-                                        int colNum,
-                                        SubValue[] subValues,
-                                        Object[] values) {
-        var grid = columnMatch.getSyntaxNode().getTableBody().getSource().getGrid();
+    private CellMetaInfo searchMetaInfo(IGrid grid, int rowNum, int colNum, SubValue[] subValues, Object[] values) {
         for (var sv = 0; sv < subValues.length; sv++) {
             var subValue = subValues[sv];
             var region = subValue.getGridRegion();
@@ -110,10 +107,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         return NOT_FOUND;
     }
 
-    private CellMetaInfo checkValueMetaInfo(int rowNum, int colNum) {
-        var columnMatch = getBoundNode().getColumnMatch();
-        var grid = columnMatch.getSyntaxNode().getTableBody().getSource().getGrid();
-
+    private CellMetaInfo checkValueMetaInfo(ColumnMatch columnMatch, IGrid grid, int rowNum, int colNum) {
         List<TableRow> rows = columnMatch.getRows();
         for (var i = getSpecialRowCount(columnMatch); i < rows.size(); i++) {
             var row = rows.get(i);

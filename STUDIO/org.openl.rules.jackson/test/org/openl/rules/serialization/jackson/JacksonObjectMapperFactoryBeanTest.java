@@ -37,6 +37,17 @@ class JacksonObjectMapperFactoryBeanTest {
     }
 
     @Test
+    void skipsAnAbsentOverrideClass() throws ClassNotFoundException {
+        var bean = new JacksonObjectMapperFactoryBean();
+        var overrideClasses = new HashSet<Class<?>>();
+        overrideClasses.add(null);
+        overrideClasses.add(IntRange.class);
+        bean.setOverrideClasses(overrideClasses);
+
+        assertNotNull(bean.createJacksonObjectMapper());
+    }
+
+    @Test
     void testRange() throws ClassNotFoundException, IOException {
         var bean = new JacksonObjectMapperFactoryBean();
         var objectMapper = bean.createJacksonObjectMapper();

@@ -294,22 +294,18 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                                        boolean polymorphicTypeValidation,
                                        Set<Class<?>> classes,
                                        Class<?> clazz) {
-        if (!classes.contains(clazz)) {
-            if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
-                classes.add(clazz);
-                if (polymorphicTypeValidation) {
-                    basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
-                    basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
-                }
-                XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
-                if (xmlSeeAlso != null) {
-                    for (Class<?> cls : xmlSeeAlso.value()) {
-                        registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
-                                polymorphicTypeValidation,
-                                classes,
-                                cls);
-                    }
-                }
+        if (clazz == null || classes.contains(clazz) || JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
+            return;
+        }
+        classes.add(clazz);
+        if (polymorphicTypeValidation) {
+            basicPolymorphicTypeValidatorBuilder.allowIfBaseType(clazz);
+            basicPolymorphicTypeValidatorBuilder.allowIfSubType(clazz);
+        }
+        XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
+        if (xmlSeeAlso != null) {
+            for (Class<?> cls : xmlSeeAlso.value()) {
+                registerOverrideClass(basicPolymorphicTypeValidatorBuilder, polymorphicTypeValidation, classes, cls);
             }
         }
     }

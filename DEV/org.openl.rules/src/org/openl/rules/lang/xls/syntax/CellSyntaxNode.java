@@ -25,7 +25,8 @@ public class CellSyntaxNode extends ASyntaxNode {
     }
 
     public String getSourceString() {
-        return getCellSource().getCode();
+        var source = getCellSource();
+        return source == null ? null : source.getCode();
     }
 
 }

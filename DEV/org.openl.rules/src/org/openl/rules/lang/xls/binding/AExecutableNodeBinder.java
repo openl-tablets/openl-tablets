@@ -55,12 +55,10 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
         var table = tableSyntaxNode.getGridTable();
         var source = new GridCellSourceCodeModule(table, bindingContext);
 
+        var headerLocation = Objects.requireNonNull(tableSyntaxNode.getHeader().getHeaderToken().getSourceLocation(),
+                "The table header has no location");
         return new SubTextSourceCodeModule(source,
-                tableSyntaxNode.getHeader()
-                        .getHeaderToken()
-                        .getSourceLocation()
-                        .getEnd()
-                        .getAbsolutePosition(new TextInfo(source.getCode())));
+                headerLocation.getEnd().getAbsolutePosition(new TextInfo(source.getCode())));
     }
 
     public OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode,

@@ -39,7 +39,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     public ComponentTypeArrayOpenClass(IOpenClass componentClass) {
         var lengthOpenField = new ComponentTypeArrayLengthOpenField();
-        this.componentClass = componentClass;
+        this.componentClass = Objects.requireNonNull(componentClass, "componentClass cannot be null");
         this.fieldsByName = HashMap.newHashMap(1);
         this.fieldsByName.put(lengthOpenField.getName(), lengthOpenField);
         this.javaName = createJavaName(componentClass);
@@ -88,14 +88,16 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
             return false;
         }
         if (ioc.isArray()) {
-            return getComponentClass().isAssignableFrom(ioc.getComponentClass());
+            return componentClass.isAssignableFrom(ioc.getComponentClass());
         }
-        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
+        var arrayClass = getInstanceClass();
+        return arrayClass != null && arrayClass.isAssignableFrom(ioc.getInstanceClass());
     }
 
     @Override
     public boolean isInstance(Object instance) {
-        return getInstanceClass().isInstance(instance);
+        var arrayClass = getInstanceClass();
+        return arrayClass != null && arrayClass.isInstance(instance);
     }
 
     @Override

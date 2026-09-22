@@ -70,7 +70,8 @@ public class ProjectsBenchmarkController {
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
-        return null;
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
     @Operation(summary = "benchmark.start.summary", description = "benchmark.start.desc",

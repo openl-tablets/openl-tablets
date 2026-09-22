@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,7 +57,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.get().selectAllMetaInfo);
+            statement = connection.prepareStatement(settings().selectAllMetaInfo);
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
@@ -91,7 +92,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.get().readActualFile);
+            statement = connection.prepareStatement(settings().readActualFile);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -196,7 +197,7 @@ abstract class DBRepository implements Repository, Closeable {
         try {
             connection = getConnection();
             var username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
-            statement = connection.prepareStatement(settings.get().copyFile);
+            statement = connection.prepareStatement(settings().copyFile);
             statement.setString(1, destData.getName());
             statement.setString(2, username);
             statement.setString(3, destData.getComment());
@@ -226,7 +227,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.get().selectAllHistoryMetaInfo);
+            statement = connection.prepareStatement(settings().selectAllHistoryMetaInfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -261,7 +262,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.get().readHistoricFile);
+            statement = connection.prepareStatement(settings().readHistoricFile);
             statement.setLong(1, Long.parseLong(version));
             statement.setString(2, name);
             rs = statement.executeQuery();
@@ -294,7 +295,7 @@ abstract class DBRepository implements Repository, Closeable {
         if (version == null) {
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(settings.get().deleteAllHistory);
+                statement = connection.prepareStatement(settings().deleteAllHistory);
                 statement.setString(1, dataName);
                 var rows = statement.executeUpdate();
 
@@ -313,7 +314,7 @@ abstract class DBRepository implements Repository, Closeable {
         } else {
             try {
                 connection = getConnection();
-                statement = connection.prepareStatement(settings.get().deleteVersion);
+                statement = connection.prepareStatement(settings().deleteVersion);
                 statement.setLong(1, Long.parseLong(version));
                 statement.setString(2, dataName);
                 var rows = statement.executeUpdate();
@@ -344,7 +345,7 @@ abstract class DBRepository implements Repository, Closeable {
         try {
             connection = getConnection();
             var username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
-            statement = connection.prepareStatement(settings.get().copyHistory);
+            statement = connection.prepareStatement(settings().copyHistory);
             statement.setString(1, destData.getName());
             statement.setString(2, username);
             statement.setString(3, destData.getComment());
@@ -392,6 +393,10 @@ abstract class DBRepository implements Repository, Closeable {
         }
     }
 
+    private Settings settings() {
+        return Objects.requireNonNull(settings.get(), "The repository is not initialized");
+    }
+
     protected abstract Connection createConnection() throws SQLException;
 
     private Connection getConnection() throws SQLException, IOException {
@@ -415,7 +420,7 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = connection.prepareStatement(settings.get().readActualFileMetaInfo);
+            statement = connection.prepareStatement(settings().readActualFileMetaInfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -438,7 +443,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.get().readHistoricFileMetaInfo);
+            statement = connection.prepareStatement(settings().readHistoricFileMetaInfo);
             statement.setLong(1, Long.parseLong(version));
             statement.setString(2, name);
             rs = statement.executeQuery();
@@ -535,7 +540,7 @@ abstract class DBRepository implements Repository, Closeable {
 
         PreparedStatement statement = null;
         try {
-            statement = connection.prepareStatement(settings.get().insertFile);
+            statement = connection.prepareStatement(settings().insertFile);
             var username = Optional.ofNullable(data.getAuthor()).map(UserInfo::getUsername).orElse(null);
             statement.setString(1, data.getName());
             statement.setString(2, username);
@@ -623,7 +628,7 @@ abstract class DBRepository implements Repository, Closeable {
                 connection.setAutoCommit(false);
                 statement = connection.createStatement();
 
-                for (String query : settings.get().initStatements) {
+                for (String query : settings().initStatements) {
                     if (StringUtils.isNotBlank(query)) {
                         statement.execute(query);
                     }
@@ -674,7 +679,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = createConnection();
-            statement = connection.prepareStatement(settings.get().selectLastChange);
+            statement = connection.prepareStatement(settings().selectLastChange);
             rs = statement.executeQuery();
 
             if (rs.next()) {

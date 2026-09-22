@@ -37,7 +37,8 @@ public class ProjectComparisonService {
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
-        return null;
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
 
     /**

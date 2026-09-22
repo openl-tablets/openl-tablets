@@ -20,6 +20,9 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
 
     protected String toUpperCamelCase(String input) {
         input = JavaKeywordUtils.toJavaIdentifier(input);
+        if (input == null) {
+            return null;
+        }
         var c = input.charAt(0);
         var uc = Character.toUpperCase(c);
         if (c == uc) {
@@ -32,6 +35,9 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
 
     protected String toLowerCamelCase(String input) {
         input = JavaKeywordUtils.toJavaIdentifier(input);
+        if (input == null) {
+            return null;
+        }
         var c = input.charAt(0);
         var uc = Character.toLowerCase(c);
         if (c == uc) {

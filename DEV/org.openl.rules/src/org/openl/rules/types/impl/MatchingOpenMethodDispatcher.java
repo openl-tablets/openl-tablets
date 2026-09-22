@@ -285,10 +285,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
 
     @Override
     public List<IOpenMethod> getCandidates() {
-        if (candidatesSorted == null) {
-            candidatesSorted = prioritySorter.sort(super.getCandidates());
+        var candidates = candidatesSorted;
+        if (candidates == null) {
+            candidates = prioritySorter.sort(super.getCandidates());
+            candidatesSorted = candidates;
         }
-        return candidatesSorted;
+        return candidates;
     }
 
     // <<< INSERT MatchingProperties >>>

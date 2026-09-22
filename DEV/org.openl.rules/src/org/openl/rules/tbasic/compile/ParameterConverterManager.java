@@ -55,6 +55,7 @@ public class ParameterConverterManager {
             BindHelper.processError("Compilation failure. Cannot convert parameter %s to type %s".formatted(
                     operationParam,
                     clazz.toString()), errorSource, bindingContext);
+            return null;
         }
 
         return converter.convert(nodesToCompile, operationParam, bindingContext);

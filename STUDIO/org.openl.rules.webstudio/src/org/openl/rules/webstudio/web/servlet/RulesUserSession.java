@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.servlet;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Optional;
 
 import lombok.Getter;
@@ -44,7 +45,8 @@ public class RulesUserSession implements Serializable {
 
     public synchronized UserWorkspace getUserWorkspace() {
         if (userWorkspace == null) {
-            userWorkspace = workspaceManager.getUserWorkspace(getWorkspaceUser());
+            userWorkspace = Objects.requireNonNull(workspaceManager, "workspaceManager is not set")
+                    .getUserWorkspace(getWorkspaceUser());
             userWorkspace.activate();
         }
 

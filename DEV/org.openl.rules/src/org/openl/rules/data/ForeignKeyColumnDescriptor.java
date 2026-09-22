@@ -323,6 +323,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 var foreignKeyTableName = foreignKeyTable.getIdentifier();
                 var foreignTable = db.getTable(foreignKeyTableName);
+                if (foreignTable == null) {
+                    throw SyntaxNodeExceptionUtils.createError("Table '%s' is not found.".formatted(foreignKeyTableName),
+                            foreignKeyTable);
+                }
 
                 var foreignKeyIndex = getForeignKeyIndex(foreignTable);
 

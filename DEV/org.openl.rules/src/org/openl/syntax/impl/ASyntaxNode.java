@@ -6,6 +6,9 @@
 
 package org.openl.syntax.impl;
 
+
+import java.util.Objects;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -89,12 +92,12 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     @Override
     public IOpenSourceCodeModule getSourceCodeModule() {
-        var module = getModule();
-        var info = new TextInfo(module.getCode());
-        var location = getSourceLocation();
-        return new SubTextSourceCodeModule(module,
-                location.getStart().getAbsolutePosition(info),
-                location.getEnd().getAbsolutePosition(info) + 1);
+        var sourceModule = Objects.requireNonNull(getModule(), "The node has no source module");
+        var sourceLocation = Objects.requireNonNull(getSourceLocation(), "The node has no source location");
+        var info = new TextInfo(sourceModule.getCode());
+        return new SubTextSourceCodeModule(sourceModule,
+                sourceLocation.getStart().getAbsolutePosition(info),
+                sourceLocation.getEnd().getAbsolutePosition(info) + 1);
     }
 
     /*

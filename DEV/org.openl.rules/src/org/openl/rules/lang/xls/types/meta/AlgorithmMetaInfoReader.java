@@ -33,13 +33,15 @@ public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoun
 
     @Override
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
-        var firstCell = getTableSyntaxNode().getTableBody().getCell(0, 2);
+        var tableBody = getTableSyntaxNode().getTableBody();
+        if (tableBody == null) {
+            return null;
+        }
+        var firstCell = tableBody.getCell(0, 2);
         if (operationColumn == -1) {
             log.error("Operation column is not initialized");
-        } else {
-            if (col == operationColumn) {
-                return firstCell.getAbsoluteRow() <= row ? AlgorithmBuilder.CELL_META_INFO : null;
-            }
+        } else if (col == operationColumn) {
+            return firstCell.getAbsoluteRow() <= row ? AlgorithmBuilder.CELL_META_INFO : null;
         }
 
         var algorithm = getBoundNode().getAlgorithm();

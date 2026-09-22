@@ -110,7 +110,7 @@ public class SpreadsheetStructureBuilder {
                                        IOpenMethodHeader spreadsheetHeader,
                                        XlsModuleOpenClass xlsModuleOpenClass) {
         this.tableSyntaxNode = tableSyntaxNode;
-        this.tableBody = tableSyntaxNode.getTableBody();
+        this.tableBody = Objects.requireNonNull(tableSyntaxNode.getTableBody(), "The spreadsheet table has no body");
         this.bindingContext = bindingContext;
         this.spreadsheetHeader = spreadsheetHeader;
         this.xlsModuleOpenClass = xlsModuleOpenClass;

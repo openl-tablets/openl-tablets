@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
@@ -585,8 +586,8 @@ public class TableCreatorService {
      * @return the grid model to write the copy into
      */
     public XlsSheetGridModel sheetGridModel(ProjectModel projectModel, String sheetName) {
-        var currentWorkbook = projectModel.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
-                .getWorkbookSourceCodeModule();
+        var moduleNode = Objects.requireNonNull(projectModel.getXlsModuleNode(), "The module is not compiled");
+        var currentWorkbook = moduleNode.getWorkbookSyntaxNodes()[0].getWorkbookSourceCodeModule();
 
         var excelWorkbook = currentWorkbook.getWorkbook();
         var sheet = excelWorkbook.getSheet(sheetName);
