@@ -82,6 +82,9 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
+// {repo-name} is bound by RepositoryNamedValueArgumentResolver through @DesignRepository, which Sonar does not
+// recognize as a path variable binding.
+@SuppressWarnings("java:S6856")
 @RestController
 @RequestMapping(value = "/repos", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Design Repository")
