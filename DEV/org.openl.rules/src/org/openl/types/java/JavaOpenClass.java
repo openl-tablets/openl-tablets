@@ -217,14 +217,7 @@ public class JavaOpenClass extends AOpenClass {
     @Override
     public String getDisplayName(int mode) {
         var name = getName();
-        switch (mode) {
-            case INamedThing.SHORT:
-            case INamedThing.REGULAR:
-            default:
-                return name.substring(name.lastIndexOf('.') + 1);
-            case INamedThing.LONG:
-                return name;
-        }
+        return mode == INamedThing.LONG ? name : name.substring(name.lastIndexOf('.') + 1);
     }
 
     @Override
