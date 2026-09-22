@@ -15,16 +15,16 @@ class PassCoderTest {
 
     private static final String CIPHER = "AES/CBC/PKCS5Padding";
 
-    private static final String pass = "testPass";
-    private static final String key = "ksadbflkjsbadflk sdlfknlksajndflkjsnadf jsakidjbfl kjbsdlkfjb saljnd fs";
-    private static final String wrongKey = "fngnsgdlkjfngsdlk lsfng ljsdfk jndfgsljn gs";
+    private static final String PASS = "testPass";
+    private static final String KEY = "ksadbflkjsbadflk sdlfknlksajndflkjsnadf jsakidjbfl kjbsdlkfjb saljnd fs";
+    private static final String WRONG_KEY = "fngnsgdlkjfngsdlk lsfng ljsdfk jndfgsljn gs";
 
     @Test
     void testPassCodingEncoding() {
         String codedPass = null;
 
         try {
-            codedPass = PassCoder.encode(pass, key, CIPHER);
+            codedPass = PassCoder.encode(PASS, KEY, CIPHER);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -34,7 +34,7 @@ class PassCoderTest {
         String decodedPass = null;
 
         try {
-            decodedPass = PassCoder.decode(codedPass, wrongKey, CIPHER);
+            decodedPass = PassCoder.decode(codedPass, WRONG_KEY, CIPHER);
         } catch (Exception e) {
             // skip exception which wrong key
         }
@@ -42,12 +42,12 @@ class PassCoderTest {
         assertNull(decodedPass);
 
         try {
-            decodedPass = PassCoder.decode(codedPass, key, CIPHER);
+            decodedPass = PassCoder.decode(codedPass, KEY, CIPHER);
         } catch (Exception e) {
             fail(e.getMessage());
         }
 
-        assertEquals(pass, decodedPass);
+        assertEquals(PASS, decodedPass);
     }
 
     @Test

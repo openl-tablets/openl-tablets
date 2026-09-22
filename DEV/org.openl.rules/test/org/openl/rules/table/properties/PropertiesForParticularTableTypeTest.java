@@ -16,10 +16,10 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
 
-    private static final String __src = "test/rules/PropertiesForParticularTableType.xls";
+    private static final String SRC = "test/rules/PropertiesForParticularTableType.xls";
 
     public PropertiesForParticularTableTypeTest() {
-        super(__src);
+        super(SRC);
     }
 
     @Test

@@ -10,10 +10,10 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 
 class DatatypeTableTest extends BaseOpenlBuilderHelper {
 
-    private static final String src = "test/rules/datatype/DatatypeTableTest.xls";
+    private static final String SRC = "test/rules/datatype/DatatypeTableTest.xls";
 
     public DatatypeTableTest() {
-        super(src);
+        super(SRC);
     }
 
     @Test
