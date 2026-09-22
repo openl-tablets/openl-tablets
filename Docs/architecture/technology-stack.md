@@ -144,7 +144,7 @@ OpenL Tablets is built on modern Java enterprise technologies with a multi-tiere
 ### Version Control
 | Component | Version | Purpose |
 |-----------|---------|---------|
-| JGit | 7.3.0 | Git repository support (forked by OpenL) |
+| JGit | 7.8.0 | Git repository support (forked by OpenL) |
 
 **Note**: OpenL maintains custom forks of JGit and Flyway for specific needs.
 

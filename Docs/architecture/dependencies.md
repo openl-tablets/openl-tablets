@@ -135,7 +135,7 @@ CompiledOpenClass
 ```
 GitRepository
     ↓ uses
-JGit 7.3.0 (custom fork)
+JGit 7.8.0 (custom fork)
     ↓ operates on
 Git Repository (local/remote)
     ↓ merges with
@@ -227,7 +227,7 @@ JSON/XML Responses
 | **AWS SDK** | 2.34.9 | S3 storage | 🟢 Optional |
 | **Azure SDK** | 12.31.3 | Blob storage | 🟢 Optional |
 | **Kafka** | 4.1.0 | Messaging | 🟢 Optional |
-| **JGit** | 7.3.0 | Git ops | 🟡 Custom fork |
+| **JGit** | 7.8.0 | Git ops | 🟡 Custom fork |
 
 ### Observability
 
