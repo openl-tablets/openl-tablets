@@ -1,5 +1,7 @@
 package org.openl.util;
 
+
+import org.jspecify.annotations.Nullable;
 /**
  * An utility for manipulating with booleans: - converting an object to a boolean value - logic operation with a boolean
  * array (and, or, xor)
@@ -96,7 +98,7 @@ public final class BooleanUtils {
      * @param str the String to check; upper and lower case are treated as the same
      * @return the Boolean value of the string, {@code null} if no match or {@code null} input
      */
-    public static Boolean toBooleanObject(final String str) {
+    public static @Nullable Boolean toBooleanObject(final String str) {
         // Previously used equalsIgnoreCase, which was fast for interned 'true'.
         // Non interned 'true' matched 15 times slower.
         //

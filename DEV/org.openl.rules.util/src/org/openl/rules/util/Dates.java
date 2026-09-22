@@ -8,6 +8,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.rules.util.dates.DateInterval;
 import org.openl.rules.util.dates.DateInterval.Scale;
 import org.openl.rules.util.dates.DateInterval.Unit;
@@ -196,7 +198,7 @@ public final class Dates {
      * @param date date
      * @return true if year is leap, otherwise false
      */
-    public static Boolean isLeap(Date date) {
+    public static @Nullable Boolean isLeap(Date date) {
         if (date == null) {
             return null;
         }
@@ -211,7 +213,7 @@ public final class Dates {
      * @param year year
      * @return true if year is leap, otherwise false
      */
-    public static Boolean isLeap(Integer year) {
+    public static @Nullable Boolean isLeap(Integer year) {
         if (year == null) {
             return null;
         }

@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.binding.impl.NumericStringComparator;
 import org.openl.rules.annotations.IgnoreVarargsMatching;
 import org.openl.rules.annotations.Operator;
@@ -206,14 +208,14 @@ public class Comparison {
         return x > y;
     }
 
-    public static Boolean gt(float x, float y) {
+    public static @Nullable Boolean gt(float x, float y) {
         if (Float.isNaN(x) || Float.isNaN(y)) {
             return null;
         }
         return x > y && (Float.isInfinite(x) || (x - y) > Math.ulp(x));
     }
 
-    public static Boolean gt(double x, double y) {
+    public static @Nullable Boolean gt(double x, double y) {
         if (Double.isNaN(x) || Double.isNaN(y)) {
             return null;
         }
