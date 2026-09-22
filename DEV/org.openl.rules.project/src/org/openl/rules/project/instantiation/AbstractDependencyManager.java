@@ -165,51 +165,55 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     }
 
     // Disable cache. if cache required it should be used in loaders.
+    // Locked through a block: an override may then do its own bookkeeping outside the lock before calling this.
     @Override
-    public synchronized CompiledDependency loadDependency(
+    public CompiledDependency loadDependency(
             ResolvedDependency dependency) throws OpenLCompilationException {
-        final var dependencyLoader = findDependencyLoaderByDependency(dependency);
-        Deque<IDependencyLoader> compilationStack = getCompilationStack();
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        compilationStack
-                                .contains(dependencyLoader) ? "Dependency '{}' in the compilation stack."
-                                : "Dependency '{}' is not found in the compilation stack.",
-                        dependency);
-            }
-            var isCircularDependency = compilationStack.contains(dependencyLoader);
-            if (!isCircularDependency && !compilationStack.isEmpty()) {
-                var dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyLoader);
-                this.addDependencyRelation(dr);
-            }
-
-            if (isCircularDependency) {
-                throw new OpenLCompilationException(
-                        "Circular dependency is detected: %s.".formatted(
-                                buildCircularDependencyDetails(dependencyLoader, compilationStack)),
-                        null,
-                        dependency.getNode().getSourceLocation(),
-                        dependency.getNode().getModule());
-            }
-
-            CompiledDependency compiledDependency;
+        synchronized (this) {
+            final var dependencyLoader = findDependencyLoaderByDependency(dependency);
+            Deque<IDependencyLoader> compilationStack = getCompilationStack();
             try {
-                compilationStack.push(dependencyLoader);
-                log.debug("Dependency '{}' is added to the compilation stack.", dependencyLoader.getDependency());
-                compiledDependency = dependencyLoader.getCompiledDependency();
-            } finally {
-                compilationStack.poll();
-                log.debug("Dependency '{}' is removed from the compilation stack.", dependencyLoader.getDependency());
-            }
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            compilationStack
+                                    .contains(dependencyLoader) ? "Dependency '{}' in the compilation stack."
+                                    : "Dependency '{}' is not found in the compilation stack.",
+                            dependency);
+                }
+                var isCircularDependency = compilationStack.contains(dependencyLoader);
+                if (!isCircularDependency && !compilationStack.isEmpty()) {
+                    var dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyLoader);
+                    this.addDependencyRelation(dr);
+                }
 
-            if (compiledDependency == null) {
-                return throwDependencyNotFoundError(dependency);
-            }
-            return compiledDependency;
-        } finally {
-            if (compilationStack.isEmpty()) {
-                compilationStackThreadLocal.remove(); // Clean thread
+                if (isCircularDependency) {
+                    throw new OpenLCompilationException(
+                            "Circular dependency is detected: %s.".formatted(
+                                    buildCircularDependencyDetails(dependencyLoader, compilationStack)),
+                            null,
+                            dependency.getNode().getSourceLocation(),
+                            dependency.getNode().getModule());
+                }
+
+                CompiledDependency compiledDependency;
+                try {
+                    compilationStack.push(dependencyLoader);
+                    log.debug("Dependency '{}' is added to the compilation stack.", dependencyLoader.getDependency());
+                    compiledDependency = dependencyLoader.getCompiledDependency();
+                } finally {
+                    compilationStack.poll();
+                    log.debug("Dependency '{}' is removed from the compilation stack.",
+                            dependencyLoader.getDependency());
+                }
+
+                if (compiledDependency == null) {
+                    return throwDependencyNotFoundError(dependency);
+                }
+                return compiledDependency;
+            } finally {
+                if (compilationStack.isEmpty()) {
+                    compilationStackThreadLocal.remove(); // Clean thread
+                }
             }
         }
     }
