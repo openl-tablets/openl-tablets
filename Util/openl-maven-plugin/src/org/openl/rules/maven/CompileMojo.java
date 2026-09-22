@@ -46,7 +46,6 @@ public final class CompileMojo extends BaseOpenLMojo {
         try {
             classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
-            long memStart = memUsed();
             long start = System.nanoTime();
 
             SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
@@ -66,15 +65,12 @@ public final class CompileMojo extends BaseOpenLMojo {
             IOpenClass openClass = openLRules.getOpenClass();
             long end = System.nanoTime();
 
-            long memEnd = memUsed();
-
             Collection<OpenLMessage> warnMessages = OpenLMessagesUtils
                     .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.WARN);
             info("Compilation has finished.");
             info("DataTypes    : ", openClass.getTypes().size());
             info("Methods      : ", openClass.getMethods().size());
             info("Warnings     : ", warnMessages.size());
-            info("Memory used  : ", (memEnd - memStart) / 262_144L / 4.0, " MiB");
             info("Time elapsed : ", (end - start) / 10_000_000L / 100.0, " s");
         } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
@@ -84,24 +80,5 @@ public final class CompileMojo extends BaseOpenLMojo {
     @Override
     String getHeader() {
         return "OPENL COMPILATION";
-    }
-
-    private static long memUsed() throws InterruptedException {
-        Runtime rt = Runtime.getRuntime();
-        rt.gc();
-        rt.gc();
-        rt.gc();
-        Thread.sleep(10);
-        rt.runFinalization();
-        Thread.sleep(3);
-        rt.gc();
-        rt.gc();
-        Thread.sleep(3);
-        rt.gc();
-        rt.gc();
-        Thread.sleep(3);
-        rt.gc();
-        Thread.sleep(10);
-        return rt.totalMemory() - rt.freeMemory();
     }
 }
