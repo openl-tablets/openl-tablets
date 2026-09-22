@@ -475,7 +475,7 @@ public class ProjectDescriptor {
      * @return the resolved project name
      */
     public static @NonNull String resolveName(@Nullable String name, @NonNull String folderName) {
-        return StringUtils.isBlank(name) ? folderName : name;
+        return name == null || name.isBlank() ? folderName : name;
     }
 
     private boolean containsInProcessedModules(Collection<Module> modules, Module m, Path projectRoot) {
