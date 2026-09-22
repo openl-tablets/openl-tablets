@@ -41,7 +41,7 @@ export const ProjectFolderInput = ({
 
     return (
         <>
-            <Space.Compact className={shared.compactField}>
+            <Space.Compact block className={shared.compactField}>
                 <AutoComplete
                     allowClear
                     data-testid={testId}
@@ -49,7 +49,6 @@ export const ProjectFolderInput = ({
                     onChange={next => onChange(next ?? '')}
                     options={folders.map(folder => ({ value: folder }))}
                     showSearch={{ filterOption: (input, option) => String(option?.value ?? '').toLowerCase().includes(input.toLowerCase()) }}
-                    style={{ width: '100%' }}
                     value={value}
                 />
                 <Tooltip title={t('browser.folder_picker.open')}>
