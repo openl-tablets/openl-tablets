@@ -268,6 +268,12 @@ public class WorkbookListener implements HSSFListener {
         var sheet = getSheet();
         var rowInArray = row - sheet.getFirstRowNum();
         var columnInArray = column - sheet.getFirstColNum();
+        if (rowInArray < 0 || columnInArray < 0) {
+            // A merged region may begin above or left of the first cell the sheet dimensions record, where the grid
+            // has no room for it.
+            log.debug("Skip cell {}:{} outside of the sheet dimensions.", row, column);
+            return;
+        }
 
         ensureCorrectSize(sheet.getName(), rowInArray, columnInArray);
         cellsMap.get(sheet.getName())[rowInArray][columnInArray] = value;
