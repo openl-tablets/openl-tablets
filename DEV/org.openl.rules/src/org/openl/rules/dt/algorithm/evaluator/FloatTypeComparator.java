@@ -21,7 +21,7 @@ public class FloatTypeComparator implements Comparator<Object> {
         var compare = Double.compare(d1, d2);
         if (compare == 0) {
             return 0;
-        } else if (Math.abs(d1 - d2) <= Math.ulp(d1)) {
+        } else if (Double.compare(Math.abs(d1 - d2), Math.ulp(d1)) <= 0) {
             return 0;
         } else {
             return compare;
