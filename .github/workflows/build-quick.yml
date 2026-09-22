@@ -3,18 +3,25 @@
 # Checks performance on limited amount of memory to detect extra memory consumption by throwing timeouts and memory errors.
 #
 # The work is split into parallel jobs:
-#   build  - compiles everything without tests (-T1C), assembles demo.zip and shares the artifacts via ~/.m2
-#   itest  - a matrix of integration-test jobs (the ITEST suites, the openl-maven-plugin invoker
-#            tests with the archetypes) running against the artifacts from 'build'
-#   demo   - a matrix that starts demo.zip on Linux, Windows and macOS and checks its endpoints
-#   tests  - the whole build with unit tests but without integration tests, in parallel with the 'build' track
-#   sonar  - waits for 'tests' and 'itest', combines their JaCoCo execution data into the aggregate
-#            report (jacoco-report) and runs the SonarCloud analysis
+#   build    - compiles everything without tests (-T1C), assembles demo.zip and shares the artifacts via ~/.m2
+#   itest    - a matrix of integration-test jobs (the ITEST suites, the openl-maven-plugin invoker
+#              tests with the archetypes) running against the artifacts from 'build'
+#   demo     - a matrix that starts demo.zip on Linux, Windows and macOS and checks its endpoints
+#   tests    - the whole build with unit tests but without integration tests, in parallel with the 'build' track
+#   frontend - the studio-ui vitest suite, in parallel with the 'tests' track
+#   sonar    - waits for 'tests', 'itest' and 'frontend', combines their coverage into the aggregate
+#              report (jacoco-report) and runs the SonarCloud analysis
 #
-# Coverage: 'tests' and every 'itest' leg write target/*.exec files with the JaCoCo agent (-Psonar) and
-# upload them. The 'sonar' job downloads them into the same workspace locations, recompiles the sources
-# (same commit, same JDK - the class ids match) without running tests, and the report-aggregate goal
-# folds all execution data onto the production classes exactly as the former single-job build did.
+# The studio-ui suite runs in a job of its own because it dominated 'tests': vitest took some 11 of that
+# job's 19 minutes while sharing four cores with the -T1C reactor, and the whole Java side fitted inside
+# it. 'tests' still builds the module - webstudio.war carries its bundle - but leaves the suite to
+# 'frontend' (-Dnpm.test.skip=true), which runs it alone on its own runner.
+#
+# Coverage: 'tests', 'frontend' and every 'itest' leg upload what they measured - target/*.exec from the
+# JaCoCo agent (-Psonar), lcov.info from vitest. The 'sonar' job downloads them into the same workspace
+# locations, recompiles the sources (same commit, same JDK - the class ids match) without running tests,
+# and the report-aggregate goal folds all execution data onto the production classes exactly as the
+# former single-job build did.
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 name: Quick Build
@@ -63,6 +70,15 @@ jobs:
           distribution: 'temurin'
           java-version: 25
           cache: 'maven'
+
+        # studio-ui's packages are fetched by every job that builds it, and the Maven cache does not
+        # cover the npm one. All of them share this entry, keyed by the lockfile.
+      - name: Cache npm packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-
 
       - name: Maven version
         run: mvn -v
@@ -122,13 +138,24 @@ jobs:
           java-version: 25
           cache: 'maven'
 
+        # studio-ui's packages are fetched by every job that builds it, and the Maven cache does not
+        # cover the npm one. All of them share this entry, keyed by the lockfile.
+      - name: Cache npm packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-
+
         # -P '!itest' drops the ITEST suites and the archetypes: their tests run in the 'itest' matrix.
         # openl-maven-plugin is deselected for the same reason - the maven-plugin leg runs its unit and
         # invoker tests, so running them here would only clobber that leg's coverage data.
         # jacoco-report is deselected because it depends on the dropped ITEST modules;
         # the aggregate report is built by the 'sonar' job instead.
+        # -Dnpm.test.skip=true leaves the studio-ui suite to the 'frontend' job; the module itself is
+        # still built here, because webstudio.war carries its bundle.
       - name: Build and Verify
-        run: mvn -B "-Dstyle.color=always" -T1C verify -P 'sonar,!itest' -pl '!jacoco-report,!Util/openl-maven-plugin'
+        run: mvn -B "-Dstyle.color=always" -T1C verify -P 'sonar,!itest' "-Dnpm.test.skip=true" -pl '!jacoco-report,!Util/openl-maven-plugin'
 
         # The root pom.xml anchors the artifact at the repository root - see the itest job.
       - name: Share coverage data
@@ -138,6 +165,58 @@ jobs:
           path: |
             pom.xml
             **/target/*.exec
+          retention-days: 7
+
+  frontend:
+
+    name: Frontend tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v7
+
+        # The Node version is pinned once, in the root pom.xml, for frontend-maven-plugin to install.
+        # This job reads that pin rather than keeping a second copy of it.
+      - name: Read the pinned Node version
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's|.*<node\.version>v\?\([^<]*\)</node\.version>.*|\1|p' pom.xml)
+          test -n "$version"
+          echo "NODE_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+        # The same entry the Maven-driven jobs fill; setup-node's own cache would keep a second copy.
+      - name: Cache npm packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-
+
+        # 'ci' rather than 'install': the runner starts without node_modules, and the lockfile alone
+        # decides what lands there. The Maven build keeps 'install', which is the cheaper one to repeat
+        # over a tree that already has node_modules.
+      - name: Install dependencies
+        working-directory: STUDIO/studio-ui
+        run: npm ci
+
+      - name: Run tests
+        working-directory: STUDIO/studio-ui
+        run: npm run test
+
+        # The root pom.xml anchors the artifact at the repository root - see the itest job.
+      - name: Share coverage data
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-frontend
+          path: |
+            pom.xml
             STUDIO/studio-ui/coverage/lcov.info
           retention-days: 7
 
@@ -359,7 +438,7 @@ jobs:
 
     name: Sonar analysis
 
-    needs: [ tests, itest ]
+    needs: [ tests, itest, frontend ]
 
     # Runs only when every previous job succeeded, and never for dependabot
     if: success() && github.actor != 'dependabot[bot]'
