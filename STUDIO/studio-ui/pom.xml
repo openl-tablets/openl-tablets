@@ -75,6 +75,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>run typecheck</arguments>
+                            <skip>${npm.typecheck.skip}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -85,6 +86,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <arguments>run build</arguments>
+                            <skip>${npm.build.skip}</skip>
                         </configuration>
                     </execution>
                     <execution>

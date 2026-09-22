@@ -488,9 +488,16 @@ jobs:
         # (-Dmaven.test.skip=false brings the test classes back for the Sonar analysis, while
         # -DskipTests still skips their execution; -Pitest re-includes the integration-test
         # modules that -DskipTests drops from the reactor) and build the JaCoCo aggregate report.
+        # studio-ui's typecheck and production bundle are left out: the analysis reads the module's
+        # sources and the lcov report downloaded above, and neither of those comes from them. The
+        # 'npm install' stays, because the TypeScript rules resolve imported types through node_modules.
       - name: Aggregate coverage
         shell: bash
-        run: mvn -B "-Dstyle.color=always" -T1C verify -Psonar,itest -DskipTests -Dmaven.test.skip=false "-Dunpack-webapp.skip=true" | tee build.log
+        run: >
+          mvn -B "-Dstyle.color=always" -T1C verify -Psonar,itest
+          -DskipTests -Dmaven.test.skip=false "-Dunpack-webapp.skip=true"
+          "-Dnpm.typecheck.skip=true" "-Dnpm.build.skip=true"
+          | tee build.log
 
       - name: Verify coverage consistency
         run: |
