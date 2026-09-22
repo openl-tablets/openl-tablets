@@ -41,7 +41,7 @@ public class SysInfoController {
     }
 
     @Operation(summary = "info.get-http-info.summary", description = "info.get-http-info.desc")
-    @RequestMapping("/public/info/http.json")
+    @GetMapping("/public/info/http.json")
     public Map<Object, Object> getHttpInfo(HttpServletRequest request,
                                            @Parameter(hidden = true) @RequestHeader HttpHeaders headers) {
         var info = new LinkedHashMap<Object, Object>();
