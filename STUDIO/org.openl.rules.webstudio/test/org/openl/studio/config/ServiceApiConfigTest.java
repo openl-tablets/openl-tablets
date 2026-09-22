@@ -64,7 +64,7 @@ class ServiceApiConfigTest {
         var currentUserInfo = mock(CurrentUserInfo.class);
         when(currentUserInfo.getUserName()).thenReturn("admin");
 
-        var rulesUserSession = new ServiceApiConfig().rulesUserSession(currentUserInfo,
+        var rulesUserSession = new ServiceApiConfig(mock(PropertyResolver.class)).rulesUserSession(currentUserInfo,
                 workspaceManager,
                 mock(UserManagementService.class),
                 mock(TestSuiteExecutor.class),
