@@ -2,13 +2,13 @@
 
 ## Resume point
 
-- No open PR and no sweep branch: #2145 merged, `dead-code/delta-sweep` is deleted. Cut a fresh branch from a
-  freshly fetched `origin/main` for the next finding. Everything up to the EPBDS-14123 tag migration is swept;
-  sweep only what main gains after it, and never pin main's SHA — dependabot moves it daily.
-- All 13 change types are exhausted repo-wide. A run is now: maintain the PR, sweep the delta (expect zero),
-  spend the rest on a NEW vein. Code veins are mined out; the paying vein is documentation that names something
-  the code no longer has.
-- A cold `~/.m2` costs ~35 min for the reactor build; PMD then takes 6 min on the warm tree, not 30.
+- PR #2152 is open on `dead-code/delta-sweep` with one commit (the studio-ui `clean` npm script). Maintain it to
+  green, then sweep only what main gains after the EPBDS-16662 delta; never pin main's SHA, dependabot moves it.
+- All 13 change types are exhausted repo-wide. A run is: maintain the PR, sweep the delta (expect zero), spend the
+  rest on a NEW vein. Code veins are mined out; the paying vein is documentation or build config that names
+  something the repository no longer has — that is what both of the last two findings were.
+- A cold `~/.m2` costs 32 min for the reactor build and 7 more for PMD; a cold `node_modules` makes studio-ui alone
+  a 7-minute module. Budget the whole run around one reactor build.
 - Before every push: list open `dead-code/*` PRs and re-fetch main; parallel runs of this routine share the branch.
 
 ## Change-type queue
@@ -20,7 +20,7 @@
 | 3 | Unused locals, private fields/methods/params | done; 14 PMD hits, all documented FPs |
 | 4 | Unused Maven dependency declarations | done; 537 analyze hits + npm deps, all FPs |
 | 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done; 6 hits, all plugin-read flags |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; 1 removal, merged in #2145 |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | 2 removals: #2145 merged, #2152 open |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
@@ -32,7 +32,10 @@
 
 ## Open PR
 
-- none
+- #2152 on `dead-code/delta-sweep`, head 641dc21132, one commit: drop the studio-ui `clean` npm script, which
+  nothing invokes and which maven-clean-plugin already supersedes (it also removes node_modules and coverage).
+- Body carries the swept-and-clean evidence, the kept public API and the ws.full follow-up below; keep it in step
+  with the diff on every wake.
 
 ## Merged PRs
 
@@ -58,9 +61,8 @@
   `jetty.version`. Confirm nothing resolves it before dropping it.
 - `org.openl.rules.jackson` in ruleservice.ws.common and `spring-security-config` in org.openl.security are unused
   where declared but provide what their consumers compile against undeclared (~293 such findings repo-wide).
-- `.gitattributes` keeps `**/openl-repository/workspace/**/*.xml text eol=lf`, and no such path exists. Deleting
-  it is safe but its intent may belong on the ITEST `openl-repository` XML that does exist — a repoint, not a
-  deletion, so it needs a human.
+- `.gitattributes` keeps `**/openl-repository/workspace/**/*.xml text eol=lf` and no such path exists; deleting it
+  is safe, but its intent may belong on the ITEST `openl-repository` XML that does exist — a repoint, needs a human.
 
 ## False-positive shapes
 
@@ -69,8 +71,8 @@
   the corpus from 7,089 to 13,856 files and the 18 findings to zero.
 - javac inlines `static final` primitive and String constants, so a bytecode scan never sees a read and reports
   every such field dead: 1,097 of 1,515 raw hits. Judge constants by source text, never by bytecode.
-- Lombok-generated accessors exist in bytecode but not in source: require the member name to appear in its own
-  `.java` file before treating a bytecode hit as deletable.
+- Lombok generates accessors that exist in bytecode but not in source, so a field whose name occurs only at its own
+  declaration may still be read: search `get`/`set`/`is` + the capitalised name before calling it dead.
 - i18next resolves `t(key, {count})` to `key_one`/`key_other`, which no literal names: treat a plural suffix pair
   whose base is used as alive. Keys built by interpolation are likewise alive — `status_${s}`, `role.${r}`,
   `tests.${kind}` and some 20 more. Read the union type feeding the template, which names exactly the live keys,
@@ -83,8 +85,8 @@
   `lombok.delombok.skip`, `archetype.test.skip`, `invoker.skip`. Check the plugin before calling it dead.
 - A private or package member whose name appears in any string literal is reflective (`@MethodSource`, JAXB, OpenL
   datatype binding): filter bytecode hits on Java string literals, non-Java text and workbook strings.
-- Getter/setter hits must also be checked by property name: Jackson DTOs (RepositorySettings, `*Append`,
-  SupportedFeaturesModel) and OpenL datatype beans are bound by `basePath`, not `setBasePath`.
+- Conversely, check an accessor by its property name too: Jackson DTOs and OpenL datatype beans bind `basePath`,
+  not `setBasePath`.
 - JAXB private `beforeMarshal`/`afterUnmarshal` run reflectively; Spring MVC handlers have no Java caller; record
   component accessors and generic bridge overrides (`InputStats.getAvgX` erasing to Number) are alive.
 - A top-level type whose simple name occurs only in its own file is still alive when a framework names it: JUnit
@@ -118,18 +120,15 @@
   search the name MINUS a common suffix, not only the whole name.
 - An enum whose `values()` is iterated keeps every constant alive, however unreferenced it looks. To prove an enum
   constant dead, show it is never stored and never returned, then show the `values()` loop is a no-op for it.
-- In a Spring application, a production type referenced only from test sources is the norm: 62 such types, all
-  found by classpath scan. This vein yields nothing.
-- An npm dependency is invoked from `package.json` `scripts` or read implicitly by tsc (`@types/*`): exclude the
+- An npm dependency is invoked from `package.json` `scripts` or read implicitly by tsc (`@types/*`); exclude the
   lockfile from the search, never package.json itself.
 - An identifier index keyed on `[A-Za-z_$][\w$]*` misses a file stem starting with a digit: confirm with `git grep -lF`.
 - A dotted-name detector over Markdown catches heading anchor slugs and wrapped table cells, not settings: require
   dot separators only, drop hyphenated slugs, and rejoin a name split across a line wrap.
-- Jekyll lists pages by `nav: "auto"` and by `migration-notes.md`, so a link-graph orphan check calls 265 live
-  pages orphans. Site-absolute links (`/Docs/…`) resolve on the published site, not on disk — only a wrong-case
-  path (`/docs/…`) or a missing file is really broken.
-- The clone is SHALLOW (~49 commits) and its root commit adds every file, so `git log -S` answers that root for
-  every string. Never claim when something was removed from history here; prove absence at HEAD instead.
+- Jekyll lists pages by `nav: "auto"` and `migration-notes.md`, so a link-graph orphan check calls 265 live pages
+  orphans. Site-absolute links resolve on the published site, not on disk; only a wrong-case path really breaks.
+- The clone is SHALLOW (~50 commits) whose root adds every file, so `git log -S` answers that root for every
+  string. Never claim when something was removed here; prove absence at HEAD instead.
 
 ## Method rules
 
@@ -138,8 +137,7 @@
 - Build one identifier-frequency index over the whole tree once (regex `[A-Za-z_$][\w$]*` per file, into a
   Counter) and answer every "is this name used" question from it: 2 seconds, versus hours of per-name scanning.
   A name whose total count equals its declaration count is unreferenced.
-- Never name a scratch script after a stdlib module (`.toDelete/types.py` breaks every `import`), and never edit
-  the working tree or rebase while a Maven run is active (a rebase checks out intermediate trees).
+- Never name a scratch script after a stdlib module, and never edit the working tree or rebase while Maven runs.
 - PMD needs reactor artifacts and a warm `~/.m2`, so run it online and fully qualified (a `pmd:` prefix fails
   offline): `mvn test-compile org.apache.maven.plugins:maven-pmd-plugin:3.28.0:pmd dependency:analyze-only -Pitest
   -fae -T2 -Dquick -DnoPerf -pl '!STUDIO/studio-ui'`. Add the plugin under root `<build><plugins>` with the ruleset
@@ -156,6 +154,8 @@
   `org.openl.*` token in a guide resolves to a type at HEAD or sits in Human follow-ups, and no guide still names
   a property a release-note table marks **Removed**. Re-run either only over new Docs commits; what is left needs
   a rename, which this routine may not make.
+- Cross-check Docs against what the build produces, not only against types: every `<artifactId>` and
+  `org.openl.rules:<id>` token in a guide against the 198 reactor artifactIds finds a stale coordinate in one pass.
 - Public API deferred under rail 8.2 is worth naming explicitly in the PR body: the maintainer approved removing
   UserWorkspace.passivate() straight off that 'Deliberately kept' line. Deferring is not dropping.
 - Prove non-reference with `grep -rIwF <name>` over all tracked files plus `grep -raF` for binaries and `unzip -p`
@@ -166,8 +166,7 @@
 - Removing members is a fixpoint: re-check fields, private helpers, constructor parameters and imports the removal
   orphaned. SonarCloud's "new issues" list exactly those, so read it after every push (no auth):
   `sonarcloud.io/api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`.
-- Stage every commit by explicit path (`git add -- <files>`) or a `git rm` staged earlier rides into it; use
-  `git show --stat`, never `git diff --cached --stat A B`.
+- Stage every commit by explicit path (`git add -- <files>`) or a `git rm` staged earlier rides into it.
 - Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters`, `npx vitest run <area>`. Both need
   `node_modules`, which the reactor build populates; run them after it, never beside it.
 - CodeRabbit's `Docstring Coverage` pre-merge check fails every deletion-only PR: it scores the functions inside
@@ -212,14 +211,12 @@
   tell is a DOM dump still showing `browser.compile.compiling` and a vitest wall time near 860 s against the 20 s
   per-test CI ceiling, plus a failing set that SHRINKS between attempts. Never push a vitest change to chase it;
   a new SHA is the cheapest cure.
-- Fetch a job log with `get_job_logs` (tail 8000); find failures with `... - FAIL`, the cause with `ORA-|expected: <`.
 - `Sonar analysis` is skipped when any job of the run fails, so a red flake hides its verdict and the issues API
   answers 0 for "never analysed". Confirm the SHA at `project_pull_requests/list` on sonarcloud.io.
-- `rerun_failed_jobs` returns 403 while ANY job is in flight, and it re-reads the same jacoco artifacts, so it
-  cannot cure `Sonar analysis` dying in `report-aggregate` with "Unknown block type N" (f9 and 3 both seen).
-  That corruption needs NO crashed attempt — it hit a first run whose every other job was green. Cure it with
-  `rerun_workflow_run`, which regenerates the exec artifacts without touching a branch others also push to —
-  confirmed: one such re-run turned `9d76bf21c7` from red to a clean Sonar gate.
+- `rerun_failed_jobs` returns 403 while any job is in flight and re-reads the same jacoco artifacts, so it cannot
+  cure `Sonar analysis` dying in `report-aggregate` with "Unknown block type N" — which needs no crashed attempt and
+  has hit an otherwise-green run. Cure that with `rerun_workflow_run`, confirmed to turn such a run's gate clean.
+- Fetch a job log with `get_job_logs` (tail 8000); find failures with `... - FAIL`, the cause with `ORA-|expected: <`.
 
 ## Container facts
 
@@ -247,8 +244,10 @@
   8 `@WebFilter`/`@WebServlet`), JSF-era orphans (no `.xhtml` or faces dependency exists anywhere), pom file-path
   references (6 hits, all destination paths or archetype velocity tokens), Spring XML bean definitions (15 files,
   every bean type-injected or component-scanned), duplicate dependency/plugin/module/property declarations across
-  209 poms, dependencies a parent already declares, and servlet init-params. Only the enum-constant vein and the
-  documentation veins have ever paid.
+  209 poms, dependencies a parent already declares, servlet init-params, exact-duplicate tracked files (377 groups,
+  2.2 MB, every copy a self-contained test project's own fixture), `@Deprecated` members unreferenced outside their
+  own file (8, all published API or Spring handlers), and studio-ui npm scripts and config files. Only the
+  enum-constant vein, the documentation veins and the build-config vein have ever paid.
 - A migration commit is worth checking for orphans; the EPBDS-14123 JDBC tag migration was clean.
 
 ## Human follow-ups
@@ -259,19 +258,21 @@
   MessageDeserializer` in the same file (real: `RequestMessageDeserializer`), `...storelogdata.annotation.
   SkipFaultStoreLogData` in advanced-configuration.md (real: `SkipFault`), and `org.openl.rules.table.
   TableNotFoundException` in onboarding/troubleshooting.md, which never existed.
+- `Docs/user-guides/rule-services/configuration.md` line 811 tells the reader to fetch
+  `org.openl.rules:org.openl.rules.ruleservice.ws.full:war`, which no module builds; the full war is
+  `...ruleservice.ws.all` (final name `webservice-all`). The command cannot resolve. A rename, so not this routine.
 - `ruleservice.store.logs.enabled` is documented as the global switch for logging to external storage, and NO code
   reads it; only `ruleservice.store.logs.db.enabled` gates the one surviving backend. Either the guide is stale or
   the global gate was lost when the cassandra and elasticsearch backends went. A maintainer decides which.
-- `Docs/DEPLOYMENT.md` (22 of 81 properties), `Docs/API_GUIDE.md` (6 of 10) and `Docs/TROUBLESHOOTING.md` (3 of
-  28) document settings the code never reads, among them `openl.parallel.compilation.*` and `security.api-key.*`.
-  These pages read as generated; the maintained guides are clean by comparison. Editorial, not a sweep.
+- `Docs/DEPLOYMENT.md` (22 of 81 properties), `Docs/API_GUIDE.md` (6 of 10) and `Docs/TROUBLESHOOTING.md` (3 of 28)
+  document settings the code never reads, and API_GUIDE plus `Docs/api/public-api-reference.md` document `/admin/*`
+  and `/api/projects/*/git/*` endpoints no controller maps. These pages read as generated; editorial, not a sweep.
 - `Docs/developer-guides/externalized-config.md` illustrates `-D` syntax with
   `ruleservice.datasource.filesystem.supportDeployments`, removed in 5.24.0. Pick a live property for the example.
 - 51 relative links in `Docs/` resolve to nothing, among them `/DEV/CLAUDE.md` and friends from `Docs/README.MD`
   and a set of lowercase `/docs/...` paths that 404 on a case-sensitive server.
-- `OpenAPIConverterTest` (640 lines) and `RulesDeployerServiceTest` (354 lines) carry a bare class-level
-  `@Disabled` with no reason while the code they cover is live (Studio OpenAPI project creation, the deploy Mojo
-  and the S3 itests). Restore or delete is a maintainer's call; deleting them here would drop real coverage.
+- `OpenAPIConverterTest` (640 lines) and `RulesDeployerServiceTest` (354 lines) carry a bare class-level `@Disabled`
+  while the code they cover is live. Restore or delete is a maintainer's call; deleting them drops real coverage.
 - `CorsFilter` is registered twice (`@WebFilter("/*")` and web.xml), so it runs twice and doubles each
   `Access-Control-*` header. Latent while `cors.allowed.origins` is unset.
 - `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` of the 17 flyway/common scripts, and nothing
@@ -284,14 +285,16 @@
   calls are deprecated; the fix is the key `deprecation`, a rename.
 - Swapping `org.openl:x-forwarded-filter` for Spring's `ForwardedHeaderFilter` is BLOCKED: the root pom documents
   the opposite decision and both call sites need `xForwardedPrefixStrategy=PREPEND`, which Spring always REPLACES.
-- `Docs/examples/production/` and `Docs/production-deployment/` are near-identical 320K copies; both reachable.
-  Reviving workspace passivation needs `RulesUserSession` to implement `HttpSessionActivationListener` itself.
+- `Docs/examples/production/` and `Docs/production-deployment/` are near-identical 320K copies, both reachable.
+  Reviving workspace passivation needs `RulesUserSession` to implement `HttpSessionActivationListener`.
 - `KafkaMessageHeader.Type.PRODUCER_RECORD` is documented as usable but `StoreLogDataMapper` acts only on
   CONSUMER_RECORD. Mapper or guide is wrong; the constant is user-written API and stays either way.
 
 ## Run log
 
-- 2026-09-19 b: no delta to sweep; closed the JSF-orphan vein at zero and compacted the ledger to its ceiling.
 - 2026-09-20: swept the delta over 13 change types plus 6 new veins. One finding, PR #2145.
 - 2026-09-21: delta was 2 dependabot bumps and a clean tag migration; 6 new code veins closed at zero, the
   documentation veins paid 1 removal and 7 follow-ups. PR #2145 MERGED (-2) and its branch deleted.
+- 2026-09-22: swept the 209-file EPBDS-16692/16660/16661/16662 delta over every change type at zero; PMD 40 (0 in
+  the delta), dependency:analyze all known FPs. 4 new veins closed, build config paid 1 removal (PR #2152) and the
+  Docs-artifact cross-check paid 1 follow-up.
