@@ -368,7 +368,7 @@ export const ModuleTablesTree = ({
                         </Tooltip>
                     )}
                 />
-                <Space.Compact className={cx(shared.compactField, styles.control)}>
+                <Space.Compact block className={cx(shared.compactField, styles.control)}>
                     <Select
                         data-testid="module-tables-view"
                         options={viewOptions}

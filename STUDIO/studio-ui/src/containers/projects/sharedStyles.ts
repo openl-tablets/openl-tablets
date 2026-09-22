@@ -97,16 +97,21 @@ const useProjectSharedStyles = createStyles(({ css, token }) => ({
      * control (an AutoComplete measures its text) pushes the button past the edge of the dialog.
      */
     compactField: css`
-        display: flex;
-        width: 100%;
         min-width: 0;
 
-        > :first-child {
+        /*
+         * The control grows and the button hanging off its end does not. The control is not addressed by its
+         * position: while a Select or an AutoComplete has the focus, it is preceded by a hidden element that
+         * reads the chosen value out to a screen reader, and addressing the first child would leave the control
+         * itself sized by its text — shrinking as the value changes, and springing back when the focus leaves.
+         * That element is positioned out of the flow, so growing it moves nothing.
+         */
+        > * {
             flex: 1 1 auto;
             min-width: 0;
         }
 
-        > :last-child:not(:first-child) {
+        > :last-child:not(:only-child) {
             flex: none;
         }
     `,

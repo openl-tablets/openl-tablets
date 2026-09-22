@@ -39,7 +39,7 @@ export const RepoFolderInput = ({
 
     return (
         <>
-            <Space.Compact className={shared.compactField}>
+            <Space.Compact block className={shared.compactField}>
                 <Input
                     data-testid={testId}
                     {...(id ? { id } : {})}
