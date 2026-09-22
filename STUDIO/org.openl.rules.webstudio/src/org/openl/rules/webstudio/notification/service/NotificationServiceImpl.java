@@ -15,6 +15,9 @@ import org.openl.util.StringUtils;
 @Component
 public class NotificationServiceImpl implements NotificationService {
 
+    /** Control characters other than line breaks and tabs: they have no place in a message shown as text. */
+    private static final String CONTROL_CHARACTERS = "[\\p{Cntrl}&&[^\n\t]]";
+
     private final Path NOTIFICATION_FILE;
     private final ApplicationEventPublisher publisher;
 
@@ -36,11 +39,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void send(String notification) throws IOException {
-        if (StringUtils.isBlank(notification)) {
+        var message = notification == null ? null : notification.replaceAll(CONTROL_CHARACTERS, "");
+        if (StringUtils.isBlank(message)) {
             Files.deleteIfExists(NOTIFICATION_FILE);
         } else {
-            Files.writeString(NOTIFICATION_FILE, notification);
+            Files.writeString(NOTIFICATION_FILE, message);
         }
-        publisher.publishEvent(new NotificationEvent(notification, this));
+        publisher.publishEvent(new NotificationEvent(message, this));
     }
 }
