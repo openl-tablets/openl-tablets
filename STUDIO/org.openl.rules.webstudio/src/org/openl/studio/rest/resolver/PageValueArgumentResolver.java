@@ -25,7 +25,7 @@ public class PageValueArgumentResolver extends AbstractPaginationValueArgumentRe
         var page = Optional.ofNullable(parseParameter(webRequest, PAGE_QUERY_PARAM, 0));
         var size = Optional.ofNullable(parseParameter(webRequest, PAGE_SIZE_QUERY_PARAM, 1));
         if (def.isEmpty() && size.isEmpty() && page.isEmpty()) {
-            return Page.unpaged();
+            return Pageable.unpaged();
         }
 
         var pageNumber = page.orElseGet(() -> def.map(Page::getPageNumber).orElse(0));
