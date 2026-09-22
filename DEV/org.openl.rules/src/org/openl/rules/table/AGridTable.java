@@ -1,5 +1,8 @@
 package org.openl.rules.table;
 
+
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.openl.rules.table.xls.XlsUrlParser;
 
 /**
@@ -9,7 +12,7 @@ import org.openl.rules.table.xls.XlsUrlParser;
  */
 public abstract class AGridTable implements IGridTable {
 
-    private volatile XlsUrlParser urlParser;
+    private final AtomicReference<XlsUrlParser> urlParser = new AtomicReference<>();
     private volatile String uri;
 
     @Override
@@ -53,14 +56,17 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public XlsUrlParser getUriParser() {
-        if (urlParser == null) {
+        var parser = urlParser.get();
+        if (parser == null) {
             synchronized (this) {
-                if (urlParser == null) {
-                    urlParser = new XlsUrlParser(getUri());
+                parser = urlParser.get();
+                if (parser == null) {
+                    parser = new XlsUrlParser(getUri());
+                    urlParser.set(parser);
                 }
             }
         }
-        return urlParser;
+        return parser;
     }
 
     @Override

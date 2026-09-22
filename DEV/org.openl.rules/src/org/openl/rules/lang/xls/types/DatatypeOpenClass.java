@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -126,33 +127,36 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
      * Used {@link LinkedHashMap} to store fields in order as them defined in DataType table
      */
     @Override
-    protected LinkedHashMap<String, IOpenField> fieldMap() {
-        if (fieldsByName == null) {
-            fieldsByName = new LinkedHashMap<>();
-        }
-        return (LinkedHashMap<String, IOpenField>) fieldsByName;
+    protected Map<String, IOpenField> newFieldMap() {
+        return new LinkedHashMap<>();
     }
 
-    private volatile Map<String, IOpenField> fields;
-    private volatile Map<String, IOpenField> staticFields;
+    private final AtomicReference<FieldMaps> fieldMaps = new AtomicReference<>();
+
+    /** The fields of the datatype, inherited ones included, apart from its static fields. */
+    private record FieldMaps(Map<String, IOpenField> fields, Map<String, IOpenField> staticFields) {
+    }
 
     @Override
     public Collection<IOpenField> getFields() {
-        ensureFieldsInitialized();
-        return Collections.unmodifiableCollection(this.fields.values());
+        return Collections.unmodifiableCollection(fieldMaps().fields().values());
     }
 
-    private void ensureFieldsInitialized() {
-        if (this.fields == null || this.staticFields == null) {
+    private FieldMaps fieldMaps() {
+        var maps = fieldMaps.get();
+        if (maps == null) {
             synchronized (this) {
-                if (this.fields == null || this.staticFields == null) {
-                    initializeFields();
+                maps = fieldMaps.get();
+                if (maps == null) {
+                    maps = initializeFields();
+                    fieldMaps.set(maps);
                 }
             }
         }
+        return maps;
     }
 
-    private void initializeFields() {
+    private FieldMaps initializeFields() {
         var fields = new LinkedHashMap<String, IOpenField>();
         var staticFields = new LinkedHashMap<String, IOpenField>();
         Iterable<IOpenClass> superClasses = superClasses();
@@ -163,14 +167,13 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
         }
         fieldMap().forEach(fields::putIfAbsent);
         staticFields.put("class", new JavaOpenClass.JavaClassClassField(instanceClass, this));
-        this.fields = fields;
-        this.staticFields = staticFields;
         Optional.ofNullable(superClass).map(IOpenClass::getIndexField).ifPresent(this::setIndexField);
+        return new FieldMaps(fields, staticFields);
     }
 
     @Override
     public void addField(IOpenField field) throws DuplicatedFieldException {
-        this.fields = null;
+        fieldMaps.set(null);
         super.addField(field);
         invalidateInternalData();
     }
@@ -291,29 +294,26 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
 
     @Override
     public IOpenField getStaticField(String fname) {
-        ensureFieldsInitialized();
-        return staticFields.get(fname);
+        return fieldMaps().staticFields().get(fname);
     }
 
     @Override
     public Collection<IOpenField> getStaticFields() {
-        ensureFieldsInitialized();
-        return staticFields.values();
+        return fieldMaps().staticFields().values();
     }
 
     @Override
     public IOpenField getStaticField(String name, boolean strictMatch) {
-        ensureFieldsInitialized();
+        var staticFields = fieldMaps().staticFields();
         Optional<String> first = staticFields.keySet().stream().filter(f -> f.equalsIgnoreCase(name)).findFirst();
-        return first.map(s -> staticFields.get(s)).orElse(null);
+        return first.map(staticFields::get).orElse(null);
     }
 
     @Override
     protected void invalidateInternalData() {
         super.invalidateInternalData();
         synchronized (this) {
-            this.fields = null;
-            this.staticFields = null;
+            fieldMaps.set(null);
         }
     }
 

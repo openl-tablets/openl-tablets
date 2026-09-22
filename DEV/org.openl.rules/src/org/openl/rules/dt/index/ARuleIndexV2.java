@@ -3,6 +3,7 @@ package org.openl.rules.dt.index;
 
 import java.util.BitSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
@@ -18,7 +19,7 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
     protected final DecisionTableRuleNode nextNode;
     protected final int[] emptyRules;
     protected final int rulesTotalSize;
-    private volatile int[] allRules;
+    private final AtomicReference<int[]> allRules = new AtomicReference<>();
 
     protected ARuleIndexV2(DecisionTableRuleNode nextNode, int[] emptyRules) {
         this.nextNode = nextNode;
@@ -67,10 +68,10 @@ public abstract class ARuleIndexV2 implements IRuleIndex {
      */
     @Override
     public final int[] collectRules() {
-        var rules = allRules;
+        var rules = allRules.get();
         if (rules == null) {
             rules = computeRules();
-            allRules = rules;
+            allRules.set(rules);
         }
         return rules;
     }

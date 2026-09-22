@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualLinkedHashBidiMap;
@@ -54,7 +55,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     /**
      * Invoker for current method.
      */
-    private volatile Invokable invoker;
+    private final AtomicReference<Invokable> invoker = new AtomicReference<>();
 
     /**
      * Custom return type of the spreadsheet method. Is a public type of the spreadsheet
@@ -212,32 +213,40 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     protected Invokable getInvoker() {
-        if (invoker == null) {
+        var current = invoker.get();
+        if (current == null) {
             synchronized (this) {
-                if (invoker == null) {
-                    invoker = createInvoker();
+                current = invoker.get();
+                if (current == null) {
+                    current = createInvoker();
+                    invoker.set(current);
                 }
             }
         }
-        return invoker;
-
+        return current;
     }
 
     public void setInvoker(SpreadsheetInvoker invoker) {
-        this.invoker = invoker;
+        this.invoker.set(invoker);
     }
 
-    volatile Map<String, Point> fieldsCoordinates;
+    private final AtomicReference<Map<String, Point>> fieldsCoordinates = new AtomicReference<>();
 
     public Map<String, Point> getFieldsCoordinates() {
-        if (fieldsCoordinates == null) {
+        var coordinates = fieldsCoordinates.get();
+        if (coordinates == null) {
             synchronized (this) {
-                if (fieldsCoordinates == null) {
-                    fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates2(columnNames, rowNames, columnNamesForResultModel, rowNamesForResultModel);
+                coordinates = fieldsCoordinates.get();
+                if (coordinates == null) {
+                    coordinates = SpreadsheetResult.buildFieldsCoordinates2(columnNames,
+                            rowNames,
+                            columnNamesForResultModel,
+                            rowNamesForResultModel);
+                    fieldsCoordinates.set(coordinates);
                 }
             }
         }
-        return fieldsCoordinates;
+        return coordinates;
     }
 
 }

@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -96,7 +97,7 @@ public class ProjectDescriptor {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     @XmlTransient
-    private volatile URL[] classPathUrls;
+    private final AtomicReference<URL[]> classPathUrls = new AtomicReference<>();
 
     private static final Cleaner CLASSPATH_CLEANER = Cleaner.create();
 
@@ -167,9 +168,11 @@ public class ProjectDescriptor {
         } catch (MalformedURLException e) {
             return new URL[]{};
         }
-        if (classPathUrls == null) {
+        var urlsArray = classPathUrls.get();
+        if (urlsArray == null) {
             synchronized (this) {
-                if (classPathUrls == null) {
+                urlsArray = classPathUrls.get();
+                if (urlsArray == null) {
                     var urls = new ArrayList<URL>();
                     urls.add(projectUrl);
                     var originalUrls = new ArrayList<URL>(urls);
@@ -219,7 +222,8 @@ public class ProjectDescriptor {
                             urls.add(url);
                         }
                     }
-                    classPathUrls = urls.toArray(new URL[0]);
+                    urlsArray = urls.toArray(new URL[0]);
+                    classPathUrls.set(urlsArray);
                     if (!classPathCleanupRegistered && !classPathTempFiles.isEmpty()) {
                         CLASSPATH_CLEANER.register(this, classPathTempFiles);
                         classPathCleanupRegistered = true;
@@ -227,7 +231,7 @@ public class ProjectDescriptor {
                 }
             }
         }
-        return classPathUrls;
+        return urlsArray;
     }
 
     /**
@@ -239,7 +243,7 @@ public class ProjectDescriptor {
      */
     public synchronized void releaseClassPath() {
         classPathTempFiles.run();
-        classPathUrls = null;
+        classPathUrls.set(null);
     }
 
     /**

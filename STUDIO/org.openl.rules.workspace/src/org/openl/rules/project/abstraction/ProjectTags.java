@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ import org.openl.util.PropertiesUtils;
 public class ProjectTags {
     public static final String TAGS_FILE_NAME = "tags.properties";
     protected final AProject project;
-    protected volatile Map<String, String> tags;
+    protected final AtomicReference<Map<String, String>> tags = new AtomicReference<>();
 
     private Map<String, String> readTagsFromStream(InputStream projectTagsFileStream) {
         var readTags = new HashMap<String, String>();
@@ -29,17 +30,17 @@ public class ProjectTags {
     }
 
     public Map<String, String> getTags() {
-        var readTags = this.tags;
+        var readTags = tags.get();
         if (readTags == null) {
             synchronized (this) {
-                if (this.tags == null) {
-                    this.tags = readTags();
+                readTags = tags.get();
+                if (readTags == null) {
+                    readTags = readTags();
+                    tags.set(readTags);
                 }
-                return this.tags;
             }
-        } else {
-            return readTags;
         }
+        return readTags;
     }
 
     private Map<String, String> readTags() {

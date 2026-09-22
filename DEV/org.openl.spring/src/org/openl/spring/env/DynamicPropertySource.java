@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.core.env.EnumerablePropertySource;
 
@@ -31,7 +32,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     private final FirewallPropertyResolver resolver;
     private final String appName;
 
-    private volatile Map<String, String> settings;
+    private final AtomicReference<Map<String, String>> settings = new AtomicReference<>();
     private volatile String version;
     private volatile long timestamp;
 
@@ -44,12 +45,12 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
     @Override
     public String[] getPropertyNames() {
-        return settings.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY);
+        return settings.get().keySet().toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 
     @Override
     public boolean containsProperty(String name) {
-        return settings.containsKey(name);
+        return settings.get().containsKey(name);
     }
 
     public boolean reloadIfModified() {
@@ -77,7 +78,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             // If the file does not exist, then it is default settings for the current version.
             version = OpenLVersion.getVersion();
         }
-        settings = properties;
+        settings.set(properties);
         timestamp = lastModified;
     }
 
@@ -92,7 +93,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             // prevent cycled call
             return null;
         }
-        var property = settings.get(name);
+        var property = settings.get().get(name);
         if (property == null) {
             return null;
         }
@@ -127,7 +128,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
      * @param config settings to store, a {@code null} value removing the property
      */
     public synchronized void save(Map<String, String> config) throws IOException {
-        final var properties = new TreeMap<>(settings);
+        final var properties = new TreeMap<>(settings.get());
         for (Map.Entry<String, String> pair : config.entrySet()) {
             var propertyName = pair.getKey();
             var value = pair.getValue();
@@ -150,10 +151,10 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
                 properties.put(propertyName, value);
             }
         }
-        var origin = settings;
+        var origin = settings.get();
 
         // 'unconfigure' settings for matching with defaults. to get settings not from a file
-        settings = Map.of();
+        settings.set(Map.of());
 
         // Do clean up from default values
         properties.entrySet()
@@ -165,7 +166,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         var noPropsToSave = properties.isEmpty();
 
         version = OpenLVersion.getVersion();
-        settings = properties;
+        settings.set(properties);
 
         if (noPropsToSave) {
             // Nothing to save. Delete old settings.
@@ -203,7 +204,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     }
 
     public Map<String, String> getProperties() {
-        return settings;
+        return settings.get();
     }
 
     private String getSecretKey() {

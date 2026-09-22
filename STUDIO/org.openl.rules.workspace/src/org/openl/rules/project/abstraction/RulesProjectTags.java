@@ -43,7 +43,7 @@ public class RulesProjectTags extends ProjectTags {
                 var artefact = (AProjectResource) project.getArtefact(TAGS_FILE_NAME);
                 artefact.setContent(inputStream);
             }
-            this.tags = Collections.unmodifiableMap(tags);
+            this.tags.set(Collections.unmodifiableMap(tags));
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }

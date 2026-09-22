@@ -102,10 +102,8 @@ public class ProjectModel {
     /**
      * Compiled rules with errors. Representation of wrapper.
      */
-    @Getter
-    private volatile CompiledOpenClass compiledOpenClass;
-    @Getter
-    private volatile CompiledOpenClass openedModuleCompiledOpenClass;
+    private final AtomicReference<CompiledOpenClass> compiledOpenClass = new AtomicReference<>();
+    private final AtomicReference<CompiledOpenClass> openedModuleCompiledOpenClass = new AtomicReference<>();
     @Getter
     private volatile boolean compilationInProgress;
     /**
@@ -116,7 +114,7 @@ public class ProjectModel {
      */
     @Getter
     private volatile boolean compilationCancelled;
-    private volatile ResolvedDependency projectCompilationCompleted;
+    private final AtomicReference<ResolvedDependency> projectCompilationCompleted = new AtomicReference<>();
     /**
      * The most recent registered compilation cycle. A fresh instance is published whenever the
      * model starts (or has just finished) a compilation — {@link #compileProject(boolean, boolean)},
@@ -189,6 +187,14 @@ public class ProjectModel {
         this.studio = studio;
         this.webStudioWorkspaceDependencyManagerFactory = new WebStudioWorkspaceDependencyManagerFactory(studio);
         this.testSuiteExecutor = testSuiteExecutor;
+    }
+
+    public CompiledOpenClass getCompiledOpenClass() {
+        return compiledOpenClass.get();
+    }
+
+    public CompiledOpenClass getOpenedModuleCompiledOpenClass() {
+        return openedModuleCompiledOpenClass.get();
     }
 
     public synchronized RulesProject getProject() {
@@ -299,7 +305,7 @@ public class ProjectModel {
         if (!isCompiledSuccessfully()) {
             return null;
         }
-        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
+        IOpenClass openClass = compiledOpenClass.get().getOpenClassWithErrors();
         return getOpenClassMethod(tableUri, openClass);
     }
 
@@ -307,7 +313,7 @@ public class ProjectModel {
         if (!isOpenedModuleCompiledSuccessfully()) {
             return null;
         }
-        IOpenClass openClass = openedModuleCompiledOpenClass.getOpenClassWithErrors();
+        IOpenClass openClass = openedModuleCompiledOpenClass.get().getOpenClassWithErrors();
         return getOpenClassMethod(tableUri, openClass);
     }
 
@@ -450,7 +456,7 @@ public class ProjectModel {
         IOpenMethod method = currentOpenedModule ? getOpenedModuleMethod(forTable) : getMethod(forTable);
         if (method != null) {
             return ProjectHelper.testers(method,
-                    currentOpenedModule ? openedModuleCompiledOpenClass : compiledOpenClass);
+                    currentOpenedModule ? openedModuleCompiledOpenClass.get() : compiledOpenClass.get());
         }
         return null;
     }
@@ -468,9 +474,9 @@ public class ProjectModel {
             List<IOpenMethod> res = new ArrayList<>();
             Collection<IOpenMethod> methods;
             if (currentOpenedModule) {
-                methods = openedModuleCompiledOpenClass.getOpenClassWithErrors().getMethods();
+                methods = openedModuleCompiledOpenClass.get().getOpenClassWithErrors().getMethods();
             } else {
-                methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
+                methods = compiledOpenClass.get().getOpenClassWithErrors().getMethods();
             }
             for (IOpenMethod tester : methods) {
                 if (tester instanceof TestSuiteMethod testSuiteMethod
@@ -485,13 +491,13 @@ public class ProjectModel {
 
     public TestSuiteMethod[] getAllTestMethods() {
         // Read once: opening another module empties this between the question and the answer.
-        var compiled = this.compiledOpenClass;
+        var compiled = this.compiledOpenClass.get();
         return compiled != null && isCompiledSuccessfully() ? ProjectHelper
                 .allTesters(compiled.getOpenClassWithErrors()) : null;
     }
 
     public TestSuiteMethod[] getOpenedModuleTestMethods() {
-        var compiled = this.openedModuleCompiledOpenClass;
+        var compiled = this.openedModuleCompiledOpenClass.get();
         return compiled != null && isOpenedModuleCompiledSuccessfully() ? ProjectHelper
                 .allTesters(compiled.getOpenClassWithErrors()) : null;
     }
@@ -564,7 +570,7 @@ public class ProjectModel {
 
     /** A module compiled on its own is the whole cycle: one module, counted as finished, with its messages. */
     private ProjectCompilationStatus compiledAloneStatus(ProjectCompilationStatus.Builder status) {
-        var compiled = this.compiledOpenClass;
+        var compiled = this.compiledOpenClass.get();
         if (compiled != null) {
             status.addMessages(compiled.getAllMessages());
         }
@@ -574,7 +580,7 @@ public class ProjectModel {
     /** A project compiled through counts its modules from the project loaders rather than one by one. */
     private ProjectCompilationStatus compiledThroughStatus(ProjectCompilationStatus.Builder status,
                                                            Collection<IDependencyLoader> loaders) {
-        var compiled = this.compiledOpenClass;
+        var compiled = this.compiledOpenClass.get();
         if (compiled != null) {
             status.addMessages(compiled.getAllMessages());
         }
@@ -594,7 +600,7 @@ public class ProjectModel {
             return;
         }
         status.addModulesCount(1);
-        var opened = isOpenedModule(loader, module) ? this.openedModuleCompiledOpenClass : null;
+        var opened = isOpenedModule(loader, module) ? this.openedModuleCompiledOpenClass.get() : null;
         if (opened != null) {
             // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
             // rewrite the algorithm to handle with it is required here
@@ -935,14 +941,14 @@ public class ProjectModel {
         boolean isParallel = threads != null && threads > 1;
         return runTest(test,
                 isParallel,
-                currentOpenedModule ? openedModuleCompiledOpenClass.getOpenClassWithErrors()
-                        : compiledOpenClass.getOpenClassWithErrors());
+                currentOpenedModule ? openedModuleCompiledOpenClass.get().getOpenClassWithErrors()
+                        : compiledOpenClass.get().getOpenClassWithErrors());
     }
 
     private TestUnitsResults runTest(TestSuite test, boolean isParallel, IOpenClass openClass) {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
+            Thread.currentThread().setContextClassLoader(compiledOpenClass.get().getClassLoader());
             if (!isParallel) {
                 return test.invokeSequentially(openClass, 1);
             } else {
@@ -985,8 +991,8 @@ public class ProjectModel {
 
         clearModuleResources(); // prevent memory leak
 
-        OpenClassUtil.release(compiledOpenClass);
-        compiledOpenClass = null;
+        OpenClassUtil.release(compiledOpenClass.get());
+        compiledOpenClass.set(null);
 
         if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.shutdown();
@@ -1101,7 +1107,7 @@ public class ProjectModel {
         xlsModuleSyntaxNode = null;
         // What was compiled belongs to the module being replaced, and the new one is not compiled until the
         // load below returns. Keeping it would report the module as ready from the moment it was asked for.
-        openedModuleCompiledOpenClass = null;
+        openedModuleCompiledOpenClass.set(null);
         prepareWorkspaceDependencyManager(moduleInfo.getProject());
         try {
             CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
@@ -1109,15 +1115,15 @@ public class ProjectModel {
                     .getCompiledOpenClass();
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
-            openedModuleCompiledOpenClass = thisModuleCompiledOpenClass;
-            if (compiledOpenClass == null || !isProjectCompilationCompleted() || !ReloadType.NO.equals(reloadType)) {
-                compiledOpenClass = thisModuleCompiledOpenClass;
+            openedModuleCompiledOpenClass.set(thisModuleCompiledOpenClass);
+            if (compiledOpenClass.get() == null || !isProjectCompilationCompleted() || !ReloadType.NO.equals(reloadType)) {
+                compiledOpenClass.set(thisModuleCompiledOpenClass);
             }
             if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
                 ResolvedDependency projectDependency = AbstractDependencyManager
                         .buildResolvedDependency(moduleInfo.getProject());
                 if (!ReloadType.NO.equals(reloadType) || !Objects.equals(projectDependency,
-                        projectCompilationCompleted)) {
+                        projectCompilationCompleted.get())) {
                     compileProject(false, false);
                 }
             } else {
@@ -1144,7 +1150,7 @@ public class ProjectModel {
                 prepareWorkspaceDependencyManager(projectDescriptor);
             }
             this.compilationInProgress = true;
-            this.projectCompilationCompleted = null;
+            this.projectCompilationCompleted.set(null);
             cycle = new RegisteredCompilation();
             this.currentCompilation.set(cycle);
             // Guarantee a terminal "compilation done" event fires regardless of what happens
@@ -1166,15 +1172,15 @@ public class ProjectModel {
                         stopped = true;
                     } else {
                         try {
-                            this.compiledOpenClass = this.validate(projectDescriptor);
-                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                            this.compiledOpenClass.set(this.validate(projectDescriptor));
+                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.get().getOpenClassWithErrors()
                                     .getMetaInfo();
                             replaceProjectNode(projectDescriptor.getName(), metaInfo1.getXlsModuleNode());
                         } catch (Exception | LinkageError e) {
                             onCompilationFailed(e);
                             failure = e;
                         }
-                        this.projectCompilationCompleted = compiledDependency.getDependency();
+                        this.projectCompilationCompleted.set(compiledDependency.getDependency());
                         this.compilationInProgress = false;
                     }
                 }
@@ -1278,8 +1284,8 @@ public class ProjectModel {
             String message = "Cannot load the module: %s".formatted(openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
-        compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
-        openedModuleCompiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
+        compiledOpenClass.set(new CompiledOpenClass(NullOpenClass.the, messages));
+        openedModuleCompiledOpenClass.set(new CompiledOpenClass(NullOpenClass.the, messages));
     }
 
     public boolean isModified() {
@@ -1322,7 +1328,7 @@ public class ProjectModel {
                     .buildDependencyManager(projectDescriptor);
             webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addCompiledDependency);
             webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
-            projectCompilationCompleted = null;
+            projectCompilationCompleted.set(null);
         } else {
             Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                     .resolveWorkspace(projectDescriptor);
@@ -1355,7 +1361,7 @@ public class ProjectModel {
                     webStudioWorkspaceDependencyManager
                             .registerOnCompilationCompleteListener(this::addCompiledDependency);
                     webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
-                    projectCompilationCompleted = null;
+                    projectCompilationCompleted.set(null);
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
                     webStudioWorkspaceDependencyManager
@@ -1367,7 +1373,7 @@ public class ProjectModel {
 
     public boolean isCompiledSuccessfully() {
         // Read once: opening another module empties this while a reader is in the middle of the answer.
-        var compiled = this.compiledOpenClass;
+        var compiled = this.compiledOpenClass.get();
         return compiled != null && isUsable(compiled) && xlsModuleSyntaxNode != null;
     }
 
@@ -1379,11 +1385,11 @@ public class ProjectModel {
      * whether anything can be run against it.
      */
     public boolean isOpenedModuleCompiled() {
-        return openedModuleCompiledOpenClass != null;
+        return openedModuleCompiledOpenClass.get() != null;
     }
 
     public boolean isOpenedModuleCompiledSuccessfully() {
-        var compiled = this.openedModuleCompiledOpenClass;
+        var compiled = this.openedModuleCompiledOpenClass.get();
         return compiled != null && isUsable(compiled) && xlsModuleSyntaxNode != null;
     }
 
@@ -1452,7 +1458,7 @@ public class ProjectModel {
         if (moduleInfo != null) {
             ResolvedDependency projectDependency = AbstractDependencyManager
                     .buildResolvedDependency(moduleInfo.getProject());
-            return Objects.equals(projectCompilationCompleted, projectDependency);
+            return Objects.equals(projectCompilationCompleted.get(), projectDependency);
         }
         return false;
     }

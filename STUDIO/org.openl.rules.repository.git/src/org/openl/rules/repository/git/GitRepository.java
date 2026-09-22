@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -144,7 +145,11 @@ public class GitRepository implements BranchRepository, Closeable {
     private boolean useLFS;
 
     private ChangesMonitor monitor;
-    private volatile Git git;
+    private final AtomicReference<Git> git = new AtomicReference<>();
+
+    private Git git() {
+        return git.get();
+    }
     private GitRootFactory gitRootFactory;
     private File localGitRoot;
     private boolean remote;
@@ -307,8 +312,8 @@ public class GitRepository implements BranchRepository, Closeable {
         createParent(file);
         IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
-        git.add().addFilepattern(fileInRepository).call();
-        return git.commit()
+        git().add().addFilepattern(fileInRepository).call();
+        return git().commit()
                 .setMessage(getCommitMessage(data))
                 .setOnly(fileInRepository)
                 .setNoVerify(noVerify)
@@ -344,8 +349,8 @@ public class GitRepository implements BranchRepository, Closeable {
                 return false;
             }
 
-            git.rm().addFilepattern(name).call();
-            var commit = git.commit()
+            git().rm().addFilepattern(name).call();
+            var commit = git().commit()
                     .setMessage(getCommitMessage(data))
                     .setOnly(name)
                     .setNoVerify(noVerify)
@@ -404,8 +409,8 @@ public class GitRepository implements BranchRepository, Closeable {
             var dest = new File(getLocalGitRoot(), destData.getName());
             IOUtils.copyAndClose(new FileInputStream(src), new FileOutputStream(dest));
 
-            git.add().addFilepattern(destData.getName()).call();
-            var commit = git.commit()
+            git().add().addFilepattern(destData.getName()).call();
+            var commit = git().commit()
                     .setMessage(getCommitMessage(destData))
                     .setNoVerify(noVerify)
                     .setCommitter(committerName(destData.getAuthor()), committerEmail(destData.getAuthor()))
@@ -552,7 +557,7 @@ public class GitRepository implements BranchRepository, Closeable {
         if (remote) {
             try {
                 initLfsCredentials();
-                git.fetch()
+                git().fetch()
                         .setCredentialsProvider(credentialsProvider)
                         .setTimeout(connectionTimeout)
                         .setDryRun(true)
@@ -574,7 +579,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private void initializeGit(boolean failOnError) {
-        if (git != null) {
+        if (git() != null) {
             return;
         }
 
@@ -583,7 +588,7 @@ public class GitRepository implements BranchRepository, Closeable {
         try {
             log.debug("initialize(): lock");
 
-            if (git != null) {
+            if (git() != null) {
                 return;
             }
 
@@ -612,11 +617,11 @@ public class GitRepository implements BranchRepository, Closeable {
                 }
             }
 
-            git = Git.open(getLocalGitRoot());
+            git.set(Git.open(getLocalGitRoot()));
             updateGitConfigs();
 
             // Track all remote branches as local branches
-            trackRemoteBranches(git);
+            trackRemoteBranches(git());
 
             // Check if we should skip hooks.
             detectCanRunHooks();
@@ -640,13 +645,13 @@ public class GitRepository implements BranchRepository, Closeable {
             }
             tryToUnlockIndex();
         } catch (Exception e) {
-            if (git != null) {
+            if (git() != null) {
                 try {
-                    git.close();
+                    git().close();
                 } catch (Exception ignored) {
                     // safe to ignore: close failure should not mask the original exception
                 }
-                git = null;
+                git.set(null);
             }
             if (failOnError) {
                 throwClearException(e);
@@ -666,7 +671,7 @@ public class GitRepository implements BranchRepository, Closeable {
      */
     private void tryToUnlockIndex() {
         // try to unlock index if locked
-        if (!LockFile.unlock(git.getRepository().getIndexFile())) {
+        if (!LockFile.unlock(git().getRepository().getIndexFile())) {
             log.warn("Failed to unlock index for '{}' repository", name);
         }
     }
@@ -724,7 +729,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private void updateGitConfigs() throws IOException {
-        var config = git.getRepository().getConfig();
+        var config = git().getRepository().getConfig();
 
         if (gcAutoDetach != null) {
             config.setBoolean(ConfigConstants.CONFIG_GC_SECTION,
@@ -765,7 +770,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private void detectCanRunHooks() {
         noVerify = false;
-        var hookDir = new File(git.getRepository().getDirectory(), Constants.HOOKS);
+        var hookDir = new File(git().getRepository().getDirectory(), Constants.HOOKS);
         var preCommitHook = new File(hookDir, PreCommitHook.NAME);
         var commitMsgHook = new File(hookDir, CommitMsgHook.NAME);
         if (!preCommitHook.isFile() && !commitMsgHook.isFile()) {
@@ -826,9 +831,9 @@ public class GitRepository implements BranchRepository, Closeable {
             monitor.release();
             monitor = null;
         }
-        if (git != null) {
-            git.close();
-            git = null;
+        if (git() != null) {
+            git().close();
+            git.set(null);
         }
     }
 
@@ -930,13 +935,13 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private boolean isEmpty() throws IOException {
-        var headRef = git.getRepository().exactRef(Constants.HEAD);
+        var headRef = git().getRepository().exactRef(Constants.HEAD);
         return headRef == null || headRef.getObjectId() == null;
     }
 
     private ObjectId resolveBranchId() throws IOException {
-        if (git.getRepository().findRef(branch) != null) {
-            return git.getRepository().resolve(branch);
+        if (git().getRepository().findRef(branch) != null) {
+            return git().getRepository().resolve(branch);
         }
         return null;
     }
@@ -1011,7 +1016,7 @@ public class GitRepository implements BranchRepository, Closeable {
         readLock.lock();
         try {
             log.debug("getLastRevision(): lock");
-            return git.getRepository().resolve(branch);
+            return git().getRepository().resolve(branch);
         } finally {
             readLock.unlock();
             log.debug("getLastRevision(): unlock");
@@ -1036,7 +1041,7 @@ public class GitRepository implements BranchRepository, Closeable {
                     // It's assumed that we don't have unpushed commits at this point so there must be no additional
                     // merge
                     // while checking last revision. Accept only fast forwards.
-                    git.merge()
+                    git().merge()
                             .include(refUpdate.getNewObjectId())
                             .setFastForward(MergeCommand.FastForwardMode.FF_ONLY)
                             .call();
@@ -1048,9 +1053,9 @@ public class GitRepository implements BranchRepository, Closeable {
                         if (remoteName.startsWith(Constants.R_HEADS)) {
                             // Delete the branch
                             String branchToDelete = Repository.shortenRefName(remoteName);
-                            String currentBranch = Repository.shortenRefName(git.getRepository().getFullBranch());
+                            String currentBranch = Repository.shortenRefName(git().getRepository().getFullBranch());
                             if (branchToDelete.equals(currentBranch)) {
-                                var branchToCheckout = git.lsRemote()
+                                var branchToCheckout = git().lsRemote()
                                         .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
                                         .callAsMap()
                                         .get("HEAD")
@@ -1058,7 +1063,7 @@ public class GitRepository implements BranchRepository, Closeable {
                                         .getName();
                                 checkoutForced(branchToCheckout);
                             }
-                            git.branchDelete().setBranchNames(branchToDelete).setForce(true).call();
+                            git().branchDelete().setBranchNames(branchToDelete).setForce(true).call();
                             branchesChanged = true;
                         }
                     }
@@ -1067,7 +1072,7 @@ public class GitRepository implements BranchRepository, Closeable {
                     if (ObjectId.zeroId().equals(refUpdate.getOldObjectId())) {
                         var remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
-                            createRemoteTrackingBranch(git, Repository.shortenRefName(remoteName));
+                            createRemoteTrackingBranch(git(), Repository.shortenRefName(remoteName));
                             branchesChanged = true;
                         }
                     }
@@ -1075,7 +1080,7 @@ public class GitRepository implements BranchRepository, Closeable {
                 case REJECTED -> {
                     if (refUpdate.getRemoteName().startsWith(Constants.R_HEADS)) {
                         // Force update for branch
-                        git.fetch()
+                        git().fetch()
                                 .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
                                 .setForceUpdate(true)
                                 .setRefSpecs(refUpdate.getRemoteName() + ":" + refUpdate.getLocalName())
@@ -1083,7 +1088,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
                         checkoutForced(refUpdate.getRemoteName());
                         // Reset local branch to match remote
-                        git.reset().setMode(ResetCommand.ResetType.HARD)
+                        git().reset().setMode(ResetCommand.ResetType.HARD)
                                 .setRef(refUpdate.getLocalName())
                                 .call();
 
@@ -1106,7 +1111,7 @@ public class GitRepository implements BranchRepository, Closeable {
         // If everything is merged into current branch, this method does nothing.
         // Obviously this method is not needed. It's invoked only to fix unexpected errors during work with repository.
         var advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
-        var localRef = git.getRepository().findRef(branch);
+        var localRef = git().getRepository().findRef(branch);
         if (localRef != null && advertisedRef != null && !localRef.getObjectId().equals(advertisedRef.getObjectId())) {
             if (isMergedInto(advertisedRef.getObjectId(), localRef.getObjectId(), false)) {
                 // We enter here only if we have inconsistent repository state. Need additional investigation if this
@@ -1127,7 +1132,7 @@ public class GitRepository implements BranchRepository, Closeable {
                         localRef.getObjectId().name(),
                         advertisedRef.getObjectId().name());
                 checkoutForced(branch);
-                git.merge().include(advertisedRef).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();
+                git().merge().include(advertisedRef).setFastForward(MergeCommand.FastForwardMode.FF_ONLY).call();
             }
         }
     }
@@ -1151,14 +1156,14 @@ public class GitRepository implements BranchRepository, Closeable {
                 r = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
             }
             if (r == null) {
-                r = git.getRepository().findRef(branch);
+                r = git().getRepository().findRef(branch);
             }
 
             if (r == null) {
                 return;
             }
 
-            var mergeResult = git.merge()
+            var mergeResult = git().merge()
                     .include(r.getObjectId())
                     .setStrategy(MergeStrategy.RECURSIVE)
                     .setCommit(false)
@@ -1186,7 +1191,7 @@ public class GitRepository implements BranchRepository, Closeable {
                                   String mergeMessage,
                                   UserInfo mergeAuthor) throws GitAPIException {
         if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.MERGED_NOT_COMMITTED)) {
-            git.commit()
+            git().commit()
                     .setMessage(mergeMessage)
                     .setNoVerify(noVerify)
                     .setCommitter(committerName(mergeAuthor), committerEmail(mergeAuthor))
@@ -1214,8 +1219,8 @@ public class GitRepository implements BranchRepository, Closeable {
                                        UserInfo userInfo) throws GitAPIException, IOException {
         if (mergeResult.getMergeStatus() == MergeResult.MergeStatus.CONFLICTING) {
             var mergedCommits = mergeResult.getMergedCommits();
-            var repository = git.getRepository();
-            List<Ref> tags = git.tagList().call();
+            var repository = git().getRepository();
+            List<Ref> tags = git().tagList().call();
 
             String baseCommit = getVersionName(repository, tags, mergeResult.getBase());
 
@@ -1252,7 +1257,7 @@ public class GitRepository implements BranchRepository, Closeable {
                 AbstractTreeIterator ourTreeParser = prepareTreeParser(repository, ourId);
                 AbstractTreeIterator theirTreeParser = prepareTreeParser(repository, theirId);
 
-                List<DiffEntry> diff = git.diff()
+                List<DiffEntry> diff = git().diff()
                         .setOldTree(theirTreeParser)
                         .setNewTree(ourTreeParser)
                         .setPathFilter(PathFilterGroup.createFromStrings(conflictedFiles))
@@ -1426,7 +1431,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private FetchResult fetchAll() throws GitAPIException {
-        var fetchCommand = git.fetch();
+        var fetchCommand = git().fetch();
         fetchCommand.setTagOpt(TagOpt.FETCH_TAGS);
         var credentialsProvider = getCredentialsProvider(GitActionType.FETCH_ALL);
         if (credentialsProvider != null) {
@@ -1450,12 +1455,12 @@ public class GitRepository implements BranchRepository, Closeable {
         try {
             PushCommand push;
 
-            if (git.getRepository().findRef(branch) != null) {
-                push = git.push().setPushTags().add(branch).setTimeout(connectionTimeout);
-            } else if (git.getRepository().findRef(baseBranch) == null) {
-                git.getRepository().updateRef(baseBranch);
-                git.branchCreate().setName(baseBranch).setForce(true).call();
-                push = git.push().setPushTags().add(baseBranch).setTimeout(connectionTimeout);
+            if (git().getRepository().findRef(branch) != null) {
+                push = git().push().setPushTags().add(branch).setTimeout(connectionTimeout);
+            } else if (git().getRepository().findRef(baseBranch) == null) {
+                git().getRepository().updateRef(baseBranch);
+                git().branchCreate().setName(baseBranch).setForce(true).call();
+                push = git().push().setPushTags().add(baseBranch).setTimeout(connectionTimeout);
             } else {
                 throw new IOException("Cannot find branch '%s'".formatted(branch));
             }
@@ -1513,7 +1518,7 @@ public class GitRepository implements BranchRepository, Closeable {
             readLock.lock();
             initLfsCredentials();
 
-            var repository = git.getRepository();
+            var repository = git().getRepository();
             if (isEmpty()) {
                 return command.apply(repository, null, path);
             }
@@ -1559,17 +1564,17 @@ public class GitRepository implements BranchRepository, Closeable {
                 return historyVisitor.getResult();
             }
 
-            // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits
+            // We cannot use git().log().addPath(path) because jgit has some issues for some scenarios when merging commits
             // so some history elements aren't shown. So we iterate all commits and filter them out ourselves.
-            Iterator<RevCommit> iterator = new DescendantsFirstCommits(git.log()
+            Iterator<RevCommit> iterator = new DescendantsFirstCommits(git().log()
                     .add(resolveBranchId())
                     .setRevFilter(buildGlobalRevisionFilter(globalFilter))
                     .call()
                     .iterator());
 
-            List<Ref> tags = git.tagList().call();
+            List<Ref> tags = git().tagList().call();
 
-            var repository = git.getRepository();
+            var repository = git().getRepository();
 
             var totalProcessed = 0;
             var processed = 0;
@@ -1584,7 +1589,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
                 while (processed < maxCount && iterator.hasNext()) {
                     var commit = iterator.next();
-                    var hasChanges = hasChangesInPath(tw, commit, git);
+                    var hasChanges = hasChangesInPath(tw, commit, git());
                     if (!techRevs && !hasChanges) {
                         continue;
                     }
@@ -1664,9 +1669,9 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private <T> T parseHistory0(String name, String version, HistoryVisitor<T> historyVisitor) throws IOException {
         try {
-            List<Ref> tags = git.tagList().call();
+            List<Ref> tags = git().tagList().call();
 
-            try (var walk = new RevWalk(git.getRepository())) {
+            try (var walk = new RevWalk(git().getRepository())) {
                 if (isEmpty()) {
                     return historyVisitor.getResult();
                 }
@@ -1674,7 +1679,7 @@ public class GitRepository implements BranchRepository, Closeable {
                 var id = getCommitByVersion(version);
                 if (id != null) {
                     var commit = walk.parseCommit(id);
-                    historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
+                    historyVisitor.visit(name, commit, getVersionName(git().getRepository(), tags, commit));
                 } else {
                     log.warn("Cannot find commit for version {}", version);
                 }
@@ -1704,13 +1709,13 @@ public class GitRepository implements BranchRepository, Closeable {
      */
     private void reset(String commitToDiscard) {
         try {
-            var fullBranch = git.getRepository().getFullBranch();
+            var fullBranch = git().getRepository().getFullBranch();
             if (ObjectId.isId(fullBranch)) {
                 // Detached HEAD. Just checkout to current branch and reset working dir.
                 log.debug("Found detached HEAD: {}.", fullBranch);
-                git.checkout().setName(branch).setForced(true).call();
+                git().checkout().setName(branch).setForced(true).call();
             } else {
-                var resetCommand = git.reset().setMode(ResetCommand.ResetType.HARD);
+                var resetCommand = git().reset().setMode(ResetCommand.ResetType.HARD);
                 // If commit is not merged to our branch, it's detached - in this case no need to reset commit tree.
                 if (commitToDiscard != null && isCommitMerged(commitToDiscard)) {
                     log.debug("Discard commit: {}.", commitToDiscard);
@@ -1720,9 +1725,9 @@ public class GitRepository implements BranchRepository, Closeable {
                     resetCommand.call();
                 } catch (JGitInternalException e) {
                     // check if index file is corrupted
-                    var indexFile = git.getRepository().getIndexFile();
+                    var indexFile = git().getRepository().getIndexFile();
                     try {
-                        var dc = new DirCache(indexFile, git.getRepository().getFS());
+                        var dc = new DirCache(indexFile, git().getRepository().getFS());
                         dc.read();
                         log.error(e.getMessage(), e);
                     } catch (CorruptObjectException ex) {
@@ -1742,7 +1747,7 @@ public class GitRepository implements BranchRepository, Closeable {
     private void resetToCommit(String refToResetTo) {
         try {
             if (refToResetTo != null) {
-                git.reset().setMode(ResetCommand.ResetType.HARD).setRef(refToResetTo).call();
+                git().reset().setMode(ResetCommand.ResetType.HARD).setRef(refToResetTo).call();
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -1750,7 +1755,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private void checkoutForcedOrReset(String branch) throws IOException, GitAPIException {
-        if (git.getRepository().resolve(branch) == null && branch.equals(this.branch)) {
+        if (git().getRepository().resolve(branch) == null && branch.equals(this.branch)) {
             checkoutUnbornBranch(branch);
         } else if (isEmpty()) {
             reset();
@@ -1760,9 +1765,9 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private void checkoutUnbornBranch(String branch) throws GitAPIException, IOException {
-        var repository = git.getRepository();
+        var repository = git().getRepository();
         if (!branch.equals(repository.getBranch())) {
-            git.checkout().setName(branch).setOrphan(true).call();
+            git().checkout().setName(branch).setOrphan(true).call();
         }
 
         var dirCache = repository.lockDirCache();
@@ -1772,15 +1777,15 @@ public class GitRepository implements BranchRepository, Closeable {
             dirCache.unlock();
             throw new IOException("Cannot clear the index before creating branch '%s'.".formatted(branch));
         }
-        git.clean().setCleanDirectories(true).setForce(true).setIgnore(false).call();
+        git().clean().setCleanDirectories(true).setForce(true).setIgnore(false).call();
     }
 
     private void checkoutForced(String branch) throws GitAPIException {
-        git.checkout().setName(branch).setForced(true).call();
+        git().checkout().setName(branch).setForced(true).call();
     }
 
     private boolean isCommitMerged(String commitId) throws IOException {
-        var repository = git.getRepository();
+        var repository = git().getRepository();
         try (var revWalk = new RevWalk(repository)) {
             var branchHead = revWalk.parseCommit(repository.resolve(Constants.R_HEADS + branch));
             var otherHead = revWalk.parseCommit(repository.resolve(commitId));
@@ -1789,7 +1794,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private String getNextTagId() throws GitAPIException {
-        List<Ref> call = git.tagList().call();
+        List<Ref> call = git().tagList().call();
         var maxId = 0L;
         for (Ref tagRef : call) {
             String name = getLocalTagName(tagRef);
@@ -1980,7 +1985,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
         if (!tagPrefix.isEmpty()) {
             var tagName = tagPrefix + getNextTagId();
-            git.tag().setObjectId(commit).setName(tagName).call();
+            git().tag().setObjectId(commit).setName(tagName).call();
         }
     }
 
@@ -2065,10 +2070,10 @@ public class GitRepository implements BranchRepository, Closeable {
             if (conflictResolveData == null) {
                 pull(null, author);
             }
-            refToResetTo = git.getRepository().findRef(branch).getObjectId().getName();
+            refToResetTo = git().getRepository().findRef(branch).getObjectId().getName();
 
-            var branchRef = git.getRepository().findRef(branchFrom);
-            var mergeResult = git.merge()
+            var branchRef = git().getRepository().findRef(branchFrom);
+            var mergeResult = git().merge()
                     .include(branchRef)
                     .setCommit(false)
                     .setFastForward(MergeCommand.FastForwardMode.NO_FF)
@@ -2109,7 +2114,7 @@ public class GitRepository implements BranchRepository, Closeable {
             log.debug("isMergedInto(): lock");
             readLock.lock();
             initLfsCredentials();
-            var repository = git.getRepository();
+            var repository = git().getRepository();
             return isMergedInto(repository.resolve(from), repository.resolve(to), true);
         } finally {
             resetLfsCredentials();
@@ -2131,7 +2136,7 @@ public class GitRepository implements BranchRepository, Closeable {
      * @throws IOException if any error is occurred during this method
      */
     private boolean isMergedInto(ObjectId fromId, ObjectId toId, boolean skipEmptyChanges) throws IOException {
-        var repository = git.getRepository();
+        var repository = git().getRepository();
 
         try (var revWalk = new RevWalk(repository)) {
             if (fromId == null || toId == null) {
@@ -2169,7 +2174,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private boolean hasSameContent(RevCommit commit1, RevCommit commit2) throws IOException {
         try (var diffFormatter = new DiffFormatter(NullOutputStream.INSTANCE)) {
-            diffFormatter.setRepository(git.getRepository());
+            diffFormatter.setRepository(git().getRepository());
             List<DiffEntry> diffEntries = diffFormatter.scan(commit1, commit2);
             if (diffEntries.isEmpty()) {
                 return true;
@@ -2200,7 +2205,7 @@ public class GitRepository implements BranchRepository, Closeable {
                 // GC is required in local mode. In remote mode autoGC() will be invoked on each fetch or merge.
                 // autoGC() didn't solve the issue for local repository, so we use gc() instead.
                 try {
-                    git.gc().call();
+                    git().gc().call();
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
                 }
@@ -2236,7 +2241,7 @@ public class GitRepository implements BranchRepository, Closeable {
             removeAbsentFiles(basePath, folder, savedFiles);
         }
 
-        var commitCommand = git.commit()
+        var commitCommand = git().commit()
                 .setNoVerify(noVerify)
                 .setMessage(getCommitMessage(folderData))
                 .setCommitter(committerName(folderData.getAuthor()), committerEmail(folderData.getAuthor()));
@@ -2254,11 +2259,11 @@ public class GitRepository implements BranchRepository, Closeable {
             try (var output = new FileOutputStream(file)) {
                 stream.transferTo(output);
             }
-            git.add().addFilepattern(change.getData().getName()).call();
+            git().add().addFilepattern(change.getData().getName()).call();
             changedFiles.add(change.getData().getName());
         } else {
             if (file.exists()) {
-                git.rm().addFilepattern(change.getData().getName()).call();
+                git().rm().addFilepattern(change.getData().getName()).call();
                 changedFiles.add(change.getData().getName());
             }
         }
@@ -2266,7 +2271,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private RevCommit commitChangedFiles(CommitCommand commitCommand) throws GitAPIException {
         RevCommit commit;
-        if (git.status().call().getUncommittedChanges().isEmpty()) {
+        if (git().status().call().getUncommittedChanges().isEmpty()) {
             // For the cases:
             // 1) User modified a project, then manually reverted, then pressed save.
             // 2) Copy project that does not have rules.xml, check "Copy old revisions". The last one commit should
@@ -2296,7 +2301,7 @@ public class GitRepository implements BranchRepository, Closeable {
             checkoutForced(branch);
             var commitId = lastCommit.getId();
             var ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
-            var mergeDetached = git.merge().include(commitId).setCommit(false).call();
+            var mergeDetached = git().merge().include(commitId).setCommit(false).call();
             validateNonConflictingMerge(mergeDetached);
             validateMergeConflict(mergeDetached, false, folderData.getBranch(), folderData.getAuthor());
             applyMergeCommit(mergeDetached, getMergeMessage(ref), folderData.getAuthor());
@@ -2306,7 +2311,7 @@ public class GitRepository implements BranchRepository, Closeable {
     private RevCommit resolveConflict(UserInfo author, ConflictResolveData conflictResolveData) throws GitAPIException,
             IOException {
         // Merge with a commit we have a conflict.
-        var mergeResult = git.merge()
+        var mergeResult = git().merge()
                 .include(getCommitByVersion(conflictResolveData.getCommitToMerge()))
                 .call();
 
@@ -2326,12 +2331,12 @@ public class GitRepository implements BranchRepository, Closeable {
         if (mergeMessage == null) {
             mergeMessage = "Merge";
         }
-        var conflictResolveCommit = git.commit()
+        var conflictResolveCommit = git().commit()
                 .setNoVerify(noVerify)
                 .setMessage(mergeMessage)
                 .setCommitter(committerName(author), committerEmail(author));
 
-        var status = git.status().call();
+        var status = git().status().call();
 
         var changedFiles = new HashSet<String>();
         for (FileItem change : conflictResolveData.getResolvedFiles()) {
@@ -2340,19 +2345,19 @@ public class GitRepository implements BranchRepository, Closeable {
 
         for (String changed : status.getChanged()) {
             if (!changedFiles.contains(changed)) {
-                git.add().addFilepattern(changed).call();
+                git().add().addFilepattern(changed).call();
                 changedFiles.add(changed);
             }
         }
         for (String added : status.getAdded()) {
             if (!changedFiles.contains(added)) {
-                git.add().addFilepattern(added).call();
+                git().add().addFilepattern(added).call();
                 changedFiles.add(added);
             }
         }
         for (String removed : status.getRemoved()) {
             if (!changedFiles.contains(removed)) {
-                git.rm().addFilepattern(removed).call();
+                git().rm().addFilepattern(removed).call();
                 changedFiles.add(removed);
             }
         }
@@ -2361,14 +2366,14 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private ObjectId getCommitByVersion(String version) throws IOException {
-        var ref = git.getRepository().findRef(version);
+        var ref = git().getRepository().findRef(version);
         if (ref == null) {
             // Version is a hash for commit
-            return git.getRepository().resolve(version);
+            return git().getRepository().resolve(version);
         }
 
         // Version is a tag.
-        var objectId = git.getRepository().getRefDatabase().peel(ref).getPeeledObjectId();
+        var objectId = git().getRepository().getRefDatabase().peel(ref).getPeeledObjectId();
         // Not annotated tags return null for getPeeledObjectId().
         return objectId == null ? ref.getObjectId() : objectId;
     }
@@ -2395,7 +2400,7 @@ public class GitRepository implements BranchRepository, Closeable {
             initLfsCredentials();
             reset();
 
-            branchAbsentBefore = !branchRefExists(git.getRepository(), newBranch);
+            branchAbsentBefore = !branchRefExists(git().getRepository(), newBranch);
             if (branchAbsentBefore) {
                 createGitBranch(newBranch, startPoint);
             }
@@ -2418,12 +2423,12 @@ public class GitRepository implements BranchRepository, Closeable {
         if (isEmpty()) {
             throw new IOException("Cannot create a branch on the empty repository.");
         }
-        if (startPoint != null && git.getRepository().resolve(startPoint) == null) {
+        if (startPoint != null && git().getRepository().resolve(startPoint) == null) {
             throw new IOException("Cannot resolve " + startPoint);
         }
 
         checkoutForced(branch);
-        var createBranchCommand = git.branchCreate().setName(newBranch);
+        var createBranchCommand = git().branchCreate().setName(newBranch);
         if (startPoint != null) {
             createBranchCommand.setStartPoint(startPoint);
         }
@@ -2437,7 +2442,7 @@ public class GitRepository implements BranchRepository, Closeable {
             return;
         }
         try {
-            git.branchDelete().setBranchNames(branch).call();
+            git().branchDelete().setBranchNames(branch).call();
         } catch (Exception ignored) {
             // safe to ignore: rollback is best-effort and the original exception is rethrown
         }
@@ -2474,8 +2479,8 @@ public class GitRepository implements BranchRepository, Closeable {
 
         // A checked out branch cannot be deleted, so switch the shared work tree to the base branch first.
         checkoutForced(baseBranch);
-        if (git.getRepository().exactRef(Constants.R_HEADS + branch) != null) {
-            git.branchDelete().setBranchNames(branch).setForce(true).call();
+        if (git().getRepository().exactRef(Constants.R_HEADS + branch) != null) {
+            git().branchDelete().setBranchNames(branch).setForce(true).call();
         }
         pushBranch(new RefSpec().setSource(null).setDestination(Constants.R_HEADS + branch));
     }
@@ -2489,7 +2494,7 @@ public class GitRepository implements BranchRepository, Closeable {
         try {
             var branchNames = getAvailableBranches();
             var remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
-            var remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
+            var remoteBranches = git().branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
             remoteBranches.stream()
                     .filter(ref -> !ref.isSymbolic())
                     .map(Ref::getName)
@@ -2514,7 +2519,7 @@ public class GitRepository implements BranchRepository, Closeable {
         var readLock = repositoryLock.readLock();
         try {
             readLock.lock();
-            var repository = git.getRepository();
+            var repository = git().getRepository();
             var result = new HashMap<String, BranchStatus>();
             try (var walk = new RevWalk(repository)) {
                 for (String branchName : branchNames) {
@@ -2544,7 +2549,7 @@ public class GitRepository implements BranchRepository, Closeable {
         var readLock = repositoryLock.readLock();
         try {
             readLock.lock();
-            var repository = git.getRepository();
+            var repository = git().getRepository();
             var result = new HashMap<String, BranchTreeRevision>();
             try (var walk = new RevWalk(repository)) {
                 for (String branchName : branchNames) {
@@ -2627,7 +2632,7 @@ public class GitRepository implements BranchRepository, Closeable {
             initLfsCredentials();
 
             var empty = isEmpty();
-            if (!branchRefExists(git.getRepository(), branch) && !empty) {
+            if (!branchRefExists(git().getRepository(), branch) && !empty) {
                 throw new IOException("Cannot find branch '%s'".formatted(branch));
             }
             if (localBranchExists(branch) || empty) {
@@ -2671,7 +2676,7 @@ public class GitRepository implements BranchRepository, Closeable {
      * Whether the branch is checked out locally. A branch known only as a remote ref is not.
      */
     private boolean localBranchExists(String branch) throws IOException {
-        return git.getRepository().exactRef(Constants.R_HEADS + branch) != null;
+        return git().getRepository().exactRef(Constants.R_HEADS + branch) != null;
     }
 
     private static @Nullable Ref findBranchRef(Repository repository, String branch) throws IOException {
@@ -2683,7 +2688,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
         if (!localBranchExists(branch) && !isEmpty()) {
-            createRemoteTrackingBranch(git, branch);
+            createRemoteTrackingBranch(git(), branch);
         }
 
         var repo = new GitRepository();
@@ -2704,7 +2709,7 @@ public class GitRepository implements BranchRepository, Closeable {
         repo.setTagPrefix(tagPrefix);
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
-        repo.git = git;
+        repo.git.set(git());
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
         // repository is same
         repo.remoteRepoLock = remoteRepoLock; // must be common for all instances because git
@@ -2723,7 +2728,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     TreeSet<String> getAvailableBranches() throws GitAPIException {
-        return getAvailableBranches(git);
+        return getAvailableBranches(git());
     }
 
     private TreeSet<String> getAvailableBranches(Git git) throws GitAPIException {
@@ -2745,7 +2750,7 @@ public class GitRepository implements BranchRepository, Closeable {
             return;
         }
 
-        var push = git.push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
+        var push = git().push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
 
         var credentialsProvider = getCredentialsProvider(GitActionType.PUSH_BRANCH);
         if (credentialsProvider != null) {
@@ -2774,7 +2779,7 @@ public class GitRepository implements BranchRepository, Closeable {
                         if (relativePath.startsWith("/")) {
                             relativePath = relativePath.substring(1);
                         }
-                        git.rm().addFilepattern(relativePath).call();
+                        git().rm().addFilepattern(relativePath).call();
                     }
                 }
             }
@@ -2793,16 +2798,16 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private String getMergeMessage(Ref r) throws IOException {
-        return new MergeMessageFormatter().format(List.of(r), git.getRepository().exactRef(Constants.HEAD));
+        return new MergeMessageFormatter().format(List.of(r), git().getRepository().exactRef(Constants.HEAD));
     }
 
     boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
         if (baseVersion != null) {
-            List<Ref> tags = git.tagList().call();
+            List<Ref> tags = git().tagList().call();
 
-            RevCommit commit = findFirstCommit(git, resolveBranchId(), path);
+            RevCommit commit = findFirstCommit(git(), resolveBranchId(), path);
             if (commit != null) {
-                String lastVersion = getVersionName(git.getRepository(), tags, commit);
+                String lastVersion = getVersionName(git().getRepository(), tags, commit);
                 return !baseVersion.equals(lastVersion);
             }
         }
@@ -2837,7 +2842,7 @@ public class GitRepository implements BranchRepository, Closeable {
         if (closed) {
             return Git.open(getLocalGitRoot());
         } else {
-            return new Git(git.getRepository());
+            return new Git(git().getRepository());
         }
     }
 
@@ -2878,7 +2883,7 @@ public class GitRepository implements BranchRepository, Closeable {
         if (!useLFS) {
             return loader;
         }
-        return LfsBlobFilter.smudgeLfsBlob(git.getRepository(), loader);
+        return LfsBlobFilter.smudgeLfsBlob(git().getRepository(), loader);
     }
 
     private void configureBuiltInLFS(Repository repository) throws IOException {
@@ -3108,7 +3113,7 @@ public class GitRepository implements BranchRepository, Closeable {
         private FileData last;
 
         private ListHistoryVisitor() {
-            repository = git.getRepository();
+            repository = git().getRepository();
         }
 
         @Override
@@ -3153,7 +3158,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
         private ListFilesHistoryVisitor(String version) {
             this.version = version;
-            repository = git.getRepository();
+            repository = git().getRepository();
         }
 
         @Override
@@ -3187,7 +3192,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
         private CheckHistoryVisitor(String version) {
             this.version = version;
-            repository = git.getRepository();
+            repository = git().getRepository();
         }
 
         @Override
@@ -3220,7 +3225,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
         private ReadHistoryVisitor(String version) {
             this.version = version;
-            repository = git.getRepository();
+            repository = git().getRepository();
         }
 
         @Override

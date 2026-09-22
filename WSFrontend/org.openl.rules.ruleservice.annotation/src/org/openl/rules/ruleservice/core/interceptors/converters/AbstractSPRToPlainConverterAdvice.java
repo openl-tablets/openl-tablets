@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.core.interceptors.converters;
 
 import java.lang.reflect.Array;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import lombok.AccessLevel;
@@ -30,7 +31,7 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
     private XlsModuleOpenClass module;
     @Getter(AccessLevel.PROTECTED)
     private IOpenMember openMember;
-    private volatile Pair<Class<?>, IOpenClass> convertToType;
+    private final AtomicReference<Pair<Class<?>, IOpenClass>> convertToType = new AtomicReference<>();
 
     @Setter
     private RulesDeploy rulesDeploy;
@@ -63,13 +64,15 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
     @Override
     public void setIOpenMember(IOpenMember openMember) {
         this.openMember = openMember;
-        this.convertToType = getConvertToType();
+        this.convertToType.set(getConvertToType());
     }
 
     protected Pair<Class<?>, IOpenClass> getConvertToType() {
-        if (convertToType == null) {
+        var type = convertToType.get();
+        if (type == null) {
             synchronized (this) {
-                if (convertToType == null) {
+                type = convertToType.get();
+                if (type == null) {
                     var convertToType1 = Pair.<Class<?>, IOpenClass>of(null, null);
                     var openClass = openMember.getType();
                     var dim = 0;
@@ -94,10 +97,11 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                         }
                         convertToType1 = Pair.of(t, openClass);
                     }
-                    convertToType = convertToType1;
+                    type = convertToType1;
+                    convertToType.set(type);
                 }
             }
         }
-        return convertToType;
+        return type;
     }
 }

@@ -3,6 +3,7 @@ package org.openl.rules.project.instantiation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     private final AbstractDependencyManager dependencyManager;
     @Getter
     private final ResolvedDependency dependency;
-    private volatile CompiledDependency compiledDependency;
+    private final AtomicReference<CompiledDependency> compiledDependency = new AtomicReference<>();
     private final boolean executionMode;
     @Getter
     private final ProjectDescriptor project;
@@ -39,7 +40,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public CompiledDependency getRefToCompiledDependency() {
-        return compiledDependency;
+        return compiledDependency.get();
     }
 
     @Override
@@ -67,14 +68,14 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public final CompiledDependency getCompiledDependency() throws OpenLCompilationException {
-        var cachedDependency = compiledDependency;
+        var cachedDependency = compiledDependency.get();
         if (cachedDependency != null) {
             log.debug("Compiled dependency '{}' is used from cache.", dependency);
             return cachedDependency;
         }
         log.debug("Dependency '{}' is not found in cache.", dependency);
         synchronized (dependencyManager) {
-            cachedDependency = compiledDependency;
+            cachedDependency = compiledDependency.get();
             if (cachedDependency != null) {
                 log.debug("Compiled dependency '{}' is used from cache.", dependency);
                 return cachedDependency;
@@ -124,7 +125,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
                     isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
             if (isActualDependency()) {
                 onCompilationComplete(this, compiledDependency);
-                this.compiledDependency = compiledDependency;
+                this.compiledDependency.set(compiledDependency);
                 log.debug("Dependency '{}' is saved in cache.", dependency);
             }
             return compiledDependency;
@@ -161,11 +162,11 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public void reset() {
-        var compiledDependency1 = compiledDependency;
+        var compiledDependency1 = compiledDependency.get();
         if (compiledDependency1 != null) {
             onResetComplete(this, compiledDependency1);
         }
-        compiledDependency = null;
+        compiledDependency.set(null);
     }
 
     protected void onResetComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {

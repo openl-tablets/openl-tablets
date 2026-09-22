@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.storelogdata.db;
 
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.Setter;
 import org.hibernate.SessionFactory;
@@ -16,18 +17,20 @@ public class HibernateSessionFactoryBuilder implements ApplicationContextAware {
 
     @Setter
     private ApplicationContext applicationContext;
-    private volatile Properties applicationContextProperties;
+    private final AtomicReference<Properties> applicationContextProperties = new AtomicReference<>();
 
     private Properties getApplicationContextProperties() {
-        if (this.applicationContextProperties == null) {
+        var properties = applicationContextProperties.get();
+        if (properties == null) {
             synchronized (this) {
-                if (this.applicationContextProperties == null) {
-                    this.applicationContextProperties = PropertiesLoader
-                            .getApplicationContextProperties(applicationContext);
+                properties = applicationContextProperties.get();
+                if (properties == null) {
+                    properties = PropertiesLoader.getApplicationContextProperties(applicationContext);
+                    applicationContextProperties.set(properties);
                 }
             }
         }
-        return this.applicationContextProperties;
+        return properties;
     }
 
     public SessionFactory buildSessionFactory(Class<?>[] entityClasses) {

@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -32,7 +33,7 @@ public class OpenLService {
         // Utility class
     }
 
-    static volatile RulesFrontend rulesFrontend; // non-private opened for testing purposes
+    static final AtomicReference<RulesFrontend> rulesFrontend = new AtomicReference<>(); // non-private for tests
     private static ClassPathXmlApplicationContext context;
 
     /**
@@ -256,31 +257,34 @@ public class OpenLService {
     }
 
     private static org.openl.rules.ruleservice.core.OpenLService getService(String serviceName) {
-        if (rulesFrontend == null) {
+        var frontend = rulesFrontend.get();
+        if (frontend == null) {
             synchronized (OpenLService.class) {
-                if (rulesFrontend == null) {
+                frontend = rulesFrontend.get();
+                if (frontend == null) {
                     var springContext = new ClassPathXmlApplicationContext();
                     springContext.setConfigLocations("classpath:openl-ruleservice-beans.xml");
                     new PropertySourcesLoader().initialize(springContext);
                     springContext.refresh();
                     context = springContext;
-                    rulesFrontend = springContext.getBean(RulesFrontend.class);
+                    frontend = springContext.getBean(RulesFrontend.class);
+                    rulesFrontend.set(frontend);
                 }
             }
         }
-        return rulesFrontend.findServiceByName(serviceName);
+        return frontend.findServiceByName(serviceName);
     }
 
     /**
      * Reset the previous initialized Rules Frontend instance.
      */
     public static void reset() {
-        if (rulesFrontend != null) {
+        if (rulesFrontend.get() != null) {
             synchronized (OpenLService.class) {
-                if (rulesFrontend != null) {
+                if (rulesFrontend.get() != null) {
                     context.close();
                     context = null;
-                    rulesFrontend = null;
+                    rulesFrontend.set(null);
                 }
             }
         }

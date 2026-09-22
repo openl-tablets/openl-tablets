@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,16 +35,18 @@ import org.openl.types.StaticOpenClass;
 @Slf4j
 public abstract class AOpenClass implements IOpenClass {
 
-    private volatile StaticOpenClass staticOpenClass;
+    private final AtomicReference<StaticOpenClass> staticOpenClass = new AtomicReference<>();
 
 
     protected static final Map<MethodKey, IOpenMethod> STUB = Map.of();
     private IOpenField indexField;
 
     protected IMetaInfo xlsMetaInfo;
-    protected volatile Map<String, IOpenField> uniqueLowerCaseFieldMap;
+    private final AtomicReference<LowerCaseFieldMaps> lowerCaseFieldMaps = new AtomicReference<>();
 
-    protected volatile Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap;
+    /** The fields by lower-cased name: those whose name is unique apart from those sharing a name. */
+    private record LowerCaseFieldMaps(Map<String, IOpenField> unique, Map<String, List<IOpenField>> nonUnique) {
+    }
 
     private void addFieldToLowerCaseMaps(IOpenField f,
                                          Map<String, IOpenField> uniqueLCaseFieldMap,
@@ -63,10 +66,11 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     protected void addFieldToLowerCaseMap(IOpenField f) {
-        if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
+        var maps = lowerCaseFieldMaps.get();
+        if (maps == null) {
             return;
         }
-        addFieldToLowerCaseMaps(f, getUniqueLowerCaseFieldMap(), getNonUniqueLowerCaseFieldMap());
+        addFieldToLowerCaseMaps(f, maps.unique(), maps.nonUnique());
     }
 
     protected abstract Map<String, IOpenField> fieldMap();
@@ -208,17 +212,11 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     private Map<String, List<IOpenField>> getNonUniqueLowerCaseFieldMap() {
-        if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
-            makeLowerCaseMaps();
-        }
-        return nonUniqueLowerCaseFieldMap;
+        return lowerCaseFieldMaps().nonUnique();
     }
 
     private Map<String, IOpenField> getUniqueLowerCaseFieldMap() {
-        if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
-            makeLowerCaseMaps();
-        }
-        return uniqueLowerCaseFieldMap;
+        return lowerCaseFieldMaps().unique();
     }
 
     @Override
@@ -260,41 +258,54 @@ public abstract class AOpenClass implements IOpenClass {
         return null;
     }
 
-    private synchronized void makeLowerCaseMaps() {
-        if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
-            var uniqueLCaseFieldMap = new HashMap<String, IOpenField>();
-            var nonUniqueLCaseFieldMap = new HashMap<String, List<IOpenField>>();
-            for (IOpenField field : getFields()) {
-                addFieldToLowerCaseMaps(field, uniqueLCaseFieldMap, nonUniqueLCaseFieldMap);
-            }
-            this.uniqueLowerCaseFieldMap = uniqueLCaseFieldMap;
-            this.nonUniqueLowerCaseFieldMap = nonUniqueLCaseFieldMap;
-        }
-    }
-
-    private volatile Map<MethodKey, IOpenMethod> methodMap;
-    private volatile Map<MethodKey, IOpenMethod> constructorMap;
-
-    private Map<MethodKey, IOpenMethod> methodMap() {
-        if (methodMap == null) {
+    private LowerCaseFieldMaps lowerCaseFieldMaps() {
+        var maps = lowerCaseFieldMaps.get();
+        if (maps == null) {
             synchronized (this) {
-                if (methodMap == null) {
-                    methodMap = initMethodMap();
+                maps = lowerCaseFieldMaps.get();
+                if (maps == null) {
+                    var uniqueLCaseFieldMap = new HashMap<String, IOpenField>();
+                    var nonUniqueLCaseFieldMap = new HashMap<String, List<IOpenField>>();
+                    for (IOpenField field : getFields()) {
+                        addFieldToLowerCaseMaps(field, uniqueLCaseFieldMap, nonUniqueLCaseFieldMap);
+                    }
+                    maps = new LowerCaseFieldMaps(uniqueLCaseFieldMap, nonUniqueLCaseFieldMap);
+                    lowerCaseFieldMaps.set(maps);
                 }
             }
         }
-        return methodMap;
+        return maps;
+    }
+
+    private final AtomicReference<Map<MethodKey, IOpenMethod>> methodMap = new AtomicReference<>();
+    private final AtomicReference<Map<MethodKey, IOpenMethod>> constructorMap = new AtomicReference<>();
+
+    private Map<MethodKey, IOpenMethod> methodMap() {
+        var methods = methodMap.get();
+        if (methods == null) {
+            synchronized (this) {
+                methods = methodMap.get();
+                if (methods == null) {
+                    methods = initMethodMap();
+                    methodMap.set(methods);
+                }
+            }
+        }
+        return methods;
     }
 
     private Map<MethodKey, IOpenMethod> constructorMap() {
-        if (constructorMap == null) {
+        var constructors = constructorMap.get();
+        if (constructors == null) {
             synchronized (this) {
-                if (constructorMap == null) {
-                    constructorMap = initConstructorMap();
+                constructors = constructorMap.get();
+                if (constructors == null) {
+                    constructors = initConstructorMap();
+                    constructorMap.set(constructors);
                 }
             }
         }
-        return constructorMap;
+        return constructors;
     }
 
     protected Map<MethodKey, IOpenMethod> initMethodMap() {
@@ -306,24 +317,28 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     private IOpenMethod putMethod(IOpenMethod method) {
-        if (methodMap == null || methodMap == STUB) {
+        var methods = methodMap.get();
+        if (methods == null || methods == STUB) {
             synchronized (this) {
-                if (methodMap == null) {
-                    methodMap = initMethodMap();
+                methods = methodMap.get();
+                if (methods == null) {
+                    methods = initMethodMap();
                 }
-                if (methodMap == STUB) {
-                    methodMap = HashMap.newHashMap(4);
+                if (methods == STUB) {
+                    methods = HashMap.newHashMap(4);
                 }
+                methodMap.set(methods);
             }
         }
         var key = new MethodKey(method);
-        return methodMap.put(key, method);
+        return methods.put(key, method);
     }
 
     protected void removeMethod(IOpenMethod method) {
-        if (methodMap != null) {
+        var methods = methodMap.get();
+        if (methods != null) {
             var key = new MethodKey(method);
-            methodMap.remove(key);
+            methods.remove(key);
             invalidateInternalData();
         }
     }
@@ -341,7 +356,7 @@ public abstract class AOpenClass implements IOpenClass {
         allMethodsCacheInvalidated = true;
         allMethodNamesMapInvalidated = true;
         allConstructorNamesMapInvalidated = true;
-        constructorMap = null;
+        constructorMap.set(null);
     }
 
     private Collection<IOpenMethod> allMethodsCache;
@@ -506,14 +521,17 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public IOpenClass toStaticClass() {
-        if (staticOpenClass == null) {
+        var staticClass = staticOpenClass.get();
+        if (staticClass == null) {
             synchronized (this) {
-                if (staticOpenClass == null) {
-                    staticOpenClass = new StaticOpenClass(this);
+                staticClass = staticOpenClass.get();
+                if (staticClass == null) {
+                    staticClass = new StaticOpenClass(this);
+                    staticOpenClass.set(staticClass);
                 }
             }
         }
-        return staticOpenClass;
+        return staticClass;
     }
 
     @Override
