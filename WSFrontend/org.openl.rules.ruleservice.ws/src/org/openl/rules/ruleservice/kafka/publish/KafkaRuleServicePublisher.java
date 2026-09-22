@@ -395,36 +395,40 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private boolean stopAndClose(
             Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>> t) {
         var ret = true;
-        var interrupted = false;
         for (KafkaService kafkaService : t.getLeft()) {
             try {
                 kafkaService.stop();
             } catch (Exception e1) {
-                interrupted |= e1 instanceof InterruptedException;
+                if (e1 instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
                 ret = false;
                 log.error("Failed to stop kafka service.", e1);
             }
         }
-        for (KafkaProducer<?, ?> kafkaProducer : t.getMiddle()) {
-            try {
-                kafkaProducer.close();
-            } catch (Exception e1) {
-                ret = false;
-                log.error("Failed to close kafka producer.", e1);
+        // A Kafka client gives up on closing as soon as its thread is interrupted, so the interrupt is put aside
+        // while the producers and the consumers close, and restored afterwards.
+        var interrupted = Thread.interrupted();
+        try {
+            ret &= closeAll(t.getMiddle(), "producer");
+            ret &= closeAll(t.getRight(), "consumer");
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
             }
         }
-        for (KafkaConsumer<?, ?> kafkaConsumer : t.getRight()) {
+        return ret;
+    }
+
+    private static boolean closeAll(Collection<? extends AutoCloseable> clients, String kind) {
+        var ret = true;
+        for (var client : clients) {
             try {
-                kafkaConsumer.close();
+                client.close();
             } catch (Exception e1) {
                 ret = false;
-                log.error("Failed to close kafka consumer.", e1);
+                log.error("Failed to close kafka {}.", kind, e1);
             }
-        }
-        if (interrupted) {
-            // Restored only now: a Kafka client gives up on closing as soon as its thread is interrupted,
-            // so the producers and the consumers above would have been left open.
-            Thread.currentThread().interrupt();
         }
         return ret;
     }
