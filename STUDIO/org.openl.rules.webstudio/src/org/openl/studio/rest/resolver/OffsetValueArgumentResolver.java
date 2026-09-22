@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import org.openl.rules.repository.api.Offset;
-import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 
 /**
@@ -26,7 +25,7 @@ public class OffsetValueArgumentResolver extends AbstractPaginationValueArgument
         var offset = Optional.ofNullable(parseParameter(webRequest, OFFSET_QUERY_PARAM, 0));
         var size = Optional.ofNullable(parseParameter(webRequest, PAGE_SIZE_QUERY_PARAM, 1));
         if (def.isEmpty() && size.isEmpty() && offset.isEmpty()) {
-            return Page.unpaged();
+            return Pageable.unpaged();
         }
 
         var pageOffset = offset.orElseGet(() -> def.map(Offset::getOffset).orElse(0));

@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.SearchableRepository;
@@ -53,7 +52,7 @@ public class HistoryRepositoryMapper {
             history = ((SearchableRepository) repository).listHistory(name, globalFilter, techRevs, pageable);
             // For searchable repos, we don't have total count
         } else {
-            pageable = Page.unpaged();
+            pageable = Pageable.unpaged();
             history = repository.listHistory(name);
         }
         var mappedHistory = history.stream().map(this::mapProjectRevision).collect(Collectors.toList());

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.projects.model.tables.ARuleHeaderView;
 import org.openl.studio.projects.model.tables.SimpleRuleHeaderView;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
@@ -55,7 +56,7 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
                     ruleName = headers.get(col).title;
                 }
                 if (ruleName == null) {
-                    ruleName = SimpleRuleHeaderView.UNKNOWN_HEADER_NAME + col;
+                    ruleName = ARuleHeaderView.UNKNOWN_HEADER_NAME + col;
                 }
                 rule.put(ruleName, cellValueReader.apply(tableBody.getCell(col, row)));
             }
