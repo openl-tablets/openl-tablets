@@ -4127,7 +4127,7 @@ public final class DecisionTableHelper {
         try {
             final var sheet = workbook.createSheet();
             final var sourceCodeModule = new StringSourceCodeModule("", null);
-            final var workbookLoader = new SimpleWorkbookLoader(sheet.getWorkbook());
+            final var workbookLoader = new SimpleWorkbookLoader(workbook);
             var mockWorkbookSource = new XlsWorkbookSourceCodeModule(sourceCodeModule,
                     workbookLoader);
             var mockSheetSource = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet),
