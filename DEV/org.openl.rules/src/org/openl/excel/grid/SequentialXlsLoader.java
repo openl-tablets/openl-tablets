@@ -194,8 +194,8 @@ public class SequentialXlsLoader {
     }
 
     protected static String getParentAndMergePaths(String p1, String p2) {
-        p1 = p1.replaceAll("\\\\", "/");
-        p2 = p2.replaceAll("\\\\", "/");
+        p1 = p1.replace('\\', '/');
+        p2 = p2.replace('\\', '/');
 
         var pp1 = p1.split("/");
         var pp2 = p2.split("/");

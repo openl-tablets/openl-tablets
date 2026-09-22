@@ -66,7 +66,7 @@ class LazyFileData extends FileData {
         if (StringUtils.isBlank(url)) {
             return url;
         }
-        return URLEncoder.encode(url, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        return URLEncoder.encode(url, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     static String decode(String url) {
