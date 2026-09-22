@@ -65,6 +65,9 @@ class BExGrammarWithParsingHelp extends BExGrammar {
                 case "type":
                     parseType();
                     break;
+                default:
+                    // other node types have nothing to parse
+                    break;
             }
         } catch (ParseException pe) {
             var sne = reparseTokens();

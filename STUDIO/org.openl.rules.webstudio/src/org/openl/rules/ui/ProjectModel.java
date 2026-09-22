@@ -932,6 +932,9 @@ public class ProjectModel {
                             .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
                 }
                 break;
+            default:
+                // nothing compiled is dropped for the other reload types
+                break;
         }
         setModuleInfo(moduleToOpen, reloadType);
     }

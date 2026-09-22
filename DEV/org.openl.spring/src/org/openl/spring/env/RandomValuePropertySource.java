@@ -32,6 +32,9 @@ class RandomValuePropertySource extends PropertySource<Random> {
             case "random.int" -> { return getSource().nextInt(); }
             case "random.long" -> { return getSource().nextLong(); }
             case "random.uuid" -> { return UUID.randomUUID().toString(); }
+            default -> {
+                // a ranged or unknown name is resolved below
+            }
         }
 
         if (name.startsWith("random.int(")) {

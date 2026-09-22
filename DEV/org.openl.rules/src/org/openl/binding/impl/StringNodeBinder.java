@@ -101,6 +101,9 @@ public class StringNodeBinder extends ANodeBinder {
                         buf.append(processOctal(s, i));
                         i += calcOctalLen(s, i) - 1;
                         break;
+                    default:
+                        // an unknown escape sequence is dropped
+                        break;
                 }
             } else {
                 buf.append(c);

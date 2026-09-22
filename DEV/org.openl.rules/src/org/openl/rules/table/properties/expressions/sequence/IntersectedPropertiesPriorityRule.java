@@ -31,6 +31,9 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
                     nested = false;
                     contains = false;
                     break propsLoop;
+                default:
+                    // an unknown intersection does not affect the order
+                    break;
             }
         }
         if (nested && !contains) {

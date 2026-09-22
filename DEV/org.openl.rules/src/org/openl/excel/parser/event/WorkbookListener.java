@@ -149,6 +149,9 @@ public class WorkbookListener implements HSSFListener {
                         nextRow = frec.getRow();
                         nextColumn = frec.getColumn();
                         break;
+                    default:
+                        // an error result is not a cell value
+                        break;
                 }
                 indent = formatListener.getIndent(frec);
 
