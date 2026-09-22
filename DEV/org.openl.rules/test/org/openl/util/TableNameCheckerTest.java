@@ -56,7 +56,7 @@ class TableNameCheckerTest {
 
     @Test
     void emptyCharacters() {
-        TableNameChecker.isValidJavaIdentifier("       af");
+        assertFalse(TableNameChecker.isValidJavaIdentifier("       af"));
     }
 
 }

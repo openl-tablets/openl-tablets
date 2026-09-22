@@ -1,5 +1,6 @@
 package org.openl.rules.maven.extension;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -98,8 +99,8 @@ class ReactorReaderInjectorTest {
     @Test
     void noOpsOnNullWorkspaceReader() {
         var session = sessionWith(null);
-        // Just verify no exception — there's nothing observable to assert when the chain is empty.
-        ReactorReaderInjector.inject(session, List.of(project("g", "a", "1")));
+        // Nothing else is observable when the chain is empty.
+        assertDoesNotThrow(() -> ReactorReaderInjector.inject(session, List.of(project("g", "a", "1"))));
     }
 
     /**

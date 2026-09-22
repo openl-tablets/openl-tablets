@@ -1,5 +1,7 @@
 package org.openl.rules.binding;
 
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -60,7 +62,7 @@ class MultiCallMethodTest {
 
     @Test
     void testVoidCallFromTBasic() {
-        instance.TBasicCall();
+        assertDoesNotThrow(instance::TBasicCall);
     }
 
     public interface ArrayMethodsInterf {
