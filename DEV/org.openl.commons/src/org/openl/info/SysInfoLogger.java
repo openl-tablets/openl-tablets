@@ -64,18 +64,12 @@ final class SysInfoLogger extends OpenLLogger {
 
     public void memStat() {
         try {
-            System.gc();
-            Thread.sleep(100); // Wait GC performing
             var runtime = Runtime.getRuntime();
             log("Memory : Max={}   Committed={}   Used={}",
                     toMiB(runtime.maxMemory()),
                     toMiB(runtime.totalMemory()),
                     toMiB(runtime.totalMemory() - runtime.freeMemory()));
-
         } catch (Exception e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
             log("##### Cannot access to the Runtime environment");
         }
 
