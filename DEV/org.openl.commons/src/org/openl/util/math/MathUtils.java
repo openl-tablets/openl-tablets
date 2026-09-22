@@ -88,9 +88,8 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
         values = ArrayTool.removeNulls(values);
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[index];
@@ -100,8 +99,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[index];
@@ -111,8 +109,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[index];
@@ -122,8 +119,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[index];
@@ -133,8 +129,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[index];
@@ -144,8 +139,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[index];
@@ -155,8 +149,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[index];
@@ -167,9 +160,8 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
         values = ArrayTool.removeNulls(values);
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
@@ -179,8 +171,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
@@ -190,8 +181,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
@@ -201,8 +191,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
@@ -212,8 +201,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
@@ -223,8 +211,7 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
@@ -234,18 +221,19 @@ public class MathUtils {
         if (values == null) {
             return null;
         }
-        var index = position - 1;
-        validateIndex(index < 0 || values.length <= index, position);
+        var index = toIndex(values.length, position);
         var v = values.clone();
         Arrays.sort(v);
         return v[v.length - 1 - index];
     }
 
-    private static void validateIndex(boolean throwException, int position) {
-        if (throwException) {
+    private static int toIndex(int length, int position) {
+        var index = position - 1;
+        if (index < 0 || length <= index) {
             throw new IllegalArgumentException(
                     "There is no position '%d' in the given array.".formatted(position));
         }
+        return index;
     }
 
     // SUM
