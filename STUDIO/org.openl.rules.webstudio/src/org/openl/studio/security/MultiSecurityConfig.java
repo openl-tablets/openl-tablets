@@ -43,7 +43,6 @@ public class MultiSecurityConfig {
 
         var provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
-        provider.setHideUserNotFoundExceptions(false);
         return provider;
     }
 
