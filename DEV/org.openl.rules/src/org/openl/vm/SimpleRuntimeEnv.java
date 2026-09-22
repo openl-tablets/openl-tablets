@@ -97,6 +97,10 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
         pushThis(env.getThis());
         pushLocalFrame(env.getLocalFrame());
         this.tracer = env.tracer;
+        // A copy starts a run of its own: the method in flight and the actions it forked stay with the original.
+        this.topClass = null;
+        this.methodWrapper = null;
+        this.actionStack = null;
     }
 
     /*
