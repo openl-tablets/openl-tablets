@@ -8,14 +8,14 @@ class RangeParserDoubleMultithreadingTest {
 
     // EPBDS-8021. Just for mvn multithreading simulation, for example 7 threads
     // TODO should consider migration to the JUnit5 or TestNG for concurrency running
-    private static final int numsOfThreads = 7;
+    private static final int THREADS = 7;
 
-    private static final int countOfRuns = 50;
+    private static final int RUNS = 50;
 
     @Test
     void doubleRangeMultithreadingRun() throws Exception {
         Runnable t1 = () -> {
-            for (int i = 0; i < countOfRuns; i++) {
+            for (int i = 0; i < RUNS; i++) {
                 try {
                     rangeParserDoubleWithBracket();
                 } catch (Exception e) {
@@ -24,7 +24,7 @@ class RangeParserDoubleMultithreadingTest {
             }
         };
 
-        Thread[] treads = new Thread[numsOfThreads];
+        Thread[] treads = new Thread[THREADS];
         for (int i = 0; i < treads.length; i++) {
             treads[i] = new Thread(t1);
             treads[i].start();

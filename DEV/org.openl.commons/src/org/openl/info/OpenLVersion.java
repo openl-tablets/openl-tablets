@@ -26,10 +26,10 @@ public final class OpenLVersion {
         // Utility class
     }
 
-    private static final String url;
-    private static final String version;
-    private static final String buildDate;
-    private static final String buildNumber;
+    private static final String SITE_URL;
+    private static final String VERSION;
+    private static final String BUILD_DATE;
+    private static final String BUILD_NUMBER;
     private static final Map<String, String> info;
     private static final Map<Object, Object> buildInfo;
 
@@ -41,21 +41,21 @@ public final class OpenLVersion {
         } catch (Exception t) {
             LoggerFactory.getLogger(OpenLVersion.class).warn("openl.version.properties is not found.", t);
         }
-        url = props.getOrDefault("openl.url", "??");
-        version = props.getOrDefault("openl.version", "???");
+        SITE_URL = props.getOrDefault("openl.url", "??");
+        VERSION = props.getOrDefault("openl.version", "???");
         var bd = props.getOrDefault("openl.build.date", "????-??-??");
         // If openl.version.properties is used from classpath and this property is not initialized at build time
         if ("${build.date}".equals(bd)) {
             bd = "????-??-??";
         }
-        buildDate = bd;
-        buildNumber = props.getOrDefault("openl.commit.hash", "????");
+        BUILD_DATE = bd;
+        BUILD_NUMBER = props.getOrDefault("openl.commit.hash", "????");
 
         var source = HashMap.<String, String>newHashMap(6);
-        source.put("openl.site", url);
-        source.put("openl.version", version);
-        source.put("openl.build.date", buildDate);
-        source.put("openl.build.number", buildNumber);
+        source.put("openl.site", SITE_URL);
+        source.put("openl.version", VERSION);
+        source.put("openl.build.date", BUILD_DATE);
+        source.put("openl.build.number", BUILD_NUMBER);
         source.put("openl.start.time", ZonedDateTime.now().toString());
         source.put("openl.start.milli", Long.toString(Instant.now().toEpochMilli()));
         source.put("openl.start.hash",
@@ -88,19 +88,19 @@ public final class OpenLVersion {
     }
 
     public static String getUrl() {
-        return url;
+        return SITE_URL;
     }
 
     public static String getVersion() {
-        return version;
+        return VERSION;
     }
 
     public static String getBuildDate() {
-        return buildDate;
+        return BUILD_DATE;
     }
 
     public static String getBuildNumber() {
-        return buildNumber;
+        return BUILD_NUMBER;
     }
 
     public static Map<String, String> get() {

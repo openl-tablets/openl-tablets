@@ -42,8 +42,8 @@ class MergedRegionsTest {
      * do action, number of rows/columns
      */
     private static class TestDesctiption {
-        private static final String testDescriptionFormat = "test=.+&result=.+&original=.+&from=\\d+&count=\\d+";
-        private static final Pattern testDescriptionPattern = Pattern.compile(testDescriptionFormat);
+        private static final String TEST_DESCRIPTION_FORMAT = "test=.+&result=.+&original=.+&from=\\d+&count=\\d+";
+        private static final Pattern testDescriptionPattern = Pattern.compile(TEST_DESCRIPTION_FORMAT);
 
         @Getter
         private IGridRegion testRegion;
@@ -96,7 +96,7 @@ class MergedRegionsTest {
 
     }
 
-    private static final String __src = "test/rules/MergedRegions.xls";
+    private static final String SRC = "test/rules/MergedRegions.xls";
 
     private List<TestDesctiption> findAllTests(IWritableGrid grid) {
         var result = new ArrayList<TestDesctiption>();
@@ -210,7 +210,7 @@ class MergedRegionsTest {
 
     @Test
     void testDeleteRows() {
-        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
+        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(SRC));
         var sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteRows")),
                 workbook);
@@ -228,7 +228,7 @@ class MergedRegionsTest {
 
     @Test
     void testInsertRows() {
-        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
+        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(SRC));
         var sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertRows")),
                 workbook);
@@ -246,7 +246,7 @@ class MergedRegionsTest {
 
     @Test
     void testDeleteColumns() {
-        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
+        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(SRC));
         var sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("DeleteColumns")),
                 workbook);
@@ -264,7 +264,7 @@ class MergedRegionsTest {
 
     @Test
     void testInsertColumn() {
-        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(__src));
+        var workbook = new XlsWorkbookSourceCodeModule(new URLSourceCodeModule(SRC));
         var sheet = new XlsSheetSourceCodeModule(
                 new SimpleSheetLoader(workbook.getWorkbook().getSheet("InsertColumns")),
                 workbook);

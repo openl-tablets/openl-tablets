@@ -47,7 +47,7 @@ class RulesUtilsTest {
 
     private static TestInterf instance;
 
-    private static final String str = "Testing string value";
+    private static final String STR = "Testing string value";
 
     public interface TestInterf {
         boolean checkOr();
@@ -3994,14 +3994,14 @@ class RulesUtilsTest {
     @Test
     void testStartsWith() {
         String prefix = "Test";
-        assertTrue(instance.testStartsWith(str, prefix));
+        assertTrue(instance.testStartsWith(STR, prefix));
         assertFalse(instance.testStartsWith(null, prefix));
     }
 
     @Test
     void testEndWith() {
         String prefix = "value";
-        assertTrue(instance.testEndsWith(str, prefix));
+        assertTrue(instance.testEndsWith(STR, prefix));
         assertFalse(instance.testEndsWith(null, prefix));
     }
 
@@ -4010,8 +4010,8 @@ class RulesUtilsTest {
         int beginIndex = 3;
         int endIndex = 5;
 
-        assertEquals("ting string value", instance.testSubString(str, beginIndex));
-        assertEquals("ti", instance.testSubString(str, beginIndex, endIndex));
+        assertEquals("ting string value", instance.testSubString(STR, beginIndex));
+        assertEquals("ti", instance.testSubString(STR, beginIndex, endIndex));
         assertEquals("", instance.testSubString("", beginIndex));
         assertNull(instance.testSubString(null, 0));
 
@@ -4021,7 +4021,7 @@ class RulesUtilsTest {
     void testRemoveStart() {
         String remove = "Testing";
 
-        assertEquals(" string value", instance.testRemoveStart(str, remove));
+        assertEquals(" string value", instance.testRemoveStart(STR, remove));
         assertNull(instance.testRemoveStart(null, remove));
         assertEquals("", instance.testRemoveStart("", remove));
     }
@@ -4030,17 +4030,17 @@ class RulesUtilsTest {
     void testRemoveEnd() {
         String remove = "value";
 
-        assertEquals("Testing string ", instance.testRemoveEnd(str, remove));
+        assertEquals("Testing string ", instance.testRemoveEnd(STR, remove));
         assertNull(instance.testRemoveEnd(null, remove));
         assertEquals("", instance.testRemoveEnd("", remove));
     }
 
     @Test
     void testStringCase() {
-        String str = "Testing";
+        String text = "Testing";
 
-        assertEquals("TESTING", instance.testUpperCase(str));
-        assertEquals("testing", instance.testLowerCase(str));
+        assertEquals("TESTING", instance.testUpperCase(text));
+        assertEquals("testing", instance.testLowerCase(text));
         assertNull(instance.testUpperCase(null));
         assertNull(instance.testLowerCase(null));
         assertEquals("", instance.testUpperCase(""));
@@ -4051,7 +4051,7 @@ class RulesUtilsTest {
     void testReplace() {
         String text = "value Teting value string value";
 
-        assertEquals("Testing string text", instance.testReplace(str, "value", "text"));
+        assertEquals("Testing string text", instance.testReplace(STR, "value", "text"));
         assertEquals("text Teting text string text", instance.testReplace(text, "value", "text", 3));
         assertNull(instance.testReplace(null, "value", "text"));
         assertEquals("", instance.testReplace("", "value", "text"));
