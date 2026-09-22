@@ -6,7 +6,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -35,7 +38,7 @@ public class AppServer {
     public static void check(String pathDeployment, Collection<File> jars, String workDir) throws Exception {
         var webAppContext = new WebAppContext();
         var libs = jars.stream().map(File::toURI).map(webAppContext::newResource).collect(Collectors.toList());
-        var warFolder = Files.createTempDirectory("openl-maven-plugin");
+        var warFolder = Files.createTempDirectory("openl-maven-plugin", ownerOnly());
         webAppContext.setWar(warFolder.toString()); // No resources
         webAppContext.addProtectedClassMatcher(new ClassMatcher("org.slf4j.")); // For logging via Maven SLF4J
         webAppContext.addProtectedClassMatcher(new ClassMatcher("-jakarta.activation."));
@@ -80,5 +83,16 @@ public class AppServer {
             System.setProperties(backupProperties);
             Files.deleteIfExists(warFolder);
         }
+    }
+
+    /**
+     * Lets only the owner enter a directory where the file system tracks POSIX permissions.
+     * The isolated classloader running this class has no OpenL utilities, hence the local copy.
+     */
+    private static FileAttribute<?>[] ownerOnly() {
+        if (!FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+            return new FileAttribute<?>[0];
+        }
+        return new FileAttribute<?>[]{PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"))};
     }
 }

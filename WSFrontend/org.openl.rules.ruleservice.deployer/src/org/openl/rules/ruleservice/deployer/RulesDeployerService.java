@@ -42,6 +42,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromFolder;
 import org.openl.util.FileSignatureHelper;
+import org.openl.util.FileTool;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -119,7 +120,7 @@ public class RulesDeployerService implements Closeable {
      *                       it will be overridden.
      */
     public void deploy(String name, InputStream in, boolean ignoreIfExists) throws IOException {
-        Path archiveTmp = Files.createTempFile(StringUtils.isBlank(name) ? DEFAULT_DEPLOYMENT_NAME : name, ".zip");
+        Path archiveTmp = FileTool.createTempFile(StringUtils.isBlank(name) ? DEFAULT_DEPLOYMENT_NAME : name, ".zip");
         try {
             IOUtils.copyAndClose(in, Files.newOutputStream(archiveTmp));
             deployInternal(name, archiveTmp, ignoreIfExists);
@@ -313,7 +314,7 @@ public class RulesDeployerService implements Closeable {
                     if (fileData.isEmpty()) {
                         continue;
                     }
-                    Path tmp = Files.createTempFile(folderName, ".zip");
+                    Path tmp = FileTool.createTempFile(folderName, ".zip");
                     tmpArchives.add(tmp);
                     try (var target = new ZipOutputStream(Files.newOutputStream(tmp))) {
                         Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {

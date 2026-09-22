@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.repository.upload;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import lombok.AccessLevel;
@@ -22,6 +21,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 
 @Slf4j
@@ -69,7 +69,7 @@ public class RulesProjectBuilder {
             }
 
             try {
-                tempLocalRepositoryPath = Files.createTempDirectory("openl-create");
+                tempLocalRepositoryPath = FileTool.createTempDirectory("openl-create");
             } catch (IOException e) {
                 throw new IllegalStateException("Cannot create temp folder");
             }
