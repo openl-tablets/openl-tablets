@@ -6,7 +6,6 @@ import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.ProviderNotFoundException;
 import java.util.Collection;
@@ -39,6 +38,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.zip.ZippedLocalRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
+import org.openl.util.FileTool;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
@@ -64,7 +64,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * Construct a new RulesLoader for bean usage.
      */
     public RuleServiceLoaderImpl(Repository repository) throws IOException {
-        tempPath = Files.createTempDirectory("rules-deploy_");
+        tempPath = FileTool.createTempDirectory("rules-deploy_");
         log.info("Local temporary folder location is: {}", tempPath);
         tempRepo = new FileSystemRepository();
         tempRepo.setUri(tempPath.toString());

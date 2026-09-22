@@ -49,6 +49,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.util.CollectionUtils;
+import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.OS;
@@ -194,7 +195,7 @@ public class ProjectDescriptor {
                                 // FIXME
                                 if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
                                     try {
-                                        Path temp = Files.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
+                                        Path temp = FileTool.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
                                                 FileUtils.getExtension(path));
                                         classPathTempFiles.add(temp);
                                         try (var is = url.openStream()) {

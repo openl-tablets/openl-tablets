@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +29,7 @@ import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.workspace.dtr.FolderMapper;
+import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -369,7 +369,7 @@ public class AProject extends AProjectFolder implements IProject {
                     Path tempFolder = null;
                     try {
                         // Unpack to temp folder
-                        tempFolder = Files.createTempDirectory("openl");
+                        tempFolder = FileTool.createTempDirectory("openl");
                         try (var tempRepository = new FileSystemRepository()) {
                             tempRepository.setRoot(tempFolder);
                             tempRepository.initialize();

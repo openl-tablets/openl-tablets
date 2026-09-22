@@ -11,6 +11,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 import java.util.HashMap;
 
+import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
@@ -93,7 +94,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
         }
         if (root == null) {
             try {
-                root = Files.createTempDirectory("temp");
+                root = FileTool.createTempDirectory("temp");
                 root.toFile().deleteOnExit();
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to initialize temp root directory!", e);
