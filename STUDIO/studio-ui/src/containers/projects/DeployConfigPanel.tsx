@@ -319,7 +319,7 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
                     ? (
                         <Select
                             data-testid="deploy-publishers"
-                            mode="tags"
+                            mode="multiple"
                             onChange={value => set('publishers', value)}
                             options={PUBLISHER_TYPES.map(type => ({ label: type, value: type }))}
                             placeholder={t('browser.deploy_config.publishers_placeholder')}

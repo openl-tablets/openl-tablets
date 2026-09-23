@@ -2,6 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { notification } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { PUBLISHER_TYPES } from '../../services/rulesDeploy'
 import { DeployConfigPanel } from './DeployConfigPanel'
 import { getFileContent, rootFileExists, writeRootFile } from '../../services/files'
 import { getProjectMigration, migrateProject } from '../../services/migration'
@@ -52,12 +53,15 @@ vi.mock('antd', () => {
         void children
         return <input checked={checked as boolean} onChange={e => (onChange as (v: boolean) => void)(e.target.checked)} role="switch" type="checkbox" {...dom} />
     }
+    // The mode and the options say what the field takes, so a test can read them off the rendered input.
     const Select = ({ value, onChange, ...rest }: Record<string, unknown>) => {
         const { options, mode, placeholder, ...dom } = rest
-        void options; void mode; void placeholder
+        void placeholder
         return (
             <input
                 {...dom}
+                data-mode={mode as string}
+                data-offers={(options as { value: string }[]).map(option => option.value).join(',')}
                 data-value={(value as string[]).join(',')}
                 onChange={e => (onChange as (v: string[]) => void)(e.target.value ? e.target.value.split(',') : [])}
             />
@@ -167,6 +171,34 @@ describe('DeployConfigPanel', () => {
         // Cancel discards the edit and returns to the read view of the saved value.
         expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('svc')
         expect(writeRootFile).not.toHaveBeenCalled()
+    })
+
+    it('offers the publishers the engine understands, and takes no others', async () => {
+        vi.mocked(getFileContent).mockResolvedValue(SVC_XML)
+        await renderPanel()
+        await waitFor(() => expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('svc'))
+
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
+
+        // A publisher the deployment engine does not know is dropped when the descriptor is read back, so
+        // the field is chosen from rather than written into.
+        const publishers = screen.getByTestId('deploy-publishers')
+        expect(publishers).toHaveAttribute('data-offers', PUBLISHER_TYPES.join(','))
+        expect(publishers).toHaveAttribute('data-mode', 'multiple')
+    })
+
+    it('keeps a publisher the descriptor already names, whether or not the engine still knows it', async () => {
+        // A descriptor written before a publisher was retired still names it. Dropping it on open would
+        // edit the file behind the reader, so the panel hands the field every publisher the file names,
+        // known or not; the field keeps a value its options do not hold, and offers it for removal.
+        vi.mocked(getFileContent).mockResolvedValue(
+            '<rules-deploy><publishers><publisher>RESTFUL</publisher><publisher>WEBSERVICE</publisher></publishers></rules-deploy>')
+        await renderPanel()
+        await waitFor(() => expect(screen.getByTestId('deploy-publishers')).toHaveTextContent('RESTFUL'))
+
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
+
+        expect(screen.getByTestId('deploy-publishers')).toHaveAttribute('data-value', 'RESTFUL,WEBSERVICE')
     })
 
     it('keeps an edit under way when the project is read again', async () => {
