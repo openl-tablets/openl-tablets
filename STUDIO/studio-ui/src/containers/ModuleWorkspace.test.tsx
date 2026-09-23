@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ModuleWorkspace } from './ModuleWorkspace'
 import { getModuleTables, getRawTable, listModules } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
-import { notifyLoadFailure } from '../services/apiCall'
+import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
 
 const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -33,6 +33,7 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('../hooks', async () => ({
     ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
+    ...(await vi.importActual<typeof import('../hooks/useCanonicalProjectAddress')>('../hooks/useCanonicalProjectAddress')),
 }))
 
 vi.mock('../services/apiCall', async importOriginal => ({
@@ -229,6 +230,8 @@ describe('ModuleWorkspace', () => {
 
     it('reads the tables of the module of the project the address names', async () => {
         workspace.opened = true
+        // Each project answers with its own id.
+        vi.mocked(getProject).mockImplementation(projectId => Promise.resolve({ ...project('OPENED'), id: projectId } as never))
         const { rerender } = render(<ModuleWorkspace />)
         await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: false }))
 
@@ -531,5 +534,90 @@ describe('ModuleWorkspace', () => {
         await waitFor(() => expect(screen.getByTestId('module-table')).toBeInTheDocument())
         expect(getRawTable).toHaveBeenCalledWith('p1', 't-1', expect.objectContaining({ module: 'Bank Rating' }))
         expect(screen.queryByTestId('module-workspace-error')).toBeNull()
+    })
+
+    it('says a link leads to no project when the project is not there, instead of failing to load the module', async () => {
+        routeParams.projectId = 'nonexistent'
+        vi.mocked(getProject).mockRejectedValue(new NotFoundError())
+        render(<ModuleWorkspace />)
+
+        await waitFor(() => expect(screen.getByTestId('project-workspace-missing')).toBeInTheDocument())
+        expect(screen.queryByTestId('module-workspace-error')).toBeNull()
+    })
+
+    it('lists the projects a name leads to, and opens the one picked on the same module and table', async () => {
+        routeParams.projectId = 'Example 1 - Bank Rating'
+        vi.mocked(getProject).mockRejectedValue(new ApiHttpError(409, 'The project name is ambiguous.', {
+            code: 'openl.error.409.project.identifier.ambiguous.message',
+            candidates: [
+                { id: 'ZGVzaWduOkJhbms=', name: 'Example 1 - Bank Rating', repositoryName: 'Design' },
+                { id: 'ZGVzaWduMTpCYW5r', name: 'Example 1 - Bank Rating', repositoryName: 'Design1' },
+            ],
+        }))
+        render(<ModuleWorkspace />)
+
+        await waitFor(() => expect(screen.getByTestId('project-link-ambiguous')).toBeInTheDocument())
+        expect(screen.queryByTestId('module-workspace-error')).toBeNull()
+
+        await userEvent.click(screen.getAllByTestId('project-link-candidate')[1]!)
+        expect(navigateMock).toHaveBeenCalledWith('/projects/ZGVzaWduMTpCYW5r/modules/Bank%20Rating?table=t-1')
+    })
+
+    it('replaces a project name in the address with the project id before reading the module', async () => {
+        workspace.opened = true
+        routeParams.projectId = 'Example 1 - Bank Rating'
+        const { rerender } = render(<ModuleWorkspace />)
+
+        await waitFor(() => expect(navigateMock)
+            .toHaveBeenCalledWith('/projects/p1/modules/Bank%20Rating?table=t-1', { replace: true }))
+        // Nothing of the module is read under the name.
+        expect(screen.getByTestId('module-workspace-loading')).toBeInTheDocument()
+        expect(listModules).not.toHaveBeenCalled()
+
+        // The router moves the address on to the id, and the project is read again by it.
+        routeParams.projectId = 'p1'
+        rerender(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: false }))
+        expect(getModuleTables).toHaveBeenCalledTimes(1)
+        expect(getProject).toHaveBeenLastCalledWith('p1', expect.anything(), expect.anything())
+        expect(listModules).toHaveBeenCalledExactlyOnceWith('p1')
+    })
+
+    it('shows nothing of the project it left while the next project is read, nor reads the module for it', async () => {
+        workspace.opened = true
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: false }))
+        expect(screen.getByTestId('crumb-project')).toHaveTextContent('Example 1 - Bank Rating')
+
+        // The reader moves on to a module of another project; its read is still on its way.
+        const { promise: nextRead, resolve: answerNext } = Promise.withResolvers<never>()
+        vi.mocked(getProject).mockReturnValueOnce(nextRead)
+        routeParams.projectId = 'p2'
+        rerender(<ModuleWorkspace />)
+
+        expect(screen.getByTestId('module-workspace-loading')).toBeInTheDocument()
+        expect(screen.queryByTestId('crumb-project')).toBeNull()
+        expect(listModules).not.toHaveBeenCalledWith('p2')
+        expect(getModuleTables).not.toHaveBeenCalledWith('p2', expect.anything(), expect.anything())
+
+        await act(async () => answerNext({ ...project('OPENED'), id: 'p2', name: 'Car Rating' } as never))
+        expect(screen.getByTestId('crumb-project')).toHaveTextContent('Car Rating')
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p2', 'Bank Rating', { includeOther: false }))
+    })
+
+    it('keeps the project of the address on screen when a read for the address it left answers late', async () => {
+        const { promise: firstRead, resolve: answerFirst } = Promise.withResolvers<never>()
+        vi.mocked(getProject)
+            .mockReturnValueOnce(firstRead)
+            .mockResolvedValueOnce({ ...project('OPENED'), id: 'p2', name: 'Car Rating' } as never)
+        const { rerender } = render(<ModuleWorkspace />)
+
+        // The reader moves on to a module of another project before the first project answers.
+        routeParams.projectId = 'p2'
+        rerender(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('crumb-project')).toHaveTextContent('Car Rating'))
+
+        await act(async () => answerFirst(project('OPENED') as never))
+        expect(screen.getByTestId('crumb-project')).toHaveTextContent('Car Rating')
     })
 })

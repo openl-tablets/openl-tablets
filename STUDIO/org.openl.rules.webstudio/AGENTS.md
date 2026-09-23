@@ -96,6 +96,12 @@ that id travels as a **path segment**, so it **MUST** stay within one.
   `UserWorkspace.getProjectsByName` or for a single `ProjectResolveStrategy`. Leave reading the project to the
   endpoint, so its own refusal message survives. An identity more than one project answers to is reported as
   `project.identifier.ambiguous.message`, naming the ids to choose from.
+- **An ambiguous identity is a choice, not a failure.** `ProjectIdentityConverter` raises it as an
+  `AmbiguityException`, and the 409 body (`AmbiguityError`) lists every match in `candidates` — its id, name,
+  repository and, in a repository with mapped folders, the folder (`ProjectCandidateModel`) — so a client can offer
+  the choice instead of parsing the message. The folder matters: one such repository may hold a name in several
+  folders. Studio's project and module screens show that choice for a link by name (EPBDS-16702); a name that
+  resolves moves the address on to the project's id.
 
 ## Request Validation
 

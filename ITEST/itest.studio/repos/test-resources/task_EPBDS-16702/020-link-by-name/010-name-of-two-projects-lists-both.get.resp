@@ -1,0 +1,23 @@
+HTTP/1.1 409
+Content-Type: application/json
+
+{
+  "code": "openl.error.409.project.identifier.ambiguous.message",
+  "message": "***",
+  "candidates": [
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY3MDItSGVsbG86YTY3YTA0YWUxOWJkNTU3OGYyZDRmMWYwN2ZkOTYzZmZlZjE0MGMxMWM4MDM2NDFiN2ViNzI2YWM2YmRhMTk3Nw==",
+      "name": "EPBDS-16702-Hello",
+      "repository": "design-flat",
+      "repositoryName": "Git Flat",
+      "path": "EPBDS-16702-Hello"
+    },
+    {
+      "id": "ZGVzaWduLW5vbi1mbGF0OmVwYmRzLTE2NzAyLWhlbGxvOmZmN2QyY2QyMmMxZTBhN2I5Zjc1YjA1NjI1NWMwMGVhZDhmNTg3ZGI5NjQ4MjExMzk4OGM5ODZjNmNkM2I4OTk=",
+      "name": "epbds-16702-hello",
+      "repository": "design-non-flat",
+      "repositoryName": "Git Non Flat",
+      "path": "epbds-16702-hello"
+    }
+  ]
+}

@@ -2,13 +2,18 @@ package org.openl.studio.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.InvalidPathException;
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -17,6 +22,8 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
+import org.openl.studio.common.exception.AmbiguityException;
+import org.openl.studio.common.model.AmbiguityError;
 import org.openl.studio.common.model.BaseError;
 
 class ApiExceptionControllerAdviceTest {
@@ -106,6 +113,41 @@ class ApiExceptionControllerAdviceTest {
     }
 
     @Test
+    void ambiguity_listsItsCandidatesBesideTheMessage() throws JsonProcessingException {
+        var advice = advice();
+        var request = new ServletWebRequest(new MockHttpServletRequest());
+        var candidates = List.of(Map.of("id", "a"), Map.of("id", "b"));
+
+        var response = advice.handleAllRestRuntimeExceptions(ambiguity(candidates), request);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        var error = assertInstanceOf(AmbiguityError.class, response.getBody());
+        assertEquals("openl.error.409.project.identifier.ambiguous.message", error.code);
+        assertEquals("The project name 'hello' is ambiguous. Use a project identifier instead. Candidates: a, b.",
+                error.message);
+        assertEquals(candidates, error.getCandidates());
+        // What a client reads: the candidates travel as data beside the code and the message.
+        assertTrue(new ObjectMapper().writeValueAsString(error).contains("\"candidates\":[{\"id\":\"a\"},{\"id\":\"b\"}]"));
+    }
+
+    @Test
+    void ambiguity_raisedWhileConvertingAPathVariable_listsItsCandidates() {
+        var advice = advice();
+        var request = new ServletWebRequest(new MockHttpServletRequest());
+        var candidates = List.of(Map.of("id", "a"), Map.of("id", "b"));
+        var failure = new ConversionFailedException(TypeDescriptor.valueOf(String.class),
+                TypeDescriptor.valueOf(Object.class),
+                "hello",
+                ambiguity(candidates));
+
+        var response = advice.handleConversionFailedException(failure, request);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        var error = assertInstanceOf(AmbiguityError.class, response.getBody());
+        assertEquals(candidates, error.getCandidates());
+    }
+
+    @Test
     void invalidEnumValue_givesFriendlyMessage() {
         assertEquals("Invalid enum format for field 'color'", describeParseFailure("{\"color\":\"PURPLE\"}"));
     }
@@ -132,6 +174,10 @@ class ApiExceptionControllerAdviceTest {
         } catch (JsonProcessingException e) {
             return ApiExceptionControllerAdvice.describeJsonError(e);
         }
+    }
+
+    private static AmbiguityException ambiguity(List<?> candidates) {
+        return new AmbiguityException("project.identifier.ambiguous.message", candidates, "hello", "a, b");
     }
 
     private static ApiExceptionControllerAdvice advice() {

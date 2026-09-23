@@ -8,6 +8,24 @@ interface ProjectRepository extends RepositoryInfo {
     id: string
 }
 
+/**
+ * One of the projects an ambiguous project name matches, as the server lists it.
+ *
+ * Candidates may carry the same name, so each also tells where it is stored: the repository, and the folder within a
+ * repository with mapped folders, which may hold several projects of one name. A project stored in no repository
+ * carries neither.
+ */
+export interface ProjectCandidate {
+    id: string
+    name: string
+    /** Id of the repository the project is stored in. */
+    repository?: string
+    /** Name of that repository, as configured by an administrator. */
+    repositoryName?: string
+    /** Folder the project occupies in a repository with mapped folders. */
+    path?: string
+}
+
 export interface Project {
     branch: string
     comment: string

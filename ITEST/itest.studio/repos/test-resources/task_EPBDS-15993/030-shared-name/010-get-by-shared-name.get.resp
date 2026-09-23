@@ -3,5 +3,21 @@ Content-Type: application/json
 
 {
   "code": "openl.error.409.project.identifier.ambiguous.message",
-  "message": "***"
+  "message": "***",
+  "candidates": [
+    {
+      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU5OTMtc2hhcmVkOmYyMTAwNWYxZDFjMDNkMzBmMGIzYWMxYjQ4YWQwY2I0OGVmZDk4YjZmOTQ0YzFhYTA0NWIyZjk5NGM0OWQzMjk=",
+      "name": "EPBDS-15993-shared",
+      "repository": "design-flat",
+      "repositoryName": "Git Flat",
+      "path": "EPBDS-15993-shared"
+    },
+    {
+      "id": "ZGVzaWduLW5vbi1mbGF0OkVQQkRTLTE1OTkzLXNoYXJlZDpmMjEwMDVmMWQxYzAzZDMwZjBiM2FjMWI0OGFkMGNiNDhlZmQ5OGI2Zjk0NGMxYWEwNDViMmY5OTRjNDlkMzI5",
+      "name": "EPBDS-15993-shared",
+      "repository": "design-non-flat",
+      "repositoryName": "Git Non Flat",
+      "path": "EPBDS-15993-shared"
+    }
+  ]
 }
