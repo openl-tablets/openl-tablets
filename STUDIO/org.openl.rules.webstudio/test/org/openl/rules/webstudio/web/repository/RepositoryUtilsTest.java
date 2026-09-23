@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -57,8 +58,11 @@ class RepositoryUtilsTest {
         when(fileData.getModifiedAt()).thenReturn(cal.getTime());
         when(fileData.getAuthor()).thenReturn(new UserInfo("jsmith", "jsmith@email", "John Smith"));
 
-        final String actual = RepositoryUtils.buildProjectVersion(fileData);
-        assertEquals("John Smith-2020-08-17_11-12-13", actual);
+        assertEquals("John Smith-2020-08-17_11-12-13", RepositoryUtils.buildProjectVersion(fileData));
+        // The same moment, read by someone three hours behind: each is told the moment they would read
+        // on their own screen rather than the one the machine stands in.
+        assertEquals("John Smith-2020-08-17_08-12-13",
+                RepositoryUtils.buildProjectVersion(fileData, ZoneOffset.UTC));
     }
 
     @Test

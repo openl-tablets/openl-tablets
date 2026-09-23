@@ -3,7 +3,8 @@ package org.openl.rules.webstudio.web.repository;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.jar.JarFile;
@@ -29,10 +30,13 @@ import org.openl.util.IOUtils;
  * @author Aleh Bykhavets
  */
 public final class RepositoryUtils {
+
     public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = Comparator
             .comparing(AProjectArtefact::isFolder)
             .reversed()
             .thenComparing(AProjectArtefact::getName);
+
+    private static final DateTimeFormatter VERSION_MOMENT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
     private RepositoryUtils() {
     }
@@ -139,17 +143,23 @@ public final class RepositoryUtils {
         }
     }
 
+    /** As {@link #buildProjectVersion(FileData, ZoneId)}, in the zone this machine stands in. */
+    public static String buildProjectVersion(FileData fileData) {
+        return buildProjectVersion(fileData, ZoneId.systemDefault());
+    }
+
     /**
      * Build project version using the following pattern {@code %modifiedBy%-%modifiedAt:yyyy-MM-dd_HH-mm-ss%}
      *
      * @param fileData project file data
+     * @param zone     the zone the moment is written in
      * @return project version
      */
-    public static String buildProjectVersion(FileData fileData) {
+    public static String buildProjectVersion(FileData fileData, ZoneId zone) {
         if (fileData == null) {
             return null;
         }
-        var modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
+        var modifiedOnStr = VERSION_MOMENT.format(fileData.getModifiedAt().toInstant().atZone(zone));
         var name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
         return name + "-" + modifiedOnStr;
     }
