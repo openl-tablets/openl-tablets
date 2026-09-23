@@ -150,7 +150,7 @@
         <amazonaws.version>2.55.2</amazonaws.version>
         <azure.version>12.35.1</azure.version>
         <netty.version>4.2.18.Final</netty.version>
-        <jgit.version>7.8.0.202609011348-openl</jgit.version>
+        <jgit.version>7.8.0.202609011348-openl2</jgit.version>
 
         <!-- DB -->
         <h2.version>2.5.250</h2.version>
