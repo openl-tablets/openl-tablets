@@ -162,14 +162,14 @@
   raw `grep -r`: untracked `STUDIO/studio-ui/dist/` otherwise answers every query.
 - A docs tree reached only through a directory link (`README.MD` → `examples/` → `index.md` → subfolder) is
   alive: count a link to the PARENT directory, not just to the file, before calling a Docs page unreferenced.
-- Removing members is a fixpoint: re-check fields, private helpers, constructor parameters and imports the removal
-  orphaned. SonarCloud's "new issues" lists exactly those; read it after every push, no auth needed, at
+- Removing members is a fixpoint: re-check fields, helpers, constructor parameters and imports it orphaned.
+  SonarCloud's "new issues" lists exactly those; read after every push, no auth, at
   `sonarcloud.io/api/issues/search?componentKeys=org.openl.rules:openl-tablets&pullRequest=N&sinceLeakPeriod=true`.
 - Stage every commit by explicit path (`git add -- <files>`) or a `git rm` staged earlier rides into it.
 - Frontend gate: `npx tsc --noEmit --noUnusedLocals --noUnusedParameters`, `npx vitest run <area>`. Both need
   `node_modules`, which the reactor build populates; run them after it, never beside it.
-- CodeRabbit's `Docstring Coverage` pre-merge check fails every deletion-only PR: it scores the functions inside
-  the touched hunks, which on a sweep PR are the removed ones. Decline it by comment citing `git diff -U0`.
+- CodeRabbit's `Docstring Coverage` scores only functions inside touched hunks: it PASSES a diff touching none,
+  fails when removed hunks hold functions. Decline that case by comment citing `git diff -U0`.
 - The container resets `git config --global user.*` to Claude mid-session. Pass `GIT_AUTHOR_*`/`GIT_COMMITTER_*`
   INLINE on every commit and verify BEFORE pushing: rail 8.4 bars force-pushing `dead-code/ledger`.
 
@@ -209,8 +209,8 @@
   tell is a DOM dump still showing `browser.compile.compiling` and a vitest wall time near 860 s against the 20 s
   per-test CI ceiling, plus a failing set that SHRINKS between attempts. Never push a vitest change to chase it;
   a new SHA is the cheapest cure.
-- `Sonar analysis` is skipped when any job of the run fails, so a red flake hides its verdict and the issues API
-  answers 0 for "never analysed". Confirm the SHA at `project_pull_requests/list` on sonarcloud.io.
+- `Sonar analysis` is skipped when any job fails and lands ~10 min after the last one, so the issues API answers 0
+  for "never analysed". Confirm the analysed SHA and date at `project_pull_requests/list` before trusting a 0.
 - `rerun_failed_jobs` returns 403 while any job is in flight and re-reads the same jacoco artifacts, so it cannot
   cure `Sonar analysis` dying in `report-aggregate` with "Unknown block type N" — which needs no crashed attempt and
   has hit an otherwise-green run. Cure that with `rerun_workflow_run`, confirmed to turn such a run's gate clean.
