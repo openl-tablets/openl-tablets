@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import type { OpenApiGenerationPlan } from '../../services/openapi'
+import type { OpenApiGenerationPlan, OpenApiModule } from '../../services/openapi'
 import { OpenApiGenerationModal } from './OpenApiGenerationModal'
 
 vi.mock('react-i18next', () => {
@@ -10,14 +10,14 @@ vi.mock('react-i18next', () => {
 })
 
 /** A plan whose two modules stand as the test asks for them; both are new unless it says otherwise. */
-const planOf = (overrides: Partial<OpenApiGenerationPlan> = {}): OpenApiGenerationPlan => ({
-    algorithm: { name: 'Algorithms', path: 'rules/Algorithms.xlsx', declared: false },
-    model: { name: 'Models', path: 'rules/Models.xlsx', declared: false },
-    ...overrides,
+const planOf = (algorithm: Partial<OpenApiModule> = {}, model: Partial<OpenApiModule> = {}): OpenApiGenerationPlan => ({
+    algorithm: { name: 'Algorithms', path: 'rules/Algorithms.xlsx', declared: false, overwrites: false, ...algorithm },
+    model: { name: 'Models', path: 'rules/Models.xlsx', declared: false, overwrites: false, ...model },
 })
 
 const show = async (plan: OpenApiGenerationPlan, onGenerate = vi.fn()) => {
-    render(<OpenApiGenerationModal open busy={false} onCancel={vi.fn()} onGenerate={onGenerate} plan={plan} />)
+    render(<OpenApiGenerationModal busy={false} onCancel={vi.fn()} onGenerate={onGenerate} plan={plan} />)
+    // The modal renders through a portal, so its body is awaited rather than assumed.
     await screen.findByTestId('openapi-generate-submit')
     return onGenerate
 }
@@ -65,7 +65,7 @@ describe('OpenApiGenerationModal', () => {
     it('states the workbook of a module the project already reads rather than offering it', async () => {
         // The generation writes a declared module where it reads, whatever path is asked for it, so there is
         // nothing for the reader to settle — and they are told what becomes of it instead.
-        await show(planOf({ algorithm: { name: 'Algorithms', path: 'rules/Algorithms.xlsx', declared: true } }))
+        await show(planOf({ declared: true, overwrites: true }))
 
         const stated = screen.getByTestId('openapi-plan-algorithm-path')
         expect(stated.tagName).toBe('SPAN')
@@ -75,7 +75,7 @@ describe('OpenApiGenerationModal', () => {
     })
 
     it('says it overwrites when a module the project reads is among the two', async () => {
-        await show(planOf({ model: { name: 'Models', path: 'rules/Models.xlsx', declared: true } }))
+        await show(planOf({}, { declared: true, overwrites: true }))
 
         expect(submit()).toHaveTextContent('browser.overview.openapi_generate_overwrite')
     })
@@ -88,11 +88,31 @@ describe('OpenApiGenerationModal', () => {
         expect(screen.getAllByText('browser.overview.openapi_plan_adds')).toHaveLength(2)
     })
 
+    it('says a module declared at a workbook nobody wrote yet is created, not overwritten', async () => {
+        // The project settles where it goes, so the path is stated; but no file stands there, so nothing
+        // is lost and the reader is not warned about losing it.
+        await show(planOf({ declared: true }))
+
+        expect(screen.getByTestId('openapi-plan-algorithm-path').tagName).toBe('SPAN')
+        expect(screen.getAllByText('browser.overview.openapi_plan_adds')).toHaveLength(2)
+        expect(screen.queryByText('browser.overview.openapi_plan_replaces')).toBeNull()
+        expect(submit()).toHaveTextContent(/^browser\.overview\.openapi_generate$/)
+    })
+
     it('refuses a path that names no workbook, as the Editor refused it', async () => {
         await show(planOf())
 
         await userEvent.clear(screen.getByTestId('openapi-plan-algorithm-path'))
         await userEvent.type(screen.getByTestId('openapi-plan-algorithm-path'), 'rules/Alg.txt')
+
+        expect(screen.getByText('browser.overview.openapi_path_not_excel')).toBeInTheDocument()
+        expect(submit()).toBeDisabled()
+    })
+
+    it('says why a module declared at a file that is no workbook cannot be generated', async () => {
+        // The reader cannot put this right here — the project settles where the module goes — but the
+        // server refuses it all the same, so the reason stands beside the path rather than after a click.
+        await show(planOf({ path: 'rules/Alg.txt', declared: true, overwrites: true }))
 
         expect(screen.getByText('browser.overview.openapi_path_not_excel')).toBeInTheDocument()
         expect(submit()).toBeDisabled()

@@ -10,7 +10,7 @@ Content-Type: application/json
   },
   "model": {
     "name": "Models",
-    "path": "rules/models/Models.xlsx",
+    "path": "rules/Models.xlsx",
     "declared": true,
     "overwrites": true
   }

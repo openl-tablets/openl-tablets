@@ -90,13 +90,14 @@ public class ProjectOpenApiGenerationService {
                                           @Nullable String modelModuleName) {
         var resolved = projectService.getProjectDescriptor(project);
         return new OpenApiGenerationPlanView(
-                planned(resolved, algorithmModuleName, "openapi.default.algorithm.module.name",
+                planned(project, resolved, algorithmModuleName, "openapi.default.algorithm.module.name",
                         "openapi.default.algorithm.module.path"),
-                planned(resolved, modelModuleName, "openapi.default.data.module.name",
+                planned(project, resolved, modelModuleName, "openapi.default.data.module.name",
                         "openapi.default.data.module.path"));
     }
 
-    private static OpenApiModuleView planned(ProjectDescriptor resolved,
+    private static OpenApiModuleView planned(RulesProject project,
+                                             ProjectDescriptor resolved,
                                              @Nullable String asked,
                                              String defaultNameKey,
                                              String defaultPathKey) {
@@ -105,7 +106,12 @@ public class ProjectOpenApiGenerationService {
                 ? Props.text(defaultPathKey)
                 : DEFAULT_FOLDER + name + DEFAULT_EXTENSION;
         var target = targetOf(resolved, name, wanted);
-        return new OpenApiModuleView(name, target.path(), target.replaces());
+        // Whether anything is lost is asked of the project, not of the descriptor: a module can be declared
+        // at a workbook nobody has written yet, and generating it there takes nothing away. A file standing
+        // where no module reads is not overwritten either — the generation refuses to write over what is
+        // nobody's module, so saying it would be replaced would promise what cannot happen.
+        return new OpenApiModuleView(name, target.path(), target.declared(),
+                target.declared() && project.hasArtefact(target.path()));
     }
 
     /**
@@ -124,8 +130,8 @@ public class ProjectOpenApiGenerationService {
                 .orElseGet(() -> new Target(wanted, false));
     }
 
-    /** The workbook a generated module is written to, and whether the project already reads one there. */
-    private record Target(String path, boolean replaces) {
+    /** The workbook a generated module is written to, and whether the project already reads that module. */
+    private record Target(String path, boolean declared) {
     }
 
     /**
@@ -196,7 +202,7 @@ public class ProjectOpenApiGenerationService {
 
     /** A module the project does not read yet cannot be written where a file already stands. */
     private static void requireFree(RulesProject project, Target target) {
-        if (!target.replaces() && project.hasArtefact(target.path())) {
+        if (!target.declared() && project.hasArtefact(target.path())) {
             throw new ConflictException("projects.openapi.path-taken.message", target.path());
         }
     }

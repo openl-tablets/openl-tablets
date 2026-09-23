@@ -39,10 +39,7 @@ const Heading = ({ openapi }: { openapi: DescriptorOpenApi | undefined }) => {
     )
 }
 
-const show = async (openapi: DescriptorOpenApi | undefined) => {
-    render(<Heading openapi={openapi} />)
-    await screen.findByRole('button')
-}
+const show = (openapi: DescriptorOpenApi | undefined) => render(<Heading openapi={openapi} />)
 
 const GENERATES: DescriptorOpenApi = { path: 'openapi.json', mode: 'GENERATION' }
 
@@ -51,14 +48,14 @@ describe('OpenApiActions', () => {
         vi.clearAllMocks()
         vi.mocked(writeOpenApiSchema).mockResolvedValue({ path: 'openapi.json', created: true })
         vi.mocked(getOpenApiGenerationPlan).mockResolvedValue({
-            algorithm: { name: 'Algorithms', path: 'rules/Algorithms.xlsx', declared: true },
-            model: { name: 'Models', path: 'rules/Models.xlsx', declared: false },
+            algorithm: { name: 'Algorithms', path: 'rules/Algorithms.xlsx', declared: true, overwrites: true },
+            model: { name: 'Models', path: 'rules/Models.xlsx', declared: false, overwrites: false },
         })
         vi.mocked(generateOpenApiTables).mockResolvedValue(undefined)
     })
 
     it('writes the specification from the rules where the project is held to one', async () => {
-        await show({ path: 'openapi.json', mode: 'RECONCILIATION' })
+        show({ path: 'openapi.json', mode: 'RECONCILIATION' })
 
         await userEvent.click(screen.getByTestId('openapi-write'))
 
@@ -67,7 +64,7 @@ describe('OpenApiActions', () => {
     })
 
     it('offers to write the specification for a project that declares none', async () => {
-        await show(undefined)
+        show(undefined)
 
         // Nothing to generate from yet, so the way in is writing the specification the rules answer to.
         expect(screen.getByTestId('openapi-write')).toBeInTheDocument()
@@ -75,7 +72,7 @@ describe('OpenApiActions', () => {
     })
 
     it('generates the tables of a project whose specification leads', async () => {
-        await show(GENERATES)
+        show(GENERATES)
 
         await userEvent.click(screen.getByTestId('openapi-generate'))
         await waitFor(() => expect(getOpenApiGenerationPlan).toHaveBeenCalledWith('p1', undefined, undefined))
@@ -92,7 +89,7 @@ describe('OpenApiActions', () => {
     })
 
     it('writes the module where the reader said, not where the plan proposed', async () => {
-        await show(GENERATES)
+        show(GENERATES)
 
         await userEvent.click(screen.getByTestId('openapi-generate'))
         await waitFor(() => expect(screen.getByTestId('openapi-plan-model-path')).toBeInTheDocument())
@@ -105,7 +102,7 @@ describe('OpenApiActions', () => {
     })
 
     it('asks about the modules it would write over before it writes them', async () => {
-        await show(GENERATES)
+        show(GENERATES)
 
         await userEvent.click(screen.getByTestId('openapi-generate'))
 
@@ -115,7 +112,7 @@ describe('OpenApiActions', () => {
     })
 
     it('asks the plan about the modules the project names, not about the default pair', async () => {
-        await show({ ...GENERATES, algorithmModuleName: 'Pricing' })
+        show({ ...GENERATES, algorithmModuleName: 'Pricing' })
 
         await userEvent.click(screen.getByTestId('openapi-generate'))
 
@@ -124,7 +121,7 @@ describe('OpenApiActions', () => {
 
     it('says what went wrong rather than leaving the reader with nothing', async () => {
         vi.mocked(writeOpenApiSchema).mockRejectedValue(new Error('the project did not compile'))
-        await show({ path: 'openapi.json', mode: 'RECONCILIATION' })
+        show({ path: 'openapi.json', mode: 'RECONCILIATION' })
 
         await userEvent.click(screen.getByTestId('openapi-write'))
 

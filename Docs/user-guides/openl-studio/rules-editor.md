@@ -890,13 +890,13 @@ If a project is not generated from the OpenAPI file, but it is required to add t
 
     *Module settings window, both modules are new*
 
-    If a module already exists, it is overwritten wherever the project reads it, and the corresponding warning message is displayed. In this case, there is no option to define a file name.
+    If the project already reads a module of that name, it is written wherever the project reads it, so there is no option to define a file name. When a workbook stands there, it is overwritten and the corresponding warning message is displayed.
 
     ![](images/openapi-module-settings-existing.png)
 
     *Module settings window, one of modules already exists*
 
-1.  Click **Generate tables**, or **Generate and overwrite** when one of the modules already exists.
+1.  Click **Generate tables**, or **Generate and overwrite** when the window says a workbook is replaced.
 
 The rules and model modules are created or updated. The OpenAPI data is updated.
 

@@ -12,8 +12,13 @@ export interface OpenApiModule {
     name: string
     /** The workbook the module reads, relative to the project. */
     path: string
-    /** Whether the project already declares this module, whose workbook the generation writes over. */
+    /**
+     * Whether the project already reads a module under this name. Such a module is written where it reads,
+     * so the workbook it is given is not the reader's to choose.
+     */
     declared: boolean
+    /** Whether a file stands at that workbook today, which the generation writes over. */
+    overwrites: boolean
 }
 
 /** What generating tables from a specification would write, before it writes it. */
@@ -23,13 +28,16 @@ export interface OpenApiGenerationPlan {
 }
 
 /** What to generate the tables from, and where to put them. */
-interface OpenApiGeneration {
+export interface OpenApiGeneration {
     path: string
     algorithmModuleName: string
     algorithmModulePath: string
     modelModuleName: string
     modelModulePath: string
 }
+
+/** Where the generation writes its two modules, once the reader has settled it. */
+export type OpenApiTargets = Pick<OpenApiGeneration, 'algorithmModulePath' | 'modelModulePath'>
 
 const openApiUrl = (projectId: string, what: string) => `/projects/${toUrlSafeId(projectId)}/openapi/${what}`
 
