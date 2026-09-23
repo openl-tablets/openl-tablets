@@ -12,6 +12,8 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
 
@@ -60,11 +62,14 @@ class ProjectOpenApiGenerationServiceTest {
 
     @Test
     void writesOverTheWorkbookOfAModuleTheProjectDeclares() {
-        var plan = service.plan(projectReading(module("Algorithms", "api/Rules.xlsx")), "Algorithms", "Models");
+        var project = holding(projectReading(module("Algorithms", "api/Rules.xlsx")), "api/Rules.xlsx");
+
+        var plan = service.plan(project, "Algorithms", "Models");
 
         // The module is there, so the generation replaces the workbook it reads rather than adding another.
         assertEquals("api/Rules.xlsx", plan.algorithm().path());
         assertTrue(plan.algorithm().declared());
+        assertTrue(plan.algorithm().overwrites());
     }
 
     @Test
@@ -165,19 +170,18 @@ class ProjectOpenApiGenerationServiceTest {
                 refused.getErrorCode());
     }
 
-    @Test
-    void writesAModuleToEveryWorkbookExcelReads() {
-        for (String workbook : List.of("rules/Alg.xlsx", "rules/Alg.XLS", "rules/Alg.xlsm")) {
-            var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", workbook,
-                    "Models", "rules/Models.xlsx");
+    @ParameterizedTest
+    @ValueSource(strings = {"rules/Alg.xlsx", "rules/Alg.XLS", "rules/Alg.xlsm"})
+    void writesAModuleToEveryWorkbookExcelReads(String workbook) {
+        var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", workbook,
+                "Models", "rules/Models.xlsx");
 
-            var refused = assertThrows(ConflictException.class,
-                    () -> service.generateTables(projectReading(), request));
+        var refused = assertThrows(ConflictException.class,
+                () -> service.generateTables(projectReading(), request));
 
-            // Refused further on, for want of a checked-out copy to read the specification from — the
-            // workbook itself was not what stood in the way.
-            assertEquals("openl.error.409.projects.openapi.not-checked-out.message", refused.getErrorCode());
-        }
+        // Refused further on, for want of a checked-out copy to read the specification from — the workbook
+        // itself was not what stood in the way.
+        assertEquals("openl.error.409.projects.openapi.not-checked-out.message", refused.getErrorCode());
     }
 
     @Test
@@ -192,6 +196,30 @@ class ProjectOpenApiGenerationServiceTest {
         assertEquals("openl.error.409.projects.openapi.module-name.same.message", refused.getErrorCode());
     }
 
+    @Test
+    void doesNotCallAWorkbookNobodyWroteYetReplaced() {
+        // The project declares the module, so the generation writes where it reads and the workbook is not
+        // the reader's to choose — but no file stands there, so nothing is taken away.
+        var plan = service.plan(projectReading(module("Algorithms", "api/Rules.xlsx")), "Algorithms", "Models");
+
+        assertTrue(plan.algorithm().declared());
+        assertFalse(plan.algorithm().overwrites());
+    }
+
+    @Test
+    void doesNotCallAFileNoModuleReadsReplaced() {
+        // A workbook stands where the module would be added, but the project reads no module there. The
+        // generation refuses to write over it rather than replace it, so calling it a replacement would
+        // promise what cannot happen.
+        var project = holding(projectReading(), "rules/Models.xlsx");
+
+        var plan = service.plan(project, "Algorithms", "Models");
+
+        assertEquals("rules/Models.xlsx", plan.model().path());
+        assertFalse(plan.model().declared());
+        assertFalse(plan.model().overwrites());
+    }
+
     private static OpenApiGenerationRequest asked(String algorithmModuleName, String modelModuleName) {
         return new OpenApiGenerationRequest("openapi.json", algorithmModuleName, "rules/Algorithms.xlsx",
                 modelModuleName, "rules/Models.xlsx");
@@ -203,6 +231,12 @@ class ProjectOpenApiGenerationServiceTest {
         var resolved = new ProjectDescriptor();
         resolved.setModules(List.of(modules));
         when(projects.getProjectDescriptor(project)).thenReturn(resolved);
+        return project;
+    }
+
+    /** The same project, with a file standing at the given path. */
+    private static RulesProject holding(RulesProject project, String path) {
+        when(project.hasArtefact(path)).thenReturn(true);
         return project;
     }
 

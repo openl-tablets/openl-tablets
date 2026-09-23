@@ -6,13 +6,13 @@ Content-Type: application/json
     "name": "Algorithms",
     "path": "rules/Algorithms.xlsx",
     "declared": true,
-    "overwrites": true
+    "overwrites": false
   },
   "model": {
-    "name": "Models",
-    "path": "rules/models/Models.xlsx",
-    "declared": true,
-    "overwrites": true
+    "name": "Spare",
+    "path": "rules/Spare.xlsx",
+    "declared": false,
+    "overwrites": false
   }
 }
 

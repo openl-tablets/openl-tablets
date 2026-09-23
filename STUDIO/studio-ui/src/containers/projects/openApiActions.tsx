@@ -7,10 +7,11 @@ import {
     generateOpenApiTables,
     getOpenApiGenerationPlan,
     type OpenApiGenerationPlan,
+    type OpenApiTargets,
     writeOpenApiSchema,
 } from '../../services/openapi'
 import type { DescriptorOpenApi } from '../../services/rulesDescriptor'
-import { OpenApiGenerationModal, type OpenApiTargets } from './OpenApiGenerationModal'
+import { OpenApiGenerationModal } from './OpenApiGenerationModal'
 
 /**
  * The two things a project and its specification do to each other, which the legacy Editor offered from one
@@ -81,13 +82,12 @@ export const useOpenApiActions = (projectId: string, onWritten: () => void) => {
         }
     }
 
-    const generationDialog = (
+    const generationDialog = asked && (
         <OpenApiGenerationModal
             busy={running}
             onCancel={() => setAsked(undefined)}
-            onGenerate={targets => asked && void run(asked, targets)}
-            open={asked !== undefined}
-            plan={asked?.plan}
+            onGenerate={targets => void run(asked, targets)}
+            plan={asked.plan}
         />
     )
 

@@ -1,86 +1,46 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { UndoOutlined } from '@ant-design/icons'
-import { Button, Input, Modal, Space, Tooltip, Typography } from 'antd'
+import { Input, Modal, Typography } from 'antd'
+import { FieldError } from '../../components/FieldError'
 import { FieldRow } from '../../components/FieldRow'
-import type { OpenApiGenerationPlan, OpenApiModule } from '../../services/openapi'
-import { useSharedStyles } from './sharedStyles'
+import { isWorkbookPath } from '../../utils/workbooks'
+import type { OpenApiGenerationPlan, OpenApiModule, OpenApiTargets } from '../../services/openapi'
+import { CompactField } from './CompactField'
+import { normalizeProjectPath } from './projectPaths'
 
 const LABEL_WIDTH = 150
 
-/** What a generated module may be written to: a file the engine reads as a workbook. */
-const WORKBOOK = /\.(xlsx|xls|xlsm)$/i
-
-/** Where the generation writes its two modules, once the reader has settled it. */
-export interface OpenApiTargets {
-    algorithmModulePath: string
-    modelModulePath: string
-}
-
-/** What is wrong with a path the reader may write, said in their language, or nothing when it will do. */
+/** What is wrong with a path the reader wrote, said in their language, or nothing when it will do. */
 const faultOf = (t: (key: string) => string, path: string): string | undefined => {
-    const value = path.trim()
-    if (!value) {
+    if (!path) {
         return t('browser.overview.openapi_path_required')
     }
-    return WORKBOOK.test(value) ? undefined : t('browser.overview.openapi_path_not_excel')
+    return isWorkbookPath(path) ? undefined : t('browser.overview.openapi_path_not_excel')
 }
 
 /**
- * The workbook a generated module is written to, typed freely, with the path the plan proposed a click away.
+ * One of the two modules: what it is called, what becomes of it, and the workbook it is written to.
  *
- * <p>The twin of {@link RepoFolderInput}: the whole path stands in one field, so what the field shows is
- * exactly where the module lands.
+ * <p>Two separate things decide how it is drawn. Where the module goes is settled by the project when it
+ * already reads one of that name — the generation writes where it reads, whatever path is asked — so the
+ * workbook is stated rather than offered, as the Editor's Modules Settings stated it. What becomes of the
+ * file standing there is a question of its own: a module can be declared at a workbook nobody wrote yet.
  */
-const WorkbookPathInput = ({ value, onChange, onReset, id, name, 'data-testid': testId }: {
-    value: string
-    onChange: (value: string) => void
-    onReset: () => void
-    /** Set by {@link FieldRow} so its label points at the input. */
-    id?: string
-    /** Set by {@link FieldRow} from the field label. */
-    name?: string
-    'data-testid'?: string
-}) => {
-    const { t } = useTranslation('repository')
-    const { styles: shared } = useSharedStyles()
-    return (
-        <Space.Compact block className={shared.compactField}>
-            <Input
-                data-testid={testId}
-                {...(id ? { id } : {})}
-                {...(name ? { name } : {})}
-                onChange={event => onChange(event.target.value)}
-                value={value}
-            />
-            <Tooltip title={t('browser.overview.openapi_plan_reset')}>
-                <Button
-                    aria-label={t('browser.overview.openapi_plan_reset')}
-                    data-testid={testId && `${testId}-reset`}
-                    icon={<UndoOutlined />}
-                    onClick={onReset}
-                />
-            </Tooltip>
-        </Space.Compact>
-    )
-}
-
-/** One of the two modules: what it is called, what becomes of it, and the workbook it is written to. */
-const ModulePlan = ({ module, label, path, onChange, testId }: {
+const ModulePlan = ({ module, label, path, fault, onChange, testId }: {
     module: OpenApiModule
     label: string
     path: string
+    /** The message the workbook is refused with, or nothing when it will do. */
+    fault: string | undefined
     onChange: (path: string) => void
     testId: string
 }) => {
     const { t } = useTranslation('repository')
-    // A module the project already reads is written where it reads, whatever path is asked for it, so its
-    // workbook is stated rather than offered — as the Editor's Modules Settings stated it.
-    const fault = module.declared ? undefined : faultOf(t, path)
     return (
         <div>
-            <Typography.Paragraph type={module.declared ? 'warning' : 'secondary'}>
-                {t(module.declared ? 'browser.overview.openapi_plan_replaces' : 'browser.overview.openapi_plan_adds')}
+            <Typography.Paragraph type={module.overwrites ? 'warning' : 'secondary'}>
+                {t(module.overwrites ? 'browser.overview.openapi_plan_replaces' : 'browser.overview.openapi_plan_adds')}
             </Typography.Paragraph>
             <FieldRow label={label} labelWidth={LABEL_WIDTH}>
                 <span data-testid={`${testId}-name`}>{module.name}</span>
@@ -94,14 +54,22 @@ const ModulePlan = ({ module, label, path, onChange, testId }: {
                 {module.declared
                     ? <span data-testid={`${testId}-path`}>{module.path}</span>
                     : (
-                        <WorkbookPathInput
-                            data-testid={`${testId}-path`}
-                            onChange={onChange}
-                            onReset={() => onChange(module.path)}
-                            value={path}
-                        />
+                        <CompactField
+                            action={{
+                                icon: <UndoOutlined />,
+                                title: t('browser.overview.openapi_plan_reset'),
+                                onClick: () => onChange(module.path),
+                                'data-testid': `${testId}-path-reset`,
+                            }}
+                        >
+                            <Input
+                                data-testid={`${testId}-path`}
+                                onChange={event => onChange(event.target.value)}
+                                value={path}
+                            />
+                        </CompactField>
                     )}
-                {fault !== undefined && <Typography.Text type="danger">{fault}</Typography.Text>}
+                <FieldError message={fault ?? null} testId={`${testId}-path-error`} />
             </FieldRow>
         </div>
     )
@@ -114,55 +82,48 @@ const ModulePlan = ({ module, label, path, onChange, testId }: {
  * written over, and put back with the reset beside it. A module the project already reads keeps its own
  * workbook and is written over wherever it stands, so the reader is told that in words — and the button
  * says so too — before anything of the project is replaced.
+ *
+ * <p>Mounted on the plan it is opened on and unmounted when it closes, so the workbooks it opens with are
+ * always that plan's own.
  */
-export const OpenApiGenerationModal = ({ open, plan, busy, onCancel, onGenerate }: {
-    open: boolean
-    /** What the generation would write, as the server planned it; absent until it has answered. */
-    plan: OpenApiGenerationPlan | undefined
+export const OpenApiGenerationModal = ({ plan, busy, onCancel, onGenerate }: {
+    /** What the generation would write, as the server planned it. */
+    plan: OpenApiGenerationPlan
     busy: boolean
     onCancel: () => void
     onGenerate: (targets: OpenApiTargets) => void
 }) => {
     const { t } = useTranslation('repository')
-    const [algorithm, setAlgorithm] = useState('')
-    const [model, setModel] = useState('')
+    const [algorithm, setAlgorithm] = useState(plan.algorithm.path)
+    const [model, setModel] = useState(plan.model.path)
 
-    // The plan proposes where each module goes, and that is what the dialog opens on.
-    useEffect(() => {
-        if (open && plan) {
-            setAlgorithm(plan.algorithm.path)
-            setModel(plan.model.path)
-        }
-    }, [open, plan])
-
-    if (!plan) {
-        return null
+    const overwrites = plan.algorithm.overwrites || plan.model.overwrites
+    // What the dialog weighs is what it sends: a typed path is read the way every other dialog of this
+    // screen reads one, so the workbook the reader is shown as settled is the one the generation is asked
+    // for. A stated path is weighed too — a module declared at a file that is no workbook is refused as
+    // well, and saying so here beats letting the reader click into that refusal.
+    const targets: OpenApiTargets = {
+        algorithmModulePath: normalizeProjectPath(algorithm),
+        modelModulePath: normalizeProjectPath(model),
     }
-
-    const overwrites = plan.algorithm.declared || plan.model.declared
-    // What the dialog weighs is what it sends. A typed path is read without the spaces around it, so the
-    // workbook the reader is shown as settled is the one the generation is asked for.
-    const targets = { algorithmModulePath: algorithm.trim(), modelModulePath: model.trim() }
+    const algorithmFault = faultOf(t, targets.algorithmModulePath)
+    const modelFault = faultOf(t, targets.modelModulePath)
     const sharesOneWorkbook = targets.algorithmModulePath.toLowerCase() === targets.modelModulePath.toLowerCase()
-    // Only a path the reader may write is theirs to answer for: a declared module is written where it
-    // reads, so whatever its workbook is called, there is nothing here to put right.
-    const settled = !sharesOneWorkbook
-            && (plan.algorithm.declared || faultOf(t, algorithm) === undefined)
-            && (plan.model.declared || faultOf(t, model) === undefined)
+    const settled = !sharesOneWorkbook && algorithmFault === undefined && modelFault === undefined
 
     return (
         <Modal
-            destroyOnHidden
+            open
             confirmLoading={busy}
             okButtonProps={{ 'data-testid': 'openapi-generate-submit', danger: overwrites, disabled: !settled }}
             okText={t(overwrites ? 'browser.overview.openapi_generate_overwrite' : 'browser.overview.openapi_generate')}
             onCancel={onCancel}
             onOk={() => onGenerate(targets)}
-            open={open}
             title={t('browser.overview.openapi_generate')}
         >
             <Typography.Paragraph>{t('browser.overview.openapi_generate_confirm')}</Typography.Paragraph>
             <ModulePlan
+                fault={algorithmFault}
                 label={t('browser.overview.openapi_algorithm')}
                 module={plan.algorithm}
                 onChange={setAlgorithm}
@@ -170,17 +131,17 @@ export const OpenApiGenerationModal = ({ open, plan, busy, onCancel, onGenerate 
                 testId="openapi-plan-algorithm"
             />
             <ModulePlan
+                fault={modelFault}
                 label={t('browser.overview.openapi_model')}
                 module={plan.model}
                 onChange={setModel}
                 path={model}
                 testId="openapi-plan-model"
             />
-            {sharesOneWorkbook && (
-                <Typography.Text data-testid="openapi-plan-same-path" type="danger">
-                    {t('browser.overview.openapi_path_same')}
-                </Typography.Text>
-            )}
+            <FieldError
+                message={sharesOneWorkbook ? t('browser.overview.openapi_path_same') : null}
+                testId="openapi-plan-same-path"
+            />
         </Modal>
     )
 }
