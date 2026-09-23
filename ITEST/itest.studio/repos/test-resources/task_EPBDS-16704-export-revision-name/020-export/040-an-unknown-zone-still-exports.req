@@ -1,0 +1,3 @@
+GET /rest/projects/EPBDS-16704/files/?download=true&version={OLDER_REVISION}&zone=Mars%2FOlympus HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

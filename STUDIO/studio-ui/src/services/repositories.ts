@@ -330,6 +330,10 @@ export function downloadProject(projectId: string, version?: string): void {
     if (version) {
         params.set('version', version)
     }
+    // The archive is named after the revision it holds, and the moment in that name is read where the
+    // reader reads it: the download is a plain navigation, so the browser's zone travels as a parameter
+    // rather than a header, and the server writes the name in it.
+    params.set('zone', Intl.DateTimeFormat().resolvedOptions().timeZone)
     triggerDownload(
         `${CONFIG.CONTEXT}/web/projects/${encodeURIComponent(projectId)}/files/?${params.toString()}`
     )

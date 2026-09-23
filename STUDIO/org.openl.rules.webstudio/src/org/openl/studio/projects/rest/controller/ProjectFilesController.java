@@ -2,6 +2,8 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,6 +40,7 @@ import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
+import org.openl.util.StringUtils;
 
 /**
  * REST controller for project files and folders.
@@ -152,10 +155,14 @@ public class ProjectFilesController extends AbstractFilesController {
             @Parameter(description = "projects.files.param.branch.desc") String branch,
             @RequestParam(value = "version", required = false)
             @Parameter(description = "projects.files.param.version.desc") String version,
+            @RequestParam(value = "zone", required = false)
+            @Parameter(description = "projects.files.param.zone.desc") String zone,
             HttpServletResponse response
     ) throws ProjectException, IOException {
         BranchGuard.requireBranch(project, branch);
-        var rootArchiveName = isRootDownload(path, download) ? getProjectArchiveName(project) : null;
+        var rootArchiveName = isRootDownload(path, download)
+                ? getProjectArchiveName(project, version, zoneOf(zone))
+                : null;
         return handleGetFile(fileRootFactory.of(project), path, view, download, extensions, namePattern,
                 foldersOnly, recursive, viewMode, version, response, rootArchiveName);
     }
@@ -164,17 +171,56 @@ public class ProjectFilesController extends AbstractFilesController {
         return download != null && (path == null || path.isEmpty() || "/".equals(path));
     }
 
-    static String getProjectArchiveName(RulesProject project) {
-        project.refresh();
-        return getProjectArchiveName(project.getBusinessName(), project.getFileData());
+    /**
+     * What the downloaded archive is called: the project's business name and the revision it holds.
+     *
+     * <p>A revision asked for is named by that revision rather than by where the project stands now. The
+     * two part as soon as anything is saved after it, and an archive of an older revision named for the
+     * newest reads as holding what it does not.
+     */
+    static String getProjectArchiveName(RulesProject project, @Nullable String version, ZoneId zone)
+            throws IOException {
+        if (StringUtils.isBlank(version)) {
+            project.refresh();
+            return getProjectArchiveName(project.getBusinessName(), project.getFileData(), zone);
+        }
+        return getProjectArchiveName(project.getBusinessName(), revisionOf(project, version), zone);
     }
 
-    static String getProjectArchiveName(String businessName, @Nullable FileData fileData) {
-        var projectVersion = RepositoryUtils.buildProjectVersion(fileData);
-        if (projectVersion == null || projectVersion.isBlank()) {
+    /**
+     * What the design repository records about the project at that revision: who wrote it and when.
+     *
+     * <p>Asked of the repository rather than of a project read at that revision. A project reads its own
+     * file data by first asking whether the revision is the latest, and a repository that keeps versions
+     * answers that by walking its history until it finds the project — work the name has no use for.
+     *
+     * <p>A revision nothing is recorded for is answered with nothing: the archive then carries the
+     * project's name alone, and the download itself refuses the unknown revision.
+     */
+    private static @Nullable FileData revisionOf(RulesProject project, String version) throws IOException {
+        var design = project.getDesignRepository();
+        return design == null ? null : design.checkHistory(project.getDesignFolderName(), version);
+    }
+
+    /** The zone the caller reads times in, or the one this machine stands in when they name none. */
+    private static ZoneId zoneOf(@Nullable String zone) {
+        if (StringUtils.isBlank(zone)) {
+            return ZoneId.systemDefault();
+        }
+        try {
+            return ZoneId.of(zone.trim());
+        } catch (DateTimeException unknown) {
+            return ZoneId.systemDefault();
+        }
+    }
+
+    static String getProjectArchiveName(String businessName, @Nullable FileData fileData, ZoneId zone) {
+        // A repository can report a project as existing with nothing but its name filled in — its folder
+        // has gone — and there is no moment to name such an archive after.
+        if (fileData == null || fileData.getModifiedAt() == null) {
             return businessName + ".zip";
         }
-        return "%s-%s.zip".formatted(businessName, projectVersion);
+        return "%s-%s.zip".formatted(businessName, RepositoryUtils.buildProjectVersion(fileData, zone));
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

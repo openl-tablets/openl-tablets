@@ -1,0 +1,31 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "###",
+      "createdAt": "***",
+      "fullComment": "EPBDS-16704 second revision",
+      "author": {
+        "displayName": "EPBDS-16704-writer"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "###",
+      "createdAt": "***",
+      "fullComment": "EPBDS-16704 first revision",
+      "author": {
+        "displayName": "admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 2,
+  "numberOfElements": 2
+}
+

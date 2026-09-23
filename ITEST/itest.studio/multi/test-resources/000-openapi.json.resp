@@ -8570,6 +8570,14 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "zone",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {

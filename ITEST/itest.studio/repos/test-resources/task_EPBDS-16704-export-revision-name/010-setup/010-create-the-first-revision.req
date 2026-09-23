@@ -1,0 +1,12 @@
+PUT /rest/repos/design/projects/EPBDS-16704?comment=EPBDS-16704%20first%20revision HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="EPBDS-16704.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&EPBDS-16704.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

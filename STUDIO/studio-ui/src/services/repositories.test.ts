@@ -285,8 +285,17 @@ describe('getProjects', () => {
     it('downloads project archives', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
 
+        // The browser's zone travels with the request: the archive is named after the revision it holds,
+        // and the moment in that name is written where the reader reads it.
+        const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
         downloadProject('abc')
-        expect(triggerDownload).toHaveBeenCalledWith('/studio/web/projects/abc/files/?download=true')
+        expect(triggerDownload).toHaveBeenCalledWith(
+            `/studio/web/projects/abc/files/?download=true&zone=${encodeURIComponent(zone)}`)
+
+        downloadProject('abc', 'rev-1')
+        expect(triggerDownload).toHaveBeenCalledWith(
+            `/studio/web/projects/abc/files/?download=true&version=rev-1&zone=${encodeURIComponent(zone)}`)
     })
 
     it('loads branches, revisions and tags', async () => {
