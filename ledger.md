@@ -2,10 +2,10 @@
 
 ## Resume point
 
-- PR #2152 is open on `dead-code/delta-sweep`, rebased onto main, carrying two commits. Maintain it to green,
-  then sweep only what main gains; never pin main's SHA, dependabot moves it.
-- All 14 change types are exhausted repo-wide. A run is: maintain the PR, sweep the delta (expect zero), spend the
-  rest on a NEW vein. Code veins are mined out; the paying vein is documentation or build config that names
+- No PR is open: #2152 merged. Cut a fresh `dead-code/*` branch from a freshly fetched `origin/main` for the next
+  finding; never pin main's SHA, dependabot moves it.
+- All 14 change types are exhausted repo-wide. A run is: maintain any open PR, sweep the delta (expect zero), spend
+  the rest on a NEW vein. Code veins are mined out; the paying vein is documentation or build config that names
   something the repository no longer has — every finding of the last four runs was one of those.
 - A cold `~/.m2` costs ~50 min for the reactor build and 7 more for PMD; a cold `node_modules` makes studio-ui
   alone a 7-minute module. Budget the whole run around one reactor build.
@@ -20,7 +20,7 @@
 | 3 | Unused locals, private fields/methods/params | done; 14 PMD hits, all documented FPs |
 | 4 | Unused Maven dependency declarations | done; 537 analyze hits + npm deps, all FPs |
 | 5 | Pom metadata: managed entries, exclusions, properties, managed plugins | done; 6 hits, all plugin-read flags |
-| 6 | Redundant constructs, dead suppressions, VCS/build settings | 3 removals: #2145 merged, 2 in #2152 |
+| 6 | Redundant constructs, dead suppressions, VCS/build settings | done; 3 removals, all merged |
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
@@ -32,15 +32,13 @@
 
 ## Open PR
 
-- #2152 on `dead-code/delta-sweep`, head d01d68415b, rebased onto main. Commit 1, build configuration with no
-  effect: the studio-ui `clean` npm script (nothing invokes it; maven-clean-plugin removes strictly more) and two
-  duplicate Spotless `**/*.sql` includes. Commit 2: the CONTRIBUTING.md bullet naming `Docs/Configuration.md`,
-  which is untracked and has no single page to be repointed at — the body offers the repoint if a reviewer wants.
-- Body carries the per-commit evidence, the kept public API and the doc follow-ups; keep it in step with the diff.
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, passivation), #2145 (-2).
+- #2120 (-487), #2129 (-1), #2134 (-87, SessionTimeoutFilter), #2135 (-54, passivation), #2145 (-2), #2152 (-4).
+- A two-commit PR mixing build config and documentation merged without a review comment: change types need not
+  share a theme, and a body with per-commit evidence carries them.
 - A removal proven by unreachable behaviour, not by non-reference, is accepted on that evidence alone.
 - The maintainer does not merge a sweep PR red: they rebase it onto new main, wait for green, then rebase-merge.
 
@@ -150,6 +148,7 @@
 - A class named only by a container registration (`web.xml`, `@WebFilter`) is NOT proven alive by it: judge it by
   whether its behaviour is reachable. A `<listener>` serves only the interfaces the container sorts it into, so a
   registered-but-unbound one never fires — verify from the container jar with `javap -c`, never from the spec.
+- A migration or upgrade commit is worth checking for orphans; EPBDS-14123 and the Groovy 6 bump were both clean.
 - Documentation still pays, but both of its cross-checks are SPENT for deletions: every `org.openl.*` token in a
   guide resolves at HEAD or sits in Human follow-ups, and no guide names a property a release note marks
   **Removed**. Re-run either only over new Docs commits; what is left needs a rename this routine may not make.
@@ -297,4 +296,5 @@
 - 2026-09-22: swept the 209-file EPBDS-16692/16660/16661/16662 delta at zero; 4 new veins closed, build config
   paid 1 removal (PR #2152) and the Docs-artifact cross-check paid 1 follow-up.
 - 2026-09-23: rebased #2152 onto main past Groovy 6 and JGit 7.8; swept the 183-file EPBDS-16664..16667 delta at
-  zero (PMD 40, all generated or known FPs). Duplicate-config and doc-path veins paid 2 removals and 3 follow-ups.
+  zero (PMD 40, all generated or known FPs). Duplicate-config and doc-path veins paid 2 removals and 3 follow-ups;
+  #2152 MERGED (-4) the same day and its branch deleted.
