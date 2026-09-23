@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { isStillRunning } from 'services/taskResult'
 import { errorMessage } from 'utils/errorMessage'
+import { isWorkbookPath } from 'utils/workbooks'
 import {
     dropComparison,
     getComparison,
@@ -36,7 +37,6 @@ const ACCEPTED = '.xls,.xlsx,.xlsm'
 const ASK_AGAIN = 2000
 
 const FILES_TO_COMPARE = 2
-const EXCEL_FILE = /\.(xlsx?|xlsm)$/i
 
 /** Two versions of a module, named by the screen that opened the window. */
 interface VersionsRequest {
@@ -85,7 +85,7 @@ const requestOf = (params: URLSearchParams): ComparisonRequest => {
     // pick two files of.
     const conflict = projectId ? params.get('conflict') : null
     // A file that is not a workbook is not compared as one: it reads line by line, in this window.
-    const conflictText = conflict && !EXCEL_FILE.test(conflict) ? conflict : null
+    const conflictText = conflict && !isWorkbookPath(conflict) ? conflict : null
     return { versions, projectId, conflict, conflictText, pickedProject: conflict ? null : projectId }
 }
 
