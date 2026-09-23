@@ -880,20 +880,23 @@ If a project is not generated from the OpenAPI file, but it is required to add t
 
     *Selecting the generation mode*
 
-1.  If necessary, modify the default values for the rules and data modules and click **Import**.
-2.  If no module with the entered name is found, set up the path to the generated file and click **Import.**
+1.  If necessary, modify the default values for the rules and data modules and save the settings.
+2.  Click **Generate tables** and review what the generation will write.
+
+    If no module with the entered name is found, the workbook it is written to can be edited, and the reset
+    icon beside the field puts back the proposed path.
 
     ![](images/openapi-module-settings-new.png)
 
     *Module settings window, both modules are new*
 
-    If a module already exists, it will be overwritten, and the corresponding warning message is displayed. In this case, there is no option to define a file name.
+    If a module already exists, it is overwritten wherever the project reads it, and the corresponding warning message is displayed. In this case, there is no option to define a file name.
 
     ![](images/openapi-module-settings-existing.png)
 
     *Module settings window, one of modules already exists*
 
-1.  Click on the **Import and overwrite**.
+1.  Click **Generate tables**, or **Generate and overwrite** when one of the modules already exists.
 
 The rules and model modules are created or updated. The OpenAPI data is updated.
 

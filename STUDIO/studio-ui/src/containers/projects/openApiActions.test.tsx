@@ -12,37 +12,43 @@ vi.mock('../../services/openapi', () => ({
 }))
 
 vi.mock('react-i18next', () => {
-    const t = (key: string, values?: Record<string, unknown>) =>
-        values?.['path'] === undefined ? key : `${key}:${values['path'] as string}`
+    const t = (key: string) => key
     return { useTranslation: () => ({ t }) }
 })
 
 const notification = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }))
-// The confirmation is answered as soon as it is asked, so the test is about what is asked and what follows.
-const confirm = vi.hoisted(() => vi.fn())
 
 vi.mock('antd', async importOriginal => ({
     ...(await importOriginal<typeof import('antd')>()),
-    App: { useApp: () => ({ modal: { confirm }, notification }) },
+    App: { useApp: () => ({ notification }) },
 }))
 
-/** The section heading, with the actions it offers for the given settings. */
+/** The section heading, with the actions it offers for the given settings and the dialog they open. */
 const Heading = ({ openapi }: { openapi: DescriptorOpenApi | undefined }) => {
     const openApi = useOpenApiActions('p1', vi.fn())
     return (
-        <OpenApiActions
-            onGenerate={() => void openApi.generateTables(openapi ?? {})}
-            onWrite={() => void openApi.writeSchema()}
-            openapi={openapi}
-            running={openApi.running}
-        />
+        <>
+            <OpenApiActions
+                onGenerate={() => void openApi.generateTables(openapi ?? {})}
+                onWrite={() => void openApi.writeSchema()}
+                openapi={openapi}
+                running={openApi.running}
+            />
+            {openApi.generationDialog}
+        </>
     )
 }
+
+const show = async (openapi: DescriptorOpenApi | undefined) => {
+    render(<Heading openapi={openapi} />)
+    await screen.findByRole('button')
+}
+
+const GENERATES: DescriptorOpenApi = { path: 'openapi.json', mode: 'GENERATION' }
 
 describe('OpenApiActions', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        confirm.mockImplementation(({ onOk }: { onOk: () => void }) => onOk())
         vi.mocked(writeOpenApiSchema).mockResolvedValue({ path: 'openapi.json', created: true })
         vi.mocked(getOpenApiGenerationPlan).mockResolvedValue({
             algorithm: { name: 'Algorithms', path: 'rules/Algorithms.xlsx', declared: true },
@@ -52,7 +58,7 @@ describe('OpenApiActions', () => {
     })
 
     it('writes the specification from the rules where the project is held to one', async () => {
-        render(<Heading openapi={{ path: 'openapi.json', mode: 'RECONCILIATION' }} />)
+        await show({ path: 'openapi.json', mode: 'RECONCILIATION' })
 
         await userEvent.click(screen.getByTestId('openapi-write'))
 
@@ -61,7 +67,7 @@ describe('OpenApiActions', () => {
     })
 
     it('offers to write the specification for a project that declares none', async () => {
-        render(<Heading openapi={undefined} />)
+        await show(undefined)
 
         // Nothing to generate from yet, so the way in is writing the specification the rules answer to.
         expect(screen.getByTestId('openapi-write')).toBeInTheDocument()
@@ -69,12 +75,13 @@ describe('OpenApiActions', () => {
     })
 
     it('generates the tables of a project whose specification leads', async () => {
-        render(<Heading openapi={{ path: 'openapi.json', mode: 'GENERATION' }} />)
+        await show(GENERATES)
 
         await userEvent.click(screen.getByTestId('openapi-generate'))
-
-        // What it would write is asked for first, and what the reader agreed to is what is written.
         await waitFor(() => expect(getOpenApiGenerationPlan).toHaveBeenCalledWith('p1', undefined, undefined))
+        await userEvent.click(screen.getByTestId('openapi-generate-submit'))
+
+        // The modules are named by the plan; the workbooks are what the reader settled in the dialog.
         expect(generateOpenApiTables).toHaveBeenCalledWith('p1', {
             path: 'openapi.json',
             algorithmModuleName: 'Algorithms',
@@ -84,19 +91,31 @@ describe('OpenApiActions', () => {
         })
     })
 
-    it('asks about the modules it would write over before it writes them', async () => {
-        confirm.mockImplementation(() => undefined)
-        render(<Heading openapi={{ path: 'openapi.json', mode: 'GENERATION' }} />)
+    it('writes the module where the reader said, not where the plan proposed', async () => {
+        await show(GENERATES)
 
         await userEvent.click(screen.getByTestId('openapi-generate'))
-        await waitFor(() => expect(confirm).toHaveBeenCalled())
+        await waitFor(() => expect(screen.getByTestId('openapi-plan-model-path')).toBeInTheDocument())
+        await userEvent.clear(screen.getByTestId('openapi-plan-model-path'))
+        await userEvent.type(screen.getByTestId('openapi-plan-model-path'), 'types/Models.xlsx')
+        await userEvent.click(screen.getByTestId('openapi-generate-submit'))
+
+        expect(generateOpenApiTables).toHaveBeenCalledWith('p1',
+            expect.objectContaining({ modelModulePath: 'types/Models.xlsx' }))
+    })
+
+    it('asks about the modules it would write over before it writes them', async () => {
+        await show(GENERATES)
+
+        await userEvent.click(screen.getByTestId('openapi-generate'))
 
         // The reader said nothing yet, so nothing of the project is written.
+        await waitFor(() => expect(screen.getByTestId('openapi-generate-submit')).toBeInTheDocument())
         expect(generateOpenApiTables).not.toHaveBeenCalled()
     })
 
     it('asks the plan about the modules the project names, not about the default pair', async () => {
-        render(<Heading openapi={{ path: 'openapi.json', mode: 'GENERATION', algorithmModuleName: 'Pricing' }} />)
+        await show({ ...GENERATES, algorithmModuleName: 'Pricing' })
 
         await userEvent.click(screen.getByTestId('openapi-generate'))
 
@@ -105,7 +124,7 @@ describe('OpenApiActions', () => {
 
     it('says what went wrong rather than leaving the reader with nothing', async () => {
         vi.mocked(writeOpenApiSchema).mockRejectedValue(new Error('the project did not compile'))
-        render(<Heading openapi={{ path: 'openapi.json', mode: 'RECONCILIATION' }} />)
+        await show({ path: 'openapi.json', mode: 'RECONCILIATION' })
 
         await userEvent.click(screen.getByTestId('openapi-write'))
 

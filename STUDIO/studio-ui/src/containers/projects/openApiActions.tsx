@@ -7,10 +7,10 @@ import {
     generateOpenApiTables,
     getOpenApiGenerationPlan,
     type OpenApiGenerationPlan,
-    type OpenApiModule,
     writeOpenApiSchema,
 } from '../../services/openapi'
 import type { DescriptorOpenApi } from '../../services/rulesDescriptor'
+import { OpenApiGenerationModal, type OpenApiTargets } from './OpenApiGenerationModal'
 
 /**
  * The two things a project and its specification do to each other, which the legacy Editor offered from one
@@ -21,10 +21,10 @@ import type { DescriptorOpenApi } from '../../services/rulesDescriptor'
  * wrote is read back by the caller rather than guessed at here.
  */
 export const useOpenApiActions = (projectId: string, onWritten: () => void) => {
-    const { modal } = App.useApp()
     const { t } = useTranslation('repository')
     const { notification } = App.useApp()
     const [running, setRunning] = useState(false)
+    const [asked, setAsked] = useState<Asked | undefined>(undefined)
 
     const writeSchema = async () => {
         setRunning(true)
@@ -43,18 +43,17 @@ export const useOpenApiActions = (projectId: string, onWritten: () => void) => {
     }
 
     /**
-     * Asks what the generation would write before it writes it: a module the project already reads has its
-     * workbook replaced, and a reader is owed that in words before they say yes.
+     * Asks what the generation would write before it writes it: where each module goes is the reader's to
+     * settle, and a module the project already reads has its workbook replaced — which they are owed in
+     * words before they say yes.
      */
     const generateTables = async (openapi: DescriptorOpenApi) => {
         setRunning(true)
         try {
-            const plan = await getOpenApiGenerationPlan(projectId, openapi.algorithmModuleName, openapi.modelModuleName)
-            modal.confirm({
-                title: t('browser.overview.openapi_generate'),
-                content: <GenerationPlan plan={plan} />,
-                okText: t('browser.overview.openapi_generate'),
-                onOk: () => run(openapi, plan),
+            setAsked({
+                openapi,
+                plan: await getOpenApiGenerationPlan(
+                    projectId, openapi.algorithmModuleName, openapi.modelModuleName),
             })
         } catch (e) {
             notification.error({ title: t('browser.overview.openapi_generate_failed'), description: errorMessage(e) })
@@ -63,16 +62,16 @@ export const useOpenApiActions = (projectId: string, onWritten: () => void) => {
         }
     }
 
-    const run = async (openapi: DescriptorOpenApi, plan: OpenApiGenerationPlan) => {
+    const run = async ({ openapi, plan }: Asked, targets: OpenApiTargets) => {
         setRunning(true)
         try {
             await generateOpenApiTables(projectId, {
                 path: openapi.path ?? '',
                 algorithmModuleName: plan.algorithm.name,
-                algorithmModulePath: plan.algorithm.path,
                 modelModuleName: plan.model.name,
-                modelModulePath: plan.model.path,
+                ...targets,
             })
+            setAsked(undefined)
             notification.success({ title: t('browser.overview.openapi_generated') })
             onWritten()
         } catch (e) {
@@ -82,31 +81,23 @@ export const useOpenApiActions = (projectId: string, onWritten: () => void) => {
         }
     }
 
-    return { running, writeSchema, generateTables }
+    const generationDialog = (
+        <OpenApiGenerationModal
+            busy={running}
+            onCancel={() => setAsked(undefined)}
+            onGenerate={targets => asked && void run(asked, targets)}
+            open={asked !== undefined}
+            plan={asked?.plan}
+        />
+    )
+
+    return { running, writeSchema, generateTables, generationDialog }
 }
 
-/** What the generation will write, one line per module, saying which workbook it replaces. */
-const GenerationPlan = ({ plan }: { plan: OpenApiGenerationPlan }) => {
-    const { t } = useTranslation('repository')
-    const line = (module: OpenApiModule, labelKey: string) => (
-        <li>
-            {t(labelKey)}
-            {': '}
-            <b>{module.name}</b>
-            {' — '}
-            {t(module.declared ? 'browser.overview.openapi_plan_replaces' : 'browser.overview.openapi_plan_adds',
-                { path: module.path })}
-        </li>
-    )
-    return (
-        <>
-            <div>{t('browser.overview.openapi_generate_confirm')}</div>
-            <ul data-testid="openapi-generation-plan">
-                {line(plan.algorithm, 'browser.overview.openapi_algorithm')}
-                {line(plan.model, 'browser.overview.openapi_model')}
-            </ul>
-        </>
-    )
+/** A generation the reader was asked about: what it is generated from, and what it would write. */
+interface Asked {
+    openapi: DescriptorOpenApi
+    plan: OpenApiGenerationPlan
 }
 
 /** The two actions, as the section heading offers them. */

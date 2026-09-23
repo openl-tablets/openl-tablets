@@ -1360,12 +1360,15 @@ const OpenApiSection = ({ editor, projectId, staged, onPicked, canWrite, onWritt
 
     const actions = canWrite && !editing
         ? (
-            <OpenApiActions
-                onGenerate={() => void openApi.generateTables(effective ?? {})}
-                onWrite={() => void openApi.writeSchema()}
-                openapi={effective}
-                running={openApi.running}
-            />
+            <>
+                <OpenApiActions
+                    onGenerate={() => void openApi.generateTables(effective ?? {})}
+                    onWrite={() => void openApi.writeSchema()}
+                    openapi={effective}
+                    running={openApi.running}
+                />
+                {openApi.generationDialog}
+            </>
         )
         : undefined
 
