@@ -12,6 +12,9 @@ two modules the generation writes are both new and the paths the request carries
 `020-generation` asks for each module in turn to be written somewhere that is no workbook, and then for both
 to be written where they belong.
 
+- `005-a-path-the-repository-cannot-hold-is-refused-before-anything-is-written` — `rules/.xlsx` names a
+  folder and an extension with nothing in between. The repository refuses such a path when the write
+  reaches it, which is one module too late, so it is refused up front as the Editor's dialog refused it.
 - `010-the-rules-module-is-refused-a-file-that-is-no-workbook` — the call of the ticket, which answered 204.
 - `020-and-so-is-the-data-types-module` — the other module is judged by the same rule, so neither side of the
   request is a way in.

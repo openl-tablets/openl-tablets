@@ -43,6 +43,7 @@ import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 
 /**
  * The tables of a project, generated from an OpenAPI specification somebody wrote first.
@@ -151,6 +152,8 @@ public class ProjectOpenApiGenerationService {
         var model = targetOf(resolved, request.modelModuleName(), request.modelModulePath());
         // Asked before anything is written: a workbook standing where a new module would go is the author's,
         // and a refusal halfway through would leave one module generated and the other not.
+        requireWritablePath(algorithm);
+        requireWritablePath(model);
         requireWorkbook(algorithm);
         requireWorkbook(model);
         requireTwoWorkbooks(algorithm, model);
@@ -185,6 +188,28 @@ public class ProjectOpenApiGenerationService {
         // The session resolved and compiled the project as it stood before the generation: its module list,
         // its descriptor and its compiled tables all answer for workbooks that are no longer there.
         studio.reset();
+    }
+
+    /**
+     * A generated module is written to a path a repository can hold, to a workbook with a name.
+     *
+     * <p>Asked before anything is written, as the Editor's dialog asked it. The repository refuses such a
+     * path when the write reaches it, which is one module too late: the other is written by then, and the
+     * generation would leave the project with one of its two modules replaced.
+     */
+    private static void requireWritablePath(Target target) {
+        try {
+            NameChecker.validatePath(target.path());
+        } catch (IOException invalid) {
+            throw new ConflictException("projects.openapi.module-path.invalid.message", target.path(),
+                    NameChecker.getForbiddenCharacters());
+        }
+        // The path may be one the repository holds and still name no workbook — `rules/.xlsx` is a folder
+        // and an extension with nothing in between.
+        if (!NameChecker.checkName(FileUtils.getBaseName(target.path()))) {
+            throw new ConflictException("projects.openapi.module-path.invalid.message", target.path(),
+                    NameChecker.getForbiddenCharacters());
+        }
     }
 
     /**

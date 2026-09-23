@@ -1,0 +1,8 @@
+HTTP/1.1 409
+Content-Type: application/json
+
+{
+  "code": "openl.error.409.projects.openapi.module-path.invalid.message",
+  "message": "A module cannot be written to 'rules/.xlsx'. Every folder of the path and the workbook itself needs a name, and a name cannot contain \\, /, :, ;, <, >, ?, *, %, ', [, ], |, \", start with a space, or end with a space or a dot."
+}
+

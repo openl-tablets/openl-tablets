@@ -171,6 +171,20 @@ class ProjectOpenApiGenerationServiceTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = {"rules/.xlsx", "rules/Al?g.xlsx", "rules/ Alg.xlsx", "rules//Alg.xlsx"})
+    void refusesAPathTheRepositoryCannotHold(String workbook) {
+        var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", workbook,
+                "Models", "rules/Models.xlsx");
+
+        var refused = assertThrows(ConflictException.class,
+                () -> service.generateTables(projectReading(), request));
+
+        // Refused before either module is written: the repository refuses such a path when the write
+        // reaches it, by which time the other module has been replaced.
+        assertEquals("openl.error.409.projects.openapi.module-path.invalid.message", refused.getErrorCode());
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {"rules/Alg.xlsx", "rules/Alg.XLS", "rules/Alg.xlsm"})
     void writesAModuleToEveryWorkbookExcelReads(String workbook) {
         var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", workbook,
