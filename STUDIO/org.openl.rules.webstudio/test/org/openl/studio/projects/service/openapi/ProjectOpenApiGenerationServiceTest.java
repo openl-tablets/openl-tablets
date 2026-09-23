@@ -152,6 +152,35 @@ class ProjectOpenApiGenerationServiceTest {
     }
 
     @Test
+    void refusesToWriteAModuleToAFileThatIsNoWorkbook() {
+        var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", "rules/Alg.txt",
+                "Models", "rules/Models.xlsx");
+
+        var refused = assertThrows(ConflictException.class,
+                () -> service.generateTables(projectReading(), request));
+
+        // A module is read from a workbook; a file named anything else is served as that kind of file and
+        // read as no module at all, while rules.xml names it as one.
+        assertEquals("openl.error.409.projects.openapi.module-path.not-a-workbook.message",
+                refused.getErrorCode());
+    }
+
+    @Test
+    void writesAModuleToEveryWorkbookExcelReads() {
+        for (String workbook : List.of("rules/Alg.xlsx", "rules/Alg.XLS", "rules/Alg.xlsm")) {
+            var request = new OpenApiGenerationRequest("openapi.json", "Algorithms", workbook,
+                    "Models", "rules/Models.xlsx");
+
+            var refused = assertThrows(ConflictException.class,
+                    () -> service.generateTables(projectReading(), request));
+
+            // Refused further on, for want of a checked-out copy to read the specification from — the
+            // workbook itself was not what stood in the way.
+            assertEquals("openl.error.409.projects.openapi.not-checked-out.message", refused.getErrorCode());
+        }
+    }
+
+    @Test
     void refusesOneNameForBothModules() {
         var request = new OpenApiGenerationRequest("openapi.json", "Both", "rules/Rules.xlsx",
                 "Both", "rules/Models.xlsx");
