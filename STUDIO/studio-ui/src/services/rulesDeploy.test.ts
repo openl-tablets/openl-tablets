@@ -64,6 +64,28 @@ describe('serializeDeployConfig', () => {
         expect(parseDeployConfig(out).configuration).toContain('<string>key</string>')
     })
 
+    it('writes a configuration typed as text into the file as XML, not as escaped text', () => {
+        // What the editor hands over: one line of markup, with an entity in an attribute and in a text, a
+        // comment and a CDATA section.
+        const typed = '<entry key="a &amp; b"><value>x &lt; y</value></entry><!-- note -->'
+            + '<raw><![CDATA[1 < 2 && 3 > 2]]></raw>'
+        const out = serializeDeployConfig({ ...EMPTY_DEPLOY_CONFIG, serviceName: 'svc', configuration: typed })
+
+        expect(out).toBe(`<rules-deploy>
+    <serviceName>svc</serviceName>
+    <configuration>
+        <entry key="a &amp; b">
+            <value>x &lt; y</value>
+        </entry>
+        <!-- note -->
+        <raw><![CDATA[1 < 2 && 3 > 2]]></raw>
+    </configuration>
+</rules-deploy>
+`)
+        // A second save of the file it wrote changes nothing: no markup is escaped on the way back in.
+        expect(serializeDeployConfig(parseDeployConfig(out))).toBe(out)
+    })
+
     it('preserves elements the editor does not manage', () => {
         const withCustom = `<rules-deploy>
     <serviceName>svc</serviceName>

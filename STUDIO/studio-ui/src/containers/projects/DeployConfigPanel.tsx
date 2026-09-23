@@ -80,7 +80,7 @@ const useStyles = createStyles(({ css, token }) => ({
         gap: 4px;
         min-height: ${token.controlHeight}px;
     `,
-    /** The raw XML always reads as the file it is: an input, but never edited from here. */
+    /** The raw XML block, framed like an input. It turns editable with the rest of the form. */
     xml: css`
         width: 100%;
         height: 180px;
@@ -104,9 +104,12 @@ interface DeployConfigPanelProps {
  *
  * <p>The descriptor reads as plain values by default, whether or not the project is open for editing.
  * A project that may be written offers an Edit button that turns the values into the fields that set
- * them; the raw XML block stays a read-only view of the file throughout. The XML is read and written
- * through the Files API, and the form maps the common publishing settings while preserving any other
- * elements. A missing descriptor starts blank and is created on the first save.
+ * them, the raw XML block of the configuration included. The XML is read and written through the Files
+ * API, and the form maps the common publishing settings while preserving any other elements. A missing
+ * descriptor starts blank and is created on the first save.
+ *
+ * <p>A configuration block that is not well-formed XML is not saved: the save reports it and the edit
+ * stays open.
  *
  * <p>An edit under way ends only by its own Save or Cancel. A reload of the same project refreshes the
  * values underneath it — what a save writes over, what a cancel returns to — and leaves the draft alone.
@@ -335,8 +338,12 @@ export const DeployConfigPanel = ({ projectId, canWrite, onSaved, reloadToken }:
             <FieldRow alignTop label={t('browser.deploy_config.configuration')} labelWidth={180}>
                 <div className={styles.xml} data-testid="deploy-configuration">
                     <Suspense fallback={<Skeleton active paragraph={{ rows: 3 }} style={{ padding: 12 }} title={false} />}>
-                        {/* The raw XML is shown as the file it is, and never edited from this form. */}
-                        <CodeEditor readOnly path="configuration.xml" value={shown.configuration} />
+                        <CodeEditor
+                            onChange={value => set('configuration', value)}
+                            path="configuration.xml"
+                            readOnly={!editing}
+                            value={shown.configuration}
+                        />
                     </Suspense>
                 </div>
             </FieldRow>
