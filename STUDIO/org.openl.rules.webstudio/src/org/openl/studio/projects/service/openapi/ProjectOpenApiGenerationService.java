@@ -42,6 +42,7 @@ import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.util.CollectionUtils;
+import org.openl.util.FileTypeHelper;
 
 /**
  * The tables of a project, generated from an OpenAPI specification somebody wrote first.
@@ -144,6 +145,8 @@ public class ProjectOpenApiGenerationService {
         var model = targetOf(resolved, request.modelModuleName(), request.modelModulePath());
         // Asked before anything is written: a workbook standing where a new module would go is the author's,
         // and a refusal halfway through would leave one module generated and the other not.
+        requireWorkbook(algorithm);
+        requireWorkbook(model);
         requireTwoWorkbooks(algorithm, model);
         requireFree(project, algorithm);
         requireFree(project, model);
@@ -176,6 +179,19 @@ public class ProjectOpenApiGenerationService {
         // The session resolved and compiled the project as it stood before the generation: its module list,
         // its descriptor and its compiled tables all answer for workbooks that are no longer there.
         studio.reset();
+    }
+
+    /**
+     * A module is read from an Excel workbook, so that is what a generated one is written to.
+     *
+     * <p>Asked of the workbook the generation will write, as the neighbouring flow asks it of the paths a
+     * project is created from: a file named anything else is served as that kind of file and read as no
+     * module at all, while {@code rules.xml} names it as one.
+     */
+    private static void requireWorkbook(Target target) {
+        if (!FileTypeHelper.isExcelFile(target.path())) {
+            throw new ConflictException("projects.openapi.module-path.not-a-workbook.message", target.path());
+        }
     }
 
     /** A module the project does not read yet cannot be written where a file already stands. */

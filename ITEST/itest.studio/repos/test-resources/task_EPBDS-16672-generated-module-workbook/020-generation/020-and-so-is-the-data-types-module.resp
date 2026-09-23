@@ -1,0 +1,8 @@
+HTTP/1.1 409
+Content-Type: application/json
+
+{
+  "code": "openl.error.409.projects.openapi.module-path.not-a-workbook.message",
+  "message": "A module is read from an Excel workbook, and 'rules/Models.csv' is not one. Name it .xlsx, .xls or .xlsm."
+}
+
