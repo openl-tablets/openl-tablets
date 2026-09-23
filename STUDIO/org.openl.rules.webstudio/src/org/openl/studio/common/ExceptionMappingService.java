@@ -24,8 +24,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import org.openl.studio.common.exception.AmbiguityException;
 import org.openl.studio.common.exception.RestRuntimeException;
 import org.openl.studio.common.exception.ValidationException;
+import org.openl.studio.common.model.AmbiguityError;
 import org.openl.studio.common.model.BaseError;
 import org.openl.studio.common.model.ValidationError;
 import org.openl.util.StringUtils;
@@ -78,6 +80,11 @@ public class ExceptionMappingService {
     }
 
     private BaseError processRestRuntimeException(RestRuntimeException ex) {
+        if (ex instanceof AmbiguityException ambiguity) {
+            return new AmbiguityError(BaseError.builder()
+                    .code(ambiguity.getErrorCode())
+                    .message(resolveLocalMessage(ambiguity)), ambiguity.getCandidates());
+        }
         var httpStatus = Optional.ofNullable(ex.getHttpStatus())
                 .orElse(HttpStatus.INTERNAL_SERVER_ERROR);
         return mapCommonException(httpStatus, ex);

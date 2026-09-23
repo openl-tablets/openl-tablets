@@ -19,9 +19,10 @@ import {
 import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { moduleRoute, toUrlSafeId } from '../services/projectId'
+import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
-import { useLoadGeneration } from '../hooks'
+import { useCanonicalProjectAddress, useLoadGeneration } from '../hooks'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
@@ -43,6 +44,7 @@ import { TableToolbar } from './modules/TableToolbar'
 import { useModuleCompilation } from './modules/useModuleCompilation'
 import { useOverwriteConfirm } from './modules/useOverwriteConfirm'
 import { useSharedStyles } from './projects/sharedStyles'
+import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
 
 const useStyles = createStyles(({ css, token }) => ({
     body: css`
@@ -128,9 +130,14 @@ export const ModuleWorkspace = () => {
     // What the extended search was opened with, and whether it stands open at all.
     const [searchFor, setSearchFor] = useState<string | null>(null)
 
-    const [project, setProject] = useState<Project | null>(null)
+    // The project as read for an address. The screen stays mounted when it moves on to another project, and what it
+    // read for the previous address is none of the new one's: nothing is shown, compiled or read of it there.
+    const [projectRead, setProjectRead] = useState<{ address: string, project: Project } | null>(null)
+    const project = projectRead !== null && projectRead.address === projectId ? projectRead.project : null
     const [statusReadAt, setStatusReadAt] = useState(0)
     const [loadError, setLoadError] = useState<string | null>(null)
+    // Why the link leads to no project, or to several: shown in place of the module.
+    const [linkProblem, setLinkProblem] = useState<ProjectLinkProblem | null>(null)
     const [opening, setOpening] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
     const [loaded, setLoaded] = useState<{ at: string, other: boolean, tables: ModuleTable[] } | null>(null)
@@ -210,23 +217,52 @@ export const ModuleWorkspace = () => {
         [tables, selectedId]
     )
 
+    // This screen's address for a project id: it keeps the module, and the table and the cell the address opens.
+    const routeOf = useCallback(
+        (id: string) => moduleRoute(id, moduleName, selectedId ?? undefined, raisedCell ?? undefined),
+        [moduleName, raisedCell, selectedId]
+    )
+    const readdress = useCanonicalProjectAddress(projectId, routeOf)
+    const projectLoads = useLoadGeneration()
+
     const load = useCallback(() => {
         if (!projectId) {
             return
         }
-        const startedAt = Date.now()
+        const { generation, startedAt } = projectLoads.start(true)
         getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
             .then(loaded => {
-                setProject(loaded)
+                // An older read may be for an address the screen has left. A link by name moves on to the
+                // project's id before the module is read.
+                if (!projectLoads.isLatest(generation) || readdress(loaded.id)) {
+                    return
+                }
+                setProjectRead({ address: projectId, project: loaded })
                 setStatusReadAt(startedAt)
                 // A read that answers puts the last failure behind it: one error while a module compiles
                 // would otherwise leave the screen on a dead end until the browser is reloaded.
                 setLoadError(null)
+                setLinkProblem(null)
             })
-            .catch((error: unknown) => setLoadError(errorMessage(error)))
-    }, [projectId])
+            .catch((error: unknown) => {
+                if (!projectLoads.isLatest(generation)) {
+                    return
+                }
+                const problem = projectLinkProblemOf(error)
+                if (problem === null) {
+                    setLoadError(errorMessage(error))
+                } else {
+                    setLinkProblem(problem)
+                }
+            })
+    }, [projectId, projectLoads, readdress])
 
-    useEffect(load, [load])
+    // A new address starts afresh: what went wrong with the previous one is no longer this screen's.
+    useEffect(() => {
+        setLoadError(null)
+        setLinkProblem(null)
+        load()
+    }, [load])
 
     // The dialog is mounted above the routes and answers back with this project, so leaving takes its question
     // along.
@@ -608,6 +644,16 @@ export const ModuleWorkspace = () => {
             })
             .finally(() => setMoreLoading(false))
     }, [projectId, selectedId, moduleName, table, moreLoading, tableLoads])
+
+    if (linkProblem) {
+        return (
+            <div className={shared.workspacePage}>
+                <div className={styles.centered}>
+                    <UnresolvedProjectLink addressed={projectId ?? ''} problem={linkProblem} routeOf={routeOf} />
+                </div>
+            </div>
+        )
+    }
 
     if (loadError) {
         return (

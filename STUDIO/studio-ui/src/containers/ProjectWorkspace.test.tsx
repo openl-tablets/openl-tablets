@@ -11,7 +11,7 @@ import {
     switchProjectBranch,
     unlockProject,
 } from '../services/repositories'
-import { ApiHttpError, NotFoundError } from '../services'
+import { ApiHttpError, ForbiddenError, NotFoundError } from '../services'
 import { notification } from 'antd'
 
 const { copyModalMock, navigateMock, routeParams, searchParamsMock, setSearchParamsMock, liveHandlers } = vi.hoisted(() => ({
@@ -29,6 +29,7 @@ const { copyModalMock, navigateMock, routeParams, searchParamsMock, setSearchPar
 
 vi.mock('../hooks', async () => ({
     ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
+    ...(await vi.importActual<typeof import('../hooks/useCanonicalProjectAddress')>('../hooks/useCanonicalProjectAddress')),
     useLiveProjectChanges: (
         _projectId: string | undefined,
         onChange: (files: string[]) => void,
@@ -297,10 +298,12 @@ function deferred<T>() {
 }
 
 async function renderWorkspace() {
+    let view!: ReturnType<typeof render>
     await act(async () => {
-        render(<ProjectWorkspace />)
+        view = render(<ProjectWorkspace />)
         await new Promise(resolve => setTimeout(resolve, 50))
     })
+    return view
 }
 
 /** The action rendered as the single primary (blue) button, if any. */
@@ -886,10 +889,90 @@ describe('ProjectWorkspace', () => {
         expect(getProjectFiles).toHaveBeenCalledTimes(1)
     })
 
-    it('shows an error state when the listing fails to load', async () => {
+    it('shows an error state when the project fails to load, keeping the tree beside it', async () => {
         vi.mocked(getProject).mockRejectedValue(new Error('boom'))
         await renderWorkspace()
 
+        expect(screen.getByTestId('project-workspace-error')).toHaveTextContent('browser.project_load_error')
+        expect(screen.getByTestId('projects-rail')).toBeTruthy()
+    })
+
+    it('shows the not-found state for a project the reader may not see', async () => {
+        vi.mocked(getProject).mockRejectedValue(new ForbiddenError())
+        await renderWorkspace()
+
+        expect(screen.getByTestId('project-workspace-missing')).toBeTruthy()
+        expect(screen.queryByTestId('project-workspace-error')).toBeNull()
+    })
+
+    it('replaces a project name in the address with the project id, and shows the project there', async () => {
+        routeParams.projectId = 'Alpha'
+        searchParamsMock.set('tab', 'files')
+        const view = await renderWorkspace()
+
+        expect(navigateMock).toHaveBeenCalledWith('/projects/p1?tab=files', { replace: true })
+        // The project is shown at the id's address, not under the name.
+        expect(screen.getByTestId('project-workspace-loading')).toBeTruthy()
+        expect(screen.queryByTestId('project-workspace-missing')).toBeNull()
+
+        // The router moves the address on to the id, and the project is read again by it.
+        routeParams.projectId = 'p1'
+        await act(async () => {
+            view.rerender(<ProjectWorkspace />)
+            await new Promise(resolve => setTimeout(resolve, 50))
+        })
+        expect(getProject).toHaveBeenLastCalledWith('p1', expect.anything(), expect.anything())
+        expect(screen.getAllByText('Alpha').length).toBeGreaterThan(0)
+    })
+
+    it('leaves the address alone when a later read of the project answers with another id', async () => {
+        await renderWorkspace()
+        vi.mocked(getProject).mockResolvedValue(project({ id: 'p9', status: 'EDITING' }) as never)
+
+        await act(async () => {
+            liveHandlers.projectChange?.([])
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(getProject).toHaveBeenCalledTimes(2)
+        expect(navigateMock).not.toHaveBeenCalled()
+    })
+
+    it('drops the failure to read one project when the reader moves on to another', async () => {
+        vi.mocked(getProject).mockRejectedValueOnce(new Error('boom'))
+        const view = await renderWorkspace()
         expect(screen.getByTestId('project-workspace-error')).toBeTruthy()
+
+        // The reader picks another project in the tree; its read is still on its way.
+        vi.mocked(getProject).mockReturnValue(deferred<never>().promise)
+        routeParams.projectId = 'p2'
+        await act(async () => {
+            view.rerender(<ProjectWorkspace />)
+            await new Promise(resolve => setTimeout(resolve, 0))
+        })
+
+        expect(screen.queryByTestId('project-workspace-error')).toBeNull()
+        expect(screen.getByTestId('project-workspace-loading')).toBeTruthy()
+    })
+
+    it('lists the projects a name leads to, and opens the one picked by its id on the same tab', async () => {
+        routeParams.projectId = 'hello'
+        searchParamsMock.set('tab', 'files')
+        vi.mocked(getProject).mockRejectedValue(new ApiHttpError(409, 'The project name is ambiguous.', {
+            code: 'openl.error.409.project.identifier.ambiguous.message',
+            candidates: [
+                { id: 'ZGVzaWduOkhlbGxv', name: 'Hello', repository: 'design', repositoryName: 'Design' },
+                { id: 'ZGVzaWduMTpoZWxsbw==', name: 'hello', repository: 'design1', repositoryName: 'Design1' },
+            ],
+        }))
+        await renderWorkspace()
+
+        // The choice takes the project's place; no error takes the screen, and the tree stays beside it.
+        expect(screen.getByTestId('project-link-ambiguous')).toBeTruthy()
+        expect(screen.queryByTestId('project-workspace-error')).toBeNull()
+        expect(screen.getByTestId('projects-rail')).toBeTruthy()
+
+        await userEvent.click(screen.getAllByTestId('project-link-candidate')[1]!)
+        expect(navigateMock).toHaveBeenCalledWith('/projects/ZGVzaWduMTpoZWxsbw==?tab=files')
     })
 })

@@ -17,15 +17,18 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.AmbiguityException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.model.ProjectCandidateModel;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 
 /**
  * Resolves {@link AProject} from a project identity. The identity is either a project ID or a project name. Iterates a
  * chain of {@link ProjectResolveStrategy} strategies in order; the first strategy that returns at least one match is
- * authoritative. Multiple matches from the same strategy produce an ambiguity {@link ConflictException}.
+ * authoritative.
+ *
+ * <p>Multiple matches from the same strategy produce an {@link AmbiguityException}. It lists every match as a
+ * candidate the client can address by its ID instead.
  *
  * <p>A caller that knows which repository holds the project narrows the answer to it; the identity then resolves only
  * to a project of that repository.
@@ -95,13 +98,28 @@ public class ProjectIdentityConverter implements Converter<String, RulesProject>
 
     private RulesProject selectSingleMatch(String identity, List<RulesProject> matches) {
         if (matches.size() > 1) {
-            var candidates = matches.stream()
-                    .map(projectIdentifierMapper::map)
-                    .map(ProjectIdModel::encode)
+            var candidates = matches.stream().map(this::toCandidate).toList();
+            var ids = candidates.stream()
+                    .map(candidate -> candidate.id().encode())
                     .collect(Collectors.joining(", "));
-            throw new ConflictException("project.identifier.ambiguous.message", identity, candidates);
+            throw new AmbiguityException("project.identifier.ambiguous.message", candidates, identity, ids);
         }
         return matches.getFirst();
+    }
+
+    private ProjectCandidateModel toCandidate(RulesProject project) {
+        var candidate = ProjectCandidateModel.builder()
+                .id(projectIdentifierMapper.map(project))
+                .name(project.getBusinessName());
+        var repository = project.getDesignRepository();
+        if (repository != null) {
+            candidate.repository(repository.getId()).repositoryName(repository.getName());
+            // Such a repository may hold several projects of one name: the folder tells them apart.
+            if (repository.supports().mappedFolders()) {
+                candidate.path(project.getRealPath().replace('\\', '/'));
+            }
+        }
+        return candidate.build();
     }
 
 }

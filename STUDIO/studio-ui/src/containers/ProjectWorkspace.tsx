@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { errorMessage } from '../utils/errorMessage'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { App, Alert, Button, Empty, Skeleton } from 'antd'
+import { App, Alert, Skeleton } from 'antd'
 import { createStyles } from 'antd-style'
 import {
     getProject,
@@ -11,9 +11,9 @@ import {
     setProjectStatus,
     unlockProject,
 } from '../services/repositories'
-import { NotFoundError } from '../services'
+import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/projectLink'
 import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '../services/projectIndex'
-import { useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
+import { useCanonicalProjectAddress, useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { useSharedStyles } from './projects/sharedStyles'
@@ -33,6 +33,7 @@ import type { ProjectActionHandlers } from './projects/ProjectActionBar'
 import type { BusyId } from './projects/projectActions'
 import { DiscardChangesModal } from './DiscardChangesModal'
 import { ProjectsRail } from './projects/ProjectsRail'
+import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
 import type { NodeFilters } from './projects/projectGrouping'
 import { moduleRoute, projectFileRoute, toUrlSafeId } from '../services/projectId'
 
@@ -88,7 +89,10 @@ export const ProjectWorkspace = () => {
     const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
     const { projectId } = useParams()
+    const [searchParams] = useSearchParams()
     const [project, setProject] = useState<Project | null>(null)
+    // Why the link leads to no project, or to several: shown in place of the project.
+    const [linkProblem, setLinkProblem] = useState<ProjectLinkProblem | null>(null)
     // When the read behind the shown project started, so the compile dot can tell a pushed status
     // that is newer than this answer from one this answer has already overtaken.
     const [statusReadAt, setStatusReadAt] = useState(0)
@@ -111,6 +115,12 @@ export const ProjectWorkspace = () => {
     const fileLoads = useLoadGeneration()
     // When the page last read its project — the staleness policy behind the pings counts from here.
     const loadedAt = useRef(0)
+    // This screen's address for a project id: it keeps the tab and the file the address opens.
+    const routeOf = useCallback((id: string) => {
+        const query = searchParams.toString()
+        return query ? `/projects/${id}?${query}` : `/projects/${id}`
+    }, [searchParams])
+    const readdress = useCanonicalProjectAddress(projectId, routeOf)
 
     const reducedMotion = useMemo(
         () => typeof window !== 'undefined'
@@ -142,7 +152,8 @@ export const ProjectWorkspace = () => {
         }
         try {
             const loaded = await getProject(projectId, { includes: ['status', 'descriptor']}, LOCAL_LOAD_API_OPTIONS)
-            if (!loads.isLatest(generation)) {
+            // A link by name moves on to the project's id, and the project is shown there.
+            if (!loads.isLatest(generation) || readdress(loaded.id)) {
                 return null
             }
             if (skipUnchangedFor !== undefined && touched === null && projectSignature(loaded) === skipUnchangedFor) {
@@ -169,15 +180,18 @@ export const ProjectWorkspace = () => {
             loadedAt.current = Date.now()
             setFiles(undefined)
             setError(null)
+            setLinkProblem(null)
             return loaded
         } catch (e) {
+            const problem = projectLinkProblemOf(e)
             // A reload the user waits for reports its own failure even when a quiet one has overtaken
             // it: the quiet one reports nothing, so the action would look as if it had succeeded.
-            if (!(e instanceof NotFoundError) && loads.ownsSpinner(generation)) {
+            if (problem === null && loads.ownsSpinner(generation)) {
                 setError(errorMessage(e))
-            } else if (loads.isLatest(generation) && e instanceof NotFoundError) {
+            } else if (problem !== null && loads.isLatest(generation)) {
                 setProject(null)
                 setError(null)
+                setLinkProblem(problem)
             }
         } finally {
             // The spinner is hidden by the reload it belongs to, even when a quiet re-read has started
@@ -187,17 +201,17 @@ export const ProjectWorkspace = () => {
             }
         }
         return null
-    }, [loads, projectId])
+    }, [loads, projectId, readdress])
 
     // Only the copy dialog's target picker needs the repository list — the screen itself lives off the
     // project's own repositoryInfo. So the list is read once, when the dialog first opens, and never at
     // all for the user who does not copy (for one granted a single project it reads as empty anyway).
-    // Drop the previous project immediately on navigation so its content never flashes under the new id.
+    // Drop the previous project immediately on navigation so its content never flashes under the new id,
+    // nor does the failure to read it.
     useEffect(() => {
         setProject(null)
-    }, [projectId])
-
-    useEffect(() => {
+        setLinkProblem(null)
+        setError(null)
         void load()
     }, [load])
 
@@ -383,25 +397,14 @@ export const ProjectWorkspace = () => {
         }
     }, [busyWhile, closeProject, load, navigate, project, runAction])
 
-    if (loading && !project && !error) {
+    // Nothing to show yet: the first read is on its way, or the address is moving on to the id it answered with.
+    if (!project && !error && !linkProblem) {
         return (
             <div className={shared.workspacePage}>
                 <div className={styles.centered} data-testid="project-workspace-loading">
                     <Skeleton active className={styles.skeleton} />
                 </div>
             </div>
-        )
-    }
-
-    if (error) {
-        return (
-            <Alert
-                showIcon
-                data-testid="project-workspace-error"
-                description={error}
-                title={t('browser.load_error')}
-                type="error"
-            />
         )
     }
 
@@ -420,49 +423,57 @@ export const ProjectWorkspace = () => {
                     reloadToken={reloadToken}
                 />
                 <div className={styles.body}>
-                    {project ? (
-                        <ProjectDetail
-                            changedFiles={changedFiles}
-                            files={files}
-                            handlers={handlers}
-                            onBranchSwitching={busy => setPendingId(busy ? 'switchBranch' : null)}
-                            onChanged={() => load()}
-                            onFilesVisible={loadFiles}
-                            pendingId={pendingId}
-                            project={project}
-                            reducedMotion={reducedMotion}
-                            reloadToken={reloadToken}
-                            repoFeatures={repoInfo?.features}
-                            repoLabel={repoLabel}
-                            repoType={repoType}
-                            statusReadAt={statusReadAt}
-                            headerPrefix={(
-                                <span className={styles.crumb}>
-                                    <Link to="/projects">{t('home.title')}</Link>
-                                    <span aria-hidden>/</span>
-                                </span>
-                            )}
-                        />
+                    {project && !error ? (
+                        <>
+                            <ProjectDetail
+                                changedFiles={changedFiles}
+                                files={files}
+                                handlers={handlers}
+                                onBranchSwitching={busy => setPendingId(busy ? 'switchBranch' : null)}
+                                onChanged={() => load()}
+                                onFilesVisible={loadFiles}
+                                pendingId={pendingId}
+                                project={project}
+                                reducedMotion={reducedMotion}
+                                reloadToken={reloadToken}
+                                repoFeatures={repoInfo?.features}
+                                repoLabel={repoLabel}
+                                repoType={repoType}
+                                statusReadAt={statusReadAt}
+                                headerPrefix={(
+                                    <span className={styles.crumb}>
+                                        <Link to="/projects">{t('home.title')}</Link>
+                                        <span aria-hidden>/</span>
+                                    </span>
+                                )}
+                            />
+                            <CompileProblemsPanel
+                                project={project}
+                                statusReadAt={statusReadAt}
+                                supportsBranches={supportsBranches({ features: repoInfo?.features })}
+                            />
+                            {/* Once the project is on screen, every wait for it is shown over what it replaces —
+                                the action's own request, and the read that brings back what the action did. The
+                                very first read shows the skeleton above instead, having nothing to cover. */}
+                            {(loading || pendingId !== null) && <BusyVeil data-testid="project-workspace-overlay" />}
+                        </>
                     ) : (
+                        // A failure to read the project, or a link that leads to no project, takes its place; the
+                        // tree beside it stays, so the reader can go on to another project.
                         <div className={styles.centered}>
-                            <Empty data-testid="project-workspace-missing" description={t('home.not_found')}>
-                                <Button onClick={() => navigate('/projects')} type="primary">
-                                    {t('home.back_to_projects')}
-                                </Button>
-                            </Empty>
+                            {error ? (
+                                <Alert
+                                    showIcon
+                                    data-testid="project-workspace-error"
+                                    description={error}
+                                    title={t('browser.project_load_error')}
+                                    type="error"
+                                />
+                            ) : linkProblem && (
+                                <UnresolvedProjectLink addressed={projectId ?? ''} problem={linkProblem} routeOf={routeOf} />
+                            )}
                         </div>
                     )}
-                    {project && (
-                        <CompileProblemsPanel
-                            project={project}
-                            statusReadAt={statusReadAt}
-                            supportsBranches={supportsBranches({ features: repoInfo?.features })}
-                        />
-                    )}
-                    {/* Once the project is on screen, every wait for it is shown over what it replaces —
-                        the action's own request, and the read that brings back what the action did. The
-                        very first read shows the skeleton above instead, having nothing to cover. */}
-                    {project && (loading || pendingId !== null) && <BusyVeil data-testid="project-workspace-overlay" />}
                 </div>
             </div>
             {/* Each dialog hands the project back busy: its own spinner covers the request, and the busy

@@ -33,14 +33,17 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.AmbiguityException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.model.ProjectCandidateModel;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -304,12 +307,29 @@ class ProjectIdentityConverterTest {
         var p2 = projectIn("repo-2", name);
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(p1, p2));
 
-        var ex = assertThrows(ConflictException.class, () -> projectConverter.convert(name));
+        var ex = assertThrows(AmbiguityException.class, () -> projectConverter.convert(name));
         assertEquals("openl.error.409.project.identifier.ambiguous.message", ex.getErrorCode());
         assertEquals(name, ex.getArgs()[0]);
         var encoded1 = encode("repo-1", name);
         var encoded2 = encode("repo-2", name);
         assertEquals(encoded1 + ", " + encoded2, ex.getArgs()[1]);
+        // The candidates travel as data too, so a client offers them without reading them out of the message.
+        assertEquals(List.of(candidate(encoded1, name, "repo-1"), candidate(encoded2, name, "repo-2")),
+                ex.getCandidates());
+    }
+
+    @Test
+    void convert_byName_ambiguous_candidateStoredInNoRepository() {
+        // A project that lives only in the workspace is a candidate too; it names no repository.
+        var name = "MyProject";
+        var stored = projectIn("repo-1", name);
+        var local = projectIn("local", name);
+        when(local.getDesignRepository()).thenReturn(null);
+        when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(stored, local));
+
+        var ex = assertThrows(AmbiguityException.class, () -> projectConverter.convert(name));
+        assertEquals(ProjectCandidateModel.builder().id(ProjectIdModel.decode(encode("local", name))).name(name).build(),
+                ex.getCandidates().get(1));
     }
 
     @Test
@@ -325,15 +345,17 @@ class ProjectIdentityConverterTest {
     @Test
     void resolve_byName_narrowingCannotSettleOneRepositoryHoldingTheNameTwice() {
         // A non-flat repository tells its projects apart by the folder they live in, so it may carry one name
-        // in several folders. Only an id picks one of those; the answer names them.
+        // in several folders. Only an id picks one of those; the answer names them, each with its folder.
         var name = "MyProject";
-        var first = projectIn("repo-1", name);
-        var second = projectIn("repo-1", name);
+        var first = projectInFolder("repo-1", name, "folder-a/" + name);
+        var second = projectInFolder("repo-1", name, "folder-b/" + name);
         when(userWorkspace.getProjectsByName(name)).thenReturn(List.of(first, second));
 
-        var ex = assertThrows(ConflictException.class,
+        var ex = assertThrows(AmbiguityException.class,
                 () -> projectConverter.resolveProjectIdentity(name, "repo-1"));
         assertEquals("openl.error.409.project.identifier.ambiguous.message", ex.getErrorCode());
+        assertEquals(List.of("folder-a/" + name, "folder-b/" + name),
+                ex.getCandidates().stream().map(candidate -> ((ProjectCandidateModel) candidate).path()).toList());
     }
 
     @Test
@@ -392,10 +414,12 @@ class ProjectIdentityConverterTest {
         when(p2.getRepository()).thenReturn(repo2);
         when(p1.getName()).thenReturn(name);
         when(p2.getName()).thenReturn(name);
+        when(p1.getBusinessName()).thenReturn(name);
+        when(p2.getBusinessName()).thenReturn(name);
         when(userWorkspace.getProject("repo-1", name)).thenReturn(p1);
         when(userWorkspace.getProject("repo-2", name)).thenReturn(p2);
 
-        var ex = assertThrows(ConflictException.class, () -> projectConverter.convert(name));
+        var ex = assertThrows(AmbiguityException.class, () -> projectConverter.convert(name));
         assertEquals("openl.error.409.project.identifier.ambiguous.message", ex.getErrorCode());
     }
 
@@ -443,13 +467,40 @@ class ProjectIdentityConverterTest {
     private static RulesProject projectIn(String repositoryId, String name) {
         var repository = mock(Repository.class);
         when(repository.getId()).thenReturn(repositoryId);
+        lenient().when(repository.getName()).thenReturn("Repository " + repositoryId);
         // The id mapper asks the design repository whether it maps folders before it names the project.
         lenient().when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
         var project = mock(RulesProject.class);
         lenient().when(project.getRepository()).thenReturn(repository);
         when(project.getDesignRepository()).thenReturn(repository);
         lenient().when(project.getName()).thenReturn(name);
+        lenient().when(project.getBusinessName()).thenReturn(name);
         return project;
+    }
+
+    /**
+     * A workspace project of a repository with mapped folders, stored in the given folder. The folder names it in
+     * its id, as the design repository maps it.
+     */
+    private static RulesProject projectInFolder(String repositoryId, String name, String folder) {
+        var project = projectIn(repositoryId, name);
+        var repository = project.getDesignRepository();
+        lenient().when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setMappedFolders(true).build());
+        var fileData = new FileData();
+        fileData.addAdditionalData(new FileMappingData(name + ":" + folder.hashCode(), folder));
+        lenient().when(project.getFileData()).thenReturn(fileData);
+        lenient().when(project.getRealPath()).thenReturn(folder);
+        return project;
+    }
+
+    /** The candidate a project of a repository without mapped folders is listed as. */
+    private static ProjectCandidateModel candidate(String encodedId, String name, String repositoryId) {
+        return ProjectCandidateModel.builder()
+                .id(ProjectIdModel.decode(encodedId))
+                .name(name)
+                .repository(repositoryId)
+                .repositoryName("Repository " + repositoryId)
+                .build();
     }
 
     private String encode(String repoId, String projectName) {

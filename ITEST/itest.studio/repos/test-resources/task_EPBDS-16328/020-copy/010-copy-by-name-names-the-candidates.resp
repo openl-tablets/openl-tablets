@@ -3,6 +3,22 @@ Content-Type: application/json
 
 {
   "code": "openl.error.409.project.identifier.ambiguous.message",
-  "message": "*"
+  "message": "*",
+  "candidates": [
+    {
+      "id": "ZGVzaWduLW5vbi1mbGF0OkVQQkRTMTYzMjggUmF0ZXMgTG9va3VwOmZlNDAzNTQwMTY3MzA4NTQzZDg1Y2YwZTMyYzczYmFhNGQ4NzI0Nzc1MWM3ODczYThhYTAwMjdkYWZhYzEyYTE=",
+      "name": "EPBDS16328 Rates Lookup",
+      "repository": "design-non-flat",
+      "repositoryName": "Git Non Flat",
+      "path": "rules/regional/rates-lookup-rules-primary"
+    },
+    {
+      "id": "ZGVzaWduLW5vbi1mbGF0OkVQQkRTMTYzMjhfVHdpbjoxZmUxOTlhZmU1OTc1ZmMwNjc4NWJlMWRmOWU0NjRiYzUxZjM1M2FhY2NkNzYxZDAyMDM1NDVkZGJkN2FmMzMw",
+      "name": "EPBDS16328 Rates Lookup",
+      "repository": "design-non-flat",
+      "repositoryName": "Git Non Flat",
+      "path": "rules/regional/rates-lookup-rules-secondary"
+    }
+  ]
 }
 

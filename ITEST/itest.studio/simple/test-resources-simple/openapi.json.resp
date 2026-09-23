@@ -12951,7 +12951,7 @@ Content-Type: application/json
         "operationId": "editTableSourceBatch",
         "parameters": [
           {
-            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "description": "***",
             "in": "path",
             "name": "projectId",
             "required": true,
@@ -13332,7 +13332,7 @@ Content-Type: application/json
         "operationId": "getTableEditors",
         "parameters": [
           {
-            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "description": "***",
             "in": "path",
             "name": "projectId",
             "required": true,
@@ -14267,7 +14267,7 @@ Content-Type: application/json
         "operationId": "updateTableProperties",
         "parameters": [
           {
-            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "description": "***",
             "in": "path",
             "name": "projectId",
             "required": true,
@@ -14408,7 +14408,7 @@ Content-Type: application/json
         "operationId": "getTableTargets",
         "parameters": [
           {
-            "description": "Project identity. Either a project ID or a project name. If a name is provided and multiple projects share it across repositories, a conflict error is returned with the list of candidate IDs.",
+            "description": "***",
             "in": "path",
             "name": "projectId",
             "required": true,
