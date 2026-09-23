@@ -1,13 +1,14 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { notification } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DeployConfigPanel } from './DeployConfigPanel'
 import { getFileContent, rootFileExists, writeRootFile } from '../../services/files'
 import { getProjectMigration, migrateProject } from '../../services/migration'
 
 vi.mock('./CodeEditor', () => ({
-    CodeEditor: ({ value, readOnly }: { value: string, readOnly?: boolean }) => (
-        <textarea data-testid="deploy-xml" readOnly={readOnly} value={value} />
+    CodeEditor: ({ value, readOnly, onChange }: { value: string, readOnly?: boolean, onChange?: (value: string) => void }) => (
+        <textarea data-testid="deploy-xml" onChange={e => onChange?.(e.target.value)} readOnly={readOnly} value={value} />
     ),
 }))
 
@@ -235,13 +236,44 @@ describe('DeployConfigPanel', () => {
         expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('saved')
     })
 
-    it('shows the raw XML as a read-only file, even in the editing view', async () => {
+    it('shows the raw XML read-only until the edit starts', async () => {
+        vi.mocked(getFileContent).mockResolvedValue(
+            '<rules-deploy><configuration><foo/></configuration></rules-deploy>')
+        await renderPanel()
+
+        expect(screen.getByTestId('deploy-xml')).toHaveAttribute('readOnly')
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
+        expect(screen.getByTestId('deploy-xml')).not.toHaveAttribute('readOnly')
+    })
+
+    it('writes the edited configuration XML on save', async () => {
         vi.mocked(getFileContent).mockResolvedValue(
             '<rules-deploy><configuration><foo/></configuration></rules-deploy>')
         await renderPanel()
 
         await userEvent.click(screen.getByTestId('deploy-config-edit'))
-        expect(screen.getByTestId('deploy-xml')).toHaveAttribute('readOnly')
+        await userEvent.clear(screen.getByTestId('deploy-xml'))
+        await userEvent.type(screen.getByTestId('deploy-xml'), '<bar>1</bar>')
+        await userEvent.click(screen.getByTestId('deploy-config-save'))
+
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalledTimes(1))
+        const xml = vi.mocked(writeRootFile).mock.calls[0]![2]
+        expect(xml).toContain('<bar>1</bar>')
+        expect(xml).not.toContain('<foo/>')
+    })
+
+    it('keeps the edit open and writes nothing when the configuration is not well-formed XML', async () => {
+        vi.mocked(getFileContent).mockResolvedValue(SVC_XML)
+        await renderPanel()
+
+        await userEvent.click(screen.getByTestId('deploy-config-edit'))
+        await userEvent.type(screen.getByTestId('deploy-xml'), '<bar>')
+        await userEvent.click(screen.getByTestId('deploy-config-save'))
+
+        await waitFor(() => expect(notification.error).toHaveBeenCalledWith(
+            expect.objectContaining({ title: 'browser.deploy_config.save_failed' })))
+        expect(writeRootFile).not.toHaveBeenCalled()
+        expect(screen.getByTestId('deploy-config-save')).toBeInTheDocument()
     })
 
     it('shows a hint and creates the file on save when missing', async () => {
