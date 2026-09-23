@@ -312,7 +312,7 @@ i18next.addResourceBundle('en', 'repository', {
             provide_runtime_context: 'Provide Runtime Context',
             publishers: 'Publishers',
             configuration: 'Configuration (XML)',
-            publishers_placeholder: 'Select or type publisher types',
+            publishers_placeholder: 'Select publisher types',
             edit: 'Edit',
             cancel: 'Cancel',
             empty: 'Not set',
