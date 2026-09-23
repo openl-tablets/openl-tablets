@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { AutoComplete, Button, Space, Tooltip } from 'antd'
+import { AutoComplete } from 'antd'
 import { MoreOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { FsNode } from '../../types/files'
-import { useSharedStyles } from './sharedStyles'
+import { CompactField } from './CompactField'
 import { ProjectFolderPicker } from './ProjectFolderPicker'
 
 /** The folders of a project, as the paths a new file or folder can be placed under. */
@@ -36,12 +36,18 @@ export const ProjectFolderInput = ({
     'data-testid': testId,
 }: ProjectFolderInputProps) => {
     const { t } = useTranslation('repository')
-    const { styles: shared } = useSharedStyles()
     const [pickerOpen, setPickerOpen] = useState(false)
 
     return (
         <>
-            <Space.Compact block className={shared.compactField}>
+            <CompactField
+                action={{
+                    icon: <MoreOutlined />,
+                    title: t('browser.folder_picker.open'),
+                    onClick: () => setPickerOpen(true),
+                    'data-testid': testId && `${testId}-picker`,
+                }}
+            >
                 <AutoComplete
                     allowClear
                     data-testid={testId}
@@ -51,14 +57,7 @@ export const ProjectFolderInput = ({
                     showSearch={{ filterOption: (input, option) => String(option?.value ?? '').toLowerCase().includes(input.toLowerCase()) }}
                     value={value}
                 />
-                <Tooltip title={t('browser.folder_picker.open')}>
-                    <Button
-                        data-testid={testId && `${testId}-picker`}
-                        icon={<MoreOutlined />}
-                        onClick={() => setPickerOpen(true)}
-                    />
-                </Tooltip>
-            </Space.Compact>
+            </CompactField>
             <ProjectFolderPicker
                 folders={folders}
                 onClose={() => setPickerOpen(false)}

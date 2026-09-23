@@ -26,6 +26,7 @@ import type { Repository } from '../../types/repositories'
 import type { Project } from '../../types/projects'
 import { FieldError } from '../../components/FieldError'
 import { FieldRow } from '../../components/FieldRow'
+import { WORKBOOK_ACCEPT } from '../../utils/workbooks'
 import { BranchSelect } from './BranchSelect'
 import { branchMarksFromConfig } from './configBranchMarks'
 import { RepoFolderInput } from './RepoFolderInput'
@@ -783,7 +784,7 @@ export const NewProjectModal = ({
                 <div className={styles.field}>
                     <Upload.Dragger
                         multiple
-                        accept=".xlsx,.xls"
+                        accept={WORKBOOK_ACCEPT}
                         beforeUpload={file => { setExcelFiles(prev => [...prev, file]); setError(null); return false }}
                         data-testid="new-project-excel-upload"
                         fileList={excelFiles.map((file, index) => ({ uid: String(index), name: file.name }))}

@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Button, Input, Space, Tooltip } from 'antd'
+import { Input } from 'antd'
 import { MoreOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useSharedStyles } from './sharedStyles'
+import { CompactField } from './CompactField'
 import { RepoFolderPicker } from './RepoFolderPicker'
 
 interface RepoFolderInputProps {
@@ -34,12 +34,18 @@ export const RepoFolderInput = ({
     'data-testid': testId,
 }: RepoFolderInputProps) => {
     const { t } = useTranslation('repository')
-    const { styles: shared } = useSharedStyles()
     const [pickerOpen, setPickerOpen] = useState(false)
 
     return (
         <>
-            <Space.Compact block className={shared.compactField}>
+            <CompactField
+                action={{
+                    icon: <MoreOutlined />,
+                    title: t('browser.folder_picker.open'),
+                    onClick: () => setPickerOpen(true),
+                    'data-testid': testId && `${testId}-picker`,
+                }}
+            >
                 <Input
                     data-testid={testId}
                     {...(id ? { id } : {})}
@@ -48,14 +54,7 @@ export const RepoFolderInput = ({
                     placeholder={placeholder}
                     value={value}
                 />
-                <Tooltip title={t('browser.folder_picker.open')}>
-                    <Button
-                        data-testid={testId && `${testId}-picker`}
-                        icon={<MoreOutlined />}
-                        onClick={() => setPickerOpen(true)}
-                    />
-                </Tooltip>
-            </Space.Compact>
+            </CompactField>
             <RepoFolderPicker
                 onClose={() => setPickerOpen(false)}
                 onSelect={onChange}

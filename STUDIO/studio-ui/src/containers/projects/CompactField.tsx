@@ -11,7 +11,7 @@ interface CompactFieldProps {
         /** Named for the pointer and for a screen reader alike. */
         title: string
         onClick: () => void
-        'data-testid'?: string
+        'data-testid'?: string | undefined
     }
 }
 

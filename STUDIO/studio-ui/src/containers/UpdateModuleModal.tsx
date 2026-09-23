@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGlobalEvents } from 'hooks'
+import { WORKBOOK_EXTENSIONS } from 'utils/workbooks'
 import { UpdateFileModal } from './projects/UpdateFileModal'
 
 /**
@@ -13,8 +14,6 @@ export interface UpdateModuleModalDetail {
     /** Runs after a successful upload, e.g. to reload the editor page. */
     onSuccess?: () => void
 }
-
-const MODULE_EXTENSIONS = ['.xls', '.xlsx', '.xlsm']
 
 /**
  * Replaces the open module's rules file, standing in for the RichFaces "Update module" popup. It is the
@@ -38,7 +37,7 @@ export const UpdateModuleModal: React.FC = () => {
 
     return (
         <UpdateFileModal
-            extensions={MODULE_EXTENSIONS}
+            extensions={[...WORKBOOK_EXTENSIONS]}
             onClose={close}
             onUpdated={() => detail.onSuccess?.()}
             open={open}
