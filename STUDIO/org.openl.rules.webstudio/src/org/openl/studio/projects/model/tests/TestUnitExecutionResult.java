@@ -32,7 +32,8 @@ public record TestUnitExecutionResult(
         @Parameter(description = """
                 The whole value the tested rule returned, asked for by `compoundResult` and always present for a \
                 case of a run table, which states nothing to compare it against; a spreadsheet comes as the bean \
-                OpenL Rule Services publishes for it""")
+                OpenL Rule Services publishes for it. A value the server gave back to free memory is referred to, \
+                and reading the case runs it again for the value""")
         @Nullable ParameterValue result,
 
         @Parameter(description = "List of test parameter values")

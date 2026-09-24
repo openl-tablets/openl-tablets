@@ -2,6 +2,7 @@ package org.openl.studio.projects.rest.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.ref.Reference;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -126,6 +127,7 @@ import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.GraphLayer;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
 import org.openl.studio.projects.service.tests.ExecutionTestsResultRegistry;
+import org.openl.studio.projects.service.tests.RetainedTestUnit;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
 import org.openl.studio.projects.service.tests.TestsExecutorService;
 import org.openl.studio.repositories.model.ProjectRevision;
@@ -934,6 +936,7 @@ public class ProjectsController {
             if (completed.isEmpty()) {
                 return ResponseEntity.accepted().build();
             }
+            // A case that gave back to free memory a value the workbook writes runs again while its row is written.
             var output = new ByteArrayOutputStream();
             new TestResultExport().export(output, page.getPageSize(), completed.get().toArray(new TestUnitsResults[0]));
             return ResponseEntity.ok()
@@ -970,8 +973,16 @@ public class ProjectsController {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
 
-        return ResponseEntity.ok(testsSummaryMapper(project).mapToTestUnitResult(testCase, testUnit,
-                TestExecutionSummaryQuery.inFull()));
+        // What the case holds is held while it is written. A case that gave a value back to free memory runs again
+        // for it, and what that returns is written and not kept.
+        var held = RetainedTestUnit.heldValues(testUnit);
+        var unit = testUnit instanceof RetainedTestUnit retained && held.stream().anyMatch(RetainedTestUnit::isReleased)
+                ? retained.again()
+                : testUnit;
+        var answer = testsSummaryMapper(project)
+                .mapToTestUnitResult(testCase, unit, TestExecutionSummaryQuery.inFull());
+        Reference.reachabilityFence(held);
+        return ResponseEntity.ok(answer);
     }
 
     /**

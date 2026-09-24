@@ -437,6 +437,31 @@ describe('TestsResultModal', () => {
         expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
     })
 
+    it('reads a compared value the server let go of with its case', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                testUnits: [{
+                    ...summary.testCases[0]?.testUnits[0],
+                    testAssertions: [{ description: 'Premium', expectedValue: 100, actualLazy: true, status: 'TR_OK' }],
+                }],
+            }],
+        })
+        readCase.mockResolvedValue({
+            id: '1',
+            testAssertions: [
+                { description: 'Premium', expectedValue: 100, actualValue: { premium: 100 }, status: 'TR_OK' },
+            ],
+        })
+
+        await show()
+        await userEvent.click(await screen.findByTestId('load-tt1-out-1-0'))
+
+        await waitFor(() => expect(readCase).toHaveBeenCalledWith('p1', 'tt1', '1'))
+        expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
+    })
+
     it('shows the compound result only once the results read with it are there', async () => {
         await show()
         let answer: (summary: unknown) => void = () => undefined

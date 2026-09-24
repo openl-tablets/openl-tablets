@@ -120,9 +120,12 @@ const columnsOf = (
                                 <StatusMark status={actual.status} title={t(STATUS[actual.status])} />
                             )}
                             <ValueCell
+                                lazy={actual?.actualLazy ?? false}
                                 path={`${key}-out-${unit.id}-${index}`}
                                 styles={valueStyles}
                                 value={actual?.actualValue}
+                                onLoad={() => readCase(table.tableId, unit.id)
+                                    .then(read => ({ value: read.testAssertions?.[index]?.actualValue }))}
                             />
                         </Space>
                         {actual && actual.status !== 'TR_OK' && (

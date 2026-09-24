@@ -8,8 +8,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -27,8 +30,10 @@ import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.studio.projects.service.tests.RetainedTestUnit;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 
@@ -153,6 +158,108 @@ class TestsExecutionSummaryResponseMapperTest {
         assertEquals("Sara", full.value().get("name").asText());
     }
 
+    /**
+     * A whole value that was given back to free memory is no longer there to write: the case refers to it, whatever
+     * the summary is asked for, and the rest of it reads as before.
+     */
+    @Test
+    void refersToAWholeReturnedValueThatWasReleased() {
+        var results = mock(TestUnitsResults.class);
+        var testUnit = mock(ITestUnit.class);
+        var test = mock(TestDescription.class);
+        mockTestTable(results);
+        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getTestResultColumnDisplayNames()).thenReturn(new String[0]);
+        when(testUnit.getTest()).thenReturn(test);
+        when(testUnit.getResultStatus()).thenReturn(TestStatus.TR_OK);
+        when(testUnit.getActualResult()).thenReturn(Map.of("premium", 150));
+        when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        when(test.getId()).thenReturn("1");
+        var released = retained(testUnit, value -> new SoftReference<>(null));
+        when(results.getFilteredTestUnits(false, 5)).thenReturn(List.of(released));
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
+
+        var listed = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, true))
+                .testUnits().getFirst();
+        var read = mapper.mapToTestUnitResult(results, released, TestExecutionSummaryQuery.inFull());
+
+        assertEquals(Boolean.TRUE, listed.result().lazy());
+        assertEquals("result", listed.result().name());
+        assertNull(listed.result().value());
+        assertEquals(TestStatus.TR_OK, listed.status());
+        assertEquals(Boolean.TRUE, read.result().lazy());
+        assertNull(read.result().value());
+        assertNull(read.result().schema());
+    }
+
+    /**
+     * A compared value with inner structure that was given back to free memory is no longer there to write: the
+     * comparison refers to it, and keeps its outcome.
+     */
+    @Test
+    void refersToAComparedValueThatWasReleased() {
+        var results = mock(TestUnitsResults.class);
+        var testUnit = mock(ITestUnit.class);
+        var test = mock(TestDescription.class);
+        mockTestTable(results);
+        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getTestResultColumnDisplayNames()).thenReturn(new String[]{"Result"});
+        when(testUnit.getTest()).thenReturn(test);
+        when(testUnit.getResultStatus()).thenReturn(TestStatus.TR_OK);
+        var premium = Map.of("premium", 150);
+        when(testUnit.getActualResult()).thenReturn(premium);
+        when(testUnit.getComparisonResults())
+                .thenReturn(List.of(new ComparedResult("_res_", Map.of("premium", 150), premium, TestStatus.TR_OK)));
+        when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        var released = retained(testUnit, value -> new SoftReference<>(null));
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
+
+        var assertion = mapper.mapToTestUnitResult(results, released, new TestExecutionSummaryQuery(false, 5, false,
+                true)).testAssertions().getFirst();
+
+        assertEquals(Boolean.TRUE, assertion.actualLazy());
+        assertNull(assertion.actualValue());
+        assertEquals(TestStatus.TR_OK, assertion.status());
+        assertEquals(150, assertion.expectedValue().get("premium").asInt());
+    }
+
+    /** Values a case still holds are written as they are, and nothing is referred to. */
+    @Test
+    void writesTheValuesACaseStillHolds() {
+        var results = mock(TestUnitsResults.class);
+        var testUnit = mock(ITestUnit.class);
+        var test = mock(TestDescription.class);
+        mockTestTable(results);
+        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getTestResultColumnDisplayNames()).thenReturn(new String[]{"Result"});
+        when(testUnit.getTest()).thenReturn(test);
+        when(testUnit.getResultStatus()).thenReturn(TestStatus.TR_OK);
+        var premium = Map.of("premium", 150);
+        when(testUnit.getActualResult()).thenReturn(42);
+        when(testUnit.getComparisonResults())
+                .thenReturn(List.of(new ComparedResult("_res_", Map.of("premium", 150), premium, TestStatus.TR_OK)));
+        when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        var kept = retained(testUnit, SoftReference::new);
+        when(results.getFilteredTestUnits(false, 5)).thenReturn(List.of(kept));
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
+
+        var listed = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, true))
+                .testUnits().getFirst();
+
+        assertEquals(42, listed.result().value().asInt());
+        assertEquals(Boolean.FALSE, listed.result().lazy());
+        var assertion = listed.testAssertions().getFirst();
+        assertEquals(150, assertion.actualValue().get("premium").asInt());
+        assertNull(assertion.actualLazy());
+        Reference.reachabilityFence(premium);
+    }
+
     private static ParameterValue firstParameter(TestsExecutionSummaryResponseMapper mapper,
                                                  TestUnitsResults results,
                                                  boolean lazyValues) {
@@ -175,5 +282,12 @@ class TestsExecutionSummaryResponseMapperTest {
         when(methodInfo.getSyntaxNode()).thenReturn(syntaxNode);
         when(syntaxNode.getTableProperties()).thenReturn(properties);
         when(properties.getName()).thenReturn("BrokenTest");
+    }
+
+    /** The case as a run keeps it, holding its values through the references the holder makes. */
+    private static RetainedTestUnit retained(ITestUnit unit, Function<Object, Reference<Object>> holder) {
+        return new RetainedTestUnit(unit, mock(TestSuiteMethod.class), (method, test) -> {
+            throw new AssertionError("the mapper runs no case again");
+        }, holder);
     }
 }

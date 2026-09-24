@@ -104,7 +104,7 @@ interface ReadOnDemand {
  */
 const useReadOnDemand = (
     value: unknown,
-    onLoad?: (() => Promise<TraceParameterValue | undefined>) | undefined,
+    onLoad?: (() => Promise<Pick<TraceParameterValue, 'value'> | undefined>) | undefined,
     reference?: unknown
 ): ReadOnDemand => {
     const { t } = useTranslation('common')
@@ -216,7 +216,7 @@ interface ValueCellProps {
     /** The API referred to the value instead of writing it. */
     lazy?: boolean | undefined
     /** Reads the value the API left out. Absent when the screen cannot read it. */
-    onLoad?: (() => Promise<TraceParameterValue | undefined>) | undefined
+    onLoad?: (() => Promise<Pick<TraceParameterValue, 'value'> | undefined>) | undefined
     /**
      * What the value is known as, such as `Driver (Sara)`: stands for it while it is only referred to, and
      * titles it once it is read. Absent, a read value is counted by its fields.

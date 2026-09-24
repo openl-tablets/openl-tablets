@@ -7,6 +7,13 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
 
+/**
+ * Runs the tests of a project in the background.
+ *
+ * <p>The results keep every case the way {@link RetainedTestUnit} does. What a case reports stays, and a value with
+ * inner structure that it returned or compared is given back when the application runs short of memory. The case
+ * runs again for such a value.
+ */
 public interface TestsExecutorService {
 
     /**

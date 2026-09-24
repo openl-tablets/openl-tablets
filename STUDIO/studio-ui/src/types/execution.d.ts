@@ -34,6 +34,11 @@ interface TestAssertionResult {
     description?: string
     expectedValue?: unknown
     actualValue?: unknown
+    /**
+     * The actual value is referred to instead of written: the server let go of it to free memory. Reading the case
+     * runs it again for the value.
+     */
+    actualLazy?: boolean
     status: TestStatus
 }
 
@@ -44,7 +49,10 @@ export interface TestUnitResult {
     executionTimeMs: number
     status: TestStatus
     testAssertions?: TestAssertionResult[]
-    /** The whole value the tested rule returned, asked for by the compound-result option. */
+    /**
+     * The whole value the tested rule returned, asked for by the compound-result option. A value with inner
+     * structure can be referred to instead, and reading the case reads it.
+     */
     result?: TraceParameterValue
     parameters?: TraceParameterValue[]
     contextParameters?: TraceParameterValue[]

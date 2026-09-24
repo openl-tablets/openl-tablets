@@ -264,6 +264,14 @@ A table lists its cases 20 to a page, and the pager under it reaches the rest. T
 the results to Excel. A value with inner structure opens field by field, and a node with many fields or elements
 lists 100 of them at a time; **Show more** under them lists the next ones.
 
+The results stay on the server while they are read. When the server runs short of memory, it releases the large
+values the rules returned and compared, such as spreadsheet results, and keeps the rest of the results. A large
+value is loaded when you click **Load value**, and a value that was released comes back by running its test case
+again. **Save to Excel** runs again the test cases whose values were released. Once the project is compiled
+again, as editing it or opening another module does, a released value cannot come back: run the tests again.
+A test case that runs again computes its value anew, so a rule that reads the current date or a random number
+can return another value than it did in the run.
+
 A Run table states no expected values, so its results carry no ticks and no crosses: they only show what every
 run returned, in a **Result** column of their own — in the window and in the workbook it is saved to alike.
 

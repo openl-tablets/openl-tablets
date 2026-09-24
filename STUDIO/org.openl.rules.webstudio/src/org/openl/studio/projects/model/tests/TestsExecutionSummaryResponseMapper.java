@@ -15,12 +15,14 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ITestUnit;
+import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.studio.projects.service.tests.RetainedTestUnit;
 
 public class TestsExecutionSummaryResponseMapper {
 
@@ -104,12 +106,15 @@ public class TestsExecutionSummaryResponseMapper {
         // A run table states no expectation to compare against, so what its case returned is the result of
         // the case: it is written whether or not the whole result was asked for.
         var runTable = testCase.getTestSuite().getTestSuiteMethod().isRunMethod();
+        var wholeResultAsked = query.compoundResult() || runTable;
+        // Read once: a value held softly can be given back to free memory between two reads.
+        var actualResult = testUnit.getActualResult();
         var builder = TestUnitExecutionResult.builder()
                 .id(testUnit.getTest().getId())
                 .description(testUnit.getTest().getDescription())
                 .status(testUnit.getResultStatus())
                 .executionTimeMs(testUnit.getExecutionTime() / 1_000_000.0)
-                .result(query.compoundResult() || runTable ? wholeResult(testUnit, query) : null);
+                .result(wholeResultAsked ? wholeResult(actualResult, query) : null);
 
         // Map test assertions. Skip them for TR_EXCEPTION (unexpected exception thrown by the test)
         // to mirror the legacy RichFaces UI (test.xhtml renders only #{testCase.errors} when
@@ -117,7 +122,7 @@ public class TestsExecutionSummaryResponseMapper {
         // names are empty, which previously caused ArrayIndexOutOfBoundsException.
         if (testUnit.getResultStatus() != TestStatus.TR_EXCEPTION) {
             var results = testUnit.getComparisonResults();
-            var resultColumnNames = testUnit.getActualResult() instanceof Exception
+            var resultColumnNames = actualResult instanceof Exception
                     ? testCase.getTestErrorColumnDisplayNames()
                     : testCase.getTestResultColumnDisplayNames();
             IntStream.range(0, results.size())
@@ -175,15 +180,20 @@ public class TestsExecutionSummaryResponseMapper {
      *
      * <p>A summary asked for lazy values refers to a value with inner structure instead of writing it, and
      * carries no schema: the screen that asks for them only reads the values.
+     *
+     * <p>A value that was given back to free memory is no longer there to write, so it is referred to whatever
+     * the summary is asked for: reading the case runs it again for the value.
      */
-    private @Nullable ParameterValue wholeResult(ITestUnit testUnit, TestExecutionSummaryQuery query) {
-        var actualResult = testUnit.getActualResult();
+    private @Nullable ParameterValue wholeResult(@Nullable Object actualResult, TestExecutionSummaryQuery query) {
         if (actualResult instanceof Throwable) {
             return null;
         }
+        if (RetainedTestUnit.isReleased(actualResult)) {
+            return ParameterValue.builder().name(RESULT_NAME).lazy(true).build();
+        }
         if (query.lazyValues()) {
             // A returned value with inner structure is the largest thing a case carries; it waits to be asked for.
-            return valueMapper.writeParameterLazily(testUnit.getActualParam(), null)
+            return valueMapper.writeParameterLazily(new ParameterWithValueDeclaration("actual", actualResult), null)
                     .toBuilder()
                     .name(RESULT_NAME)
                     .build();
@@ -197,9 +207,13 @@ public class TestsExecutionSummaryResponseMapper {
     }
 
     private TestAssertionExecutionResult mapToTestAssertionResult(ComparedResult assertion, String description) {
+        // Read once: a value held softly can be given back to free memory between two reads.
+        var actualValue = assertion.getActualValue();
+        var released = RetainedTestUnit.isReleased(actualValue);
         return TestAssertionExecutionResult.builder()
                 .status(assertion.getStatus())
-                .actualValue(writeAssertionValue(assertion.getActualValue()))
+                .actualValue(released ? null : writeAssertionValue(actualValue))
+                .actualLazy(released ? Boolean.TRUE : null)
                 .expectedValue(writeAssertionValue(assertion.getExpectedValue()))
                 .description(description)
                 .build();
