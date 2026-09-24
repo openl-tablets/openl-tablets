@@ -276,8 +276,10 @@ describe('RunLaunchHost', () => {
         await userEvent.click(screen.getByTestId('tests-compound-result'))
         await userEvent.click(screen.getByTestId('run-into-file'))
 
+        // The panel asks for the workbook with the options it was left with, the count of failures among them.
         await waitFor(() => expect(testsWorkbook).toHaveBeenCalledWith('real-p1', {
             failuresOnly: false,
+            failures: 5,
             compoundResult: true,
         }))
         expect(save).toHaveBeenCalledWith(expect.any(Blob), 'test-results.xlsx', 'application/xlsx')

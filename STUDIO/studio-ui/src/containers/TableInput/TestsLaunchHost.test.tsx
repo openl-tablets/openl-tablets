@@ -11,9 +11,6 @@ vi.mock('services/repositories', () => ({ getProject: vi.fn() }))
 vi.mock('services/execution', () => ({
     runTests: vi.fn(),
     readTestsSummaryWorkbook: vi.fn(),
-    ALL_TESTS_ON_A_PAGE: -1,
-    TESTS_PAGE_SIZE: 20,
-    TESTS_PAGE_SIZES: [1, 5, 20, -1],
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))
 

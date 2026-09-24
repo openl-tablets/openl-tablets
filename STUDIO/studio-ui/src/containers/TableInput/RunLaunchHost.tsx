@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Checkbox, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { CompoundResultOption, FailuresOption, savedFailuresOption } from 'containers/execution/ResultOptions'
 import { RunResultModal } from 'containers/execution/RunResultModal'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress } from 'containers/execution/useExecutionProgress'
@@ -31,7 +32,7 @@ interface RunFileChoice {
 }
 
 /** What the results of the cases of a test table show. */
-type TestsOptions = Required<Pick<TestsQuery, 'failuresOnly' | 'compoundResult'>>
+type TestsOptions = Required<Pick<TestsQuery, 'failuresOnly' | 'failures' | 'compoundResult'>>
 
 /** The results the run opens: one result for a rule table, the results of the cases for a test table. */
 type RunResults = 'run' | 'tests'
@@ -70,10 +71,10 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         flattenParameters: false,
         resultInJson: false,
     })
-    const [testsOptions, setTestsOptions] = useState<TestsOptions>({
-        failuresOnly: profile?.testsFailuresOnly ?? false,
+    const [testsOptions, setTestsOptions] = useState<TestsOptions>(() => ({
+        ...savedFailuresOption(profile),
         compoundResult: profile?.showComplexResult ?? false,
-    })
+    }))
 
     // The panel listens from the moment it opens, so a run it starts cannot end unheard. A rule table and a
     // test table report on topics of their own, and only one of the two is ever started from here.
@@ -187,16 +188,6 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         </Checkbox>
     )
 
-    const testsOption = (name: keyof TestsOptions, testId: string, label: string) => (
-        <Checkbox
-            checked={testsOptions[name]}
-            data-testid={testId}
-            onChange={event => setTestsOptions(current => ({ ...current, [name]: event.target.checked }))}
-        >
-            {label}
-        </Checkbox>
-    )
-
     if (results !== null) {
         return results === 'run'
             ? <RunResultModal fileOptions={file} onClose={onClose} projectId={project.id} tableId={detail.tableId} />
@@ -239,8 +230,15 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
             options={testTable
                 ? !runTable && (
                     <Space wrap size="middle">
-                        {testsOption('failuresOnly', 'tests-failures-only', t('tests.failuresOnly'))}
-                        {testsOption('compoundResult', 'tests-compound-result', t('tests.compoundResult'))}
+                        <FailuresOption
+                            failures={testsOptions.failures}
+                            failuresOnly={testsOptions.failuresOnly}
+                            onChange={change => setTestsOptions(current => ({ ...current, ...change }))}
+                        />
+                        <CompoundResultOption
+                            checked={testsOptions.compoundResult}
+                            onChange={compoundResult => setTestsOptions(current => ({ ...current, compoundResult }))}
+                        />
                     </Space>
                 )
                 : (
