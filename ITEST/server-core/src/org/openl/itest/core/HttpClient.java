@@ -12,14 +12,17 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A simple HTTP client which allows to send a request file and compares a response with a response file.
@@ -101,61 +104,106 @@ public class HttpClient implements AutoCloseable {
      * Values selected from a response by a same-basename {@code .env} file are available to later requests in the
      * same first-level test folder. They override {@code itest.env} values but not {@link #localEnv} values.
      * <p>
+     * A failed request does not stop the run. Once all requests are sent, the test fails with a message listing
+     * every failed request with the first assertion it failed: {@code Timeout}, {@code Status code},
+     * {@code Header <name>} or {@code Body}. Any other error is listed with its exception.
+     * <p>
      * Note. This method uses System.out and System.err for logging instead of Slf4j to provide consistent output
      * in cases when binding of the logger is failed.
      *
      * @param path a root directory where HTTP request files are stored
      */
     public void test(String path) {
-        var cookieFolderHolder = new String[1];
-        var envFolderHolder = new String[1];
         Path rootPath = Path.of(path);
+        var requests = findRequests(rootPath);
         var envLoader = new EnvironmentFileLoader(rootPath);
         var currentFolderEnv = new HashMap<String, String>();
         var responseEnv = new HashMap<String, String>();
 
-        try (Stream<Path> walk = Files.walk(rootPath)) {
-            long errors = walk.map(Path::toString).filter(p -> p.endsWith(".req")).map(p -> p.substring(0, p.length() - 4)).sorted().map(p -> {
-                long start = System.currentTimeMillis();
-                try {
-                    // Cookie is scoped to first-level subfolder (original behavior)
-                    var cookieFolder = p.substring(0, p.indexOf(File.separatorChar, path.length() + 1) + 1);
-                    if (!cookieFolder.equals(cookieFolderHolder[0])) {
-                        cookieFolderHolder[0] = cookieFolder;
-                        cookie.remove();
-                        responseEnv.clear();
-                        System.out.println(ANSI_BLUE_BOLD + "=============== RESET COOKIE ===============" + ANSI_RESET);
-                    }
-
-                    // Environment is loaded per actual folder
-                    var envFolder = p.substring(0, p.lastIndexOf(File.separatorChar) + 1);
-                    if (!envFolder.equals(envFolderHolder[0])) {
-                        envFolderHolder[0] = envFolder;
-                        Path folderPath = Path.of(envFolder);
-                        currentFolderEnv.clear();
-                        currentFolderEnv.putAll(envLoader.navigateTo(folderPath));
-                    }
-
-                    System.out.print(ANSI_BLACK_BOLD + p + ANSI_RESET + " - ");
-
-                    // Merge: file env < response env < programmatic env
-                    Map<String, String> effectiveEnv = mergeEnvironments(currentFolderEnv, responseEnv, localEnv);
-                    send(p + ".req", p + ".resp", effectiveEnv, responseEnv);
-
-                    long end = System.currentTimeMillis();
-                    System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end - start) + "ms)");
-                    return false;
-                } catch (Exception | AssertionError ex) {
-                    long end = System.currentTimeMillis();
-                    System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end - start) + "ms)");
-                    ex.printStackTrace(System.err); // the console is the only log of the test harness
-                    return true;
+        var failures = new ArrayList<String>();
+        String currentCookieFolder = null;
+        String currentEnvFolder = null;
+        for (var p : requests) {
+            long start = System.currentTimeMillis();
+            try {
+                // Cookie is scoped to first-level subfolder (original behavior)
+                var cookieFolder = p.substring(0, p.indexOf(File.separatorChar, path.length() + 1) + 1);
+                if (!cookieFolder.equals(currentCookieFolder)) {
+                    currentCookieFolder = cookieFolder;
+                    cookie.remove();
+                    responseEnv.clear();
+                    System.out.println(ANSI_BLUE_BOLD + "=============== RESET COOKIE ===============" + ANSI_RESET);
                 }
-            }).filter(p -> p).count();
-            assertEquals(0, errors, "Failed requests: ");
-        } catch (IOException e) {
-            fail("Test folder is not found: " + path);
+
+                // Environment is loaded per actual folder
+                var envFolder = p.substring(0, p.lastIndexOf(File.separatorChar) + 1);
+                if (!envFolder.equals(currentEnvFolder)) {
+                    currentEnvFolder = envFolder;
+                    Path folderPath = Path.of(envFolder);
+                    currentFolderEnv.clear();
+                    currentFolderEnv.putAll(envLoader.navigateTo(folderPath));
+                }
+
+                System.out.print(ANSI_BLACK_BOLD + p + ANSI_RESET + " - ");
+
+                // Merge: file env < response env < programmatic env
+                Map<String, String> effectiveEnv = mergeEnvironments(currentFolderEnv, responseEnv, localEnv);
+                send(p + ".req", p + ".resp", effectiveEnv, responseEnv);
+
+                long end = System.currentTimeMillis();
+                System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end - start) + "ms)");
+            } catch (Exception | AssertionError ex) {
+                long end = System.currentTimeMillis();
+                System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end - start) + "ms)");
+                ex.printStackTrace(System.err); // the console is the only log of the test harness
+                // Continuation lines of a multi-line message stay indented under their request
+                failures.add(p + ".req: " + describe(ex).replace("\n", "\n        "));
+            }
         }
+        if (!failures.isEmpty()) {
+            fail("Failed " + failures.size() + " of " + requests.size() + " requests:\n    "
+                    + String.join("\n    ", failures));
+        }
+    }
+
+    /** Lists the request files under the folder, each without its {@code .req} extension, in the order they run. */
+    private static List<String> findRequests(Path folder) {
+        try (Stream<Path> walk = Files.walk(folder)) {
+            return walk.map(Path::toString).filter(p -> p.endsWith(".req"))
+                    .map(p -> p.substring(0, p.length() - 4)).sorted().toList();
+        } catch (IOException e) {
+            return fail("Test folder is not found: " + folder, e);
+        }
+    }
+
+    /**
+     * Describes a failure by its message.
+     *
+     * <p>An exception that only wraps another one is skipped. The root cause is added when the message does not tell
+     * it already.
+     */
+    static String describe(Throwable failure) {
+        var top = failure;
+        var cause = top.getCause();
+        while (cause != null && Objects.equals(top.getMessage(), cause.toString())) {
+            top = cause;
+            cause = top.getCause();
+        }
+        var message = top.getMessage();
+        if (top instanceof AssertionError && message != null) {
+            return message;
+        }
+        if (cause == null) {
+            return top.toString();
+        }
+        var root = cause;
+        for (var next = root.getCause(); next != null; next = next.getCause()) {
+            root = next;
+        }
+        var rootMessage = root.getMessage();
+        return rootMessage != null && top.toString().contains(rootMessage)
+                ? top.toString()
+                : top + " (caused by " + root + ")";
     }
 
     /**
@@ -244,12 +292,12 @@ public class HttpClient implements AutoCloseable {
                       Map<String, String> effectiveEnv,
                       Map<String, String> responseEnv) {
         try {
-            HttpData request = HttpData.readFile(requestFile);
+            HttpData request = read(requestFile);
             if (request == null) {
                 throw new FileNotFoundException(requestFile);
             }
 
-            var assertResponse = Objects.requireNonNullElse(HttpData.readFile(responseFile), HttpData.ok());
+            var assertResponse = Objects.requireNonNullElse(read(responseFile), HttpData.ok());
             String retry = request.getSetting("Retry");
             long timeout = System.currentTimeMillis();
             if ("yes".equals(retry)) {
@@ -292,6 +340,15 @@ public class HttpClient implements AutoCloseable {
             throw new IllegalStateException(e);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /** Reads a request or response file, naming the file when it cannot be parsed. */
+    private static @Nullable HttpData read(String file) {
+        try {
+            return HttpData.readFile(file);
+        } catch (IOException | RuntimeException e) {
+            throw new IllegalStateException("Cannot read " + file, e);
         }
     }
 

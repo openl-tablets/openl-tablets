@@ -255,9 +255,38 @@ task_EPBDS-NNNNN/
 
 ### Debugging Failed Tests
 
-When a test fails, the framework saves the actual response body to `target/responses/` mirroring the `test-resources` directory structure. Each failed request produces a `.req.body` file containing the actual response body.
+A failed request does not stop the run. Once all requests are sent, the test fails with a message listing every
+failed request with the first assertion it failed, and the Surefire summary shows that list:
 
-Compare `target/responses/<path>/<name>.req.body` (actual body) with the corresponding `test-resources/<path>/<name>.resp` (expected response with headers).
+```text
+[ERROR]   WebStudioTest.multi:11 Failed 4 of 1520 requests:
+    test-resources/EPBDS-123/020-get.req: Status code ==> expected: <200> but was: <404>
+    test-resources/EPBDS-123/030-list.req: Header Content-Type ==> expected: <application/json> but was: <text/html>
+    test-resources/EPBDS-456/020-read.req: Body > content[0] > name ==> expected: <"Main"> but was: <"Other">
+    test-resources/EPBDS-789/010-deploy.req: Timeout ==> no response in 10003 ms
+```
+
+- **`Timeout`** — no connection or no response came in time; the message tells which and how long the request
+  waited. The limits are `http.timeout.connect` and `http.timeout.read`.
+- **`Status code`** — the status differs from the expected one.
+- **`Header <name>`** — the header does not match the expected value, or is `missing`.
+- **`Body`** — the body does not match:
+  - a long text or JSON value is cut down to the part around its first difference, found past any wildcard;
+  - a JSON body names the path to that difference, and a field present on one side only is `missing` or
+    `unexpected`;
+  - a zip body names the entry that differs, or lists the `missing` and `unexpected` entries;
+  - an XML body shows the XMLUnit description of the first difference;
+  - any other body shows the differing lengths or the first differing byte.
+- **Any other error** — a `.req`/`.resp` that cannot be parsed (the message names the file), an undefined `${VAR}`,
+  a body that cannot be decoded — shows its exception, with the root cause when the message does not tell it.
+
+When a request gets a response but fails a `Status code`, `Header` or `Body` check, the console log shows that
+response, and the framework saves its body to `target/responses/` as a `.req.body` file, mirroring the
+`test-resources` directory structure. A `Timeout` and any other error save nothing: read the stack trace printed
+after the request's `FAIL` line instead.
+
+Compare `target/responses/<path>/<name>.req.body` (actual body) with the corresponding
+`test-resources/<path>/<name>.resp` (expected response with headers).
 
 ### Application State Left in `target`
 
