@@ -30,6 +30,13 @@ class ComparatorsTest {
     @Test
     void patternToRegexp() {
         assertEquals("\\$<\\?\\{[#\\d]+\\}\\+\\[[^￿]*\\]\\.\\{\\\\\\}\\?>\\^", Comparators.patternToRegexp("$<?{###}+[***].{\\}?>^"));
+        assertEquals("a \\|\\| b[^￿]*", Comparators.patternToRegexp("a || b*"));
+    }
+
+    @Test
+    void txt_matches_a_pipe_as_itself() {
+        assertDoesNotThrow(() -> Comparators.txt("Body", "a|b", "a|b"));
+        assertEquals("Body ==> expected: <a|b> but was: <b>", failure(() -> Comparators.txt("Body", "a|b", "b")));
     }
 
     private static byte[] zip(Map<String, String> entries) throws IOException {
