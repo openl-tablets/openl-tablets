@@ -260,6 +260,10 @@ and a column for each value the test compares. A tick or a cross stands next to 
 value that was compared, and a case that failed says how many of its comparisons did not match and shows the
 value that was expected under the value that came out.
 
+A table lists its cases 20 to a page, and the pager under it reaches the rest. To read every case at once, save
+the results to Excel. A value with inner structure opens field by field, and a node with many fields or elements
+lists 100 of them at a time; **Show more** under them lists the next ones.
+
 A Run table states no expected values, so its results carry no ticks and no crosses: they only show what every
 run returned, in a **Result** column of their own — in the window and in the workbook it is saved to alike.
 

@@ -4,7 +4,7 @@ import { DownloadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
-import { ValueCell } from 'components/values/ParameterValues'
+import { useValueStyles, ValueCell } from 'components/values/ParameterValues'
 import { SpreadsheetValue } from 'components/values/SpreadsheetValue'
 import { getRunResultWorkbook, readRunResult, XLSX_MEDIA_TYPE, type RunFileOptions } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
@@ -23,6 +23,7 @@ interface RunRow {
 /** What the run reported, shown as one row of the values it ran with and the value it returned. */
 const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
     const { t } = useTranslation('execution')
+    const valueStyles = useValueStyles()
     const inputs = useMemo(
         () => [...(result.contextParameters ?? []), ...(result.parameters ?? [])],
         [result.contextParameters, result.parameters]
@@ -32,14 +33,14 @@ const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
         ...inputs.map((input, index): ListTableColumn<RunRow> => ({
             key: `input-${index}`,
             title: nameOf(input),
-            render: () => <ValueCell path={`run-input-${index}`} value={input.value} />,
+            render: () => <ValueCell path={`run-input-${index}`} styles={valueStyles} value={input.value} />,
         })),
         {
             key: 'result',
             title: t('run.result'),
             render: () => (result.resultSpreadsheet
                 ? <SpreadsheetValue keyPrefix="run-result" spreadsheet={result.resultSpreadsheet} />
-                : <ValueCell path="run-result" value={result.result} />),
+                : <ValueCell path="run-result" styles={valueStyles} value={result.result} />),
         },
     ]
 
