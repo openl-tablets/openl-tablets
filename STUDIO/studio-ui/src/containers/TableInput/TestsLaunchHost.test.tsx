@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { getProject } from 'services/repositories'
-import { readTestsSummaryWorkbook, runTests } from 'services/execution'
+import { getTestsSummaryWorkbook, readTestsSummaryWorkbook, runTests } from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { TestsLaunchHost } from 'containers/TableInput/TestsLaunchHost'
@@ -10,6 +10,7 @@ vi.mock('services/repositories', () => ({ getProject: vi.fn() }))
 
 vi.mock('services/execution', () => ({
     runTests: vi.fn(),
+    getTestsSummaryWorkbook: vi.fn(),
     readTestsSummaryWorkbook: vi.fn(),
     XLSX_MEDIA_TYPE: 'application/xlsx',
 }))
@@ -20,7 +21,7 @@ vi.mock('utils/download', () => ({ saveFile: vi.fn() }))
 // otherwise. The panel forgets what the last run reported before it starts another one.
 const { reset, reported } = vi.hoisted(() => ({
     reset: vi.fn(),
-    reported: { status: 'COMPLETED' as string | null, subscribed: true },
+    reported: { status: 'COMPLETED' as string | null, subscribed: true, quietSpells: 0 },
 }))
 
 vi.mock('containers/execution/useExecutionProgress', () => ({
@@ -32,6 +33,7 @@ vi.mock('containers/execution/useExecutionProgress', () => ({
         reset,
     }),
     isFinished: (status: string | null) => status === 'COMPLETED',
+    useQuietSpells: () => reported.quietSpells,
 }))
 
 // The results have their own tests; here only the window that opens for a test run is of interest.
@@ -47,6 +49,8 @@ vi.mock('react-i18next', () => {
 const projectRead = getProject as ReturnType<typeof vi.fn>
 const tests = runTests as ReturnType<typeof vi.fn>
 const workbook = readTestsSummaryWorkbook as ReturnType<typeof vi.fn>
+// The one read the panel makes while the tests have not said they ended.
+const probe = getTestsSummaryWorkbook as ReturnType<typeof vi.fn>
 const save = saveFile as ReturnType<typeof vi.fn>
 
 const anchor = { left: 10, top: 20, width: 40, height: 30 }
@@ -63,9 +67,11 @@ describe('TestsLaunchHost', () => {
         vi.clearAllMocks()
         reported.status = 'COMPLETED'
         reported.subscribed = true
+        reported.quietSpells = 0
         projectRead.mockResolvedValue({ id: 'real-p1', name: 'P' })
         tests.mockResolvedValue(undefined)
         workbook.mockResolvedValue(new Blob(['x']))
+        probe.mockResolvedValue(new Blob(['x']))
     })
 
     it('asks what the results should show before the tests are run', async () => {
@@ -146,7 +152,7 @@ describe('TestsLaunchHost', () => {
 
         await userEvent.click(screen.getByTestId('tests-into-file'))
 
-        await waitFor(() => expect(workbook).toHaveBeenCalled())
+        await waitFor(() => expect(probe).toHaveBeenCalled())
         await waitFor(() => expect(save).toHaveBeenCalled())
     })
 
@@ -154,7 +160,7 @@ describe('TestsLaunchHost', () => {
         // The connection drops and comes back while the workbook is being read. Another read could find the
         // results as well, and the workbook would be saved twice.
         reported.status = 'STARTED'
-        workbook.mockImplementation(() => new Promise<Blob>(resolve => {
+        probe.mockImplementation(() => new Promise<Blob>(resolve => {
             setTimeout(() => resolve(new Blob(['x'])), 20)
         }))
         const { rerender } = render(<TestsLaunchHost />)
@@ -162,7 +168,7 @@ describe('TestsLaunchHost', () => {
         await screen.findByTestId('tests-into-file')
 
         await userEvent.click(screen.getByTestId('tests-into-file'))
-        await waitFor(() => expect(workbook).toHaveBeenCalledTimes(1))
+        await waitFor(() => expect(probe).toHaveBeenCalledTimes(1))
         reported.subscribed = false
         rerender(<TestsLaunchHost />)
         reported.status = 'COMPLETED'
@@ -173,15 +179,52 @@ describe('TestsLaunchHost', () => {
         await act(async () => {
             await new Promise(resolve => setTimeout(resolve, 40))
         })
-        expect(workbook).toHaveBeenCalledTimes(1)
+        expect(probe).toHaveBeenCalledTimes(1)
+        expect(workbook).not.toHaveBeenCalled()
         expect(save).toHaveBeenCalledTimes(1)
+    })
+
+    it('reads the results once while the tests go on, and waits them out once they said they ended', async () => {
+        // Tests still going on answer one read. Once they say they ended, the read waits out the moment the
+        // results need to be published.
+        reported.status = 'STARTED'
+        probe.mockRejectedValue(new ResultNotReadyError())
+        const { rerender } = render(<TestsLaunchHost />)
+        await open({ tableId: 't1' })
+
+        await userEvent.click(await screen.findByTestId('tests-into-file'))
+        await waitFor(() => expect(probe).toHaveBeenCalledTimes(1))
+        expect(workbook).not.toHaveBeenCalled()
+        reported.status = 'COMPLETED'
+        rerender(<TestsLaunchHost />)
+
+        await waitFor(() => expect(save).toHaveBeenCalledTimes(1))
+        expect(workbook).toHaveBeenCalledTimes(1)
+        expect(probe).toHaveBeenCalledTimes(1)
+    })
+
+    it('asks for the results again when the tests said nothing for a while', async () => {
+        // The end of the tests can be lost on the way, and nothing else would make the panel ask again.
+        reported.status = 'STARTED'
+        probe.mockRejectedValue(new ResultNotReadyError())
+        const { rerender } = render(<TestsLaunchHost />)
+        await open({ tableId: 't1' })
+        await userEvent.click(await screen.findByTestId('tests-into-file'))
+        await waitFor(() => expect(probe).toHaveBeenCalledTimes(1))
+
+        probe.mockResolvedValue(new Blob(['x']))
+        reported.quietSpells = 1
+        rerender(<TestsLaunchHost />)
+
+        await waitFor(() => expect(save).toHaveBeenCalledTimes(1))
+        expect(probe).toHaveBeenCalledTimes(2)
     })
 
     it('goes on waiting when the results are not there to save yet', async () => {
         // Asked for while the tests are still running, the results answer that they are not ready. That is
         // not a failure: the panel keeps waiting rather than reporting one.
         reported.status = 'STARTED'
-        workbook.mockRejectedValue(new ResultNotReadyError())
+        probe.mockRejectedValue(new ResultNotReadyError())
         render(<TestsLaunchHost />)
         await open({ tableId: 't1' })
         await screen.findByTestId('tests-into-file')
@@ -189,7 +232,7 @@ describe('TestsLaunchHost', () => {
 
         await userEvent.click(screen.getByTestId('tests-into-file'))
 
-        await waitFor(() => expect(workbook).toHaveBeenCalled())
+        await waitFor(() => expect(probe).toHaveBeenCalled())
         expect(save).not.toHaveBeenCalled()
         expect(screen.queryByTestId('launch-error')).toBeNull()
     })

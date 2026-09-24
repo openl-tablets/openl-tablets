@@ -2,12 +2,14 @@ import { MemoryRouter } from 'react-router-dom'
 import React from 'react'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { readTestsSummary, getTestCaseResult, getTestsSummaryWorkbook } from 'services/execution'
+import { getTestCaseResult, getTestsSummary, getTestsSummaryWorkbook, readTestsSummary } from 'services/execution'
+import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import * as look from 'components/values/parameterValues.styles'
 
 vi.mock('services/execution', () => ({
+    getTestsSummary: vi.fn(),
     readTestsSummary: vi.fn(),
     getTestCaseResult: vi.fn(),
     getTestsSummaryWorkbook: vi.fn(),
@@ -22,9 +24,13 @@ vi.mock('store', () => ({
 
 vi.mock('utils/download', () => ({ saveFile: vi.fn() }))
 
+// What the run reported, and how many spells it has said nothing for: a test that needs either sets it.
+const run = vi.hoisted(() => ({ status: null as string | null, quietSpells: 0 }))
+
 vi.mock('containers/execution/useExecutionProgress', () => ({
-    useExecutionProgress: () => ({ status: null, error: null, arrived: 0, subscribed: true }),
-    isFinished: () => false,
+    useExecutionProgress: () => ({ status: run.status, error: null, arrived: 0, subscribed: true }),
+    isFinished: (status: string | null) => status === 'COMPLETED',
+    useQuietSpells: () => run.quietSpells,
 }))
 
 // The dialog renders as plain markup: jsdom cannot measure a real one, and the values are what matters.
@@ -49,7 +55,10 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t }) }
 })
 
-const readSummary = readTestsSummary as ReturnType<typeof vi.fn>
+// The one read the window makes while the run has not said it ended.
+const readSummary = getTestsSummary as ReturnType<typeof vi.fn>
+// The read that waits out the moment the results of a run that said it ended need to be published.
+const readEndedSummary = readTestsSummary as ReturnType<typeof vi.fn>
 const readWorkbook = getTestsSummaryWorkbook as ReturnType<typeof vi.fn>
 const readCase = getTestCaseResult as ReturnType<typeof vi.fn>
 const save = saveFile as ReturnType<typeof vi.fn>
@@ -123,6 +132,8 @@ describe('TestsResultModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         saved.profile = null
+        run.status = null
+        run.quietSpells = 0
         readSummary.mockResolvedValue(summary)
         readWorkbook.mockResolvedValue(new Blob(['x']))
     })
@@ -132,6 +143,41 @@ describe('TestsResultModal', () => {
         render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('tests.running')).toBeInTheDocument()
+    })
+
+    it('reads the results once while the tests go on, and again when the run said nothing for a while', async () => {
+        // Tests still going on answer one read, and the window waits for the run to say more rather than
+        // asking over and over.
+        readSummary.mockRejectedValue(new ResultNotReadyError())
+        const window = () => (
+            <MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>
+        )
+        const { rerender } = render(window())
+        expect(await screen.findByText('tests.running')).toBeInTheDocument()
+        await act(async () => {
+            await new Promise(resolve => setTimeout(resolve, 20))
+        })
+        expect(readSummary).toHaveBeenCalledTimes(1)
+
+        // A run that ended just as the window started listening reports its end to nobody.
+        readSummary.mockResolvedValue(summary)
+        run.quietSpells = 1
+        rerender(window())
+
+        expect(await screen.findByTestId('test-results-tt1')).toBeInTheDocument()
+        expect(readSummary).toHaveBeenCalledTimes(2)
+        expect(readEndedSummary).not.toHaveBeenCalled()
+    })
+
+    it('waits out the results of tests that said they ended', async () => {
+        run.status = 'COMPLETED'
+        readEndedSummary.mockResolvedValue(summary)
+
+        await show()
+
+        expect(screen.getByTestId('test-results-tt1')).toBeInTheDocument()
+        expect(readEndedSummary).toHaveBeenCalledTimes(1)
+        expect(readSummary).not.toHaveBeenCalled()
     })
 
     it('shows a case to a row, with a column for what it was given and for what came out', async () => {

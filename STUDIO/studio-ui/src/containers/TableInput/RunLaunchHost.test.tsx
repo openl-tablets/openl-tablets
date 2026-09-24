@@ -1,7 +1,16 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { getProject } from 'services/repositories'
-import { readRunResult, readRunResultWorkbook, readTestsSummaryWorkbook, runTests, startRun } from 'services/execution'
+import {
+    getRunResult,
+    getRunResultWorkbook,
+    getTestsSummaryWorkbook,
+    readRunResult,
+    readRunResultWorkbook,
+    readTestsSummaryWorkbook,
+    runTests,
+    startRun,
+} from 'services/execution'
 import { ResultNotReadyError } from 'services/taskResult'
 import { getTableInput, getTableInputCases } from 'services/tables'
 import type { TableInput } from 'types/tables'
@@ -20,6 +29,9 @@ vi.mock('services/tables', () => ({
 vi.mock('services/execution', () => ({
     startRun: vi.fn(),
     runTests: vi.fn(),
+    getRunResult: vi.fn(),
+    getRunResultWorkbook: vi.fn(),
+    getTestsSummaryWorkbook: vi.fn(),
     readRunResult: vi.fn(),
     readRunResultWorkbook: vi.fn(),
     readTestsSummaryWorkbook: vi.fn(),
@@ -35,8 +47,12 @@ const { reset, progress } = vi.hoisted(() => ({
     },
 }))
 
+// How many spells the run has said nothing for: a test that needs one sets it.
+const quiet = vi.hoisted(() => ({ spells: 0 }))
+
 vi.mock('containers/execution/useExecutionProgress', () => ({
     useExecutionProgress: () => ({ ...progress.current, arrived: 0, reset }),
+    useQuietSpells: () => quiet.spells,
     isFinished: (status: string | null) => status !== null && ['COMPLETED', 'INTERRUPTED', 'ERROR'].includes(status),
 }))
 
@@ -71,6 +87,10 @@ const tests = runTests as ReturnType<typeof vi.fn>
 const result = readRunResult as ReturnType<typeof vi.fn>
 const workbook = readRunResultWorkbook as ReturnType<typeof vi.fn>
 const testsWorkbook = readTestsSummaryWorkbook as ReturnType<typeof vi.fn>
+// The one read the panel makes while the execution has not said it ended.
+const resultProbe = getRunResult as ReturnType<typeof vi.fn>
+const workbookProbe = getRunResultWorkbook as ReturnType<typeof vi.fn>
+const testsWorkbookProbe = getTestsSummaryWorkbook as ReturnType<typeof vi.fn>
 const save = saveFile as ReturnType<typeof vi.fn>
 
 const anchor = { left: 10, top: 20, width: 40, height: 30 }
@@ -94,12 +114,16 @@ describe('RunLaunchHost', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         progress.current = { status: 'COMPLETED', error: null, subscribed: true }
+        quiet.spells = 0
         projectRead.mockResolvedValue({ id: 'real-p1', name: 'P' })
         run.mockResolvedValue(undefined)
         tests.mockResolvedValue(undefined)
         result.mockResolvedValue({ tableName: 'Premium', result: { premium: 100 } })
         workbook.mockResolvedValue(new Blob(['x']))
         testsWorkbook.mockResolvedValue(new Blob(['x']))
+        resultProbe.mockResolvedValue({ tableName: 'Premium', result: { premium: 100 } })
+        workbookProbe.mockResolvedValue(new Blob(['x']))
+        testsWorkbookProbe.mockResolvedValue(new Blob(['x']))
         casesRead.mockResolvedValue({
             total: 2,
             content: [
@@ -385,14 +409,14 @@ describe('RunLaunchHost', () => {
         // result as well, and the file would be saved twice.
         progress.current = { status: 'STARTED', error: null, subscribed: true }
         inputRead.mockResolvedValue(ruleTable)
-        workbook.mockImplementation(() => new Promise<Blob>(resolve => {
+        workbookProbe.mockImplementation(() => new Promise<Blob>(resolve => {
             setTimeout(() => resolve(new Blob(['x'])), 20)
         }))
         const { rerender } = render(<RunLaunchHost />)
         await open()
 
         await userEvent.click(await screen.findByTestId('run-into-file'))
-        expect(workbook).toHaveBeenCalledTimes(1)
+        expect(workbookProbe).toHaveBeenCalledTimes(1)
         progress.current = { status: 'COMPLETED', error: null, subscribed: false }
         rerender(<RunLaunchHost />)
         progress.current = { status: 'COMPLETED', error: null, subscribed: true }
@@ -402,8 +426,27 @@ describe('RunLaunchHost', () => {
         await act(async () => {
             await new Promise(resolve => setTimeout(resolve, 40))
         })
-        expect(workbook).toHaveBeenCalledTimes(1)
+        expect(workbookProbe).toHaveBeenCalledTimes(1)
+        expect(workbook).not.toHaveBeenCalled()
         expect(save).toHaveBeenCalledTimes(1)
+    })
+
+    it('asks for the run result again when the run said nothing for a while', async () => {
+        // The end of the run can be lost on the way, and nothing else would make the panel ask again.
+        progress.current = { status: 'STARTED', error: null, subscribed: true }
+        inputRead.mockResolvedValue(ruleTable)
+        workbookProbe.mockRejectedValue(new ResultNotReadyError())
+        const { rerender } = render(<RunLaunchHost />)
+        await open()
+        await userEvent.click(await screen.findByTestId('run-into-file'))
+        await waitFor(() => expect(workbookProbe).toHaveBeenCalledTimes(1))
+
+        workbookProbe.mockResolvedValue(new Blob(['x']))
+        quiet.spells = 1
+        rerender(<RunLaunchHost />)
+
+        await waitFor(() => expect(save).toHaveBeenCalledTimes(1))
+        expect(workbookProbe).toHaveBeenCalledTimes(2)
     })
 
     it('asks for the run result when the panel stops hearing it, and waits while it is not there', async () => {
@@ -411,7 +454,7 @@ describe('RunLaunchHost', () => {
         // for the result; told that the run is still going on, it keeps waiting rather than reporting.
         progress.current = { status: 'STARTED', error: null, subscribed: true }
         inputRead.mockResolvedValue(ruleTable)
-        workbook.mockRejectedValue(new ResultNotReadyError())
+        workbookProbe.mockRejectedValue(new ResultNotReadyError())
         render(<RunLaunchHost />)
         await open()
         await screen.findByTestId('run-into-file')
@@ -419,7 +462,8 @@ describe('RunLaunchHost', () => {
 
         await userEvent.click(screen.getByTestId('run-into-file'))
 
-        await waitFor(() => expect(workbook).toHaveBeenCalled())
+        await waitFor(() => expect(workbookProbe).toHaveBeenCalled())
+        expect(workbook).not.toHaveBeenCalled()
         expect(save).not.toHaveBeenCalled()
         expect(screen.queryByTestId('launch-error')).toBeNull()
     })
