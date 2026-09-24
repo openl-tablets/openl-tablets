@@ -293,7 +293,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                             serviceByName.map(OpenLService::getDeployment).map(DeploymentDescription::getName).orElse(null));
                 })
                 .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

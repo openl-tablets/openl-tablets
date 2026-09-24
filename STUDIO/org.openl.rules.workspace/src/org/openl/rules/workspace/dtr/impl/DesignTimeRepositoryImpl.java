@@ -120,7 +120,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             repositories.set(repositoryList.stream()
                     .filter(r -> Objects.nonNull(r.getName()))
                     .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
-                    .collect(Collectors.toList()));
+                    .toList());
             refreshProjects();
         }
     }
