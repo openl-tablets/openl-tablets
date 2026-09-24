@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- PR #2166 is open on `dead-code/lombok-noop-annotations` (1 commit, -8). Drive it to green, then continue.
+- PR #2166 is open on `dead-code/lombok-noop-annotations` (1 commit, -8), GREEN and waiting on reviewers.
 - All 14 change types are exhausted repo-wide. A run is: maintain the open PR, sweep the delta (expect zero), spend
   the rest on a NEW vein. The paying veins are documentation, build config and framework-generated members: a
   no-op annotation or a generated member no caller names is the one CODE shape still paying.
@@ -33,7 +33,7 @@
 - #2166, branch `dead-code/lombok-noop-annotations`, head da93de2f2d, cut from main 4513cebb5e.
 - Commit 1 (change type 6): drop the Lombok annotations that generate a member nothing calls — @Slf4j on
   OpenApiGenerator, @Builder on FileChange and PendingChanges, @RequiredArgsConstructor on
-  ProjectComparisonService. 4 files, -8. No review thread yet.
+  ProjectComparisonService. 22 checks green, Sonar 0 new issues, CodeRabbit clean. No review thread open.
 
 ## Merged PRs
 
