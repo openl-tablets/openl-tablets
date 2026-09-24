@@ -343,6 +343,38 @@ describe('TestsResultModal', () => {
         expect(await screen.findByText('{1 fields}')).toBeInTheDocument()
     })
 
+    it('shows the compound result only once the results read with it are there', async () => {
+        await show()
+        let answer: (summary: unknown) => void = () => undefined
+        readSummary.mockReturnValue(new Promise(resolve => {
+            answer = resolve
+        }))
+
+        await userEvent.click(screen.getByTestId('tests-compound-result'))
+
+        // The results on screen were read without it: a column over them would hold nothing.
+        expect(screen.getByTestId('test-results-tt1')).not.toHaveTextContent('tests.compoundResult')
+        await act(async () => answer({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                testUnits: summary.testCases[0]!.testUnits
+                    .map(unit => ({ ...unit, result: { name: 'result', lazy: true } })),
+            }],
+        }))
+        expect(screen.getByTestId('test-results-tt1')).toHaveTextContent('tests.compoundResult')
+    })
+
+    it('leaves the whole value of a case that returned none empty', async () => {
+        saved.profile = { showComplexResult: true }
+
+        await show()
+
+        const table = screen.getByTestId('test-results-tt1')
+        expect(table).toHaveTextContent('tests.compoundResult')
+        expect(table).not.toHaveTextContent('undefined')
+    })
+
     it('says that a new read failed instead of leaving the results it did not replace', async () => {
         await show()
         readSummary.mockRejectedValue(new Error('The project is being compiled'))

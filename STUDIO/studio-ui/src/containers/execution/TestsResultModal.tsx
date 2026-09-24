@@ -137,13 +137,16 @@ const columnsOf = (
             render: (unit: TestUnitResult) => (
                 <Space size={4}>
                     {!table.runTable && <StatusMark status={unit.status} title={t(STATUS[unit.status])} />}
-                    <ValueCell
-                        label={unit.result ? valueLabel(unit.result) : undefined}
-                        lazy={unit.result?.lazy ?? false}
-                        onLoad={() => readCase(table.tableId, unit.id).then(read => read.result)}
-                        path={`${key}-whole-${unit.id}`}
-                        value={unit.result?.value}
-                    />
+                    {/* A case that returned nothing to show, one that ended with an error, leaves the cell empty. */}
+                    {unit.result && (
+                        <ValueCell
+                            label={valueLabel(unit.result)}
+                            lazy={unit.result.lazy}
+                            onLoad={() => readCase(table.tableId, unit.id).then(read => read.result)}
+                            path={`${key}-whole-${unit.id}`}
+                            value={unit.result.value}
+                        />
+                    )}
                 </Space>
             ),
         }] : []),
@@ -239,12 +242,15 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     const { t } = useTranslation('execution')
     const profile = useUserStore(state => state.userProfile)
     const [query, setQuery] = useState<Required<TestsQuery>>(() => ({ ...savedQuery(profile ?? null), ...options }))
+    const [summary, setSummary] = useState<TestsSummary | null>(null)
+    // What the results on screen were read with. The columns follow it rather than what was just asked for, so a
+    // column added while the results are read again does not stand empty over the results before.
+    const [shownQuery, setShownQuery] = useState(query)
     const readResult = useCallback(
         (tableId: string, caseId: string) => getTestCaseResult(projectId, tableId, caseId),
         [projectId]
     )
     const readCase = useTestCase(readResult)
-    const [summary, setSummary] = useState<TestsSummary | null>(null)
     const [failure, setFailure] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
@@ -265,6 +271,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
             .then(loaded => {
                 if (active) {
                     setSummary(loaded)
+                    setShownQuery(query)
                     setFailure(null)
                 }
             })
@@ -350,7 +357,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                     : tables.map(table => (
                         <TestTable
                             key={table.tableId}
-                            compoundResult={query.compoundResult}
+                            compoundResult={shownQuery.compoundResult}
                             onOpenTable={onClose}
                             projectId={projectId}
                             readCase={readCase}
