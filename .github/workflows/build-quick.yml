@@ -9,8 +9,8 @@
 #   demo     - a matrix that starts demo.zip on Linux, Windows and macOS and checks its endpoints
 #   tests    - the whole build with unit tests but without integration tests, in parallel with the 'build' track
 #   frontend - the studio-ui vitest suite, in parallel with the 'tests' track
-#   sonar    - waits for 'tests', 'itest' and 'frontend', combines their coverage into the aggregate
-#              report (jacoco-report) and runs the SonarCloud analysis
+#   sonar    - waits for 'tests', 'itest' and 'frontend', combines their coverage into one JaCoCo
+#              report and runs the SonarCloud analysis
 #
 # The studio-ui suite runs in a job of its own because it dominated 'tests': vitest took some 11 of that
 # job's 19 minutes while sharing four cores with the -T1C reactor, and the whole Java side fitted inside
@@ -18,10 +18,12 @@
 # 'frontend' (-Dnpm.test.skip=true), which runs it alone on its own runner.
 #
 # Coverage: 'tests', 'frontend' and every 'itest' leg upload what they measured - target/*.exec from the
-# JaCoCo agent (-Psonar), lcov.info from vitest. The 'sonar' job downloads them into the same workspace
-# locations, recompiles the sources (same commit, same JDK - the class ids match) without running tests,
-# and the report-aggregate goal folds all execution data onto the production classes exactly as the
-# former single-job build did.
+# JaCoCo agent (-Psonar), lcov.info from vitest - and 'tests' and the 'itest' legs add the class files
+# they compiled. The 'sonar' job downloads everything into the same workspace locations, so it builds
+# nothing: the JaCoCo command-line tool folds all execution data onto the production classes (same
+# commit, same JDK - the class ids match), and the Sonar analysis reads the same classes. Recompiling
+# the whole reactor there instead took ~10 of that job's ~17 minutes, all of them after the last 'itest'
+# leg had finished.
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 name: Quick Build
@@ -158,6 +160,8 @@ jobs:
         run: mvn -B "-Dstyle.color=always" -T1C verify -P 'sonar,!itest' "-Dnpm.test.skip=true" -pl '!jacoco-report,!Util/openl-maven-plugin'
 
         # The root pom.xml anchors the artifact at the repository root - see the itest job.
+        # The class files spare the 'sonar' job a recompilation. Only *.class: target/classes also holds
+        # the studio-ui bundle and target/test-classes the test resources, and the analysis needs neither.
       - name: Share coverage data
         uses: actions/upload-artifact@v7
         with:
@@ -165,6 +169,8 @@ jobs:
           path: |
             pom.xml
             **/target/*.exec
+            **/target/classes/**/*.class
+            **/target/test-classes/**/*.class
           retention-days: 7
 
   frontend:
@@ -289,6 +295,8 @@ jobs:
 
         # The root pom.xml anchors the artifact at the repository root, so every coverage
         # artifact restores to the same workspace locations by a single download step.
+        # The class files are those of the modules this leg compiled - see the tests job. A target
+        # folder nested in another one belongs to a project the invoker or archetype tests generated.
       - name: Share coverage data
         uses: actions/upload-artifact@v7
         with:
@@ -296,7 +304,12 @@ jobs:
           path: |
             pom.xml
             ITEST/**/target/*.exec
-            Util/**/target/*.exec
+            ITEST/**/target/classes/**/*.class
+            ITEST/**/target/test-classes/**/*.class
+            Util/*/target/*.exec
+            Util/*/target/classes/**/*.class
+            Util/*/target/test-classes/**/*.class
+            !**/target/**/target/**
           retention-days: 7
 
   demo:
@@ -478,10 +491,44 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
+        # The TypeScript rules resolve imported types through studio-ui's node_modules. They are
+        # installed the way the 'frontend' job installs them - see there.
+      - name: Read the pinned Node version
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's|.*<node\.version>v\?\([^<]*\)</node\.version>.*|\1|p' pom.xml)
+          test -n "$version"
+          echo "NODE_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache npm packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-
+
+      - name: Install studio-ui dependencies
+        working-directory: STUDIO/studio-ui
+        run: npm ci --ignore-scripts
+
+        # A goal run outside the build lifecycle, as the analysis is, does not resolve the modules
+        # to their target/classes, so they come from ~/.m2 - as this commit's jars, the ones the
+        # 'itest' legs test.
+      - name: Download OpenL artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: openl-artifacts
+          path: ~/.m2/repository/org/openl/
+
         # All coverage artifacts are anchored at the repository root, so they merge into the
-        # workspace by one step. Only ITEST/server-core/target/jacoco.exec overlaps between
-        # the legs - it is the shared test harness, so losing all but one copy of its own
-        # coverage is acceptable.
+        # workspace by one step. Only ITEST/server-core overlaps between the legs: its class files
+        # are the same in all of them, and it is the shared test harness, so losing all but one
+        # copy of its own coverage in target/jacoco.exec is acceptable.
       - name: Download coverage data
         uses: actions/download-artifact@v8
         with:
@@ -489,26 +536,33 @@ jobs:
           merge-multiple: true
           path: .
 
-        # Recompile the sources the downloaded execution data was recorded against
-        # (-Dmaven.test.skip=false brings the test classes back for the Sonar analysis, while
-        # -DskipTests still skips their execution; -Pitest re-includes the integration-test
-        # modules that -DskipTests drops from the reactor) and build the JaCoCo aggregate report.
-        # studio-ui's typecheck and production bundle are left out: the analysis reads the module's
-        # sources and the lcov report downloaded above, and neither of those comes from them. The
-        # 'npm install' stays, because the TypeScript rules resolve imported types through node_modules.
+        # One report over every module: the execution data of all jobs folds onto the production
+        # classes of all modules, the way the report-aggregate goal of jacoco-report does it in a
+        # local 'mvn verify -Dsonar'. It is written where that goal writes it, the path the Sonar
+        # analysis reads (sonar.coverage.jacoco.xmlReportPaths).
       - name: Aggregate coverage
         shell: bash
-        run: >
-          mvn -B "-Dstyle.color=always" -T1C verify -Psonar,itest
-          -DskipTests -Dmaven.test.skip=false "-Dunpack-webapp.skip=true"
-          "-Dnpm.typecheck.skip=true" "-Dnpm.build.skip=true"
-          | tee build.log
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's|.*<jacoco\.version>\([^<]*\)</jacoco\.version>.*|\1|p' pom.xml)
+          test -n "$version"
+          mvn -B -N dependency:copy "-Dartifact=org.jacoco:org.jacoco.cli:$version:jar:nodeps" \
+            "-DoutputDirectory=$RUNNER_TEMP" -Dmdep.stripVersion=true
+          mapfile -t exec_files < <(find . -name node_modules -prune -o -path '*/target/*.exec' -print)
+          class_dirs=()
+          while IFS= read -r dir; do
+            class_dirs+=(--classfiles "$dir")
+          done < <(find . -name node_modules -prune -o -type d -path '*/target/classes' -print)
+          report=jacoco-report/target/site/jacoco-aggregate/jacoco.xml
+          mkdir -p "$(dirname "$report")"
+          java -jar "$RUNNER_TEMP/org.jacoco.cli-nodeps.jar" report "${exec_files[@]}" "${class_dirs[@]}" \
+            --xml "$report" | tee coverage.log
 
       - name: Verify coverage consistency
         run: |
           test -s jacoco-report/target/site/jacoco-aggregate/jacoco.xml
           # JaCoCo drops coverage of classes whose bytecode differs from the execution data
-          ! grep -E "does not match|do not match" build.log
+          ! grep -E "does not match|do not match" coverage.log
 
       - name: Sonar Analysis
         env:
