@@ -68,8 +68,8 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
 - **`-DskipTests`** — skip all tests and drop the integration-test modules (ITEST, the archetypes) from
-  the reactor; openl-maven-plugin still builds with its tests skipped. CI re-adds the dropped modules
-  with `-Pitest` where it needs them
+  the reactor; openl-maven-plugin still builds with its tests skipped. `-Pitest` re-adds the dropped
+  modules
 - **`-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.build.skip`** — leave out one studio-ui step at a time:
   the vitest suite, the `tsc --noEmit` pass, the production bundle. `-DskipTests` and `-Dquick` already imply
   the first

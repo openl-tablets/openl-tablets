@@ -42,9 +42,9 @@ cannot corrupt a running suite.
   missing war fails the suite loudly at dependency resolution. `mvn clean` on the suite forces a fresh
   webapp copy.
 - **`-Dunpack-webapp.skip=true`** skips the webapp unpacking — for builds that compile the suites without
-  running them (e.g. the CI coverage-aggregation job).
+  running them.
 - **`-DskipTests`** removes the whole ITEST subtree (and the archetypes) from the reactor via the root
-  `itest` profile; `-Pitest` forces it back in — the CI coverage-aggregation job does this.
+  `itest` profile; `-Pitest` forces it back in.
 
 ## Container Images
 

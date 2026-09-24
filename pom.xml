@@ -217,6 +217,9 @@
         <jspecify.version>1.0.1</jspecify.version>
         <lombok.version>1.18.48</lombok.version>
 
+        <!-- Also picks the JaCoCo command-line tool the CI Sonar job builds the coverage report with -->
+        <jacoco.version>0.8.15</jacoco.version>
+
         <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
         <node.version>v24.21.0</node.version>
         <npm.version>12.0.2</npm.version>
@@ -1452,7 +1455,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.15</version>
+                    <version>${jacoco.version}</version>
                     <configuration>
                         <propertyName>jacoco.argLine</propertyName>
                         <includes>
@@ -1819,9 +1822,8 @@
             <!-- The ITEST suites and the archetypes building a generated project are integration-test
                  modules nothing else depends on, so -DskipTests drops them from the reactor entirely
                  instead of building them with skipped tests. CI deactivates the profile with -P '!itest'
-                 to keep unit-test runs free of them and re-includes it with -Pitest where the Sonar job
-                 folds their coverage. openl-maven-plugin stays in the default modules: test-skipping
-                 builds must still install the plugin for projects consuming the SNAPSHOT. -->
+                 to keep unit-test runs free of them. openl-maven-plugin stays in the default modules:
+                 test-skipping builds must still install the plugin for projects consuming the SNAPSHOT. -->
             <id>itest</id>
             <activation>
                 <property>
