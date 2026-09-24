@@ -36,13 +36,9 @@ public class TablePriorityRuleWrappers {
                     var propertyName = matcher.group(2);
 
                     if (operationName.equalsIgnoreCase(MIN_OPERATION_NAME)) {
-                        wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
-                                MIN_OPERATION_NAME,
-                                propertyName));
+                        wrappers.add(new SimplePriorityRuleWrapper(MIN_OPERATION_NAME, propertyName));
                     } else if (operationName.equalsIgnoreCase(MAX_OPERATION_NAME)) {
-                        wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
-                                MAX_OPERATION_NAME,
-                                propertyName));
+                        wrappers.add(new SimplePriorityRuleWrapper(MAX_OPERATION_NAME, propertyName));
                     } else {
                         throw new IllegalArgumentException("Wrong priority rule: [%s]. Unknown operator: [%s]"
                                 .formatted(priorityRule, operationName));
@@ -60,8 +56,7 @@ public class TablePriorityRuleWrappers {
         for (String priorityRule : priorityRules) {
             try {
                 if (priorityRule.startsWith(PREFIX)) {
-                    wrappers.add(new JavaClassPriorityRuleWrapper(priorityRule,
-                            priorityRule.substring(PREFIX.length()).trim()));
+                    wrappers.add(new JavaClassPriorityRuleWrapper(priorityRule.substring(PREFIX.length()).trim()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

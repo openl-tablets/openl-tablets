@@ -1,12 +1,8 @@
 package org.openl.codegen.tools.type;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class TablePriorityRuleWrapper {
-    @Getter
-    private final String priorityRule;
 
     public static class SimplePriorityRuleWrapper extends TablePriorityRuleWrapper {
         @Getter
@@ -14,8 +10,7 @@ public class TablePriorityRuleWrapper {
         @Getter
         private final String propertyName;
 
-        public SimplePriorityRuleWrapper(String priorityRule, String operationName, String propertyName) {
-            super(priorityRule);
+        public SimplePriorityRuleWrapper(String operationName, String propertyName) {
             this.operationName = operationName;
             this.propertyName = propertyName;
         }
@@ -25,8 +20,7 @@ public class TablePriorityRuleWrapper {
         @Getter
         private final String className;
 
-        public JavaClassPriorityRuleWrapper(String priorityRule, String className) {
-            super(priorityRule);
+        public JavaClassPriorityRuleWrapper(String className) {
             this.className = className;
         }
     }
