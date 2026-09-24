@@ -27,18 +27,20 @@ If a task requires understanding test failures, the agent MUST:
 > **Ask the user to run the tests and provide results**
 
 Typical request:
-> "Please run the ITEST suite and provide the failed responses from `target/responses/`."
+> "Please run the ITEST suite and provide the `Failed N of M requests` list from the test failure and the failed
+> responses from `target/responses/`."
 
 ---
 
 ## Where failed test data lives
 
-When ITEST tests fail, the framework writes **actual responses** to `target/responses/`:
+The test failure message lists every failed request with the first assertion it failed: `Timeout`, `Status code`,
+`Header <name>` or `Body` (with the path to a JSON difference, e.g. `Body > content[0] > name`). Any other error is
+listed with its exception.
 
-This directory contains:
-- actual HTTP responses
-- body dumps for failed `.resp` comparisons
-- headers and payloads used for diffing
+When a request fails a `Status code`, `Header` or `Body` check, the framework also writes its **actual response
+body** to `target/responses/` as a `.req.body` file; its headers appear only in the console log. A `Timeout` or any
+other error writes nothing.
 
 ### Agent responsibilities
 
@@ -58,7 +60,8 @@ This directory contains:
    mvn test -Dtest=RunWebservicesITest
    ```
 
-2. **User provides failed response paths** from `target/responses/`
+2. **User provides the failed requests** with their failed assertions, and the failed response paths from
+   `target/responses/`
 
 3. **Agent reads actual responses** from `target/responses/`
 

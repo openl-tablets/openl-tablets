@@ -12,8 +12,10 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -27,6 +29,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +53,7 @@ class HttpData {
     static final ObjectMapper OBJECT_MAPPER;
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
+    private static final String BODY_SUBJECT = "Body";
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(.*?)}");
     private static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile("\\{(.*?)}");
     private static final Pattern CHARSET_PATTERN = Pattern.compile(
@@ -116,6 +121,12 @@ class HttpData {
         return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null, null);
     }
 
+    /**
+     * Sends the request and reads the response.
+     *
+     * <p>A request that gets no connection or no response in time fails with an {@link AssertionError} whose message
+     * starts with {@code Timeout}. The limits are {@code http.timeout.connect} and {@code http.timeout.read}.
+     */
     static HttpData send(URI baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) {
         String url = resolvePathVariables(httpData.getUrl(), localEnv);
         var request = HttpRequest.newBuilder()
@@ -130,11 +141,20 @@ class HttpData {
             request.header("Cookie", cookie);
         }
 
-        var response = HttpClient.newBuilder()
+        var client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.connect"))))
-                .build()
-                .sendAsync(request.build(), HttpResponse.BodyHandlers.ofByteArray()).join();
-        return readData(response);
+                .build();
+        long start = System.nanoTime();
+        try {
+            return readData(client.sendAsync(request.build(), HttpResponse.BodyHandlers.ofByteArray()).join());
+        } catch (CompletionException e) {
+            if (e.getCause() instanceof HttpTimeoutException timeout) {
+                var missing = timeout instanceof HttpConnectTimeoutException ? "connection" : "response";
+                long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+                throw new AssertionError("Timeout ==> no " + missing + " in " + elapsed + " ms", timeout);
+            }
+            throw e;
+        }
     }
 
     private static String replacePlaceholders(String text, Map<String, String> env) {
@@ -263,13 +283,18 @@ class HttpData {
         }
     }
 
+    /**
+     * Asserts that this response matches the expected one: the status code first, then the expected headers, then
+     * the body. The first mismatch fails with a message naming its subject - {@code Status code},
+     * {@code Header <name>} or {@code Body}.
+     */
     void assertTo(HttpData expected) throws Exception, AssertionError {
         try {
-            assertEquals(expected.getResponseCode(), this.getResponseCode(), "Status code: ");
+            assertEquals(expected.getResponseCode(), this.getResponseCode(), "Status code");
             for (Map.Entry<String, String> r : expected.headers.entrySet()) {
                 String headerName = r.getKey();
                 String value = r.getValue();
-                Comparators.txt(headerName, value, this.headers.get(headerName));
+                Comparators.txt("Header " + headerName, value, this.headers.get(headerName));
             }
 
             if (expected.body == null) {
@@ -297,17 +322,18 @@ class HttpData {
                      "text/html",
                      "text/plain",
                      "image/svg+xml" ->
-                        Comparators.txt("Difference", decoder.apply(expectedBody), decoder.apply(this.body));
+                        Comparators.txt(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
                 case "application/xml",
                      "text/xml" ->
-                        Comparators.xml("Difference", decoder.apply(expectedBody), decoder.apply(this.body));
+                        Comparators.xml(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
                 case "application/json" -> {
                     JsonNode actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
                     JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expectedBody));
-                    Comparators.compareJsonObjects(expectedNode, actualNode, "");
+                    Comparators.compareJsonObjects(expectedNode, actualNode, BODY_SUBJECT);
                 }
-                case "application/zip" -> Comparators.zip(decoder.apply(expectedBody), decoder.apply(this.body));
-                default -> assertArrayEquals(decoder.apply(expectedBody), decoder.apply(this.body), "Body: ");
+                case "application/zip" ->
+                        Comparators.zip(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
+                default -> assertArrayEquals(decoder.apply(expectedBody), decoder.apply(this.body), BODY_SUBJECT);
             }
         } catch (Exception | AssertionError ex) {
             throw ex;

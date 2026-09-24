@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -31,19 +32,44 @@ class HttpDataTest {
         clHeader.assertTo(undefined);
         undefined.assertTo(undefined);
 
-        try {
-            undefined.assertTo(clHeader);
-            fail("Non reachable");
-        } catch (AssertionError er) {
-            assertEquals("Content-Length ==> expected: <14> but was: <null>", er.getMessage());
-        }
+        assertEquals("Header Content-Length ==> missing, expected: <14>", failure(undefined, clHeader));
+        assertEquals("Header Transfer-Encoding ==> missing, expected: <chunked>", failure(undefined, chuncked));
+    }
 
-        try {
-            undefined.assertTo(chuncked);
-            fail("Non reachable");
-        } catch (AssertionError er) {
-            assertEquals("Transfer-Encoding ==> expected: <chunked> but was: <null>", er.getMessage());
-        }
+    @Test
+    void statusCodeMismatchIsNamed() throws IOException {
+        var actual = HttpData.readFile("/undefined-length.resp");
+        var expected = HttpData.readFile("/no-content-full.resp");
+
+        assertEquals("Status code ==> expected: <204> but was: <200>", failure(actual, expected));
+    }
+
+    @Test
+    void textBodyMismatchShowsBothTexts(@TempDir Path tempDir) throws IOException {
+        var actual = HttpData.readFile("/undefined-length.resp");
+        var expected = createResponse(tempDir.resolve("text.resp"), "text/plain", "Hello John!");
+
+        assertEquals("Body ==> expected: <Hello John!> but was: <Hello World!>", failure(actual, expected));
+    }
+
+    @Test
+    void jsonBodyMismatchShowsThePathToIt(@TempDir Path tempDir) throws IOException {
+        var actual = createResponse(tempDir.resolve("actual.resp"), "application/json", "{\"name\": \"foo\"}");
+        var expected = createResponse(tempDir.resolve("expected.resp"), "application/json", "{\"name\": \"bar\"}");
+
+        assertEquals("Body > name ==> expected: <\"bar\"> but was: <\"foo\">", failure(actual, expected));
+    }
+
+    @Test
+    void binaryBodyMismatchIsNamed(@TempDir Path tempDir) throws IOException {
+        var actual = createResponse(tempDir.resolve("actual.resp"), "image/png", "12345");
+        var expected = createResponse(tempDir.resolve("expected.resp"), "image/png", "1234");
+
+        assertEquals("Body ==> array lengths differ, expected: <6> but was: <7>", failure(actual, expected));
+    }
+
+    private static @Nullable String failure(HttpData actual, HttpData expected) {
+        return assertThrows(AssertionError.class, () -> actual.assertTo(expected)).getMessage();
     }
 
     @Test
@@ -262,6 +288,13 @@ class HttpDataTest {
         var body = request.resolveBodyPlaceholders(Map.of("REVISION", "abc123"));
 
         assertArrayEquals(Files.readAllBytes(compressedBody), body);
+    }
+
+    private static HttpData createResponse(Path responseFile, String contentType, String body) throws IOException {
+        Files.writeString(responseFile,
+                "HTTP/1.1 200\r\nContent-Type: " + contentType + "\r\n\r\n" + body + "\r\n",
+                StandardCharsets.UTF_8);
+        return HttpData.readFile(responseFile.toString());
     }
 
     private static HttpData createRequest(Path requestFile, String contentType, byte[] body) throws IOException {
