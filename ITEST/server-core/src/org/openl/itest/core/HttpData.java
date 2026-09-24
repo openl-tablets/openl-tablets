@@ -141,11 +141,10 @@ class HttpData {
             request.header("Cookie", cookie);
         }
 
-        var client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.connect"))))
-                .build();
         long start = System.nanoTime();
-        try {
+        try (var client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.connect"))))
+                .build()) {
             return readData(client.sendAsync(request.build(), HttpResponse.BodyHandlers.ofByteArray()).join());
         } catch (CompletionException e) {
             if (e.getCause() instanceof HttpTimeoutException timeout) {

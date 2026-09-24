@@ -3,6 +3,7 @@ package org.openl.itest.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,10 +12,14 @@ import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
@@ -97,6 +102,18 @@ class HttpClientTest {
     }
 
     @Test
+    void eachRequestClosesItsClient() throws IOException {
+        var request = Objects.requireNonNull(HttpData.readFile(FOLDER + "/010-ok.req"));
+        var open = openClients();
+
+        HttpData.send(URI.create("http://localhost:" + server.getAddress().getPort()), request, "", Map.of());
+
+        // Other clients may close meanwhile, so only a thread the request started counts
+        var leaked = openClients().stream().filter(client -> !open.contains(client)).toList();
+        assertTrue(leaked.isEmpty(), () -> "Selector threads left open: " + leaked);
+    }
+
+    @Test
     void assertionIsDescribedByItsMessage() {
         var timeout = new AssertionError("Timeout ==> no response in 5 ms", new HttpTimeoutException("timed out"));
 
@@ -131,6 +148,13 @@ class HttpClientTest {
 
     private static String request(String name) {
         return Path.of(FOLDER, name + ".req").toString();
+    }
+
+    /** Finds the JDK HTTP clients still open, by the selector thread each of them runs. */
+    private static Set<Thread> openClients() {
+        return Thread.getAllStackTraces().keySet().stream()
+                .filter(thread -> thread.getName().matches("HttpClient-\\d+-SelectorManager"))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     private static void respond(HttpExchange exchange, String json) throws IOException {
