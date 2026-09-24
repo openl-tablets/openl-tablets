@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.models.OpenAPI;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
@@ -31,7 +30,6 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
-@Slf4j
 public class OpenApiGenerator {
 
     private final RulesInstantiationStrategy instantiationStrategy;
