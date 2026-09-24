@@ -191,8 +191,11 @@ export const readTestsSummary = (projectId: string, query: TestsQuery = {}): Pro
 
 /** A value of a test case that is read a level at a time. */
 export interface TestCaseValue {
-    /** The whole value the rule returned, a value the case was given, or what came out for a compared value. */
-    of: 'result' | 'parameter' | 'assertion'
+    /**
+     * The whole value the rule returned, a value the case was given, what came out for a compared value, or what
+     * the comparison expected.
+     */
+    of: 'result' | 'parameter' | 'assertion' | 'expected'
     /** The position of the value among the values the case was given, or among its comparisons. */
     index?: number
 }

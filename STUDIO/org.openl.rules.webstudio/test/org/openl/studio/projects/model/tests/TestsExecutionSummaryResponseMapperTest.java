@@ -257,7 +257,55 @@ class TestsExecutionSummaryResponseMapperTest {
         assertEquals(Boolean.TRUE, assertion.actualLazy());
         assertNull(assertion.actualValue());
         assertEquals(TestStatus.TR_OK, assertion.status());
-        assertEquals(150, assertion.expectedValue().get("premium").asInt());
+        // The expected value has inner structure too, and a summary asked for lazy values refers to it.
+        assertEquals(Boolean.TRUE, assertion.expectedLazy());
+    }
+
+    /**
+     * A summary asked for lazy values refers to a compared value with inner structure, the one that came out and the
+     * one expected alike: a table that compares whole spreadsheet results would write every one of them. A plain
+     * compared value is written, and a summary asked for the values writes them all.
+     */
+    @Test
+    void refersToComparedValuesWithInnerStructureWhenLazyValuesAreAsked() {
+        var results = mock(TestUnitsResults.class);
+        var testUnit = mock(ITestUnit.class);
+        var test = mock(TestDescription.class);
+        mockTestTable(results);
+        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getTestResultColumnDisplayNames()).thenReturn(new String[]{"Result", "Total"});
+        when(testUnit.getTest()).thenReturn(test);
+        when(testUnit.getResultStatus()).thenReturn(TestStatus.TR_NEQ);
+        var premium = Map.of("premium", 150);
+        when(testUnit.getActualResult()).thenReturn(premium);
+        when(testUnit.getComparisonResults()).thenReturn(List.of(
+                new ComparedResult("_res_", Map.of("premium", 150), premium, TestStatus.TR_OK),
+                new ComparedResult("total", 150, 140, TestStatus.TR_NEQ)));
+        when(test.getExecutionParams()).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        var kept = retained(testUnit, SoftReference::new);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
+
+        var lazy = mapper.mapToTestUnitResult(results, kept, new TestExecutionSummaryQuery(false, 5, false, true))
+                .testAssertions();
+        var full = mapper.mapToTestUnitResult(results, kept, new TestExecutionSummaryQuery(false, 5, false, false))
+                .testAssertions();
+
+        var whole = lazy.getFirst();
+        assertEquals(Boolean.TRUE, whole.actualLazy());
+        assertNull(whole.actualValue());
+        assertEquals(Boolean.TRUE, whole.expectedLazy());
+        assertNull(whole.expectedValue());
+        var total = lazy.getLast();
+        assertEquals(140, total.actualValue().asInt());
+        assertEquals(150, total.expectedValue().asInt());
+        assertNull(total.actualLazy());
+        assertNull(total.expectedLazy());
+        assertEquals(150, full.getFirst().actualValue().get("premium").asInt());
+        assertEquals(150, full.getFirst().expectedValue().get("premium").asInt());
+        assertNull(full.getFirst().expectedLazy());
+        Reference.reachabilityFence(premium);
     }
 
     /** Values a case still holds are written as they are, and nothing is referred to. */
@@ -282,11 +330,10 @@ class TestsExecutionSummaryResponseMapperTest {
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
                 TableModules.none());
 
-        var listed = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, true))
+        var listed = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, false))
                 .testUnits().getFirst();
 
         assertEquals(42, listed.result().value().asInt());
-        assertEquals(Boolean.FALSE, listed.result().lazy());
         var assertion = listed.testAssertions().getFirst();
         assertEquals(150, assertion.actualValue().get("premium").asInt());
         assertNull(assertion.actualLazy());

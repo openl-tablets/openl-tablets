@@ -35,10 +35,12 @@ interface TestAssertionResult {
     expectedValue?: unknown
     actualValue?: unknown
     /**
-     * The actual value is referred to instead of written: the server let go of it to free memory. Reading the case
-     * runs it again for the value.
+     * The actual value is referred to instead of written: it has inner structure, or the server let go of it to free
+     * memory. It is read a level at a time; a value the server let go of runs its case again.
      */
     actualLazy?: boolean
+    /** The expected value is referred to instead of written: it has inner structure. It is read a level at a time. */
+    expectedLazy?: boolean
     status: TestStatus
 }
 

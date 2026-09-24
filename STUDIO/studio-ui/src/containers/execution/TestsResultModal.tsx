@@ -140,7 +140,9 @@ const columnsOf = (
                             <Space size={4}>
                                 <Text type="secondary">{t('tests.expected')}</Text>
                                 <ValueCell
+                                    lazy={actual.expectedLazy ?? false}
                                     path={`${key}-exp-${unit.id}-${index}`}
+                                    readLines={readLines(table.tableId, unit.id, { of: 'expected', index })}
                                     styles={valueStyles}
                                     value={actual.expectedValue}
                                 />
