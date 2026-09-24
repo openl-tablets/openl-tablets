@@ -141,7 +141,7 @@ void testValidationTable() {
 }
 ```
 
-6. **Document** in user guide and update `/DEV/CLAUDE.md`
+6. **Document** in user guide and update `/DEV/AGENTS.md`
 
 ### Task: Add Built-in Function
 
