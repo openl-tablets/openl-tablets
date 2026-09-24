@@ -224,14 +224,14 @@ class ProjectsControllerTestsSummaryTest {
     void getTestCaseResult_whileTheTestsAreStillRunning() {
         registry.setTask(projectId, new CompletableFuture<>());
 
-        assertNotReady(controller.getTestCaseResult(project, "table", "case"));
+        assertNotReady(controller.getTestCaseResult(project, "table", "case", false));
     }
 
     @Test
     void getTestCaseResult_theRunHoldsNoSuchTable() {
         ended(List.of());
 
-        assertThrows(NotFoundException.class, () -> controller.getTestCaseResult(project, "table", "case"));
+        assertThrows(NotFoundException.class, () -> controller.getTestCaseResult(project, "table", "case", false));
     }
 
     /** A case that still holds its values is read as it is kept, and nothing is run again. */
@@ -240,9 +240,10 @@ class ProjectsControllerTestsSummaryTest {
         var premium = Map.of("premium", 150);
         ended(List.of(runTableOf(testSuiteNamed("DriverRun"), retained(returning(premium)))));
 
-        var answer = (TestUnitExecutionResult) controller.getTestCaseResult(project, TABLE_ID, "1").getBody();
+        var answer = (TestUnitExecutionResult) controller.getTestCaseResult(project, TABLE_ID, "1", false).getBody();
 
         assertEquals(150, answer.result().value().get("premium").asInt());
+        assertNull(answer.result().schema(), "a schema is written when it is asked for");
         Reference.reachabilityFence(premium);
     }
 
@@ -259,7 +260,7 @@ class ProjectsControllerTestsSummaryTest {
                 (method, test) -> method == suite.getTestSuiteMethod() && test == unit.getTest() ? ranAgain : null);
         ended(List.of(runTableOf(suite, kept)));
 
-        var answer = (TestUnitExecutionResult) controller.getTestCaseResult(project, TABLE_ID, "1").getBody();
+        var answer = (TestUnitExecutionResult) controller.getTestCaseResult(project, TABLE_ID, "1", false).getBody();
 
         assertEquals(150, answer.result().value().get("premium").asInt());
         assertTrue(RetainedTestUnit.isReleased(kept.getActualResult()));
@@ -272,7 +273,7 @@ class ProjectsControllerTestsSummaryTest {
         ended(List.of(runTableOf(suite, released(suite, returning(Map.of("premium", 150)), COMPILED_AGAIN))));
 
         var refusal = assertThrows(NotFoundException.class,
-                () -> controller.getTestCaseResult(project, TABLE_ID, "1"));
+                () -> controller.getTestCaseResult(project, TABLE_ID, "1", false));
         assertEquals("openl.error.404.tests.execution.values.released.message", refusal.getErrorCode());
     }
 

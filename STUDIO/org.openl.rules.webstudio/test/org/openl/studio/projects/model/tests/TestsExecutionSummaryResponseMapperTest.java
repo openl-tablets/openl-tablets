@@ -1,6 +1,7 @@
 package org.openl.studio.projects.model.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -31,11 +32,13 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tests.RetainedTestUnit;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 class TestsExecutionSummaryResponseMapperTest {
 
@@ -128,6 +131,36 @@ class TestsExecutionSummaryResponseMapperTest {
         assertEquals(42, run.testUnits().getFirst().result().value().asInt());
     }
 
+    /** A single case is read with the schema of every value only when it is asked for. */
+    @Test
+    void writesTheSchemasOfACaseOnlyWhenTheyAreAskedFor() {
+        var results = mock(TestUnitsResults.class);
+        var testUnit = mock(ITestUnit.class);
+        var test = mock(TestDescription.class);
+        mockTestTable(results);
+        when(results.getTestDataColumnDisplayNames()).thenReturn(new String[]{"Name"});
+        when(results.getContextColumnDisplayNames()).thenReturn(new String[0]);
+        when(results.getTestResultColumnDisplayNames()).thenReturn(new String[0]);
+        when(testUnit.getTest()).thenReturn(test);
+        when(testUnit.getResultStatus()).thenReturn(TestStatus.TR_OK);
+        when(testUnit.getActualResult()).thenReturn(Map.of("premium", 150));
+        when(testUnit.getContextParams(results)).thenReturn(ParameterWithValueDeclaration.EMPTY_ARRAY);
+        when(test.getExecutionParams()).thenReturn(new ParameterWithValueDeclaration[]{
+                new ParameterWithValueDeclaration("name", "Sara", JavaOpenClass.STRING)});
+        var objectMapper = new ObjectMapper();
+        var mapper = new TestsExecutionSummaryResponseMapper(objectMapper,
+                new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper), null, TableModules.none());
+
+        var plain = mapper.mapToTestUnitResult(results, testUnit, TestExecutionSummaryQuery.inFull(false));
+        var described = mapper.mapToTestUnitResult(results, testUnit, TestExecutionSummaryQuery.inFull(true));
+
+        assertEquals(150, plain.result().value().get("premium").asInt());
+        assertNull(plain.result().schema());
+        assertNull(plain.parameters().getFirst().schema());
+        assertNotNull(described.result().schema());
+        assertNotNull(described.parameters().getFirst().schema());
+    }
+
     @Test
     void refersToAnInputWithInnerStructureWhenLazyValuesAreAsked() {
         var results = mock(TestUnitsResults.class);
@@ -183,7 +216,7 @@ class TestsExecutionSummaryResponseMapperTest {
 
         var listed = mapper.mapToTestCaseResult(results, new TestExecutionSummaryQuery(false, 5, true, true))
                 .testUnits().getFirst();
-        var read = mapper.mapToTestUnitResult(results, released, TestExecutionSummaryQuery.inFull());
+        var read = mapper.mapToTestUnitResult(results, released, TestExecutionSummaryQuery.inFull(true));
 
         assertEquals(Boolean.TRUE, listed.result().lazy());
         assertEquals("result", listed.result().name());
